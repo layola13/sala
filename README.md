@@ -65,5 +65,6 @@ python build.py --serve     # 构建并启动 http://127.0.0.1:8765/default.html
 
 Copyright © 2026 layola13. 保留所有权利。
 
-本文档基于 SA / SLA 工具链的真实源码与仓库文档编写，内容中的第三方事实素材
-（命令、契约签名、性能数据等）版权归各自上游项目所有。转载请注明出处。
+本文档基于 SA / SLA 工具链的真实源码与仓库文档编写。SA 编译器（[sci](https://github.com/layola13/sci)）
+为 Apache License 2.0 授权发布（见其 LICENSE 与 NOTICE）；本文档提及的各插件与上游组件遵循各自原始许可证，
+其中的事实素材（命令、契约签名、性能数据等）版权归各自上游项目所有。转载请注明出处。

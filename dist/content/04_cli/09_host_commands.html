@@ -51,6 +51,6 @@ SA_PLUGIN_DEV=1 sa sla test src/main.sla --trace-panic</code></pre>
 <div class="note"><span class="label">注意</span>通过 <code>sa sla test</code> 调用时，<code>--filter</code> 在插件层被消费（用于裁剪测试和确定缓存路径），不会原样传给子进程；其余如 <code>--trace-panic</code>、<code>--skip</code> 会透传。</div>
 
 <div class="warning"><span class="label">警告</span>委派使用哪个 <code>sa</code> 可执行文件由插件解析（<code>SA_EXE</code> → <code>$SCI_ROOT/zig-out/bin</code> → 插件所在目录 → <code>PATH</code>）。本地改过 sci 后若结果异常，先确认委派的不是旧的已安装版本，必要时设置 <code>SA_EXE</code>。</div>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处</footer>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>

@@ -86,8 +86,9 @@ def check_links(all_topics):
 # ---------------------------------------------------------------- dist 输出
 
 COPYRIGHT_HTML = (
-    '<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · '
-    '转载请注明出处</footer>'
+    '<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>'
+    'SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 '
+    '授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>'
 )
 
 
