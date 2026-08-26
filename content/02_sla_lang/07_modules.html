@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>模块与 @import</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 模块与 @import</div>
+<h1>模块与 @import</h1>
+
+<p>这一页介绍 SLA 的代码组织单元：<code>mod</code> 模块、<code>pub</code> 可见性、
+<code>@import</code> 对 SLA 源文件与 SA 契约（<code>.sai</code>/<code>.sal</code>/<code>.sa</code>）的导入，
+以及 <code>using</code> 静态扩展。读完这一页，你能把代码拆成多文件并正确引用 sa_std。</p>
+
+<h2>mod 与 pub</h2>
+<p><code>mod 名称 { ... }</code> 在文件内定义命名空间，成员用 <code>::</code> 路径访问；
+只有标注 <code>pub</code> 的项对外可见
+（<code>demos/rosetta/41_module_imports/main.sla</code>）：</p>
+<pre><code>mod math {
+    pub fn double(x: i32) -&gt; i32 {
+        x * 2
+    }
+}
+
+let value = math::double(21);   // 42</code></pre>
+
+<h2>@import 的三种目标</h2>
+<table>
+<tr><th>目标</th><th>示例（真实源码）</th><th>说明</th></tr>
+<tr><td>SA 契约 <code>.sai</code></td><td><code>@import "sa_std/io/print.sai"</code></td><td>读取 extern 函数签名，注册为强类型函数</td></tr>
+<tr><td>布局契约 <code>.sal</code></td><td><code>@import "sa_std/rc.sal"</code></td><td>读取外部结构体布局偏移，保证 ABI 兼容</td></tr>
+<tr><td>SLA / SA 源文件</td><td><code>@import "score_math.sla"</code>、<code>@import "sa_std/string.sa"</code></td><td>引入其中定义的模块、函数与宏</td></tr>
+</table>
+
+<p>多文件项目的真实写法（<code>demos/syntax_sugar/combined/main.sla</code> 及其配套文件
+<code>score_math.sla</code>）：</p>
+<pre><code>@import "sla_std/cmp.sla"
+@import "../using_module_import/score_math.sla"
+
+@import "score_math.sla"   // using_module_import/main.sla 中使用相对路径
+
+// score_math.sla 内容：
+mod score_math {
+    pub fn add_bonus(value: i32, bonus: i32) -&gt; i32 {
+        return value + bonus;
+    }
+}</code></pre>
+
+<div class="note"><span class="label">注意</span>SLA 直接复用 sa_std 的契约文件，
+前端内置了 <code>.sai</code>/<code>.sal</code> 解析器，因此类型和 ABI 与底层验证器共享同一份数据源，
+不会出现双重声明漂移。带标准契约的第三方插件可一行 <code>@import</code> 即可强类型调用。</div>
+
+<h2>sa_std 的解析位置</h2>
+<p><code>sa_std/...</code> 形式的路径默认从环境变量 <code>SA_STD_DIR</code>（已设置时）解析，
+否则回退到本机约定的 <code>sci/sa_std</code> 目录。编译器在类型检查之前加载全部导入契约，
+因此 extern 函数对 SLA 代码直接可用。</p>
+
+<h3>常用导入速查</h3>
+<pre><code>@import "sa_std/io/print.sai"     // 基础输出契约
+@import "sa_std/fmt.sai"          // println / 格式化相关
+@import "sa_std/core/option.sa"
+@import "sa_std/core/result.sa"
+@import "sa_std/core/cell.sa"
+@import "sa_std/core/box.sa"
+@import "sa_std/core/trait_object.sa"
+@import "sa_std/sync/mutex.sa"
+@import "sa_std/thread.sa"
+@import "sa_std/time.sla"
+@import "sa_std/future.sa"
+@import "sla_std/cmp.sla"         // Ordering 与 &lt;=&gt; 比较</code></pre>
+
+<h2>using：静态扩展</h2>
+<p><code>using 模块名;</code> 把该模块中可见函数注册为<b>静态扩展方法</b>：
+第一个参数类型匹配的值即可链式调用这些函数。这是纯前端的调用改写，不引入运行时分发
+（<code>demos/syntax_sugar/using_module/main.sla</code>）：</p>
+<pre><code>mod score_math {
+    pub fn add_bonus(value: i32, bonus: i32) -&gt; i32 {
+        return value + bonus;
+    }
+    pub fn double(value: i32) -&gt; i32 {
+        return value + value;
+    }
+}
+
+using score_math;
+
+@test "using module turns functions into chainable calls"() {
+    let base: i32 = 10;
+    let score = base.add_bonus(5).double();   // 30
+    if score != 30 { panic(34000); };
+}</code></pre>
+
+<p><code>using</code> 也作用于通过 <code>@import</code> 引入的模块
+（<code>demos/syntax_sugar/using_module_import/main.sla</code>），并可与 impl 方法叠加使用：</p>
+<pre><code>using math;
+
+impl Meter {
+    fn double(self) -&gt; i32 {
+        return self.value.double();   // 调到 using 进来的扩展
+    }
+}</code></pre>
+
+<div class="warning"><span class="label">警告</span>模块级 method-style 调用必须显式声明
+<code>using</code>；没有 <code>using</code> 时，对非 impl 方法的链式调用会在前端报“未找到方法”。</div>
+
+<p>相关页面：<a href="08_extensions.html">扩展机制</a>、<a href="06_ownership.html">所有权与生命周期</a>。</p>
+</body>
+</html>

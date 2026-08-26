@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>命令行参考总览</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; 命令行参考总览</div>
+<h1>命令行参考总览</h1>
+
+<p>本章节是 Sla 编译器插件全部 CLI 命令的参考手册。读完本页可以了解有哪些命令、几种等价的调用形式，以及各命令的职责边界；后续各页给出每个命令的语法、参数与产物位置。</p>
+
+<h2>调用形式：顶级 <code>sla</code> 命令是首选</h2>
+<p><b><code>sla</code> 是一个顶级命令</b>：安装后 <code>sla.exe</code> 与 <code>sa.exe</code> 同在 PATH 的 <code>bin</code> 目录里，所有功能都可以直接写 <code>sla &lt;command&gt;</code>，不必经由宿主前缀。<a href="#install-source">它的来源</a>有两种：全自动安装包自带 <code>bin\sla.exe</code>；或在源码树里运行插件的 <code>tools/install_windows.ps1</code>（内部会把构建出的 <code>sla.exe</code> 复制到 SCI 的 <code>bin</code> 目录）。</p>
+<table>
+<tr><th>形式</th><th>示例</th><th>说明</th></tr>
+<tr><td><code>sla &lt;command&gt;</code></td><td><code>sla check main.sla</code></td><td><b>推荐写法。</b>独立顶级命令；内部的参数改写层把它转成插件调用形式，最终进入同一个命令分发器。</td></tr>
+<tr><td><code>sa sla &lt;command&gt;</code></td><td><code>sa sla check main.sla</code></td><td>经 SA 宿主以插件命令形式调用，效果完全等价；适合只装了插件、没有独立 <code>sla.exe</code> 的环境。</td></tr>
+<tr><td><code>sla slab &lt;subcommand&gt;</code> / <code>sa slab &lt;subcommand&gt;</code></td><td><code>sla slab build main.sla</code></td><td><code>sab</code> 三个子命令（<code>build</code> / <code>workspace</code> / <code>disasm</code>）的短别名。</td></tr>
+</table>
+
+<div class="note"><span class="label">等价规则</span>本章节后续页面沿用的示例多以 <code>sa sla …</code> 书写（与插件源码里的用法行一致）。凡看到 <code>sa sla xxx</code>，都可以原样替换成顶级 <code>sla xxx</code> —— 去掉 <code>sa </code> 前缀即可，参数不变。</div>
+
+<div class="note"><span class="label">注意</span>通过 <code>sa plugin install --dev</code> 安装的插件属于开发模式，宿主要求以 <code>SA_PLUGIN_DEV=1</code> 运行相关命令；用安装包或 <code>install_bundle_windows.ps1</code> 正式安装的则不需要这个前缀。详见本章节「环境变量」一页。</div>
+
+<a id="install-source"></a>
+<h2>如何获得顶级 <code>sla</code> 命令</h2>
+<table>
+<tr><th>方式</th><th>操作</th><th>结果</th></tr>
+<tr><td>全自动安装包（推荐）</td><td>见「入门指南 → 安装与构建」：运行 <code>install_bundle_windows.ps1 -Bundle SCI-windows-x64-full.zip</code>，或使用图形安装器</td><td><code>bin</code> 目录同时装入 <code>sa.exe</code> 与 <code>sla.exe</code> 并加入用户 PATH，装完即有顶级 <code>sla</code> 命令，且不需要 <code>SA_PLUGIN_DEV=1</code>。</td></tr>
+<tr><td>源码安装 SLA 插件</td><td>在 <code>sa_plugin_sla</code> 目录运行 <code>tools/install_windows.ps1</code></td><td>构建插件并注册到宿主，同时把 <code>zig-out\bin\sla.exe</code> 复制到 SCI 的 <code>bin</code> 目录成为顶级命令（此路径安装的插件属开发模式）。</td></tr>
+</table>
+
+<h2>命令清单</h2>
+<table>
+<tr><th>命令</th><th>用途</th></tr>
+<tr><td><code>sla init [path]</code></td><td>创建最小 SLA 二进制项目骨架。</td></tr>
+<tr><td><code>sla check [file]</code></td><td>词法 / 语法 / 类型检查，不发射任何汇编或 SAB。</td></tr>
+<tr><td><code>sla build [file]</code></td><td>把一个 <code>.sla</code> 文件编译为经校验的 <code>.sa</code> 汇编文本。</td></tr>
+<tr><td><code>sla build-exe [file]</code></td><td>走 direct SAB 路径编译为原生可执行文件，委派给 <code>sa build-exe</code>。</td></tr>
+<tr><td><code>sla build-workspace</code></td><td>按当前 <code>sa.mod</code> workspace 解析成员入口后编译为可执行文件。</td></tr>
+<tr><td><code>sla sab build [file]</code></td><td>把 <code>.sla</code> 编译为 SAB 字节，默认写入托管缓存目录。</td></tr>
+<tr><td><code>sla sab workspace</code></td><td>解析 workspace 成员并走托管 SAB 编译，再委派给 <code>sa build-exe</code>。</td></tr>
+<tr><td><code>sla sab disasm &lt;file.sab&gt;</code></td><td>反汇编 SAB 文件用于调试，不属于编译路径。</td></tr>
+<tr><td><code>sla test [file]</code></td><td>把测试文件编译后交给宿主 <code>sa test</code> 运行。</td></tr>
+<tr><td><code>sla skills [--json]</code></td><td>列出插件能力，并可生成 agent skill 文件。</td></tr>
+</table>
+
+<h2>通用约定</h2>
+<ul>
+<li>所有命令都接受 <code>-h</code> / <code>--help</code>，把用法行写到 stderr 并返回 0；顶级 <code>sla --help</code> 打印的用法行同时列出 <code>sla &lt;command&gt;</code> 与 <code>sa sla &lt;command&gt;</code> 两种形式。</li>
+<li>带输入文件的命令同时支持显式路径和 workspace 模式：省略文件参数时从当前目录向上查找 <code>sa.mod</code>，用成员的 <code>src/main.sla</code>（或 <code>main.sla</code>）作入口，<code>-p &lt;package&gt;</code> 选择成员。</li>
+<li><code>-p</code> 支持三种写法：<code>-p name</code>、<code>-p=name</code>、<code>--package=name</code>。</li>
+<li>委派给宿主 <code>sa build-exe</code> / <code>sa test</code> 时，若用户没有显式给 <code>--jobs</code>，插件会自动追加 <code>--jobs auto</code>。</li>
+</ul>
+
+<h2>快速上手</h2>
+<p>正式安装（安装包或 bundle 脚本）之后无需任何环境变量，完整闭环：</p>
+<pre><code># PowerShell / Git Bash 通用
+sla init D:\tmp\sla_app
+cd D:\tmp\sla_app
+sla check src\main.sla
+sla build src\main.sla --out D:\tmp\main.sa
+sla build-exe src\main.sla -o D:\tmp\main.exe
+D:\tmp\main.exe</code></pre>
+<pre><code># 源码开发态（--dev 安装的插件需要 SA_PLUGIN_DEV）
+$env:SA_PLUGIN_DEV = "1"
+sa sla init D:\tmp\sla_app
+sa sla build-exe D:\tmp\sla_app\src\main.sla -o D:\tmp\main.exe</code></pre>
+
+<p>本页之后的内容按命令逐页展开：先看「init」「check」「build」，再看 SAB 主线的「sab」「build-exe」「test」。各页标题中的 <code>sa sla</code> 前缀同样可以换成顶级 <code>sla</code>。</p>
+</body>
+</html>

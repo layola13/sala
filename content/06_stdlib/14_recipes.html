@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>常见配方：从打印到 HTTP 的完整示例</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; 常见配方：从打印到 HTTP 的完整示例</div>
+<h1>常见配方：从打印到 HTTP 的完整示例</h1>
+
+<p>这一页把最常用的七件事各给一段可直接对照的代码：Sla 写法与 SA 汇编写法成对出现，
+全部摘自仓库里的 demo / test 文件并注明出处路径。找不到真实调用处的配方会明确标注，
+只给出基于契约签名的调用形式。</p>
+
+<h2>hello world 与 println 格式化</h2>
+<p><strong>Sla 写法</strong>，摘自 <code>demos/rosetta/01_hello_world/main.sla</code>：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"
+
+fn main() -&gt; i32 {
+    println("hello, saasm");
+    return 0;
+};</code></pre>
+<p>占位符格式化，摘自 <code>demos/rosetta/05_struct/main.sla</code>（<code>04_loop/main.sla</code>
+里还有 <code>println("[{},{},{},{}]", zeroed[0], ...)</code> 的多参数版本）：</p>
+<pre><code>let point = create_point(10, 20);
+println("({},{})", point.x, point.y);</code></pre>
+<p><strong>SA 汇编写法</strong>——同一目录下编译器生成的 <code>main.sa</code> 展示了
+<code>println("{}", result)</code> 的真身（摘自 <code>demos/rosetta/02_mutability/main.sa</code>）：</p>
+<pre><code>tmp_4 = call @sa_fmt_u64(result, 10)
+tmp_5 = call @sa_fmt_buffer_data(tmp_4)
+tmp_6 = call @sa_fmt_buffer_len(tmp_4)
+tmp_7 = tmp_5
+call @sa_print_bytes(&amp;tmp_7, tmp_6)
+call @sa_fmt_buffer_free(^tmp_4)
+@const SLA_STR_0 = utf8:"\n"
+call @sa_print_bytes(&amp;SLA_STR_0, 1)</code></pre>
+<p>手写汇编时最小形式就是一条 <code>call @sa_print_bytes(&amp;msg, len)</code>，
+见 <code>sci/tests/llvm2sa_expected_hello.sa</code> 的 <code>call @sa_print_bytes(&amp;HELLO_MSG, 13)</code>。</p>
+
+<h2>读文件到字符串</h2>
+<p><strong>Sla 写法 A：经项目侧包装宏。</strong>包装宏定义摘自
+<code>tests/import_fixtures/pkgjson/fs_helpers.sa</code>：</p>
+<pre><code>@import "sa_std/fs.sa"
+
+[MACRO] SLA_FS_READ_TO_STRING %out_buffer, %path, %path_len, %max_bytes
+    __sla_fs_read_status_%out_buffer = 0
+    EXPAND FS_READ_TO_STRING __sla_fs_read_status_%out_buffer, %out_buffer, %path, %path_len, %max_bytes
+    !__sla_fs_read_status_%out_buffer
+[END_MACRO]</code></pre>
+<p>调用处摘自 <code>tests/test_unit_imported_fs_read_direct.sla</code>：</p>
+<pre><code>@import "sa_std/string.sa"
+@import "sa_std/fs.sa"
+@import "import_fixtures/pkgjson/fs_helpers.sa"
+
+fn imported_fs_read_missing(path_ptr: ptr, path_len: int) -&gt; int {
+    let buf = SLA_FS_READ_TO_STRING(path_ptr, path_len, 16);
+    let len = SLA_FS_BUFFER_LEN(buf);
+    return len;
+}</code></pre>
+<p><strong>Sla 写法 B：直接调 extern 契约</strong>（fallible 句柄，返回 0 表示失败），
+摘自 <code>tests/test_unit_fallible_extern_payload_direct.sla</code>：</p>
+<pre><code>@import "sa_std/fs.sai"
+
+fn fallible_extern_read_len(path_ptr: ptr, path_len: u64) -&gt; u64 {
+    let buffer = sa_fs_read_file(path_ptr, path_len, 4096);
+    switch buffer {
+        0 =&gt; {
+            return 0;
+        },
+        default =&gt; {},
+    };
+    let data_len = sa_fs_read_buffer_len(buffer);
+    let free_status = sa_fs_read_buffer_free(buffer);
+    if free_status != 0 {
+        return 0;
+    };
+    return data_len;
+}</code></pre>
+<p>两种契约签名并存于 <code>sci/sa_std/fs.sai</code>：
+<code>sa_std_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64, &amp;out_handle: ptr) -&gt; i32</code>
+（状态 + 出参槽位，宏用这种）与
+<code>sa_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code>
+（fallible 句柄，Sla 直接调用用这种）。宏清单见 <a href="06_fs.html">fs 一章</a>。</p>
+
+<h2>环境变量读取 / 命令行参数</h2>
+<p>契约核心（摘自 <code>sci/sa_std/env.sai</code>）：</p>
+<pre><code>@extern sa_env_get(key: ptr, key_len: u64) -&gt; u64
+@extern sa_env_has(key: ptr, key_len: u64) -&gt; i32
+@extern sa_env_args_json() -&gt; u64</code></pre>
+<p><strong>SA 汇编写法</strong>（真实测试），摘自
+<code>sci/tests/unit_framework/std_env_macro_surface.sa</code>，文件顶部为
+<code>@import "sa_std/env.sa"</code>：</p>
+<pre><code>@test "sa_std env args JSON macro"():
+L_ARGS_ENTRY:
+    EXPAND ENV_ARGS_JSON args_buffer
+    EXPAND ENV_BUFFER_DATA args_ptr, args_buffer
+    EXPAND ENV_BUFFER_LEN args_len, args_buffer
+
+    args_buffer_nonzero = ne args_buffer, 0
+    args_ptr_nonzero = ne args_ptr, 0
+    args_len_nonzero = ne args_len, 0
+    args_shape_ready = and args_buffer_nonzero, args_ptr_nonzero
+    args_ready = and args_shape_ready, args_len_nonzero
+
+    br args_ready -&gt; L_ARGS_CHECK_JSON, L_ARGS_FAIL_READY
+
+L_ARGS_CHECK_JSON:
+    json_shape_ok = ne args_len, 0
+    EXPAND ENV_BUFFER_FREE args_free_status, args_buffer
+    EXPAND ENV_STATUS_IS_OK args_free_ok, args_free_status</code></pre>
+<div class="note"><span class="label">注意</span>仓库中没有 .sla 调用 env 契约的示例。
+基于上述签名的 Sla 调用形式是：<code>let args = sa_env_args_json();</code> 之后依次取
+<code>sa_env_buffer_len(args)</code> 与 <code>sa_env_buffer_data(args)</code>，最后
+<code>sa_env_buffer_free(args)</code>；<code>sa_env_get(key, key_len)</code> 同理。
+返回的是 JSON 数组文本缓冲，需自行解析（见下文 JSON 配方）。</div>
+
+<h2>子进程运行并捕获输出</h2>
+<p>契约核心（摘自 <code>sci/sa_std/process.sai</code>；注意前缀是
+<code>sa_std_process_*</code>）：</p>
+<pre><code>@extern sa_std_process_run(&amp;argv: ptr, argv_len: u64, &amp;out_handle: ptr) -&gt; i32
+@extern sa_std_process_exec_capture(&amp;argv: ptr, argv_len: u64, &amp;out_code: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32
+@extern sa_std_process_close(handle: u64) -&gt; i32</code></pre>
+<p><strong>SA 汇编写法</strong>（真实测试），摘自
+<code>sci/tests/unit_framework/std_process_macro_surface.sa</code>，文件顶部为
+<code>@import "sa_std/process.sa"</code>。argv 是 <code>SaProcessArgv</code> 记录数组，
+用宏逐项填充：</p>
+<pre><code>    argv = stack_alloc TRUE_ARGV2_SIZE
+    output = stack_alloc ProcessOutput_SIZE
+    argv0 = stack_alloc Slice_SIZE
+    store argv0+Slice_ptr, &amp;TRUE_BIN as ptr
+    store argv0+Slice_len, TRUE_BIN_LEN as u64
+    EXPAND PROCESS_ARGV_SET_SLICE argv, 0, argv0
+    EXPAND PROCESS_ARGV_SET_CONST argv, 1, TRUE_ARG, TRUE_ARG_LEN
+
+    EXPAND PROCESS_EXEC_CAPTURE_OUTPUT capture_status, output, argv, 2
+    EXPAND PROCESS_STATUS_IS_OK capture_ok, capture_status
+
+L_CAPTURE_OK:
+    EXPAND PROCESS_OUTPUT_STATUS_PTR output_status_ptr, output
+    EXPAND PROCESS_EXIT_STATUS_CODE output_code, output_status_ptr
+    EXPAND PROCESS_OUTPUT_STDOUT_BUFFER stdout_buffer, output
+    EXPAND PROCESS_OUTPUT_STDOUT_DATA stdout_ptr, output
+    EXPAND PROCESS_OUTPUT_STDOUT_LEN stdout_len, output
+    EXPAND PROCESS_OUTPUT_FREE free_status, output</code></pre>
+<p>Sla 侧导入该契约本身有真实例子——
+<code>tests/test_unit_std_import.sla</code> 里 <code>let pid = sa_std_process_id();</code>；
+但 <code>run</code> / <code>exec_capture</code> 在仓库中暂无 .sla 调用示例，
+其 Sla 调用形式需按上面的出参指针签名自行封装。详见 <a href="09_process.html">process 一章</a>。</p>
+
+<h2>TCP 连接或 HTTP/2 请求</h2>
+<p>契约里有两套面：完整的 <code>sa_std_net_*</code> 与简化的 fallible 面
+<code>sa_net_*</code>（摘自 <code>sci/sa_std/net.sai</code>）：</p>
+<pre><code>@extern sa_net_tcp_connect(&amp;host: ptr, host_len: u64, port: u32) -&gt; u64!
+@extern sa_net_tcp_listener_bind(&amp;host: ptr, host_len: u64, port: u16) -&gt; u64!
+@extern sa_net_tcp_listener_accept(listener: u64) -&gt; u64!
+@extern sa_net_tcp_stream_write_all(stream: u64, &amp;buf: ptr, len: u64) -&gt; i32!
+@extern sa_net_tcp_stream_read_exact(stream: u64, &amp;buf: ptr, len: u64) -&gt; i32!
+@extern sa_net_tcp_stream_close(stream: u64) -&gt; i32!</code></pre>
+<p><strong>SA 汇编写法</strong>（真实回环测试，节选，省略了状态检查与跳转），摘自
+<code>sci/tests/unit_framework/support/stdlib_surface.sa</code> 的
+<code>@support_net_surface()</code>。fallible 返回在这里表现为"状态字 + 句柄"两个槽位，
+本例中 <code>+0</code> 为状态、<code>+8</code> 为句柄：</p>
+<pre><code>L_ENTRY:
+    listener_res = call @sa_net_tcp_listener_bind(&amp;NET_LOOPBACK, NET_LOOPBACK_LEN, 0)
+    listener_status = load listener_res+0 as u32
+    listener = load listener_res+8 as u64
+    ...
+L_ADDR:
+    addr_res = call @sa_net_tcp_listener_local_addr(listener)
+    ...
+    port = call @sa_net_addr_port(addr)
+    host_copy = alloc host_len
+    ...
+L_CONNECT:
+    connect_res = call @sa_net_tcp_connect(&amp;host_copy, host_len, port)
+    connect_status = load connect_res+0 as u32
+    client = load connect_res+8 as u64
+    ...
+L_ACCEPT:
+    accept_res = call @sa_net_tcp_listener_accept(listener)
+    accept_status = load accept_res+0 as u32
+    server = load accept_res+8 as u64</code></pre>
+<p>仓库中没有 .sla 调用 net 契约的示例。HTTP/2 同样<strong>仓库中暂无调用示例</strong>，
+只有契约与宏实现；调用形式按 <code>sci/sa_std/http2.sai</code> 签名为
+<code>sa_std_http2_client_request(&amp;url: ptr, url_len: u64, &amp;method: ptr, method_len: u64,
+&amp;body: ptr, body_len: u64, &amp;out_handle: ptr) -&gt; i32</code>，SA 侧对应宏是
+<code>sci/sa_std/http2.sa</code> 的
+<code>[MACRO] HTTP2_CLIENT_REQUEST %out_status, %out_buffer, %url, %url_len, %method,
+%method_len, %body, %body_len</code>，结果缓冲用 <code>HTTP2_BUFFER_DATA /
+HTTP2_BUFFER_LEN / HTTP2_BUFFER_FREE</code> 三件套取出。选项与错误面见
+<a href="10_net.html">net 一章</a>。</p>
+
+<h2>JSON 解析取值</h2>
+<p><strong>Sla 写法 A：直接调契约函数。</strong>摘自
+<code>tests/test_unit_fallible_extern_payload_direct.sla</code>：</p>
+<pre><code>@import "sa_std/fs.sai"
+@import "sa_std/encoding/json.sai"
+@import "sa_std/ptr.sa"
+@import "sa_std/string.sa"
+
+fn fallible_extern_json_free_status(node: ptr, owned: bool) -&gt; i32 {
+    if owned {
+        return sa_json_free(node);
+    };
+    return 0;
+}
+
+@test "fallible consuming ptr extern closes a handle once"() {
+    let root = sa_json_parse(STR_PTR("[{}]"), STR_LEN("[{}]") as u64);
+    if PTR_IS_NONNULL(root) == false {
+        panic(43013);
+    };
+    var child: ptr;
+    child = PTR_NULL();
+    let child_status = sa_json_array_get(root, 0, &amp;child);
+    if child_status != 0 || PTR_IS_NONNULL(child) == false {
+        panic(43014);
+    };
+    let status = fallible_extern_json_free_status(child, true);
+    if status != 0 {
+        panic(43015);
+    };
+}</code></pre>
+<p><strong>Sla 写法 B：经 JSON 宏。</strong>摘自
+<code>tests/test_unit_imported_json_direct.sla</code>：</p>
+<pre><code>@import "sa_std/string.sa"
+@import "sa_std/encoding/json.sa"
+@import "import_fixtures/pkgjson/json_helpers.sa"
+
+fn imported_json_get_type(data: ptr, data_len: int) -&gt; int {
+    let root = JSON_PARSE(data, data_len);
+    if JSON_KIND(root) &lt; 0 {
+        return -1;
+    };
+    let t = SLA_JSON_OBJECT_GET(root, STR_PTR("types"), STR_LEN("types"));
+    return JSON_KIND(t);
+}
+
+@test "imported json direct sab"() {
+    let got = imported_json_get_type("{\"types\":\"x\"}", 13);
+    if got != 5 { panic(39022); };
+}</code></pre>
+<p>其中 <code>SLA_JSON_OBJECT_GET</code> 是项目侧包装宏，本质是把出参槽位包起来再调
+<code>sa_json_object_get(node, &amp;key, key_len, &amp;out_handle)</code>，见
+<code>tests/import_fixtures/pkgjson/json_helpers.sa</code>。按键取标量可走更短的
+<code>sa_json_object_get_i64 / _get_f64 / _get_string / _get_bool</code>。
+完整契约见 <a href="11_encoding.html">encoding 一章</a>。</p>
+
+<h2>断言测试</h2>
+<p>契约全文（<code>sci/sa_std/testing/assert.sai</code>，共四个 extern）：</p>
+<pre><code>@extern sa_assert_eq_i64(actual: i64, expected: i64, code: i32) -&gt; void
+@extern sa_assert_eq_i64_at(actual: i64, expected: i64, code: i32, &amp;file: ptr, file_len: u64, line: u32, col: u32) -&gt; void
+@extern sa_test_debug_i64(&amp;name: ptr, name_len: u64, value: i64) -&gt; void
+@extern sa_test_fallible_i32_value(value: i32) -&gt; i32!</code></pre>
+<p><strong>SA 汇编写法</strong>（真实测试），摘自
+<code>sci/tests/unit_framework/std_fs_macro_surface.sa</code>，文件顶部为
+<code>@import "sa_std/testing/assert.sai"</code>；失败分支先用
+<code>sa_test_debug_i64</code> 记录现场标量，再用断言收口：</p>
+<pre><code>L_FAIL_READ:
+    call @sa_test_debug_i64(&amp;FS_DBG_WRITE_STATUS, FS_DBG_WRITE_STATUS_LEN, write_file_status)
+    call @sa_assert_eq_i64(write_file_status, SA_FS_OK, 940)
+    call @sa_assert_eq_i64(exists_after_write, 1, 940)
+    call @sa_assert_eq_i64(read_len, FS_TEST_HELLO_LEN, 940)
+    call @sa_assert_eq_i64(read_eq, 1, 940)</code></pre>
+<p>带源码位置的版本用法见 <code>sci/docs/unit_test_framework.md</code>：
+<code>call @sa_assert_eq_i64_at(raw_status, 1, 103, *THIS_FILE, 14, 8, 5)</code>，
+runner 会把它解析成 <code>panic location</code>；失败时输出
+<code>PANIC[code]: expected=&lt;expected&gt; actual=&lt;actual&gt;</code>。</p>
+<p><strong>Sla 写法</strong>——测试体直接写 <code>@test</code> 加条件 panic，
+摘自 <code>demos/rosetta/01_hello_world/main.sla</code>：</p>
+<pre><code>@test "rosetta 001 01_hello_world"() {
+    if str_eq("hello, saasm", "hello, saasm") != true {
+        panic(1);
+    };
+};</code></pre>
+<div class="note"><span class="label">注意</span><code>sa test</code> 用多进程隔离每个
+<code>@test</code>，单个断言失败不会中断其余测试；断言细节与
+<a href="12_term_fd_thread.html">testing 一章</a>、
+<a href="15_api_index.html">API 总索引</a>可交叉查阅。</div>
+
+</body>
+</html>

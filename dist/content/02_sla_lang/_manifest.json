@@ -1,0 +1,74 @@
+{
+  "topics": [
+    {
+      "id": "lexical",
+      "title": "词法与基础语法",
+      "file": "01_lexical.html",
+      "keywords": ["词法", "关键字", "字面量", "注释", "@import", "@test"],
+      "parent": null
+    },
+    {
+      "id": "types",
+      "title": "类型系统",
+      "file": "02_types.html",
+      "keywords": ["类型", "基本类型", "数组", "切片", "元组", "type 别名", "泛型"],
+      "parent": null
+    },
+    {
+      "id": "functions",
+      "title": "函数与控制流",
+      "file": "03_functions.html",
+      "keywords": ["函数", "fn", "闭包", "if else", "while", "for in", "? 错误传播"],
+      "parent": null
+    },
+    {
+      "id": "patterns",
+      "title": "模式匹配",
+      "file": "04_patterns.html",
+      "keywords": ["match", "switch", "if let", "let else", "while let", "..rest", "结构体更新"],
+      "parent": null
+    },
+    {
+      "id": "structs-enums",
+      "title": "结构体与枚举",
+      "file": "05_structs_enums.html",
+      "keywords": ["结构体", "枚举", "newtype", "trait", "impl", "dyn"],
+      "parent": null
+    },
+    {
+      "id": "ownership",
+      "title": "所有权与生命周期",
+      "file": "06_ownership.html",
+      "keywords": ["所有权", "借用", "move", "drop", "&self", "&mut", "UseAfterMove"],
+      "parent": null
+    },
+    {
+      "id": "modules",
+      "title": "模块与 @import",
+      "file": "07_modules.html",
+      "keywords": ["模块", "mod", "pub", "@import", "sa_std", "using"],
+      "parent": null
+    },
+    {
+      "id": "extensions",
+      "title": "扩展机制",
+      "file": "08_extensions.html",
+      "keywords": ["@overload", "操作符重载", "macro", "@expand_tuple", "@derive", "静态扩展"],
+      "parent": null
+    },
+    {
+      "id": "async",
+      "title": "async/await 现状",
+      "file": "09_async.html",
+      "keywords": ["async", "await", "future", "block_on", "Pending"],
+      "parent": null
+    },
+    {
+      "id": "maturity",
+      "title": "特性成熟度总表",
+      "file": "10_maturity.html",
+      "keywords": ["成熟度", "direct SAB", "回退", "fallback", "SLA_SAB_NO_FALLBACK"],
+      "parent": null
+    }
+  ]
+}

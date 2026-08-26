@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>fmt：数值与字节格式化</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; fmt：数值与字节格式化</div>
+<h1>fmt：数值与字节格式化</h1>
+
+<p>这一页列出 <code>sa_std/fmt.sai</code> 的 extern 函数：把 i64 / u64 / f64 / bool / 字节序列
+格式化成文本。读完即可选择"分配缓冲"或"写入已有缓冲"两种形式，并正确释放返回的句柄。</p>
+
+<h2>两种形式</h2>
+<p><code>sa_fmt_*</code> 系列返回 <strong>owned 缓冲句柄（u64）</strong>，用完后必须
+<code>sa_fmt_buffer_free</code>；<code>sa_fmt_*_into</code> 系列把结果写进调用者提供的缓冲，
+适合栈上小缓冲、零分配。</p>
+
+<h2>分配式（返回缓冲句柄）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_fmt_i64(value: i64, base: u32) -&gt; u64</code></td><td>按 base（如 10、16）格式化有符号整数</td></tr>
+<tr><td><code>sa_fmt_u64(value: u64, base: u32) -&gt; u64</code></td><td>按 base 格式化无符号整数</td></tr>
+<tr><td><code>sa_fmt_f64(value: f64, precision: u32) -&gt; u64</code></td><td>按指定精度格式化浮点数</td></tr>
+<tr><td><code>sa_fmt_bool(value: i1) -&gt; u64</code></td><td>格式化布尔值</td></tr>
+<tr><td><code>sa_fmt_bytes(&amp;buf: ptr, len: u64) -&gt; u64</code></td><td>把字节缓冲转为可打印文本</td></tr>
+</table>
+
+<h2>写入式（into 变体）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_fmt_i64_into(value: i64, base: u32, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>格式化到 out，实际长度写入 out_len</td></tr>
+<tr><td><code>sa_fmt_u64_into(value: u64, base: u32, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>同上，无符号版本</td></tr>
+<tr><td><code>sa_fmt_f64_into(value: f64, precision: u32, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>同上，浮点版本</td></tr>
+<tr><td><code>sa_fmt_bool_into(value: i1, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>同上，布尔版本</td></tr>
+<tr><td><code>sa_fmt_bytes_into(&amp;buf: ptr, len: u64, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>同上，字节版本</td></tr>
+</table>
+
+<h2>缓冲句柄访问器</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_fmt_buffer_data(buffer: u64) -&gt; &amp;ptr</code></td><td>取缓冲数据指针（借用）</td></tr>
+<tr><td><code>sa_fmt_buffer_len(buffer: u64) -&gt; u64</code></td><td>取缓冲字节数</td></tr>
+<tr><td><code>sa_fmt_buffer_write_to(buffer: u64, writer: u64) -&gt; i32</code></td><td>把缓冲内容写到 writer 句柄</td></tr>
+<tr><td><code>sa_fmt_buffer_free(^buffer: u64) -&gt; i32</code></td><td>释放 owned 缓冲</td></tr>
+</table>
+
+<h2>Sla 侧的体验</h2>
+<p>Sla 代码通常不必直接调这些函数：<code>println("{}", x)</code> 的占位符展开由编译器完成，
+底层即 fmt 契约。摘自 <code>demos/rosetta/04_loop/main.sla</code>：</p>
+<pre><code>println("[{},{},{},{}]", zeroed[0], zeroed[1], zeroed[2], zeroed[3]);</code></pre>
+<p>需要非十进制输出或精确控制浮点精度时，才直接导入并调用 <code>sa_fmt_u64(v, 16)</code> 这类函数。</p>
+
+<div class="note"><span class="label">注意</span>分配式与写入式的参数顺序不同：
+into 变体在值之后紧跟 <code>out / out_cap / &amp;out_len</code> 三个缓冲参数，
+混用两种形式时容易漏传容量。</div>
+
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SA / SLA 帮助文档</title>
+<link rel="stylesheet" href="assets/help.css">
+<style>
+  html,body,#viewer{height:100%;}
+</style>
+</head>
+<body>
+<div id="viewer">
+  <div class="toolbar">
+    <button id="btn-toc" title="显示/隐藏导航窗格">▤ 导航</button>
+    <span class="sep"></span>
+    <button id="btn-back" title="后退">&lt;&lt; 后退</button>
+    <button id="btn-fwd" title="前进">前进 &gt;&gt;</button>
+    <button id="btn-home" title="回到首页">⌂ 首页</button>
+    <button id="btn-print" title="打印当前主题">🖨 打印</button>
+    <span class="spacer"></span>
+    <span class="title">SA / SLA 帮助文档</span>
+  </div>
+  <div class="main">
+    <div class="navpane" id="navpane">
+      <div class="tabs">
+        <button class="tab active" data-tab="toc">目录</button>
+        <button class="tab" data-tab="idx">索引</button>
+        <button class="tab" data-tab="search">搜索</button>
+      </div>
+
+      <div class="tabpage" id="tab-toc"><div class="tree" id="tree"></div></div>
+
+      <div class="tabpage hidden" id="tab-idx">
+        <input id="index-input" placeholder="键入关键字查找…" autocomplete="off">
+        <ul class="index-list" id="index-list"></ul>
+      </div>
+
+      <div class="tabpage hidden" id="tab-search">
+        <input id="search-input" placeholder="输入要查找的文字…" autocomplete="off">
+        <button class="tab" style="flex:none;margin-top:6px;padding:3px 12px;" id="search-go">列出主题</button>
+        <div id="search-results"></div>
+      </div>
+    </div>
+
+    <iframe class="contentpane" name="content" id="contentframe"></iframe>
+  </div>
+  <div class="statusbar" id="statusbar">就绪</div>
+</div>
+
+<script src="toc_data.js"></script>
+<script src="index_data.js"></script>
+<script src="search_data.js"></script>
+<script>
+(function(){
+  var frame = document.getElementById('contentframe');
+  var statusbar = document.getElementById('statusbar');
+  var historyStack = [], histPos = -1;
+
+  function show(url, pushHist){
+    frame.src = url;
+    if(pushHist !== false){
+      historyStack = historyStack.slice(0, histPos+1);
+      historyStack.push(url); histPos = historyStack.length-1;
+    }
+    updateBtns();
+    document.querySelectorAll('#tree a').forEach(function(a){
+      a.classList.toggle('current', a.getAttribute('href') === url);
+    });
+  }
+  function updateBtns(){
+    document.getElementById('btn-back').disabled = histPos <= 0;
+    document.getElementById('btn-fwd').disabled = histPos >= historyStack.length-1;
+  }
+  window.addEventListener('message', function(e){
+    if(e.data && e.data.type==='nav') show(e.data.url);
+    else if(e.data && e.data.type==='status') statusbar.textContent = e.data.text || '就绪';
+  });
+  document.getElementById('btn-back').onclick = function(){ if(histPos>0){histPos--; show(historyStack[histPos], false);} };
+  document.getElementById('btn-fwd').onclick = function(){ if(histPos<historyStack.length-1){histPos++; show(historyStack[histPos], false);} };
+  document.getElementById('btn-home').onclick = function(){ show(firstPage()); };
+  document.getElementById('btn-print').onclick = function(){ frame.contentWindow.print(); };
+  document.getElementById('btn-toc').onclick = function(){
+    var np = document.getElementById('navpane');
+    np.style.display = np.style.display === 'none' ? '' : 'none';
+  };
+
+  // ---- 目录树 ----
+  function firstPage(){
+    var a = document.querySelector('#tree a');
+    return a ? a.getAttribute('href') : '';
+  }
+  function buildTree(nodes, ul){
+    nodes.forEach(function(n){
+      var li = document.createElement('li');
+      var hasKids = n.c && n.c.length;
+      var row = document.createElement('div');
+      row.className = 'node';
+      var tog = document.createElement('span');
+      tog.className = 'toggle';
+      tog.textContent = hasKids ? '+' : ' ';
+      row.appendChild(tog);
+      if(n.f){
+        var a = document.createElement('a');
+        a.href = n.f; a.textContent = n.t; a.target = 'content';
+        a.onclick = function(ev){ ev.preventDefault(); show(n.f); };
+        row.appendChild(a);
+      } else {
+        var sp = document.createElement('span'); sp.textContent = n.t; row.appendChild(sp);
+      }
+      li.appendChild(row);
+      var sub = null;
+      if(hasKids){
+        sub = document.createElement('ul'); sub.style.display='none';
+        buildTree(n.c, sub); li.appendChild(sub);
+        tog.onclick = function(){
+          var open = sub.style.display === 'none';
+          sub.style.display = open ? '' : 'none';
+          tog.textContent = open ? '-' : '+';
+        };
+      }
+      ul.appendChild(li);
+    });
+  }
+  var treeRoot = document.getElementById('tree');
+  var ul = document.createElement('ul'); treeRoot.appendChild(ul); buildTree(TOC, ul);
+
+  // ---- 索引 ----
+  var idxInput = document.getElementById('index-input'), idxList = document.getElementById('index-list');
+  function renderIndex(prefix){
+    idxList.innerHTML = '';
+    var kw = prefix.toLowerCase();
+    INDEX.forEach(function(e){
+      if(kw && e.k.toLowerCase().indexOf(kw) !== 0) return;
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = e.f; a.textContent = e.k + ' — ' + e.t;
+      a.onclick = function(ev){ ev.preventDefault(); switchTab('toc'); show(e.f); };
+      li.appendChild(a); idxList.appendChild(li);
+    });
+  }
+  idxInput.addEventListener('input', function(){ renderIndex(idxInput.value.trim()); });
+  renderIndex('');
+
+  // ---- 搜索 ----
+  function switchTab(name){
+    document.querySelectorAll('.tabs .tab').forEach(function(b){
+      b.classList.toggle('active', b.dataset.tab === name);
+    });
+    ['toc','idx','search'].forEach(function(t){
+      document.getElementById('tab-'+t).classList.toggle('hidden', t !== name);
+    });
+  }
+  document.querySelectorAll('.tabs .tab').forEach(function(b){
+    b.onclick = function(){ switchTab(b.dataset.tab); };
+  });
+
+  function doSearch(){
+    var q = document.getElementById('search-input').value.trim().toLowerCase();
+    var box = document.getElementById('search-results');
+    box.innerHTML = '';
+    if(!q) return;
+    var hits = [];
+    PAGES.forEach(function(p){
+      var lower = p.txt.toLowerCase(), pos = lower.indexOf(q), count = 0, i = pos;
+      while(i !== -1){ count++; i = lower.indexOf(q, i + q.length); }
+      if(count) hits.push({p:p, count:count, pos:pos});
+    });
+    hits.sort(function(a,b){ return b.count - a.count; });
+    hits.forEach(function(h){
+      var start = Math.max(0, h.pos - 40);
+      var snip = h.p.txt.substr(start, 120).replace(new RegExp(q,'gi'), function(m){ return '<mark>'+m+'</mark>'; });
+      var div = document.createElement('div'); div.className = 'search-hit';
+      var a = document.createElement('a'); a.href = h.p.f; a.textContent = h.p.t;
+      a.onclick = function(ev){ ev.preventDefault(); switchTab('toc'); show(h.p.f); };
+      div.appendChild(a);
+      var s = document.createElement('div'); s.className='snippet';
+      s.innerHTML = '…'+snip+'…（'+h.count+' 处匹配）';
+      div.appendChild(s);
+      box.appendChild(div);
+    });
+    if(!hits.length) box.innerHTML = '<p style="color:#888">未找到包含 “'+q+'” 的主题。</p>';
+    statusbar.textContent = '找到 '+hits.length+' 个主题';
+  }
+  document.getElementById('search-go').onclick = doSearch;
+  document.getElementById('search-input').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
+
+  // 初始页
+  var init = firstPage();
+  if(init) show(init);
+})();
+</script>
+</body>
+</html>

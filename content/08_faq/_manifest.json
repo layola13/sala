@@ -1,0 +1,39 @@
+{
+  "topics": [
+    {
+      "id": "faq",
+      "title": "常见问题 FAQ",
+      "file": "01_faq.html",
+      "keywords": ["FAQ", "常见问题", "所有权", "let", "const", "panic", "SAB"],
+      "parent": null
+    },
+    {
+      "id": "compile-troubleshooting",
+      "title": "编译失败排查",
+      "file": "02_compile_failures.html",
+      "keywords": ["编译失败", "check", "build-exe", "回退", "UseAfterMove", "SLA_SAB_NO_FALLBACK"],
+      "parent": null
+    },
+    {
+      "id": "runtime-env",
+      "title": "运行与环境问题排查",
+      "file": "03_runtime_env.html",
+      "keywords": ["乱码", "UTF-8", "PATH", "LLVM", "dumpbin", "NoDefaultCurrentDirectoryInExePath"],
+      "parent": null
+    },
+    {
+      "id": "performance",
+      "title": "性能与优化预期",
+      "file": "04_performance.html",
+      "keywords": ["性能", "direct SAB", "fallback", "宏模板缓存", "大数组初始化", "benchmark"],
+      "parent": null
+    },
+    {
+      "id": "limitations-roadmap",
+      "title": "当前局限与路线图状态",
+      "file": "05_limitations_roadmap.html",
+      "keywords": ["局限", "路线图", "&mut", "no-fallback", "枚举 payload", "rosetta"],
+      "parent": null
+    }
+  ]
+}

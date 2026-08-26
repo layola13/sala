@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>所有权与生命周期</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 所有权与生命周期</div>
+<h1>所有权与生命周期</h1>
+
+<p>SLA 继承 SA 的 Move/Borrow 语义，但把清理工作全部交给编译器托管。这一页说明：
+用户代码为什么不需要 <code>drop</code>、<code>&amp;</code>/<code>^</code>/<code>!</code> 三个符号各自的角色、
+方法接收者的自动借用/自动移动规则，以及 <code>&amp;mut T</code> 的现状。读完这一页，
+你能理解 SLA 报出的 <code>UseAfterMove</code> 类错误的来源。</p>
+
+<h2>托管清理：没有 drop</h2>
+<p>SLA 源码默认使用编译器托管的生命周期清理：</p>
+<ul>
+<li>用户面 <code>.sla</code> 代码<b>不需要</b>显式释放语句；</li>
+<li>生成的 <code>.sa</code>/SAB 中仍会出现 <code>!</code> 指令，那是 SA 的所有权原语，由编译器注入；</li>
+<li>SLA 有意不提供 <code>drop</code> 关键字或 <code>drop()</code> 函数。</li>
+</ul>
+<p>编译器在分支汇合点做活跃变量分析，自动为“只在部分分支被消费”的值补齐对称的释放，
+以规避 SA verifier 的 Phi 状态冲突；<code>for</code> 循环体内的栈分配也会被自动提升到循环外单次分配。</p>
+
+<h2>三个符号：&amp;、^、!</h2>
+<table>
+<tr><th>符号</th><th>语义</th><th>在 SLA 源码中的地位</th></tr>
+<tr><td><code>&amp;x</code></td><td>创建借用视图，作用域结束时自动解锁</td><td>保留，可直接书写（如 <code>sum(&amp;values)</code>）</td></tr>
+<tr><td><code>^x</code></td><td>显式所有权转移（move）</td><td>保留，可在需要强调转移时书写；多数场景由自动移动代替</td></tr>
+<tr><td><code>!x</code></td><td>释放/消费寄存器</td><td>仅出现在编译器输出，普通源码不写；旧式 <code>!x;</code> 仍可解析，仅作调试逃生口</td></tr>
+</table>
+
+<p>被移动后的变量在前端即标记为 <code>Consumed</code>，再次使用会得到明确的
+<code>UseAfterMove</code> 编译错误——与 SA Referee 的拦截一致，只是提前到了 SLA 层。</p>
+
+<h2>方法调用：自动借用与自动移动（UFCS）</h2>
+<p>对 <code>x.method(y)</code>，编译器按接收者签名静态展开：</p>
+<table>
+<tr><th>签名首参</th><th>改写结果</th><th>示例</th></tr>
+<tr><td><code>&amp;T</code></td><td><code>method(&amp;x, y)</code>（自动借用）</td><td><code>v.len()</code> → <code>len(&amp;v)</code></td></tr>
+<tr><td><code>T</code></td><td><code>method(^x, y)</code>（自动移动）</td><td><code>v.push(1)</code> → <code>push(^v, 1)</code></td></tr>
+</table>
+<pre><code>// 链式调用会被展平为嵌套函数调用
+let final_v = v.push(10).push(20);
+// 等价于 push(^(push(^v, 10)), 20)</code></pre>
+
+<div class="note"><span class="label">注意</span>链式调用的前提是方法返回接收者类型或新对象。
+若方法按值消费了接收者且不再归还，链条就到此为止。</div>
+
+<h2>&amp;self 覆盖读写，&amp;mut 尚未引入</h2>
+<p>当前版本（Phase 1）的设计决策是：</p>
+<ul>
+<li><code>&amp;self</code>/<code>&amp;T</code> <b>同时覆盖读写</b>：写型方法也用 <code>&amp;self</code> 声明，
+实测 demo（如 <code>demos/rosetta/59_method_counter/main.sla</code> 中
+<code>fn inc(&amp;self)</code> 内部执行 <code>self.value.set(current + 1)</code>）均正常工作；</li>
+<li>编译期不在 SLA 源码层强制区分读/写，SA Referee 在 lowering 后根据 store 操作动态判定
+<code>Locked_Read</code>/<code>Locked_Mut</code>；</li>
+<li><code>&amp;mut T</code>/<code>&amp;mut self</code> 属于 Phase 2 计划，触发点是 ECS 并行调度器需要静态 read/write 集；
+届时会提供自动化迁移工具；</li>
+<li><code>let mut x = ...</code> 写法永久不引入——SLA 的 <code>let</code> 默认可变，<code>const</code> 不可变。</li>
+</ul>
+
+<h2>Rust → SLA 迁移速查</h2>
+<table>
+<tr><th>Rust 写法</th><th>SLA 当前等价写法</th></tr>
+<tr><td><code>let mut x = 5;</code></td><td><code>let x = 5;</code></td></tr>
+<tr><td><code>fn inc(&amp;mut self)</code></td><td><code>fn inc(&amp;self)</code></td></tr>
+<tr><td><code>&amp;mut x</code></td><td><code>&amp;x</code></td></tr>
+<tr><td><code>Drop::drop / impl Drop</code></td><td>无对应物；资源类型通过 sa_std 的释放契约与托管清理处理</td></tr>
+</table>
+
+<p>相关页面：<a href="03_functions.html">函数与控制流</a>、<a href="07_modules.html">模块与 @import</a>。</p>
+</body>
+</html>

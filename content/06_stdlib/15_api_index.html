@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>API 总索引</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; API 总索引</div>
+<h1>API 总索引</h1>
+
+<p>本节是 <code>sa_std</code> 覆盖 API 的<b>完整索引</b>，由构建脚本直接扫描
+<code>sci/sa_std/</code> 下全部 <b>258</b> 个契约/实现文件生成，与源码逐字一致：</p>
+<ul>
+<li><b>569</b> 个 <code>@extern</code> 函数契约（宿主 Zig 运行时提供实现）→ 见 <a href="16_api_externs.html">extern 函数契约</a></li>
+<li><b>9281</b> 个汇编宏（<code>.sa</code> 实现）→ 见 <a href="17_api_macros.html">汇编宏清单</a></li>
+<li><b>1485</b> 个 <code>#def</code> 布局常量（<code>.sal</code>）→ 见 <a href="18_api_layout.html">布局常量清单</a></li>
+</ul>
+<p>怎么用这些契约见<a href="13_usage_guide.html">「如何使用 sa_std」</a>；各域的讲解页见本章 02–12 页。
+下表是模块地图（模块数：<b>136</b>）：</p>
+<table><tr><th>模块（@import 路径去 sa_std/ 与扩展名）</th><th>文件类型</th><th>extern</th><th>宏</th><th>布局常量</th></tr>
+<tr><td><code>alloc/layout</code></td><td>.sal</td><td></td><td></td><td>10</td></tr>
+<tr><td><code>alloc/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>alloc/string</code></td><td>.sa</td><td></td><td>1</td><td></td></tr>
+<tr><td><code>alloc/vec</code></td><td>.sal</td><td></td><td></td><td>4</td></tr>
+<tr><td><code>any</code></td><td>.sal + .sa</td><td></td><td>22</td><td>21</td></tr>
+<tr><td><code>array</code></td><td>.sa</td><td></td><td>330</td><td></td></tr>
+<tr><td><code>ascii</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>binary_heap</code></td><td>.sal + .sa</td><td></td><td>386</td><td>6</td></tr>
+<tr><td><code>borrow</code></td><td>.sal + .sa</td><td></td><td>26</td><td>10</td></tr>
+<tr><td><code>btree_map</code></td><td>.sal + .sa</td><td></td><td>68</td><td>9</td></tr>
+<tr><td><code>btree_set</code></td><td>.sal + .sa</td><td></td><td>50</td><td>5</td></tr>
+<tr><td><code>char</code></td><td>.sal + .sa</td><td></td><td>31</td><td>41</td></tr>
+<tr><td><code>cmp</code></td><td>.sal + .sa</td><td></td><td>63</td><td>10</td></tr>
+<tr><td><code>collections/binary_heap</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>collections/btree_map</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>collections/btree_set</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>collections/hashmap</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>collections/hashset</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>collections/linked_list</code></td><td>.sal + .sa</td><td></td><td>47</td><td>8</td></tr>
+<tr><td><code>collections/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>collections/vec_deque</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>collections</code></td><td>.sal</td><td></td><td></td><td>10</td></tr>
+<tr><td><code>convert</code></td><td>.sal + .sa</td><td></td><td>196</td><td>21</td></tr>
+<tr><td><code>core/arc</code></td><td>.sal + .sa</td><td></td><td>30</td><td>4</td></tr>
+<tr><td><code>core/ascii</code></td><td>.sal + .sa</td><td></td><td>52</td><td>28</td></tr>
+<tr><td><code>core/bit</code></td><td>.sa</td><td></td><td>7</td><td></td></tr>
+<tr><td><code>core/box</code></td><td>.sal</td><td></td><td></td><td>2</td></tr>
+<tr><td><code>core/cell</code></td><td>.sal + .sa</td><td></td><td>21</td><td>4</td></tr>
+<tr><td><code>core/cleanup</code></td><td>.sa</td><td></td><td>5</td><td></td></tr>
+<tr><td><code>core/control</code></td><td>.sa</td><td></td><td>5</td><td></td></tr>
+<tr><td><code>core/derive</code></td><td>.sal + .sa</td><td></td><td>9</td><td>1</td></tr>
+<tr><td><code>core/dispatch</code></td><td>.sal + .sa</td><td></td><td>1</td><td>5</td></tr>
+<tr><td><code>core/future</code></td><td>.sal + .sa</td><td></td><td>75</td><td>60</td></tr>
+<tr><td><code>core/hash</code></td><td>.sa</td><td></td><td>7</td><td></td></tr>
+<tr><td><code>core/iter</code></td><td>.sal + .sa</td><td></td><td>174</td><td>4</td></tr>
+<tr><td><code>core/loop</code></td><td>.sa</td><td></td><td>8</td><td></td></tr>
+<tr><td><code>core/mem</code></td><td>.sa</td><td></td><td>22</td><td></td></tr>
+<tr><td><code>core/option</code></td><td>.sal + .sa</td><td></td><td>62</td><td>9</td></tr>
+<tr><td><code>core/panic</code></td><td>.sal + .sa</td><td></td><td>5</td><td>11</td></tr>
+<tr><td><code>core/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>core/rc</code></td><td>.sal + .sa</td><td></td><td>30</td><td>4</td></tr>
+<tr><td><code>core/refcell</code></td><td>.sal + .sa</td><td></td><td>29</td><td>10</td></tr>
+<tr><td><code>core/result</code></td><td>.sal + .sa</td><td></td><td>54</td><td>6</td></tr>
+<tr><td><code>core/rust_patterns</code></td><td>.sal</td><td></td><td></td><td>2</td></tr>
+<tr><td><code>core/sa_core</code></td><td>.sa</td><td></td><td>8</td><td></td></tr>
+<tr><td><code>core/slice</code></td><td>.sal + .sa</td><td></td><td>230</td><td>6</td></tr>
+<tr><td><code>core/task</code></td><td>.sal + .sa</td><td></td><td>8</td><td>12</td></tr>
+<tr><td><code>core/trait_object</code></td><td>.sal + .sa</td><td></td><td>4</td><td>3</td></tr>
+<tr><td><code>core/waker</code></td><td>.sal + .sa</td><td></td><td>29</td><td>27</td></tr>
+<tr><td><code>core/weak</code></td><td>.sal</td><td></td><td></td><td>4</td></tr>
+<tr><td><code>cow</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>cstring</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>default</code></td><td>.sa</td><td></td><td>24</td><td></td></tr>
+<tr><td><code>duration</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>encoding/json</code></td><td>.sai + .sal + .sa</td><td>51</td><td>50</td><td>35</td></tr>
+<tr><td><code>encoding/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>env</code></td><td>.sai + .sa</td><td>22</td><td>69</td><td></td></tr>
+<tr><td><code>error</code></td><td>.sal + .sa</td><td></td><td>47</td><td>42</td></tr>
+<tr><td><code>ffi/cstring</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>ffi/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>ffi</code></td><td>.sal + .sa</td><td></td><td>49</td><td>37</td></tr>
+<tr><td><code>fmt</code></td><td>.sai + .sal</td><td>14</td><td></td><td>28</td></tr>
+<tr><td><code>fs</code></td><td>.sai + .sal + .sa</td><td>120</td><td>178</td><td>44</td></tr>
+<tr><td><code>future</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>hash</code></td><td>.sal + .sa</td><td></td><td>232</td><td>10</td></tr>
+<tr><td><code>hashmap</code></td><td>.sal + .sa</td><td></td><td>52</td><td>17</td></tr>
+<tr><td><code>hashset</code></td><td>.sal + .sa</td><td></td><td>46</td><td>15</td></tr>
+<tr><td><code>http2</code></td><td>.sai + .sal + .sa</td><td>13</td><td>13</td><td>31</td></tr>
+<tr><td><code>instant</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>io/buf_reader</code></td><td>.sa</td><td></td><td>8</td><td></td></tr>
+<tr><td><code>io/buf_writer</code></td><td>.sa</td><td></td><td>7</td><td></td></tr>
+<tr><td><code>io/bufio</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>io/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>io/print</code></td><td>.sai</td><td>1</td><td></td><td></td></tr>
+<tr><td><code>io</code></td><td>.sai + .sal + .sa</td><td>15</td><td>83</td><td>74</td></tr>
+<tr><td><code>iter</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>join_handle</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>libsa_async</code></td><td>.sa</td><td></td><td>9</td><td></td></tr>
+<tr><td><code>manually_drop</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>marker/phantom_data</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>marker/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>marker</code></td><td>.sal + .sa</td><td></td><td>50</td><td>12</td></tr>
+<tr><td><code>math</code></td><td>.sa</td><td></td><td>7</td><td></td></tr>
+<tr><td><code>mem/manually_drop</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>mem/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>mem</code></td><td>.sal + .sa</td><td></td><td>114</td><td>34</td></tr>
+<tr><td><code>net</code></td><td>.sai + .sal + .sa</td><td>220</td><td>475</td><td>142</td></tr>
+<tr><td><code>netx</code></td><td>.sai + .sal + .sa</td><td>7</td><td>15</td><td>35</td></tr>
+<tr><td><code>nonzero</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>num/nonzero</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>num/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>num</code></td><td>.sal + .sa</td><td></td><td>2103</td><td>208</td></tr>
+<tr><td><code>ops</code></td><td>.sal + .sa</td><td></td><td>200</td><td>51</td></tr>
+<tr><td><code>option</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>os/fd</code></td><td>.sai + .sal + .sa</td><td>7</td><td>19</td><td>11</td></tr>
+<tr><td><code>os/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>os/unix_ffi</code></td><td>.sa</td><td></td><td>49</td><td></td></tr>
+<tr><td><code>panic</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>path</code></td><td>.sal + .sa</td><td></td><td>195</td><td>8</td></tr>
+<tr><td><code>phantom_data</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>pin</code></td><td>.sal + .sa</td><td></td><td>16</td><td>4</td></tr>
+<tr><td><code>prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>process</code></td><td>.sai + .sal + .sa</td><td>54</td><td>146</td><td>23</td></tr>
+<tr><td><code>ptr</code></td><td>.sal + .sa</td><td></td><td>100</td><td>2</td></tr>
+<tr><td><code>result</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>rust_core</code></td><td>.sal</td><td></td><td></td><td>14</td></tr>
+<tr><td><code>sort</code></td><td>.sa</td><td></td><td>1</td><td></td></tr>
+<tr><td><code>string</code></td><td>.sai + .sal + .sa</td><td>11</td><td>945</td><td>12</td></tr>
+<tr><td><code>string_format</code></td><td>.sa</td><td></td><td>40</td><td></td></tr>
+<tr><td><code>sync/atomic</code></td><td>.sal + .sa</td><td></td><td>245</td><td>32</td></tr>
+<tr><td><code>sync/barrier</code></td><td>.sal + .sa</td><td></td><td>6</td><td>5</td></tr>
+<tr><td><code>sync/condvar</code></td><td>.sal + .sa</td><td></td><td>10</td><td>3</td></tr>
+<tr><td><code>sync/mpsc</code></td><td>.sal + .sa</td><td></td><td>48</td><td>35</td></tr>
+<tr><td><code>sync/mpsc_list</code></td><td>.sal + .sa</td><td></td><td>10</td><td>3</td></tr>
+<tr><td><code>sync/mutex</code></td><td>.sal + .sa</td><td></td><td>16</td><td>6</td></tr>
+<tr><td><code>sync/once</code></td><td>.sal + .sa</td><td></td><td>42</td><td>28</td></tr>
+<tr><td><code>sync/poison</code></td><td>.sal + .sa</td><td></td><td>7</td><td>10</td></tr>
+<tr><td><code>sync/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>sync/rwlock</code></td><td>.sal + .sa</td><td></td><td>19</td><td>11</td></tr>
+<tr><td><code>task</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>term</code></td><td>.sai + .sal</td><td>7</td><td></td><td>29</td></tr>
+<tr><td><code>testing/assert</code></td><td>.sai</td><td>4</td><td></td><td></td></tr>
+<tr><td><code>testing/mock_io</code></td><td>.sal + .sa</td><td></td><td>6</td><td>5</td></tr>
+<tr><td><code>testing/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>text/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>text/regex</code></td><td>.sai + .sal</td><td>7</td><td></td><td>29</td></tr>
+<tr><td><code>thread/join_handle</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>thread/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>thread</code></td><td>.sai + .sal + .sa</td><td>9</td><td>24</td><td>4</td></tr>
+<tr><td><code>time/duration</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>time/instant</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>time/prelude</code></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>time</code></td><td>.sai + .sal + .sa</td><td>7</td><td>128</td><td>31</td></tr>
+<tr><td><code>vec</code></td><td>.sal + .sa</td><td></td><td>753</td><td>1</td></tr>
+<tr><td><code>vec_deque</code></td><td>.sal + .sa</td><td></td><td>527</td><td>7</td></tr>
+<tr><td><code>vec_runtime_macros</code></td><td>.sa</td><td></td><td>3</td><td></td></tr>
+</table>
+<h2>本节导航</h2>
+<p><a href="15_api_index.html">API 总索引</a> | <a href="16_api_externs.html">extern 函数契约</a> | <a href="17_api_macros.html">汇编宏清单</a> | <a href="18_api_layout.html">布局常量清单</a></p>
+</body>
+</html>

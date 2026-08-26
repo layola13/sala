@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>插件参考总览</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; 插件参考总览</div>
+<h1>插件参考总览</h1>
+
+<p>这一页给出 SA 插件体系的整体图景：插件如何声明、如何安装、本章收录了哪些插件。
+读完即可判断某个能力（网络、数据库、UI、运行时）应该由哪个插件提供，以及去哪一页看细节。</p>
+
+<h2>什么是 SA 插件</h2>
+<p>SA 插件是一个带清单文件 <code>sap.json</code> 的动态库工程（Zig 构建，产物如 <code>libdb.so</code> / <code>tui.dll</code>），
+通过 C-ABI 与 <code>@extern</code>/<code>.sai</code> 契约向 SA 程序暴露 native 能力，
+也可以注册新的 CLI 子命令（如 <code>sa vm run</code>、<code>sa sax build</code>）。</p>
+
+<p><code>sap.json</code>（schema 为 <code>sa.plugin/1</code>）的关键字段：</p>
+<table>
+<tr><th>字段</th><th>说明</th></tr>
+<tr><td><code>name</code> / <code>version</code></td><td>插件名与版本（当前均为 <code>0.1.0</code>）</td></tr>
+<tr><td><code>abi</code></td><td>插件 ABI 版本与要求的 <code>saasm</code> 版本，如 <code>&gt;=0.4.0</code></td></tr>
+<tr><td><code>skills</code></td><td>对外声明的能力段名，可用 <code>sa skills --json</code> 查看，如 <code>http.server</code>、<code>tui.input</code></td></tr>
+<tr><td><code>permissions</code></td><td>声明式权限账本：<code>fs</code> / <code>net</code> / <code>env</code> / <code>process.spawn</code> 与白名单 <code>exec</code></td></tr>
+<tr><td><code>dependencies</code></td><td>对其他插件的依赖（含版本、ABI、本地路径、可选的符号子集 <code>symbols</code>）</td></tr>
+<tr><td><code>interfaces</code></td><td>面向 SA 的契约文件：<code>.sai</code>（extern 声明）与 <code>.sal</code>（宏门面）</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>插件是<strong>可选安装</strong>的：使用前先用
+<code>sa plugin list</code> 确认已安装，用 <code>sa skills --json</code> 确认能力段已加载；
+不要假设某个插件一定存在。开发期安装统一走 <code>--dev</code>：</div>
+
+<pre><code># 在插件目录内执行；依赖会按 sap.json 一并安装
+SA_PLUGIN_DEV=1 sa plugin install --dev .
+sa plugin list          # 查看已安装插件
+sa skills --json        # 查看已加载的能力段</code></pre>
+
+<p>部分插件在正式运行模式下因声明了较宽权限会被拦截，需要 <code>SA_PLUGIN_DEV=1</code> 做本地可信验证（如 <code>vm</code>）。</p>
+
+<h2>本章收录的插件</h2>
+
+<table>
+<tr><th>插件</th><th>能力（skills）</th><th>作用一句话</th><th>主要依赖</th></tr>
+<tr><td><a href="02_sax.html">sax</a></td><td><code>sax</code></td><td>把 <code>.sax</code> 组件编译为浏览器可运行的 WASM 包</td><td>无</td></tr>
+<tr><td><a href="03_react.html">react</a></td><td><code>react</code></td><td>SAX 之上的 React 风格兼容层</td><td>无</td></tr>
+<tr><td><a href="04_mui.html">mui</a></td><td><code>mui</code></td><td>SAX/SLA 版 Material UI 组件库源码资产</td><td>react</td></tr>
+<tr><td><a href="05_vite.html">vite</a></td><td><code>vite.dev/build/preview</code></td><td>SAX 热重载开发服务器编排</td><td>sax、http-server</td></tr>
+<tr><td><a href="06_tui.html">tui</a></td><td><code>tui.terminal/input/ansi</code></td><td>终端原语：句柄、尺寸、raw 模式、字节输入</td><td>无</td></tr>
+<tr><td><a href="07_wgpu.html">wgpu</a></td><td><code>wgpu</code>、<code>sax.wgpu</code></td><td>浏览器 WebGPU sidecar（SAX 渲染）</td><td>sax</td></tr>
+<tr><td><a href="08_3dengines.html">3dengines</a></td><td>各 3d 子模块 skill</td><td>对标 Bevy 的 3D 引擎插件族</td><td>互相依赖，见该页</td></tr>
+<tr><td><a href="09_vm.html">vm</a></td><td><code>vm</code></td><td>独立解释器虚拟机：<code>sa vm run</code></td><td>http-client/server、deno、node（均可选）</td></tr>
+<tr><td><a href="10_sla.html">sla</a></td><td><code>sla</code></td><td>SLA → SA 编译器插件（详见语言章节）</td><td>无</td></tr>
+<tr><td><a href="11_deno.html">deno</a></td><td><code>deno.sys/env/fs/process</code></td><td>Deno 兼容子集的原生替代实现</td><td>http-client、http-server</td></tr>
+<tr><td><a href="12_node.html">node</a></td><td><code>node.os/process/crypto/net/dns/http</code></td><td>Node.js 兼容门面（非 V8/VM）</td><td>http-client、http-server</td></tr>
+<tr><td><a href="13_pkg.html">pkg</a></td><td><code>package.management</code></td><td>零信任包管理器（SA 的 "cargo"）</td><td>无</td></tr>
+<tr><td><a href="14_http_client.html">http-client</a></td><td><code>http.client</code></td><td>HTTP/1.1、HTTPS、流式响应、WebSocket 客户端</td><td>无</td></tr>
+<tr><td><a href="15_http_server.html">http-server</a></td><td><code>http.server</code></td><td>最小内嵌 HTTP/1.1 服务端</td><td>无</td></tr>
+<tr><td><a href="16_db.html">db</a>（另有<a href="../10_db/01_overview.html">专属章节</a>）</td><td><code>database</code></td><td>本地文件型列式存储数据库</td><td>无</td></tr>
+<tr><td><a href="17_bc2sa.html">bc2sa</a></td><td><code>bc2sa</code></td><td>LLVM bitcode → SA 逆向翻译器</td><td>无</td></tr>
+</table>
+
+<h3>分类速查</h3>
+<ul>
+<li><strong>UI / 图形</strong>：sax、react、mui、vite、tui、wgpu、3dengines —— 界面深入用法属于「SAX / MUI 界面开发」章节，本章只写到"能做什么、怎么启用"为止。</li>
+<li><strong>运行时 / 语言接入</strong>：vm（解释器）、sla（编译器）、bc2sa（bitcode 迁移入口）、pkg（依赖管理主入口）。</li>
+<li><strong>系统 / 网络 / 数据</strong>：http-client、http-server、deno、node、db。</li>
+</ul>
+
+<div class="warning"><span class="label">警告</span>所有插件均为 <code>0.1.0</code> 早期形态：
+API 可能破坏性变更（例如 <code>db</code> 已移除旧的直接查询 ABI），以各插件仓库 README 与
+<code>sap.json</code> / <code>.sai</code> 文件为准。</div>
+</body>
+</html>

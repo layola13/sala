@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sla_ecs 是什么：定位与规模</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">ECS 开发（sla_ecs） &gt; sla_ecs 是什么：定位与规模</div>
+<h1>sla_ecs 是什么：定位与规模</h1>
+
+<p>本页说明 <code>sla_ecs</code> 在 SA 生态中的位置、它的真实规模口径，以及它为什么被
+<code>sa_plugin_sla</code> 编译器当作「真实回归目标」。读完能分清 <code>sla_ecs</code>（SLA 应用层 ECS 库）
+与其他 ECS 相关产物的层次关系。</p>
+
+<h2>定位：SLA 语言写成的 Bevy 风格 ECS 库</h2>
+<p><code>sla_ecs</code> 是一个用 SLA 编写的 Bevy 风格 ECS（实体-组件-系统）库，
+源码仓库位于 WSL 内路径 <code>/home/vscode/projects/sla_ecs</code>。
+它是<b>真实的大项目</b>，不是为演示语法而造的玩具示例；正因为它足够大、导入图足够复杂、
+宏展开足够多，才成为编译器性能与正确性验证的首选宿主。</p>
+
+<div class="note"><span class="label">注意</span><code>sla_ecs</code> 源码不在 Windows 帮助文档工作区内，
+本章节所有事实均来自 <code>D:/projects/sla</code> 下引用它的文档与契约文件，不直接读取其源码。</div>
+
+<h2>规模口径</h2>
+<p>编译器宏缺口分析文档对它做过一次统计，是本章引用的基准口径：</p>
+<table>
+<tr><th>指标</th><th>数值</th></tr>
+<tr><td>文件总数</td><td>302 个文件</td></tr>
+<tr><td>lib 模块数</td><td>54 个 lib 模块</td></tr>
+<tr><td>examples 数量</td><td>42 个 examples</td></tr>
+</table>
+<p>出处：<code>sa_plugin_sla/docs/sla_ecs_macro_gap_analysis_and_recommendations_cn.md</code>
+（文档版本 v0.1 / 2026-07-01），分析对象标注为
+<code>~/projects/sla_ecs（302 个文件，54 个 lib 模块，42 个 examples）</code>。
+这是 2026-07-01 的快照口径，库仍在演进，后续文档中出现的模块清单以当时记录为准。</p>
+
+<div class="note"><span class="label">注意</span>同一文档内部把项目名写作 <code>slac_ecs</code> 与
+<code>sla_ecs</code> 两种拼写，指同一分析对象。本章节统一使用 <code>sla_ecs</code>。</div>
+
+<h2>特殊地位：编译器的「真实回归目标」</h2>
+<p><code>sa_plugin_sla</code> 的开发计划文件对其角色有明确约束：</p>
+<pre><code>- Implementation workspace: /home/vscode/projects/sa_plugins/sa_plugin_sla
+- Do not switch implementation or planning into /home/vscode/projects/sla_ecs;
+  use /home/vscode/projects/sla_ecs/lib/parallel.sla only as a host regression target.</code></pre>
+<p>含义有两层：</p>
+<ul>
+<li>实现与规划只发生在编译器仓库内，<code>sla_ecs</code> 不承载编译器改动；</li>
+<li><code>lib/parallel.sla</code> 等文件仅作为<b>宿主回归目标</b>（host regression target），
+用于在合成 benchmark 之外验证真实大项目的表现。</li>
+</ul>
+<p>这一区分有实际后果：Module Table 复测记录明确写道——合成 benchmark 通过后切换到真实
+<code>sla_ecs</code> 项目复测，仍暴露出多个前端崩溃与 SAB 阻塞点。也就是说，
+<em>合成 fixture 全绿不等于真实大项目达标</em>。相关历史见
+<a href="05_status.html">已知问题与回归史</a>。</p>
+
+<h2>与 Rust / Bevy 的关系</h2>
+<ul>
+<li><b>参照系是 Bevy 的 <code>bevy_ecs</code></b>。宏评估文档以 Bevy 为对照，
+统计了 <code>bevy_ecs</code> 实际使用的宏形态，并把 SLA 与 Rust 宏系统的差距量化。
+文档对 Bevy 简洁性来自 derive 宏的占比给出过两个不同估计
+（一处称 90%+，另一处称 50%），共同结论是 derive 是关键来源。</li>
+<li><b>SLA 永远不会支持 proc-macro</b>。<code>macro_rules!</code> 的多 arm 模式、
+片段类型与任意编译期代码执行都被有意排除，这与 SA 极简前端哲学一致。</li>
+<li><b>ECS 语义归库所有，不进编译器</b>。2026-06-23 的架构更正明确：
+把 <code>Component</code>/<code>Resource</code>/<code>Event</code>/<code>Bundle</code> 等
+ECS derive 硬编码进编译器的建议已作废；编译器只能提供语言中立能力
+（如 <code>@expand_tuple</code>、通用属性解析、值语义 <code>@derive(copy, eq, ord, hash, debug)</code>），
+引擎关键字与游戏逻辑必须留在 <code>sla_ecs</code>。</li>
+<li><b>当前 <code>@derive(Component)</code> 只是标注</b>。编译器解析并记录这些名称，
+但不生成代码；真正的 ECS metadata 来自手写 <code>impl</code> 方法。
+改进方向见<a href="03_macros.html">宏使用格局与编译器改进路线</a>。</li>
+</ul>
+
+<div class="warning"><span class="label">警告</span>不要把 <code>sla_ecs</code> 与 SA 契约插件
+<code>sa_plugin_3d_ecs</code> 混为一谈：前者是 SLA 应用层库，后者是 3D 引擎插件家族中的
+SA ABI 契约，两者属于不同层次。详见<a href="04_sa3d_ecs.html">SA 层的 3d_ecs 插件契约</a>。</div>
+
+<h2>本章阅读路线</h2>
+<ol>
+<li><a href="02_architecture.html">架构与模块面</a> —— 从回归文档提取的真实模块名与查询组合族形状；</li>
+<li><a href="03_macros.html">宏使用格局与编译器改进路线</a> —— <code>@expand_tuple</code> 支柱与建议 A–D；</li>
+<li><a href="04_sa3d_ecs.html">SA 层的 3d_ecs 插件契约</a> —— 另一层次的 ECS：SA ABI；</li>
+<li><a href="05_status.html">已知问题与回归史</a> —— issue035/038/044 与 Module Table 复测。</li>
+</ol>
+</body>
+</html>

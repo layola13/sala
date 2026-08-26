@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa sla sab（build / workspace / disasm）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; sa sla sab</div>
+<h1>sa sla sab（build / workspace / disasm）</h1>
+
+<p><code>sa sla sab</code> 是 SAB 字节码主线的入口，含三个子命令：<code>build</code>、<code>workspace</code>、<code>disasm</code>；<code>sa slab ...</code> 是它的短别名。读完本页可以单独产出 SAB 产物做检查，以及反汇编已有的 SAB 文件。</p>
+
+<h2>语法</h2>
+<pre><code>usage: sa sla sab &lt;build|workspace|disasm&gt; [options]
+       sa slab &lt;build|workspace|disasm&gt; [options]
+
+usage: sa sla sab build [file] [-p &lt;package&gt;] [--out &lt;file.sab&gt;]
+usage: sa sla sab workspace [-p &lt;package&gt;] [--sab-out &lt;file.sab&gt;] [sa-build-exe-options...]
+usage: sa sla sab disasm &lt;file.sab&gt; [--out &lt;file.sa&gt;]</code></pre>
+
+<h2>sab build</h2>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td><code>file</code></td><td>输入 <code>.sla</code> 文件；省略时按 workspace 解析成员入口。</td></tr>
+<tr><td><code>-o</code>, <code>--out &lt;file.sab&gt;</code></td><td>额外写出一个用户可见的 SAB 文件。省略时只更新托管缓存产物。</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>选择 workspace 成员包。</td></tr>
+</table>
+<pre><code>SA_PLUGIN_DEV=1 sa sla sab build tests/test_sab_direct.sla
+SA_PLUGIN_DEV=1 sa sla sab build tests/test_sab_direct.sla --out /tmp/test_sab_direct.sab
+SA_PLUGIN_DEV=1 sa slab build tests/test_sab_direct.sla --out /tmp/test_sab_direct.sab</code></pre>
+<p>成功输出形如 <code>Sla Compiler: Successfully compiled ... to SAB /tmp/test_sab_direct.sab (managed cache .sla-cache/sab/....sab).</code>；未给 <code>--out</code> 时为 <code>... to managed SAB .sla-cache/sab/....sab.</code></p>
+
+<h2>sab workspace</h2>
+<p>解析当前 <code>sa.mod</code> workspace 成员，走托管 SAB 编译后委派 <code>sa build-exe</code> 生成可执行文件。不接受源文件参数。</p>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>选择成员包。</td></tr>
+<tr><td><code>--sab-out &lt;file.sab&gt;</code></td><td>额外写出检查用 SAB 产物。</td></tr>
+<tr><td><code>--emit-sab</code></td><td>在源文件旁写同级 <code>.sab</code>。</td></tr>
+<tr><td>其余参数</td><td>透传给 <code>sa build-exe</code>（<code>--sab-out</code>/<code>--emit-sab</code> 自身会被剥离）；缺省自动加 <code>--jobs auto</code>。</td></tr>
+</table>
+<pre><code># 在 workspace 根目录执行
+SA_PLUGIN_DEV=1 sa sla sab workspace --sab-out /tmp/workspace.sab -o /tmp/workspace_app
+SA_PLUGIN_DEV=1 sa slab workspace -p my_app -o /tmp/my_app</code></pre>
+
+<h2>sab disasm</h2>
+<p>把 SAB 文件反汇编成文本用于调试，不属于编译路径。输入最大 16 MiB。</p>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td><code>file.sab</code></td><td>必填。要反汇编的 SAB 文件。</td></tr>
+<tr><td><code>-o</code>, <code>--out &lt;file.sa&gt;</code></td><td>写出文本 SA 调试输出到文件；省略时打印到 stdout。</td></tr>
+</table>
+<pre><code>SA_PLUGIN_DEV=1 sa sla sab disasm .sla-cache/sab/main-1a2b3c4d.sab --out /tmp/main.disasm.sa
+SA_PLUGIN_DEV=1 sa slab disasm /tmp/test_sab_direct.sab | less</code></pre>
+
+<h2>产物位置</h2>
+<ul>
+<li>托管 SAB：一律写在 <code>.sla-cache/sab/&lt;stem&gt;-&lt;hash&gt;.sab</code>，内容不变时不重写。</li>
+<li>用户可见 SAB：仅在显式请求时写出——<code>sab build</code> 用 <code>--out</code>，<code>sab workspace</code> 用 <code>--sab-out</code> 或 <code>--emit-sab</code>。</li>
+<li>可执行文件：<code>sab workspace</code> 委派 <code>sa build-exe</code> 按 <code>-o</code> 写出。</li>
+</ul>
+</body>
+</html>

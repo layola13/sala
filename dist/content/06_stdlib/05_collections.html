@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>collections：Vec / HashMap / Option 等</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; collections：Vec / HashMap / Option 等</div>
+<h1>collections：Vec / HashMap / Option 等</h1>
+
+<p>这一页说明集合与常用值类型的实现方式，以及 Sla 代码能直接使用的类型方法面。
+集合不是 extern 函数，而是 SA 宏 + 布局契约（<code>.sal</code>），Sla 方法调用由
+<code>sla_std/std_surface.sla_meta</code> 规则 lower 到对应宏。</p>
+
+<h2>布局契约（.sal）</h2>
+<table>
+<tr><th>常量</th><th>含义</th></tr>
+<tr><td><code>Vec_SIZE = 24</code></td><td>Vec 结构大小；字段 <code>ptr = +0</code>、<code>cap = +8</code>、<code>len = +16</code>（alloc/vec.sal）</td></tr>
+<tr><td><code>HashMap_SIZE = 40</code></td><td>字段 <code>slots/cap/len/tombs/seed</code> 位于 <code>+0/+8/+16/+24/+32</code></td></tr>
+<tr><td><code>HashMapSlot_SIZE = 32</code></td><td>槽位含 <code>hash/key/value/state</code>；状态有 <code>EMPTY/FILLED/TOMB</code></td></tr>
+</table>
+
+<h2>Sla 方法面（std_surface.sla_meta）</h2>
+<table>
+<tr><th>类型</th><th>可用成员</th></tr>
+<tr><td><code>Vec</code></td><td>关联 <code>new</code>；<code>push</code>、<code>len()</code>、下标读写 <code>v[i]</code>、fallible 的 <code>remove(index)</code></td></tr>
+<tr><td><code>HashSet</code></td><td>关联 <code>new</code>；<code>insert</code>、<code>contains</code>、<code>len()</code></td></tr>
+<tr><td><code>BTreeSet</code></td><td>关联 <code>new</code>；<code>insert</code>、<code>contains</code>、<code>len()</code></td></tr>
+<tr><td><code>Box</code></td><td>关联 <code>new / into_raw / from_raw</code>；方法 <code>get</code>、<code>as_ptr</code></td></tr>
+<tr><td><code>Rc</code> / <code>Arc</code></td><td>关联 <code>new / clone</code>；方法 <code>get</code>、<code>as_ptr</code></td></tr>
+<tr><td><code>Cell</code> / <code>RefCell</code></td><td>关联 <code>new</code>；<code>Cell</code> 有 <code>get / set</code></td></tr>
+<tr><td><code>Option</code></td><td><code>Some(v)</code> / <code>None</code>；<code>is_some</code>、<code>is_none</code>、<code>get</code>、<code>unwrap</code>、<code>unwrap_or</code></td></tr>
+<tr><td><code>Result</code></td><td><code>Ok(v)</code> / <code>Err(e)</code>；<code>is_ok</code>、<code>is_err</code>、<code>unwrap</code>、<code>unwrap_or</code></td></tr>
+<tr><td><code>Slice</code></td><td>下标读 <code>s[i]</code> 与地址视图</td></tr>
+</table>
+
+<h2>真实示例</h2>
+<p>摘自 <code>sa_plugin_sla/tests/import_fixtures/std_nested/uses_vec.sla</code>：</p>
+<pre><code>@import "sa_std/vec.sa"
+
+fn imported_vec_sum() -&gt; i32 {
+    let values: Vec&lt;i32&gt; = Vec::new();
+    values.push(2);
+    values.push(3);
+    return values[0] + values[1];
+}</code></pre>
+<p>泛型写法 <code>Vec&lt;i32&gt;</code> 由编译器按元素类型单态化（宏里的
+<code>%elem_size</code>/<code>_TYPED_{elem_ty}</code> 变体即来源于此）。</p>
+
+<div class="note"><span class="label">注意</span>同目录还有更多集合实现可经
+<code>.sa</code> 宏使用：<code>binary_heap.sa</code>、<code>btree_map.sa</code>、
+<code>btree_set.sa</code>、<code>hashmap.sa</code>、<code>hashset.sa</code>、
+<code>collections/linked_list.sa</code>、<code>vec_deque.sa</code>。这些没有专门的 Sla 方法面，
+需要通过导入宏在 SA 层使用。</div>
+
+</body>
+</html>

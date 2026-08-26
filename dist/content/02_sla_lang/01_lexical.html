@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>词法与基础语法</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 词法与基础语法</div>
+<h1>词法与基础语法</h1>
+
+<p>这一页介绍 SLA 源文件（<code>.sla</code>）的词法规则：注释、关键字、字面量、注解（attribute）
+以及语句的组织方式。读完这一页，你能够读懂一个典型的 SLA 文件的整体骨架，并知道哪些记号是语言保留的。</p>
+
+<h2>源文件结构</h2>
+<p>一个 <code>.sla</code> 文件通常以若干条 <code>@import</code> 开始，随后是顶层声明
+（<code>struct</code>/<code>enum</code>/<code>fn</code>/<code>mod</code>/<code>impl</code> 等），最后可以带
+<code>@test</code> 测试块。以下骨架取自 <code>demos/rosetta/01_hello_world/main.sla</code>：</p>
+
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"
+
+fn main() -&gt; i32 {
+    println("hello, saasm");
+    return 0;
+};
+
+@test "rosetta 001 01_hello_world"() {
+    if str_eq("hello, saasm", "hello, saasm") != true {
+        panic(1);
+    };
+};</code></pre>
+
+<h2>注释</h2>
+<p>SLA 使用行注释，与 Rust/C 相同：</p>
+<pre><code>// 这是行注释，到行尾结束</code></pre>
+
+<h2>关键字</h2>
+<p>SLA 刻意保持极小的关键字集合。下表列出当前词法分析器（<code>src/lexer.zig</code> 的
+<code>checkKeyword</code>）识别的全部保留字：</p>
+
+<table>
+<tr><th>分组</th><th>关键字</th></tr>
+<tr><td>类型与声明</td><td><code>struct</code>、<code>union</code>、<code>enum</code>、<code>trait</code>、<code>impl</code>、<code>type</code>、<code>fn</code>、<code>macro</code>、<code>overload</code>、<code>mod</code>、<code>pub</code>、<code>extern</code>、<code>using</code>、<code>inline</code>、<code>unsafe</code></td></tr>
+<tr><td>控制流</td><td><code>if</code>、<code>else</code>、<code>match</code>、<code>switch</code>、<code>return</code>、<code>for</code>、<code>in</code>、<code>while</code>、<code>break</code>、<code>continue</code></td></tr>
+<tr><td>绑定与转换</td><td><code>let</code>、<code>const</code>、<code>var</code>、<code>mut</code>、<code>as</code>、<code>dyn</code>、<code>async</code>、<code>await</code></td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span><code>mut</code> 已被词法器保留，但按当前设计决策
+（Phase 1）<code>&amp;mut T</code>/<code>&amp;mut self</code> 尚未引入，<code>let mut x</code> 写法永久不引入。
+详见「所有权与生命周期」一页。</div>
+
+<h2>字面量</h2>
+<table>
+<tr><th>种类</th><th>示例（取自真实 demo / 契约文件）</th></tr>
+<tr><td>整数</td><td><code>0</code>、<code>10</code>、<code>-1</code>；可带类型后缀：<code>[1u8, 2, 3, 4]</code>（demo 04_loop）</td></tr>
+<tr><td>浮点</td><td>带小数点的数字字面量</td></tr>
+<tr><td>布尔</td><td><code>true</code>、<code>false</code></td></tr>
+<tr><td>字符串</td><td><code>"hello, saasm"</code>；格式串使用 <code>{}</code> 占位：<code>println("({}, {})", point.x, point.y)</code></td></tr>
+<tr><td>元组</td><td><code>(3, 4)</code>（demo 11_tuples）</td></tr>
+<tr><td>数组</td><td><code>[1, 2, 3, 4]</code>、定长类型标注 <code>[i32; 4]</code>（demo 13_array_sum）</td></tr>
+<tr><td>结构体字面量</td><td><code>Point { x: 10, y: 20 }</code></td></tr>
+<tr><td>闭包</td><td><code>|x: i32| x + offset</code>（demo 08_closures）</td></tr>
+</table>
+
+<h2>注解（@ 开头）</h2>
+<p>SLA 的编译期指令统一以 <code>@</code> 开头，出现在声明或块之前：</p>
+<table>
+<tr><th>注解</th><th>用途</th></tr>
+<tr><td><code>@import "...";</code></td><td>导入契约或 SLA 源文件，详见「模块与 @import」</td></tr>
+<tr><td><code>@test "名称"() { ... }</code></td><td>定义测试块，经 <code>sa sla test</code> 运行</td></tr>
+<tr><td><code>@derive(...)</code></td><td>为类型派生能力，如 <code>@derive(ord)</code>（syntax_sugar/spaceship_cmp）</td></tr>
+<tr><td><code>@overload 类型 { ... }</code></td><td>操作符重载块，限定 <code>+ - * /</code></td></tr>
+<tr><td><code>@expand_tuple(min, max, T) { ... }</code></td><td>固定范围的 tuple/arity 模板展开</td></tr>
+</table>
+
+<h2>表达式与分号</h2>
+<p>SLA 是面向表达式的语言：<code>if/else</code> 与 <code>match</code> 可以作为值返回，
+例如 <code>fn max(a: i32, b: i32) -&gt; i32 { if a &gt; b { a } else { b } }</code>（demo 03_if_else）。
+同时，代码库中的惯例是给块语句补上尾随分号（如 <code>if ... {};</code>、<code>match ... ;</code>），
+真实 demo 中两种写法都存在。</p>
+
+<p>相关页面：<a href="03_functions.html">函数与控制流</a>、<a href="04_patterns.html">模式匹配</a>。</p>
+</body>
+</html>

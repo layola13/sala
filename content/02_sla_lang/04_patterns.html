@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>模式匹配</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 模式匹配</div>
+<h1>模式匹配</h1>
+
+<p>这一页汇总 SLA 中所有“按形状取值”的写法：<code>match</code>/<code>switch</code>、
+<code>if let</code> 链、<code>let else</code>、<code>while let</code>，以及近期新增的结构体更新
+<code>Struct { ..base }</code> 与切片 rest 模式 <code>[a, b, ..rest]</code>。所有示例均取自真实 demo。</p>
+
+<h2>match 表达式</h2>
+<p><code>match</code> 对枚举值按变体分支，payload 可直接解构绑定
+（<code>demos/rosetta/06_enum_and_match/main.sla</code>）：</p>
+<pre><code>enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+}
+
+fn process_msg(msg: Message) -&gt; i32 {
+    match msg {
+        Message::Quit =&gt; {
+            return 0;
+        },
+        Message::Move { x, y } =&gt; {
+            return x + y;
+        },
+    };
+}</code></pre>
+
+<p>类元组（tuple 变体）按位置解构（<code>demos/rosetta/43_tagged_union/main.sla</code>）：</p>
+<pre><code>enum Shape {
+    Circle(i32),
+    Square(i32),
+}
+
+fn area(shape: Shape) -&gt; i32 {
+    match shape {
+        Shape::Circle(r) =&gt; { r * r * 3 },
+        Shape::Square(s) =&gt; { s * s },
+    }
+}</code></pre>
+
+<div class="note"><span class="label">注意</span>枚举 payload 的 match 提取在 direct SAB 快路径上尚未完全覆盖，
+命中时可能走 SA 兼容回退路径，详见「特性成熟度总表」。</div>
+
+<h2>switch 语句</h2>
+<p><code>switch</code> 用于对整数值做平坦分支（编译为 <code>eq</code> + <code>br</code> 分支梯）：</p>
+<pre><code>switch status {
+    200 =&gt; { return current_config + sum; },
+    500 =&gt; { return -1; },
+    default =&gt; { return 0; }
+}</code></pre>
+
+<h2>if let 链与 let else / while let</h2>
+<p>三者都建立在同一套模式分类上（Option/Result/用户枚举 tag）。以下分别取自
+demo 104、105、136：</p>
+<pre><code>// if let 链
+let result = if let Some(x) = left &amp;&amp; let Some(y) = middle &amp;&amp; let Some(z) = right {
+    x + y + z
+} else {
+    0
+};
+
+// let else：模式不匹配时进入 else 块并必须发散
+let Some(x) = value else {
+    println("{}", 0);
+    return 0;
+};
+
+// while let
+while let Some(task) = queue.pop() {
+    let resolved = task.await;
+    total = total + resolved;
+}</code></pre>
+
+<h2>元组与数组解构</h2>
+<pre><code>// 元组解构（demos/rosetta/12_destructuring）
+let (x, y) = (2, 5);
+
+// 数组 rest 解构 + 丢弃绑定（demos/rosetta/310_blank_identifier_discard）
+let [_, second, ..rest] = [10, 20, 30, 40];
+let (w2, _) = (7, 8);
+return second + rest[0] + w2;</code></pre>
+
+<p><code>_</code> 是丢弃绑定：右侧值被构造后立即由编译器托管清理，不产生未使用告警。</p>
+
+<h2>结构体更新 Struct { ..base }</h2>
+<p>结构体字面量末尾可用 <code>..base</code> 从已有值继承未显式列出的字段，
+这是前端纯改写，不引入运行时分发
+（<code>demos/syntax_sugar/struct_update/main.sla</code>）：</p>
+<pre><code>struct SpawnConfig {
+    x: i32,
+    y: i32,
+    layer: i32,
+    visible: bool,
+}
+
+fn move_to_next_layer(config: SpawnConfig) -&gt; SpawnConfig {
+    return SpawnConfig {
+        layer: config.layer + 1,
+        ..config
+    };
+}</code></pre>
+
+<div class="warning"><span class="label">警告</span>结构体更新会把 <code>base</code> 中未被替换的字段拷贝进新值。
+被更新的原值随后由编译器的托管生命周期清理处理；不要假设字段是移动出来的。</div>
+
+<p>相关页面：<a href="05_structs_enums.html">结构体与枚举</a>、<a href="10_maturity.html">特性成熟度总表</a>。</p>
+</body>
+</html>

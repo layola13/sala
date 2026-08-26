@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SA 与 SLA 概述</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; SA 与 SLA 概述</div>
+<h1>SA 与 SLA 概述</h1>
+
+<p>这一页解释两个最容易混淆的名字：<b>SA</b>（Safe ASM，安全汇编）与 <b>SLA / Sla</b>（高级语言前端）。
+读完你就能分清谁是中间表示、谁是高级语言，以及整个体系由哪几个仓库组成。</p>
+
+<h2>什么是 SA（Safe ASM）</h2>
+<p>SA 不是给人手写的语言。它是一个<b>安全的中间表示（IR）+ 运行时</b>：任何上游语言都可以把代码
+编译到 SA，再由同一套后端验证并发射为原生可执行文件或 WASM。编译器仓库 <code>sci</code> 随附：</p>
+<ul>
+<li><b>编译器核心</b>：Flattener（展开器）→ Referee（静态所有权验证器）→ LLVM-C / WASM 发射器；</li>
+<li><b><code>sa_std</code> 标准库</b>：Vec、HashMap、String、Option、Result、Arc、Mutex 以及 io/fs/net 等，
+以 <code>.sa</code> / <code>.sai</code> / <code>.sal</code> 文本格式加 Zig 运行时实现；</li>
+<li><b><code>sa</code> CLI</b>：<code>sa run</code>、<code>sa build-exe</code>、<code>sa build-wasm</code>、
+<code>sa plugin</code> 等子命令的宿主。</li>
+</ul>
+<p>SA 的设计要点一句话概括：零 AST、线性扫描、O(1) 位掩码借用检查、五符号契约
+（<code>= &amp; ^ ! *</code>）、前端负责制。SA 主要面向 LLM / 编译器前端生成，
+而非人工书写。</p>
+
+<h2>SLA 与 SA 的关系</h2>
+<p>Sla 是为 SA 打造的 Rust 风格高级语言前端，定位是「LLM 友好」。Sla 源码（<code>.sla</code>）
+不直接运行，而是编译成 SA：</p>
+<pre><code>SLA AST / 类型检查 ── 共享 lowering 规则 ──┬── SA 文本 emitter（.sa）
+                                          └── SAB 结构化 emitter（.sab）</code></pre>
+<p>这就是「Y 型」架构：一条共享的前端主干，两条用户面输出主线（<code>.sa</code> 文本与 SAB 字节码）。
+SAB 路径是当前开发主线，优先走 direct AST→SAB 快路径；命中尚未覆盖的语言特性时才回落到
+SA 兼容 lowering 路径。</p>
+<div class="note"><span class="label">注意</span>用户面 <code>.sla</code> 代码不需要手写释放：
+Sla 使用编译器托管的生命周期清理。生成的 <code>.sa</code> 里仍可能出现 <code>!</code> 指令，
+那是 SA 的所有权原语，不代表你需要在 Sla 里写它。另外 <code>&amp;mut T</code> /
+<code>&amp;mut self</code> 尚未引入，当前 <code>&amp;self</code> 同时覆盖读写。</div>
+
+<h2>体系结构总览</h2>
+<table>
+<tr><th>组成部分</th><th>位置</th><th>角色</th></tr>
+<tr><td><code>sci</code></td><td>SA 编译器仓库</td><td>编译器、Referee、LLVM/WASM 发射器、<code>sa_std</code>、<code>sa</code> CLI</td></tr>
+<tr><td><code>sa_plugin_sla</code></td><td>独立插件仓库</td><td>Sla → SA/SAB 编译器插件，提供顶级 <code>sla …</code> 命令（亦可以 <code>sa sla …</code> 经宿主调用）</td></tr>
+<tr><td><code>sa_std</code></td><td><code>sci/sa_std/</code></td><td>Sla 直接 <code>@import</code> 的标准库契约与实现</td></tr>
+<tr><td>其他插件</td><td><code>sa_plugin_*</code> 目录</td><td>sax/mui/react/vite/wgpu/db/http_*/vm/pkg/bc2sa/ts/deno/node/tui 等应用能力</td></tr>
+</table>
+<p>Sla 通过顶层导入直接使用 SA 标准库：</p>
+<pre><code>@import "sa_std/io/print.sai"</code></pre>
+<p>Sla 编译器在类型检查前加载这些 <code>.sai</code>/<code>.sal</code>/<code>.sa</code> 契约，
+契约中的 extern 函数对 Sla 代码可用。默认从环境变量 <code>SA_STD_DIR</code>（已设置时）解析
+<code>sa_std/...</code>，否则从 <code>$HOME/projects/sci/sa_std</code> 解析。</p>
+
+<h2>成熟度预期</h2>
+<p>项目处于 1.0 之前的活跃开发阶段。以 sa_plugin_sla 在 2026-07-07 的本地实测为参考：
+313 个 demo 中 <code>sa sla check</code> 前端通过 306 个，端到端
+<code>sa sla build-exe</code> 通过约 76%（239 个）。两者约 22 个百分点的差距反映
+「前端能解析」与「后端 lowering 能落地」之间的缺口。枚举 payload 提取、<code>derive</code>、
+<code>for in</code> 协议、<code>async/await</code> 等特性命中时会走回退路径；
+<code>demos/rosetta</code> 树并非全部都能端到端通过。具体进度以插件仓库的
+<code>docs/roadmap_status_cn.md</code> 为准。</p>
+
+<h2>下一步</h2>
+<ul>
+<li>搭建环境：<a href="02_install_build.html">安装与构建</a></li>
+<li>跑通第一个程序：<a href="03_quick_start.html">快速上手：第一个 SLA 程序</a></li>
+</ul>
+</body>
+</html>

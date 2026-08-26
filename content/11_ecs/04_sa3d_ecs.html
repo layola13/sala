@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SA 层的 3d_ecs 插件契约</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">ECS 开发（sla_ecs） &gt; SA 层的 3d_ecs 插件契约</div>
+<h1>SA 层的 3d_ecs 插件契约</h1>
+
+<p>本页介绍 <code>sa_plugin_3dengines/sa_plugin_3d_ecs</code> 提供的 <code>3d_ecs.sal</code> 契约：
+布局常量、查询访问标志与 SA 函数面。读完能在 SA 汇编层正确使用这些 <code>#def</code> 与函数名。</p>
+
+<div class="warning"><span class="label">警告</span>这是<b>另一个层次的东西</b>。
+<code>sa_plugin_3d_ecs</code> 是 SA 契约插件（3D 引擎插件家族成员，提供 ABI 常量与 SA 函数）；
+<a href="01_overview.html">sla_ecs</a> 则是 SLA 应用层库。两者没有调用关系上的合并叙述基础，
+不要把 <code>SA3D_ECS_*</code> 常量当作 <code>sla_ecs</code> 的 API，
+也不要认为 SLA 层的 TableErased 组合族依赖这份 .sal。</div>
+
+<h2>插件事实</h2>
+<table>
+<tr><th>项</th><th>值</th></tr>
+<tr><td>插件名 / 版本</td><td><code>3d_ecs</code> / <code>0.1.0</code>（schema <code>sa.plugin/1</code>）</td></tr>
+<tr><td>接口</td><td><code>interfaces.sal</code> 指向 <code>3d_ecs.sal</code>；同一文件以 share 资产安装为 <code>3d_ecs.sal</code></td></tr>
+<tr><td>skills</td><td><code>3d.ecs</code></td></tr>
+<tr><td>权限</td><td>仅项目目录读（<code>$PROJECT/**</code>）；无网络、无环境变量、不允许 spawn/exec</td></tr>
+<tr><td>依赖</td><td>无（README 中标注 direct dependencies 为 none）</td></tr>
+<tr><td>产物</td><td>Linux <code>zig-out/lib/lib3d_ecs.so</code>；Windows <code>zig-out/bin/3d_ecs.dll</code></td></tr>
+</table>
+
+<p>家族 README 对它的定位是「ECS ABI, lowest-priority behavior pending」——即布局契约已成形、
+行为面在家族中优先级最低。同时 README 的完成门槛说明：布局常量本身不构成完整模块，
+每个模块还需要可调用的行为与绑定到最近 Bevy crate 职责的行为测试。</p>
+
+<h2>布局常量（#def 摘录）</h2>
+<p>以下为 <code>3d_ecs.sal</code> 开头部分的逐字摘录：</p>
+<pre><code>#def SA3D_ECS_VERSION_MAJOR = 0
+#def SA3D_ECS_VERSION_MINOR = 1
+
+#def SA3D_ECS_ENTITY_ID_index = +0
+#def SA3D_ECS_ENTITY_ID_generation = +8
+#def SA3D_ECS_ENTITY_ID_SIZE = 16
+
+#def SA3D_ECS_COMPONENT_DESC_type_id = +0
+#def SA3D_ECS_COMPONENT_DESC_size = +8
+#def SA3D_ECS_COMPONENT_DESC_align = +16
+#def SA3D_ECS_COMPONENT_DESC_name_ptr = +24
+#def SA3D_ECS_COMPONENT_DESC_name_len = +32
+#def SA3D_ECS_COMPONENT_DESC_SIZE = 40
+
+#def SA3D_ECS_QUERY_TERM_component_type = +0
+#def SA3D_ECS_QUERY_TERM_access = +8
+#def SA3D_ECS_QUERY_TERM_flags = +12
+#def SA3D_ECS_QUERY_TERM_SIZE = 16</code></pre>
+
+<table>
+<tr><th>结构</th><th>字段与偏移</th><th>总大小</th></tr>
+<tr><td><code>ENTITY_ID</code></td><td><code>index</code> +0，<code>generation</code> +8（双字段）</td><td>16</td></tr>
+<tr><td><code>COMPONENT_DESC</code></td><td><code>type_id</code> +0，<code>size</code> +8，<code>align</code> +16，<code>name_ptr</code> +24，<code>name_len</code> +32</td><td>40</td></tr>
+<tr><td><code>QUERY_TERM</code></td><td><code>component_type</code> +0，<code>access</code> +8，<code>flags</code> +12</td><td>16</td></tr>
+<tr><td><code>QUERY_DESC</code></td><td><code>terms_ptr</code> +0，<code>terms_len</code> +8，<code>result_stride</code> +16</td><td>24</td></tr>
+<tr><td><code>WORLD_DESC</code></td><td><code>components_ptr</code> +0，<code>components_len</code> +8，<code>entity_capacity</code> +16，<code>FLAGS</code> +24</td><td>32</td></tr>
+<tr><td><code>ENTITY_META</code></td><td><code>generation</code> +0，<code>spawned</code> +8</td><td>16</td></tr>
+<tr><td><code>WORLD_STATE</code></td><td><code>metas_ptr</code> +0，<code>capacity</code> +8，<code>next_index</code> +16，<code>alive_count</code> +24，<code>dead_count</code> +32，<code>free_indices_ptr</code> +40，<code>free_count</code> +48</td><td>56</td></tr>
+</table>
+
+<h2>九种查询访问标志</h2>
+<table>
+<tr><th>常量</th><th>值</th></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_READ</code></td><td>1</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_WRITE</code></td><td>2</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_WITH</code></td><td>3</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_WITHOUT</code></td><td>4</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_OPTIONAL_READ</code></td><td>5</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_OPTIONAL_WRITE</code></td><td>6</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_FILTER_SET</code></td><td>7</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_READ_ALL</code></td><td>8</td></tr>
+<tr><td><code>SA3D_ECS_QUERY_ACCESS_WRITE_ALL</code></td><td>9</td></tr>
+</table>
+
+<h2>函数面</h2>
+<p><code>3d_ecs.sal</code> 共 40 个 SA 函数，签名形如：</p>
+<pre><code>@sa3d_ecs_entity_id_init(&amp;entity: ptr, index: i64, generation: i64) -&gt; void:</code></pre>
+<p>全部函数名都以 <code>@sa3d_ecs_</code> 开头，下表只列去掉该前缀的剩余部分，按用途分组：</p>
+<ul>
+<li><b>EntityId</b>：<code>entity_id_init</code>、<code>entity_id_get_index</code>、
+<code>entity_id_get_generation</code>、<code>entity_id_equal</code>；</li>
+<li><b>构造器</b>：<code>component_desc_init</code>、<code>query_term_init</code>、
+<code>query_desc_init</code>、<code>world_desc_init</code>、
+<code>world_state_init</code> / <code>world_state_init_with_free_list</code>；</li>
+<li><b>访问标志谓词</b>：<code>query_access_is_data</code>、<code>query_access_is_required_data</code>、
+<code>query_access_has_write</code>、<code>query_access_reads_all</code>、
+<code>query_access_writes_all</code>、<code>query_access_is_filter</code>、
+<code>query_access_is_valid</code>；</li>
+<li><b>冲突判定</b>：<code>query_terms_conflict</code>、<code>query_term_write_overlaps_read</code>、
+<code>query_term_requires_with</code>、<code>query_term_is_without</code>、
+<code>query_desc_has_required_with</code>、<code>query_desc_has_without</code>、
+<code>query_descs_have_data_conflict</code>、<code>query_descs_filters_disjoint</code>、
+<code>query_desc_has_filter_terms</code>、<code>query_desc_set_has_with</code>、
+<code>query_desc_set_has_without</code>、<code>query_filter_sets_ruled_out</code>、
+<code>query_descs_filters_dnf_compatible</code>、
+<code>query_descs_filters_dnf_compatible_for_a_set</code>、
+<code>query_descs_compatible</code>、<code>query_desc_validate</code>；</li>
+<li><b>world 行为</b>：<code>world_desc_get_entity_capacity</code>、
+<code>world_desc_has_components</code>、<code>world_state_get_alive_count</code>、
+<code>world_state_get_dead_count</code>、<code>world_spawn</code>、
+<code>world_contains_spawned</code>、<code>world_despawn</code>。</li>
+</ul>
+<p>冲突判定一组是这套契约的核心价值：给定两个 <code>QUERY_DESC</code>，
+可以判断数据访问是否冲突、过滤器集合是否互斥（含 DNF 形式的组合判断），
+这正是并行调度系统时需要的只读/写互斥依据。</p>
+
+<h2>测试</h2>
+<p><code>tests/3d_ecs_layout_test.sa</code> 含 10 个 <code>@test</code>，通过
+<code>@import "../3d_ecs.sal"</code> 引入契约，用 <code>alloc SA3D_ECS_*_SIZE</code>
+按常量分配后逐字段断言；失败路径使用 <code>panic(31xx)</code> 系列错误码。
+这是验证「布局常量与函数行为一致」的直接样例。</p>
+
+<div class="note"><span class="label">注意</span>SLA 应用层如何写 ECS 系统、查询如何组合，
+属于 <a href="02_architecture.html">sla_ecs 架构</a>的话题；
+本页的常量与函数只在直接编写或审阅 SA 汇编、以及核对引擎插件 ABI 时使用。</div>
+</body>
+</html>

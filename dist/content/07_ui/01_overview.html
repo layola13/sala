@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SAX 是什么与开发模型</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SAX / MUI 界面开发 &gt; SAX 是什么与开发模型</div>
+<h1>SAX 是什么与开发模型</h1>
+
+<p>这一页解释 SAX 的定位、一个 SAX 界面工程的组成方式，以及"纯界面、静态占位数据"的开发模型。
+读完你就能判断什么场景适合用 SAX，并理解后续几页要讲的语法、结构与工具链。</p>
+
+<h2>SAX 是什么</h2>
+<p>SAX 是 SA 的界面方言插件（<code>sa_plugin_sax</code>），把 <code>.sax</code> 源文件编译成可直接在浏览器运行的产物：
+<code>app.wasm</code>（组件逻辑）、<code>airlock.js</code>（WASM 与 DOM 之间的桥）、<code>index.html</code> 和中间产物 <code>app.sa</code>。
+在 SAX 之上还有两个配套插件：<code>sa_plugin_react</code> 提供 React 风格的写法（<code>className</code>、事件别名、大写组件组合等），
+<code>sa_plugin_mui</code> 提供以 SAX 源码形式发布的 Material 组件库（<code>mui/material.sax</code>、<code>mui/icons_material.sax</code>）。</p>
+<div class="note"><span class="label">注意</span>你的代码与 JS/TS 构建链物理隔离：<code>.sax → WASM</code> 全程走 SA 工具链，
+没有 esbuild/tsc/node。浏览器里唯一的 JS 是机器生成的胶水（<code>airlock.js</code> 和 dev 热重载客户端），不进入你的源码。</div>
+
+<h2>纯界面工程模型</h2>
+<p>最佳实践样本是 <code>D:\projects\sla\codex_ui</code>：把一个 React 界面用 SAX 工具链重构的<strong>纯界面工程</strong>。它的边界约定：</p>
+<ul>
+<li><strong>只做界面</strong>：不含真实业务逻辑，所有数据都是静态占位文本（如 "CPU 23% · MEM 41%"、"12.4k in / 3.1k out"）。</li>
+<li><strong>每个界面一个独立 <code>.sax</code> 文件</strong>：入口是根目录的 <code>app.sax</code>，屏幕和区域组件在 <code>screens/</code>，设置分区在 <code>screens/settings/</code>。</li>
+<li><strong>跨文件组件共享同一命名空间</strong>：所有文件通过 <code>--include</code> 一并传给编译器，大写开头的标签即可互相引用。</li>
+<li><strong>样式全部走全局 CSS 类</strong>（<code>app.css</code>），MUI 库组件用 <code>className</code> 加子文本/属性定制外观。</li>
+<li><strong>交互只做状态切换</strong>：布尔状态 + <code>fn handler()</code> + <code>render()</code>，没有路由、没有网络请求。</li>
+</ul>
+
+<h2>开发导航条：多屏切换的门禁替代品</h2>
+<p>原 React 应用的状态机门禁/对话框开关，在 SAX 里被替换成一个固定在页面底部的「开发导航条」
+（类名 <code>cxu-devnav</code>）。入口组件为每个屏幕声明一个 <code>i1</code> 布尔状态，点击按钮时把目标屏置 <code>true</code>、其余置 <code>false</code> 并调用 <code>render()</code>；
+每个屏幕包在 <code>&lt;section className="cxu-screen{nav_xxx ? '' : ' cxu-hidden'}"&gt;</code> 里，靠 <code>cxu-hidden</code>（<code>display:none</code>）实现互斥显示。
+设置抽屉内部也用同样手法实现 17 个分区的左栏切换（<code>sec_xxx</code> 状态族）。</p>
+
+<pre><code>&lt;Component name="CodexUiApp"&gt;
+  &lt;state&gt;
+    nav_workbench = 1 as i1
+    nav_settings = 0 as i1
+  &lt;/state&gt;
+
+  &lt;div className="cxu-app"&gt;
+    &lt;section className="cxu-screen{nav_workbench ? '' : ' cxu-hidden'}"&gt;
+      &lt;WorkbenchScreen /&gt;
+    &lt;/section&gt;
+    &lt;section className="cxu-screen{nav_settings ? '' : ' cxu-hidden'}"&gt;
+      &lt;SettingsDrawerScreen /&gt;
+    &lt;/section&gt;
+    &lt;nav className="cxu-devnav"&gt;
+      &lt;button onClick={goto_workbench}&gt;工作台&lt;/button&gt;
+      &lt;button onClick={goto_settings}&gt;设置&lt;/button&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+
+  fn goto_settings() {
+    nav_workbench = false;
+    nav_settings = true;
+    render();
+  }
+&lt;/Component&gt;</code></pre>
+
+<h2>本章节阅读路线</h2>
+<ol>
+<li><a href="02_syntax.html">SAX 语法规则</a> —— 标签、属性、插值与 handler 的硬性边界。</li>
+<li><a href="03_project_structure.html">项目结构约定</a> —— 入口、screens/、settings 分区、导航条。</li>
+<li><a href="04_styling.html">样式体系</a> —— theme.css 令牌、styles/*.css 分工与拼接顺序。</li>
+<li><a href="05_mui.html">组件库 mui 概览</a> —— material.sax / icons_material.sax 里有什么。</li>
+<li><a href="06_toolchain.html">react/vite 插件集成与本地预览</a> —— 编译、热重载、静态构建。</li>
+<li><a href="07_getting_started.html">从零新建一个 SAX 界面工程</a> —— 最小可运行步骤。</li>
+</ol>
+</body>
+</html>

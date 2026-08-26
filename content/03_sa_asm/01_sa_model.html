@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SA 概念模型</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SA 汇编与 SAB &gt; SA 概念模型</div>
+<h1>SA 概念模型</h1>
+
+<p>这一页解释 Safe ASM（SA）的核心抽象：扁平指令流、寄存器、栈/堆内存，以及
+<code>=</code> <code>&amp;</code> <code>^</code> <code>!</code> <code>*</code>
+五个所有权符号的语义。读完可以看懂任何一份 <code>.sa</code> 文件的结构，
+并理解为什么 SA 校验器（Referee）会对寄存器的使用方式做出种种限制。</p>
+
+<h2>零 AST：只有扁平指令数组</h2>
+<p>SA 没有 AST，也没有结构化控制流。整个程序是一条扁平的指令数组，用 <code>u32</code>
+下标索引；控制流完全由标签和跳转表达。设计文档把这条数组定为编译管线的汇合点：
+文本汇编（<code>.sa</code>）和二进制 SAB（<code>.sab</code>）两种输入在此产出完全等价的
+<code>Instruction[]</code>。编译器只做单次前向线性扫描，唯一的例外是分支汇合点上的 Phi 状态求交集。</p>
+
+<h2>寄存器与仿射使用</h2>
+<p>SA 的值都放在具名寄存器里（如 <code>x</code>、<code>tmp_0</code>、<code>ok</code>）。
+寄存器是<strong>仿射的</strong>：每个值只能被消费一次，消费后即失效。
+因此把一个值传给函数、把它 <code>store</code> 出去、或在 <code>return</code>
+中使用之后，都必须视为已移动；如果后续还想读它，需要重新 <code>alloc</code> 或 <code>load</code>。
+这也解释了两条常见写法：</p>
+<ul>
+<li><code>return call @fn(...)</code> 不被支持——flattener 会把它当成返回一个名为
+<code>call @fn(...)</code> 的寄存器而报 <code>UnknownRegister</code>；必须拆成
+<code>r = call @fn(...)</code> 加 <code>return r</code> 两行。</li>
+<li>每个分支出口都要手动释放仍然活跃的寄存器（一串 <code>!reg</code>），否则触发 <code>MemoryLeak</code>。</li>
+</ul>
+
+<h2>栈、堆与字段偏移</h2>
+<p><code>alloc N</code> 在堆上分配 N 字节并返回指针寄存器；<code>stack_alloc N</code>
+分配栈槽（用于可变局部变量，不能逃逸出当前帧）。字段访问不是语法，而是约定：
+用 <code>#def Point_x = +0</code> 声明偏移常量，再用
+<code>load point+Point_x as i32</code> / <code>store point+Point_x, v as i32</code> 读写。</p>
+
+<h2>五符号契约</h2>
+<table>
+<tr><th>符号</th><th>含义</th><th>典型形态</th></tr>
+<tr><td><code>=</code></td><td>定义新寄存器</td><td><code>x = load p+0 as i64</code></td></tr>
+<tr><td><code>&amp;</code></td><td>借用（共享或独占，由 Referee 依后续操作推导）</td><td>参数 <code>(&amp;arr: ptr)</code>、实参 <code>@fill_zero(&amp;buffer)</code></td></tr>
+<tr><td><code>^</code></td><td>转移所有权（move）</td><td>参数 <code>(^msg: ptr)</code>、实参 <code>call @process_msg(^msg)</code></td></tr>
+<tr><td><code>!</code></td><td>释放 / 结束生命周期</td><td><code>!x</code>；函数签名的 <code>-&gt; i32!</code> 表示可失败</td></tr>
+<tr><td><code>*</code></td><td>裸指针降级（rawcast），仅限气闸舱上下文</td><td><code>raw = *safe</code>、<code>@extern fd_open(*path: ptr)</code></td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>SA 语法层没有 <code>&amp;mut</code>；
+Referee 会根据借用之后是否出现 <code>store</code> 来推导独占写借用。SLA 语言层的
+<code>&amp;mut T</code> 也尚未引入，<code>&amp;self</code> 当前同时覆盖读写。</div>
+
+<h2>能力掩码（CapabilityMask）</h2>
+<p>Referee 用一个位掩码跟踪每个寄存器的状态，校验都是 O(1) 的位运算。掩码存储类型为 <code>u16</code>：</p>
+<pre><code>bit 0  (0x0001)  Active        bit 6  (0x0040)  Untracked
+bit 1  (0x0002)  Locked_Read   bit 7  (0x0080)  Fallible
+bit 2  (0x0004)  Locked_Mut    bit 8  (0x0100)  Immutable   （@const 全局常量）
+bit 3  (0x0008)  Consumed      bit 9  (0x0200)  InteriorPtr
+bit 4  (0x0010)  BorrowView
+bit 5  (0x0020)  FfiBorrow</code></pre>
+<p>诊断 JSON 中出现的 <code>expected_mask</code> / <code>actual_mask</code> 字段指的就是这组位；
+<code>BorrowConflict</code>、<code>UseAfterMove</code>、<code>CapabilityMismatch</code>
+等 trap 都源于掩码不满足要求。</p>
+
+<h2>前端责任制</h2>
+<p>SA 刻意不做作用域分析：Drop 插入位置、Phi 一致性、清理路径都由上游前端（人或 SLA 编译器）负责，
+Referee 只做事后校验。<code>assume_safe</code> / <code>assume_borrow</code> /
+裸指针这类"洗白"操作只能出现在 <code>@ffi_wrapper</code> 函数里，否则报
+<code>IllegalUnsafeContext</code>。</p>
+
+<p>下一页：<a href="02_sa_syntax.html">SA 文本汇编速览</a>，用真实示例展示指令形状。</p>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>常见问题 FAQ</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">FAQ 与故障排查 &gt; 常见问题 FAQ</div>
+<h1>常见问题 FAQ</h1>
+
+<p>这一页以问答形式汇总使用 SLA 时最常见的语义与命令行疑问，覆盖变量与所有权、类型、错误处理和 SAB 构建流程。读完可以快速判断某个写法在 SLA 中是否合法、应该换成什么写法。</p>
+
+<h2>变量、赋值与所有权</h2>
+
+<h3>Q：<code>let</code> 声明的变量默认可变吗？</h3>
+<p>是。SLA 中 <code>let</code> 绑定默认可变：本地绑定可以被重新赋值，拥有的聚合字段/元素在值可用时也可以更新。<code>const</code> 是不可变绑定形式。SLA 不引入 Rust 风格的 <code>mut</code>，也没有 <code>final</code>/<code>readonly</code> 关键字。</p>
+
+<h3>Q：<code>let b = a;</code> 之后 <code>a</code> 还能用吗？</h3>
+<p>取决于类型。整数、浮点、布尔等标量是拷贝语义；小结构体可以用 <code>@derive(copy)</code> 让 <code>let b = a;</code> 生成为逐字段的独立拷贝。对拥有的堆/资源类值（如 <code>Vec&lt;T&gt;</code>），应视为所有权转移——除非显式克隆，不要假设深拷贝或廉价共享别名。</p>
+
+<h3>Q：按值传参后调用者的值还能用吗？</h3>
+<p><code>x: T</code> 形式的参数是拥有型/值参数。对标量与类似拷贝的值没有影响；对拥有的资源值应视为所有权转移。需要保留时改用借用形参 <code>x: &amp;T</code> 或返回值。显式移动运算符是 <code>^expr</code>。</p>
+
+<h3>Q：为什么没有 <code>&amp;mut</code> 和生命周期标注？</h3>
+<p>这是底层 SA 语言的设计决定：共享读与独占写由 SA Referee 在运行时上下文中用位掩码动态判定（写入借用视图时标记为独占，冲突直接 Trap），跨函数借用图追踪则由前端负责。SLA 当前阶段不引入任何 <code>mut</code> 写法，<code>&amp;self</code> 同时覆盖读与写的场景。</p>
+
+<div class="note"><span class="label">注意</span>多个可写别名不应假设被允许。别名约束来自所有权/借用追踪、内部可变性类型的运行时检查以及 SA 验证。</div>
+
+<h2>类型与语法面</h2>
+
+<h3>Q：有哪些数值类型？转换要显式吗？</h3>
+<p>包括 <code>i8/i16/i32/i64/isize</code>、<code>u8/u16/u32/u64/usize</code>、<code>f32/f64</code>，以及别名 <code>int</code>-&gt;<code>i64</code>、<code>float</code>-&gt;<code>f64</code>。数值转换必须用显式 <code>as</code>，不要依赖隐式截断或提升。</p>
+
+<h3>Q：有没有 <code>null</code>？字符串是什么编码？</h3>
+<p>没有通用 null/nil 值，缺失用 <code>Option&lt;T&gt;</code>/<code>None</code> 表达。字符串设施来自 SA std（<code>String</code> 及切片式 API），字符串字面量按 UTF-8 常量发射。</p>
+
+<h3>Q：函数能重载吗？有默认参数吗？</h3>
+<p>没有按签名的一般函数重载，也没有稳定支持的默认参数、命名参数和变长参数；请使用不同函数名或泛型。操作符重载仅支持受限形式 <code>@overload Type { fn +(self: Type, other: Type) -&gt; Type { ... } }</code>，且限于 <code>+ - * /</code>，在类型检查期降级为静态函数调用，没有运行时分发开销。</p>
+
+<h3>Q：<code>match</code> 能解构枚举吗？</h3>
+<p>可以。<code>match</code>、<code>if let</code>、<code>while let</code>、<code>let ... else</code> 都支持枚举模式，包括 <code>Some</code>/<code>None</code>/<code>Ok</code>/<code>Err</code> 等常见形态。注意枚举负载布局相关的降低仍在完善中，详见本章节<a href="05_limitations_roadmap.html">「当前局限与路线图状态」</a>。</p>
+
+<h2>错误处理与运行行为</h2>
+
+<h3>Q：<code>? </code>、<code>panic(...)</code> 分别做什么？</h3>
+<p>后缀 <code>? </code> 用于 <code>Option</code>/<code>Result</code> 风格的错误传播；<code>panic(...)</code> 降低为 SA panic 行为——在测试中除非标注了 <code>@should_panic</code> 否则判为失败，正常运行时终止当前执行。没有一般意义的异常机制。</p>
+
+<h3>Q：有垃圾回收或自定义析构吗？</h3>
+<p>没有 tracing GC。清理由编译器管理：在作用域退出、分支、提前返回和循环边界为活跃的拥有值插入释放指令，再交由 SA 验证器证明不泄漏。没有稳定的用户自定义 <code>Drop</code> trait 表面，清理请走显式函数或 std/容器 API。</p>
+
+<h2>SAB 构建与测试后端</h2>
+
+<table>
+<tr><th>命令 / 选项</th><th>说明</th></tr>
+<tr><td><code>sla build</code></td><td>.sa 文本主线路径。</td></tr>
+<tr><td><code>sla sab build</code> / <code>slab build</code></td><td>产出 SAB 工件，默认写在 <code>.sla-cache/sab/</code> 下。</td></tr>
+<tr><td><code>--out &lt;file.sab&gt;</code> / <code>-o</code></td><td>额外写出可见的 <code>.sab</code> 文件；workspace 用 <code>--sab-out</code>，<code>--emit-sab</code> 生成源文件同名的兄弟 <code>.sab</code>。</td></tr>
+<tr><td><code>sla test</code></td><td>默认 <code>--test-backend auto</code>：写托管 SAB 并交给 <code>sa test</code>，不回退到 <code>.test.sa</code>；需要旧文本路径时用 <code>--test-backend sa</code>。</td></tr>
+<tr><td><code>sla init [path]</code></td><td>脚手架最小二进制项目（<code>sa.mod</code>、<code>src/main.sla</code>，并把 <code>.sla-cache/</code> 写进 .gitignore）。</td></tr>
+</table>
+
+<div class="note"><span class="label">提示</span>表中命令均为顶级 <code>sla</code> 命令形式；
+每种都有等价的 <code>sa sla …</code> 写法（去掉前缀互换），例如 <code>sla sab build</code>
+即 <code>sa sla sab build</code>。顶级 <code>sla.exe</code> 由全自动安装包或
+<code>install_windows.ps1</code> 提供。</div>
+
+<div class="warning"><span class="label">警告</span>当直接 AST-&gt;SAB 快速路径尚未覆盖某个特性时，插件会退回到内存中的 SA 兼容降低 + SCI 展平器来编码 SAB。这条回退路径明显更慢，定位方法见本章节<a href="02_compile_failures.html">「编译失败排查」</a>与<a href="04_performance.html">「性能与优化预期」</a>。</div>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/faq.md（快照 2026-06-22）、sci/docs/faq.md、rust_surface_compat_report_cn.md。</p>
+</body>
+</html>

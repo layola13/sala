@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>已知问题与回归史</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">ECS 开发（sla_ecs） &gt; 已知问题与回归史</div>
+<h1>已知问题与回归史</h1>
+
+<p>本页汇总 <code>sa_plugin_sla</code> 文档中记录的 <code>sla_ecs</code> 相关缺陷与回归：
+三个已修复的 issue、Module Table 真实项目复测，以及带日期的性能微观点测。
+读完能理解这些记录的口径与当前状态。</p>
+
+<div class="warning"><span class="label">警告</span>所有性能数字都是<b>未标定</b>的开发过程观测，
+来自 <code>current_plan.md</code> 与回归 issue 文档，环境为本地 <code>sla-local-cli</code>
+或安装版 dev 插件。文档自身多次声明「样本间存在噪声」「不能据此声称 latency target 已关闭」。
+这些数字只能用于量级判断，不能作为基准测试结论引用。</div>
+
+<h2>issue035：rescan summary repeated field load 的 UseAfterMove</h2>
+<ul>
+<li><b>日期 / 状态</b>：2026-07-16，fixed and verified。</li>
+<li><b>现象</b>：generated-SA 后端在编译聚焦的 ready-batch rescan 测试时报
+<code>error[UseAfterMove]</code>（函数
+<code>@sla__ecs_executor_ready_batch_rescan_summary_deep3</code>，寄存器 <code>tmp_3969</code>）；
+默认后端与 <code>sa sla check</code> 都通过——故障在 SLA SA 文本代码生成，不在 ECS 调度行为本身。</li>
+<li><b>下游复现</b>：<code>tests/test_ecs_lib_executor_multi_threaded_deep_isolated.sla</code>
+过滤用例 <code>mt_deep_ready_batch_rescan_records_three_skipped_slots</code>。</li>
+<li><b>根因</b>：SA 文本的字段下探把生成的寄存器名当作所有权启发式；
+被赋值的聚合局部变量可能解析成 <code>tmp_*</code> 寄存器，但它仍是局部绑定，
+不应在每次字段投影后被释放。与 issue034 共享同一字段基址生命周期根因。</li>
+<li><b>修复</b>：<code>src/lowering_rules.zig</code> 新增
+<code>fieldBaseResultNeedsRelease()</code> 共享规则——当生成的 <code>tmp_*</code> 寄存器
+是标识符的解析绑定时保持存活，真正的临时字段基址照旧释放；
+<code>src/codegen.zig</code> 在元组字段、手动 drop 结构体字段、普通结构体字段三处使用该规则。</li>
+</ul>
+
+<h2>issue038：scope completion 栈槽聚合调用的 UseAfterMove</h2>
+<ul>
+<li><b>日期 / 状态</b>：2026-07-16，fixed。</li>
+<li><b>现象</b>：默认 / direct-SAB 后端在聚焦的 scope-completion 测试上报
+<code>error[UseAfterMove]</code>（寄存器
+<code>sla__ecs_scope_completion_complete_pending_at_i32__param_0_queue</code>）；
+<code>sa sla check</code> 成功。同一缺陷也在更早的 scope-completion 测试中复现，
+说明与新引入的 panic/catch 用例无关。</li>
+<li><b>下游复现</b>：<code>lib/task_scope_completion.sla</code> 过滤用例
+<code>scope completion pending first task blocks result drain</code>。</li>
+<li><b>最小复现形状</b>：把含两个 <code>Vec</code> 字段的 <code>QueueState</code>
+传给只读 helper，之后继续读写原聚合；direct SAB 发出
+<code>@sla__queue_len(^sla__complete_pending__param_0_queue)</code>，
+移动前缀调用提前消费了参数。</li>
+<li><b>根因</b>：direct-SAB 调用下探可以通过浅拷贝外层 ABI 槽来保住后续还要使用的普通聚合，
+但其资格判定拒绝了任何含标准 owner（如 <code>Vec</code>）的聚合——即使 owner
+只是外层聚合内部的一个指针 ABI 槽——于是回退成移动原聚合。</li>
+<li><b>修复规则</b>：顶层标准 owner 保持不可复制；
+只有「普通外层聚合为了临时按值调用实参而浅拷贝嵌套 owner 槽」这一种情况被允许，
+且浅拷贝只直接存储嵌套 owner 槽，不递归复制其内部。</li>
+</ul>
+
+<h2>issue044：repeated <code>let</code> 函数指针别名的 CodegenError</h2>
+<ul>
+<li><b>日期 / 状态</b>：2026-07-17，fixed。</li>
+<li><b>现象</b>：默认与 generated-SA 后端在执行前失败：
+<code>SAB Error: failed to lower SLA through SA-compatible SAB path: error.CodegenError</code>；
+generated-SA 定位到的第一个失败单态化函数是
+<code>ecs_parallel_task_pool_scope_run_tasks_shared_serial_i32_i32</code>。</li>
+<li><b>下游复现</b>：<code>tests/test_ecs_parallel_runner_scope_executor_isolated.sla</code>
+过滤用例 <code>sharing scope executor ticks scope</code>；既有回归
+<code>tests/test_ecs_mut_parallel.sla</code> 的
+<code>task pool scoped task set external only stays off pool</code> 同样失败。</li>
+<li><b>触发形状</b>：从 <code>Vec</code> 取函数指针，在两个循环里各自
+<code>let run = runs[i]</code> 再调用 <code>run(...)</code>。</li>
+<li><b>根因一</b>：重复 <code>let</code> 绑定经生成绑定别名下探，
+而函数指针调用路径直接用源码原名查 <code>local_binding_types</code>；
+推导出的函数指针类型登记在活动别名之下，查询返回 <code>null</code>，
+于是发出裸 <code>CodegenError</code>。应使用别名感知的
+<code>localBindingTypeForName</code>。</li>
+<li><b>根因二</b>：修完查询后 generated-SA 又暴露
+<code>error[MemoryLeak]: live registers remain at function exit</code>——
+生成寄存器持有了传给 <code>Vec.push</code> 的函数指针 vtable 地址；
+特化的 <code>vec(...)</code> / <code>Vec.push(...)</code> 路径用了只看 AST 标识符节点的
+<code>callArgNeedsRelease</code>，须改用 <code>callArgResultTempNeedsRelease</code>。</li>
+<li><b>修复提交</b>：<code>adf98e2</code>（别名感知查找）、<code>e2406dc</code>（释放生成临时）。</li>
+</ul>
+
+<h2 id="module-table">Module Table 真实项目复测回归</h2>
+<p>发现时间 2026-07-09。背景：Module Table / imported macro direct-callee pruning /
+synthetic benchmark 完成后，按要求切到真实 <code>sla_ecs</code> 项目复测；
+合成 benchmark 通过，但真实大项目暴露出多个回归点。当前口径
+（2026-07-19）：<b>correctness closed / performance still open</b>。</p>
+<table>
+<tr><th>问题</th><th>表现</th><th>状态</th></tr>
+<tr><td>前端 check 崩溃</td><td><code>lib/world_table_erased.sla</code> check 收到 <code>SIGABRT</code>
+（<code>markSyntacticReachableFunc</code> 让 <code>StringHashMap</code> 持有悬垂 key）</td><td>已修复；耗时约 4.46s → 2.02s，后续优化至约 1.36s</td></tr>
+<tr><td>默认 SAB panic</td><td><code>lib/parallel_table_erased.sla</code> 测试退出码 125、<code>panic: code=8701</code></td><td>已修复（模板缓存深拷贝 symbol pool、宏参数卫生前缀 remap、call-arg 消费保护）</td></tr>
+<tr><td>strict SAB PhiStateConflict</td><td><code>lib/parallel_iterator.sla</code> 局部 <code>chunk</code> 在不同分支 Consumed/Active 冲突</td><td>已修复；整文件 strict SAB 10/10 通过</td></tr>
+</table>
+
+<p>配套的编译器修复还包括：<code>buildReachableSymbols</code> 扫描 root <code>@test</code> body、
+导入模块的 <code>@test</code> 不再 flatten 进 root check、以及若干新增 Zig 回归与
+SLA fixture（如 <code>tests/test_unit_sab_stack_aggregate_shallow_copy_arg.sla</code>）。</p>
+
+<h2 id="perf">性能现状（微观观测）</h2>
+<p>以下均为带日期的单点观测，口径各异，彼此不可直接比较：</p>
+<table>
+<tr><th>日期</th><th>观测</th></tr>
+<tr><td>2026-07-11</td><td>clean profile 证据较差：<code>parallel_query import expand 4828ms</code>、
+<code>parallel_table_erased 5946ms</code>（lazy generic-template discovery 切片，正确性恢复但延迟目标开放）</td></tr>
+<tr><td>2026-07-11</td><td>增量导入物化切片：<code>parallel_query import expand 3483ms → 2334ms</code>
+（reachable materialize 2866ms → 1514ms）；<code>parallel_table_erased 6006ms → 4207ms</code></td></tr>
+<tr><td>2026-07-13</td><td>namespace-local helper binding checkpoint 自述为性能回归样本：
+<code>parallel_query import expand 868ms</code> / elapsed 4.34s；
+<code>parallel_table_erased import expand 1156ms</code> / elapsed 5.23s</td></tr>
+<tr><td>2026-07-19</td><td>warm check：<code>parallel_runner ~0.65s</code>、
+<code>system_param_table_erased ~0.98s~1.3s</code>；warm build <code>parallel_runner</code>
+经 contract/macro/import-list 缓存与 reachable plan cache 从约 1.89s 逐步降到约 0.85s</td></tr>
+<tr><td>持续</td><td>focused generated-SA 的 SLA 前端从历史约 1.9s 降到当前约 1.2–1.3s，
+目标是几百毫秒级；剩余大头是 <code>import expand</code>、<code>parse</code>、
+<code>load contracts</code> 与可达性 body 遍历。<code>world_table_erased.sla</code>
+展开后约 678KB / 571 个函数，check 时传递有序模块数 12（<code>parallel_runner</code> 为 16）</td></tr>
+</table>
+
+<h2>2026-07-19 的其余编译器侧修复</h2>
+<ul>
+<li>SA <code>vec.push</code> 对含纯 enum 的 POD 结构体不再错误 <code>^</code> 消费；
+<code>component_register_table</code> 的 <code>push(info); return (registry, info)</code> 恢复通过。</li>
+<li>循环内仍需存活的 by-value <code>Vec</code> 参数在 SA/SAB 调用点克隆，
+消除 <code>find_archetype</code> 类 <code>PhiStateConflict</code>；
+strict SAB <code>lib/parallel_table_erased.sla</code> focused 通过。</li>
+<li>SA 全路径 <code>parallel_table_erased</code> focused 仍暴露另一类
+<code>CapabilityMismatch</code>（<code>ecs_box_drop</code> 前缀），记为剩余 SA 后端问题。</li>
+</ul>
+
+<h2>延伸阅读（同目录文档）</h2>
+<p><code>sa_plugin_sla/docs/</code> 下还有多篇以 <code>sla_ecs</code> 为宿主的 issue 记录，
+例如 <code>sab_anyof9_table_erased_memoryleak_issue_cn.md</code>、
+<code>sab_parallel_runner_whole_file_memoryleak_issue_cn.md</code>、
+<code>sab_system_param_removed_components_memoryleak_issue_cn.md</code>、
+<code>sab_aggregate_mut_parallel_use_after_move_issue_cn.md</code> 等。
+它们的共同模式是：<code>sla_ecs</code> 作为真实宿主暴露编译器缺陷，
+先做最小编译器 fixture，再修共享层，最后回到宿主 focused 测试复验。</p>
+
+<div class="note"><span class="label">注意</span>阅读这些记录时应始终核对状态行与日期：
+同一文件在不同时间的结论可能相反（如 AnyOf9 记录中 2026-07-06 发现、2026-07-19 才标记
+fixed/verified）。宏能力层面的改进计划见<a href="03_macros.html">宏使用格局与编译器改进路线</a>。</div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>标准库总览</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; 标准库总览</div>
+<h1>标准库总览</h1>
+
+<p>这一页介绍 SA/SLA 标准库 <code>sa_std</code> 的组织方式：如何导入模块、编译器在哪里找到它、
+<code>.sai</code> / <code>.sal</code> / <code>.sa</code> 三种契约文件分别承载什么，以及句柄与缓冲区的通用管理约定。
+读完即可按路径定位需要的模块，并知道去哪个文件核对函数签名。</p>
+
+<h2>导入方式</h2>
+<p>Sla 直接导入 SA 顶层 <code>sa_std</code> 包，写法是带 <code>sa_std/</code> 前缀的完整契约路径：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"</code></pre>
+<p>Sla 编译器会在类型检查之前加载导入的 <code>.sai</code> / <code>.sal</code> 契约，
+因此契约里声明的 <code>@extern</code> 函数对 Sla 代码直接可用。</p>
+
+<div class="note"><span class="label">注意</span>Sla 源码默认使用编译器托管的生命周期清理，
+用户面 <code>.sla</code> 代码不需要显式 <code>!x;</code> 释放；生成的 <code>.sa</code> 里仍可能出现
+<code>!</code> 指令，那是 SA 的所有权原语。Sla 有意不提供 <code>drop</code> 关键字或
+<code>drop()</code> 函数。</div>
+
+<h2>SA_STD_DIR 解析顺序</h2>
+<table>
+<tr><th>顺序</th><th>条件</th><th>解析位置</th></tr>
+<tr><td>1</td><td>已设置环境变量 <code>SA_STD_DIR</code></td><td>从 <code>$SA_STD_DIR</code> 解析 <code>sa_std/...</code></td></tr>
+<tr><td>2</td><td><code>SA_STD_DIR</code> 未设置</td><td>从 <code>$HOME/projects/sci/sa_std</code> 解析</td></tr>
+</table>
+
+<h2>三种契约文件</h2>
+<table>
+<tr><th>扩展名</th><th>内容</th><th>典型例子</th></tr>
+<tr><td><code>.sai</code></td><td><code>@extern</code> 函数签名（逐字即 ABI），由 Zig 实现的运行时模块提供，如 <code>io</code>、<code>fs</code>、<code>net</code>、<code>encoding/json</code></td><td><code>@extern sa_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td></tr>
+<tr><td><code>.sal</code></td><td>布局与常量契约：<code>#def Struct_SIZE = 24</code>、字段偏移 <code>Vec_len = +16</code>、错误码等</td><td><code>alloc/vec.sal</code>、<code>hashmap.sal</code></td></tr>
+<tr><td><code>.sa</code></td><td>SA 汇编宏（<code>[MACRO] ... EXPAND ...</code>），把若干指令和 extern 调用封装成可复用操作</td><td><code>vec.sa</code> 的 <code>VEC_NEW</code>、<code>fs.sa</code> 的 <code>FS_READ_TO_STRING</code></td></tr>
+</table>
+<p>Sla 侧的类型方法面（例如 <code>Vec::push</code>、<code>Option::unwrap</code>）由插件的
+<code>sla_std/std_surface.sla_meta</code> 描述：这张表声明"某类型的某方法 lower 到 sa_std 的某个宏"，
+direct SAB 后端按规则生成代码，不在编译器里硬编码库语义。</p>
+
+<h2>模块地图</h2>
+<table>
+<tr><th>路径（相对 <code>sa_std/</code>)</th><th>内容</th><th>契约形式</th></tr>
+<tr><td><code>io/print.sai</code>、<code>io.sai</code></td><td>stdin/stdout/stderr、读行、读写、打印</td><td><code>.sai</code></td></tr>
+<tr><td><code>fmt.sai</code></td><td>i64/u64/f64/bool/bytes 的格式化到 owned 缓冲</td><td><code>.sai</code></td></tr>
+<tr><td><code>string.sai</code>、<code>string.sa</code></td><td>ASCII/UTF-8 判定与遍历、字符串宏</td><td><code>.sai</code> + <code>.sa</code></td></tr>
+<tr><td><code>vec.sa</code>、<code>hashmap.sa</code>、<code>btree_*.sa</code> 等</td><td>Vec / HashMap / HashSet / BTreeMap / BTreeSet 等集合</td><td><code>.sa</code> + <code>.sal</code></td></tr>
+<tr><td><code>core/option.sa</code>、<code>core/result.sa</code>、<code>core/box.sa</code> 等</td><td>Option / Result / Box / Rc / Arc / Cell / RefCell</td><td><code>.sa</code></td></tr>
+<tr><td><code>fs.sai</code></td><td>文件读写、目录遍历、metadata、复制链接等</td><td><code>.sai</code></td></tr>
+<tr><td><code>env.sai</code></td><td>环境变量、工作目录、参数、XDG 目录</td><td><code>.sai</code></td></tr>
+<tr><td><code>time.sai</code>、<code>time/</code></td><td>单调时钟、Unix 时间、睡眠、Duration/Instant</td><td><code>.sai</code></td></tr>
+<tr><td><code>process.sai</code></td><td>子进程 spawn/run/wait/signal/capture</td><td><code>.sai</code></td></tr>
+<tr><td><code>net.sai</code>、<code>netx.sai</code>、<code>http2.sai</code></td><td>TCP/UDP/Unix 套接字、URL 与 WebSocket 编解码、io_uring 反应器、HTTP/2</td><td><code>.sai</code></td></tr>
+<tr><td><code>encoding/json.sai</code>、<code>text/regex.sai</code></td><td>JSON 解析/序列化/流式 writer；正则表达式</td><td><code>.sai</code></td></tr>
+<tr><td><code>term.sai</code>、<code>os/fd.sai</code>、<code>thread.sai</code>、<code>testing/assert.sai</code></td><td>终端 raw 模式与 epoll、原始 fd、线程、测试断言</td><td><code>.sai</code></td></tr>
+</table>
+
+<h2>资源管理约定</h2>
+<ul>
+<li>多数运行时模块返回<strong>不透明句柄</strong>（<code>u64</code> 或 <code>ptr</code>），必须显式关闭：
+<code>sa_io_close</code>、<code>sa_fs_metadata_free</code>、<code>sa_json_free</code> 等。</li>
+<li>"owned 缓冲区句柄"统一是三件套：<code>..._buffer_data</code> 取数据指针、
+<code>..._buffer_len</code> 取长度、<code>..._buffer_free</code> 释放，
+如 <code>sa_fmt_buffer_* / sa_fs_read_buffer_* / sa_env_buffer_* / sa_json_buffer_*。</code></li>
+<li>stdio 句柄由进程持有，属于借用句柄，不要 close。</li>
+<li>返回类型里的 <code>!</code> 表示 fallible（可失败）返回，例如 <code>-&gt; u64!</code>、<code>-&gt; i32!</code>。</li>
+</ul>
+<div class="warning"><span class="label">警告</span>各章列出的签名均逐字摘自仓库内的
+<code>.sai</code> 契约文件。若你的 <code>SA_STD_DIR</code> 指向的版本不同，请以本地契约为准。</div>
+
+</body>
+</html>

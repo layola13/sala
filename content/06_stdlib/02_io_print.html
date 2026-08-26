@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>io 与 print：标准输入输出</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; io 与 print：标准输入输出</div>
+<h1>io 与 print：标准输入输出</h1>
+
+<p>这一页列出 <code>sa_std/io/print.sai</code> 与 <code>sa_std/io.sai</code> 导出的 extern 函数：
+标准流访问、按行读取、带长度读写，以及最常用的 <code>println</code>。
+读完即可在 Sla 程序里完成基本的控制台输入输出。</p>
+
+<h2>导入</h2>
+<pre><code>@import "sa_std/io/print.sai"   // 仅打印（demo/简单程序）
+@import "sa_std/io.sai"          // 完整 io 面</code></pre>
+<p><code>io/print.sai</code> 是面向 demo 的旧契约，实现上等价于 <code>stdout().write_all(bytes)</code>；
+<code>io.sai</code> 是完整契约。Sla 代码里的 <code>println(...)</code> 调用由编译器 lower 到这套 stdout 写入。</p>
+
+<h2>函数签名（摘自 io.sai / io/print.sai）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_print_bytes(&amp;msg: ptr, len: u64) -&gt; void</code></td><td>把字节写到 stdout（print.sai 旧契约，兼容 demo）</td></tr>
+<tr><td><code>sa_io_stdin() -&gt; u64</code></td><td>stdin 句柄（借用，勿 close）</td></tr>
+<tr><td><code>sa_io_stdout() -&gt; u64</code></td><td>stdout 句柄（借用，勿 close）</td></tr>
+<tr><td><code>sa_io_stderr() -&gt; u64</code></td><td>stderr 句柄（借用，勿 close）</td></tr>
+<tr><td><code>sa_std_println(&amp;msg: ptr, len: u64) -&gt; i32!</code></td><td>Zig 后端 stdout 写入的便捷打印</td></tr>
+<tr><td><code>sa_io_read_line(handle: ptr, max_bytes: u64) -&gt; ^ptr!</code></td><td>读一行，返回 owned 指针</td></tr>
+<tr><td><code>sa_io_read(handle: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td>读最多 cap 字节，实际长度写入 out_read</td></tr>
+<tr><td><code>sa_io_read_exact(handle: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td>精确读满 len 字节</td></tr>
+<tr><td><code>sa_io_write(handle: u64, &amp;buf: ptr, len: u64, &amp;out_written: ptr) -&gt; i32</code></td><td>写 buf，实际写入量写 out_written</td></tr>
+<tr><td><code>sa_io_write_all(handle: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td>循环写满全部字节</td></tr>
+<tr><td><code>sa_io_flush(handle: u64) -&gt; i32</code></td><td>刷新句柄缓冲</td></tr>
+<tr><td><code>sa_io_close(handle: u64) -&gt; i32</code></td><td>关闭 owned 句柄</td></tr>
+<tr><td><code>sa_io_buffer_data(&amp;buffer: ptr) -&gt; &amp;ptr</code></td><td>SaIoBuffer 数据指针</td></tr>
+<tr><td><code>sa_io_buffer_len(&amp;buffer: ptr) -&gt; u64</code></td><td>SaIoBuffer 长度</td></tr>
+<tr><td><code>sa_io_buffer_free(^buffer: ptr) -&gt; i32!</code></td><td>释放 owned SaIoBuffer</td></tr>
+</table>
+
+<h2>调用示例（来自 demos）</h2>
+<p>摘自 <code>demos/rosetta/01_hello_world/main.sla</code>：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"
+
+fn main() -&gt; i32 {
+    println("hello, saasm");
+    return 0;
+};</code></pre>
+<p><code>println</code> 支持格式占位与多参数（配合 fmt，见 <a href="03_fmt.html">fmt 一章</a>），
+摘自 <code>demos/rosetta/04_loop/main.sla</code>：</p>
+<pre><code>fn main() -&gt; i32 {
+    let buffer = [1u8, 2, 3, 4];
+    let zeroed = fill_zero(buffer);
+    println("[{},{},{},{}]", zeroed[0], zeroed[1], zeroed[2], zeroed[3]);
+    return 0;
+};</code></pre>
+
+<div class="note"><span class="label">注意</span><code>sa_io_read_line</code> 返回 owned
+指针、需要释放；而三个 std 流句柄是进程借用的，调用 <code>sa_io_close</code> 属于误用。</div>
+
+</body>
+</html>

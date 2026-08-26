@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>react — SAX 上的 React 兼容层</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; react — SAX 上的 React 兼容层</div>
+<h1>react — SAX 上的 React 兼容层</h1>
+
+<p><code>sa_plugin_react</code> 接收 <code>.sax</code> 组件文件，把 React DOM 风格的标签、属性与事件名规范化，
+然后产出与 SAX 相同形状的浏览器产物包。它建立在既有 SAX lowering 管线之上，是兼容层而非完整的 React Fiber 重实现。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>react</code>；无插件依赖（<code>mui</code> 反过来依赖本插件）。</li>
+<li>命令：<code>sa react check</code>、<code>sa react build</code>、<code>sa react dev</code>、<code>sa react new</code>。</li>
+<li>产物：<code>app.wasm</code>、<code>airlock.js</code>、<code>index.html</code>、<code>app.sa</code>（与 SAX 相同）。</li>
+</ul>
+
+<h2>启用与组合</h2>
+<pre><code># 在 sa_plugin_react 目录内
+SA_PLUGIN_DEV=1 SA_PLUGINS_PATH=$PWD/zig-out/lib/libreact.so \
+  sa react build demos/react_counter.sax --out-dir /tmp/react-counter
+
+# 用 --include / -I 组合多个组件源文件（可重复）
+SA_PLUGIN_DEV=1 SA_PLUGINS_PATH=$PWD/zig-out/lib/libreact.so \
+  sa react check app.sax --include lib/components.sax</code></pre>
+
+<p>include 先相对根 <code>.sax</code> 解析；找不到时会依次搜索 <code>SA_REACT_INCLUDE_PATH</code>、
+由 <code>SA_PLUGINS_PATH</code> 推断的 share 目录、已安装插件的
+<code>$SA_PLUGINS_HOME/installed/&lt;plugin&gt;/current/share</code> 等。
+这使其他插件安装的 SAX 资产（例如 <code>mui/material.sax</code>）无需专用展开器即可被消费。</p>
+
+<h2>提供的主要能力（摘要）</h2>
+<ul>
+<li>React DOM 属性别名（<code>className</code>、<code>htmlFor</code>、<code>tabIndex</code> 等）与事件别名（含 <code>*Capture</code> 变体）。</li>
+<li>React 风格事件引用 <code>onClick={increment}</code>，同时保留 SAX 写法 <code>onClick={^increment}</code>；支持 opt-in Sla 处理器 <code>fn handler() { ... }</code>。</li>
+<li>合成事件桥：target/currentTarget、键盘、指针、滚轮、触摸、剪贴板、拖放、修饰键、<code>preventDefault</code> / <code>stopPropagation</code>。</li>
+<li>大写标签用户组件组合、Fragment（<code>&lt;&gt;</code>、<code>&lt;Fragment&gt;</code>）、生命周期钩子 <code>@onMount</code>/<code>@onUpdate</code>/<code>@onUnmount</code>、<code>ref</code> 与 <code>key</code> 元数据。</li>
+<li>受控表单属性（<code>value</code> / <code>checked</code> / <code>selected</code> 等）经 SAX DOM 桥更新；静态 <code>style={{...}}</code> 降为安全 CSS 文本。</li>
+<li><code>&lt;Slot /&gt;</code> 子元素投影及 MUI 风格 slot context 默认值（<code>contextProps</code>、<code>contextScope="descendants"</code>）。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>已知边界：完整 JS 对象 prop ABI、完整 keyed reconciliation、
+任意 JS 表达式对象键/spread 尚未完成；<code>select multiple</code> 目前以逗号/换行分隔字符串表示选中集合。</div>
+</body>
+</html>

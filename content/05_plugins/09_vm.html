@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>vm — 动态解释器虚拟机</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; vm — 动态解释器虚拟机</div>
+<h1>vm — 动态解释器虚拟机</h1>
+
+<p><code>sa_plugin_vm</code> 是独立的动态解释器 VM 插件：通过 SA 的动态命令分发 ABI 注册 <code>vm</code> 子命令，
+拦截所有 <code>sa vm ...</code> 调用，对 <code>.sa</code>/<code>.sal</code>（以及 SAB v4 字节码模块）做递归预处理、
+内存内编译为字节码并在宿主 OS 上直接解释执行——无需修改主线编译器。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>vm</code>；CLI-only 插件，无自己的 <code>.sai</code>/<code>.sal</code>。</li>
+<li>依赖（均可选，按需 dlopen 已安装插件）：<code>http-client</code>、<code>http-server</code>、<code>deno</code>、<code>node</code>，
+且在 <code>sap.json</code> 中钉死了具体符号清单。</li>
+<li>权限较宽（项目 FS 全操作、本机网络、缓存目录），因此正式运行模式需要沙箱 <code>permissions.lock</code>，
+本地验证统一加 <code>SA_PLUGIN_DEV=1</code>。</li>
+</ul>
+
+<h2>命令</h2>
+<pre><code>Usage: sa vm &lt;run|test&gt; [--allow-ffi] [--sandboxed] [--stats] [--profile=N]
+           [--policy=file.json] [--fuel=N] [--deadline-ms=N] [--mem-cap-bytes=N]
+           [--max-call-depth=N] &lt;file.sa|.sab&gt;
+
+SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" sa vm run tests/hello_world.sa
+sa vm run --stats app.sa          # 各阶段计数器 + 执行统计
+sa vm run --profile=10 app.sa     # 附带最耗时函数排行</code></pre>
+
+<h2>执行模型</h2>
+<ul>
+<li><strong>两遍预处理</strong>：先扫全部 <code>[MACRO]</code>/<code>#def</code> 再展开，支持前向引用；递归解析 <code>@import</code>。</li>
+<li><strong>栈帧解释循环</strong>：基本块偏移预计算，内部子程序递归调用，线性栈安全（帧分配随返回统一释放）。</li>
+<li><strong>类型化 FFI 桥</strong>：<code>@extern</code> 签名经 libffi 分发；原始 libc FFI（<code>dlopen</code>/<code>dlsym</code> 等）仅在 <code>--allow-ffi</code> 下暴露；
+内置 shim 有 <code>fd_*</code>、<code>mmap</code>、<code>signal</code>、<code>pthread_*</code>、<code>sqlite3_*</code>、<code>sa_time_*</code>。</li>
+<li><strong>资源限制</strong>：<code>--fuel</code>（按基本块计费）、<code>--deadline-ms</code>、<code>--mem-cap-bytes</code>、
+<code>--max-call-depth</code>、<code>--policy policy.json</code>；默认全关。违规退出码为 <code>128+code</code>（如 <code>E_FUEL_EXHAUSTED</code> → 229），
+并在 stderr 输出一行 <code>sa-vm-event: {...}</code>。</li>
+</ul>
+
+<div class="warning"><span class="label">警告</span>已知范围外项：inline assembly、SIMD intrinsics、多二进制包；
+浮点运算以原始位存储，浮点比较尚不支持；线程模型是同步的；panic 无 backtrace。
+策略引擎对 fs/http/env/process 的能力强制尚未接线（当前只强制 ffi/threads 拒绝）。</div>
+</body>
+</html>

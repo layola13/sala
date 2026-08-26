@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa sla test</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; sa sla test</div>
+<h1>sa sla test</h1>
+
+<p><code>sa sla test</code> 把 <code>.sla</code> 测试文件编译为托管 SAB，再交给宿主 <code>sa test</code> 运行。读完本页可以选择编译后端、按名字过滤测试，并知道测试产物落在哪里。</p>
+
+<h2>语法</h2>
+<pre><code>usage: sa sla test [file] [-p &lt;package&gt;] [--test-backend auto|sab|sa] [sa-test-options...]</code></pre>
+
+<h2>参数</h2>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td><code>file</code></td><td>测试所在的 <code>.sla</code> 源文件；省略时按 workspace 解析成员入口。</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>选择 workspace 成员包。</td></tr>
+<tr><td><code>--test-backend auto|sab|sa</code></td><td>选择测试编译后端。默认 <code>auto</code> 走 SAB 主线；<code>sab</code> 显式指定严格 SAB 模式；<code>sa</code> 仅用于调试遗留 <code>.test.sa</code> 文本路径。也接受等号写法 <code>--test-backend=sab</code>。</td></tr>
+<tr><td><code>--filter &lt;name&gt;</code></td><td>只运行名字匹配的测试；同时决定托管 SAB 的 filter-scoped 缓存路径，不覆盖全量测试的产物。等号写法 <code>--filter=name</code> 同样支持。</td></tr>
+<tr><td><code>--emit-sab</code></td><td>额外在源文件旁写同级 <code>.sab</code>。</td></tr>
+<tr><td>其余参数</td><td>透传给委派的 <code>sa test</code>（如 <code>--trace-panic</code>、<code>--skip</code>、<code>--list</code>）；<code>--test-backend</code> 与 <code>--filter</code> 由插件消费后剥离。缺省自动追加 <code>--jobs auto</code>。</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>如果过滤器一个测试都选不中，命令不会启动子进程，直接输出空的通过结果（<code>0 passed; 0 failed; 0 skipped</code>）并返回 0。</div>
+
+<h2>示例</h2>
+<pre><code># 默认 auto 后端（SAB 主线）
+SA_PLUGIN_DEV=1 sa sla test tests/test_unit_basic.sla
+
+# 明确指定严格 SAB 后端
+SA_PLUGIN_DEV=1 sa sla test lib/parallel.sla --test-backend sab
+
+# 调试遗留文本路径
+SA_PLUGIN_DEV=1 sa sla test tests/test_unit_basic.sla --test-backend sa
+
+# 只跑匹配的测试并保留 panic 追踪
+SA_PLUGIN_DEV=1 sa sla test src/main.sla --filter vec_basics --trace-panic
+
+# Rosetta demo
+SA_PLUGIN_DEV=1 sa sla test demos/rosetta/01_hello_world/main.sla</code></pre>
+
+<h2>产物位置</h2>
+<ul>
+<li>SAB 后端（<code>auto</code>/<code>sab</code>）：托管产物在 <code>.sla-cache/sab/&lt;stem&gt;-&lt;hash&gt;.sab</code>，带 <code>--filter</code> 时哈希额外混入过滤器值形成独立变体路径；不会生成也不覆盖普通 build/workspace 的 SAB 产物。</li>
+<li>遗留 SA 后端（<code>sa</code>）：写出源文件旁的 <code>&lt;stem&gt;.test.sa</code>，运行结束后默认删除；设置环境变量 <code>SLA_KEEP_TEST_SA</code> 可保留以便检查。</li>
+<li>退出码取自委派 <code>sa test</code> 的返回值。</li>
+</ul>
+</body>
+</html>

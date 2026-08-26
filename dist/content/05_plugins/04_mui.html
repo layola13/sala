@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>mui — SAX 版 Material UI 组件库</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; mui — SAX 版 Material UI 组件库</div>
+<h1>mui — SAX 版 Material UI 组件库</h1>
+
+<p><code>sa_plugin_mui</code> 是面向 <code>sa_plugin_react</code> 的 SA/SAX Material UI 组件库。
+实现方向是 SA-first：组件本体是 SAX 源码资产，Zig 部分只负责插件描述符与 share 资产安装，
+不做组件行为、主题逻辑、类名生成或 CLI 命令。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>mui</code>；依赖：<code>react</code>（必需，路径 <code>../sa_plugin_react</code>）。</li>
+<li>权限：仅项目目录读取；无网络、无子进程。</li>
+<li><strong>没有自己的 CLI 命令</strong>；所有构建经 <code>sa react ...</code> 或 <code>sa vite ...</code> 完成。</li>
+<li>核心资产：<code>mui/material.sax</code>（组件源码，v1 清单锁定为 <code>@mui/material</code> 默认导出）、
+<code>mui/icons_material.sax</code>（图标包装）、<code>mui/material_kit_layout.sax</code> / <code>mui/material_kit_views.sax</code>。</li>
+</ul>
+
+<h2>启用方式</h2>
+<p>MUI 组件通过 React/SAX 的通用组件源组合路径消费（<code>--include</code>）：</p>
+<pre><code># 编译期检查
+SA_PLUGIN_DEV=1 \
+SA_PLUGINS_PATH=.../libreact.so:.../libmui.so \
+  sa react check demos/mui_all_components_from_library.sax \
+    --include mui/material.sax --include mui/icons_material.sax
+
+# 开发热重载（推荐）
+sa vite dev demos/mui_dashboard.sax --react --include mui/material.sax \
+  --out-dir .zig-cache/mui-dashboard-dev --port 5173 --title "SA MUI Dashboard"</code></pre>
+<p>组件可用 <code>&lt;Slot contextProps="..." [contextScope="descendants"] /&gt;</code> 声明槽投影上下文默认值；
+ThemeProvider/CssVarsProvider 通过 descendant 作用域让主题默认值跨越透明包装组件。</p>
+
+<div class="note"><span class="label">注意</span>上游 <code>material-ui</code> 仓库仅作 React 模型参考，不是运行时依赖；
+本插件不调用 npm、Node MUI、React DOM 或 Emotion。</div>
+
+<h2>状态边界</h2>
+<ul>
+<li>Lab 类组件（LoadingButton、Timeline、Masonry、TabContext/TabList/TabPanel、SimpleTreeView/TreeItem、SpeedDial 家族）已有 SAX 实现；图标集覆盖仪表盘导航与 Material Kit 相邻动作。</li>
+<li><code>className</code> 支持是渐进式的：常见根槽组件会合并传入的根 className 与生成的工具类。</li>
+<li>动态对象 prop 值、自定义槽组件替换、styled-engine 覆盖、主题 <code>styleOverrides</code>、过渡编排、portal、焦点陷阱等仍为后续工作。</li>
+<li>大型 MUI demo 编译内存开销大（8 GiB 主机上全量 all-components 可能被 OOM kill）；回归验证建议用聚焦目标
+<code>demos/mui_theme_lab_smoke.sax</code>，排查时用 <code>--mem-report</code>。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>每个 MUI demo 都有同名的 <code>_sla.sax</code> SLA 处理器变体；
+使用 SLA 处理器的组件依赖 SAX destroy 时清理状态，无需显式释放行。
+组件语法与主题细节见「SAX / MUI 界面开发」章节。</div>
+</body>
+</html>

@@ -1,0 +1,253 @@
+{
+  "topics": [
+    {
+      "id": "overview",
+      "title": "标准库总览",
+      "file": "01_overview.html",
+      "keywords": [
+        "标准库",
+        "sa_std",
+        "SA_STD_DIR",
+        "@import",
+        "契约",
+        "sai",
+        "sal"
+      ],
+      "parent": null
+    },
+    {
+      "id": "usage-guide",
+      "title": "如何使用 sa_std：导入机制与契约体系",
+      "file": "13_usage_guide.html",
+      "keywords": [
+        "导入",
+        "@import",
+        "契约",
+        "sai",
+        "sal",
+        "缓冲三件套",
+        "std_surface.sla_meta",
+        "prelude"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "recipes",
+      "title": "常见配方：从打印到 HTTP 的完整示例",
+      "file": "14_recipes.html",
+      "keywords": [
+        "配方",
+        "示例",
+        "println",
+        "读文件",
+        "子进程",
+        "tcp",
+        "json",
+        "assert"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "io-print",
+      "title": "io 与 print：标准输入输出",
+      "file": "02_io_print.html",
+      "keywords": [
+        "io",
+        "print",
+        "println",
+        "stdout",
+        "stdin",
+        "stderr"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "fmt",
+      "title": "fmt：数值与字节格式化",
+      "file": "03_fmt.html",
+      "keywords": [
+        "fmt",
+        "格式化",
+        "i64",
+        "f64",
+        "缓冲"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "string",
+      "title": "string：ASCII / UTF-8 字符串",
+      "file": "04_string.html",
+      "keywords": [
+        "string",
+        "str",
+        "utf8",
+        "ascii",
+        "trim"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "collections",
+      "title": "collections：Vec / HashMap / Option 等",
+      "file": "05_collections.html",
+      "keywords": [
+        "Vec",
+        "HashMap",
+        "HashSet",
+        "Option",
+        "Result",
+        "Box",
+        "Arc"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "fs",
+      "title": "fs：文件与目录",
+      "file": "06_fs.html",
+      "keywords": [
+        "fs",
+        "文件",
+        "目录",
+        "metadata",
+        "read_to_string"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "env",
+      "title": "env：环境变量与目录",
+      "file": "07_env.html",
+      "keywords": [
+        "env",
+        "环境变量",
+        "home",
+        "XDG",
+        "args"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "time",
+      "title": "time：时钟、时间与睡眠",
+      "file": "08_time.html",
+      "keywords": [
+        "time",
+        "Instant",
+        "Duration",
+        "SystemTime",
+        "sleep"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "process",
+      "title": "process：子进程",
+      "file": "09_process.html",
+      "keywords": [
+        "process",
+        "子进程",
+        "spawn",
+        "wait",
+        "signal"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "net",
+      "title": "net：TCP / UDP / Unix 套接字与 HTTP/2",
+      "file": "10_net.html",
+      "keywords": [
+        "net",
+        "tcp",
+        "udp",
+        "http2",
+        "websocket",
+        "url"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "encoding-text",
+      "title": "encoding 与 text：JSON 与正则",
+      "file": "11_encoding.html",
+      "keywords": [
+        "json",
+        "regex",
+        "正则",
+        "序列化",
+        "writer"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "term-fd-thread-testing",
+      "title": "term / fd / thread / testing",
+      "file": "12_term_fd_thread.html",
+      "keywords": [
+        "term",
+        "epoll",
+        "fd",
+        "thread",
+        "assert",
+        "test"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "api-index",
+      "title": "API 总索引",
+      "file": "15_api_index.html",
+      "keywords": [
+        "API",
+        "总索引",
+        "模块地图",
+        "sa_std",
+        "统计",
+        "覆盖"
+      ],
+      "parent": null
+    },
+    {
+      "id": "api-externs",
+      "title": "extern 函数契约全表",
+      "file": "16_api_externs.html",
+      "keywords": [
+        "extern",
+        "sai",
+        "函数",
+        "签名",
+        "契约",
+        "API"
+      ],
+      "parent": "api-index"
+    },
+    {
+      "id": "api-macros",
+      "title": "汇编宏清单",
+      "file": "17_api_macros.html",
+      "keywords": [
+        "宏",
+        "MACRO",
+        "sa",
+        "清单",
+        "STR_LEN"
+      ],
+      "parent": "api-index"
+    },
+    {
+      "id": "api-layout",
+      "title": "布局常量清单",
+      "file": "18_api_layout.html",
+      "keywords": [
+        "布局",
+        "#def",
+        "sal",
+        "偏移",
+        "常量"
+      ],
+      "parent": "api-index"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sax — SA UI 方言插件</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; sax — SA UI 方言插件</div>
+<h1>sax — SA UI 方言插件</h1>
+
+<p><code>sa_plugin_sax</code> 是 SA 的 UI 方言插件：把一个 <code>.sax</code> 组件源文件编译成浏览器可直接打开的产物包，
+生成的是真实工件而不是占位 stub。本页只介绍它能做什么与怎么启用；组件语法与界面开发流程见「SAX / MUI 界面开发」章节。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>sax</code>；版本 <code>0.1.0</code>；无插件依赖。</li>
+<li>权限：项目目录读写创建、环境变量 <code>HOME</code>/<code>PATH</code>/<code>SA_*</code>、允许 spawn <code>/opt/zig/zig</code>。</li>
+<li>命令：<code>sa sax build &lt;file&gt; [--out-dir dir]</code>（生成产物包）、<code>sa sax check &lt;file&gt;</code>（解析与 trap 校验）、
+<code>sa sax dev &lt;file&gt; [--out-dir dir]</code>、<code>sa sax new &lt;name&gt;</code>（新建项目）。</li>
+</ul>
+
+<h2>构建产物</h2>
+<p>对输入如 <code>demos/counter.sax</code>，<code>sa sax build</code> 生成：</p>
+<ul>
+<li><code>app.wasm</code> —— 组件逻辑（WASM）；</li>
+<li><code>airlock.js</code> —— DOM 桥（WASM ↔ DOM 的最小胶水）；</li>
+<li><code>index.html</code> —— 加载上述两者的入口页；</li>
+<li><code>app.sa</code> —— 中间 SA 汇编。</li>
+</ul>
+<p>生成的 HTML 带 CSP，仅允许 WebAssembly 启动，DOM 访问被限制在 Airlock 边界内；
+Airlock 会拒绝 <code>&lt;script&gt;</code>、<code>innerHTML</code> 与内联 <code>eval</code>。</p>
+
+<h2>启用方式</h2>
+<p>本地开发 checkout 下（在 <code>sa_plugin_sax</code> 目录内执行）：</p>
+<pre><code>zig build test
+SA_PLUGIN_DEV=1 SA_PLUGINS_PATH=$PWD/zig-out/lib/libsax.so \
+  sa sax build demos/counter.sax --out-dir /tmp/sax-counter</code></pre>
+
+<p>若组件声明了浏览器 sidecar 渲染器，构建时还会把对应 broker 复制到输出目录：</p>
+<table>
+<tr><th>渲染器标记</th><th>复制的文件</th></tr>
+<tr><td><code>renderer="wgpu"</code> / <code>sa_wgpu_</code> / <code>WGPU_CUBE_</code></td><td><code>wgpu_airlock.js</code></td></tr>
+<tr><td><code>renderer="sa3d"</code> / <code>sa3d_</code> / <code>SA3D_</code></td><td><code>sa3d_airlock.js</code></td></tr>
+</table>
+
+<p>SAX 还接受可选的 Sla 事件处理器（普通函数语法，经 <code>sa_plugin_sla</code> 编译），并保留原有 SA label 处理器写法：</p>
+<pre><code>fn inc() {
+  count = count + 1;
+  last = sax_get_time();
+  render();
+}</code></pre>
+<p>使用 Sla 处理器的组件在 destroy 阶段自动释放状态，无需显式 <code>!state_name</code> 行。</p>
+
+<div class="note"><span class="label">注意</span>浏览器冒烟验证可用仓库自带脚本：
+<code>node tools/verify_sax_browser.mjs &lt;dist&gt; chromium</code>（可用
+<code>SAX_BROWSER_EXECUTABLE</code> / <code>SAX_BROWSER_SCREENSHOT</code> 指定浏览器与截图输出）。</div>
+</body>
+</html>

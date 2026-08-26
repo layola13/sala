@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>node — Node.js 兼容门面</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; node — Node.js 兼容门面</div>
+<h1>node — Node.js 兼容门面</h1>
+
+<p><code>sa_plugin_node</code> 把常见 Node.js 模块重写为 SA 原生 C-ABI 面：
+按其 <code>API_COVERAGE.md</code> 的自述，它是 "a native SA compatibility layer for common Node.js APIs.
+It does not execute JavaScript and does not depend on Node, V8, or VM APIs"——
+不执行 JavaScript、不嵌入 V8/VM、也不调用 <code>node</code> 可执行文件。
+这一页讲清楚它的规模从哪来、两套返回类型约定怎么选、每个模块面有什么、协议支持到哪一层为止，
+以及哪些内容明确不在范围内。</p>
+
+<div class="note"><span class="label">注意</span>该目录没有 README。权威资料依次是
+<code>sap.json</code>（能力段与权限）、<code>node.sai</code>/<code>node_extra.sai</code>（ABI 契约）、
+<code>api.md</code>（目标模块清单 + 协议矩阵）、<code>API_COVERAGE.md</code>（已实现面与排除项）、
+<code>progress.md</code>（模块进度账本）。本页所有数字均标注来源与时间口径。</div>
+
+<h2>一、定位与规模：1160 个 extern 从哪来</h2>
+<p><code>api.md</code> 本身不是符号目录，它由两部分组成：
+前半是<strong>按 Node.js 官方文档章节列出的目标面清单</strong>（Asynchronous context tracking、Buffer、
+Child processes、Crypto、DNS、File system、HTTP、Net、OS、Path、Process、TLS/SSL、URL、Utilities、Zlib 等 63 行），
+后半是<strong>网络协议能力矩阵</strong>（2026-07-03 对四插件源码静态核验，见下文第五节）。
+真正把这份清单落到符号上的是三条链路：</p>
+<ol>
+<li><strong>模块清册</strong>：<code>progress.md</code> 按 "非 VM/V8 的公开顶层门面模块" 口径跟踪，
+自评 <code>43 / 43</code> 模块完成（100%）。其口径说明写明：分母不含 <code>path/posix</code>、
+<code>dns/promises</code>、<code>fs/promises</code> 这类内部路径变体。</li>
+<li><strong>契约生成</strong>：<code>node.sai</code>（287 行，235 个 <code>@extern</code>）+
+<code>node_extra.sai</code>（926 行，925 个 <code>@extern</code>），合计 <strong>1160 个 extern</strong>
+（本文实测 <code>grep -c '@extern'</code> 结果；评估文档《四插件评估》2026-06-15 记为同一数值）。</li>
+<li><strong>每模块四件套</strong>：绝大多数顶层模块都带一组自描述辅助导出
+<code>&lt;module&gt;_status_json</code> / <code>_exports_json</code> / <code>_config_json</code> /
+<code>_feature_support_json</code>，用于在运行期报告该模块"实现了什么、没实现什么"。这是 extern 总数膨胀到千位的主因之一。</li>
+</ol>
+<table>
+<tr><th>指标</th><th>数值</th><th>口径</th></tr>
+<tr><td><code>node.sai</code> extern</td><td>235</td><td>实测，返回类型统一为 <code>u32</code></td></tr>
+<tr><td><code>node_extra.sai</code> extern</td><td>925</td><td>实测，返回类型统一为 <code>u64</code></td></tr>
+<tr><td>宏门面</td><td><code>node.sal</code> 1164 个 + <code>node_extra.sal</code> 929 个 = 2093 个 <code>[MACRO]</code></td><td>实测 <code>[MACRO]</code> 计数</td></tr>
+<tr><td>.sal 总行数</td><td>21,551 行（10774 + 10777）</td><td>实测；与评估文档一致</td></tr>
+<tr><td>Zig 源码</td><td>约 22,204 行（最大单文件 <code>src/node_saasm_extra.zig</code> 10,245 行）</td><td>实测 2026-08；评估文档 2026-06-15 记 21,538 行</td></tr>
+<tr><td>SA 测试</td><td><code>tests/</code> 下 188 个 <code>.sa</code></td><td>实测 2026-08；评估文档记 195 个</td></tr>
+<tr><td>产物</td><td><code>zig-out/lib/libnode.so</code> / <code>zig-out/bin/node.dll</code></td><td><code>sap.json</code> <code>artifacts</code></td></tr>
+</table>
+
+<h2>二、六个 skills 与宿主权限边界</h2>
+<p><code>sap.json</code> 声明六个能力段：<code>node.os</code>、<code>node.process</code>、<code>node.crypto</code>、
+<code>node.net</code>、<code>node.dns</code>、<code>node.http</code>。
+清单里没有给出"哪个 skill 对应哪些符号"的映射表；<code>docs/dependency_refactor_plan_cn.md</code> 只提到
+<code>node.http</code>/<code>node.https</code>/<code>node.net</code> 是应用层语义，底层走 http-client / http-server。
+用 <code>sa skills --json</code> 可确认这些段是否已加载。</p>
+<p>权限账本（<code>sap.json</code> 的 <code>permissions</code> 字段，由宿主强制执行）决定了各模块实际能碰到什么：</p>
+<table>
+<tr><th>维度</th><th>声明内容</th><th>对各模块面的影响</th></tr>
+<tr><td><code>fs</code></td><td><code>$PROJECT/**</code> 与 <code>/tmp/**</code> 各五种操作：
+read / write / create / delete / metadata</td><td><code>fs.*</code> 与 <code>vfs</code> 的真实读写被限制在这两个根内；
+测试里的路径也确实是 <code>/tmp/sa_node_fs3.txt</code> 这类临时文件</td></tr>
+<tr><td><code>net</code></td><td>仅 <code>http://127.0.0.1:18395</code> 与 <code>http://localhost:18395</code></td>
+<td><code>net</code>/<code>dgram</code>/<code>tls</code>/<code>http</code> 的对外连接受此约束；
+18395 端口的用途没有文档解释（评估文档指出这是硬编码且多实例会撞端口）</td></tr>
+<tr><td><code>env</code></td><td><code>HOME</code>、<code>TMPDIR</code>、<code>TMP</code>、<code>TEMP</code>、<code>SA_*</code></td>
+<td><code>process.env.get/set/delete</code> 与 <code>environment_variables</code> 只能触达白名单内的变量</td></tr>
+<tr><td><code>process</code></td><td><code>"spawn": true</code>，exec 白名单只有
+<code>/bin/echo</code> 与 <code>/usr/bin/echo</code>（参数任意）</td>
+<td><code>child_process</code>/<code>cluster</code> 的真实子进程只能跑 <code>echo</code>；
+评估文档认为这说明 child_process 尚未真正可用</td></tr>
+</table>
+<p>依赖方面，<code>sap.json</code> 声明依赖 <code>http-client</code> 与 <code>http-server</code>（均 ABI 1）。
+<code>build.zig</code> 把这两个插件的 <code>http_saasm_api.zig</code> 直接编译进 <code>libnode.so</code>，
+与 <code>API_COVERAGE.md</code> 的说法一致："HTTP/1 client … by compiling the official
+<code>http-client</code> and <code>http-server</code> plugin implementations into <code>libnode.so</code>"。</p>
+
+<h2>三、u32 / u64 双约定与选用规则</h2>
+<p>两个契约文件的<strong>返回类型约定不同</strong>，这是使用本插件最重要的规则：</p>
+<ul>
+<li><code>node.sai</code> —— 主模块面，返回 <code>u32</code> 状态码。例如（原文）：
+<code>@extern sa_node_plugin_fs_read_file(path_ptr: ptr, path_len: u64, &amp;out_ptr: ptr, &amp;out_len: ptr) -&gt; u32</code></li>
+<li><code>node_extra.sai</code> —— 扩展模块面（fd 级 fs、promises、tls、sqlite、vfs、ffi、web_*、
+http/2/quic/dtls、worker_threads、child_process、cluster 等），返回 <code>u64</code>。例如（原文）：
+<code>@extern sa_node_plugin_tls_connect(host_ptr: ptr, host_len: u64, port: u64, servername_ptr: ptr, servername_len: u64, reject_unauthorized: u64, &amp;out_socket: ptr) -&gt; u64</code></li>
+</ul>
+<p><strong>选用规则：</strong>只导入 <code>node.sal</code> 一个文件即可。它的头部是
+<code>@import "node.sai"</code> + <code>@import "node_extra.sai"</code>，
+并且<strong>完整包含全部 929 个扩展宏</strong>（同名宏体与 <code>node_extra.sal</code> 逐字相同，本文比对过
+<code>NODE_CRYPTO_CREATE_HASH</code>）。<code>node_extra.sal</code> 只是这 929 个扩展宏的独立副本，
+不要与 <code>node.sal</code> 同时导入，否则宏名重复定义。</p>
+<p>两类宏的<strong>形参风格不同</strong>，写调用时必须区分：</p>
+<ul>
+<li>主宏是"输出在前、输入在后"的具名风格。<code>NODE_FS_READ_FILE</code> 展开为
+<code>%out_ptr, %out_len, %out_status, %path, %path_len</code>，内部用
+<code>stack_alloc</code> 出槽位、<code>call</code> 后再 <code>load</code> 回来。</li>
+<li>扩展宏是机械生成的位置式风格，形参就是 <code>%p_0, %p_1, …</code>，
+顺序严格等于 <code>.sai</code> 签名顺序。<code>NODE_CRYPTO_CREATE_HASH %p_0, %p_1, %p_2, %p_3</code>
+对应 <code>sa_deno…</code> 式签名 <code>(algo_ptr, algo_len, &amp;out_state_ptr) -&gt; u64</code>：
+p_0/p_1 是算法串指针与长度，p_2 收回状态句柄指针，p_3 收回 u64 状态码。
+用扩展宏之前必须先查 <code>node_extra.sai</code> 的签名确认实参顺序。</li>
+</ul>
+
+<h2>四、已实现模块面（按域分组）</h2>
+<p>下表的 extern 数量是把两个 <code>.sai</code> 里全部 1160 个符号按名称前缀归类统计的（本文口径，合计恰好 1160）；
+符号摘自 <code>node.sai</code> / <code>node_extra.sai</code>——为可读性省略了部分形参的类型标注
+（<code>: ptr</code>/<code>: u64</code>），完整签名以契约文件为准。
+能力描述以 <code>API_COVERAGE.md</code> 的 "Implemented Native Surfaces" 小节为准。</p>
+<h3>系统、进程与环境</h3>
+<table>
+<tr><th>模块（extern 数）</th><th>代表符号（原文签名）</th></tr>
+<tr><td><code>os</code>（27）</td><td><code>os_cpus(&amp;out_ptr, &amp;out_len) -&gt; u32</code>、
+<code>os_loadavg(out_load)</code>、<code>os_user_info(&amp;out_ptr, &amp;out_len)</code>、
+<code>os_available_parallelism / machine / version / endianness</code>；
+<code>os.constants</code> 有 signal/errno/priority/dlopen/libuv 结构化常量</td></tr>
+<tr><td><code>process</code>（41）</td><td><code>process_cpu_usage(&amp;out_ptr, &amp;out_len)</code>、
+<code>process_memory_usage(&amp;out_ptr, &amp;out_len)</code>、
+<code>process_env_get(&amp;key, key_len, &amp;out_ptr, &amp;out_len)</code>、
+<code>process_exec(argv_ptr, argv_len, cwd_ptr, cwd_len, &amp;out_code, &amp;out_stdout_ptr, &amp;out_stdout_len, &amp;out_stderr_ptr, &amp;out_stderr_len) -&gt; u32</code>；
+含 <code>resourceUsage</code>(getrusage)、<code>availableMemory</code>/cgroup、<code>features</code>、<code>kill</code>(真 POSIX 信号)</td></tr>
+<tr><td><code>path</code>（18）</td><td><code>path_join(paths_argv: ptr, paths_len: u64, &amp;out_ptr, &amp;out_len)</code>、
+<code>path_basename(&amp;path, len, &amp;ext, ext_len, &amp;out_ptr, &amp;out_len)</code>；
+仅 POSIX 表，无 <code>path.win32</code> 命名空间转换</td></tr>
+<tr><td>周边（<code>permissions</code> 6、<code>command_line_options</code> 5、
+<code>environment_variables</code> 6、<code>internationalization</code> 6、<code>inspector</code> 7、<code>debugger</code> 1）</td>
+<td><code>permissions_declared_json / is_enabled / available_flags_json</code>、
+<code>command_line_options_node_options_tokens_json / has_flag</code>、
+<code>environment_variables_parse_env_json / load_env_file_json</code>。
+inspector/debugger 只有配置快照，无活协议（见第八节）</td></tr>
+</table>
+
+<h3>工具、数据与运行时骨架</h3>
+<table>
+<tr><th>模块（extern 数）</th><th>代表符号 / 说明</th></tr>
+<tr><td><code>util</code>（25）、<code>sys</code>（9）</td>
+<td><code>util_format(&amp;format, format_len, &amp;args_json, args_len, &amp;out_ptr, &amp;out_len)</code>、
+<code>util_parse_args / parse_env / mime_type / style_text / diff</code>、
+UTF-8 <code>TextEncoder/TextDecoder</code> 助手；<code>sys</code> 是 util 的弃用别名包装</td></tr>
+<tr><td><code>querystring</code>（9）、<code>url</code>（20）、<code>punycode</code>（9）、<code>buffer</code>（13）、
+<code>string_decoder</code>（8）</td>
+<td><code>url_parse / format / resolve / domainToASCII / pathToFileURL / canParse</code>；
+<code>buffer_byte_length / concat / transcode / isUtf8 / atob / btoa</code>；
+punycode 用 libidn2 做 IDNA</td></tr>
+<tr><td><code>assert</code>（9）、<code>errors</code>（8）、<code>constants</code>（5）、<code>deprecated</code>（6）</td>
+<td><code>assert_ok / deepStrictEqual / fail</code> 返回状态位 + AssertionError JSON（不抛 JS 异常）；
+<code>errors</code> 提供错误码目录与 errno 名称/消息查找</td></tr>
+<tr><td><code>events</code>（18）、<code>stream</code>（18）、<code>timers</code>（20）、<code>readline</code>（18）、
+<code>console</code>（24）</td>
+<td><code>events_create/on/emit/listener_count/free</code>；<code>timers_promises_set*</code> 同步可等待式助手；
+<code>readline_promises_interface</code> 句柄；<code>console_log/error/time/time_end/clear</code>。
+这些模块缺共享事件循环与回调分发（见第八节）</td></tr>
+<tr><td><code>perf_hooks</code>（19）、<code>diagnostics_channel</code>（12）、<code>trace_events</code>（9）、
+<code>async_hooks</code>+<code>async_context_tracking</code>（18）、<code>iterable_streams</code>（6）、
+<code>module</code>（15）、<code>test</code>+<code>test_runner</code>（11）</td>
+<td><code>perf_hooks_create_histogram / event_loop_utilization / timerify</code>；
+显式 AsyncContext 栈（enter/exit/depth/snapshot），<strong>不</strong>承诺自动回调传播或
+AsyncLocalStorage 语义；<code>test</code> 报告的是原生 <code>sa test</code> 工作流的元数据而非
+<code>node:test</code> 对象模型</td></tr>
+</table>
+
+<h3>文件系统</h3>
+<table>
+<tr><th>模块（extern 数）</th><th>代表符号（原文签名）</th></tr>
+<tr><td><code>fs</code>（46）</td><td><code>fs_read_file(path_ptr, path_len, &amp;out_ptr, &amp;out_len) -&gt; u32</code>、
+<code>fs_write_file(path_ptr, path_len, data_ptr, data_len)</code>、
+<code>fs_mkdir(path_ptr, path_len, recursive: u8)</code>、
+<code>fs_cp(src_ptr, src_len, dst_ptr, dst_len, recursive, force, error_on_exist)</code>；
+fd 级 <code>fs_open(path, flags, mode, &amp;out_fd) -&gt; u64</code>、
+<code>fs_read_fd(fd, buf_ptr, len, offset, &amp;out_n)</code>；
+另有 glob、opendir/opendir_next、statfs、symlink/truncate/utimes、chown/fchown/fsync/futimens/statvfs</td></tr>
+<tr><td><code>fs.promises</code>（41）</td><td><code>fs_promises_read_file(path_ptr, path_len, &amp;out_ptr, &amp;out_len) -&gt; u64</code>、
+<code>fs_promises_write_file(...)</code>；返回的是"已解析完的原生结果"，不是 JS Promise</td></tr>
+<tr><td><code>vfs</code>（35）</td><td>内存型 <code>MemoryProvider</code> 风格虚拟文件系统：挂载、cwd/chdir、
+mkdir、读/写/追加、file/dir 句柄、watch 事件队列、stat/lstat/realpath/rm/rename/copyFile/symlink</td></tr>
+</table>
+
+<h3>加密</h3>
+<table>
+<tr><th>模块（extern 数）</th><th>代表符号（原文签名）</th></tr>
+<tr><td><code>crypto</code>（35）+ Web Crypto 子集（13）</td>
+<td><code>crypto_random_bytes(size: u64, &amp;out_ptr)</code>、
+<code>crypto_hash(&amp;algo, algo_len, &amp;data, data_len, &amp;out_ptr, &amp;out_len)</code>、
+<code>crypto_pbkdf2(&amp;pass, pass_len, &amp;salt, salt_len, iter, keylen, &amp;digest, digest_len, &amp;out_ptr)</code>；
+流式 <code>crypto_create_cipher(algo_ptr, algo_len, key_ptr, key_len, iv_ptr, iv_len, &amp;out_state_ptr) -&gt; u64</code>；
+HKDF/scrypt/Ed25519 sign/verify/keygen/hash 列表/timingSafeEqual；
+Web Crypto 侧 <code>web_crypto_sign(key_ptr, data_ptr, data_len, &amp;out_sig_ptr, &amp;out_sig_len) -&gt; u64</code>，
+覆盖 getRandomValues/randomUUID/digest/HMAC-SHA256/AES-256-GCM</td></tr>
+</table>
+
+<h3>网络（socket / UDP / DNS / TLS）</h3>
+<table>
+<tr><th>模块（extern 数）</th><th>代表符号（原文签名）</th></tr>
+<tr><td><code>net</code>（92，最大单域）</td>
+<td><code>net_connect(&amp;host, host_len, port: u64, &amp;out_socket)</code>、
+<code>net_listen(&amp;host, host_len, port, &amp;out_server)</code>、
+<code>net_accept(server: ptr, &amp;out_socket)</code>、
+<code>net_write(socket, &amp;data, data_len)</code>、<code>net_read(socket, max_len, &amp;out_ptr, &amp;out_len)</code>；
+Unix 域套接字 connect/listen；BlockList / SocketAddress 句柄族；
+setNoDelay / setKeepAlive / 收发缓冲区 / IP_TOS / resetAndDestroy / ref/unref</td></tr>
+<tr><td><code>dgram</code>（41）</td>
+<td><code>dgram_create() -&gt; ptr</code>、
+<code>dgram_bind(socket, &amp;host, host_len, port)</code>、
+<code>dgram_send(socket, &amp;data, data_len, &amp;host, host_len, port)</code>、
+<code>dgram_recv(socket, max_len, &amp;out_ptr, &amp;out_len, &amp;out_host_ptr, &amp;out_host_len, &amp;out_port)</code>；
+UDP4/UDP6、connect/disconnect、组播 TTL/loopback/interface/成员关系（含 v6 hops）；
+发送队列 size/count 恒报 0（同步完成，无 libuv 排队）</td></tr>
+<tr><td><code>dns</code>（39）+ <code>dns.promises</code>（35）</td>
+<td><code>dns_lookup(&amp;hostname, len, &amp;out_ptr, &amp;out_len)</code>、
+<code>dns_resolve(&amp;hostname, len, &amp;rrtype, rrtype_len, &amp;out_ptr, &amp;out_len)</code>；
+A/AAAA/ANY/CAA/NAPTR/SOA/TLSA/CNAME/MX/NS/TXT/SRV/PTR、reverse、lookupService、Resolver 实例句柄
+（自定义 setServers 会真的向该服务器发 UDP 查询）；hints ADDRCONFIG/V4MAPPED/ALL 在同步解析模型内实现</td></tr>
+<tr><td><code>tls</code>（53）</td>
+<td><code>tls_connect(host_ptr, host_len, port, servername_ptr, servername_len, reject_unauthorized, &amp;out_socket) -&gt; u64</code>；
+安全上下文句柄、CA 根证书 JSON、ALPN 线格式编码、checkServerIdentity 主机名校验、密码套件列表；
+<strong>TLS 服务端不存在</strong>（见第五节）</td></tr>
+</table>
+
+<h3>HTTP 族与传输实验区</h3>
+<table>
+<tr><th>模块（extern 数）</th><th>代表符号（原文签名）/ 边界</th></tr>
+<tr><td><code>http</code>（12）、<code>https</code>（6）、桥接层（<code>http_client</code> 18 + <code>http_server</code> 18 + WebSocket 8）</td>
+<td><code>http_request_json(method_ptr, method_len, url_ptr, url_len, body_ptr, body_len, &amp;out_ptr, &amp;out_len) -&gt; u64</code>、
+<code>https_request_json(...) -&gt; u64</code>、<code>http_client_new(use_tls: u64, &amp;out_client) -&gt; u64</code>、
+<code>http_server_new(&amp;out_server) -&gt; u64</code>；
+一次性 JSON 助手返回完整响应 JSON，<strong>不</strong>模拟异步 ClientRequest 事件对象</td></tr>
+<tr><td><code>http2</code>（12）</td>
+<td><code>http2_client_request(url_ptr, url_len, method_ptr, method_len, body_ptr, body_len, &amp;out_ptr, &amp;out_len) -&gt; u64</code>;
+dlopen <code>libnghttp2</code>，做 h2c prior-knowledge 请求与 server 前奏/SETTINGS 握手帧</td></tr>
+<tr><td><code>quic</code>（17）+ <code>http3</code>（11）</td>
+<td><code>quic_create_endpoint / connect / listen / endpoint_snapshot_json / ref / unref</code>、
+<code>http3_create_session / session_send_datagram / session_recv_datagram</code>；
+capability 检测要求 ngtcp2+nghttp3+OpenSSL 装齐，但代码里没有真正的连接状态机（仅 UDP 数据报搬运）</td></tr>
+<tr><td><code>dtls</code>（11）</td>
+<td><code>dtls_connect(family: u32, remote_host_ptr, remote_host_len, remote_port, local_host_ptr, local_host_len, local_port, &amp;out_endpoint) -&gt; u64</code>；
+插件的 <code>dtls_status_json</code> 自陈握手未建模、无记录层加密，send/recv 就是裸 UDP</td></tr>
+</table>
+
+<h3>存储、FFI、并发与其余模块</h3>
+<table>
+<tr><th>模块（extern 数）</th><th>代表符号 / 说明</th></tr>
+<tr><td><code>sqlite</code>（37）</td><td><code>sqlite_open(path_ptr: ptr, path_len: u64, &amp;out_db: ptr) -&gt; u64</code>；
+dlopen <code>libsqlite3</code>：exec、query JSON、prepare/typed bind/step/reset/finalize、在线备份、
+session changeset、SQLTagStore 风格语句缓存（all/get/run）</td></tr>
+<tr><td><code>ffi</code>（10）、<code>web_streams</code>（10）</td>
+<td><code>ffi_open(path_ptr, path_len, &amp;out_library) -&gt; u64</code>（std.DynLib：符号存在性、常见 C 整数调用、字符串调用）；
+web_streams 提供可读/可写/转换流句柄的同步字节缓冲操作</td></tr>
+<tr><td><code>worker_threads</code>（20）、<code>child_process</code>（11）、<code>cluster</code>（24）、<code>domain</code>（14）</td>
+<td><code>child_process_exec(command_ptr, command_len, options_json_ptr, options_json_len, &amp;out_pid, &amp;out_ptr, &amp;out_len) -&gt; u64</code>、
+<code>cluster_fork(exec_ptr, exec_len, args_ptr, args_len, &amp;out_worker) -&gt; u64</code>；
+MessageChannel/MessagePort 队列、receiveMessageOnPort、postMessageToThread；
+<strong>不</strong>构造 Worker/EventEmitter 对象，不做 IPC 序列化</td></tr>
+<tr><td><code>zlib</code>（18）、<code>repl</code>（12）、<code>tty</code>（12）、<code>sea</code>（9）、<code>wasi</code>（7）、
+<code>report</code>（6）、其余零散（<code>free_buffer</code> 等）</td>
+<td><code>zlib_gzip/gunzip/deflate/inflate/unzip/Brotli/Zstd/CRC32</code>（Brotli/Zstd 走动态加载系统库）；
+repl 只有 prompt/history/dot-command 会话句柄，无 JS 求值；tty 用 termios raw 模式与窗口尺寸 ioctl</td></tr>
+</table>
+
+<h2>五、协议矩阵边界：哪些真支持，哪些只是壳</h2>
+<p>下面各行逐字取自 <code>api.md</code> 的 "Network Protocol Capability Matrix"
+（标注 "verified 2026-07-03, code-static"，是对 sci + 四插件源码的静态核验结论，
+"真支持"= 端到端可跑，"壳" = 仅 ABI + capability gate）：</p>
+<table>
+<tr><th>协议层</th><th>完成度</th><th>证据路径（api.md 原文）</th></tr>
+<tr><td>TCP socket / UDP socket / IPv4-v6 地址</td><td>✅ 真完整（由 sci <code>net.sa</code> 提供）</td>
+<td><code>sci/sa_std/net.sa</code>; <code>sci/src/runtime/sa_pthread_host.c</code></td></tr>
+<tr><td>DNS</td><td>✅ ABI（基础解析）</td><td><code>node_extra.sai</code> 127-175</td></tr>
+<tr><td>HTTP/1.0、HTTP/1.1 客户端 + HTTPS(TLS 1.2/1.3 客户端)</td><td>✅ 真支持</td>
+<td><code>sa_plugin_http_client/src/http_saasm_api.zig</code>; <code>node_saasm_api_ext.zig:529 std.crypto.tls.Client.init</code></td></tr>
+<tr><td>WebSocket(RFC6455)</td><td>✅ 真支持（两端 frame 自实现）</td>
+<td><code>http_saasm_api.zig</code> <code>WebSocketHandle</code>/<code>maskInPlace</code></td></tr>
+<tr><td>HTTP/2（h2c 客户端子集 + server 握手）</td><td>✅ 真支持；完整 server response ❌；over-TLS(ALPN) ⚠️ 半接通需手工拼装</td>
+<td><code>node_saasm_extra.zig:5563</code>; <code>Nghttp2Api</code>; 无 <code>nghttp2_session_server_new</code>/<code>submit_response</code></td></tr>
+<tr><td>HTTP/3</td><td>❌ 仅 ABI 壳（send/recv 即裸 UDP，非 H3/QPACK 帧）</td>
+<td><code>node_saasm_extra.zig:6286</code> <code>http3_session_send_datagram == dgram_send_connected</code></td></tr>
+<tr><td>QUIC</td><td>❌ 仅 endpoint 元数据（无 ngtcp2 真连接）</td>
+<td><code>node_saasm_extra.zig:6002 QuicEndpointHandle</code>; <code>5940 quicNgTcp2Available</code> 仅 dynLib 检测</td></tr>
+<tr><td>DTLS</td><td>❌ 仅门面（插件自陈 handshake:false，记录层加密未建模）</td>
+<td><code>node_saasm_extra.zig dtls_status_json</code> 自白</td></tr>
+<tr><td>TLS 服务端</td><td>❌ 未实现</td><td><code>http_server</code> 无 TLS; node 无 <code>tls_server</code> ABI</td></tr>
+</table>
+<p>同文档的"一句话答复"总结为：真端到端可用层是
+<strong>TCP/UDP、HTTP/1+HTTPS、WebSocket、H2 h2c 客户端、TLS 客户端、DNS</strong>；
+真协议机未接通层是 <strong>HTTP/3、QUIC、DTLS、TLS 服务端、H2 完整 server、H2-over-TLS 一键</strong>。</p>
+<div class="note"><span class="label">注意</span>协议矩阵是四插件联合视角：TCP/UDP 原语来自 sci 的
+<code>net.sa</code>，HTTP/1.x 与 WebSocket 来自编译进 <code>libnode.so</code> 的 http-client / http-server 实现。
+因此 node 页的"网络能力"有一部分本质上是
+<a href="14_http_client.html">http-client</a> 与 <a href="15_http_server.html">http-server</a> 的能力复述。</div>
+
+<h2>六、安装与验证</h2>
+<p>开发期安装遵循本章统一流程（在本插件目录执行，依赖会按 <code>sap.json</code> 一并安装）：</p>
+<pre><code># 在 D:/projects/sla/sa_plugin_node 内执行
+SA_PLUGIN_DEV=1 sa plugin install --dev .
+sa plugin list          # 确认 node 已安装
+sa skills --json        # 确认 node.os / node.process / node.crypto /
+                        # node.net / node.dns / node.http 六段已加载</code></pre>
+<p><code>API_COVERAGE.md</code> 的 "Verification Commands" 小节给出三条官方验证命令（原文）：</p>
+<pre><code>zig build
+zig build test
+comm -23 &lt;(rg '^@extern ' node.sai node_extra.sai | sed -E 's/.*@extern ([A-Za-z0-9_]+).*/\1/' | sort -u) \
+         &lt;(nm -D --defined-only zig-out/lib/libnode.so | awk '{print $3}' | sort -u)</code></pre>
+<p>第三条是契约审计：列出"声明了但共享库里没导出"的符号，理想输出为空。
+另外 <code>tests/</code> 下 188 个 <code>.sa</code> 文件都带 <code>@test "…"</code>: 标注并
+<code>@import "../node.sal"</code>，可用 <code>sa test</code> 工作流运行；
+<code>progress.md</code> 也把它称为 "the native <code>sa test</code> workflow"。</p>
+
+<h2>七、端到端示例（摘自仓库内真实测试）</h2>
+<p>以下三段都是仓库原文件的可执行片段，出处以注释标明。</p>
+<p><strong>例 1 —— os 顶层门面四件套</strong>（<code>D:/projects/sla/sa_plugin_node/tests/node_test_os_top.sa</code>）。
+展示每个模块都有的 status/exports/config/feature-support JSON 快照用法，以及失败时 <code>panic(103)</code> 的约定：</p>
+<pre><code>// SA tests for Node os top level facade helpers
+@import "../node.sal"
+
+@test "node.os top level facade helpers"():
+L_ENTRY:
+    status_ptr = add 0, 0
+    status_len = add 0, 0
+    s1 = add 0, 0
+    EXPAND NODE_OS_STATUS_JSON status_ptr, status_len, s1
+    ok1 = eq s1, 0
+    br ok1 -&gt; L_EXPORTS, L_ERR_STATUS
+L_EXPORTS:
+    !ok1
+    exports_ptr = add 0, 0
+    exports_len = add 0, 0
+    s2 = add 0, 0
+    EXPAND NODE_OS_TOP_EXPORTS_JSON exports_ptr, exports_len, s2
+    ok2 = eq s2, 0
+    br ok2 -&gt; L_CONFIG, L_ERR_EXPORTS
+// ……随后同样展开 NODE_OS_TOP_CONFIG_JSON、NODE_OS_TOP_FEATURE_SUPPORT_JSON，
+//   最后对四个返回缓冲逐一 call @sa_node_plugin_free_buffer(ptr, len) 并 !掉中间值
+L_ERR_STATUS:
+    !ok1
+    panic(103)</code></pre>
+<p><strong>例 2 —— TCP 监听与关闭</strong>（<code>tests/node_test_net_rw.sa</code>，全文照录）。
+注意宏的具名输出风格：<code>srv</code> 是句柄出参，<code>s1</code>/<code>s2</code> 是状态出参：</p>
+<pre><code>// SA tests for Node net: listen, accept, connect, read, write
+@import "../node.sal"
+@const S_HOST = utf8:"127.0.0.1"
+@const S_MSG = utf8:"hi"
+
+@test "node.net listen and end"():
+L_ENTRY:
+    srv = add 0, 0
+    s1 = add 0, 0
+    s2 = add 0, 0
+    EXPAND NODE_NET_LISTEN S_HOST, 9, 18769, srv, s1
+    EXPAND NODE_NET_END srv, s2
+    !s2
+    !s1
+    !srv
+    return</code></pre>
+<p><strong>例 3 —— 真实环回 UDP 收发与缓冲释放</strong>
+（<code>tests/node_test_dgram_recv.sa</code>，节选，省略号处为空数据报文二次收发与释放序列）：</p>
+<pre><code>// SA tests for Node dgram: recv
+@import "../node.sal"
+@const S_HOST = utf8:"127.0.0.1"
+@const S_MSG = utf8:"test"
+
+@test "node.dgram recv"():
+L_ENTRY:
+    sock = add 0, 0
+    EXPAND NODE_DGRAM_CREATE sock
+    s1 = add 0, 0
+    EXPAND NODE_DGRAM_BIND s1, sock, S_HOST, 9, 18771
+    s2 = add 0, 0
+    EXPAND NODE_DGRAM_SEND s2, sock, S_MSG, 4, S_HOST, 9, 18771
+    op = add 0, 0        // payload 指针
+    ol = add 0, 0        // payload 长度
+    hp = add 0, 0        // 对端主机指针
+    hl = add 0, 0
+    port = add 0, 0
+    s3 = add 0, 0
+    EXPAND NODE_DGRAM_RECV s3, op, ol, hp, hl, port, sock, 1024
+    // ……空数据报文 send/recv 分支略
+    free_payload = call @sa_node_plugin_free_buffer(op, ol)
+    free_host = call @sa_node_plugin_free_buffer(hp, hl)
+    !free_payload
+    !free_host
+    // ……其余中间值 !略
+    return</code></pre>
+<p>fs 的路径类操作示例见 <code>tests/node_test_fs_extra4.sa</code>
+（<code>NODE_FS_UNLINK</code> / <code>NODE_FS_RENAME</code> / <code>NODE_FS_RM</code>，
+固定使用 <code>/tmp/sa_node_fs3.txt</code> 这类路径，正好落在权限白名单内）。</p>
+
+<h2>八、明确的未实现 / 范围外清单</h2>
+<p><strong>完全排除</strong>（<code>API_COVERAGE.md</code> "Explicitly Excluded"，原文要点）：
+<code>vm</code>、<code>v8</code>、<code>module</code> 加载器执行、活的 inspector 协议/CDP 会话、
+debugger、Node 内部 bootstrap/realm 行为——因为它们需要 JavaScript 运行时或 V8 语义。
+<code>repl</code> 只保留 prompt/history/dot-command 会话子集，不做 JavaScript 求值。</p>
+<p><strong>Remaining Strict Node Gaps</strong>（同文档，要点转述）：</p>
+<ul>
+<li>HTTP/2 的 session/server/TLS ALPN/stream/push 完整运行时语义、QUIC/HTTP3 握手与会话流、
+TLS socket/server 对象模型、DTLS 握手与记录层加密，都需要成熟的原生协议库接入。</li>
+<li>c-ares 级行为（search domains/轮换/取消）、真实的 Promise 对象身份、完整 DNS 错误码语义缺失。</li>
+<li><code>events</code>/<code>streams</code>/<code>timers</code>/<code>readline</code>/<code>worker_threads</code>/
+<code>cluster</code>/<code>domain</code>/<code>test</code> 需要<strong>共享事件循环 + 原生回调分发模型</strong>才能达到严格 Node 行为；
+严格的 timer ref/unref、AbortSignal 取消、TTY raw 行为、WHATWG 流的锁/backpressure/pipe/tee/异步迭代都不完整。</li>
+<li>WASI 运行时（实例化/start/initialize、uvwasi syscall 桥、沙箱 preopen 强制）、
+VFS 的异步 watch/事件发射器 API、libffi 变参与回调、SQLite session 过滤/冲突回调、
+Web Crypto 的 RSA/ECDSA/ECDH/KDF/wrapKey/JWK 都还需要一等 ABI 面。</li>
+<li>Node 兼容的错误类/错误码与选项校验在各模块间尚未齐全。</li>
+</ul>
+<p><strong>结构性限制</strong>（来自权限账本）：即使某符号存在，越出
+<code>$PROJECT/**</code>/<code>/tmp/**</code> 的文件访问、指向 18395 以外地址的网络连接、
+以及 <code>echo</code> 以外的子进程都会被宿主拒绝。
+<code>child_process</code> 的 exec 白名单只有 echo，意味着该模块目前只能算占位实现。</p>
+<div class="warning"><span class="label">警告</span><code>progress.md</code> 自评的 "43/43 = 100%" 是
+<strong>facade 维度</strong>（门面与元数据写完了），不是"用户的 Node 代码能跑通"维度：
+评估文档《四插件评估》（2026-06-15）明确指出缺少端到端真实 Node 脚本的差分 smoke，
+并把 node/deno 建议至少按 experimental 定位对待。选型前请先用
+<a href="01_overview.html">总览页</a>的安装命令自测，再用第六节的契约审计命令核对符号落地情况。</div>
+</body>
+</html>

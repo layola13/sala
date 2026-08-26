@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>扩展机制</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 扩展机制</div>
+<h1>扩展机制</h1>
+
+<p>这一页介绍 SLA 在不引入重型 trait 系统的前提下扩展类型能力的四种手段：
+受限的 <code>@overload</code> 操作符重载块、<code>using</code> 静态扩展、卫生宏 <code>macro</code>
+和 <code>@expand_tuple</code> arity 模板，以及 <code>@derive(...)</code> 派生。读完这一页，
+你能为自定义结构体补上算术运算、比较与链式调用。</p>
+
+<h2>@overload：受限操作符重载块</h2>
+<p><code>@overload 类型 { ... }</code> 为指定类型声明操作符实现。当前<b>限定在
+<code>+ - * /</code></b> 四个算术操作符，完全在前端改写为静态函数调用，
+不引入运行时分发；裸写的 <code>overload</code> 不是合法入口
+（<code>demos/rosetta/312_operator_overload_block/main.sla</code>）：</p>
+<pre><code>struct Vec2 {
+    x: i32,
+    y: i32,
+}
+
+@overload Vec2 {
+    fn +(self: Vec2, other: Vec2) -&gt; Vec2 {
+        return Vec2 { x: self.x + other.x, y: self.y + other.y };
+    }
+}
+
+let a = Vec2 { x: 4, y: 6 };
+let b = Vec2 { x: 1, y: 3 };
+let c = a + b;   // (5, 9)</code></pre>
+
+<div class="note"><span class="label">注意</span><code>a == b</code> 这类比较是否走重载仍由当前白名单约束决定，
+不在 <code>@overload</code> 机制内自动开放。</div>
+
+<h2>using 静态扩展</h2>
+<p>见「模块与 @import」一页。要点：<code>using 模块名;</code> 之后，该模块中首参类型匹配的
+<code>pub fn</code> 可作为方法链式调用：</p>
+<pre><code>using score_math;
+let score = base.add_bonus(5).double();</code></pre>
+
+<h2>macro：卫生宏</h2>
+<p><code>macro 名称(参数) { ... }</code> 定义编译期展开的宏。SLA 保证宏体内部的局部标识符不与外部冲突
+（内部做 alpha 重命名），底层 1:1 映射为 SA 的 <code>[MACRO]</code>/<code>EXPAND</code> 结构。
+以下取自 <code>tests/test_edge_cases.sla</code>：</p>
+<pre><code>macro add_one_macro(var_ref) {
+    let temp = 1;
+    var_ref = var_ref + temp;
+}
+
+fn test_macro_hygiene(val: int) -&gt; int {
+    let temp = val;
+    add_one_macro(temp);   // 宏内的 temp 不会污染外层 temp
+    return temp;
+}</code></pre>
+<p>宏可以跨文件导入使用（导入宏走共享 lowering 路径），也可嵌套定义；
+同名重复声明会得到 redeclaration 错误（见 <code>tests/test_error_redeclaration_macro.sla</code>）。</p>
+
+<h2>@expand_tuple：固定 arity 模板</h2>
+<p>用于批量生成同形的 tuple/arity 声明，避免手写 <code>AnyOf5</code>/<code>AnyOf6</code> 式扩张。
+可用占位符：<code>$N</code>（序号）、<code>$I</code>（下标）、<code>$T</code>（当前类型）、
+<code>$TYPES</code>/<code>$TYPE_PARAMS</code>、<code>$ORD</code>（映射为 first/second/third 等字段名）、
+以及迭代指令 <code>@each(T) { ... }</code> 与拼接指令 <code>@join(T, ", ") { ... }</code>。
+这不是 Rust 的 <code>macro_rules!</code> 或 proc-macro
+（<code>tests/test_unit_expand_tuple_macro.sla</code>）：</p>
+<pre><code>@expand_tuple(2, 4, T) {
+fn tuple_sum$N(@join(T, ", ") { value_$I: i64 }) -&gt; i64 {
+    let sum = 0;
+@each(T) {
+    sum = sum + value_$I;
+}
+    return sum;
+}
+}
+
+// 展开后可直接调用：
+if tuple_sum2(10, 20) != 30 { panic(18001); };
+if tuple_sum4(1, 2, 3, 4) != 10 { panic(18003); };</code></pre>
+<pre><code>@expand_tuple(2, 3, T) {
+struct OrdinalCarrier$N&lt;@join(T, ", ") { $T}&gt; {
+@each(T) {
+    $ORD: $T,
+}
+}
+}
+// 得到 OrdinalCarrier3 { first, second, third }</code></pre>
+
+<h2>@derive：能力派生</h2>
+<p><code>@derive(...)</code> 挂在结构体上，让编译器生成比较/拷贝等实现。
+真实源码中可见的写法：</p>
+<pre><code>@derive(ord)                    // syntax_sugar/spaceship_cmp：生成 &lt;=&gt; 支持
+struct SortKey {
+    group: i64,
+    order: i64,
+}</code></pre>
+<table>
+<tr><th>derive</th><th>效果</th><th>出处</th></tr>
+<tr><td><code>ord</code></td><td>支持 <code>&lt;=&gt;</code> 返回 <code>Ordering</code>，可链 <code>.then(...)</code></td><td>syntax_sugar demos</td></tr>
+<tr><td><code>copy</code> / <code>eq</code> / <code>hash</code> / <code>debug</code></td><td>对应能力派生</td><td>tests 中可见的组合写法 <code>@derive(copy, eq, ord, hash, debug)</code></td></tr>
+<tr><td><code>PartialEq</code></td><td>字段逐一相等比较</td><td>tests 中可见</td></tr>
+</table>
+<div class="note"><span class="label">注意</span>设计文档规划中的完整白名单
+（<code>Add/Sub/Mul/Neg/MulScalar/Eq/Hash/PartialOrd/Ord</code> 及 ECS 相关
+<code>Component/Bundle/Resource/Event</code>）分阶段落地中；derive 语义在部分后端路径仍会回退，
+详见「特性成熟度总表」。</div>
+
+<p>相关页面：<a href="07_modules.html">模块与 @import</a>、<a href="05_structs_enums.html">结构体与枚举</a>。</p>
+</body>
+</html>

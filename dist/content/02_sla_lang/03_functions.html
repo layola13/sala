@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>函数与控制流</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 函数与控制流</div>
+<h1>函数与控制流</h1>
+
+<p>这一页说明 <code>fn</code> 的写法、方法与关联函数、闭包，以及 <code>if/else</code>、
+<code>while</code>、<code>for in</code>、<code>break/continue</code> 和 <code>?</code> 错误传播。
+读完这一页，你能写出结构完整、能通过 <code>sa sla check</code> 的 SLA 函数。</p>
+
+<h2>函数声明</h2>
+<p>函数用 <code>fn</code> 声明，参数带类型标注，返回值跟在 <code>-&gt;</code> 之后。
+默认绑定是可变的；<code>const</code> 用于不可变绑定。可见性用 <code>pub</code> 标注
+（<code>demos/rosetta/42_export_visibility/main.sla</code>）：</p>
+<pre><code>pub fn exported_value() -&gt; i32 {
+    7
+}
+
+fn internal_value() -&gt; i32 {
+    5
+}</code></pre>
+
+<h2>方法、self 与 impl 块</h2>
+<p><code>impl 类型 { ... }</code> 内的方法第一个参数写作 <code>self</code> 或 <code>&amp;self</code>，
+调用走方法语法（UFCS 静态展开）。以下取自 <code>demos/rosetta/40_impl_block_state/main.sla</code>
+和 demo 311：</p>
+<pre><code>impl Account {
+    fn deposit(self, amount: i32) -&gt; Account {
+        return Account { balance: self.balance + amount };
+    }
+}
+
+// 调用
+let updated = account.deposit(5);
+
+impl Meter {
+    fn double(self) -&gt; i32 { return self.value.double(); }
+}</code></pre>
+
+<h2>闭包</h2>
+<p>闭包字面量写作 <code>|参数| 表达式</code>，可捕获外层局部值
+（<code>demos/rosetta/08_closures/main.sla</code>）：</p>
+<pre><code>let offset = 5;
+let add_offset = |x: i32| x + offset;
+let result = add_offset(10);   // 15</code></pre>
+
+<h2>if / else 表达式</h2>
+<p><code>if/else</code> 产生值，可直接作为函数体尾表达式或用于字段初始化
+（demo 03_if_else 与 45_config_merge）：</p>
+<pre><code>fn max(a: i32, b: i32) -&gt; i32 {
+    if a &gt; b { a } else { b }
+}
+
+Config {
+    threads: if override_cfg.threads == 0 { base.threads } else { override_cfg.threads },
+    level: if override_cfg.level == 0 { base.level } else { override_cfg.level },
+}</code></pre>
+
+<h2>循环：while / for in / break / continue</h2>
+<p><code>while cond { ... }</code> 是基础循环；<code>break</code>/<code>continue</code> 可用于提前退出或跳过。
+数值区间循环 <code>for i in start..end</code> 直接支持；对集合的 <code>for x in collection</code>
+迭代在部分路径仍会回退（见「特性成熟度总表」）。真实示例：</p>
+<pre><code>// demos/rosetta/103_labeled_break/main.sla（while + break）
+while done == false {
+    inner = inner + 1;
+    if inner &gt;= 3 { break; };
+}
+
+// rosetta 各 demo 中常见的区间循环
+for i in 0..4 {
+    total = total + i;
+}</code></pre>
+
+<h2>? 错误传播</h2>
+<p><code>?</code> 作用于返回 <code>Result&lt;T, E&gt;</code> 的调用：出错则提取错误并提前返回，
+成功则解出 <code>T</code> 继续（<code>demos/rosetta/309_try_block_macro/main.sla</code>）：</p>
+<pre><code>@import "sa_std/core/result.sa"
+
+fn parse_num(value: i32) -&gt; Result&lt;i32, i32&gt; {
+    Ok(value)
+}
+
+fn compute() -&gt; Result&lt;i32, i32&gt; {
+    let a = parse_num(10)?;
+    let b = parse_num(20)?;
+    Ok(a + b)
+}</code></pre>
+
+<div class="note"><span class="label">注意</span><code>panic(code)</code> 用于立即失败并携带整数诊断码，
+是所有 <code>@test</code> demo 的统一断言手段。</div>
+
+<h2>测试块</h2>
+<pre><code>@test "rosetta 012 12_destructuring"() {
+    let got = destructured_sum();
+    if got != 7 {
+        panic(12);
+    };
+};</code></pre>
+
+<p>相关页面：<a href="04_patterns.html">模式匹配</a>、<a href="09_async.html">async/await 现状</a>。</p>
+</body>
+</html>

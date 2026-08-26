@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>已知限制</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SA 汇编与 SAB &gt; 已知限制</div>
+<h1>已知限制</h1>
+
+<p>这一页汇总 SA 架构层面与 SLA→SA/SAB 编译层面的已知限制，并把常见的
+borrow / move 类编译错误归类，便于对号入座。依据是 <code>SA_LIMITATIONS.md</code>、
+官方错误码文档与 <code>sa_plugin_sla/docs/issue0*.md</code> 系列回归记录。</p>
+
+<h2>SA 语言层（手写 .sa 时会遇到）</h2>
+<table>
+<tr><th>限制</th><th>影响</th><th>规避方式</th></tr>
+<tr><td>无结构化 switch/match</td><td>多路分支只能用逐个 <code>eq</code> + <code>br</code> 链实现；每加一个分支就加一层链</td><td>用标签跳转表或分层比较组织代码</td></tr>
+<tr><td>无共享清理 / 统一出口</td><td>每个出口都要重复释放活跃寄存器；分支越多代码量与出错率近似二次增长（真实案例：一个 351 条指令的解析函数有 6 个出口各重复 8–12 条 <code>!reg</code>）</td><td>宏只能消除文本重复，无法语义合并；尽量减少出口数</td></tr>
+<tr><td>循环体内不能 <code>stack_alloc</code></td><td>仅在 <code>br</code> 的一个分支分配会触发 <code>PhiStateConflict</code>；且栈槽无法显式释放（<code>StackEscape</code>）</td><td>把 <code>stack_alloc</code> 提升到分支之前（hoist），即使某些分支用不到</td></tr>
+<tr><td>仿射单次使用</td><td><code>return call @fn(...)</code> 不支持（flattener 会当成名为 <code>call @fn(...)</code> 的寄存器报 <code>UnknownRegister</code>）；值用过即失效</td><td>拆成 <code>r = call @f(...)</code> + <code>return r</code></td></tr>
+<tr><td>宏不能定义 label</td><td>宏展开的行都被缩进，而 label 必须在第 0 列；无法宏化"检查 + 双向分支 + 定义标签"模式</td><td>手写展开</td></tr>
+<tr><td>宏不能引用后定义常量</td><td>宏体符号在 <code>@import</code> 时必须已定义；调用方文件里晚于导入的 <code>#def</code> 不可用，且依赖展开顺序</td><td>把常量放进 <code>.sal</code> 并在导入前定义</td></tr>
+<tr><td>无寄存器分配器 / 无作用域符号表</td><td>所有 <code>alloc</code>/<code>!</code> 手动管理，不支持复用与嵌套作用域遮蔽</td><td>由前端（如 SLA）生成生命周期清理</td></tr>
+<tr><td>无 peephole 优化</td><td>不做常量折叠、死代码消除、寄存器复用</td><td>在前端或宏层减少冗余</td></tr>
+<tr><td>分支汇合处诊断偏差</td><td>两个分支活跃寄存器集合不一致时，verifier 报错可能指向错误的寄存器名（内部用 slot index 而非 globalId 查名）</td><td>对照 JSON 中 <code>registers</code> 列表与源码行号人工核对</td></tr>
+</table>
+
+<h2>SLA → SA/SAB 编译层（2026-07 快照）</h2>
+<ul>
+<li>成熟度实测：<code>sa sla check</code> 通过约 306/313，<code>sa sla build-exe</code> 约
+239/313（76%）——"前端能解析"和"后端 lowering 能落地"之间有约 22 个百分点缺口。</li>
+<li>direct-SAB 未覆盖的特性（枚举 payload/match 提取、<code>derive</code>、<code>for in</code> 协议、
+<code>async/await</code>、部分集合 std 元数据等）命中时会走 SA 兼容回退路径，编译时间显著上升。</li>
+<li><code>&amp;mut T</code> / <code>&amp;mut self</code> 尚未引入（Phase 2 计划）；
+当前 <code>&amp;self</code> 同时覆盖读写，由 SA Referee 兜底。</li>
+<li><code>demos/rosetta</code> 树并非全部端到端通过，请逐个验证。</li>
+<li>SAB v4 不保留逐指令原始文本，无法从 <code>.sab</code> 还原 <code>.sa</code> 源码。</li>
+</ul>
+
+<h2>borrow / move 类典型问题归类</h2>
+<table>
+<tr><th>现象（trap）</th><th>典型成因</th><th>处理思路</th></tr>
+<tr><td><code>UseAfterMove</code></td><td>同一值被移动后再次读取：重复的字段 load 后继续使用、实参按 <code>^</code> 传入后又在尾部释放、循环中赋值与清理协调不当（插件回归记录 issue004、issue034、issue043 等）</td><td>需要保留的值先 <code>load</code>/复制一份再消费；不要对已移交的寄存器补 <code>!</code></td></tr>
+<tr><td><code>MemoryLeak</code></td><td>某个出口漏释放；聚合/结构体字面量字段未清理；导入宏参数被双重释放导致另一路径泄漏（issue006、issue041、issue048 等）</td><td>核对每个出口的活跃寄存器集合是否一致</td></tr>
+<tr><td><code>BorrowConflict</code> / <code>ReadWriteConflict</code></td><td>把借用中的字段作为实参传出后再写回；借用句柄生命周期覆盖了后续独占访问</td><td>缩小借用范围，先结束借用再做写操作</td></tr>
+<tr><td><code>PhiStateConflict</code></td><td>分支内 <code>stack_alloc</code> 不对称、跨分支状态不一致（SLA 前端也有对应回归记录）</td><td>把栈槽分配提升到分支前；前端侧避免在条件块内引入新槽</td></tr>
+<tr><td><code>RegisterRedefinition</code></td><td>长函数内对标量反复赋值导致寄存器重定义（issue011）；宏展开重绑定已活寄存器</td><td>每个逻辑赋值用新寄存器名，或在重定义前释放旧值</td></tr>
+<tr><td><code>CapabilityMismatch</code></td><td>调用点传参的能力前缀与被调用函数契约不符（issue012、issue017）</td><td>检查形参的 <code>&amp;</code>/<code>^</code>/<code>*</code> 前缀与实参写法是否一致</td></tr>
+<tr><td><code>FallibleContractMismatch</code></td><td>对非可失败返回值用 <code>?</code>；可失败 payload 的偏移/返回契约不匹配（issue007、issue029、issue039）</td><td>确认函数签名带 <code>!</code>，并让 <code>?</code> 只作用于可失败值</td></tr>
+<tr><td><code>UnsupportedSabDirectFeature</code>（内部信号）</td><td>direct lowering 未覆盖该特性，静默转入 fallback</td><td>用 <code>SLA_SAB_NO_FALLBACK=1</code> 让其显式失败以定位缺口</td></tr>
+</table>
+
+<div class="warning"><span class="label">警告</span>上述归类来自历史回归记录的标题与结论，
+具体触发条件随版本演进可能已经修复。遇到新的同类错误时，优先阅读当轮 JSON 诊断中的
+<code>trap</code>、<code>register(s)</code> 与掩码字段，而不是套用旧结论。</div>
+
+<p>相关页：<a href="05_diagnostics.html">错误码与诊断</a>、<a href="01_sa_model.html">SA 概念模型</a>。</p>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>time：时钟、时间与睡眠</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; time：时钟、时间与睡眠</div>
+<h1>time：时钟、时间与睡眠</h1>
+
+<p>这一页列出 <code>sa_std/time.sai</code> 的 extern 函数，并给出 Sla 侧
+<code>Instant</code> / <code>Duration</code> / <code>SystemTime</code> 的真实用法。
+读完即可测量耗时和让线程休眠。</p>
+
+<h2>extern 函数（摘自 time.sai）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_time_instant_ns() -&gt; u64</code></td><td>单调时钟当前纳秒值</td></tr>
+<tr><td><code>sa_time_unix_s() -&gt; i64</code></td><td>Unix 时间戳（秒）</td></tr>
+<tr><td><code>sa_time_unix_ms() -&gt; i64</code></td><td>Unix 时间戳（毫秒）</td></tr>
+<tr><td><code>sa_time_unix_ns() -&gt; i64</code></td><td>Unix 时间戳（纳秒）</td></tr>
+<tr><td><code>sa_time_utc_now(&amp;out: ptr) -&gt; i32</code></td><td>当前 UTC 日历时间写入 SaTimeDate；返回普通 i32 状态码（不是 Fallible 结构）</td></tr>
+<tr><td><code>sa_time_sleep_ns(ns: u64) -&gt; i32</code></td><td>睡眠指定纳秒</td></tr>
+<tr><td><code>sa_time_sleep_ms(ms: u64) -&gt; i32</code></td><td>睡眠指定毫秒</td></tr>
+</table>
+
+<h2>Sla 侧类型面</h2>
+<p>Sla 代码使用 <code>SystemTime</code> / <code>Instant</code> / <code>Duration</code>
+这些名字，由编译器 lower 到 time 契约。真实示例摘自
+<code>demos/rosetta/09_async_await/main.sla</code>：</p>
+<pre><code>@import "sa_std/time.sla"
+
+fn unix_now_millis() -&gt; u64 {
+    return SystemTime::now().duration_since(SystemTime::unix_epoch()).unwrap().as_millis();
+}
+
+fn sleep_for_millis(delay_ms: u64) -&gt; void {
+    thread::sleep(Duration::from_millis(delay_ms));
+}
+
+fn instant_now_ns() -&gt; u64 {
+    let started = Instant::now();
+    return started.raw_ns();
+}
+
+fn elapsed_millis_since_ns(started_ns: u64) -&gt; u64 {
+    let started = Instant::from_raw_ns(started_ns);
+    return started.elapsed().as_millis();
+}</code></pre>
+<p>可见的对应关系：<code>Instant::now().raw_ns()</code> 即单调纳秒
+（<code>sa_time_instant_ns</code>），<code>Instant::from_raw_ns</code> 从裸纳秒重建，
+<code>Duration::from_millis(ms).as_millis()</code> 在毫秒粒度上构造与读取时长。</p>
+
+<div class="note"><span class="label">注意</span>契约注释明确：
+<code>sa_time_utc_now</code> 返回<strong>普通 i32 状态码</strong>而非
+<code>Fallible {status, value}</code>，调用方要按状态码判断成败，
+日历字段通过 <code>&amp;out</code> 指针带回。</div>
+
+</body>
+</html>

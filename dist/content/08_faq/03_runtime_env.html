@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>运行与环境问题排查</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">FAQ 与故障排查 &gt; 运行与环境问题排查</div>
+<h1>运行与环境问题排查</h1>
+
+<p>这一页汇总 Windows 开发环境下真实踩过的坑：中文乱码、LLVM 运行库找不到、可执行文件不在当前目录解析、<code>dumpbin</code> 缺失等。读完可以按症状快速对号入座并修复环境。</p>
+
+<h2>中文输出乱码</h2>
+
+<p>在 Windows PowerShell 中处理包含中文的文件时，必须显式使用 UTF-8 编码：</p>
+
+<pre><code># 读取
+Get-Content -Encoding UTF8 path\to\file.md
+
+# 写入（优先用编辑器/apply_patch；必须用 PowerShell 时）
+Set-Content -Encoding UTF8 -Path out.md -Value $content</code></pre>
+
+<ul>
+<li>不要用未指定编码的 <code>Get-Content</code>/<code>Set-Content</code>/<code>Out-File</code> 处理中文、Markdown、TOML、JSON 等文本文件；</li>
+<li>终端输出出现乱码时，先用 UTF-8 重新读取确认，不要直接认定文件内容损坏；</li>
+<li>建议优先使用 PowerShell 7（<code>C:\Program Files\PowerShell\7\pwsh.exe</code>），兼容性比 Windows PowerShell 5.1 好。</li>
+</ul>
+
+<h2>找不到 LLVM 库 / sa.exe 启动失败</h2>
+
+<p>sci 使用 <code>zig build -Dllvm=true</code> 构建（本机 LLVM 位于 <code>C:\LLVM-14</code>）。运行 <code>sa.exe</code> 时需要把 LLVM 的库目录加入 PATH，否则原生链接阶段可能失败：</p>
+
+<pre><code>$env:Path = "C:\LLVM-14\lib;" + $env:Path</code></pre>
+
+<h2>当前目录下的 exe 无法执行</h2>
+
+<p>本机开发会话默认带有 <code>NoDefaultCurrentDirectoryInExePath=1</code> 环境变量。它会让 cmd.exe 拒绝从当前目录解析批处理/可执行文件——即使文件就在当前目录，也报 <code>'xxx' is not recognized as an internal or external command</code>。运行刚构建出的本地 CLI 前先清掉它：</p>
+
+<pre><code>$env:NoDefaultCurrentDirectoryInExePath = $null
+.\zig-out\bin\sa.exe --version</code></pre>
+
+<h2><code>zig build test</code> 中插件安装测试失败</h2>
+
+<p><code>zig build test</code> 里的插件安装测试依赖 MSVC 的 <code>dumpbin.exe</code>，需将其加入 PATH（路径按本机 VS 版本调整）：</p>
+
+<pre><code>$env:Path = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64;" + $env:Path</code></pre>
+
+<h2>其他环境注意事项</h2>
+
+<table>
+<tr><th>症状</th><th>原因与处理</th></tr>
+<tr><td>新终端里 <code>zig</code> 不可用</td><td>Zig 通过用户级全局 PATH 提供（如 <code>D:\tools\zig-x86_64-windows-0.14.1\zig.exe</code>）；已打开的旧终端窗口需要重开才会生效。</td></tr>
+<tr><td>PowerShell 里 <code>Set-Location</code> 后子进程目录不对</td><td><code>Set-Location</code> 或 <code>[Environment]::CurrentDirectory</code> 都不会改变 pwsh 自身的 Win32 工作目录，子进程继承的是 pwsh 启动时的目录。需要指定目录时用批处理脚本显式 <code>cd /d %~dp0</code>，或调用 <code>Start-Process -WorkingDirectory</code>。</td></tr>
+<tr><td>批量编译后 demo 目录出现大量改动</td><td>demo 参考产物 <code>main.sa</code> 是 git 跟踪文件，批量编译不要把产物写在源目录旁；误覆盖用 <code>git checkout -- demos</code> 恢复。</td></tr>
+<tr><td>长测试卡住终端</td><td>测试/CLI 执行统一包一层超时，例如 <code>timeout 120s ...</code>；构建类命令（如 <code>zig build --summary all</code>)不需要。</td></tr>
+</table>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：D:\projects\sla\AGENTS.md、sa_plugin_sla/docs/faq.md §L106。</p>
+</body>
+</html>

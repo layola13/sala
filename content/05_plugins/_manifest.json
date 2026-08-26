@@ -1,0 +1,252 @@
+{
+  "topics": [
+    {
+      "id": "overview",
+      "title": "插件参考总览",
+      "file": "01_overview.html",
+      "keywords": [
+        "插件",
+        "sap.json",
+        "plugin",
+        "安装",
+        "skills",
+        "权限"
+      ],
+      "parent": null
+    },
+    {
+      "id": "sax",
+      "title": "sax — SA UI 方言插件",
+      "file": "02_sax.html",
+      "keywords": [
+        "sax",
+        "UI",
+        "组件",
+        "airlock",
+        "wasm"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "react",
+      "title": "react — SAX 上的 React 兼容层",
+      "file": "03_react.html",
+      "keywords": [
+        "react",
+        "sax",
+        "组件",
+        "事件",
+        "include"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "mui",
+      "title": "mui — SAX 版 Material UI 组件库",
+      "file": "04_mui.html",
+      "keywords": [
+        "mui",
+        "Material UI",
+        "组件库",
+        "slot",
+        "主题"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "vite",
+      "title": "vite — SAX 热重载开发服务器",
+      "file": "05_vite.html",
+      "keywords": [
+        "vite",
+        "dev server",
+        "热重载",
+        "SSE",
+        "watch"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "tui",
+      "title": "tui — 终端原语插件",
+      "file": "06_tui.html",
+      "keywords": [
+        "tui",
+        "终端",
+        "raw mode",
+        "termios",
+        "输入"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "wgpu",
+      "title": "wgpu — 浏览器 WebGPU sidecar",
+      "file": "07_wgpu.html",
+      "keywords": [
+        "wgpu",
+        "WebGPU",
+        "渲染",
+        "WGSL",
+        "sidecar"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "3dengines",
+      "title": "3dengines — 3D 引擎插件族",
+      "file": "08_3dengines.html",
+      "keywords": [
+        "3d",
+        "Bevy",
+        "场景",
+        "gltf",
+        "引擎"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "vm",
+      "title": "vm — 动态解释器虚拟机",
+      "file": "09_vm.html",
+      "keywords": [
+        "vm",
+        "解释器",
+        "FFI",
+        "fuel",
+        "沙箱"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "sla",
+      "title": "sla — SLA 编译器插件（概述）",
+      "file": "10_sla.html",
+      "keywords": [
+        "sla",
+        "编译器",
+        "SAB",
+        "build-exe"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "deno",
+      "title": "deno — Deno 兼容 API 插件",
+      "file": "11_deno.html",
+      "keywords": [
+        "deno",
+        "Deno 兼容",
+        "DENO_",
+        "原生替代",
+        "deno.sys",
+        "deno.fs",
+        "hubproxy",
+        "覆盖度"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "node",
+      "title": "node — Node.js 兼容门面",
+      "file": "12_node.html",
+      "keywords": [
+        "node",
+        "Node.js 兼容",
+        "NODE_ 宏",
+        "extern",
+        "u32 u64 约定",
+        "协议矩阵",
+        "fs",
+        "child_process"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "pkg",
+      "title": "pkg — 零信任包管理器",
+      "file": "13_pkg.html",
+      "keywords": [
+        "pkg",
+        "包管理",
+        "sa.mod",
+        "审计",
+        "sha256",
+        "cargo"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "http_client",
+      "title": "http-client — HTTP 客户端插件",
+      "file": "14_http_client.html",
+      "keywords": [
+        "http-client",
+        "https",
+        "TLS",
+        "websocket",
+        "v2 状态码",
+        "流式响应",
+        "sap.json 权限"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "http_server",
+      "title": "http-server — 内嵌 HTTP 服务端插件",
+      "file": "15_http_server.html",
+      "keywords": [
+        "http-server",
+        "localhost",
+        "SSE",
+        "chunked",
+        "websocket",
+        "scaffold",
+        "serve"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "db",
+      "title": "db — 本地列式数据库插件",
+      "file": "16_db.html",
+      "keywords": [
+        "db",
+        "数据库",
+        "列式存储",
+        "事务",
+        "索引",
+        "qmod"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "bc2sa",
+      "title": "bc2sa — LLVM bitcode 逆向翻译器",
+      "file": "17_bc2sa.html",
+      "keywords": [
+        "bc2sa",
+        "llvm",
+        "bitcode",
+        "C++",
+        "rust"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "ffi-vs-bc2sa",
+      "title": "FFI vs bc2sa：外部代码接入路径",
+      "file": "18_ffi_vs_bc2sa.html",
+      "keywords": [
+        "FFI",
+        "extern C",
+        "unsafe",
+        "bc2sa",
+        "C ABI",
+        "动态库",
+        "选型"
+      ],
+      "parent": "bc2sa"
+    }
+  ]
+}

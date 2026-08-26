@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>bc2sa — LLVM bitcode 逆向翻译器</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; bc2sa — LLVM bitcode 逆向翻译器</div>
+<h1>bc2sa — LLVM bitcode 逆向翻译器</h1>
+
+<p><code>sa_plugin_bc2sa</code> 把<b>保守子集的 LLVM bitcode</b> 逆向翻译为 SA 文本，
+是 sci 主页对外承诺的三条跨语言入口之一（与 ts/deno/node/sla 并列）：</p>
+<pre><code>Rust / C++ → clang / rustc → LLVM bitcode → sa bc2sa → SA 文本 → sa build-exe</code></pre>
+<p>定位是「让真实 C/C++/Rust 工程能接入 SA 管线」，<b>不是</b>完整的 C 内存安全证明器 ——
+上游 FAQ 明确了这条边界。该插件没有 README；权威资料为 <code>sap.json</code>、
+<code>src/llvm2sa.zig</code>、<code>docs/bc2sa_evaluation_cn.md</code>（完成度自评）与
+<code>tests/install_smoke.sh</code>。</p>
+
+<h2>基本事实</h2>
+<table>
+<tr><th>项</th><th>内容</th></tr>
+<tr><td>能力段 / 命令</td><td><code>bc2sa &lt;file.bc&gt;</code>（也接受 <code>.ll</code> 文本输入）；翻译结果写到 stdout</td></tr>
+<tr><td>接口契约</td><td>无 <code>.sai</code>/<code>.sal</code> —— 翻译经 CLI/stdout 完成，不进运行时</td></tr>
+<tr><td>权限</td><td>项目目录读取；子进程白名单仅一条：<code>/usr/bin/llvm-dis-14 -o - *</code>（硬依赖此确切路径，见下方 Windows 注意点）</td></tr>
+<tr><td>依赖</td><td>无其他插件依赖；LLVM 14 的 <code>llvm-dis</code>/<code>llvm-as</code> 工具链</td></tr>
+</table>
+
+<h2>使用流程</h2>
+<pre><code># 冒烟用法（来自 tests/install_smoke.sh）
+llvm-as-14 install_smoke.ll -o install_smoke.bc   # 或 clang -emit-llvm -c foo.c -o foo.bc
+SA_PLUGIN_DEV=1 sa bc2sa install_smoke.bc
+# 预期输出包含 @export main() -> i32: 与 return 0
+
+# 典型完整路径
+clang --target=x86_64-linux-gnu -O0 -emit-llvm -c add.c -o add.bc    # O0 避免 phi（见限制）
+sa bc2sa add.bc > add.sa                                             # 翻译为 SA 文本
+sa build-exe ...                                                     # 与手写 SA 相同的后续管线
+
+# rustc 路线（同样建议关闭优化）
+rustc --emit=llvm-bc -C opt-level=0 lib.rs -o lib.bc</code></pre>
+<div class="note"><span class="label">注意</span>bitcode 输入经 <code>llvm-dis-14</code> 子进程反汇编成
+<code>.ll</code> 再解析；直接给 <code>.ll</code> 文件可跳过这一步。<code>-O0</code> 不是风格偏好而是硬约束：
+O1 以上会大量生成 <code>phi</code>，而 phi 尚未支持。</div>
+
+<h2>可翻译子集（实测矩阵，出自评估文档 §1.4）</h2>
+<table>
+<tr><th>类别</th><th>指令</th><th>状态</th></tr>
+<tr><td>函数结构</td><td><code>define</code> / <code>declare</code> 函数头、<code>ret</code>、<code>call</code>、<code>br</code> 条件/无条件</td><td>✅</td></tr>
+<tr><td>内存</td><td><code>alloca</code> / <code>load</code> / <code>store</code>；固定边界 <code>getelementptr</code>（常量偏移）</td><td>✅</td></tr>
+<tr><td>整数算术</td><td><code>add</code> / <code>sub</code> / <code>mul</code> / <code>sdiv</code> / <code>udiv</code> / <code>srem</code> / <code>urem</code></td><td>✅（后四项超出设计清单）</td></tr>
+<tr><td>位运算</td><td><code>and</code> / <code>or</code> / <code>xor</code> / <code>shl</code> / <code>lshr</code> / <code>ashr</code></td><td>✅（超出设计清单）</td></tr>
+<tr><td>比较</td><td><code>icmp</code> 全集（eq/ne/slt/sle/sgt/sge/ult/ule/ugt/uge）</td><td>✅</td></tr>
+<tr><td>类型转换</td><td><code>trunc</code> / <code>zext</code> / <code>sext</code> / <code>bitcast</code></td><td>✅（超出设计清单）</td></tr>
+<tr><td>全局量</td><td>字符串常量 <code>@const utf8:</code> / <code>hex:</code></td><td>✅（超出设计清单）</td></tr>
+<tr><td>控制流合并</td><td><code>phi</code></td><td>🔴 未实现 —— <b>阻塞性缺口</b></td></tr>
+<tr><td>多分支</td><td><code>switch</code> / <code>select</code></td><td>🔴 未实现</td></tr>
+<tr><td>聚合值</td><td><code>extractvalue</code> / <code>insertvalue</code></td><td>❌ 缺失</td></tr>
+<tr><td>浮点</td><td><code>fadd</code> / <code>fsub</code> / <code>fmul</code> / <code>fdiv</code> / <code>fcmp</code></td><td>❌ 完全缺失</td></tr>
+<tr><td>原子</td><td><code>atomicrmw</code> / <code>cmpxchg</code> / <code>fence</code></td><td>❌ 缺失</td></tr>
+<tr><td>C++ 异常</td><td><code>invoke</code> / <code>landingpad</code></td><td>不做（与 SA 无异常哲学冲突，属设计意图而非欠账）</td></tr>
+<tr><td>复杂指针运算</td><td>变量偏移 GEP / 别名分析</td><td>保守拒绝（设计意图，不做伪精确分析）</td></tr>
+</table>
+
+<h2>静态拒绝策略与诊断</h2>
+<p>当 <code>getelementptr</code> 可被证明越过固定数组边界时直接返回 <code>StaticMemoryOverflow</code>，
+CLI 以结构化诊断 <code>SA-CLI-019</code> 退出。该策略只覆盖可静态解析的常量偏移与固定数组边界，
+不承诺对完整 C 内存安全做全量证明；其余不可判定情形按 <code>UnsupportedInstruction</code> 处理。</p>
+
+<h2>现状与成熟度</h2>
+<ul>
+<li><code>progress.md</code> 标注 Overall 100%，但其口径是「已声明的 4 项 feature」（权限清单、静态 GEP 越界检测、
+<code>SA-CLI-019</code> 映射、安装冒烟），不代表翻译覆盖面。</li>
+<li>评估文档的诚实结论：缺 <code>phi</code> 是阻塞性缺陷 —— 任何 O1 以上或 rustc 默认优化的 bitcode 都会失败；
+缺 <code>switch</code>/<code>select</code> 又打掉一大半真实 C/Rust 表达式；测试覆盖率低；
+<code>call</code> 翻译缺所有权前缀推断；错误诊断粒度粗。</li>
+<li>结论：<b>按实验性工具对待</b>，适合小而无优化、无浮点的叶子函数接入；不宜宣传为通用
+Rust/C++ 迁移通道。改进路线 P0 是补完 phi/switch/select 的最低可用基线。</li>
+</ul>
+<div class="warning"><span class="label">警告</span>Windows 上 <code>/usr/bin/llvm-dis-14</code> 白名单路径是
+Linux 形态；在本机用 bc2sa 需要提供兼容的子进程环境（WSL 等），或在 sap.json 权限中显式放行本机 llvm-dis 路径。
+打包脚本对缺失 llvm-dis/llvm-as 只给告警，不阻断组包。</div>
+
+<h2>FFI 还是 bc2sa：两条接入路径怎么选</h2>
+<p>把外部代码接进 SA 有方向相反的两条路，详见 <a href="18_ffi_vs_bc2sa.html">FFI vs bc2sa</a>：
+<b>FFI</b>（<code>@extern "C"</code> 导出/导入 + <code>unsafe</code> 调用，运行时经 ABI 直连原生代码，
+见 rosetta demo <code>111_extern_c_abi</code>）适合调用现成的动态库；
+<b>bc2sa</b> 把外部源码<b>翻译进来</b>变成 SA 文本，适合需要纳入 SA 验证/发布产物的少量自研 C/Rust 源码。
+前者成熟可用，后者仍属实验性。</p>
+</body>
+</html>

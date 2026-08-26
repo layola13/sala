@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>3dengines — 3D 引擎插件族</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; 3dengines — 3D 引擎插件族</div>
+<h1>3dengines — 3D 引擎插件族</h1>
+
+<p><code>sa_plugin_3dengines</code> 不是单个插件，而是一个目录下的 3D 引擎插件族：
+各模块独立可构建、可通过各自的 <code>sap.json</code> 安装，整体架构正对标 Bevy 重排，
+完成度门禁是仓库内的 <code>BEVY_ALIGNMENT.md</code>。本页只给总览；深入用法属于 UI 章节，细节见其仓库 README。</p>
+
+<h2>模块构成（摘要）</h2>
+<table>
+<tr><th>插件</th><th>角色</th></tr>
+<tr><td><code>3d_time</code> / <code>3d_input</code> / <code>3d_color</code></td><td>Bevy 风格帧时间/计时器、按键输入状态机、RGBA 打包与 sRGB/linear 转换</td></tr>
+<tr><td><code>3d_math</code> / <code>3d_transform</code> / <code>3d_geometry</code></td><td>向量/矩阵/四元数/AABB、变换层级、P3N3UV2 顶点写入与网格 AABB 计算</td></tr>
+<tr><td><code>3d_scene</code> / <code>3d_camera</code> / <code>3d_light</code> / <code>3d_material</code> / <code>3d_pbr</code></td><td>场景节点组件掩码与声明式 AST 构造器、相机投影、环境/方向/点/聚光灯、材质与 PBR ABI</td></tr>
+<tr><td><code>3d_render_wgpu</code></td><td>WebGPU 后端 ABI 与 wasm import 契约（<code>sa3d_wgpu_request_renderer</code> 等 8 个导入）</td></tr>
+<tr><td><code>3d_gltf</code> / <code>3d_xml</code> / <code>3d_yaml</code> / <code>3d_animation</code> / <code>3d_particle</code> / <code>3d_gizmos</code> / <code>3d_ecs</code> / <code>3d_app</code> / <code>3d_shader</code> / <code>3d_image</code> 等</td><td>导入器与其余引擎子系统（部分仅 ABI 布局，行为待实现）</td></tr>
+<tr><td><code>3d</code>（聚合插件）</td><td>聚合全家桶，并安装 SAX sidecar 资产：<code>sa3d.sai</code>、<code>sa3d.sal</code>、<code>sa3d_airlock.js</code>、demo 与降级工具</td></tr>
+</table>
+
+<h2>当前能力边界</h2>
+<ul>
+<li>已可用的里程碑：可工作的 <code>sa3d</code> WebGPU sidecar、第一条声明式 <code>Scene3D</code> 降级路径、第一版通用 WebGPU 渲染提交面。</li>
+<li>行为已实现并通过 SA 测试的模块包括 <code>3d_time</code>、<code>3d_input</code>、<code>3d_color</code>、<code>3d_geometry</code>、<code>3d_scene</code>、<code>3d_light</code> 等；其余模块多数只有布局契约。</li>
+<li>声明式场景目前限定：一个 <code>Scene3D</code>、一个 <code>PerspectiveCamera</code>、一种材质、一个 <code>CubeMesh</code>；通用渲染器只支持 P3N3UV2 顶点布局，暂忽略光照记录。</li>
+</ul>
+
+<h2>启用方式</h2>
+<p>SAX 组件声明 <code>renderer="sa3d"</code> 后，<code>sa sax build</code> 会自动复制 <code>sa3d_airlock.js</code> 到输出目录。
+聚合插件的 CLI 形如：</p>
+<pre><code>sa 3d &lt;info|skills|check|inspect-layout|airlock|new|check-demo&gt; ...
+sa 3d new my-scene        # 生成 app.sax + scene.sax3d 骨架
+
+# 批量构建/验证（在 sa_plugin_3dengines 根目录）
+node tools/build_all.mjs
+node tools/verify_3d_modules.mjs</code></pre>
+
+<div class="note"><span class="label">注意</span>每个模块的测试分两层：Zig 描述符测试 + SA 单元测试
+（<code>sa test tests/*_layout_test.sa</code>）。测试刻意避开浏览器/WebGPU 调用与原生 f32 运算，
+浮点字段用整数位模式断言。<code>BEVY_PARITY_AUDIT.md</code> 明确提醒：通过 <code>zig build test</code>
+只证明 ABI 与测试自洽，不证明与 Bevy 行为对齐。</div>
+</body>
+</html>

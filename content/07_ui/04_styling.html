@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>样式体系</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SAX / MUI 界面开发 &gt; 样式体系</div>
+<h1>样式体系</h1>
+
+<p>这一页说明 SAX 工程的 CSS 组织方式：主题令牌、分区样式文件的分工，以及把它们拼成单一
+<code>app.css</code> 的固定顺序。所有类名与顺序均取自 <code>D:\projects\sla\codex_ui</code> 的实际内容。</p>
+
+<h2>总体原则</h2>
+<ul>
+<li>样式全部是<strong>全局 CSS 类</strong>，SAX 里通过 <code>className</code> 引用；没有 CSS-in-JS，没有局部作用域。</li>
+<li>MUI 库组件输出的 <code>Mui*-*</code> 工具类也需要外观定义 —— 这部分基线写在 <code>theme.css</code> 里手工覆盖（如 <code>.MuiButton-contained</code>、<code>.MuiChip-colorSuccess</code>）。</li>
+<li>源文件拆成 <code>theme.css</code> + <code>styles/*.css</code>，改动后按固定顺序重新拼接成单一 <code>app.css</code>，构建时用 <code>--css app.css</code> 传入。</li>
+<li>新引入的自定义 <code>cxu-*</code> 类必须在 <code>theme.css</code> 或某个 <code>styles/*.css</code> 中有定义（一致性检查项之一）。</li>
+</ul>
+
+<h2>theme.css：全局令牌（official-black 调色板）</h2>
+<p><code>:root</code> 中声明 <code>--cxu-*</code> 令牌并设置 <code>color-scheme: dark</code>。核心色值：</p>
+<table>
+<tr><th>令牌</th><th>值</th><th>用途</th></tr>
+<tr><td><code>--cxu-bg</code></td><td><code>#070a0e</code></td><td>页面背景（official-black 主底色）</td></tr>
+<tr><td><code>--cxu-primary</code></td><td><code>#61f3f3</code></td><td>主色（青色高亮）</td></tr>
+<tr><td><code>--cxu-secondary</code></td><td><code>#ffab00</code></td><td>次级强调色（琥珀）</td></tr>
+<tr><td><code>--cxu-paper</code> / <code>--cxu-paper-soft</code> / <code>--cxu-panel</code></td><td><code>#10161d</code> / <code>#151d26</code> / <code>#0d1319</code></td><td>卡片、软面板、输入面板底色</td></tr>
+<tr><td><code>--cxu-text</code> / <code>--cxu-muted</code></td><td><code>#f9fafb</code> / <code>#a8b3bf</code></td><td>正文 / 弱化文字</td></tr>
+<tr><td><code>--cxu-line</code></td><td><code>rgba(255,255,255,0.09)</code></td><td>统一描边</td></tr>
+<tr><td><code>--cxu-success</code> / <code>--cxu-error</code> / <code>--cxu-info</code> / <code>--cxu-violet</code></td><td><code>#4ade80</code> / <code>#f87171</code> / <code>#38bdf8</code> / <code>#a78bfa</code></td><td>语义色</td></tr>
+<tr><td><code>--cxu-radius</code> / <code>--cxu-mono</code></td><td><code>10px</code> / JetBrains Mono 栈</td><td>圆角 / 等宽字体</td></tr>
+</table>
+<p>同一文件还包含三段内容：MUI 生成类基线（<code>.MuiPaper-root</code>、按钮/输入/Chip/Table/Switch/Dialog 等）、
+共享布局原语（<code>cxu-row</code> / <code>cxu-grow</code> / <code>cxu-caption</code> / <code>cxu-pill</code> / <code>cxu-scroll</code> /
+<code>cxu-mono</code> / <code>cxu-icon</code> / <code>cxu-primary-link</code>），以及开发导航条 <code>cxu-devnav</code> 和全局隐藏类 <code>cxu-hidden</code>（<code>display:none !important</code>，屏幕互斥显示的基础）。</p>
+
+<h2>styles/*.css 分工与拼接顺序</h2>
+<table>
+<tr><th>#</th><th>源文件</th><th>覆盖范围</th></tr>
+<tr><td>1</td><td><code>theme.css</code></td><td>全局令牌、MUI 基线、共享原语、devnav</td></tr>
+<tr><td>2</td><td><code>styles/shell.css</code></td><td>WorkbenchScreen / ChatGptShellScreen / SettingsDrawerScreen / SetupGuideScreen 屏幕布局</td></tr>
+<tr><td>3</td><td><code>styles/workbench_regions.css</code></td><td>TopBar+TaskTabStrip / HistorySidebarPanel / ChatWaterfallPanel / AgentOverviewGridPanel 工作台区域</td></tr>
+<tr><td>4</td><td><code>styles/dialogs.css</code></td><td>FreeModelAccessDialog / OfficialOpenAiLoginDialog / AgentRosterManagerDialog 对话框</td></tr>
+<tr><td>5</td><td><code>styles/panels.css</code></td><td>ComposerDock / RightWorkspacePanelPanel / SideChatPanelPanel / WorkspaceExplorerPanelPanel 面板</td></tr>
+<tr><td>6</td><td><code>styles/admin.css</code></td><td>MembersPermissionsScreen / SecuritySettingsScreen / UsageBillingScreen 管理页</td></tr>
+<tr><td>7</td><td><code>styles/plugins.css</code></td><td>PluginSettingsScreen / LaunchAdaptersScreen / ProjectGroupChatDialog</td></tr>
+<tr><td>8</td><td><code>styles/settings_tabs1.css</code></td><td>设置分区：外观 / 布局 / 通知</td></tr>
+<tr><td>9</td><td><code>styles/settings_tabs2.css</code></td><td>设置分区：助手 / Codex / 工作区 / 会话</td></tr>
+<tr><td>10</td><td><code>styles/settings_tabs3.css</code></td><td>设置分区：中继 / 启动 / 技能</td></tr>
+<tr><td>11</td><td><code>styles/settings_tabs4.css</code></td><td>设置分区：Pet / 隐私 / 关于</td></tr>
+<tr><td>12</td><td><code>styles/gates.css</code></td><td>共享门禁骨架（<code>cxu-gate*</code>）/ CliPrerequisiteScreen / LegalConsentScreen / LoginScreen</td></tr>
+</table>
+
+<p>在工程根目录运行以下命令重新拼接（顺序必须与上表一致）：</p>
+<pre><code>cat theme.css styles/shell.css styles/workbench_regions.css styles/dialogs.css \
+    styles/panels.css styles/admin.css styles/plugins.css \
+    styles/settings_tabs1.css styles/settings_tabs2.css styles/settings_tabs3.css \
+    styles/settings_tabs4.css styles/gates.css &gt; app.css</code></pre>
+
+<h2>SAX 文件里的条件类名</h2>
+<p>状态驱动的样式切换不用 JS，而是用属性位置的花括号模板拼类名，配合 <code>cxu-hidden</code> 或激活态类实现：</p>
+<pre><code>&lt;section className="cxu-screen{nav_settings ? '' : ' cxu-hidden'}"&gt;…&lt;/section&gt;
+
+&lt;button className="MuiButton-root cxu-theme-card{th_black ? ' cxu-theme-selected' : ''}"
+        onClick={pick_th_black}&gt;…&lt;/button&gt;</code></pre>
+<div class="note"><span class="label">注意</span>这种"带引号值内嵌花括号模板"是 react 编译管线明确支持的合法语法；
+文本位置的三元则不允许（见<a href="02_syntax.html">SAX 语法规则</a>）。</div>
+</body>
+</html>

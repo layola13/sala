@@ -1,0 +1,20 @@
+{
+  "topics": [
+    {"id": "positioning", "title": "定位与设计哲学：SLA 不是 Rust 克隆", "file": "01_positioning.html",
+     "keywords": ["定位", "设计哲学", "SA 前端", "bc2sa", "场景选型", "常见误解"], "parent": null},
+    {"id": "syntax-matrix", "title": "语法对照实测矩阵", "file": "02_syntax_matrix.html",
+     "keywords": ["语法对照", "表层兼容子集", "静默吸收", "let mut", "^ XOR", "@overload"], "parent": null},
+    {"id": "ownership", "title": "所有权与借用：Referee 对比 borrow checker", "file": "03_ownership.html",
+     "keywords": ["所有权", "借用", "Referee", "borrow checker", "显式 move", "可变性阶段", "内存安全保证"], "parent": null},
+    {"id": "macros", "title": "宏与元编程对比", "file": "04_macros.html",
+     "keywords": ["宏", "元编程", "macro_rules", "proc-macro", "@derive", "@overload", "Bevy 移植", "! 后缀"], "parent": null},
+    {"id": "stdlib-errors-async", "title": "标准库、错误处理与 async 对照", "file": "05_stdlib_errors_async.html",
+     "keywords": ["标准库", "Result", "Option", "panic_msg", "async", "future", "sa_std", "std_surface"], "parent": null},
+    {"id": "surface-compat", "title": "Rust 表层兼容性：哪些代码能原样解析", "file": "06_surface_compat.html",
+     "keywords": ["表层兼容", "let mut", "&mut", "lifetime", "pub", "unsafe", "@ffi_wrapper", "^ XOR"], "parent": null},
+    {"id": "rosetta-bc2sa", "title": "rosetta 对照集与 bc2sa 桥接生态", "file": "07_rosetta_bc2sa.html",
+     "keywords": ["rosetta", "demo 对照", "bc2sa", "LLVM bitcode", "phi", "StaticMemoryOverflow", "SA-CLI-019"], "parent": null},
+    {"id": "migration", "title": "从 Rust 迁移到 SLA：改写清单与场景选择", "file": "08_migration.html",
+     "keywords": ["迁移", "改写清单", "Cell 内部可变性", "impl Drop", "场景选择", "客观打分"], "parent": null}
+  ]
+}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>安装与构建</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; 安装与构建</div>
+<h1>安装与构建</h1>
+
+<p>这一页讲如何把 SA 工具链装到本机：优先用<b>全自动安装包</b>（一个 zip 同时带
+<code>sa.exe</code>、顶级 <code>sla.exe</code>、标准库和全部官方插件），其次是从源码构建
+<code>sci</code> 并逐个安装。重点是 Windows 环境的几个已知坑：LLVM 开关、PATH、
+<code>NoDefaultCurrentDirectoryInExePath</code> 与 <code>dumpbin.exe</code>。</p>
+
+<a id="bundle"></a>
+<h2>全自动安装包（推荐）</h2>
+<p>仓库提供一键式 Windows 安装包：一个 zip 里同时包含 <code>sa.exe</code>、<b>作为顶级命令的
+<code>sla.exe</code></b>、<code>std</code> 标准库和全部官方插件，装完即用，不需要逐个源码构建。</p>
+
+<h3>制作安装包</h3>
+<pre><code># 运行目录：sci 仓库根目录
+powershell tools\package_windows.ps1                # 产出 dist\SCI-windows-x64-full.zip
+powershell tools\package_windows.ps1 -Include3D     # 额外打包 3D 引擎子插件</code></pre>
+<p>脚本会构建 sci 与各插件，按每个插件 <code>sap.json</code> 清单收集产物，组装出
+<code>bin\</code>（sa.exe、sla.exe、sla.dll）、<code>include\</code>、<code>std\</code>、
+<code>plugins\&lt;name&gt;\</code> 的目录结构，并生成 <code>sa.bundle/1</code> 格式的清单文件。
+默认排除 <code>sa_plugin_ts</code>；<code>sa_plugin_3dengines</code> 仅在 <code>-Include3D</code>
+时随包。找不到 llvm-dis/llvm-as 时会告警 —— bc2sa 的位码翻译需要另行安装 LLVM 工具。
+其他参数：<code>-Output &lt;路径&gt;</code> 改输出位置，<code>-SkipBuild</code> 跳过构建直接组包。</p>
+
+<h3>从安装包一键安装</h3>
+<pre><code># 命令行全自动安装（运行目录：sci 仓库根目录）
+powershell tools\install_bundle_windows.ps1 -Bundle dist\SCI-windows-x64-full.zip
+
+# 可选参数：
+#   -NoPath               不修改用户 PATH
+#   -EnablePluginDevMode  额外把 SA_PLUGIN_DEV=1 写入用户环境
+#   -InstallRoot / -PluginHome / -TimeoutSeconds   自定义安装位置与超时</code></pre>
+<p>脚本先校验包内 <code>bin\sa.exe</code>、<code>bin\sla.exe</code>、<code>std</code> 是否齐全，然后：</p>
+<ul>
+<li>把 SA 本体安装到 <code>%LOCALAPPDATA%\Programs\SCI\current</code>；</li>
+<li>把每个插件按其 sap.json 写入
+<code>%LOCALAPPDATA%\sa_plugins\installed\&lt;name&gt;\current</code>（含接口契约、资产、demo 与权限锁，
+缺失时自动走 <code>sa plugin install --review</code> 审核流程）；</li>
+<li>把 <code>bin</code> 加入用户 PATH，并设置用户级环境变量
+<code>SA_STD_DIR</code>（指向包内 std）与 <code>SA_PLUGINS_HOME</code>。</li>
+</ul>
+<p>结束时自动运行 <code>sa --version</code> 和 <code>sla --version</code> 验证。
+<b><code>sa</code> 与 <code>sla</code> 都是顶级命令</b>，正式安装不需要 <code>SA_PLUGIN_DEV=1</code>。
+若 PATH 是本次安装新加的，重开一个终端再验证。</p>
+
+<h3>图形界面安装器</h3>
+<p><code>tools\build_electron_installer_windows.ps1</code> 先调用打包脚本产出 bundle（可用
+<code>-SkipBundle</code> 复用已有 zip），再用 electron-builder 把 <code>tools/electron-installer</code>
+打成 Windows 图形安装器；其内部执行的就是同一条 <code>install_bundle_windows.ps1 -Bundle …</code>
+流程，适合分发给不使用命令行的用户。</p>
+
+<h2>前置条件</h2>
+<ul>
+<li><b>Zig 0.14.1</b>。本机已装入用户级全局 PATH：<code>D:\tools\zig-x86_64-windows-0.14.1\zig.exe</code>
+（部分脚本默认值写作 <code>D:\zig-x86_64-windows-0.14.1\zig.exe</code>，可用环境变量
+<code>ZIG</code> 覆盖）。新开的终端才能看到更新后的 PATH。</li>
+<li><b>LLVM 14</b>（构建带 LLVM 后端的 <code>sa.exe</code> 时需要）：<code>LLVM-C.dll</code>、
+<code>LLVM-C.lib</code>、<code>llvm-c/Core.h</code>。文档中出现的本机路径有
+<code>D:\LLVM-14.0.6</code> 与 <code>C:\LLVM-14</code>。</li>
+<li><b>PowerShell 7</b>（<code>pwsh.exe</code>）：Windows 终端命令统一用它，
+兼容性优于 Windows PowerShell 5.1。</li>
+</ul>
+
+<h2>构建 sci（SA 编译器）</h2>
+<p>Linux / 快速验证用默认开关即可；Windows 上要用 LLVM 后端：</p>
+<pre><code># 运行目录：sci 仓库根目录
+# Linux / macOS / 通用
+zig build -Doptimize=ReleaseFast
+
+# Windows（启用 LLVM-C 后端）
+zig build -Dllvm=true -Dllvm-include-dir=D:\LLVM-14.0.6\include ^
+          -Dllvm-lib-dir=D:\LLVM-14.0.6\lib -Dllvm-lib-name=LLVM-C</code></pre>
+<p>产物在 <code>zig-out/bin/</code> 下。启用 LLVM 时构建会同时把 <code>LLVM-C.dll</code>
+复制到输出目录。<b>运行 <code>sa.exe</code> 前要把 LLVM 的 lib 目录加入 PATH</b>
+（例如 <code>C:\LLVM-14\lib</code>），否则加载 <code>LLVM-C.dll</code> 会失败。</p>
+
+<h2>从源码一键安装 SA</h2>
+<p>不用安装包、直接从源码装时，Windows 提供 npm 风格的安装脚本，会重建 + 安装 + 注册 PATH：</p>
+<pre><code>:: 运行目录：sci 仓库根目录；--user 免管理员权限
+cmd /c tools\install.bat --user</code></pre>
+<p>脚本把 <code>sa.exe</code>、<code>LLVM-C.dll</code>、<code>hubproxy.exe</code>
+复制进版本化目录（如 <code>%LOCALAPPDATA%\Programs\SCI\0.0.4\bin\</code>），建立
+<code>SCI\current</code> junction，并把 <code>SCI\current\bin</code> 加入用户 PATH。
+可选环境变量覆盖：<code>ZIG</code>、<code>LLVM_INC</code>、<code>LLVM_LIB</code>。</p>
+<div class="note"><span class="label">注意</span>如果发现已安装的 <code>sa.exe</code> 变成了
+未链接 LLVM 的 stub 构建（体积约 10.93 MB 而不是约 11.27 MB，PE 中没有
+<code>LLVM-C.dll</code> 导入），重新执行一次上面的 install.bat 即可端到端恢复，无需手工复制文件。</div>
+
+<h2>安装 SLA 插件与顶级 sla 命令</h2>
+<p>Sla 编译器以外部插件形式交付，依赖已装好的 SA。用上面的全自动安装包时它已随包装入；
+从源码单独安装时执行：</p>
+<pre><code># 运行目录：sa_plugin_sla 仓库根目录
+.\tools\install_windows.ps1</code></pre>
+<p>该脚本会用 <code>zig build -Doptimize=ReleaseFast</code> 构建插件、通过
+<code>sa plugin install --dev</code> 安装 DLL、并把 <b>独立的 <code>sla.exe</code></b>
+复制到 <code>SCI\current\bin</code> —— 从此 <code>sla</code> 成为顶级命令，可直接使用
+<code>sla check</code> / <code>sla build-exe</code> / <code>sla test</code>，
+不必写 <code>sa sla …</code>。脚本带安装超时保护。</p>
+<div class="note"><span class="label">注意</span>这条源码路径走的是 dev 模式安装，宿主要求
+<code>SA_PLUGIN_DEV=1</code> 前缀；正式安装包里的插件则不需要。两种方式获得的顶级
+<code>sla.exe</code> 用法完全相同。</div>
+<p>手动方式（Linux 或通用流程）：</p>
+<pre><code># 运行目录：sa_plugin_sla 仓库根目录
+zig build
+SA_PLUGIN_DEV=1 sa plugin install --dev &lt;插件仓库绝对路径&gt;</code></pre>
+<p>构建产出为 <code>zig-out/lib/sap.json</code>（插件清单）与动态库
+（<code>libsla.so</code> / 对应 Windows DLL）。dev 插件命令都需要前缀
+<code>SA_PLUGIN_DEV=1</code>。若 SCI 安装器改过 PATH，请重开一个新终端再验证
+<code>sa --version</code>。</p>
+
+<h2>Windows 环境注意点</h2>
+<ul>
+<li><b><code>NoDefaultCurrentDirectoryInExePath</code></b>：开发会话默认带有
+<code>NoDefaultCurrentDirectoryInExePath=1</code>，cmd.exe 会拒绝从当前目录解析可执行文件
+（报「不是内部或外部命令」，即使文件就在当前目录）。编译或运行 sci 单元测试前先清掉：
+<code>$env:NoDefaultCurrentDirectoryInExePath = $null</code></li>
+<li><b><code>dumpbin.exe</code></b>：<code>zig build test</code> 里的插件安装测试依赖 MSVC 的
+dumpbin，需要加入 PATH，例如
+<code>$env:Path = "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64;" + $env:Path</code></li>
+<li><b>编码</b>：处理含中文的文本一律显式 UTF-8（如
+<code>Get-Content -Encoding UTF8</code>、<code>Set-Content -Encoding UTF8</code>）；
+输出乱码时先用 UTF-8 重读确认，不要认定文件损坏。</li>
+<li><b>demo 参考产物</b>：<code>demos</code> 下的 <code>main.sa</code> 等参考产物是 git 跟踪文件，
+批量编译不要把输出写在源目录旁；误覆盖用 <code>git checkout -- demos</code> 恢复。</li>
+</ul>
+
+<h2>下一步</h2>
+<p>装好之后，去 <a href="03_quick_start.html">快速上手：第一个 SLA 程序</a> 跑通完整流程。</p>
+</body>
+</html>

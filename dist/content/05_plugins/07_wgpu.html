@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>wgpu — 浏览器 WebGPU sidecar</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; wgpu — 浏览器 WebGPU sidecar</div>
+<h1>wgpu — 浏览器 WebGPU sidecar</h1>
+
+<p><code>sa_plugin_wgpu</code> 是面向 SAX 的浏览器 WebGPU sidecar 插件。
+设计原则是把 WebGPU 内核材料留在 SA/WASM 侧：<code>wgpu_airlock.js</code> broker 只负责浏览器专属操作
+（<code>navigator.gpu</code>、GPU 对象句柄、字节上传、命令提交）；
+WGSL、顶点/索引字节、uniform 帧与帧选择全部由 SA/WASM 生成。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>wgpu</code>、<code>sax.wgpu</code>；依赖 <code>sax</code>（必需）。</li>
+<li>权限：项目目录读写创建；无网络、无子进程。</li>
+<li>契约：<code>wgpu.sai</code> 是浏览器 WASM import 面（因此不要求 <code>libwgpu.so</code> 导出 <code>sa_wgpu_*</code>），
+<code>wgpu.sal</code> 提供 SA 侧描述符构造函数与布局常量（如 <code>WGPU_RENDER_PIPELINE_DESC_SIZE</code>、<code>WGPU_DRAW_DESC_SIZE</code>）。</li>
+</ul>
+
+<h2>命令</h2>
+<table>
+<tr><th>命令</th><th>说明</th></tr>
+<tr><td><code>sa wgpu airlock [--out path]</code></td><td>输出 <code>wgpu_airlock.js</code> broker</td></tr>
+<tr><td><code>sa wgpu check file.sax</code></td><td>校验 SAX 场景文件</td></tr>
+<tr><td><code>sa wgpu new dir</code></td><td>生成新项目骨架</td></tr>
+</table>
+
+<h2>启用方式</h2>
+<pre><code># 安装（会按 sap.json 一并安装 sax 依赖）
+SA_PLUGIN_DEV=1 sa plugin install --dev .
+
+# 正式安装后，SAX 可从 $SA_PLUGINS_HOME 发现 sidecar，无需手动设置 SA_PLUGINS_PATH
+sa sax build demos/rotating_cube.sax --out-dir dist
+
+# 显式指定 share 目录的替代方式
+SA_WGPU_SHARE_DIR=/path/to/wgpu/share sa sax build ...</code></pre>
+
+<h2>共享 WGPU 契约（v0.1 摘要）</h2>
+<ul>
+<li><code>sa_wgpu_create_buffer</code> —— 对应 Bevy 式 <code>create_buffer_with_data</code> 上传路径。</li>
+<li><code>sa_wgpu_create_shader</code> —— 创建 shader module，WGSL 仍归 SA/WASM 所有。</li>
+<li><code>sa_wgpu_create_render_pipeline</code> / <code>sa_wgpu_submit_indexed_draw</code> —— 读 SA 描述符
+（<code>WGPU_RENDER_PIPELINE_DESC</code> / <code>WGPU_DRAW_DESC</code>）建立管线、提交渲染 pass 与索引绘制。</li>
+<li><code>sa_wgpu_create_cube_pipeline</code> / <code>sa_wgpu_submit_cube_frame</code> —— 旋转立方体 demo 的兼容包装，复用同一套管线/绘制助手。</li>
+</ul>
+
+<div class="warning"><span class="label">警告</span>这仍不是完整 WebGPU 引擎：compute pipeline、纹理、render graph 调度、
+多 pass 合成与高性能 dashboard 原语均为后续工作。v0.1 验收目标固定为 1024×768 画布上的旋转 3D 立方体。</div>
+</body>
+</html>

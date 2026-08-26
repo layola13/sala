@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>pkg — 零信任包管理器</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; pkg — 零信任包管理器</div>
+<h1>pkg — 零信任包管理器</h1>
+
+<p><code>sa_plugin_pkg</code> 是 SA 的包管理器，对标 Rust <code>cargo</code>/<code>crates.io</code> 与 npm 的角色，
+是 SA 生态面向大众的主入口：普通用户主要通过 <code>sa pkg</code> 获取、审计、安装依赖。
+它做零信任的依赖管理——从远程源（git ref + <code>sha256</code> 钉死）获取包、做能力审计、生成锁与校验并写入项目。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>package.management</code>；无插件依赖；CLI-only（无 <code>.sai</code>/<code>.sal</code>）。</li>
+<li>权限：项目目录读写创建；网络仅 <code>https://*</code> GET 与本机 GET；子进程白名单只有 <code>/usr/bin/git</code>。</li>
+<li>状态：<strong>早期 / 待深化</strong>。命令面与零信任审计已可用，但尚缺 registry、语义化版本范围解析、<code>publish</code> 流程等 cargo 级体验。</li>
+</ul>
+
+<h2>命令</h2>
+<pre><code>sa pkg install [--offline] [-g] [--ref REF] [identity]   # 解析并安装依赖
+sa pkg fetch   [--offline] [-g] [--ref REF] &lt;identity&gt;   # 仅获取，不安装
+sa pkg audit   [--format text|json] [--ci]
+               [--allow-unaudited-risks] [--update-lock] &lt;identity&gt;</code></pre>
+
+<h2><code>sa.mod</code> 清单</h2>
+<p>依赖在项目根的 <code>sa.mod</code> 中声明（真实语法来自 <code>src/pkg/manifest.zig</code>）：</p>
+<pre><code>require github.com/xiaoming/sa-ecs @v1.2.0 sha256:0123…cdef
+require github.com/org/sa-net      @main   sha256:fedc…3210 grants [net_tx, net_rx]
+
+[mirrors]
+github.com = gitlab.corp.local/mirror</code></pre>
+<ul>
+<li><code>require &lt;identity&gt; @&lt;ref&gt; sha256:&lt;digest&gt;</code> —— 一条钉死来源的依赖；</li>
+<li><code>grants [...]</code> —— 该依赖被授予的能力；</li>
+<li><code>[mirrors]</code> —— 源镜像替换（类似 cargo 的 source replace-with）。</li>
+</ul>
+
+<h2>零信任能力审计</h2>
+<table>
+<tr><th>判定</th><th>含义</th></tr>
+<tr><td><code>UnauthorizedPrimitive</code></td><td>依赖使用了未被 <code>grants</code> 覆盖的原语</td></tr>
+<tr><td><code>UnauditedRiskBlocked</code></td><td>高危且未在 <code>sa.mod</code> 写确权块（被拦截，或需 <code>--allow-unaudited-risks</code>）</td></tr>
+<tr><td><code>UpstreamShaMismatch</code></td><td>源内容哈希与清单不符</td></tr>
+<tr><td><code>TransitiveSourceConflict</code></td><td>传递依赖树扁平化时发现篡改冲突</td></tr>
+</table>
+<p>配套模块：<code>lock.zig</code>（锁文件）、<code>sum.zig</code>（传递依赖校验）、<code>mirror.zig</code>（镜像规则）、<code>ci.zig</code>（CI 门禁）。
+高危依赖需在 <code>sa.mod</code> 写入带 <code>approved_machine_code_hashes</code> 的显式确权块后才能使用。</p>
+
+<div class="note"><span class="label">注意</span>与编译器核心的关系：编译器 build 时用自带的极简解析器
+（<code>sci/src/pkg/resolver.zig</code>）解析 <code>@import</code>；pkg 提供的是上层 cargo 工作流。
+已知技术债：manifest/audit/fetch/lock/sum/mirror 在插件与核心各存一份且已漂移，
+可能导致同一 <code>sa.mod</code> 在 <code>sa pkg install</code> 与 <code>sa build</code> 下行为不一致。</div>
+</body>
+</html>

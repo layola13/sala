@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>extern 函数契约全表</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; API 总索引 &gt; extern 函数契约</div>
+<h1>extern 函数契约全表</h1>
+
+<p>共 <b>569</b> 个 <code>@extern</code> 契约，按模块（即导入路径去掉 <code>sa_std/</code> 前缀与扩展名）分组。说明列取自契约文件中紧邻的注释。</p>
+<h3><code>encoding/json.sai</code>（51 个）</h3>
+<table>
+<tr><td><code>sa_json_parse(&amp;json_bytes: ptr, len: u64) -&gt; ^ptr</code></td><td>SA-facing contracts for the Zig-backed sa_std.encoding.json module. JSON documents and derived nodes are opaque owned ptr values and must be freed explicitly. JSON stringification returns an owned byte buffer handle.</td></tr>
+<tr><td><code>sa_json_kind(node: ptr) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_json_object_get(node: ptr, &amp;key: ptr, key_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_array_get(node: ptr, index: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_object_key_at(node: ptr, index: u64, &amp;out_ptr: ptr, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_object_get_string(node: ptr, &amp;key: ptr, key_len: u64, &amp;out_ptr: ptr, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_object_get_bool(node: ptr, &amp;key: ptr, key_len: u64, &amp;out_value: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_object_get_i64(node: ptr, &amp;key: ptr, key_len: u64, &amp;out_value: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_object_get_f64(node: ptr, &amp;key: ptr, key_len: u64, &amp;out_value: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_as_f64(node: ptr, &amp;out_value: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_as_i64(node: ptr, &amp;out_value: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_as_bool(node: ptr, &amp;out_value: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_string_ptr(node: ptr) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_json_string_len(node: ptr) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_json_value_count(node: ptr, &amp;out_count: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_free(^node: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_json_stringify(node: ptr, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_buffer_data(buffer: ptr) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_json_buffer_len(buffer: ptr) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_json_buffer_free(^buffer: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_json_scanner_new(&amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_scanner_feed(scanner: ptr, &amp;input: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_scanner_end_input(scanner: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_scanner_next(scanner: ptr, &amp;out_token: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_scanner_free(^scanner: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_stream_new(&amp;json_bytes: ptr, len: u64) -&gt; ^ptr</code></td><td></td></tr>
+<tr><td><code>sa_json_stream_next(stream: ptr) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_json_stream_get_slice_ptr(stream: ptr) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_json_stream_get_slice_len(stream: ptr) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_json_stream_free(^stream: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_new(whitespace: u32, emit_null_optional_fields: u8, emit_strings_as_arrays: u8, escape_unicode: u8, emit_nonportable_numbers_as_strings: u8, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_begin_object(writer: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_end_object(writer: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_begin_array(writer: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_end_array(writer: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_object_field(writer: ptr, &amp;key: ptr, key_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_field_string(writer: ptr, &amp;key: ptr, key_len: u64, &amp;data: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_field_bool(writer: ptr, &amp;key: ptr, key_len: u64, value: u8) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_field_i64(writer: ptr, &amp;key: ptr, key_len: u64, value: i64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_field_f64(writer: ptr, &amp;key: ptr, key_len: u64, value: f64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_field_null(writer: ptr, &amp;key: ptr, key_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_field_node(writer: ptr, &amp;key: ptr, key_len: u64, node: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_write_bool(writer: ptr, value: u8) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_write_i64(writer: ptr, value: i64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_write_f64(writer: ptr, value: f64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_write_string(writer: ptr, &amp;data: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_write_null(writer: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_write_node(writer: ptr, node: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_finish(writer: ptr, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_finish_buffer(writer: ptr) -&gt; ptr</code></td><td></td></tr>
+<tr><td><code>sa_json_writer_free(^writer: ptr) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>env.sai</code>（22 个）</h3>
+<table>
+<tr><td><code>sa_env_get(key: ptr, key_len: u64) -&gt; u64</code></td><td>SA-facing contracts for environment variable helpers. Env values are copied into owned buffer handles and must be freed explicitly.</td></tr>
+<tr><td><code>sa_env_has(key: ptr, key_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_env_set_var(key: ptr, key_len: u64, value: ptr, value_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_env_remove_var(key: ptr, key_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_env_current_dir() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_set_current_dir(path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_env_temp_dir() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_current_exe() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_home_dir() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_args_json() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_vars_json() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_split_paths_json(path_list: ptr, path_list_len: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_join_paths_json(paths_json: ptr, paths_json_len: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_xdg_data_home_dir() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_xdg_config_home_dir() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_xdg_state_home_dir() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_xdg_cache_home_dir() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_xdg_data_dirs() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_xdg_config_dirs() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_buffer_data(buffer: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_env_buffer_len(buffer: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_env_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>fmt.sai</code>（14 个）</h3>
+<table>
+<tr><td><code>sa_fmt_i64(value: i64, base: u32) -&gt; u64</code></td><td>SA-facing contracts for the Zig-backed sa_std.fmt module. Formatting helpers return owned buffer handles; free them explicitly.</td></tr>
+<tr><td><code>sa_fmt_u64(value: u64, base: u32) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fmt_f64(value: f64, precision: u32) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fmt_bool(value: i1) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fmt_bytes(&amp;buf: ptr, len: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fmt_i64_into(value: i64, base: u32, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fmt_u64_into(value: u64, base: u32, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fmt_f64_into(value: f64, precision: u32, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fmt_bool_into(value: i1, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fmt_bytes_into(&amp;buf: ptr, len: u64, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fmt_buffer_data(buffer: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_fmt_buffer_len(buffer: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fmt_buffer_write_to(buffer: u64, writer: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fmt_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>fs.sai</code>（120 个）</h3>
+<table>
+<tr><td><code>sa_fs_file_open(&amp;path: ptr, path_len: u64, flags: u32) -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_std.fs module. File handles are opaque owned ptr values and must be closed explicitly.</td></tr>
+<tr><td><code>sa_fs_file_create(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_close(file: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_read(file: u64, &amp;buf: ptr, cap: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_read_exact(file: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_write(file: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_write_all(file: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_flush(file: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_sync_data(file: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_sync(file: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_truncate(file: u64, new_size: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_file_seek(file: u64, whence: u32, offset: i64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_open_read(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_open_write(&amp;path: ptr, path_len: u64, truncate: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_open_options(&amp;path: ptr, path_len: u64, flags: u32, create_mode: u32, custom_flags: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_from_raw_fd(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_read(file: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_read_at(file: u64, &amp;buf: ptr, cap: u64, offset: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_read_exact_at(file: u64, &amp;buf: ptr, len: u64, offset: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_write(file: u64, &amp;buf: ptr, len: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_write_at(file: u64, &amp;buf: ptr, len: u64, offset: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_write_all_at(file: u64, &amp;buf: ptr, len: u64, offset: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_file_seek(file: u64, whence: u32, offset: i64, &amp;out_pos: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_remove(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_exists(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_try_exists(&amp;path: ptr, path_len: u64, &amp;out_exists: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_len(&amp;path: ptr, path_len: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_read_file(&amp;path: ptr, path_len: u64, max_bytes: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_read_file_base64(&amp;path: ptr, path_len: u64, max_bytes: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_read_dir_json(&amp;path: ptr, path_len: u64, max_entries: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_read_dir_entries(&amp;path: ptr, path_len: u64, max_entries: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_dir_entries_get(entries: u64, index: u64, &amp;out_entry: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_metadata(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_metadata_json(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_metadata_free(metadata: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_canonicalize(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_close(handle: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_read_file(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td><td>Whole-file reads return an owned buffer handle. Free it with sa_fs_read_buffer_free.</td></tr>
+<tr><td><code>sa_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_fs_write_file(&amp;path: ptr, path_len: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_read_buffer_data(buffer: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_fs_read_buffer_len(buffer: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_read_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_read_file_base64(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_fs_write_file_base64(&amp;path: ptr, path_len: u64, &amp;data_base64: ptr, data_base64_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_read_dir_json(&amp;path: ptr, path_len: u64, max_entries: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_buffer_data(buffer: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_buffer_len(buffer: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_read_dir_entries(&amp;path: ptr, path_len: u64, max_entries: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entries_len(entries: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entries_free(^entries: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entry_name_ptr(entry: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entry_name_len(entry: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entry_file_name_ptr(entry: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entry_file_name_len(entry: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entry_kind(entry: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entry_ino(entry: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_dir_entry_free(^entry: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata(&amp;path: ptr, path_len: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_json(&amp;path: ptr, path_len: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_is_file(metadata: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_is_directory(metadata: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_is_symlink(metadata: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_is_block_device(metadata: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_is_char_device(metadata: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_is_fifo(metadata: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_is_socket(metadata: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_modified_ms(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_created_ms(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_accessed_ms(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_changed_ms(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_len(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_mode(metadata: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_uid(metadata: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_gid(metadata: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_ino(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_dev(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_nlink(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_rdev(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_blksize(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_blocks(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_dev(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_ino(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_mode(metadata: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_nlink(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_uid(metadata: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_gid(metadata: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_rdev(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_size(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_atime(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_atime_nsec(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_mtime(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_mtime_nsec(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_ctime(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_ctime_nsec(metadata: u64) -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_blksize(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_st_blocks(metadata: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_fs_metadata_free(metadata: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_fs_remove_file(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_rename(&amp;from_path: ptr, from_len: u64, &amp;to_path: ptr, to_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_make_dir(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_make_dir_mode(&amp;path: ptr, path_len: u64, mode: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_create_dir(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_create_dir_mode(&amp;path: ptr, path_len: u64, mode: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_remove_dir(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_remove_dir_all(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_remove_path(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_copy_file(&amp;from_path: ptr, from_len: u64, &amp;to_path: ptr, to_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_set_permissions(&amp;path: ptr, path_len: u64, mode: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_set_times_ms(&amp;path: ptr, path_len: u64, accessed_ms: i64, modified_ms: i64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_hard_link(&amp;from_path: ptr, from_len: u64, &amp;to_path: ptr, to_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_symlink(&amp;target_path: ptr, target_len: u64, &amp;link_path: ptr, link_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_chown(&amp;path: ptr, path_len: u64, uid: u32, gid: u32, has_uid: u32, has_gid: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_lchown(&amp;path: ptr, path_len: u64, uid: u32, gid: u32, has_uid: u32, has_gid: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_fchown(file: u64, uid: u32, gid: u32, has_uid: u32, has_gid: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_chroot(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_fs_mkfifo(&amp;path: ptr, path_len: u64, mode: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fs_read_link(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>http2.sai</code>（13 个）</h3>
+<table>
+<tr><td><code>sa_std_http2_supported(&amp;out_supported: ptr) -&gt; i32</code></td><td>sa_std HTTP/2 surface — real libnghttp2 backend living in the sci runtime.  String/JSON/binary outputs are returned as registered u64 buffer handles, following the same convention as sa_std.fs.read_*: read bytes/length with sa_std_http2_buffer_data / sa_std_http2_buffer_len and release with sa_std_http2_buffer_free.</td></tr>
+<tr><td><code>sa_std_http2_client_request(&amp;url: ptr, url_len: u64, &amp;method: ptr, method_len: u64, &amp;body: ptr, body_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_nghttp2_version_json(&amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_status_json(&amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_constants_json(&amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_sensitive_headers(&amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_get_default_settings_json(&amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_get_packed_settings(&amp;settings_json: ptr, settings_json_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_get_unpacked_settings_json(&amp;buf: ptr, buf_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_perform_server_handshake(&amp;input: ptr, input_len: u64, &amp;settings_json: ptr, settings_json_len: u64, &amp;out_bytes: ptr, &amp;out_json: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_buffer_data(buffer: u64) -&gt; &amp;ptr</code></td><td>buffer handle accessors (sci convention)</td></tr>
+<tr><td><code>sa_std_http2_buffer_len(buffer: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_std_http2_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>io/print.sai</code>（1 个）</h3>
+<table>
+<tr><td><code>sa_print_bytes(&amp;msg: ptr, len: u64) -&gt; void</code></td><td>Legacy print contract for demos and simple applications. Implemented by the Zig-backed sa_std.io library as stdout().write_all(bytes).</td></tr>
+</table>
+<h3><code>io.sai</code>（15 个）</h3>
+<table>
+<tr><td><code>sa_io_stdin() -&gt; u64</code></td><td>SA-facing contracts for the Zig-backed sa_std.io module. Handles returned by stdio accessors are borrowed process handles; do not close them.</td></tr>
+<tr><td><code>sa_io_stdout() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_io_stderr() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_std_println(&amp;msg: ptr, len: u64) -&gt; i32!</code></td><td>Convenience printing uses the same Zig-backed stdout writer as the runtime facade.</td></tr>
+<tr><td><code>sa_io_read_line(handle: ptr, max_bytes: u64) -&gt; ^ptr!</code></td><td>Owned handles returned by Zig-backed modules are closed explicitly.</td></tr>
+<tr><td><code>sa_io_read(handle: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_io_read_exact(handle: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_io_write(handle: u64, &amp;buf: ptr, len: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_io_write_all(handle: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_io_flush(handle: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_io_close(handle: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_io_buffer_data(&amp;buffer: ptr) -&gt; &amp;ptr</code></td><td>Owned byte buffers use SaIoBuffer layout and must be freed explicitly.</td></tr>
+<tr><td><code>sa_io_buffer_len(&amp;buffer: ptr) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_io_buffer_free(^buffer: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_print_bytes(&amp;msg: ptr, len: u64) -&gt; void</code></td><td>Legacy demo compatibility: equivalent to stdout().write_all(bytes).</td></tr>
+</table>
+<h3><code>net.sai</code>（220 个）</h3>
+<table>
+<tr><td><code>sa_std_last_error() -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_std.net module. TcpStream, TcpListener, UdpSocket, and NetAddr values are opaque u64 handles.</td></tr>
+<tr><td><code>sa_std_net_error_code_from_status(status: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_error_code_from_posix_errno(errno: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_error_code_from_wsa_error(error: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_error_code_name(code: i32, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_error_platform() -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_error_code_from_native_error(error: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_hostname(&amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_connect(&amp;host: ptr, host_len: u64, port: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_connect_timeout(&amp;host: ptr, host_len: u64, port: u32, timeout_ns: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_connect_timeout_addr(addr: u64, timeout_ns: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_connect_timeout_all(&amp;host: ptr, host_len: u64, port: u32, timeout_ns: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listen(&amp;host: ptr, host_len: u64, port: u32, &amp;out_handle: ptr, &amp;out_bound_port: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_accept(listener: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_accept_addr(listener: u64, &amp;out_stream: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_local_addr(listener: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_read(stream: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_peek(stream: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_read_vectored(stream: u64, &amp;iovs: ptr, iov_count: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_write_vectored(stream: u64, &amp;iovs: ptr, iov_count: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_write(stream: u64, &amp;buf: ptr, len: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_read_timeout(stream: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_write_timeout(stream: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_nonblocking(stream: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_linger(stream: u64, enabled: i32, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_linger(stream: u64, &amp;out_enabled: ptr, &amp;out_timeout_ns: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_nodelay(stream: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_quickack(stream: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_quickack(stream: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_deferaccept(stream: u64, seconds: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_deferaccept(stream: u64, &amp;out_seconds: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_ttl(stream: u64, ttl: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_read_timeout(stream: u64, &amp;out_timeout_ns: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_write_timeout(stream: u64, &amp;out_timeout_ns: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_recv_buffer_size(stream: u64, size: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_recv_buffer_size(stream: u64, &amp;out_size: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_send_buffer_size(stream: u64, size: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_send_buffer_size(stream: u64, &amp;out_size: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_nodelay(stream: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_ttl(stream: u64, &amp;out_ttl: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_take_error(stream: u64, &amp;out_error: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_peer_addr(stream: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_local_addr(stream: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_to_socket_addr_first(&amp;host: ptr, host_len: u64, port: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_to_socket_addr_list(&amp;host: ptr, host_len: u64, port: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_addr_list_next(list: u64, &amp;out_ok: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_addr_list_remaining(list: u64, &amp;out_remaining: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_addr_list_reset(list: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_addr_list_free(list: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_set_nonblocking(listener: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_set_ttl(listener: u64, ttl: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_ttl(listener: u64, &amp;out_ttl: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_take_error(listener: u64, &amp;out_error: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_from_raw_fd(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_from_raw_fd(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_try_clone(stream: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_try_clone(listener: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_try_clone(socket: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_listen(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>Unix domain sockets (stream). Handles reuse the tcp_stream/tcp_listener kinds, so NET_TCP_STREAM_READ/WRITE/CLOSE and NET_TCP_LISTENER_CLOSE work on them.</td></tr>
+<tr><td><code>sa_std_net_unix_accept(listener: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_accept_addr(listener: u64, &amp;out_stream: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_connect(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_pair(&amp;out_left: ptr, &amp;out_right: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_addr_from_abstract_name(&amp;name: ptr, name_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_addr_from_pathname(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_listen_addr(addr: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_connect_addr(addr: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_listener_local_addr(listener: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_listener_try_clone(listener: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_listener_from_raw_fd(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_local_addr(stream: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_try_clone(stream: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_from_raw_fd(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_peer_addr(stream: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_set_passcred(stream: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_passcred(stream: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_set_mark(stream: u64, mark: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_stream_peer_cred(stream: u64, &amp;out_pid: ptr, &amp;out_uid: ptr, &amp;out_gid: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_unbound(&amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_bind(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_bind_addr(addr: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_pair(&amp;out_left: ptr, &amp;out_right: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_connect(socket: u64, &amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_connect_addr(socket: u64, addr: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_try_clone(socket: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_from_raw_fd(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_local_addr(socket: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_peer_addr(socket: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_set_passcred(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_passcred(socket: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_set_mark(socket: u64, mark: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_shutdown(socket: u64, how: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_send_to(socket: u64, &amp;buf: ptr, len: u64, &amp;path: ptr, path_len: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_send_to_addr(socket: u64, &amp;buf: ptr, len: u64, addr: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_recv_from(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_unix_datagram_peek_from(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_keepalive(stream: u64, enabled: i32) -&gt; i32</code></td><td>Additional stream/listener socket options.</td></tr>
+<tr><td><code>sa_std_net_tcp_stream_keepalive(stream: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_keepalive_params(stream: u64, idle_secs: u32, intvl_secs: u32, cnt: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_set_reuseaddr(listener: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_set_reuseport(listener: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_set_only_v6(listener: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_only_v6(listener: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_only_v6(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_only_v6(socket: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_ja3_hash(&amp;ja3: ptr, ja3_len: u64, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>TLS ClientHello fingerprint digests (JA3 = MD5 hex, JA4 segment = SHA256 first 12 hex chars).</td></tr>
+<tr><td><code>sa_std_net_ja4_hash12(&amp;data: ptr, data_len: u64, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_ws_accept_key(&amp;key: ptr, key_len: u64, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>Shared WebSocket frame codec (downpushed from http_client/http_server/node/deno plugins).</td></tr>
+<tr><td><code>sa_std_ws_frame_parse(&amp;data: ptr, data_len: u64, &amp;out_fin: ptr, &amp;out_opcode: ptr, &amp;out_masked: ptr, &amp;out_payload_offset: ptr, &amp;out_payload_len: ptr, &amp;out_frame_len: ptr, &amp;out_mask: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_ws_unmask(&amp;payload: ptr, payload_len: u64, &amp;mask: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_ws_frame_build(opcode: u32, fin: u32, &amp;payload: ptr, payload_len: u64, &amp;mask: ptr, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_ws_frame_build_unmasked(opcode: u32, fin: u32, &amp;payload: ptr, payload_len: u64, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_url_parse(&amp;url: ptr, url_len: u64, &amp;scheme_out: ptr, scheme_cap: u64, &amp;scheme_len: ptr, &amp;host_out: ptr, host_cap: u64, &amp;host_len: ptr, &amp;path_out: ptr, path_cap: u64, &amp;path_len: ptr, &amp;out_port: ptr) -&gt; i32</code></td><td>Shared URL parser (scheme://host[:port][/path]). Any out buffer may be omitted.</td></tr>
+<tr><td><code>sa_std_net_udp_bind(&amp;host: ptr, host_len: u64, port: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_from_raw_fd(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_local_addr(socket: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_peer_addr(socket: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_connect(socket: u64, &amp;host: ptr, host_len: u64, port: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_connect_addr(socket: u64, addr: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_read_timeout(socket: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_write_timeout(socket: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_nonblocking(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_broadcast(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_ttl(socket: u64, ttl: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_multicast_loop_v4(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_multicast_ttl_v4(socket: u64, ttl: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_multicast_loop_v6(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_multicast_hops_v6(socket: u64, hops: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_read_timeout(socket: u64, &amp;out_timeout_ns: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_write_timeout(socket: u64, &amp;out_timeout_ns: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_recv_buffer_size(socket: u64, size: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_recv_buffer_size(socket: u64, &amp;out_size: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_send_buffer_size(socket: u64, size: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_send_buffer_size(socket: u64, &amp;out_size: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_broadcast(socket: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_ttl(socket: u64, &amp;out_ttl: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_multicast_loop_v4(socket: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_multicast_ttl_v4(socket: u64, &amp;out_ttl: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_multicast_loop_v6(socket: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_multicast_hops_v6(socket: u64, &amp;out_hops: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_multicast_if_v4(socket: u64, &amp;interface_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_multicast_if_v4(socket: u64, &amp;out_interface_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_multicast_if_v6(socket: u64, interface_index: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_multicast_if_v6(socket: u64, &amp;out_interface_index: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_take_error(socket: u64, &amp;out_error: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_send(socket: u64, &amp;buf: ptr, len: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_recv(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_peek(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_send_to(socket: u64, &amp;buf: ptr, len: u64, &amp;host: ptr, host_len: u64, port: u32, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_recv_from(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_peek_from(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_send_vectored(socket: u64, &amp;iovs: ptr, iov_count: u64, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_send_to_vectored(socket: u64, &amp;iovs: ptr, iov_count: u64, &amp;host: ptr, host_len: u64, port: u32, &amp;out_written: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_recv_from_vectored(socket: u64, &amp;iovs: ptr, iov_count: u64, &amp;out_read: ptr, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_join_multicast_v4(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, &amp;interface_host: ptr, interface_host_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_leave_multicast_v4(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, &amp;interface_host: ptr, interface_host_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_join_multicast_v6(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, interface_index: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_leave_multicast_v6(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, interface_index: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_connect(&amp;host: ptr, host_len: u64, port: u32) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_read(stream: u64, &amp;buf: ptr, cap: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_peek(stream: u64, &amp;buf: ptr, cap: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_set_read_timeout(stream: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_set_write_timeout(stream: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_set_nonblocking(stream: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_set_nodelay(stream: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_set_ttl(stream: u64, ttl: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_write(stream: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_write_all(stream: u64, &amp;buf: ptr, len: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_read_exact(stream: u64, &amp;buf: ptr, len: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_flush(stream: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_peer_addr(stream: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_shutdown(stream: u64, how: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_stream_close(stream: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_listener_bind(&amp;host: ptr, host_len: u64, port: u16) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_listener_accept(listener: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_listener_local_addr(listener: u64) -&gt; u64!</code></td><td></td></tr>
+<tr><td><code>sa_net_tcp_listener_close(listener: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_bind(&amp;host: ptr, host_len: u64, port: u16) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_connect(socket: u64, &amp;host: ptr, host_len: u64, port: u16) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_local_addr(socket: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_set_read_timeout(socket: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_set_write_timeout(socket: u64, timeout_ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_set_nonblocking(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_set_broadcast(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_set_ttl(socket: u64, ttl: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_set_multicast_loop_v4(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_set_multicast_ttl_v4(socket: u64, ttl: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_send(socket: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_recv(socket: u64, &amp;buf: ptr, cap: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_peek(socket: u64, &amp;buf: ptr, cap: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_send_to(socket: u64, &amp;buf: ptr, len: u64, &amp;host: ptr, host_len: u64, port: u16) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_recv_from(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_peek_from(socket: u64, &amp;buf: ptr, cap: u64, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_join_multicast_v4(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, &amp;interface_host: ptr, interface_host_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_leave_multicast_v4(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, &amp;interface_host: ptr, interface_host_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_join_multicast_v6(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, interface_index: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_leave_multicast_v6(socket: u64, &amp;multi_host: ptr, multi_host_len: u64, interface_index: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_udp_close(socket: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_addr_host(addr: u64) -&gt; &amp;ptr</code></td><td>Owned SaNetAddr values are returned by address query APIs and must be freed.</td></tr>
+<tr><td><code>sa_net_addr_host_len(addr: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_net_addr_port(addr: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_net_addr_family(addr: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_net_addr_scope_id(addr: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_std_net_addr_format(addr: u64, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_addr_free(addr: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_net_unix_addr_kind(addr: u64) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_net_unix_addr_is_unnamed(addr: u64) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_net_unix_addr_path_ptr(addr: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_net_unix_addr_path_len(addr: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_net_unix_addr_abstract_ptr(addr: u64) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_net_unix_addr_abstract_len(addr: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_net_unix_addr_free(addr: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_net_ipv4_parse_ascii(&amp;text: ptr, text_len: u64, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_socket_addr_v4_parse_ascii(&amp;text: ptr, text_len: u64, &amp;out_socket_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_ipv6_parse_ascii(&amp;text: ptr, text_len: u64, &amp;out_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_socket_addr_v6_parse_ascii(&amp;text: ptr, text_len: u64, &amp;out_socket_addr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_ipv4_format_ascii(&amp;addr: ptr, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_ipv6_format_ascii(&amp;addr: ptr, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_socket_addr_v4_format_ascii(&amp;addr: ptr, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_net_socket_addr_v6_format_ascii(&amp;addr: ptr, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>netx.sai</code>（7 个）</h3>
+<table>
+<tr><td><code>sa_netx_init(slot_capacity: u64, reactor_count: u32) -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_netx runtime module. The runtime owns sockets, slot pools, parsing, and io_uring orchestration. Every entry returns a plain i32 status code (SA_NETX_OK / SA_NETX_ERR_*), matching the `pub export fn ... i32` signatures in src/runtime/sa_net_uring.zig.</td></tr>
+<tr><td><code>sa_netx_listen(&amp;host: ptr, host_len: u64, port: u16) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_netx_recv_ticket(reactor_id: u32, &amp;out_ticket: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_netx_push_outbound(reactor_id: u32, slot_id: u32, &amp;msg: ptr, len: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_netx_broadcast(reactor_id: u32, &amp;slot_ids: ptr, n: u32, &amp;msg: ptr, len: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_netx_close_slot(slot_id: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_netx_shutdown() -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>os/fd.sai</code>（7 个）</h3>
+<table>
+<tr><td><code>sa_std_fd_as_raw(handle: u64, &amp;out_fd: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fd_dup(handle: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fd_dup_raw(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fd_from_raw(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fd_into_raw(handle: u64, &amp;out_fd: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fd_close_raw(fd: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_fd_is_terminal(handle: u64, &amp;out_flag: ptr) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>process.sai</code>（54 个）</h3>
+<table>
+<tr><td><code>sa_std_process_run(&amp;argv: ptr, argv_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_std.process module. Process handles are opaque u64 resource handles and must be closed explicitly. `argv` is a borrowed pointer to an array of SaProcessArgv records.</td></tr>
+<tr><td><code>sa_std_process_run_cwd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn(&amp;argv: ptr, argv_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_cwd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_stream(&amp;argv: ptr, argv_len: u64, &amp;out_process: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_stream_cwd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, &amp;out_process: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_run_command_ext(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_command_ext(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_stream_command_ext(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;out_process: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_run_command_ext_pidfd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, create_pidfd: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_command_ext_pidfd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, create_pidfd: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_stream_command_ext_pidfd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, create_pidfd: u32, &amp;out_process: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_run_command_ext_uid_gid(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, uid: u32, has_uid: u32, gid: u32, has_gid: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_command_ext_uid_gid(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, uid: u32, has_uid: u32, gid: u32, has_gid: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_stream_command_ext_uid_gid(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, uid: u32, has_uid: u32, gid: u32, has_gid: u32, &amp;out_process: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_run_command_ext_groups(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;groups: ptr, groups_len: u64, has_groups: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_command_ext_groups(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;groups: ptr, groups_len: u64, has_groups: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_stream_command_ext_groups(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;groups: ptr, groups_len: u64, has_groups: u32, &amp;out_process: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_run_command_ext_chroot(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;chroot: ptr, chroot_len: u64, has_chroot: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_command_ext_chroot(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;chroot: ptr, chroot_len: u64, has_chroot: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_spawn_stream_command_ext_chroot(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, &amp;chroot: ptr, chroot_len: u64, has_chroot: u32, &amp;out_process: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exec_command_ext(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, has_cwd: u32, &amp;arg0: ptr, arg0_len: u64, has_arg0: u32, process_group: i32, has_process_group: u32, setsid: u32, uid: u32, has_uid: u32, gid: u32, has_gid: u32, &amp;groups: ptr, groups_len: u64, has_groups: u32, &amp;chroot: ptr, chroot_len: u64, has_chroot: u32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_id() -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_parent_id() -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_user_id() -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_group_id() -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_abort() -&gt; void</code></td><td></td></tr>
+<tr><td><code>sa_std_process_child_id(handle: u64, &amp;out_pid: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_pidfd(handle: u64, &amp;out_pidfd: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_into_pidfd(handle: u64, &amp;out_pidfd: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_wait(handle: u64, &amp;out_code: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_wait_raw(handle: u64, &amp;out_raw: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_try_wait(handle: u64, &amp;out_ready: ptr, &amp;out_code: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_try_wait_raw(handle: u64, &amp;out_ready: ptr, &amp;out_raw: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_kill(handle: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_send_signal(handle: u64, signal: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_send_process_group_signal(handle: u64, signal: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_kill_process_group(handle: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_pidfd_kill(handle: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_pidfd_send_signal(handle: u64, signal: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_pidfd_wait(handle: u64, &amp;out_code: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_pidfd_wait_raw(handle: u64, &amp;out_raw: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_pidfd_try_wait(handle: u64, &amp;out_ready: ptr, &amp;out_code: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_pidfd_try_wait_raw(handle: u64, &amp;out_ready: ptr, &amp;out_raw: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exit_status_code(raw: i32) -&gt; u32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exit_status_signal(raw: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exit_status_core_dumped(raw: i32) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exit_status_stopped_signal(raw: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exit_status_continued(raw: i32) -&gt; u8</code></td><td></td></tr>
+<tr><td><code>sa_std_process_read_stdout(handle: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_read_stderr(handle: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exec_capture(&amp;argv: ptr, argv_len: u64, &amp;out_code: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_exec_capture_cwd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, &amp;out_code: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_process_close(handle: u64) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>string.sai</code>（11 个）</h3>
+<table>
+<tr><td><code>sa_str_is_ascii(ptr: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_str_eq_ignore_ascii_case(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_str_trim_ascii_start_index(ptr: ptr, len: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_str_trim_ascii_end_len(ptr: ptr, len: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_str_utf8_char_count(ptr: ptr, len: u64) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_str_utf8_validate(ptr: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_str_utf8_char_at(ptr: ptr, len: u64, char_index: u64, out_codepoint: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_str_utf8_char_at_byte(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_str_utf8_lossy_next(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_str_utf8_char_range_at(ptr: ptr, len: u64, char_index: u64, out_start: ptr, out_len: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_string_concat(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; u64</code></td><td></td></tr>
+</table>
+<h3><code>term.sai</code>（7 个）</h3>
+<table>
+<tr><td><code>sa_term_raw_enter(handle: ptr) -&gt; ^ptr!</code></td><td>SA-facing contracts for terminal control and epoll-backed event loops. Raw-mode sessions and epoll instances are opaque owned ptr values and must be closed explicitly.</td></tr>
+<tr><td><code>sa_term_raw_leave(^session: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_term_winsize(handle: ptr, &amp;out_size: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_term_epoll_create(flags: u32) -&gt; ^ptr!</code></td><td></td></tr>
+<tr><td><code>sa_term_epoll_ctl(epoll: ptr, op: u32, target: ptr, events: u32, data: u64) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_term_epoll_wait(epoll: ptr, &amp;events: ptr, max_events: u64, timeout_ms: i32, &amp;out_count: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_term_epoll_close(^epoll: ptr) -&gt; i32!</code></td><td></td></tr>
+</table>
+<h3><code>testing/assert.sai</code>（4 个）</h3>
+<table>
+<tr><td><code>sa_assert_eq_i64(actual: i64, expected: i64, code: i32) -&gt; void</code></td><td></td></tr>
+<tr><td><code>sa_assert_eq_i64_at(actual: i64, expected: i64, code: i32, &amp;file: ptr, file_len: u64, line: u32, col: u32) -&gt; void</code></td><td></td></tr>
+<tr><td><code>sa_test_debug_i64(&amp;name: ptr, name_len: u64, value: i64) -&gt; void</code></td><td></td></tr>
+<tr><td><code>sa_test_fallible_i32_value(value: i32) -&gt; i32!</code></td><td></td></tr>
+</table>
+<h3><code>text/regex.sai</code>（7 个）</h3>
+<table>
+<tr><td><code>sa_regex_compile(&amp;pattern: ptr, pattern_len: u64, cflags: i32) -&gt; ^ptr</code></td><td>SA-facing contracts for the Zig-backed sa_std.text.regex module. Regex and regex match handles are opaque owned ptr values.</td></tr>
+<tr><td><code>sa_regex_match(regex: ptr, &amp;text: ptr, text_len: u64) -&gt; ^ptr</code></td><td></td></tr>
+<tr><td><code>sa_regex_group_ptr(match: ptr, group_idx: u32) -&gt; &amp;ptr</code></td><td></td></tr>
+<tr><td><code>sa_regex_group_len(match: ptr, group_idx: u32) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_regex_group_count(regex: ptr) -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_regex_free(^regex: ptr) -&gt; i32!</code></td><td></td></tr>
+<tr><td><code>sa_regex_match_free(^match: ptr) -&gt; i32!</code></td><td></td></tr>
+</table>
+<h3><code>thread.sai</code>（9 个）</h3>
+<table>
+<tr><td><code>pthread_spawn(*entry: ptr, *arg: ptr) -&gt; i32</code></td><td>SA-facing contracts for the std::thread runtime facade. Handles are opaque i32 slots owned by the Zig-backed sa_std runtime.</td></tr>
+<tr><td><code>pthread_spawn_detached(*entry: ptr, *arg: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>pthread_join(handle: i32, *out: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>pthread_drop(handle: i32) -&gt; void</code></td><td></td></tr>
+<tr><td><code>sa_thread_current_id() -&gt; u64</code></td><td></td></tr>
+<tr><td><code>sa_thread_yield_now() -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_thread_as_pthread_t(handle: i32, &amp;out_raw: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_thread_into_pthread_t(handle: i32, &amp;out_raw: ptr) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_thread_raw_pthread_join(raw: u64, *out: ptr) -&gt; i32</code></td><td></td></tr>
+</table>
+<h3><code>time.sai</code>（7 个）</h3>
+<table>
+<tr><td><code>sa_time_instant_ns() -&gt; u64</code></td><td>SA-facing contracts for monotonic, system, and UTC time helpers. Time values are exposed as raw integers; the UTC calendar helper writes into SaTimeDate.</td></tr>
+<tr><td><code>sa_time_unix_s() -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_time_unix_ms() -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_time_unix_ns() -&gt; i64</code></td><td></td></tr>
+<tr><td><code>sa_time_utc_now(&amp;out: ptr) -&gt; i32</code></td><td>Runtime returns plain i32 status (not Fallible {status,value}); match that ABI.</td></tr>
+<tr><td><code>sa_time_sleep_ns(ns: u64) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_time_sleep_ms(ms: u64) -&gt; i32</code></td><td></td></tr>
+</table>
+<h2>本节导航</h2>
+<p><a href="15_api_index.html">API 总索引</a> | <a href="16_api_externs.html">extern 函数契约</a> | <a href="17_api_macros.html">汇编宏清单</a> | <a href="18_api_layout.html">布局常量清单</a></p>
+</body>
+</html>

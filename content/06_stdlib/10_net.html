@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>net：TCP / UDP / Unix 套接字与 HTTP/2</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; net：TCP / UDP / Unix 套接字与 HTTP/2</div>
+<h1>net：TCP / UDP / Unix 套接字与 HTTP/2</h1>
+
+<p>这一页概述三个网络契约：<code>net.sai</code>（套接字与地址）、<code>netx.sai</code>
+（io_uring 反应器）和 <code>http2.sai</code>（HTTP/2 客户端与协议工具）。
+读完即可选择合适的层次发起 TCP 连接或编写监听服务。</p>
+
+<h2>net.sai：套接字</h2>
+<p>TcpStream、TcpListener、UdpSocket 与 NetAddr 都是不透明 <code>u64</code> 句柄。
+代表性函数：</p>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_std_net_tcp_connect(&amp;host: ptr, host_len: u64, port: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td>TCP 连接；另有 <code>_timeout</code>/<code>_timeout_all</code> 变体</td></tr>
+<tr><td><code>sa_std_net_tcp_listen(&amp;host, host_len, port: u32, &amp;out_handle, &amp;out_bound_port: ptr) -&gt; i32</code></td><td>监听，端口 0 时回填实际绑定端口</td></tr>
+<tr><td><code>sa_std_net_tcp_accept(listener: u64, &amp;out_handle: ptr) -&gt; i32</code> / <code>_accept_addr(...)</code></td><td>接受连接，可同时取对端地址</td></tr>
+<tr><td><code>sa_std_net_tcp_stream_read(stream: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code> / <code>_write(...)</code></td><td>流读写；另有 <code>peek</code> 与 vectored 变体</td></tr>
+<tr><td><code>sa_std_net_tcp_stream_set_nodelay(stream: u64, enabled: i32) -&gt; i32</code></td><td>TCP_NODELAY；同类还有 keepalive、TTL、缓冲区大小、linger、非阻塞等选项</td></tr>
+<tr><td><code>sa_std_net_udp_bind(&amp;host, host_len, port: u32, &amp;out_handle: ptr) -&gt; i32</code></td><td>绑定 UDP；配套 <code>send/recv/send_to/recv_from/peek_from</code> 与组播选项</td></tr>
+<tr><td><code>sa_std_net_unix_listen/_connect/_pair(&amp;path..., &amp;out_handle: ptr) -&gt; i32</code></td><td>Unix domain socket；句柄复用 tcp_stream/tcp_listener 种类</td></tr>
+<tr><td><code>sa_net_addr_host(addr: u64) -&gt; &amp;ptr / _host_len / _port / _family</code> + <code>sa_net_addr_free(addr: u64) -&gt; i32!</code></td><td>owned 地址对象的访问与释放</td></tr>
+<tr><td><code>sa_std_url_parse(&amp;url: ptr, url_len: u64, ...12 参数...) -&gt; i32</code></td><td>解析 scheme://host[:port][/path]，任意 out 缓冲可省略</td></tr>
+<tr><td><code>sa_std_ws_frame_parse(...) -&gt; i32</code> / <code>sa_std_ws_frame_build_unmasked(opcode: u32, fin: u32, ...) -&gt; i32</code> / <code>sa_std_ws_accept_key(...)</code></td><td>共享 WebSocket 帧编解码与握手 key</td></tr>
+<tr><td><code>sa_std_last_error() -&gt; i32</code> / <code>sa_std_net_error_code_name(code: i32, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>最近错误码及其名称</td></tr>
+</table>
+<p>此外还有一套简化的 <code>sa_net_*</code> 面（如
+<code>sa_net_tcp_connect(&amp;host: ptr, host_len: u64, port: u32) -&gt; u64!</code>、
+<code>sa_net_tcp_stream_write_all(stream: u64, &amp;buf: ptr, len: u64) -&gt; i32!</code>、
+<code>sa_net_tcp_listener_bind(&amp;host: ptr, host_len: u64, port: u16) -&gt; u64!</code>)，
+返回 fallible 句柄，适合脚本式用法。</p>
+
+<h2>netx.sai：io_uring 反应器</h2>
+<p>运行时托管套接字、槽位池与 io_uring 编排，所有入口返回普通 <code>i32</code> 状态码
+（<code>SA_NETX_OK / SA_NETX_ERR_*</code>）：</p>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_netx_init(slot_capacity: u64, reactor_count: u32) -&gt; i32</code></td><td>初始化反应器池</td></tr>
+<tr><td><code>sa_netx_listen(&amp;host: ptr, host_len: u64, port: u16) -&gt; i32</code></td><td>注册监听</td></tr>
+<tr><td><code>sa_netx_recv_ticket(reactor_id: u32, &amp;out_ticket: ptr) -&gt; i32</code></td><td>领取接收 ticket</td></tr>
+<tr><td><code>sa_netx_push_outbound(reactor_id: u32, slot_id: u32, &amp;msg: ptr, len: u32) -&gt; i32</code></td><td>向槽位推送出站消息</td></tr>
+<tr><td><code>sa_netx_broadcast(reactor_id: u32, &amp;slot_ids: ptr, n: u32, &amp;msg: ptr, len: u32) -&gt; i32</code></td><td>向多个槽位广播</td></tr>
+<tr><td><code>sa_netx_close_slot(slot_id: u32) -&gt; i32</code> / <code>sa_netx_shutdown() -&gt; i32</code></td><td>关闭槽位 / 整体关闭</td></tr>
+</table>
+
+<h2>http2.sai：HTTP/2</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_std_http2_supported(&amp;out_supported: ptr) -&gt; i32</code></td><td>后端是否可用（libnghttp2）</td></tr>
+<tr><td><code>sa_std_http2_client_request(&amp;url: ptr, url_len: u64, &amp;method: ptr, method_len: u64, &amp;body: ptr, body_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>发起 HTTP/2 请求，结果为缓冲句柄</td></tr>
+<tr><td><code>sa_std_http2_get_packed_settings(&amp;settings_json: ptr, settings_json_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>由 JSON 设置生成打包 SETTINGS 帧；<code>_get_unpacked_settings_json</code> 为反向</td></tr>
+<tr><td><code>sa_std_http2_perform_server_handshake(&amp;input: ptr, input_len: u64, &amp;settings_json: ptr, settings_json_len: u64, &amp;out_bytes: ptr, &amp;out_json: ptr) -&gt; i32</code></td><td>服务端握手处理</td></tr>
+<tr><td><code>sa_std_http2_buffer_data(buffer: u64) -&gt; &amp;ptr / _len / _free(^buffer: u64) -&gt; i32</code></td><td>结果缓冲三件套</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>地址对象（NetAddr）是 owned 值，
+访问完必须调用 <code>sa_net_addr_free</code>；
+JA3/JA4 指纹摘要函数（<code>sa_std_net_ja3_hash</code> 等）也在此契约中。</div>
+
+</body>
+</html>

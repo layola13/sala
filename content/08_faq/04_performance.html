@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>性能与优化预期</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">FAQ 与故障排查 &gt; 性能与优化预期</div>
+<h1>性能与优化预期</h1>
+
+<p>这一页说明 SLA 编译管线的耗时量级：direct 路径与回退路径差多少、宏模板缓存带来什么、大数组初始化优化解决了什么。读完可以对「编译为什么这么慢」建立合理预期，并知道用哪个工具测量。</p>
+
+<div class="warning"><span class="label">警告</span>下文数字均来自开发仓库的内部文档（roadmap_status_cn.md §6、compilation_optimization_cn.md），属于<b>未标定的微观测量</b>：单机、单文件、特定版本。它们只用于说明数量级差异，不构成任何性能保证。</div>
+
+<h2>direct 与 fallback 的差距</h2>
+
+<p>SAB 主线优先走 direct AST-&gt;SAB 编码器；遇到未覆盖特性时退回 SA 兼容降低 + SCI 展平器。两条路径的耗时差距可达一个数量级以上。以 roadmap_status_cn.md §6 记录的单文件测量为例：</p>
+
+<table>
+<tr><th>输入 / 路径</th><th>耗时</th><th>说明</th></tr>
+<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB（带宏模板缓存）</td><td>约 257ms</td><td>记录中标注为 16 倍加速</td></tr>
+<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB（无缓存）</td><td>约 4094ms</td><td>当时的瓶颈点</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — SA 兼容展平（回退）</td><td>约 4.04s</td><td>回退路径瓶颈</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — SAB encode</td><td>约 5.22s</td><td>当时最大单一瓶颈</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — sa test（宿主侧后端）</td><td>约 13.50s</td><td>SA 后端耗时</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>核心结论是：direct 路径本身很快（同一批记录中为 24-257ms 量级），慢的是「遇到不支持特性就整体走回退」。所以消除回退既是正确性目标也是性能目标。若某文件突然变慢，先怀疑它触发了回退，用本章节<a href="02_compile_failures.html">「编译失败排查」</a>中的 <code>SLA_SAB_TRACE_UNSUPPORTED=1</code> 定位。</div>
+
+<h2>大数组初始化优化</h2>
+
+<p>针对包含大量常量数组的源码（例如 Lua VM 重构中的 16384 长度指令缓冲区），sci 编译器的 LLVM 常量生成引入了 <code>.repeat</code> 重复常量优化：检测到大面积重复默认值时，用 <code>@memset</code> 一次性填充字节流并直接发射 LLVM 聚合常量，避免逐元素生成。compilation_optimization_cn.md 记录的效果：</p>
+
+<ul>
+<li><code>lvm.test.sa</code> 干净重构编译时间从 <b>&gt;5 分钟</b>缩短到约 <b>4.6 秒</b>；</li>
+<li><code>lparser.test.sa</code> 缩短到约 <b>6.6 秒</b>；</li>
+<li>同时解决了单元测试和增量编译卡死/终端超时的问题。</li>
+</ul>
+
+<h2>如何测量自己的管线</h2>
+
+<p>插件仓库自带 benchmark harness，输出 JSONL 计时（运行目录为插件仓库根）：</p>
+
+<pre><code>tools/bench_sla_pipeline.sh --runs 3 --out /tmp/sla_pipeline_bench.jsonl</code></pre>
+
+<p>内置项目包括 <code>sla_to_sab_cold</code>（清空托管 SAB 缓存后计时）、<code>sla_to_sab_warm</code>（保留缓存）、<code>sla_to_native</code>（build-exe 主链路）、<code>sab_test_fallback_allowed</code> 与 <code>sab_test_direct_no_fallback</code>（对比允许回退与 no-fallback 的测试路径）。也可以在单次命令上加 <code>SLA_PROFILE=1</code> 查看各阶段计时：</p>
+
+<pre><code>[sla-profile] parse: 12ms
+[sla-profile] import expand: 45ms
+[sla-profile] type check: 15ms
+[sla-profile] sab direct codegen: 24ms</code></pre>
+
+<h2>已知的结构性压力</h2>
+
+<p>SLA 前端在 <code>@import</code> 时目前采取「全展开合并」模式：多个模块会被合并进单个 <code>.sa</code>/<code>.sab</code>，真实项目里出现过展开后上万条 SA 指令的单文件，这给展平器、验证器和后端都带来压力。按模块拆分输出、复用 SA 原生 <code>@import</code> 链接的模块化编译方案在设计文档中有规划，尚未成为当前行为——不要假设现在就是按模块缓存编译的。</p>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/roadmap_status_cn.md §6、compilation_optimization_cn.md、benchmarking_cn.md、testing_and_verification_cn.md §6。</p>
+</body>
+</html>

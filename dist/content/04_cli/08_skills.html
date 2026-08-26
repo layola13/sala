@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa sla skills 与 stability</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; sa sla skills / stability</div>
+<h1>sa sla skills 与 stability</h1>
+
+<p><code>sa sla skills</code> 列出 SLA 插件向宿主暴露的能力，并可生成给编码代理用的 skill 文件；<code>sa sla stability</code> 用于校验下游稳定性元数据清单。读完本页可以获取机器可读的能力清单并生成 agent skill。</p>
+
+<h2>sa sla skills</h2>
+<pre><code>usage: sa sla skills [--json]</code></pre>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td>（无参数）</td><td>文本模式：打印能力分节说明，并把 skill 文件写入当前目录的 <code>.codex/skills/sla/SKILL.md</code> 和 <code>.claude/skills/sla/SKILL.md</code>。</td></tr>
+<tr><td><code>--json</code></td><td>只输出机器可读的能力 JSON 到 stdout，不写文件。宿主以全局 <code>--json</code> 调用时该模式自动生效。</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。未知选项会报错并返回 1。</td></tr>
+</table>
+<pre><code># 文本模式 + 生成 agent skill 文件（在项目根目录运行）
+SA_PLUGIN_DEV=1 sa sla skills
+
+# 只看机器可读清单
+SA_PLUGIN_DEV=1 sa sla skills --json
+SA_PLUGIN_DEV=1 sa --json sla skills        # 宿主全局 --json 等效</code></pre>
+<p>产物位置：文本模式下在<strong>当前工作目录</strong>生成 <code>.codex/skills/sla/SKILL.md</code> 与 <code>.claude/skills/sla/SKILL.md</code>；JSON 模式不产生任何文件。</p>
+
+<h2>sa sla stability</h2>
+<p>校验下游稳定性元数据（stability metadata）清单，不赋予下游标签任何语义。子命令有两个：</p>
+<table>
+<tr><th>用法</th><th>说明</th></tr>
+<tr><td><code>sa sla stability schema [--json]</code></td><td>把稳定性元数据的 JSON schema 输出到 stdout。<code>--json</code> 仅为一致性而接受，输出本身就是 JSON。</td></tr>
+<tr><td><code>sa sla stability verify &lt;manifest.json&gt; [--json]</code></td><td>校验一个下游清单文件；缺省输出人类可读报告，<code>--json</code> 输出机器可读报告。校验通过返回 0，不通过返回 1。</td></tr>
+</table>
+<pre><code># 先导出 schema 作为编写参考
+SA_PLUGIN_DEV=1 sa sla stability schema &gt; /tmp/stability_schema.json
+
+# 校验一个清单
+SA_PLUGIN_DEV=1 sa sla stability verify stability.json
+SA_PLUGIN_DEV=1 sa sla stability verify stability.json --json</code></pre>
+<div class="note"><span class="label">注意</span><code>verify</code> 必须给出清单路径，缺失时报 <code>Missing stability manifest path</code> 并打印用法。清单中的 evidence 字段常引用形如 <code>SA_PLUGIN_DEV=1 sa sla test lib/parallel.sla --test-backend sab</code> 的验证命令。</div>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>vite — SAX 热重载开发服务器</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; vite — SAX 热重载开发服务器</div>
+<h1>vite — SAX 热重载开发服务器</h1>
+
+<p><code>sa_plugin_vite</code> 是一个瘦编排插件：把「改了 <code>.sax</code> → 浏览器立即更新」的开发体验包装成
+<code>sa vite dev</code> 命令。它不重新实现编译或 HTTP —— 编译复用 <code>sax</code>/<code>react</code>，
+静态服务与 SSE 复用 <code>http-server</code> 的核心 API；自身只负责文件树监听、重建编排与实时信号端点。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>vite.dev</code>、<code>vite.build</code>、<code>vite.preview</code>；版本 <code>0.1.0</code>。</li>
+<li>依赖：<code>sax</code>（必需）、<code>http-server</code>（必需，且钉死了 18 个 <code>sa_http_server_*</code> 符号）。</li>
+<li>接口契约：<code>vite.sai</code> / <code>vite.sal</code> 提供 dev-session handle ABI
+（<code>sa_vite_dev_new</code>、<code>sa_vite_dev_set_entry</code>、<code>sa_vite_dev_set_port</code>、
+<code>sa_vite_dev_run</code>、<code>sa_vite_dev_stop</code> 等 8 个 extern）。</li>
+<li>权限最小化：读项目目录、只在 <code>$PROJECT/dist/**</code> 写入；网络仅限本机 GET。</li>
+</ul>
+
+<h2>命令</h2>
+<table>
+<tr><th>命令</th><th>说明</th></tr>
+<tr><td><code>sa vite dev &lt;entry.sax&gt; [--react] [--include file.sax] [--out-dir dir] [--port p] [--debounce-ms n] [--title t] [--css f] [--public-dir d]</code></td><td>启动 dev server + 递归监听 + 热重载；端口默认 <code>5173</code>，防抖默认 <code>80ms</code></td></tr>
+<tr><td><code>sa vite build &lt;entry.sax&gt; [--react] [--include file.sax] [--out-dir dir] [--title t] [--css f] [--public-dir d]</code></td><td>一次性构建，生成可静态部署产物，不注入 live reload 客户端</td></tr>
+<tr><td><code>sa vite preview [dist-dir] [--port p]</code></td><td>预览已构建产物，不 watch、不重建；dist-dir 默认 <code>dist</code></td></tr>
+</table>
+
+<p><code>--css</code> 会把样式表复制进 dist 并注入 link（dev 模式下监听它）；
+<code>--public-dir</code> 递归复制静态资源目录并在 dev 下监听变化。
+修改 <code>.sax</code>/include 触发 wasm 重新编译；修改 css/public 资源只刷新资源并推送 reload，不重编 wasm。</p>
+
+<h2>热重载机制</h2>
+<p>dev 模式向生成的 <code>index.html</code> 注入同源脚本 <code>/__sax_live_client.js</code>；
+浏览器经 <code>/__sax_live</code>（SSE）接收 <code>reload</code>/<code>error</code> 事件；
+构建失败时页面显示错误浮层而不是白屏。</p>
+<pre><code># 示例（在 sa_plugin_vite 目录内）
+sa vite dev examples/counter.sax --out-dir /tmp/sa-vite-demo/dist \
+  --port 5199 --debounce-ms 20 --title "SA Vite Demo" \
+  --css assets/demo.css --public-dir public</code></pre>
+
+<div class="note"><span class="label">注意</span>与 JS/TS 工具链的关系：用户代码与 esbuild/tsc/node 物理隔离，
+唯一的浏览器端 JS 是机器生成胶水（SAX 生成的 <code>airlock.js</code> 与注入的 reload 客户端），均非手写。
+当前为 Phase 2 状态，实现路线见插件仓库的 <code>plan.md</code> 与 <code>API_COVERAGE.md</code>。</div>
+</body>
+</html>

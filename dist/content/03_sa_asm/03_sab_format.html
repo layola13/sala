@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SAB 字节码格式概览</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SA 汇编与 SAB &gt; SAB 字节码格式概览</div>
+<h1>SAB 字节码格式概览</h1>
+
+<p>这一页介绍 SA 的二进制 IR 文件格式 SAB（当前主版本 v4）：它是什么、不是什么、
+字节布局如何组织，以及如何生成和反汇编。读完可以识别一个 <code>.sab</code>
+文件并知道它包含哪些信息。</p>
+
+<h2>SAB 是结构化 IR，不是文本压缩包</h2>
+<p>SAB 是 SA 的二进制中间表示。<code>.sa</code> 与 <code>.sab</code> 是两条并列的用户面编译主线，
+但两者在扁平指令数组处汇合。SAB <strong>不</strong>是把 <code>.sa</code> 源码塞进某个
+section 的容器——v4 明确禁止出现完整 <code>.sa</code> source section，
+指令 payload 里也不再保留每条指令的原始文本（<code>raw_text</code> 为空），
+只保留结构化操作数和少量短字符串（如 call body、const literal 文本）。</p>
+
+<h2>v4 布局</h2>
+<pre><code>magic:          4 bytes = "SAB\0"     （十六进制 53 41 42 00）
+version_major:  u8 = 4
+version_minor:  u8 = 0
+section_count:  uleb128
+
+section*:
+  id:           uleb128
+  len:          uleb128
+  payload:      len bytes</code></pre>
+
+<p>当前定义了四个 section：</p>
+<table>
+<tr><th>id</th><th>名称</th><th>内容</th></tr>
+<tr><td><code>1</code></td><td><code>symbol_pool</code></td><td>符号名、函数名、label、短文本 token；指令流通过 symbol id 引用它们</td></tr>
+<tr><td><code>2</code></td><td><code>function_sigs</code></td><td>函数签名、参数能力、参数/返回类型、函数 kind、参数寄存器与函数寄存器集合</td></tr>
+<tr><td><code>3</code></td><td><code>const_decls</code></td><td>常量声明与结构化 literal</td></tr>
+<tr><td><code>4</code></td><td><code>instructions</code></td><td>指令 kind、source line、op kind、atomic metadata、operands</td></tr>
+</table>
+
+<p>用任意十六进制查看器打开一个真实产物，开头即可看到 magic 与符号池中的名字：</p>
+<pre><code>$ xxd .sla-cache/sab/main-8d82ada9cb6f5e91.sab | head -2
+00000000: 5341 4200 0400 ...   SAB.....
+00000010: 6f6e 6512 6164 645f ...   one.add_one__param_0_x ...</code></pre>
+
+<div class="note"><span class="label">注意</span>SAB v4 保留了后端所需的结构化元数据：
+函数寄存器 id、native 寄存器名、包身份（package identity）、上游位置（upstream location）。
+因此从 SAB 编译仍能产出正确的 DWARF / 符号名，但<strong>不能</strong>还原出逐字的
+<code>.sa</code> 源码。</div>
+
+<h2>生成与消费</h2>
+<pre><code># SLA 源直接编译为 SAB（默认托管在 .sla-cache/sab/，--out 额外落盘一份）
+SA_PLUGIN_DEV=1 sa sla sab build src/main.sla --out /tmp/main.sab
+
+# workspace 模式：解析 sa.mod 成员后委派给 sa build-exe
+SA_PLUGIN_DEV=1 sa sla sab workspace --sab-out /tmp/workspace.sab -o /tmp/app
+
+# SA 工具链直接吃 .sab 输入，跳过文本 flattener
+sa build-exe /tmp/main.sab -o /tmp/app
+
+# 反汇编为可读文本（仅调试用，不在编译主链路上）
+SA_PLUGIN_DEV=1 sa sla sab disasm /tmp/main.sab --out /tmp/main.disasm.sa</code></pre>
+
+<p>SA 侧由 <code>src/sab.zig</code> 的 <code>decodeModule</code> 解码，
+产出的结构与文本 Flattener 完全等价，Referee 和 Emitter 不感知输入来源。
+SCI 的通用 SAB v4 encoder 覆盖全部 SA <code>InstKind</code> / <code>OpKind</code> /
+operand tag。</p>
+
+<p>下一页：<a href="04_pipeline.html">编译管线：direct 与 fallback</a>。</p>
+</body>
+</html>

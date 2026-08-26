@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>边界、性能与最佳实践</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">db 数据库插件 &gt; 边界、性能与最佳实践</div>
+<h1>边界、性能与最佳实践</h1>
+
+<p>这一页汇总三件写代码前必须知道的事：插件当前<strong>明确不做</strong>什么、它的性能数字该怎么读、
+以及从仓库 <code>benchmark_test/</code> 的真实用例里能提炼出哪些可操作的写法。
+读完这一页你应该能避开常见的误用，并知道如何自己复现一次测量。</p>
+
+<h2 id="limits">已知限制清单</h2>
+
+<h3>数据模型</h3>
+<ul>
+<li><strong>没有 SQL，也没有通用查询优化器。</strong>README 对 plan 家族的定性是
+"a planner building block rather than a SQL optimizer"，超出已实现形状的过滤要显式组合构件完成。</li>
+<li><strong>schema 锁定后不可变。</strong>新增列需要开新表；<code>database.md</code> §15 明确列为 Non-Goal。
+列注解必须与 primitive 匹配，例如 <code>// u64 decimal(2)</code> 会在编译期被拒绝。</li>
+<li><strong>没有变长字符串列。</strong>低基数标签走命名字典（存 1-based <code>u64</code> ID），
+一般文本/字节走 blob store（行内存 8 字节 <code>blob_handle</code>）。</li>
+<li><strong>ID 0 保留。</strong>字典 ID 与 blob handle 的 <code>0</code> 都预留给调用方的 null/missing 语义，
+不要拿来存业务数据。</li>
+<li><strong>blob store 不去重。</strong>重复写入相同字节会得到不同的 handle——这条路径面向 varchar/blob 数据，
+不是去重容器；要去重请用字典。空值合法。</li>
+<li><strong>decimal scale 上限 18。</strong>超过返回 <code>InvalidFormat</code>。</li>
+<li><strong>float 索引拒绝 NaN 与 ±Inf</strong>，返回 <code>SA_DB_ERR_INVALID_FORMAT</code>；
+金额等精确值应改用 scaled <code>i64</code>。</li>
+<li><strong>物理容量上限</strong>：<code>MAX_ROWS * ROW_BYTES ≤ 64 GB</code>，编译 schema 时即校验。</li>
+</ul>
+
+<h3>索引与文本搜索</h3>
+<ul>
+<li>range 类读取<strong>要求目标列已有持久化索引</strong>，否则无法二分分页。</li>
+<li><code>blob_contains</code> 走三元组候选索引，<strong>needle 至少 3 字节</strong>才启用索引；
+空串与 1–2 字节保持快照扫描以维持精确语义。</li>
+<li><code>blob_prefix</code> 前缀最长 <strong>64 字节</strong>，且只在 token 起始处匹配，不做任意子串。</li>
+<li>token/prefix 的分词模型限定为 <strong>ASCII 字母、数字与下划线</strong>；大小写不敏感。</li>
+<li>所有 blob 索引命中后都会回到快照里的真实字节做二次确认，哈希碰撞不会造成误匹配——代价是多一次字节比对。</li>
+<li>唯一索引约束的是真实值：创建时拒绝已有重复，后续写入引入重复返回 <code>SA_DB_ERR_CONSTRAINT</code>
+且 active manifest 停留在上一个 epoch。</li>
+</ul>
+
+<h3>事务、并发与一致性</h3>
+<ul>
+<li><strong>单表、单写者事务。</strong>没有跨表事务，也没有多表隔离。</li>
+<li><strong>没有 WAL。</strong>README 把 optional WAL 列入 roadmap，属未来工作。</li>
+<li><strong>读句柄是快照。</strong>打开之后发生的任何写入（包括新 blob）对已打开句柄不可见，
+要看新数据必须重新 open。这是特性而非缺陷，但容易踩坑。</li>
+<li><strong>commit 失败会关闭事务句柄</strong>，旧 manifest 保持可见；不能对同一个 handle 重试 commit。</li>
+<li><strong>写锁文件 <code>&lt;table&gt;.write.lock</code> 在删除表时刻意保留</strong>，
+以保证后续写者继续在同一 inode 路径上协调。手工清理目录时不要把它当作垃圾删掉后再依赖锁语义。</li>
+<li>进程内互斥只保证同进程正确性，<strong>不等同于跨进程事务隔离或 ACID</strong>
+（<code>sci/docs/db_comparison.md</code> 原话）。</li>
+</ul>
+
+<h3>内存根 <code>:memory:</code> 的特殊行为</h3>
+<p>内存根让整张表留在进程内，但它的运维语义与磁盘表不完全相同：</p>
+<ul>
+<li>snapshot/restore 产物留在同一 in-memory 命名空间，<strong>不会</strong>创建真实的 <code>:memory:*</code> 目录。</li>
+<li><code>:memory:name</code> 是共享的命名根；精确写作 <code>:memory:</code> 解析到当前线程本地的匿名根，
+两者互相隔离。</li>
+<li>已打开的读句柄持有自己的 artifact 字节，移除或复用同名表不会污染旧快照。</li>
+<li><code>recover</code> 只验证并重新发布当前 in-memory 元数据，<strong>不会</strong>扫描宿主文件系统；
+缺失的内存表返回 <code>NotFound</code>。</li>
+<li>lock/unlock/compact 同样只作用于内存 artifact。</li>
+</ul>
+
+<h2 id="perf">性能数据怎么读</h2>
+
+<div class="warning"><span class="label">警告</span><strong>本节所有数字都是未标定的微观测量</strong>：
+单机、小样本（多为 3–7 轮取中位数）、负载仅两种合成场景（50k 会员库与固定规模的 ERP 工作流），
+其中 2026-06-27 的两组更是在 <code>SA_DB_UNSAFE_NO_SYNC=1</code> 的 unsafe/no-sync 模式下测得。
+README 自己的措辞是 "Scope is still limited to this benchmark"。这些数字只能用于<strong>判断相对趋势</strong>，
+不能作为容量规划或 SLA 依据，也不应外推到你的真实负载。</div>
+
+<h3>测量口径</h3>
+<table>
+<tr><th>组别</th><th>样本量</th><th>日期与备注</th></tr>
+<tr><td>会员库单线程</td><td>5 轮中位数</td><td>2026-06；50,000 行 × 4 个 u64 列</td></tr>
+<tr><td>并发读写复测</td><td>3 轮中位数</td><td>2026-06-18；每个基准使用独立 root</td></tr>
+<tr><td>ERP workflow 查询</td><td>7 轮中位数</td><td>1024 客户 / 512 产品 / 8192 订单 / 32768 明细 / 16384 库存流水 / 8192 发票</td></tr>
+<tr><td>ERP 索引化写入（磁盘）</td><td>5 轮区间+中位</td><td>2026-06-27；unsafe/no-sync 模式</td></tr>
+<tr><td>ERP 索引化写入（<code>:memory:</code>）</td><td>5 轮区间+中位</td><td>2026-06-27；unsafe/no-sync 模式，对照 SQLite <code>:memory:</code></td></tr>
+</table>
+<p>基准内置了正确性断言，不只是计时：单线程要求 <code>rows=50000</code>、
+<code>sum_before=12500250000</code>、<code>sum_after=12500500000</code>、
+<code>plan_one_count=12500</code>、<code>updated_rows=50000</code>；
+ERP 组要求两侧 row count 一致。因此「跑完」本身包含了一次语义校验。</p>
+
+<h3>db 插件侧的关键锚点</h3>
+<p>与 SQLite 的逐项对照见 <a href="05_vs_sqlite.html#bench">vs SQLite：实测数据对照</a>。
+这里只列 db 插件自身值得记住的几个量级：</p>
+<ul>
+<li>50k 行 × 4 列的批量列式导入约 <strong>19 ms</strong>；coltx 并发插入约 <strong>72 ms</strong>（4 worker 共 50k 行）。</li>
+<li>复用读句柄的全表 SUM 约 <strong>1.7 ms/次</strong>（serial 100 次 167 ms）；首次打开快照另有一次性成本，
+所以<strong>单次</strong>查询可能反而输给 SQLite——这是 read-handle 模型最重要的性能特征。</li>
+<li>ERP 索引化列表/投影查询在微秒级（0.005–0.019 ms），比 init/index 构建低三个数量级以上；
+也就是说<strong>构建成本一次性，查询收益按次数累积</strong>。</li>
+<li>verify 在磁盘模式下明显偏慢（147 ms vs 38.9 ms），但在 unsafe/no-sync 的 ERP 组里反而最快（1.2 ms）——
+差异主要来自 sync 行为，这正是 unsafe 模式数字不可外推的直接例证。</li>
+</ul>
+
+<h3>README 结论原文（照录）</h3>
+<ul>
+<li>Reused read-handle queries are still faster than SQLite in this benchmark.</li>
+<li>The isolated-root rerun removed the earlier benchmark cross-contamination and kept db ahead of SQLite on serial and concurrent read-handle SUM.</li>
+<li>Read-handle open no longer waits on the global mutation mutex, so active write transactions do not block opening committed read snapshots.</li>
+<li>Concurrent insert via the <code>coltx</code> batch session is the fastest path in the current benchmark set.</li>
+<li>ERP indexed list/projection queries favor the db plugin in the current workflow.</li>
+<li>The concurrent insert suite still does not include explicit secondary-index maintenance, so ERP write-path conclusions should remain scoped to the tested workload.</li>
+<li>SQLite remains stronger for SQL, index creation, ACID, WAL, crash recovery, compact/vacuum, and integrity checks.</li>
+</ul>
+
+<h3>自己复现测量</h3>
+<p>推荐用构建系统入口而不是手敲命令，它会自动处理插件安装与 SQLite 链接准备（来源：<code>benchmark_test/RESULTS.md</code>）：</p>
+<pre><code>zig build bench                       # 同时构建 db 与 SQLite control
+zig build bench-compare               # 默认对照 gate：disk/memory ERP + concurrent 三组
+zig build bench-compare-proof         # 推荐的宽证明入口，默认 runs=7
+zig build sqlite-proof                # 先 audit 再做 performance proof
+zig build bench-compare-memory        # 只跑 :memory: 对照
+zig build bench-compare-concurrent    # 四条 SUM 路径分别作硬门禁
+
+# 可调参数（必须是正奇数，避免中位数来自插值）
+zig build bench-compare-proof -Dbench-compare-proof-runs=9
+zig build bench-compare-concurrent -Dbench-compare-strict-concurrent-insert=true</code></pre>
+<div class="note"><span class="label">注意</span>两个容易忽略的点：
+其一，benchmark 可执行文件链接的是<strong>已安装</strong>的 <code>libdb.so</code>，
+改完源码只跑 <code>zig build</code> 不重新 <code>sa plugin install --dev …</code>，测到的仍是旧二进制；
+其二，<code>-Dbench-compare-*-runs=N</code> 必须是正奇数，否则中位数由两次运行插值而成而非真实样本。
+原始输出记录在各 <code>*_runs.txt</code>，详细结果在 <code>benchmark_test/RESULTS.md</code>。</div>
+
+<h2 id="practice">来自 benchmark_test 的实践建议</h2>
+<p>以下每一条都能在仓库的 <code>.sa</code> 用例里找到对应写法。</p>
+
+<h3>1. 先建索引，再做第一次写入</h3>
+<p><code>db_memory_smoke.sa</code> 的顺序是 <code>DB_REMOVE_TABLE</code> → <code>DB_INIT_SCHEMA</code> →
+<code>DB_CREATE_U64_INDEX(unique=1)</code> → 才开始 <code>DB_TX_INSERT_ROW</code>。
+README 也专门提到该用例覆盖 "index creation before first write"。
+先建索引可以让首批数据在写入时就进入索引维护路径，避免事后重建大索引。</p>
+
+<h3>2. 并发批量导入一律用 coltx，不要裸调 ingest_columns</h3>
+<p>这是 README 的直接建议（"the preferred write path over raw concurrent <code>sa_db_ingest_columns</code> calls"），
+也是当前基准里最快的写路径（72.192 ms vs 95.736 ms）。
+原因是 coltx 的暂存阶段不持全局互斥，多个会话可以并行 <code>add_columns</code>，
+commit 时才取一次表写锁统一发布。</p>
+
+<h3>3. 多行原子追加用批量形态</h3>
+<p><code>db_tx_smoke.sa</code> 专门覆盖了 <code>DB_TX_INSERT_ROWS</code>（一次传整个行缓冲加行数），
+而不是循环调用 <code>DB_TX_INSERT_ROW</code>。批量形态减少宏展开与调用次数，
+且仍然只在 commit 时推进一次 epoch。</p>
+
+<h3>4. 打开一次读句柄，复用它做完所有查询</h3>
+<p>这是性能模型的核心。句柄打开时复制不可变快照，之后所有 <code>*_handle</code> 调用都不再碰 metadata 或列文件。
+<code>db_memory_smoke.sa</code> 在一个句柄上连续做了 snapshot_info、SUM、FIND、GET 四类查询才 close。
+反模式是为每个查询 open/close 一次。</p>
+
+<h3>5. 先高选择性过滤，再收窄候选行集，最后投影</h3>
+<p>典型编排是三层漏斗，全部在插件内完成、不把行数据搬回 SA。
+下面是各层的代表性宏（省略实参）：</p>
+<pre><code>EXPAND DB_RANGE_U64_I64_PAIR_HANDLE ...
+EXPAND DB_FILTER_U64_I64_PAIR_KEY1_HANDLE ...
+
+EXPAND DB_FILTER_ROWS_BOOL_HANDLE ...
+EXPAND DB_FILTER_ROWS_DICT_EQ_HANDLE ...
+EXPAND DB_FILTER_ROWS_DECIMAL_I64_RANGE_HANDLE ...
+EXPAND DB_FILTER_ROWS_BLOB_CONTAINS_HANDLE ...
+
+EXPAND DB_INTERSECT_ROWS_HANDLE ...
+EXPAND DB_UNION_ROWS_HANDLE ...
+EXPAND DB_EXCEPT_ROWS_HANDLE ...
+
+EXPAND DB_SORT_ROWS_U64_HANDLE ...
+EXPAND DB_PROJECT_ROWS_HANDLE ...
+EXPAND DB_GET_ROW_HANDLE ...</code></pre>
+<p>四组宏自上而下分别是：<strong>索引层</strong>（用持久化索引拿第一批候选行号，
+组合键可按固定首键 + 第二键范围取子表）；<strong>收窄层</strong>（在既有行号列表上追加
+bool/字典/decimal 范围/blob 包含等谓词，保持输入顺序与分页契约）；<strong>组合层</strong>
+（把两条独立过滤出的行号列表做 AND/OR/排除）；<strong>物化层</strong>（排序翻页、只复制需要的列、
+或按键取整行）。</p>
+<p><code>db_candidate_filter_smoke.sa</code>、<code>db_compact_candidate_filter_smoke.sa</code>
+与 <code>db_erp_workflow_bench.sa</code> 都是这个形状——ERP 工作流基准里「投影订单明细」
+正是先按 order_id 取行号再 <code>DB_PROJECT_ROWS_HANDLE</code> 只复制需要的列。
+只有两个常见谓词时可以直接交给 plan 家族自动选边，并读
+<code>SaDbPlanInfo.first_predicate</code> 审计它选了哪一侧。</p>
+
+<h3>6. 每个基准/每张表用独立的 root 目录</h3>
+<p>这是本轮复测最重要的教训：三套并发基准曾共享 root，历史工件与 SQLite 的 WAL/SHM 侧文件互相污染，
+既产生了过好看的假数字，也产生过间歇性失败。现在拆成
+<code>.bench_raw</code> / <code>.bench_coltx</code> / <code>.bench_sqlite</code> 后结果才稳定。
+自己做压测时也应遵循同样的隔离原则。</p>
+
+<h3>7. 区分测量模式与生产模式</h3>
+<pre><code>env SA_DB_UNSAFE_NO_SYNC=1 ./db_erp_indexed_memory_bench.out   # 仅用于测量</code></pre>
+<p><code>SA_DB_UNSAFE_NO_SYNC=1</code> 会跳过同步，用来放大写路径的结构性差异。
+它带来的数字（例如 ERP 磁盘组里 verify 从 147 ms 变成 1.2 ms）<strong>绝不能</strong>当作生产行为预期。</p>
+
+<h3>8. 严格的状态码检查与所有权释放</h3>
+<p>所有冒烟用例都遵循同一个模板：每步状态码与期望值逐一 <code>eq</code> 成布尔量，
+用 <code>and</code> 链成一个总开关，最后 <code>br ok -&gt; L_OK, L_FAIL</code>，
+失败分支 <code>panic(错误码)</code>。同时每个中间值都有配对的 <code>!</code> 释放，
+两个出口标签各自释放共享变量。写自己的业务代码时建议沿用这个模板，
+它能把问题定位到具体某一步。</p>
+
+<h3>9. 用 CLI 冒烟而不是只跑单元测试</h3>
+<p>插件的 <code>tests/smoke_installed.sh</code> 针对<strong>已安装</strong>的插件验证命令面行为，
+包括注册后取 hash 再 exec 的完整链路。这能抓到「源码对了但安装的是旧版」这类问题。</p>
+
+<h2 id="summary">小结</h2>
+<ul>
+<li>把它当<strong>嵌入式列式引擎</strong>用：schema 定死、索引先行、批量写、复用读句柄。</li>
+<li>不要期待它提供 ACID、WAL、跨表事务或 SQL——README 已把这些列为非目标或后续工作。</li>
+<li>引用任何性能数字时带上出处与「未标定微观测量」的限定语。</li>
+</ul>
+
+<p>延伸阅读：<a href="05_vs_sqlite.html">vs SQLite：选型对比</a> 有完整的对照表与全部实测数字；
+<a href="03_api.html">SA API 八大分组</a> 解释了上面提到的每个 API 的语义。</p>
+</body>
+</html>

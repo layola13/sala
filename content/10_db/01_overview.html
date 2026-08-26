@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>db 插件总览：定位与架构</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">db 数据库插件 &gt; db 插件总览：定位与架构</div>
+<h1>db 插件总览：定位与架构</h1>
+
+<p>这一页回答三个问题：<code>sa_plugin_db</code> 到底是什么、它明确不承诺什么、以及它的数据落在磁盘上的哪些文件里。
+读完这一页你应该能判断自己的场景适不适合用它，并知道后续几页（CLI、API、宏）分别在讲哪一层。</p>
+
+<h2 id="position">定位：本地列式存储，不是通用数据库</h2>
+<p><code>sa_plugin_db</code> 是 SA 的原生数据库插件（<code>db</code> v0.1.0），提供<strong>本地、文件支撑的列式存储</strong>，
+并通过两个 SA 侧接口暴露能力：<code>db.sai</code>（native extern 声明）和 <code>db.sal</code>（宏 facade）。
+两者都在 <code>sap.json</code> 的 <code>interfaces</code> 中开放。</p>
+
+<p>它的核心取舍是<strong>把 schema 和查询都搬到编译期</strong>：</p>
+<ul>
+<li><strong>无运行时 SQL 字符串解析</strong>。表结构写在 <code>.sadb-schema</code> 纯文本里，查询要么走
+<code>*_handle</code> 读句柄 API，要么预编译成 qmod 后用 <code>sa db exec &lt;hash&gt;</code> 执行。</li>
+<li><strong>无 B-Tree</strong>。存储是 SoA 列存段文件；点查/范围查依赖持久化的「键 -&gt; row」排序索引加二分，
+而不是页式树结构。这一定位在 <code>sci/docs/database.md</code> §0/§1.2 有明确表述。</li>
+<li><strong>读路径零重复解析</strong>。<code>sa_db_open_read_table</code> 打开句柄时一次性把不可变列字节复制成内存快照，
+后续所有 <code>*_handle</code> 查询都在快照上扫描，不再反复读 metadata JSON 或列文件。</li>
+</ul>
+
+<div class="warning"><span class="label">警告</span>边界声明（README.md 原文口径）：这不是 SQLite 式 ACID / WAL /
+多表隔离的替代品。事务目前是<strong>单表、单写者</strong>模型；写路径由进程内互斥加每表 advisory 锁文件串行化；
+提交靠临时文件原子改名 + manifest 推进完成。README 在结尾反复强调：
+<em>"SQLite remains stronger for SQL, index creation, ACID, WAL, crash recovery, compact/vacuum, and integrity checks."</em></div>
+
+<h3>当前开发 API 是有意破坏性的</h3>
+<p>旧的 direct query ABI 已被移除，<code>sa_db_sum_u64</code>、<code>sa_db_count_u64_eq</code>、
+<code>DB_SUM_U64</code>、<code>DB_COUNT_U64_EQ</code> 不再从 <code>libdb.so</code> 导出。
+所有查询代码必须改用读句柄（<code>*_handle</code> 系列）。升级旧代码时先检查这一点。</p>
+
+<h2 id="metadata">插件元数据（sap.json）</h2>
+<table>
+<tr><th>字段</th><th>值</th><th>含义</th></tr>
+<tr><td><code>name</code> / <code>version</code></td><td><code>db</code> / <code>0.1.0</code></td><td>插件名与版本</td></tr>
+<tr><td><code>abi.plugin</code></td><td><code>1</code></td><td>插件 ABI 版本</td></tr>
+<tr><td><code>abi.saasm</code></td><td><code>&gt;=0.4.0</code></td><td>要求的 SAASM 编译器版本下限</td></tr>
+<tr><td><code>abi.symbols</code></td><td><code>db.sai</code></td><td>native extern 符号来源</td></tr>
+<tr><td><code>artifacts.linux-x86_64</code></td><td><code>zig-out/lib/libdb.so</code></td><td>Linux 构建产物</td></tr>
+<tr><td><code>artifacts.windows-x86_64</code></td><td><code>zig-out/bin/db.dll</code></td><td>Windows 构建产物</td></tr>
+<tr><td><code>skills</code></td><td><code>["database"]</code></td><td>导出 <code>database</code> 能力段，宿主 CLI 据此挂载 <code>sa db</code> 子命令</td></tr>
+<tr><td><code>dependencies</code></td><td><code>{}</code></td><td>无插件依赖</td></tr>
+</table>
+
+<h3>权限面（最小权限）</h3>
+<p><code>sap.json</code> 的 <code>permissions</code> 只声明项目目录内的四类文件操作，其余全部为空或关闭：</p>
+<ul>
+<li><code>fs</code>：<code>$PROJECT/**</code> 上的 <code>read</code> / <code>write</code> / <code>create</code> / <code>delete</code></li>
+<li><code>net</code>：空数组，无网络访问</li>
+<li><code>env</code>：空数组，不读环境变量</li>
+<li><code>process</code>：<code>{"spawn": false, "exec": []}</code>，禁止派生子进程</li>
+</ul>
+<p>这意味着数据库文件的存放位置受限于当前项目目录；CLI 各命令也固定以当前工作目录（<code>.</code>）为表根目录。</p>
+
+<h2 id="arch">架构与存储模型</h2>
+
+<h3>读路径：不可变快照 + 内存扫描</h3>
+<ol>
+<li><code>sa_db_open_read_table</code> 打开读句柄，把列字节拷贝为不可变读快照。</li>
+<li><code>sa_db_snapshot_info_handle</code> / <code>sa_db_column_info_handle</code> /
+<code>sa_db_column_logical_info_handle</code> 直接从快照读行数、列数、行宽、epoch、列 stride、
+primitive type code 与逻辑类型注解，调用方无需自己解析 meta JSON。</li>
+<li>各 <code>*_handle</code> 函数在快照上扫描或二分；存在持久化索引时 <code>find_u64</code>、
+<code>count_u64_cmp</code> 及各 range 会走索引。</li>
+<li><code>sa_db_close_read_table</code> 释放快照。</li>
+</ol>
+<p>句柄即快照：打开之后发生的写入对新句柄可见，对已打开的句柄不可见。</p>
+
+<h3>写路径：串行化 + 原子替换 + manifest epoch</h3>
+<ul>
+<li>SA ABI 层有进程内互斥；table 层再加每表一个 advisory 写锁文件 <code>&lt;table&gt;.write.lock</code>，
+让 CLI、qmod、extern 三类写者在跨进程场景下对同一张表串行。锁文件在删除表时刻意保留，
+避免其他进程重建同名文件破坏锁语义。</li>
+<li>存储写入使用文件级原子替换：先写同目录临时文件，sync，rename 覆盖活跃文件，Linux 上尽力 sync 父目录。</li>
+<li>表提交由 active manifest 选择版本化元数据文件（<code>&lt;table&gt;.meta.&lt;epoch&gt;</code>）；
+修改已有列数据会写新的版本化列文件再推进 manifest，因此 manifest 替换前崩溃仍能读到上一个 epoch。</li>
+<li>新写入的列段记录整文件 SHA-256、字节数与 64KB 块级 SHA-256 列表；索引、字典、blob store 同样版本化、
+哈希化、纳入 snapshot/restore/verify/recover。</li>
+</ul>
+
+<h3>磁盘布局（每表一组文件）</h3>
+<p>下面是仓库根目录与 <code>benchmark_test/</code> 中实际出现的文件形态，命名规则参考 README_cn.md §5：</p>
+<pre><code>&lt;table&gt;.sadb-schema          # 源 schema（纯文本 #def）
+&lt;table&gt;.sai                  # sa db init 生成的接口常量（TABLE_ROW_BYTES 等）
+&lt;table&gt;.manifest             # active manifest，指向某个版本化 meta
+&lt;table&gt;.meta                 # 当前元数据副本
+&lt;table&gt;.meta.&lt;epoch&gt;         # 版本化元数据文件
+&lt;table&gt;.col&lt;i&gt;.&lt;seg&gt;.dat     # 第 i 列第 seg 个列存段
+&lt;table&gt;.idx.u64.&lt;col&gt;.&lt;e&gt;.dat            # u64 单列索引（如存在）
+&lt;table&gt;.idx.u64_pair.&lt;c1&gt;.&lt;c2&gt;.&lt;e&gt;.dat   # u64 组合索引（如存在）
+&lt;table&gt;.idx.blob_eq.&lt;col&gt;.&lt;store&gt;.&lt;e&gt;.dat # blob exact 索引（如存在）
+&lt;table&gt;.dict.&lt;name&gt;.&lt;e&gt;.dat  # 低基数字符串字典（如存在）
+&lt;table&gt;.blob.&lt;store&gt;.&lt;e&gt;.dat # blob store（如存在）
+&lt;table&gt;.write.lock           # advisory 写锁文件
+&lt;table&gt;.tx.&lt;epoch&gt;.pending    # 单表事务 pending 标记
+&lt;table&gt;.tx.&lt;epoch&gt;.commit     # 单表事务 commit 标记（可校验）
+.sa/db/qmods/&lt;hash&gt;.qmod      # 注册后的查询模块载荷
+.sa/db/qmods/&lt;hash&gt;.meta.json # 查询的 grants 与注册元数据
+.sa/db/snapshots/&lt;table&gt;/&lt;epoch&gt;/  # snapshot 备份</code></pre>
+
+<h3>设计文档与本实现的差异</h3>
+<p><code>sci/docs/database.md</code> 是一份更激进的设计蓝图（零信任 mmap 只读切片注入、Referee X 光扫描、
+冷热分层到 S3、Blob Arena 位布局等）。当前插件实现了其中的 CLI 形态、schema 编译期展开、qmod 注册/执行、
+列存段与 blob 存储；而 mmap 快照、块 min/max 索引、谓词下推、SIMD 聚合在 README 的 roadmap 中仍列为
+"performance work after the reliability/data-model baseline"。引用该文档时注意区分设计与已落地。</p>
+
+<h2 id="capmap">能力域地图</h2>
+<table>
+<tr><th>能力域</th><th>代表 API / 宏</th><th>详见</th></tr>
+<tr><td>建表与表级写入</td><td><code>sa_db_init_schema</code>、<code>sa_db_remove_table</code>、<code>sa_db_ingest_columns</code>、<code>sa_db_insert_row</code></td><td><a href="03_api.html">API 分组 1</a></td></tr>
+<tr><td>按唯一键行写</td><td><code>sa_db_upsert_row_*_key</code> / <code>_update_row_*_key</code> / <code>_delete_*_key</code></td><td><a href="03_api.html">API 分组 2</a></td></tr>
+<tr><td>单表事务</td><td><code>sa_db_tx_begin/_commit/_rollback/_insert_rows</code> 与 <code>tx_*</code> 变体</td><td><a href="03_api.html">API 分组 3</a></td></tr>
+<tr><td>列批量会话</td><td><code>sa_db_coltx_begin/_add_columns/_commit/_rollback</code></td><td><a href="03_api.html">API 分组 4</a></td></tr>
+<tr><td>索引</td><td><code>sa_db_create_u64_index</code> … <code>sa_db_create_blob_contains_index</code>、<code>sa_db_create_indexes</code></td><td><a href="03_api.html">API 分组 5</a></td></tr>
+<tr><td>字典与 blob</td><td><code>sa_db_dict_intern/_lookup</code>、<code>sa_db_blob_put/_value_len/_value_copy</code></td><td><a href="03_api.html">API 分组 6</a></td></tr>
+<tr><td>读句柄查询</td><td><code>sa_db_open_read_table</code> + <code>sum/count/find/range/filter/plan/sort/project/get/min/max/group</code></td><td><a href="03_api.html">API 分组 7</a></td></tr>
+<tr><td>逻辑类型与运维</td><td><code>sa_db_decimal_from_parts</code> 等 helper；<code>snapshot/restore/recover/verify/compact/lock/unlock</code></td><td><a href="03_api.html">API 分组 8</a></td></tr>
+<tr><td>CLI 运维入口</td><td><code>sa db init|ingest|register|exec|index-u64|inspect|status|snapshot|restore|recover|verify|compact|lock|unlock</code></td><td><a href="02_cli.html">CLI 命令详解</a></td></tr>
+<tr><td>端到端示例</td><td><code>EXPAND DB_INIT_SCHEMA</code> … 完整 .sa 程序</td><td><a href="04_macros_usage.html">宏用法</a></td></tr>
+</table>
+
+<h2 id="install">安装与验证</h2>
+<p>以下命令来自 README.md 的 Build And Install 一节，路径以仓库实际环境为准。</p>
+<pre><code># 1. 跑测试并构建（Zig 工程）
+zig build test
+zig build
+
+# 2. 以开发模式安装到本机 SA 环境
+SA_PLUGIN_DEV=1 sa plugin install --dev /home/vscode/projects/sa_plugins/sa_plugin_db
+
+# 3. 验证插件与能力段
+sa plugin list
+sa skills</code></pre>
+
+<p>验证要点：</p>
+<ul>
+<li><code>sa plugin list</code> 应能看到 <code>db</code>；<code>sa skills</code> 应出现 <code>database</code>
+技能段及其下的 <code>db init</code>、<code>db lock</code> 等条目。</li>
+<li>开发模式安装的插件需要 <code>SA_PLUGIN_DEV=1</code> 才会在正式运行模式外被加载；
+README_cn.md 的 CLI 示例统一带这个前缀。</li>
+<li>Benchmark 可执行文件链接的是<strong>已安装</strong>的 <code>libdb.so</code>——README 特别提醒，
+只重新跑 <code>zig build</code> 不重装，测到的仍是旧二进制。</li>
+<li>安装后可快速冒烟：进入一个空目录，执行
+<code>SA_PLUGIN_DEV=1 sa db init members.sadb-schema</code>，若同目录生成 <code>members.sai</code> 即为成功。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>仓库根目录已经有一批 <code>members.*</code> 表文件
+（schema、manifest、多个 epoch 的 meta、8 个列段文件、写锁文件），可以直接当作观察存储布局的真实样本。</div>
+
+<p>下一步建议按顺序阅读 <a href="02_cli.html">CLI 命令详解</a> 与 <a href="03_api.html">SA API 八大分组</a>，
+再用 <a href="04_macros_usage.html">宏用法与完整示例</a> 动手写第一个程序。</p>
+</body>
+</html>

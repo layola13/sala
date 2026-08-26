@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>标准库、错误处理与 async 对照</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">与 Rust 对比 &gt; 标准库、错误处理与 async 对照</div>
+<h1>标准库、错误处理与 async 对照</h1>
+
+<p>这一页把 Rust 与 SLA 在三件最常碰到的事情上逐项对齐：<code>Result</code>/<code>Option</code>/<code>?</code>
+错误处理、<code>async</code>/<code>await</code>、以及标准库表面（容器、智能指针、IO）怎么落到 <code>sa_std</code>。
+结论全部取自仓库内实测文档（<code>rust_vs_sla_final_cn.md</code> v0.2 / 2026-06-15、
+<code>std_surface_metadata_cn.md</code> v0.1 / 2026-07-01），凡带数字的地方都注明口径，不构成永久保证。</p>
+
+<h2>错误处理：Result / Option / ? / panic</h2>
+<p>Rust 与 SLA 在错误处理的<b>形状</b>上是一致的：都是返回值驱动的显式错误模型，
+没有异常、没有 <code>throw</code>。差异集中在细节拼写与 panic 的形态。</p>
+<table>
+<tr><th>能力</th><th>Rust</th><th>SLA 当前</th></tr>
+<tr><td><code>Result&lt;T, E&gt;</code></td><td><code>std</code> 提供</td><td><code>sa_std</code> 提供</td></tr>
+<tr><td><code>Option&lt;T&gt;</code></td><td><code>std</code> 提供</td><td><code>sa_std</code> 提供</td></tr>
+<tr><td><code>?</code> 错误传播后缀</td><td>完整支持</td><td>已落地</td></tr>
+<tr><td>panic</td><td><code>panic!("字符串")</code></td><td><code>panic(数值码)</code>；字符串变体经 <code>sa_std</code> 的 <code>panic_msg</code></td></tr>
+</table>
+<div class="note"><span class="label">注意</span>SLA 没有 unwind / panic catch。<code>Drop</code> trait
+同样不支持——清理由编译器隐式注入释放原语完成，用户面不能写 <code>impl Drop</code>。</div>
+
+<p>真实代码长这样（<code>demos/rosetta/19_result_question/main.sla</code>，
+与同目录 <code>main.rs</code> 几乎逐行对应，属于 demo.md 里标注 ✅ 的直接 1:1 映射）：</p>
+<pre><code>@import "sa_std/core/result.sa"
+
+fn triple_ok(x: i32) -&gt; Result&lt;i32, i32&gt; {
+    Ok(x * 3)
+}
+
+fn compute() -&gt; Result&lt;i32, i32&gt; {
+    let value = triple_ok(7)?;
+    Ok(value)
+}</code></pre>
+
+<h3>标准库表面已注册的方法</h3>
+<p>下面这些方法已在 <code>sla_std/std_surface.sla_meta</code> 中登记为 lowering 规则
+（来源：<code>std_surface_metadata_cn.md</code> v0.1 / 2026-07-01 §3.2、§3.3）：</p>
+<table>
+<tr><th>类型</th><th>已登记的构造与方法</th></tr>
+<tr><td><code>Option&lt;T&gt;</code></td><td><code>Some</code> / <code>None</code> 构造；<code>is_some</code> / <code>is_none</code> / <code>get</code> / <code>unwrap</code> / <code>unwrap_or</code></td></tr>
+<tr><td><code>Result&lt;T,E&gt;</code></td><td><code>Ok</code> / <code>Err</code> 构造；<code>is_ok</code> / <code>is_err</code> / <code>unwrap</code> / <code>unwrap_or</code></td></tr>
+<tr><td><code>Vec&lt;T&gt;</code></td><td><code>Vec::new</code>、<code>len</code>、<code>push</code>、可失败的 <code>remove</code>、索引读写 <code>v[i]</code> / <code>&amp;mut v[i]</code></td></tr>
+<tr><td><code>Box/Rc/Arc</code></td><td><code>::new</code>、<code>clone</code>（Rc/Arc）、<code>get</code>、<code>as_ptr</code></td></tr>
+<tr><td><code>RefCell/Cell</code></td><td><code>::new</code>；<code>Cell::get</code> / <code>Cell::set</code></td></tr>
+</table>
+<p>元数据表只登记「需要编译器组合宏」的那部分表面，并不是标准库的全部能力清单。
+<code>map</code> 这类组合子就不在规则表内，而是走 <code>sa_std</code> 的契约与宏路径：
+<code>demos/rosetta/18_option_map/main.sla</code> 里的
+<code>Some(3).map(|x| x + 5).unwrap_or(0)</code> 可以直接跑，且在 demo.md 中被登记为 ✅ 直接 1:1。</p>
+
+<h3>可能失败的方法：ok 寄存器 + panic 码</h3>
+<p>凡是可能失败的 std 方法，用专门的规则种类 <code>fallible_method</code> 描述：
+成功标志写入 <code>ok</code> 寄存器供分支检查，失败时按 <code>panic=N</code> 走数值码。
+当前唯一的实例是 <code>Vec::remove</code>：</p>
+<pre><code>fallible_method Vec remove sa_std/vec.sa VEC_REMOVE ok,out,receiver,index,elem_size deps=sa_vec_try_remove panic=86</code></pre>
+
+<h2>async / await 对照（含一次重要纠正）</h2>
+<p>这是对比文档里被改写过的一节。v0.1 曾写「词法已有、运行时未完成」，
+v0.2（2026-06-15）根据实测测试文件纠正为「本身可用，缺的是 runtime 生态」。</p>
+<table>
+<tr><th>特性</th><th>Rust</th><th>SLA 当前</th></tr>
+<tr><td><code>async fn</code> 语法</td><td>有</td><td>已落地</td></tr>
+<tr><td><code>.await</code> 操作符</td><td>有</td><td>已落地</td></tr>
+<tr><td>future 类型</td><td><code>Future</code> trait</td><td><code>future&lt;T&gt;</code> 类型已实现</td></tr>
+<tr><td>同步上下文里 await</td><td>不允许，需 <code>block_on</code></td><td>已支持（<code>await_from_sync</code> 形态）</td></tr>
+<tr><td>嵌套 async</td><td>有</td><td>有</td></tr>
+<tr><td>Future 状态机</td><td>std + tokio</td><td>编译器 CPS 转换</td></tr>
+<tr><td>async 运行时</td><td>tokio / async-std</td><td>暂无独立运行时（前端展平）</td></tr>
+<tr><td>实战可用度</td><td>生产级</td><td>可跑，运行时生态待补</td></tr>
+</table>
+
+<p>实测证据是 <code>sa_plugin_sla/tests/test_unit_async_await.sla</code>
+（<code>rust_vs_sla_final_cn.md</code> 附录 C 在 v0.2 / 2026-06-15 口径记录为「4 个测试通过」；
+当前文件内是 2 个 <code>@test</code> 块）：ready future、显式 <code>future&lt;int&gt;</code> 类型标注、
+以及在普通同步函数里直接 await 都能跑。</p>
+<pre><code>// tests/test_unit_async_await.sla（节选）
+fn await_from_sync() -&gt; int {
+    let result = run_async().await;
+    return result;
+}
+
+@test "explicit future type parses"() {
+    let future: future&lt;int&gt; = step_one();
+    let result = future.await;
+    if result != 1 { panic(2); };
+}</code></pre>
+
+<div class="warning"><span class="label">警告</span>另一个口径也要看清楚：
+<code>roadmap_status_cn.md</code>（v0.1 / 2026-07-01）在 direct SAB no-fallback sweep
+（<code>SLA_SAB_NO_FALLBACK=1</code> 下跑 <code>tests/test_unit_*.sla</code>）中记录为 58/69 通过，
+其中 <code>async_await</code> 是尚未通过的 11 个测试文件之一，归入 Phase 8（async 状态机/Future/task）。
+这与「语法和前端路径已实测可跑」并不矛盾：一个是语言能力验证，一个是不走回退的主线收敛进度。
+引用任何一边都要带上日期与口径。</div>
+
+<h2>标准库总对照</h2>
+<p>来源：<code>rust_vs_sla_final_cn.md</code> §2.H（v0.2 / 2026-06-15）。</p>
+<table>
+<tr><th>类别</th><th>Rust std + 生态</th><th>sa_std + 插件</th></tr>
+<tr><td>Vec / HashMap / String</td><td><code>std</code></td><td><code>sa_std</code></td></tr>
+<tr><td>Box / Rc / Arc</td><td><code>std</code></td><td><code>sa_std</code> 宏 + 布局</td></tr>
+<tr><td>RefCell / Cell</td><td><code>std</code></td><td><code>sa_std</code> 宏</td></tr>
+<tr><td>Mutex / RwLock</td><td><code>std</code></td><td><code>sa_std</code> 宏</td></tr>
+<tr><td>文件 IO</td><td><code>std</code></td><td><code>sa_std/io/fs</code></td></tr>
+<tr><td>网络</td><td><code>std</code> + tokio + hyper + reqwest</td><td><code>sa_plugin_http_server</code> / <code>http_client</code>（SLA 走插件）</td></tr>
+<tr><td>时间</td><td><code>std</code></td><td><code>sa_std/time</code></td></tr>
+<tr><td>进程</td><td><code>std</code></td><td><code>sa_std</code></td></tr>
+<tr><td>正则</td><td>crate（regex）</td><td><code>sa_std</code> 待补 / 走插件</td></tr>
+<tr><td>序列化</td><td>crate（serde）</td><td><code>sa_std</code> JSON（简化）</td></tr>
+<tr><td>数学</td><td><code>std</code> + num 系列 crate</td><td><code>sa_std</code> 基础</td></tr>
+<tr><td>加密</td><td>crate（RustCrypto）</td><td><code>sa_std</code> + 插件</td></tr>
+<tr><td>数据库</td><td>crate（sqlx / diesel）</td><td><code>sa_plugin_db</code> / <code>dbnet</code></td></tr>
+<tr><td>经 bc2sa 引入</td><td>—</td><td>任意 Rust crate 编译到 <code>.bc</code> → bc2sa → SA → SLA 调用（限于 bc2sa 支持子集）</td></tr>
+</table>
+<p>一句话概括这份表的含义：SLA 不打算重写整个生态。常用容器与 IO 由 <code>sa_std</code> 直接给；
+框架级能力（HTTP、数据库）交给插件；更宽的第三方库走 bc2sa 桥接
+（详见 <a href="07_rosetta_bc2sa.html">rosetta 对照集与 bc2sa 桥接生态</a>）。</p>
+
+<h2>标准库表面是怎么落地的：std_surface.sla_meta</h2>
+<p><code>sla_std/std_surface.sla_meta</code> 是一个纯数据文件，描述标准库表面的 lowering 规则；
+SAB 后端通用地读取这些规则行，因此标准库方法可以由导入的 SA 宏实现，而不必在 Zig 里硬编码库语义。
+三条设计原则（<code>std_surface_metadata_cn.md</code> §1）：</p>
+<ul>
+<li><b>无编译器分支</b>：不存在「<code>if type == Vec</code>」这类特判，一切走规则行；</li>
+<li><b>宏优先</b>：每条规则指向一个 <code>sa_std</code> 宏，编译器只负责组合；</li>
+<li><b>通用消费者</b>：SAB 后端按统一格式读所有规则行，不按类型名分派。</li>
+</ul>
+<p>规则行的种类共 8 种：</p>
+<table>
+<tr><th>规则种类</th><th>对应的调用形态</th><th>示例</th></tr>
+<tr><td><code>associated</code></td><td><code>Type::func(args)</code></td><td><code>Vec::new</code> → <code>VEC_NEW</code></td></tr>
+<tr><td><code>method</code></td><td><code>value.method(args)</code></td><td><code>Option::is_some</code> → <code>OPTION_IS_SOME</code></td></tr>
+<tr><td><code>function</code></td><td><code>func(recv, args)</code></td><td><code>len(v)</code> → <code>VEC_LEN</code></td></tr>
+<tr><td><code>fallible_method</code></td><td>可能失败的方法（检查 ok 寄存器）</td><td><code>Vec::remove</code> → <code>VEC_REMOVE</code> + <code>panic=86</code></td></tr>
+<tr><td><code>index</code></td><td><code>value[index]</code></td><td><code>VEC_GET_TYPED_{elem_ty}</code></td></tr>
+<tr><td><code>index_address</code></td><td><code>&amp;value[index]</code></td><td><code>VEC_GET_MUT_PTR_U64</code></td></tr>
+<tr><td><code>index_assign</code></td><td><code>value[index] = val</code></td><td><code>VEC_SET_TYPED</code></td></tr>
+<tr><td><code>constructor</code></td><td>按返回类型匹配的构造</td><td><code>Some(x)</code> → <code>OPTION_NEW_SOME</code></td></tr>
+</table>
+<p><code>{elem_ty}</code> 是模板参数，编译期替换为实际元素类型名
+（如 <code>i32</code> → <code>VEC_GET_TYPED_I32</code>）。新增规则的约束也写在同一文档里：
+不做类型名分支、优先用模板参数、只加被失败测试证明需要的规则、<code>deps=</code> 必须列全辅助宏。</p>
+
+<h2>下一步</h2>
+<ul>
+<li>想知道哪些 Rust 写法能原样粘进来、哪些必须手改：<a href="06_surface_compat.html">Rust 表层兼容性</a></li>
+<li>想看成对的 Rust / SLA 参考实现与 bitcode 桥接的现状：<a href="07_rosetta_bc2sa.html">rosetta 对照集与 bc2sa 桥接生态</a></li>
+<li>准备动手改代码：照着<a href="08_migration.html">迁移改写清单</a>过一遍</li>
+<li>语言层逐项对照的完整矩阵见<a href="02_syntax_matrix.html">语法对照实测矩阵</a>；
+    定位层面的讨论见<a href="01_positioning.html">定位与设计哲学</a>。</li>
+</ul>
+</body>
+</html>

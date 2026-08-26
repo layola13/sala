@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>环境变量</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; 环境变量</div>
+<h1>环境变量</h1>
+
+<p>Sla 命令行行为受若干环境变量影响：插件开发模式、标准库定位、委派目标选择与诊断开关。读完本页可以在安装异常或找不到 <code>sa_std</code> 时自行排查。</p>
+
+<h2>核心变量</h2>
+<table>
+<tr><th>变量</th><th>作用</th></tr>
+<tr><td><code>SA_PLUGIN_DEV</code></td><td>启用插件开发模式，取 <code>1</code> 或 <code>true</code> 生效。通过 <code>sa plugin install --dev</code> 安装的插件要求在此模式下运行；README 中的所有 <code>sa sla ...</code> 示例都带此前缀。</td></tr>
+<tr><td><code>SA_STD_DIR</code></td><td><code>sa_std</code> 标准库根目录。Sla 在解析 <code>@import "sa_std/..."</code> 与加载 std 契约时优先使用它（目录需含 <code>core/sa_core.sa</code>、<code>io/print.sai</code> 等文件才算有效）。</td></tr>
+<tr><td><code>NoDefaultCurrentDirectoryInExePath</code></td><td>Windows 特有。设为 <code>1</code> 时 cmd.exe 拒绝从当前目录解析可执行文件 / 批处理，即使文件就在当前目录也会报「不是内部或外部命令」。部分开发会话默认带此变量，运行本地构建出的 <code>sa.exe</code> / <code>sla.exe</code> 前需清除。</td></tr>
+</table>
+
+<h2>委派与路径解析</h2>
+<table>
+<tr><th>变量</th><th>作用</th></tr>
+<tr><td><code>SA_EXE</code></td><td>显式指定被委派的宿主 <code>sa</code> 可执行文件路径，优先级最高。</td></tr>
+<tr><td><code>SCI_ROOT</code></td><td>本地 sci checkout 根目录。用于查找 <code>$SCI_ROOT/zig-out/bin/sa(.exe)</code> 以及回退的 <code>$SCI_ROOT/sa_std</code> 标准库。</td></tr>
+</table>
+
+<p><code>sa_std</code> 的完整解析顺序（依次尝试，取第一个校验通过的）：</p>
+<ol>
+<li>编译插件时内置配置的标准库目录；</li>
+<li><code>SA_STD_DIR</code>；</li>
+<li><code>$SCI_ROOT/sa_std</code>；</li>
+<li><code>$HOME/projects/sci/sa_std</code>（Windows 下读 <code>USERPROFILE</code>）；</li>
+<li><code>$HOME/.sa/std</code>；</li>
+<li>一组相对位置候选（如 <code>sa_std</code>、<code>sci/sa_std</code>、<code>../sci/sa_std</code> 等）。</li>
+</ol>
+
+<h2>诊断与调试开关</h2>
+<table>
+<tr><th>变量</th><th>作用</th></tr>
+<tr><td><code>SLA_PROFILE</code></td><td>设为非空且非 <code>0</code>/<code>false</code> 时，<code>check</code> 等命令按阶段向 stderr 输出耗时：<code>[sla-profile] check parse: 12ms</code>。</td></tr>
+<tr><td><code>SLA_PROFILE_CONTRACTS</code></td><td>契约加载阶段的细分计时开关，取值规则同上。</td></tr>
+<tr><td><code>SLA_SAB_NO_FALLBACK</code></td><td>设为非 <code>0</code>/<code>false</code> 的非空值时禁用 SA 兼容回退路径，用于验证 SAB 快路径覆盖（no-fallback sweep）。</td></tr>
+<tr><td><code>SLA_KEEP_TEST_SA</code></td><td><code>--test-backend sa</code> 运行后默认删除生成的 <code>.test.sa</code>;设置本变量（非空且非 <code>0</code>/<code>false</code>/<code>no</code>）可保留该中间产物供检查。</td></tr>
+</table>
+
+<h2>排查示例</h2>
+<pre><code># PowerShell：本地构建的 sa.exe 无法直接运行时
+$env:NoDefaultCurrentDirectoryInExePath = $null
+
+# 指定本地新构建的宿主与标准库
+$env:SA_PLUGIN_DEV = "1"
+$env:SA_EXE      = "D:\projects\sla\sci\zig-out\bin\sa.exe"
+$env:SA_STD_DIR  = "D:\projects\sla\sci\sa_std"
+sa sla build-exe src\main.sla -o bin\app.exe
+
+# Git Bash 等价写法
+export SA_PLUGIN_DEV=1
+export SA_STD_DIR=$HOME/projects/sci/sa_std
+sa sla check src/main.sla</code></pre>
+
+<div class="note"><span class="label">注意</span>示例中的具体盘符路径仅为写法演示；请替换为本机 sci / sa_std 的实际位置。<code>SA_EXE</code> 与 <code>SCI_ROOT</code> 未设置时会退回到已安装的全局 <code>sa</code>。</div>
+</body>
+</html>

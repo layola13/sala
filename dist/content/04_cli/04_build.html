@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa sla build</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; sa sla build</div>
+<h1>sa sla build</h1>
+
+<p><code>sa sla build</code> 把一个 <code>.sla</code> 源文件编译为经校验的 SA 汇编文本文件。读完本页可以知道如何控制输出路径，以及不指定 <code>--out</code> 时产物落在哪里。</p>
+
+<h2>语法</h2>
+<pre><code>usage: sa sla build [file] [-p &lt;package&gt;] [--out &lt;file&gt;]</code></pre>
+
+<h2>参数</h2>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td><code>file</code></td><td>输入的 <code>.sla</code> 源文件；省略时按 workspace 解析成员入口（见「sa sla check」一页）。</td></tr>
+<tr><td><code>--out</code>, <code>-o</code></td><td>输出 <code>.sa</code> 文件路径。省略时默认把输入扩展名替换为 <code>.sa</code>：<code>main.sla → main.sa</code>（非 <code>.sla</code> 输入则为 <code>&lt;file&gt;.sa</code>），写在源文件旁边。</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>workspace 模式下选择成员包。</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>这条命令产出的是文本形式的 <code>.sa</code> 汇编，属于与 SAB 并行的另一条用户面主线。要产出 SAB 字节请用 <code>sa sla sab build</code>。</div>
+
+<h2>示例</h2>
+<pre><code># 输出到 /tmp
+SA_PLUGIN_DEV=1 sa sla build demos/rosetta/13_array_sum/main.sla --out /tmp/13_array_sum.sa
+
+# -o 与 --out 等价；省略时写在源文件旁
+SA_PLUGIN_DEV=1 sa sla build tests/test_unit_basic.sla --out /tmp/test_unit_basic.sa
+SA_PLUGIN_DEV=1 sa sla build src/main.sla          # 生成 src/main.sa
+
+# workspace 成员
+SA_PLUGIN_DEV=1 sa sla build -p my_app --out /tmp/my_app.sa</code></pre>
+
+<h2>产物位置</h2>
+<ul>
+<li>显式指定 <code>--out</code>/<code>-o</code>：写到该绝对或相对路径，父目录必须已存在。</li>
+<li>未指定：写到源文件同目录下的 <code>&lt;stem&gt;.sa</code>。</li>
+<li>此命令不写 <code>.sla-cache/sab/</code>；SAB 托管产物只由 SAB 主线命令产生。</li>
+</ul>
+<p>成功时 stdout 输出：</p>
+<pre><code>Sla Compiler: Successfully compiled main.sla to /tmp/main.sa.</code></pre>
+</body>
+</html>

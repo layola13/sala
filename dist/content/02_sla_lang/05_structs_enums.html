@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>结构体与枚举</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 结构体与枚举</div>
+<h1>结构体与枚举</h1>
+
+<p>这一页介绍聚合类型的声明方式：命名字段结构体、类元组结构体、newtype、泛型结构体、
+带 payload 的枚举，以及 <code>trait</code>/<code>impl</code>/<code>dyn</code> 的静态与动态分发。
+读完这一页，你能为业务数据选择合适的聚合形式并组织方法。</p>
+
+<h2>命名结构体</h2>
+<pre><code>// demos/rosetta/05_struct/main.sla
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn create_point(x: i32, y: i32) -&gt; Point {
+    Point { x: x, y: y }
+}</code></pre>
+
+<p>字段访问用 <code>.</code>；结构体字面量要求列出全部字段（或使用 <code>..base</code> 更新语法，
+见「模式匹配」一页）。</p>
+
+<h2>类元组结构体与 newtype</h2>
+<p>字段按位置访问 <code>.0</code>/<code>.1</code>/…。单字段形式即 newtype 模式：</p>
+<pre><code>// demos/rosetta/36_tuple_struct / 37_newtype
+struct Color(u8, u8, u8);
+struct UserId(u32);
+
+let color = Color(2, 4, 8);
+let c0 = color.0 as i32;
+
+let user = UserId(42);
+println("{}", user.0);</code></pre>
+
+<h2>枚举与 payload</h2>
+<p><code>enum</code> 支持无 payload 变体、命名字段变体和类元组变体三种形态，
+分别见 demo 06、43：</p>
+<pre><code>enum Message {
+    Quit,
+    Move { x: i32, y: i32 },
+}
+
+enum Shape {
+    Circle(i32),
+    Square(i32),
+}
+
+// 构造：Message::Move { x: 10, y: 20 }、Shape::Square(6)</code></pre>
+
+<div class="note"><span class="label">注意</span>SLA 还有 <code>union</code> 关键字用于 FFI 场景的联合类型
+（rosetta 113_union_ffi_types），日常建模应优先使用 <code>enum</code>。</div>
+
+<h2>泛型结构体</h2>
+<pre><code>// demos/rosetta/10_generics_monomorph/main.sla
+struct OptionValue&lt;T&gt; {
+    is_some: bool,
+    value: T,
+}
+
+let opt = OptionValue&lt;i32&gt; { is_some: true, value: 42 };</code></pre>
+<p>每种类型实参组合在编译期单态化为独立布局，不产生运行时代价。</p>
+
+<h2>trait 与 impl：静态分发</h2>
+<pre><code>// demos/rosetta/07_trait_vtable/main.sla
+trait Draw {
+    fn draw(&amp;self) -&gt; i32;
+}
+
+impl Draw for Button {
+    fn draw(&amp;self) -&gt; i32 {
+        self.id
+    }
+}</code></pre>
+
+<h2>dyn Trait：动态分发</h2>
+<p><code>dyn Trait</code> 配合借用把不同具体类型放进同一个调用点，编译器生成 vtable：
+</p>
+<pre><code>fn render(&amp;item: dyn Draw) -&gt; i32 {
+    item.draw()
+}
+
+let button = Button { id: 77 };
+let result = render(&amp;button);   // 77</code></pre>
+
+<h2>标准库常用聚合</h2>
+<table>
+<tr><th>类型</th><th>来源契约</th><th>示例用法</th></tr>
+<tr><td><code>Option&lt;T&gt;</code></td><td><code>@import "sa_std/core/option.sa"</code></td><td><code>Some(9)</code>、<code>opt.unwrap_or(fallback)</code>（demo 46）</td></tr>
+<tr><td><code>Result&lt;T, E&gt;</code></td><td><code>@import "sa_std/core/result.sa"</code></td><td><code>Ok(7)</code>、<code>.unwrap()</code>、<code>.unwrap_or(-1)</code>（demo 50/309）</td></tr>
+<tr><td><code>Mutex&lt;T&gt;</code></td><td><code>@import "sa_std/sync/mutex.sa"</code></td><td><code>Mutex::new(0)</code>、<code>counter.lock().unwrap()</code>（demo 102）</td></tr>
+<tr><td><code>Cell&lt;i32&gt;</code></td><td><code>@import "sa_std/core/cell.sa"</code></td><td><code>Cell::new(3)</code>、<code>.get()/.set(v)</code>（demo 59）</td></tr>
+<tr><td><code>Ordering</code></td><td><code>@import "sla_std/cmp.sla"</code></td><td><code>a &lt;=&gt; b</code> 返回值：<code>.is_lt()/.is_eq()/.then(...)</code></td></tr>
+</table>
+
+<p>相关页面：<a href="04_patterns.html">模式匹配</a>、<a href="08_extensions.html">扩展机制</a>。</p>
+</body>
+</html>

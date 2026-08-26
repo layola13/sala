@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>db — 本地列式数据库插件</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; db — 本地列式数据库插件</div>
+<h1>db — 本地列式数据库插件</h1>
+
+<div class="note"><span class="label">导引</span>本插件有专属章节「<a href="../10_db/01_overview.html">db 数据库插件</a>」：
+CLI 14 条命令逐条详解、SA API 八大分组全签名、宏用法完整示例、
+<a href="../10_db/05_vs_sqlite.html">vs SQLite 选型对比</a>与性能边界。本页只保留速查摘要。</div>
+
+<p><code>sa_plugin_db</code> 是 SA 的原生数据库插件：提供本地、文件支撑的列式存储，
+带面向 SA 的 <code>db.sai</code>/<code>db.sal</code> 接口。当前开发 API 有意破坏性变更：
+旧的直接查询 ABI 已移除，查询代码必须使用读句柄（<code>*_handle</code> 系列）。</p>
+
+<h2>基本事实</h2>
+<ul>
+<li>能力段：<code>database</code>；无插件依赖；接口 <code>db.sai</code> + <code>db.sal</code>。</li>
+<li>权限：仅项目目录的读/写/创建/删除；无网络、无环境变量、无子进程。</li>
+<li>产物：<code>zig-out/lib/libdb.so</code> / <code>zig-out/bin/db.dll</code>。</li>
+<li>存储布局（每表一组文件）：<code>&lt;table&gt;.sadb-schema</code>、<code>&lt;table&gt;.meta</code>、
+<code>&lt;table&gt;.col&lt;index&gt;.&lt;segment&gt;.dat</code> 等。</li>
+</ul>
+
+<h2>CLI 命令</h2>
+<pre><code>SA_PLUGIN_DEV=1 sa db init &lt;schema.sadb-schema&gt;   # 按模式初始化表
+SA_PLUGIN_DEV=1 sa db ingest &lt;table&gt; rows.csv     # 从 CSV/JSONL 批量导入
+SA_PLUGIN_DEV=1 sa db register &lt;query.sa&gt;         # 注册 qmod 查询，输出 Hash
+SA_PLUGIN_DEV=1 sa db exec &lt;hash&gt; [--params file] # 执行已注册查询
+sa db index-u64 &lt;table&gt; &lt;column-index&gt; [unique]   # 建 u64 索引
+sa db inspect|status &lt;table&gt;                      # 查看
+sa db snapshot / restore / recover / verify / compact &lt;table&gt;
+sa db lock / unlock &lt;table&gt;</code></pre>
+
+<h2>SA 侧 API 分组</h2>
+<table>
+<tr><th>能力域</th><th>代表调用 / 宏</th></tr>
+<tr><td>建表与写入</td><td><code>sa_db_init_schema</code>、<code>_ingest_columns</code>、<code>_insert_row</code>、各整型/blob 键的 <code>_upsert_row_*_key</code> / <code>_update_row_*_key</code>；宏 <code>DB_INIT_SCHEMA</code>、<code>DB_INSERT_ROW</code></td></tr>
+<tr><td>事务</td><td><code>sa_db_tx_begin/_commit/_rollback/_insert_rows</code> 与 <code>sa_db_coltx_*</code> 列事务（单表单写者）</td></tr>
+<tr><td>索引</td><td>各类型的 <code>sa_db_create_*_index</code>（u64/i32/f64/u64_pair/blob_eq/blob_prefix/blob_contains…）与批量 <code>sa_db_create_indexes</code></td></tr>
+<tr><td>读句柄查询</td><td><code>sa_db_open_read_table</code> 后用 <code>_sum_u64_handle</code>、<code>_range_u64_handle</code>、<code>_filter_rows_u64_range_handle</code>、<code>_intersect/union/except_rows_handle</code>、<code>_sort_rows_*_handle</code>、<code>_project_rows_handle</code> 等</td></tr>
+<tr><td>字典与 blob</td><td><code>sa_db_dict_intern/_lookup</code>、<code>sa_db_blob_put</code>、<code>sa_db_blob_value_len/copy</code></td></tr>
+<tr><td>逻辑类型</td><td>decimal/date/timestamp 的 parts 编解码（如 <code>sa_db_decimal_from_parts</code>）、null bitmap 助手</td></tr>
+<tr><td>运维</td><td><code>sa_db_snapshot/_restore/_recover/_verify/_compact/_lock/_unlock/_remove_table</code></td></tr>
+</table>
+
+<pre><code>// 最小用法（摘自 benchmark_test/db_blob_key_write_smoke.sa）
+@import "db.sal"
+
+    EXPAND DB_INIT_SCHEMA init_status, ROOT, ROOT_LEN, SCHEMA_PATH, SCHEMA_PATH_LEN, SCHEMA, SCHEMA_LEN, info
+    EXPAND DB_BLOB_PUT put_a_status, code_a_id, ROOT, ROOT_LEN, TABLE, TABLE_LEN,
+                       STORE, STORE_LEN, CODE_A, CODE_LEN, info
+    store row+0, 1 as u64
+    EXPAND DB_INSERT_ROW insert_a_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, row, ROW_BYTES, info</code></pre>
+
+<div class="warning"><span class="label">警告</span>定位边界（README 明示）：这不是 SQLite 式 ACID/WAL/多表隔离的替代品。
+事务是单表、单写者；写路径由进程内互斥加每表 advisory 锁串行化，提交走临时文件原子改名。
+浮点索引拒绝 NaN/±Inf；blob contains 索引要求 needle 至少 3 字节。中文说明见仓库内 <code>README_cn.md</code>。</div>
+</body>
+</html>

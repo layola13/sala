@@ -1,0 +1,137 @@
+{
+  "topics": [
+    {
+      "id": "cli-overview",
+      "title": "命令行参考总览",
+      "file": "01_overview.html",
+      "keywords": [
+        "CLI",
+        "sa sla",
+        "slab",
+        "命令行",
+        "快速上手",
+        "sla 命令",
+        "顶级命令",
+        "sla.exe"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cli-init",
+      "title": "sa sla init",
+      "file": "02_init.html",
+      "keywords": [
+        "init",
+        "新建项目",
+        "sa.mod",
+        "骨架"
+      ],
+      "parent": "cli-overview"
+    },
+    {
+      "id": "cli-check",
+      "title": "sa sla check",
+      "file": "03_check.html",
+      "keywords": [
+        "check",
+        "类型检查",
+        "词法",
+        "语法",
+        "-p"
+      ],
+      "parent": "cli-overview"
+    },
+    {
+      "id": "cli-build",
+      "title": "sa sla build",
+      "file": "04_build.html",
+      "keywords": [
+        "build",
+        ".sa 汇编",
+        "--out",
+        "-o"
+      ],
+      "parent": "cli-overview"
+    },
+    {
+      "id": "cli-build-exe",
+      "title": "sa sla build-exe / build-workspace",
+      "file": "05_build_exe.html",
+      "keywords": [
+        "build-exe",
+        "可执行文件",
+        "workspace",
+        "--emit-sab",
+        "委派"
+      ],
+      "parent": "cli-overview"
+    },
+    {
+      "id": "cli-sab",
+      "title": "sa sla sab（build / workspace / disasm）",
+      "file": "06_sab.html",
+      "keywords": [
+        "sab",
+        "slab",
+        "disasm",
+        "--out",
+        "--sab-out",
+        ".sla-cache"
+      ],
+      "parent": "cli-overview"
+    },
+    {
+      "id": "cli-test",
+      "title": "sa sla test",
+      "file": "07_test.html",
+      "keywords": [
+        "test",
+        "--test-backend",
+        "--filter",
+        "SAB 后端",
+        "sa test"
+      ],
+      "parent": "cli-overview"
+    },
+    {
+      "id": "cli-skills",
+      "title": "sa sla skills 与 stability",
+      "file": "08_skills.html",
+      "keywords": [
+        "skills",
+        "--json",
+        "SKILL.md",
+        "stability",
+        "verify"
+      ],
+      "parent": "cli-overview"
+    },
+    {
+      "id": "cli-host-commands",
+      "title": "宿主侧 sa build-exe / sa test 概览",
+      "file": "09_host_commands.html",
+      "keywords": [
+        "宿主",
+        "sa build-exe",
+        "sa test",
+        "--jobs",
+        "透传参数"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cli-env-vars",
+      "title": "环境变量",
+      "file": "10_env_vars.html",
+      "keywords": [
+        "SA_PLUGIN_DEV",
+        "SA_STD_DIR",
+        "SA_EXE",
+        "SCI_ROOT",
+        "NoDefaultCurrentDirectoryInExePath",
+        "SLA_PROFILE"
+      ],
+      "parent": null
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>特性成熟度总表</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 特性成熟度总表</div>
+<h1>特性成熟度总表</h1>
+
+<p>SLA 编译器有两条产出主线：<code>sa sla build</code> 输出 <code>.sa</code> 文本，
+<code>sa sla sab ...</code>/<code>sa sla build-exe</code> 直接输出 SAB 字节。SAB 路径优先走
+direct AST→SAB 快路径，遇到未覆盖特性会回退到内存中的 SA 兼容 lowering + SCI flattener/SAB encoder。
+这一页汇总哪些语言特性已在 direct 路径上、哪些仍会回退。</p>
+
+<h2>整体指标（随版本变化，以仓库文档为准）</h2>
+<table>
+<tr><th>指标</th><th>数值快照</th><th>含义</th></tr>
+<tr><td><code>sa sla check</code></td><td>306/313</td><td>demo 能被前端（词法/语法/类型）吃下的比例</td></tr>
+<tr><td><code>sa sla build-exe</code></td><td>239/313（约 76%）</td><td>端到端编译到原生可执行的真实成熟度</td></tr>
+<tr><td>No-fallback sweep</td><td>58/69</td><td><code>SLA_SAB_NO_FALLBACK=1</code> 下单元测试通过数</td></tr>
+<tr><td>Y/shared-lowering</td><td>72%</td><td>经共享 lowering 规则实现的降低逻辑占比</td></tr>
+<tr><td>Direct SAB fallback-removal</td><td>88%</td><td>不走 SA 兼容回退的 SAB 编译覆盖率</td></tr>
+</table>
+<p>两者约 22 个百分点的差距反映“前端能解析”与“后端 lowering 能落地”之间的缺口；
+性能瓶颈主要在回退路径而非 direct 快路径。</p>
+
+<h2>已进入 direct SAB 快路径的特性</h2>
+<ul>
+<li>函数与 <code>@test</code> 声明；参数、<code>let</code>、<code>return</code>、表达式语句</li>
+<li><code>i*</code>/<code>u*</code>/<code>int</code>/<code>bool</code>/<code>void</code>/指针与借用的基础类型映射</li>
+<li>Phase 1 标量 <code>var x: T</code>：<code>stack_alloc</code> + <code>store</code>/<code>load</code>，
+支持分支合流后的读取；identifier 赋值与基础 <code>while</code></li>
+<li>整数/布尔字面量、二元算术/比较/位运算</li>
+<li>直接函数调用（多参数）；函数指针值与调用（vtable const + <code>call_indirect</code>）</li>
+<li>普通闭包绑定和调用（内联 body + 参数寄存器映射）</li>
+<li>plain struct 字面量、字段访问、struct 返回的通用布局 lowering</li>
+<li><code>if/else</code> 到 <code>br</code>/label/<code>jmp</code>/merge 的基础控制流</li>
+<li>chained / value-producing <code>if let</code>（含 <code>&amp;&amp;</code> 链）</li>
+<li>计划内静态调用的 <code>&amp;[T; N] -&gt; &amp;[T]</code> 数组转切片借用</li>
+<li><code>panic(code)</code>；作用域泄漏检查所需的寄存器元数据</li>
+<li>首批 std surface 元数据桥接（<code>sla_std/std_surface.sla_meta</code>）：
+关联函数/方法/索引糖展开为导入的 SA 宏片段</li>
+</ul>
+
+<h2>仍会回退（或部分回退）的特性</h2>
+<table>
+<tr><th>特性</th><th>现状</th><th>归属 Phase</th></tr>
+<tr><td>枚举 payload / match 提取</td><td>标签/负载布局未完全进 direct 路径</td><td>Phase 5</td></tr>
+<tr><td><code>@derive</code> 语义</td><td>derive 生成的操作符/函数调用会回退</td><td>Phase 5</td></tr>
+<tr><td>结构体更新 <code>..base</code> / spaceship 比较</td><td>聚合更新、拷贝与操作符分发在 no-fallback 清单中</td><td>Phase 5</td></tr>
+<tr><td><code>for in</code> 协议（集合迭代）</td><td>非泛型协议与泛型特化均待落地</td><td>Phase 6</td></tr>
+<tr><td>async/await 状态机</td><td>Future/task 未覆盖</td><td>Phase 8</td></tr>
+<tr><td>集合类 std 元数据（Set 等）、嵌套契约导入</td><td>std surface 缺口</td><td>Phase 4</td></tr>
+<tr><td>dyn trait 对象 + Rc 组合等调用物化</td><td>共享调用/参数物化计划仍在收敛</td><td>Phase 3/4</td></tr>
+</table>
+
+<h2>语言层面的已知限制</h2>
+<ul>
+<li><code>&amp;mut T</code>/<code>&amp;mut self</code> 尚未引入（Phase 2 计划），当前 <code>&amp;self</code> 同时覆盖读写，由 SA Referee 兜底；</li>
+<li>无 <code>drop</code> 关键字/函数，生命周期清理完全托管；</li>
+<li><code>demos/rosetta</code> 树是与 Rust 参考实现对照的样例集，并非全部端到端通过，需按需单独验证；</li>
+<li>SAB v4 不保留逐指令原始 <code>.sa</code> 文本，调试用 <code>sa sla sab disasm</code>。</li>
+</ul>
+
+<h2>排查手段</h2>
+<p>判断某个文件是否走了回退，使用 no-fallback 开关让 direct lowering 失败直接报错：</p>
+<pre><code># 在安装了 sa 与 sla 插件的环境运行
+SLA_SAB_NO_FALLBACK=1 SA_PLUGIN_DEV=1 sa sla test &lt;file.sla&gt; --test-backend sab --filter "..."
+SLA_PROFILE=1 SA_PLUGIN_DEV=1 sa sla test &lt;file.sla&gt; --trace-panic   # profile 显示是否出现 fallback</code></pre>
+
+<div class="warning"><span class="label">警告</span>上表数值为文档撰写时的快照，会随版本推进快速变化。
+做决策前请核对仓库内的 <code>docs/roadmap_status_cn.md</code> 与 <code>docs/sab_pipeline_cn.md</code>。</div>
+
+<p>相关页面：<a href="09_async.html">async/await 现状</a>、<a href="04_patterns.html">模式匹配</a>。</p>
+</body>
+</html>

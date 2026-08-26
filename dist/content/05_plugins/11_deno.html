@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>deno — Deno 兼容 API 插件</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; deno — Deno 兼容 API 插件</div>
+<h1>deno — Deno 兼容 API 插件</h1>
+
+<p><code>sa_plugin_deno</code> 是 Deno 风格系统能力的<strong>原生 SA 替代面</strong>。
+按其 <code>API_COVERAGE.md</code> 自述："a native SA replacement surface for Deno-compatible APIs.
+It does not call the <code>deno</code> executable or embed the Deno runtime"——
+不调用 <code>deno</code> 可执行文件、不嵌入 Deno 运行时，而是用 Zig 原生实现一个
+可被 SA 程序经 C-ABI 直接调用的子集。这一页给出 57 个 extern 的真实构成、
+175 个 <code>DENO_*</code> 宏的分组全景、覆盖度四档账本，
+以及它与原生 Deno 权限体系的差异。</p>
+
+<div class="note"><span class="label">注意</span>该插件没有 README。权威资料是
+<code>sap.json</code>（能力段与权限）、<code>deno.sai</code>/<code>deno.sal</code>（契约与宏门面）、
+<code>API_COVERAGE.md</code>（覆盖度账本）与四插件联合评估文档
+<code>docs/plugin_evaluation_cn.md</code>（2026-06-15）。本页数字均标注来源与时间口径。</div>
+
+<h2>一、57 个 extern 的真实构成</h2>
+<p><code>deno.sai</code> 共 68 行、57 个 <code>@extern</code>（本文实测），
+但它们并不是同一类东西。按文件内的分段注释可以切成三块：</p>
+<table>
+<tr><th>分组（按 <code>deno.sai</code> 内注释）</th><th>数量</th><th>内容</th></tr>
+<tr><td><strong>核心 Deno 面</strong>（文件开头至 <code>command_exec</code>）</td><td>36</td>
+<td>缓冲释放 <code>free_buffer</code>；系统信息 <code>hostname / os_release / os_uptime /
+loadavg / system_memory_info / network_interfaces / pid / ppid / uid / gid /
+exec_path / memory_usage</code>；环境变量 <code>env_get / env_set / env_delete</code>；
+文件 <code>read_text_file / read_file_base64 / write_text_file / write_file_base64 /
+mkdir / remove / copy_file / read_dir_json / lstat_json</code>；
+杂项 <code>random_uuid / args_json / btoa / atob / text_encode / text_decode /
+version_json / build_json / now_ms / now_ns</code>；进程 <code>command_exec</code></td></tr>
+<tr><td><strong>"New migrated Deno FFI APIs"</strong>（迁移补充段）</td><td>8</td>
+<td><code>cwd / chdir / version_deno / build_os / build_platform_family /
+date_now_iso / make_temp_dir / make_temp_file</code></td></tr>
+<tr><td><strong>chat / responses / MCP 助手</strong></td><td>13</td>
+<td><code>chat_sse_to_responses / chat_json_to_responses /
+responses_sse_normalize(_with_request) / responses_json_normalize(_with_request) /
+responses_request_normalize / responses_chat_fallback_request /
+mcp_server_status_list / mcp_tool_call / mcp_resource_read /
+infer_collaboration_mode / jsonrpc_params_string_literal</code>。
+这组与 Deno 命名空间无关，是 LLM 网关/MCP 报文归一化助手（见下文使命漂移提示）</td></tr>
+</table>
+<p>规模对照（评估文档《四插件评估》2026-06-15 的表格 + 本文 2026-08 实测）：</p>
+<table>
+<tr><th>指标</th><th>数值</th><th>口径</th></tr>
+<tr><td>Zig 源码</td><td>5,155 行（实测）；其中 <code>src/hubproxy_compat.zig</code>
+3,961 行、<code>src/deno_saasm_api.zig</code> 1,077 行</td>
+<td>评估文档记 5,123 行、hubproxy 占 77%</td></tr>
+<tr><td>宏门面</td><td><code>deno.sal</code> 984 行，175 个 <code>[MACRO]</code>（实测）</td>
+<td>评估文档记 959 行 facade</td></tr>
+<tr><td>产物</td><td><code>zig-out/lib/libdeno.so</code> / <code>zig-out/bin/deno.dll</code></td>
+<td><code>sap.json</code> <code>artifacts</code></td></tr>
+<tr><td>SA 侧测试</td><td><strong>无</strong>。<code>tests/</code> 只有
+<code>deno_windows_test.zig</code>（Windows 目标的 Zig 单元测试）</td>
+<td>评估文档记 "无独立 tests/"</td></tr>
+</table>
+<div class="warning"><span class="label">警告</span><strong>使命漂移</strong>：
+评估文档 §3.3 指出，deno 插件约四分之三的 Zig 代码在 <code>hubproxy_compat.zig</code>
+里做 MCP(JSON-RPC)/LLM 网关报文兼容，而非 Deno API 表面；上面第三组 13 个 extern
+就是它在契约层的暴露。使用时应把这部分当作独立能力域看待，
+而不是"Deno 兼容度"的一部分。</div>
+
+<h2>二、三层调用架构：一个宏背后是谁在工作</h2>
+<p><code>deno.sal</code> 的头部导入说明了它的真实结构：
+<code>@import "deno.sai"</code>、<code>"sa_http_client.sai"</code>、<code>"sa_http_server.sai"</code>、
+<code>"sa_std/io.sai"</code>、<code>"sa_std/net.sa"</code>、<code>"sa_std/process.sai"</code>、
+<code>"sa_std/time.sai"</code>。因此 <code>DENO_*</code> 宏分三种实现路径：</p>
+<table>
+<tr><th>层级</th><th>走到的符号</th><th>宏族</th></tr>
+<tr><td>① 插件自身 C-ABI</td><td><code>sa_deno_plugin_*</code>（libdeno.so 导出）</td>
+<td>系统信息、env、文本/二进制文件、目录元数据、编码、JSON 快照类、temp、cwd/chdir、
+<code>DENO_COMMAND_EXEC</code>、chat/MCP 组</td></tr>
+<tr><td>② 复用兄弟插件</td><td><code>sa_http_client_*</code>（HTTP/1.1+TLS，Zig std 后端）、
+<code>sa_http_server_*</code>（localhost HTTP/1.1 server）</td>
+<td><code>DENO_HTTP_*</code> 全套、<code>DENO_SERVE_*</code> 全套、以及
+<code>DENO_FETCH_* / DENO_REQUEST_* / DENO_HEADERS_* / DENO_RESPONSE_*</code> 别名层</td></tr>
+<tr><td>③ 复用 SA 标准库</td><td><code>sa_net_tcp_listener_bind / _accept / tcp_connect / …_close</code>、
+<code>sa_std_process_run/spawn/wait/read_stdout/close</code>、
+<code>sa_io_stdout/stderr/stdin/write_all</code>、<code>sa_time_sleep_ms</code>、
+<code>sa_json_parse / sa_json_stringify</code> 及 sci 的 <code>NET_WS_* / NET_URL_PARSE</code> 宏</td>
+<td><code>DENO_LISTEN_TCP / ACCEPT_TCP / CONNECT_TCP / CLOSE_TCP_*</code>、
+<code>DENO_COMMAND_RUN/_SPAWN/_WAIT/_READ_STDOUT/_CLOSE</code>、
+<code>DENO_STDOUT/STDERR/STDIN(_WRITE)</code>、<code>DENO_SLEEP_MS</code>、
+<code>DENO_JSON_PARSE/STRINGIFY</code>、<code>DENO_WS_FRAME_*</code>、<code>DENO_URL_PARSE</code></td></tr>
+</table>
+<div class="note"><span class="label">注意</span>两个容易踩的语义细节：
+<strong>(1)</strong> <code>DENO_EXIT %code</code> 展开为 <code>panic(%code)</code>，
+是异常终止而不是干净退出码通道；
+<strong>(2)</strong> TCP 监听/连接与子进程 spawn 走的是 sa_std/sci 运行时原语，
+不受 <code>sa_deno_plugin_*</code> 状态码约定约束（返回结构是
+<code>i32 状态 + u64 句柄</code> 打包在 16 字节结果块里，宏内用两次 <code>load</code> 拆开）。</div>
+<p><code>deno.sai</code> 还定义了四个方法常量（原文）：
+<code>#def DENO_HTTP_METHOD_GET = 1</code>、<code>POST = 2</code>、<code>PUT = 3</code>、
+<code>DELETE = 4</code>，供 <code>DENO_HTTP_REQUEST_NEW</code> / <code>DENO_FETCH_REQUEST_NEW</code>
+的 method 形参使用。</p>
+
+<h2>三、DENO_* 宏族全景（175 个，按域分组）</h2>
+<p><code>deno.sal</code> 的 175 个 <code>[MACRO]</code> 本文逐个归类，下表数量合计恰好 175。
+宏名后括号内是该族的别名/SYNC 变体；代表形参表照录 <code>[MACRO]</code> 头一行，
+便于直接对照调用顺序：</p>
+<table>
+<tr><th>宏族（数量）</th><th>成员</th><th>代表形参顺序</th></tr>
+<tr><td>系统信息快照（13）</td>
+<td><code>DENO_HOSTNAME / OS_RELEASE / OS_UPTIME / LOADAVG / SYSTEM_MEMORY_INFO /
+NETWORK_INTERFACES / PID / PPID / UID / GID / EXEC_PATH / MEMORY_USAGE / FREE_BUFFER</code></td>
+<td><code>DENO_PID %out_pid, %out_status</code>（内部 load 为 <code>u32</code>；
+<code>DENO_OS_UPTIME</code> load 为 <code>f64</code>）</td></tr>
+<tr><td>环境变量（3）</td>
+<td><code>DENO_ENV_GET / ENV_SET / ENV_DELETE</code></td>
+<td><code>DENO_ENV_GET %out_ptr, %out_len, %out_status, %key, %key_len</code></td></tr>
+<tr><td>文本 / 二进制文件读写（10）</td>
+<td><code>DENO_READ_TEXT_FILE(_SYNC)</code>、<code>DENO_READ_FILE(_SYNC)</code>、
+<code>DENO_WRITE_TEXT_FILE(_SYNC)</code>、<code>DENO_WRITE_FILE(_SYNC)</code>、
+<code>DENO_READ_FILE_BASE64</code>、<code>DENO_WRITE_FILE_BASE64</code></td>
+<td><code>DENO_READ_TEXT_FILE %out_ptr, %out_len, %out_status, %path, %path_len</code>；
+<code>DENO_WRITE_TEXT_FILE %out_status, %path, %path_len, %data, %data_len</code></td></tr>
+<tr><td>目录与元数据（18）</td>
+<td><code>DENO_MKDIR(_SYNC)</code>、<code>DENO_REMOVE(_SYNC)</code>、<code>DENO_COPY_FILE(_SYNC)</code>、
+<code>DENO_READ_DIR_JSON / READ_DIR_SYNC_JSON / READ_DIR / READ_DIR_SYNC</code>、
+<code>DENO_LSTAT_JSON / LSTAT_SYNC_JSON / LSTAT / LSTAT_SYNC</code>、
+<code>DENO_STAT_JSON / STAT_SYNC_JSON / STAT / STAT_SYNC</code></td>
+<td><code>DENO_MKDIR %out_status, %path, %path_len, %recursive</code>；
+<code>DENO_LSTAT_JSON %out_ptr, %out_len, %out_status, %path, %path_len</code>。
+注意 <code>DENO_STAT*</code> 只是 <code>DENO_LSTAT_JSON</code> 的别名展开，不是独立实现</td></tr>
+<tr><td>临时文件 / 目录（4）</td>
+<td><code>DENO_MAKE_TEMP_DIR(_SYNC)</code>、<code>DENO_MAKE_TEMP_FILE(_SYNC)</code></td>
+<td><code>DENO_MAKE_TEMP_FILE %out_ptr, %out_len, %out_status, %prefix, %prefix_len,
+%suffix, %suffix_len</code></td></tr>
+<tr><td>随机与编解码（8）</td>
+<td><code>DENO_RANDOM_UUID</code>、<code>DENO_CRYPTO_RANDOM_UUID</code>（前者别名）、
+<code>DENO_BTOA / ATOB</code>、<code>DENO_TEXT_ENCODE / TEXT_DECODE</code>、
+<code>DENO_NEW_TEXT_ENCODER_ENCODE / NEW_TEXT_DECODER_DECODE</code>（TextEncoder/Decoder 语义名）</td>
+<td><code>DENO_BTOA %out_ptr, %out_len, %out_status, %data, %data_len</code></td></tr>
+<tr><td>JSON（7）</td>
+<td><code>DENO_JSON_PARSE(_TEXT)</code>、<code>DENO_JSON_STRINGIFY(_NODE)</code>、
+<code>DENO_JSON_BUFFER_SLICE / BUFFER_FREE / FREE</code></td>
+<td><code>DENO_JSON_PARSE %out_root, %bytes, %len</code>（转发 sci 的 <code>JSON_PARSE</code>）、
+<code>DENO_JSON_STRINGIFY %out_status, %out_buffer, %node</code>（调 <code>sa_json_stringify</code>）</td></tr>
+<tr><td>版本 / 构建标识（5）</td>
+<td><code>DENO_VERSION_JSON</code>、<code>DENO_BUILD_JSON</code>、<code>DENO_VERSION_DENO</code>、
+<code>DENO_BUILD_OS</code>、<code>DENO_BUILD_PLATFORM_FAMILY</code></td>
+<td>统一为 <code>%out_ptr, %out_len, %out_status</code> 三出参形态</td></tr>
+<tr><td>时间（6）</td>
+<td><code>DENO_NOW_MS / NOW_NS</code>、<code>DENO_DATE_NOW_ISO</code> 及其
+<code>NEW_DATE_TO_ISO_STRING / DATE_TO_ISO_STRING</code> 别名、<code>DENO_SLEEP_MS</code></td>
+<td><code>DENO_NOW_MS %out_ms, %out_status</code>（u64）；<code>DENO_SLEEP_MS %out_status, %ms</code></td></tr>
+<tr><td>cwd / chdir / 退出（3）</td><td><code>DENO_CWD</code>、<code>DENO_CHDIR</code>、<code>DENO_EXIT</code></td>
+<td><code>DENO_CHDIR %out_status, %path, %path_len</code>；<code>DENO_EXIT %code</code> → <code>panic(%code)</code></td></tr>
+<tr><td>标准流（5）</td>
+<td><code>DENO_STDOUT / STDERR / STDIN</code>、<code>DENO_STDOUT_WRITE / STDERR_WRITE</code></td>
+<td><code>DENO_STDOUT %out_handle</code>（取自 <code>sa_io_stdout()</code>）；写助手会自动取句柄并
+<code>!handle</code> 归还</td></tr>
+<tr><td>进程族（11）</td>
+<td><code>DENO_COMMAND_EXEC</code>、<code>DENO_COMMAND_RUN(_CWD)</code>、
+<code>DENO_COMMAND_SPAWN(_CWD)</code>、<code>DENO_COMMAND_SPAWN_STREAM(_CWD)</code>、
+<code>DENO_COMMAND_WAIT / READ_STDOUT / READ_STDERR / CLOSE</code></td>
+<td><code>DENO_COMMAND_SPAWN %out_status, %out_process, %argv, %argv_len</code>；
+<code>DENO_COMMAND_EXEC %out_code, %out_stdout_ptr, %out_stdout_len, %out_stderr_ptr,
+%out_stderr_len, %out_status, %argv_array, %argv_len, %cwd, %cwd_len</code>；
+spawn 族走 <code>sa_std_process_*，exec</code> 走插件自身 ABI</td></tr>
+<tr><td>TCP（5）</td>
+<td><code>DENO_LISTEN_TCP / ACCEPT_TCP / CONNECT_TCP / CLOSE_TCP_LISTENER / CLOSE_TCP_STREAM</code></td>
+<td><code>DENO_CONNECT_TCP %out_status, %out_stream, %host, %host_len, %port</code>；
+全部走 <code>sa_net_tcp_*</code></td></tr>
+<tr><td>WebSocket 帧助手与 URL 解析（6）</td>
+<td><code>DENO_WS_ACCEPT_KEY / WS_FRAME_PARSE / WS_UNMASK / WS_FRAME_BUILD /
+WS_FRAME_BUILD_UNMASKED</code>、<code>DENO_URL_PARSE</code></td>
+<td>全部转发 sci 的 <code>NET_WS_*</code> 与 <code>NET_URL_PARSE</code>，只做帧级操作，
+不提供 Deno 的 <code>WebSocket</code> 类语义</td></tr>
+<tr><td>HTTP 客户端（18）</td>
+<td><code>DENO_HTTP_CLIENT_NEW</code>、<code>HTTP_REQUEST_NEW / ADD_HEADER / SET_BODY /
+SEND / SEND_ASYNC / ASYNC_POLL / ASYNC_TAKE_RESPONSE / ASYNC_FREE / FREE</code>、
+<code>HTTP_RESPONSE_STATUS / GET_HEADER / BODY_SLICE / BODY_READER / READ_CHUNK / FREE</code>、
+<code>HTTP_BODY_READER_FREE</code></td>
+<td><code>DENO_HTTP_CLIENT_NEW %out_status, %out_client, %use_tls</code>；
+异步三件套 poll/take/free 对应 http-client v1 的异步模型</td></tr>
+<tr><td>HTTP 服务端 serve（18）</td>
+<td><code>DENO_SERVE_NEW / START / ACCEPT / FREE</code>、
+<code>SERVE_REQUEST_METHOD / PATH / HEADER / BODY / FREE</code>、
+<code>SERVE_RESPONSE_NEW / SET_CONTENT_TYPE / SEND / FREE</code>、
+<code>SERVE_STREAM_NEW / WRITE / FLUSH / END / FREE</code></td>
+<td><code>DENO_SERVE_START %out_status, %server, %host, %host_len, %port</code>；
+一次性与流式响应两套齐全，对应 <a href="15_http_server.html">http-server</a> 的 18 个 extern</td></tr>
+<tr><td>fetch / Request / Response 别名层（22）</td>
+<td><code>DENO_FETCH_CLIENT_NEW / FETCH_REQUEST_NEW / FETCH_SEND / FETCH_REQUEST_FREE /
+FETCH_CLIENT_FREE</code>、<code>DENO_REQUEST_NEW / SET_BODY / SEND / FREE</code>、
+<code>DENO_HEADERS_APPEND / HEADERS_GET / HEADERS_HAS</code>、
+<code>DENO_RESPONSE_STATUS / HEADERS_GET / TEXT / JSON_PARSE / BODY_READER /
+READ_CHUNK / FREE / BODY_READER_FREE</code>、<code>DENO_REQUEST_HEADERS_APPEND /
+REQUEST_SET_BODY / REQUEST_FREE</code></td>
+<td><code>DENO_HEADERS_HAS %out_has, %response, %key, %key_len</code> 是唯一有额外逻辑的别名：
+内部展开 GET_HEADER 后用 <code>eq …, 0</code> 折成布尔值</td></tr>
+<tr><td>chat / responses / MCP / jsonrpc（12）</td>
+<td><code>DENO_CHAT_SSE_TO_RESPONSES / CHAT_JSON_TO_RESPONSES</code>、
+<code>DENO_RESPONSES_SSE_NORMALIZE(_WITH_REQUEST)</code>、
+<code>DENO_RESPONSES_JSON_NORMALIZE(_WITH_REQUEST)</code>、
+<code>DENO_RESPONSES_REQUEST_NORMALIZE / RESPONSES_CHAT_FALLBACK_REQUEST</code>、
+<code>DENO_MCP_SERVER_STATUS_LIST / MCP_TOOL_CALL / MCP_RESOURCE_READ</code>、
+<code>DENO_JSONRPC_PARAMS_STRING_LITERAL</code></td>
+<td>统一为 <code>%out_ptr, %out_len, %out_status</code> + 输入缓冲；
+注意 13 个对应 extern 里的 <code>infer_collaboration_mode</code> 没有宏门面，只能直接 <code>call</code></td></tr>
+<tr><td>杂项（1）</td><td><code>DENO_ARGS_JSON %out_ptr, %out_len, %out_status</code></td>
+<td>命令行参数 JSON 快照</td></tr>
+</table>
+
+<h2>四、覆盖度四档账本</h2>
+<p><code>API_COVERAGE.md</code> 把整个 Deno 表面划成四档（以下为该文档原文要点翻译）：</p>
+<table>
+<tr><th>档位</th><th>含义</th><th>该文档列出的内容</th></tr>
+<tr><td><code>implemented</code></td><td>已有原生实现，可直接用</td>
+<td>host/sys 信息、pid/ppid/uid/gid、memory usage、env get/set/delete、文本文件读/写、random UUID、
+args JSON、base64 助手、text encode/decode 字节助手、version/build JSON、墙上时钟、
+mkdir/remove/copy/readDir/lstat、command output</td></tr>
+<tr><td><code>planned_native</code></td><td>计划做原生替代，目前缺</td>
+<td>其余稳定命名空间 API，特别是 cwd/chdir、chmod/chown、rename、二进制读/写、
+stat/realPath/readLink/symlink/truncate、temp files/dirs、umask/kill、DNS、permissions、
+file handles、network handles</td></tr>
+<tr><td><code>stub_unsupported</code></td><td>明确不做（需要更大的子系统才能兼容）</td>
+<td>test/bench 注册、完整 Web APIs、WebGPU、KV、lint、Jupyter、浏览器风格事件对象</td></tr>
+<tr><td><code>type_only</code></td><td>只是 TypeScript 类型助手，无运行时符号可映射</td>
+<td>不映射到任何 SA 符号的 TS 辅助类型</td></tr>
+</table>
+<div class="warning"><span class="label">警告</span>这份账本<strong>落后于契约文件</strong>：
+<code>planned_native</code> 里点名的 cwd/chdir/temp files/dirs 已经出现在
+<code>deno.sai</code> 的迁移段与 <code>deno.sal</code> 宏里（本文已核实符号存在）；
+而 <code>DENO_STAT*</code> 宏实际只是 lstat 的别名，二进制读/写也只有 base64 变体。
+核对能力时以 <code>deno.sai</code>/<code>deno.sal</code> 为准，把 <code>API_COVERAGE.md</code> 当线索。</div>
+<h2>五、权限模型与原生 Deno permission 体系的异同</h2>
+<p><code>sap.json</code> 声明的账本（宿主在加载/调用时强制）：</p>
+<table>
+<tr><th>维度</th><th>声明内容</th></tr>
+<tr><td><code>fs</code></td><td><code>$PROJECT/**</code> 的 read / write / create / delete 四种操作
+（注意：与 <a href="12_node.html">node</a> 不同，这里<strong>没有</strong> metadata 操作项，
+所以 lstat 类调用依赖的路径必须落在项目目录内）</td></tr>
+<tr><td><code>net</code></td><td><code>https://*</code> 与 <code>http://localhost</code>、
+<code>http://127.0.0.1</code>，方法白名单为 GET / POST / PUT / PATCH / DELETE / HEAD / OPTIONS 七种</td></tr>
+<tr><td><code>env</code></td><td>仅 <code>HOME</code>、<code>PATH</code>、<code>SA_*</code></td></tr>
+<tr><td><code>process</code></td><td><code>"spawn": true</code>，exec 白名单只有
+<code>/usr/bin/env</code>（参数任意 <code>*</code>）</td></tr>
+<tr><td>能力段</td><td><code>deno.sys</code>、<code>deno.env</code>、<code>deno.fs</code>、<code>deno.process</code></td></tr>
+</table>
+<p>与 Deno 原生权限体系对照：</p>
+<table>
+<tr><th>维度</th><th>Deno 原生</th><th>sa_plugin_deno</th></tr>
+<tr><td>授权时机</td><td>运行期 CLI 标志（<code>--allow-read</code> 等）+ 交互式 prompt</td>
+<td>安装期静态声明，写死在 <code>sap.json</code>，由宿主强制；程序内无法追加授权</td></tr>
+<tr><td>运行期查询 / 请求</td><td><code>Deno.permissions.query()/request()</code>、
+granted/denied/prompt 三态</td>
+<td>无对应 extern。<code>API_COVERAGE.md</code> 把 permissions 明确列在
+<code>planned_native</code> 档</td></tr>
+<tr><td>文件系统粒度</td><td><code>--allow-read=/any/path</code> 可指向任意目录</td>
+<td>只有 <code>$PROJECT/**</code>；没有 metadata 操作项</td></tr>
+<tr><td>网络粒度</td><td><code>--allow-net=host:port</code> 精确到主机与端口</td>
+<td><code>https://*</code> 整段放开 + 明文 HTTP 仅限本机两个地址；
+端口级约束不存在于声明中</td></tr>
+<tr><td>子进程粒度</td><td><code>--allow-run=program</code> 按程序名单授权</td>
+<td><code>/usr/bin/env</code> 加任意参数——评估文档指出这等价于逃生口，
+因为 <code>env</code> 本身可以启动任意命令</td></tr>
+<tr><td>系统信息</td><td><code>--allow-sys</code> 门控 <code>Deno.hostname()</code>/<code>uid()</code> 等</td>
+<td>由 <code>deno.sys</code> 能力段承载，符号层面不做二次校验</td></tr>
+</table>
+<p>共同点：两者都是<strong>默认拒绝、显式授权</strong>的思路，且都把 fs/net/env/run/sys 当作独立维度。
+差异的本质是：Deno 把权限做成运行时可协商的能力，而 SA 插件模型把它前置成安装期的静态账本——
+因此移植依赖 <code>Deno.permissions</code> 动态探测的代码时，需要改成"先查 sap.json 再调用"的假设。</p>
+
+<h2>六、安装与验证</h2>
+<pre><code># 在 D:/projects/sla/sa_plugin_deno 内执行
+SA_PLUGIN_DEV=1 sa plugin install --dev .
+sa plugin list          # 确认 deno 已安装
+sa skills --json        # 确认 deno.sys / deno.env / deno.fs / deno.process 四段已加载
+zig build               # 构建 libdeno.so / deno.dll</code></pre>
+<p><strong>测试步骤只在 Windows 目标注册。</strong>
+<code>build.zig</code> 里 <code>b.addTest</code>/<code>b.step("test", …)</code> 包裹在
+<code>if (target.result.os.tag == .windows)</code> 分支内，跑的是 <code>tests/deno_windows_test.zig</code>：
+也就是说 Linux 上 <code>zig build test</code> 没有可运行的 test step。
+该测试覆盖的内容（照录断言要点）：插件描述符名为 <code>deno</code> 且 ABI 版本匹配；
+<code>os_release</code> 返回 <code>"Windows"</code>、<code>build_platform_family</code> 返回
+<code>"windows"</code>；<code>pid &gt; 0</code>、hostname/cwd 非空；
+<code>env_get("TEMP")</code> 成功返回缓冲并需 <code>free_buffer</code>，键缺失时状态码为 1；
+Windows 上 <code>uid/gid</code> 固定返回 0。这也顺带给出了两个有用的契约事实：
+<strong>字符串类出参由插件分配，必须用 <code>sa_deno_plugin_free_buffer</code> 释放</strong>；
+<strong>状态码 1 表示查询目标不存在</strong>（如环境变量缺失）。</p>
+<div class="note"><span class="label">注意</span><code>API_COVERAGE.md</code> 结尾要求新增 extern 时
+"run <code>tests/deno-symbol-interface-smoke.sh</code>"，但仓库里并不存在这个脚本
+（本文用 find 全仓核实过）。做契约审计时只能自己比对：
+<code>deno.sai</code> 声明的符号 vs <code>nm -D --defined-only zig-out/lib/libdeno.so</code> 的导出。</div>
+<h2>七、调用形式（无现成 SA 示例，以下为契约推导）</h2>
+<div class="warning"><span class="label">警告</span>仓库里<strong>没有</strong>任何 <code>.sa</code>
+示例或测试：<code>tests/</code> 下只有 Windows 的 Zig 单元测试，
+<code>docs/</code> 里也没有 demo。因此本节不是"照抄可跑的例子"，
+而是从 <code>deno.sal</code> 的真实宏定义推导出的调用形式；
+宏体本身是逐字摘录的真实代码，骨架部分标注为示意。</div>
+<p><strong>宏的真实展开形态</strong>（<code>D:/projects/sla/sa_plugin_deno/deno.sal</code> 原文，
+可看出"stack_alloc 出参槽位 → call → load 回读"的固定套路）：</p>
+<pre><code>[MACRO] DENO_READ_TEXT_FILE %out_ptr, %out_len, %out_status, %path, %path_len
+    __rf_ptr_slot = stack_alloc 8
+    __rf_len_slot = stack_alloc 8
+    %out_status = call @sa_deno_plugin_read_text_file(&amp;%path, %path_len, &amp;__rf_ptr_slot, &amp;__rf_len_slot)
+    %out_ptr = load __rf_ptr_slot+0 as ptr
+    %out_len = load __rf_len_slot+0 as u64
+[END_MACRO]
+
+[MACRO] DENO_CONNECT_TCP %out_status, %out_stream, %host, %host_len, %port
+    __deno_connect_res = call @sa_net_tcp_connect(&amp;%host, %host_len, %port)
+    %out_status = load __deno_connect_res+0 as i32
+    %out_stream = load __deno_connect_res+8 as u64
+[END_MACRO]</code></pre>
+<p><strong>调用形式示意</strong>（按上表形参顺序拼装；路径需落在 <code>$PROJECT/**</code> 内）：</p>
+<pre><code>@import "deno.sal"
+
+L_ENTRY:
+    // 读文本文件：出参在前（ptr/len/status），入参在后（path/len）
+    data_ptr = add 0, 0
+    data_len = add 0, 0
+    st1 = add 0, 0
+    EXPAND DENO_READ_TEXT_FILE_SYNC data_ptr, data_len, st1, path_buf, path_len_val
+
+    ok1 = eq st1, 0            // 状态码 0 = 成功；字符串缓冲由插件分配
+    br ok1 -&gt; L_USE, L_ERR     // 用完须 EXPAND DENO_FREE_BUFFER data_ptr, data_len, stf
+
+L_USE:
+    // 环境变量：键缺失时状态码为 1（见 deno_windows_test.zig 的断言）
+    val_ptr = add 0, 0
+    val_len = add 0, 0
+    st2 = add 0, 0
+    EXPAND DENO_ENV_GET val_ptr, val_len, st2, key_buf, key_len_val
+    // …… TCP 连接则走 sa_std 返回块：
+    // EXPAND DENO_CONNECT_TCP st3, stream, host_buf, host_len_val, port_val
+    return
+L_ERR:
+    panic(st1)</code></pre>
+<p><strong>唯一可执行验证</strong>是 <code>tests/deno_windows_test.zig</code>，
+它演示了 C 层的正确握法（分配 <code>?[*]const u8</code>、检查返回 <code>u32 0</code>、
+按长度切片后调 <code>free_buffer</code>），例如：</p>
+<pre><code>fn readOwned(comptime function: anytype) ![]const u8 {
+    var ptr: ?[*]const u8 = null;
+    var len: u64 = 0;
+    try std.testing.expectEqual(@as(u32, 0), function(&amp;ptr, &amp;len));
+    const bytes = (ptr orelse return error.NullBuffer)[0..@intCast(len)];
+    const copy = try std.testing.allocator.dupe(u8, bytes);
+    try std.testing.expectEqual(@as(u32, 0), plugin.sa_deno_plugin_free_buffer(ptr, len));
+    return copy;
+}</code></pre>
+
+<h2>八、明确的范围外项</h2>
+<ul>
+<li><strong><code>stub_unsupported</code> 全组</strong>：test/bench 注册、完整 Web APIs、WebGPU、KV、
+lint、Jupyter、浏览器风格事件对象——这些需要更大的原生子系统才可能兼容，插件明确不做。</li>
+<li><strong><code>planned_native</code> 中仍未落地的部分</strong>：chmod/chown、rename、
+真正的二进制读/写（现在只有 base64 变体）、stat/realPath/readLink/symlink/truncate、
+umask/kill、DNS、permissions、file handles、network handles。
+其中 stat 目前只是 lstat 别名，DNS 与网络句柄完全缺位——移植用 <code>Deno.stat()</code>、
+<code>Deno.connect()</code> 抽象的代码时要自己补齐。</li>
+<li><strong>没有 Deno 风格的对象模型</strong>：<code>WebSocket</code> 类、
+<code>Deno.serve()</code> 的 TLS/生产监听、<code>fetch</code> 的 Request/Response 对象语义都不存在。
+宏层只有帧级助手与一次性 JSON/切片响应；serve 走的是仅监听 localhost 的
+<a href="15_http_server.html">http-server</a>。</li>
+<li><strong>MCP/chat 助手不属于 Deno 兼容面</strong>：13 个 extern / 12 个宏来自
+<code>hubproxy_compat.zig</code>（约 3961 行，占插件 Zig 源码大头）。
+评估文档建议将其剥离成独立插件，避免"Deno 兼容度"叙事被稀释。</li>
+<li><strong>权限动态协商</strong>：<code>Deno.permissions.query()/request()</code> 无对应物，
+运行期不能提权。</li>
+</ul>
+<div class="warning"><span class="label">警告</span>评估文档（2026-06-15）对四插件的结论同样适用于这里：
+deno 插件应按 <strong>experimental subset</strong> 定位宣传——"Deno 子集，而非 Deno 运行时"。
+它的 ABI 设计（handle + poll/take/free、显式 free_buffer）是干净的，
+但缺少端到端兼容性 smoke，且核心 IO 有明显缺口。
+选型前先用第六节的安装与构建命令自测，再对照第四节账本确认你要用的 API 在哪一档。
+需要 HTTP 客户端能力时也可以直接考虑更小而可信的
+<a href="14_http_client.html">http-client</a>。</div>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+{
+  "topics": [
+    {
+      "id": "sa-sla-overview",
+      "title": "SA 与 SLA 概述",
+      "file": "01_sa_sla_overview.html",
+      "keywords": [
+        "SA",
+        "Safe ASM",
+        "SLA",
+        "Sla",
+        "IR",
+        "Referee",
+        "Y 型架构"
+      ],
+      "parent": null
+    },
+    {
+      "id": "install-build",
+      "title": "安装与构建",
+      "file": "02_install_build.html",
+      "keywords": [
+        "安装",
+        "构建",
+        "zig build",
+        "LLVM",
+        "install.bat",
+        "Windows",
+        "全自动安装包",
+        "安装包",
+        "install_bundle_windows.ps1",
+        "package_windows.ps1",
+        "bundle",
+        "图形安装器"
+      ],
+      "parent": null
+    },
+    {
+      "id": "quick-start",
+      "title": "快速上手：第一个 SLA 程序",
+      "file": "03_quick_start.html",
+      "keywords": [
+        "快速上手",
+        "sa sla init",
+        "check",
+        "build-exe",
+        "hello world"
+      ],
+      "parent": null
+    },
+    {
+      "id": "toolchain",
+      "title": "工具链组成",
+      "file": "04_toolchain.html",
+      "keywords": [
+        "工具链",
+        "sa.exe",
+        "插件",
+        "sa_std",
+        "skills"
+      ],
+      "parent": null
+    },
+    {
+      "id": "projects-workspace",
+      "title": "项目与 workspace",
+      "file": "05_projects_workspace.html",
+      "keywords": [
+        "sa.mod",
+        "workspace",
+        ".sla-cache",
+        "demos",
+        "项目结构"
+      ],
+      "parent": null
+    }
+  ]
+}

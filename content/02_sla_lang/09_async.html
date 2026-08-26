@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>async/await 现状</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; async/await 现状</div>
+<h1>async/await 现状</h1>
+
+<p>SLA 已有 <code>async fn</code>/<code>.await</code> 语法与配套的 sa_std future 契约，
+但 async 状态机在 direct SAB 快路径上尚未完全覆盖。这一页给出当前可用的真实写法、
+驱动 future 的惯用模式，以及成熟度注意事项。</p>
+
+<h2>基本写法</h2>
+<p><code>async fn</code> 声明异步函数；调用它得到一个 future 值，用后缀 <code>.await</code> 取结果。
+future 的类型写作 <code>future&lt;T&gt;</code>
+（<code>demos/rosetta/314_async_await_pending_resume/main.sla</code>）：</p>
+<pre><code>@import "sa_std/future.sa"
+@import "sa_std/core/waker.sa"
+@import "sa_std/pin.sa"
+@import "sa_std/core/box.sa"
+
+async fn step_value(x: i32) -&gt; i32 {
+    let v = future::defer_ready(x).await;
+    return v * 2;
+}
+
+async fn run() -&gt; i32 {
+    let first = step_value(10).await;
+    let second = step_value(first + 1).await;
+    return second;
+}</code></pre>
+
+<h2>Pending / Ready 与手动 block_on</h2>
+<p><code>future::defer_ready(v)</code> 第一次 poll 返回 <code>Pending</code>，第二次返回
+<code>Ready(v)</code>——这会让 async 状态机真正挂起并在重新 poll 时恢复。标准库没有内置
+block_on 时，demo 使用轮询 + waker 的手写驱动：</p>
+<pre><code>fn block_on(future: future&lt;i32&gt;) -&gt; i32 {
+    let data: ptr = PTR_NULL();
+    let raw = RAW_WAKER_NEW(data, data);
+    let waker = WAKER_FROM_RAW(raw);
+    let context = CONTEXT_FROM_WAKER(waker);
+    let boxed = Box::new(future);
+    let future_ref = *boxed;
+    let pinned = stack_alloc();
+    PIN_MUT_NEW(pinned, future_ref);
+
+    while unix_now_ns() &lt; deadline {
+        let poll = FUTURE_READY_POLL_STATE(PIN_MUT_GET_MUT(pinned));
+        let ready = POLL_IS_READY(poll);
+        if ready == true {
+            let value: i32 = POLL_VALUE(poll);
+            return value;
+        };
+        THREAD_SLEEP_MS(1);
+    }
+    panic(314);
+}</code></pre>
+
+<h2>跨线程的任务池</h2>
+<p>async 调用产生的 future 可以移动进线程闭包，由工作线程自行驱动；
+结果通过 <code>Arc&lt;Mutex&lt;i32&gt;&gt;</code> 回传
+（<code>demos/rosetta/315_async_thread_pool/main.sla</code>）：</p>
+<pre><code>@import "sa_std/sync/mutex.sa"
+@import "sa_std/core/arc.sa"
+@import "sa_std/thread.sa"
+
+fn get_cell(c: Arc&lt;Mutex&lt;i32&gt; &gt;) -&gt; i32 {
+    let g = (*c).lock().unwrap();
+    return *g;
+}
+
+fn pool_worker(f: future&lt;i32&gt;, out: Arc&lt;Mutex&lt;i32&gt; &gt;) {
+    let r = block_on(f);
+    let g = (*out).lock().unwrap();
+    *g = r;
+}</code></pre>
+
+<h2>while let + await 组合</h2>
+<p>任务队列的常见形态（<code>demos/rosetta/136_executor_task_queue/main.sla</code>）：</p>
+<pre><code>let queue = vec(task_one(), task_two(), task_three());
+let total = 0;
+
+while let Some(task) = queue.pop() {
+    let resolved = task.await;
+    total = total + resolved;
+}</code></pre>
+
+<h2>成熟度与建议</h2>
+<ul>
+<li>async/await 属于尚未进入 direct-SAB 快路径的特性，命中时会走 SA 兼容回退路径
+（roadmap 中 <code>async_await</code> 归属 Phase 8）；</li>
+<li>demo 009 的简化 <code>block_on</code> 在 future 未立即就绪时会 panic；需要真挂起请参考 demo 314 的轮询写法；</li>
+<li>不要假设 rosetta 树中的 async demo 全部端到端通过，按需单独验证：
+<code>SA_PLUGIN_DEV=1 sa sla test demos/rosetta/314_async_await_pending_resume/main.sla</code>。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>设计文档说明 SLA async 采用 CPS 风格转换而非 Rust 式状态机 +
+<code>Pin</code>/<code>Unpin</code> 用户面语义；demo 中出现的 <code>PIN_MUT_*</code> 来自 sa_std 契约，
+不是语言关键字。</div>
+
+<p>相关页面：<a href="03_functions.html">函数与控制流</a>、<a href="10_maturity.html">特性成熟度总表</a>。</p>
+</body>
+</html>

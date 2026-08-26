@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>工具链组成</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; 工具链组成</div>
+<h1>工具链组成</h1>
+
+<p>这一页把 SA / SLA 工具链里的可执行文件、插件目录和标准库逐一列出，每个条目一句话说明角色。
+读完你就能知道某个任务该找哪个命令或哪个仓库。</p>
+
+<h2>核心可执行文件</h2>
+<table>
+<tr><th>名称</th><th>来源</th><th>角色</th></tr>
+<tr><td><code>sa.exe</code></td><td><code>sci</code></td><td>SA 宿主 CLI：<code>run</code> / <code>build</code> / <code>build-exe</code> / <code>build-wasm</code> / <code>test</code> / <code>plugin</code> 等子命令，加载并调度所有插件</td></tr>
+<tr><td><code>sla.exe</code></td><td><code>sa_plugin_sla</code></td><td><b>顶级 <code>sla</code> 命令</b>：全自动安装包自带，或由安装脚本复制到 <code>SCI\current\bin</code>（与 sa.exe 同目录、同在 PATH），功能与 <code>sa sla …</code> 完全等价</td></tr>
+<tr><td>动态库（<code>libsla.so</code> / DLL）+ <code>sap.json</code></td><td><code>sa_plugin_sla</code></td><td>Sla 编译器插件本体，由 <code>sa plugin install --dev</code> 注册进 SA 环境</td></tr>
+</table>
+
+<h2>SLA 插件提供的命令</h2>
+<p>下表以顶级 <code>sla</code> 命令书写；每种写法都有 <code>sa sla …</code> 等价形式
+（去掉前缀即互换），详见「命令行参考」章节。</p>
+<table>
+<tr><th>命令</th><th>作用</th></tr>
+<tr><td><code>sla init [path]</code></td><td>创建最小 SLA 二进制项目骨架</td></tr>
+<tr><td><code>sla check &lt;file&gt;</code></td><td>词法、语法、类型检查，不发射最终 SA 汇编</td></tr>
+<tr><td><code>sla build &lt;file&gt;</code></td><td>把 <code>.sla</code> 编译为经校验的 <code>.sa</code> 汇编文件</td></tr>
+<tr><td><code>sla build-exe &lt;file&gt;</code></td><td>走 direct SAB 路径编译为原生可执行文件</td></tr>
+<tr><td><code>sla sab build</code> / <code>sab workspace</code> / <code>sab disasm</code></td><td>SAB 编译 / 按 workspace 成员编译 / 反汇编调试；短别名 <code>slab</code></td></tr>
+<tr><td><code>sla test &lt;file&gt;</code></td><td>编译为托管 SAB 并经 <code>sa test</code> 运行，默认 <code>auto</code> 后端</td></tr>
+<tr><td><code>sla skills [--json]</code></td><td>列出 SLA 插件能力；文本模式还会写入 skill 文件到当前目录</td></tr>
+</table>
+
+<h2>应用插件一览</h2>
+<p>每个插件是独立工程（各自的 <code>sap.json</code> + <code>.sai</code>/<code>.sal</code> +
+动态库），可独立安装升级。角色描述来自 <code>sci</code> README：</p>
+<table>
+<tr><th>插件目录</th><th>一句话角色</th></tr>
+<tr><td><code>sa_plugin_sax</code></td><td>SA UI 方言：<code>.sax</code> → <code>app.wasm</code> + <code>airlock.js</code> + <code>index.html</code></td></tr>
+<tr><td><code>sa_plugin_react</code></td><td>React-on-SAX：用 React 心智模型编写 SA 组件</td></tr>
+<tr><td><code>sa_plugin_mui</code></td><td>Material UI 组件（早期）</td></tr>
+<tr><td><code>sa_plugin_vite</code></td><td>开发服务器与 <code>.sax</code> 热更新（Phase 2）</td></tr>
+<tr><td><code>sa_plugin_wgpu</code></td><td>浏览器 WebGPU sidecar</td></tr>
+<tr><td><code>sa_plugin_3dengines</code></td><td>3D 引擎栈（对齐 Bevy）</td></tr>
+<tr><td><code>sa_plugin_http_server</code></td><td>HTTP 服务器</td></tr>
+<tr><td><code>sa_plugin_http_client</code></td><td>HTTP 客户端</td></tr>
+<tr><td><code>sa_plugin_db</code></td><td>原生列式数据库（文件支撑）</td></tr>
+<tr><td><code>sa_plugin_dbnet</code></td><td>数据库网络层</td></tr>
+<tr><td><code>sa_plugin_matmul</code></td><td>物理极限 GEMM 矩阵乘法</td></tr>
+<tr><td><code>sa_plugin_vm</code></td><td>独立动态 VM 解释器</td></tr>
+<tr><td><code>sa_plugin_pkg</code></td><td>零信任包管理：URL 作命名空间、SHA-256 版本锁定、无中心 registry、模块级 grants 沙箱</td></tr>
+<tr><td><code>sa_plugin_tui</code></td><td>终端能力 ABI：所有权、尺寸、输出、模式切换、字节输入事件</td></tr>
+<tr><td><code>sa_plugin_ts</code></td><td>TypeScript → SA 前端</td></tr>
+<tr><td><code>sa_plugin_deno</code></td><td>Deno API 子集前端（实验性，非 Deno 运行时）</td></tr>
+<tr><td><code>sa_plugin_node</code></td><td>Node API 表面前端（实验性，无 V8/VM）</td></tr>
+<tr><td><code>sa_plugin_bc2sa</code></td><td><code>clang</code>/<code>rustc</code> → LLVM bitcode → SA（实验性）</td></tr>
+</table>
+
+<h2>Agent-first 的宿主命令</h2>
+<p><code>sci</code> 面向 Agent 设计了一组自解释命令：全局 <code>--json</code> 输出结构化诊断
+（稳定错误码如 <code>SA-REF-010</code>，附 repair 建议）、<code>compile_tokens</code> /
+<code>instruction_count</code> 指标，以及 <code>explain &lt;code&gt;</code>、
+<code>fix --plan --json</code>、<code>skills</code> 等子命令。
+<code>skills</code> 会聚合当前启用插件的语法、宏与 API 契约，文本模式下刷新
+<code>.codex/skills/…</code> 与 <code>.claude/skills/…</code> 文件；
+使用前仍应通过 <code>sa plugin list</code> 或 <code>sa skills --json</code>
+确认插件已启用。</p>
+
+<h2>sa_std 的位置</h2>
+<p>标准库随 <code>sci</code> 仓库发布，位于 <code>&lt;sci 根目录&gt;/sa_std/</code>，
+包含 <code>.sa</code> 实现、<code>.sai</code> 接口契约与 <code>.sal</code> 宏，
+按模块分子目录（<code>io</code>、<code>collections</code>、<code>mem</code>、
+<code>sync</code>、<code>text</code>、<code>os</code> 等）。Sla 通过
+<code>@import "sa_std/…"</code> 直接引用。预构建产物另有
+<code>artifacts/sa_std/libsa_std.a</code>。解析顺序：
+环境变量 <code>SA_STD_DIR</code> 优先，否则回退到 <code>$HOME/projects/sci/sa_std</code>。</p>
+
+<p>各插件命令的完整参数说明见「命令行参考」与「插件参考」章节。</p>
+</body>
+</html>

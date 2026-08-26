@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa sla build-exe 与 build-workspace</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; sa sla build-exe / build-workspace</div>
+<h1>sa sla build-exe 与 build-workspace</h1>
+
+<p>这两个命令把 Sla 源码端到端编译为原生可执行文件：先走 direct SAB 路径产出托管 SAB，再委派宿主 <code>sa build-exe</code> 完成后端与链接。读完本页可以完成从 <code>.sla</code> 到本机可执行文件的完整构建。</p>
+
+<h2>语法</h2>
+<pre><code>usage: sa sla build-exe [file] [-p &lt;package&gt;] [sa-build-exe-options...]
+usage: sa sla build-workspace [-p &lt;package&gt;] [sa-build-exe-options...]</code></pre>
+
+<h2>参数</h2>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td><code>file</code></td><td>输入的 <code>.sla</code> 源文件；省略时按 workspace 解析成员入口。<code>build-workspace</code> 不接受源文件参数，只能从 workspace 根或成员目录运行，否则报错退出。</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>选择 workspace 成员包。</td></tr>
+<tr><td><code>--emit-sab</code>（或 <code>--emit-sab-file</code>）</td><td>额外在源文件旁边写出一个同级 <code>&lt;stem&gt;.sab</code> 文件供人工检查。</td></tr>
+<tr><td><code>[sa-build-exe-options...]</code></td><td>其余参数原样透传给委派的宿主命令，例如 <code>-o</code>、<code>--release-fast</code>、<code>--release-small</code>、<code>--no-debug</code>、<code>--jobs</code>。未显式给 <code>--jobs</code> 时自动追加 <code>--jobs auto</code>。</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>委派目标是插件自己解析出的 <code>sa</code> 可执行文件，解析顺序为：<code>SA_EXE</code> 环境变量 → <code>$SCI_ROOT/zig-out/bin/</code> → 加载插件的 <code>sa.exe</code> 所在目录 → 遍历 <code>PATH</code>。委派命令的退出码会原样返回。</div>
+
+<h2>示例</h2>
+<pre><code># 单文件编译为可执行文件（-o 透传给 sa build-exe）
+SA_PLUGIN_DEV=1 sa sla build-exe demos/rosetta/13_array_sum/main.sla -o /tmp/13_array_sum
+/tmp/13_array_sum
+
+# 带 release 优化与并发度控制
+SA_PLUGIN_DEV=1 sa sla build-exe src/main.sla -o bin/app --release-fast --jobs 4
+
+# 同时留一份同级 .sab 用于检查
+SA_PLUGIN_DEV=1 sa sla build-exe src/main.sla -o bin/app --emit-sab
+
+# 从 workspace 根编译指定成员
+SA_PLUGIN_DEV=1 sa sla build-workspace -p my_app -o /tmp/my_app</code></pre>
+
+<h2>产物位置</h2>
+<ul>
+<li>SAB 托管产物：<code>.sla-cache/sab/&lt;stem&gt;-&lt;hash&gt;.sab</code>，文件名由输入路径哈希得出；字节内容不变时不重写，以便 SA 增量缓存复用稳定输入。</li>
+<li>可执行文件：由委派的 <code>sa build-exe</code> 按 <code>-o</code> 写出；未给 <code>-o</code> 时由宿主按其默认规则从输入路径推导（Windows 下带 <code>.exe</code> 后缀）。</li>
+<li><code>--emit-sab</code> 时额外有源文件旁的 <code>&lt;stem&gt;.sab</code>。</li>
+</ul>
+</body>
+</html>

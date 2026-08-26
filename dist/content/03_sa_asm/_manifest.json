@@ -1,0 +1,46 @@
+{
+  "topics": [
+    {
+      "id": "sa-model",
+      "title": "SA 概念模型",
+      "file": "01_sa_model.html",
+      "keywords": ["SA", "概念模型", "寄存器", "仿射", "所有权", "CapabilityMask", "能力掩码", "五符号契约"],
+      "parent": null
+    },
+    {
+      "id": "sa-syntax",
+      "title": "SA 文本汇编速览",
+      "file": "02_sa_syntax.html",
+      "keywords": ["SA 汇编", ".sa", "指令集", "助记符", "atomic_load", "call_indirect", "panic"],
+      "parent": null
+    },
+    {
+      "id": "sab-format",
+      "title": "SAB 字节码格式概览",
+      "file": "03_sab_format.html",
+      "keywords": ["SAB", "字节码", "v4", "section", "symbol_pool", "disasm"],
+      "parent": null
+    },
+    {
+      "id": "pipeline",
+      "title": "编译管线：direct 与 fallback",
+      "file": "04_pipeline.html",
+      "keywords": ["编译管线", "Y 形", "flattener", "Referee", "direct SAB", "fallback", "SLA_SAB_NO_FALLBACK"],
+      "parent": null
+    },
+    {
+      "id": "diagnostics",
+      "title": "错误码与诊断",
+      "file": "05_diagnostics.html",
+      "keywords": ["错误码", "trap", "TrapReport", "诊断", "JSON", "退出码", "UseAfterMove"],
+      "parent": null
+    },
+    {
+      "id": "limitations",
+      "title": "已知限制",
+      "file": "06_limitations.html",
+      "keywords": ["已知限制", "PhiStateConflict", "借用冲突", "move", "宏限制", "回退路径"],
+      "parent": null
+    }
+  ]
+}

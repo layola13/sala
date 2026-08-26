@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SAX 语法规则</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SAX / MUI 界面开发 &gt; SAX 语法规则</div>
+<h1>SAX 语法规则</h1>
+
+<p>这一页汇总 <code>sa_plugin_react</code> 编译管线下书写 <code>.sax</code> 文件的硬性语法边界，
+内容来自 <code>codex_ui/SYNTAX_RULES.md</code> 的实测结论。写或改任何 <code>.sax</code> 文件前应先掌握这些规则，
+否则会在 parse / lower 阶段直接报错。</p>
+
+<h2>组件与状态</h2>
+<ul>
+<li>组件写成 <code>&lt;Component name="Xxx"&gt;…&lt;/Component&gt;</code>；一个文件可以包含多个 <code>Component</code>（如 <code>top_bar.sax</code> 同时定义 <code>TopBar</code> 和 <code>TaskTabStrip</code>）。</li>
+<li>状态在 <code>&lt;state&gt;</code> 块中声明，每行一个变量，典型写法是布尔标志：<code>flag = 0 as i1</code> 或初始为真 <code>flag = 1 as i1</code>。</li>
+<li>大写开头的标签按名字解析为其他组件；跨文件组件经 <code>--include</code> 进入同一命名空间。小写标签是原生 HTML 元素。</li>
+</ul>
+
+<h2>文本位置（标签之间的 <code>{...}</code>）—— 只允许两种</h2>
+<table>
+<tr><th>写法</th><th>是否允许</th></tr>
+<tr><td><code>{var}</code> —— 单个状态变量插值</td><td>允许</td></tr>
+<tr><td><code>{n + 1}</code> —— 算术表达式</td><td>允许</td></tr>
+<tr><td>三元 <code>{cond ? 'a' : 'b'}</code></td><td>不允许（报 <code>InvalidTextExpression</code>）</td></tr>
+<tr><td>字符串字面量 <code>{'text'}</code></td><td>不允许</td></tr>
+<tr><td>比较运算 <code>{a &gt; b}</code>、<code>{a == b}</code></td><td>不允许</td></tr>
+</table>
+<p>需要按状态切换文本时，工程约定是写入与该状态<strong>初始值匹配的静态分支文本</strong>：
+<code>&lt;state&gt;</code> 里 <code>x = 1 as i1</code> 就取 true 分支文本，<code>x = 0 as i1</code> 就取 false 分支文本。</p>
+
+<h2>属性位置（<code>name={...}</code>）—— 宽松</h2>
+<p>属性位置比文本位置宽松得多，这也是本工程的主流写法：</p>
+<ul>
+<li>字符串字面量：<code>color="primary"</code></li>
+<li>三元：<code>color={flag ? 'success' : 'default'}</code></li>
+<li>模板拼接：<code>className={"x" + (f ? " y" : "")}</code></li>
+<li><strong>带引号值内嵌花括号模板</strong>：<code>className="cxu-tab-body{tab ? '' : ' cxu-hidden'}"</code> —— 合法且被大量使用，条件类名切换全靠它。</li>
+<li>整属性也可以是静态字符串三元：<code>aria-hidden="{open ? 'false' : 'true'}"</code>。</li>
+</ul>
+<div class="warning"><span class="label">警告</span>空值或纯空白属性值（<code>value=""</code>、<code>label=" "</code>）会报
+<code>InvalidAttribute</code>，直接删掉该属性即可。</div>
+
+<h2>handler 函数体（SLA 子集）—— 只允许直线语句</h2>
+<pre><code>fn pick_tab0() {
+  tab0 = true; tab1 = false; tab2 = false;
+  render();
+}</code></pre>
+<ul>
+<li>允许：布尔赋值 <code>flag = true;</code>、取反赋值 <code>flag = !flag;</code>（布尔切换的标准写法）、数字赋值 <code>page = page + 1;</code>；多个赋值可用分号写在同一行。</li>
+<li><code>render();</code> 必须是最后一个语句。</li>
+<li>不允许 <code>if</code>/<code>else</code>（任何形式）、循环、比较条件语句 —— 会报 <code>SyntaxError</code>。</li>
+<li>事件绑定写作 <code>onClick={handler}</code>。</li>
+</ul>
+
+<h2>其他硬性规则</h2>
+<ul>
+<li><strong>禁止 HTML 注释</strong> <code>&lt;!-- --&gt;</code>（报 <code>UnexpectedToken</code>）。</li>
+<li><strong>每个起始标签必须写在单行内</strong>，标签内不能有换行。</li>
+<li>文本位置禁止出现字面花括号包裹的字符串/三元；属性值内的花括号模板才是合法的。</li>
+<li>编码一律 UTF-8 无 BOM；修改时只做针对性行编辑，不要整文件重排格式。</li>
+<li>组件名、状态变量名不能随意改动 —— 其他文件按名字引用它们。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>单 include 构建（<code>sa vite build app.sax --include 一个文件</code>）会因入口引用未定义组件提前退出，
+被 include 的文件并没有真正被检查，这种 PASS 不可信。可靠的单文件验证方法见
+<a href="06_toolchain.html#verify">react/vite 插件集成</a>一页。</div>
+</body>
+</html>

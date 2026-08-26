@@ -1,0 +1,74 @@
+{
+  "topics": [
+    {
+      "id": "overview",
+      "title": "sla_ecs 是什么：定位与规模",
+      "file": "01_overview.html",
+      "keywords": [
+        "sla_ecs",
+        "ECS",
+        "Bevy",
+        "真实回归目标",
+        "规模",
+        "SLA"
+      ],
+      "parent": null
+    },
+    {
+      "id": "architecture",
+      "title": "架构与模块面",
+      "file": "02_architecture.html",
+      "keywords": [
+        "world_table_erased",
+        "system_param_table_erased",
+        "TableErased",
+        "查询组合族",
+        "system-param runner",
+        "模块"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "macros",
+      "title": "宏使用格局与编译器改进路线",
+      "file": "03_macros.html",
+      "keywords": [
+        "@expand_tuple",
+        "@derive",
+        "$ORD",
+        "宏",
+        "type_id",
+        "编译器建议"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "sa3d-ecs",
+      "title": "SA 层的 3d_ecs 插件契约",
+      "file": "04_sa3d_ecs.html",
+      "keywords": [
+        "3d_ecs.sal",
+        "SA3D_ECS",
+        "QUERY_ACCESS",
+        "EntityId",
+        "ComponentDesc",
+        "SA 契约"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "status",
+      "title": "已知问题与回归史",
+      "file": "05_status.html",
+      "keywords": [
+        "issue035",
+        "issue038",
+        "issue044",
+        "UseAfterMove",
+        "Module Table",
+        "性能"
+      ],
+      "parent": "overview"
+    }
+  ]
+}

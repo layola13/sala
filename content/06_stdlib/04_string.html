@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>string：ASCII / UTF-8 字符串</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; string：ASCII / UTF-8 字符串</div>
+<h1>string：ASCII / UTF-8 字符串</h1>
+
+<p>这一页列出 <code>sa_std/string.sai</code> 的 extern 函数，以及 <code>sa_std/string.sa</code>
+提供的字符串宏族。读完即可判断字符串是否 ASCII、统计与遍历 UTF-8 字符、做大小写无关比较和拼接。</p>
+
+<h2>extern 函数（摘自 string.sai）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_str_is_ascii(ptr: ptr, len: u64) -&gt; i32</code></td><td>字节序列是否全为 ASCII</td></tr>
+<tr><td><code>sa_str_eq_ignore_ascii_case(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; i32</code></td><td>忽略 ASCII 大小写比较</td></tr>
+<tr><td><code>sa_str_trim_ascii_start_index(ptr: ptr, len: u64) -&gt; u64</code></td><td>计算去除首部空白后的起始下标</td></tr>
+<tr><td><code>sa_str_trim_ascii_end_len(ptr: ptr, len: u64) -&gt; u64</code></td><td>计算去除尾部空白后的长度</td></tr>
+<tr><td><code>sa_str_utf8_char_count(ptr: ptr, len: u64) -&gt; u64</code></td><td>统计 UTF-8 字符数</td></tr>
+<tr><td><code>sa_str_utf8_validate(ptr: ptr, len: u64) -&gt; i32</code></td><td>校验 UTF-8 合法性</td></tr>
+<tr><td><code>sa_str_utf8_char_at(ptr: ptr, len: u64, char_index: u64, out_codepoint: ptr) -&gt; i32</code></td><td>按字符下标取码点</td></tr>
+<tr><td><code>sa_str_utf8_char_at_byte(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td>按字节下标取字符（码点 + 编码长度）</td></tr>
+<tr><td><code>sa_str_utf8_lossy_next(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td>从字节下标起取下一个字符，非法序列按 lossy 处理</td></tr>
+<tr><td><code>sa_str_utf8_char_range_at(ptr: ptr, len: u64, char_index: u64, out_start: ptr, out_len: ptr) -&gt; i32</code></td><td>取第 n 个字符的字节范围</td></tr>
+<tr><td><code>sa_string_concat(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; u64</code></td><td>拼接两段字节，返回 owned 缓冲句柄</td></tr>
+</table>
+
+<h2>SA 宏（string.sa，节选）</h2>
+<p><code>string.sa</code> 是 Sla <code>String</code>/<code>str</code> 方法面的实现载体，
+常用宏包括：</p>
+<table>
+<tr><th>宏</th><th>说明</th></tr>
+<tr><td><code>STR_LEN %out_len, %slice_reg</code></td><td>取长度</td></tr>
+<tr><td><code>STR_PTR / STR_AS_PTR %out_ptr, %slice_reg</code></td><td>取数据指针</td></tr>
+<tr><td><code>STR_IS_EMPTY %out_bool, %slice_reg</code></td><td>是否为空</td></tr>
+<tr><td><code>STR_FROM_PARTS %out_slice, %data_ptr, %length</code></td><td>由指针 + 长度构造切片</td></tr>
+<tr><td><code>STR_FROM_CONST %out_slice, %const_label, %const_len</code></td><td>由常量标签构造切片（alloc/string.sa）</td></tr>
+<tr><td><code>STRING_NEW %out_slice</code></td><td>新建可变 String</td></tr>
+<tr><td><code>STR_TRY_FROM_UTF8 / STR_FROM_UTF8 %out_ok, %out_slice, %bytes_slice</code></td><td>从字节数组构造，带校验/不带校验</td></tr>
+<tr><td><code>STR_AS_BYTES %out_slice, %slice_reg</code></td><td>转字节视图</td></tr>
+</table>
+
+<h2>Sla 侧示例</h2>
+<p>字符串比较在 Sla 里通过 <code>str_eq</code> 使用。摘自
+<code>demos/rosetta/01_hello_world/main.sla</code> 的测试：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"
+
+@test "rosetta 001 01_hello_world"() {
+    if str_eq("hello, saasm", "hello, saasm") != true {
+        panic(1);
+    };
+};</code></pre>
+
+<div class="note"><span class="label">注意</span><code>sa_str_*</code> 函数都接受
+裸的 <code>(ptr, len)</code> 而不是字符串对象；<code>sa_string_concat</code> 返回的
+owned 缓冲句柄需要显式释放。</div>
+
+</body>
+</html>

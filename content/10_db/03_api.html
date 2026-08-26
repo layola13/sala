@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SA API 八大分组</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">db 数据库插件 &gt; SA API 八大分组</div>
+<h1>SA API 八大分组</h1>
+
+<p>db 插件对 SA 暴露两层接口：<code>db.sai</code> 里的 native extern 声明（约 300 个 <code>sa_db_*</code> 符号）
+和 <code>db.sal</code> 里的同名宏 facade（<code>DB_*</code>）。这一页按功能把 native 调用分成八大组，
+给出签名与语义；每个签名都摘自仓库根目录的 <code>db.sai</code>。宏的展开写法与可直接编译的示例见
+<a href="04_macros_usage.html">宏用法与完整示例</a>。</p>
+
+<h2 id="convention">命名与调用约定</h2>
+<ul>
+<li><strong>表级调用共享同一前缀</strong>：<code>(&amp;root: ptr, root_len: u64, &amp;table_name: ptr, table_name_len: u64, ...)</code>。
+下文用 <code>&lt;table prefix&gt;</code> 代表这五个参数。</li>
+<li><strong>返回值统一是状态码</strong>（<code>-&gt; u32</code>），业务结果通过 <code>&amp;out_*</code> 出参指针写回。
+宏负责替你 <code>stack_alloc</code> 槽位并 <code>load</code> 回来。</li>
+<li><strong>句柄类调用</strong>（事务、列会话、读快照）第一个参数是 <code>handle: ptr</code>，不再带 root/表名。</li>
+<li><strong>分页契约统一</strong>：列表型查询都接受 <code>offset</code>/<code>limit</code>，
+并返回 <code>out_written</code> 与 <code>out_total</code>。<code>total</code> 是过滤后的总匹配数，
+因此分页不会因为先过滤再截断而丢行。</li>
+</ul>
+
+<h3>状态码、类型码与逻辑类型码</h3>
+<p>以下常量由 <code>db.sal</code> 以 <code>#def</code> 形式提供：</p>
+<table>
+<tr><th>常量组</th><th>取值</th></tr>
+<tr><td>状态码</td><td><code>SA_DB_OK = 0</code>、<code>_ERR_INVALID_ARGUMENT = 1</code>、<code>_ERR_INVALID_FORMAT = 2</code>、<code>_ERR_NOT_FOUND = 3</code>、<code>_ERR_LOCKED = 4</code>、<code>_ERR_CURSOR_OVERFLOW = 5</code>、<code>_ERR_VERIFY_FAILED = 6</code>、<code>_ERR_OUT_OF_MEMORY = 7</code>、<code>_ERR_IO = 8</code>、<code>_ERR_CONSTRAINT = 9</code></td></tr>
+<tr><td>比较算子</td><td><code>SA_DB_CMP_EQ/NE/LT/LE/GT/GE</code> = 0…5</td></tr>
+<tr><td>primitive 类型</td><td><code>SA_DB_TYPE_VOID/I1/I8/I16/I32/I64/U8/U16/U32/U64/F32/F64/PTR/BLOB_HANDLE/V128</code> = 0…14，与 schema 编译器枚举一致</td></tr>
+<tr><td>逻辑类型</td><td><code>SA_DB_LOGICAL_NONE/DECIMAL_I64/DATE_DAYS/TIMESTAMP_MS/TIMESTAMP_US/BOOL/NULL_BITMAP</code> = 0…6</td></tr>
+<tr><td>索引类别</td><td><code>SA_DB_INDEX_KIND_U64 … BLOB_CONTAINS</code> = 1…16，用于批量建索引请求</td></tr>
+</table>
+
+<h3>结构体布局常量</h3>
+<table>
+<tr><th>结构体</th><th>大小 / 字段偏移</th></tr>
+<tr><td><code>SaDbTableInfo</code></td><td><code>_SIZE=32</code>；<code>row_count +0</code>、<code>segment_count +8</code>、<code>epoch +16</code>、<code>locked +24</code></td></tr>
+<tr><td><code>SaDbSnapshotInfo</code></td><td><code>_SIZE=32</code>；<code>row_count +0</code>、<code>column_count +8</code>、<code>row_bytes +16</code>、<code>epoch +24</code></td></tr>
+<tr><td><code>SaDbColumnInfo</code></td><td><code>_SIZE=32</code>；<code>stride +0</code>、<code>type_code +8</code>、<code>name_len +16</code>、<code>type_name_len +24</code></td></tr>
+<tr><td><code>SaDbColumnLogicalInfo</code></td><td><code>_SIZE=24</code>；<code>logical_type +0</code>、<code>logical_scale +8</code>、<code>nullable +16</code></td></tr>
+<tr><td><code>SaDbPlanInfo</code></td><td><code>_SIZE=40</code>；<code>written</code>、<code>total</code>、<code>first_predicate</code>、<code>first_total</code>、<code>second_total</code></td></tr>
+<tr><td><code>SaDbPlan3Info</code></td><td><code>_SIZE=64</code>；<code>written</code>、<code>total</code> 与三组 <code>predicate/total</code></td></tr>
+<tr><td><code>SaDbColumnInput</code> / <code>SaDbBytesInput</code></td><td><code>_SIZE=16</code>；<code>data +0</code>、<code>len +8</code></td></tr>
+<tr><td><code>SaDbCreateIndexRequest</code></td><td><code>_SIZE=48</code>；<code>kind +0</code>、<code>unique +4</code>、<code>reserved +8</code>、<code>column_index +16</code>、<code>column_index2 +24</code>、<code>store_name_ptr +32</code>、<code>store_name_len +40</code></td></tr>
+</table>
+
+<h2 id="g1">分组 1：建表与表级写入</h2>
+<pre><code>// 初始化表：schema_path 是磁盘上的 .sadb-schema 文件，schema_source 是其文本内容
+sa_db_init_schema(&lt;table prefix&gt;, &amp;schema_path: ptr, schema_path_len: u64,
+                  &amp;schema_source: ptr, schema_source_len: u64, &amp;out_info: ptr) -&gt; u32
+
+// 删除整张表（写锁文件会被保留以维持锁语义）
+sa_db_remove_table(&lt;table prefix&gt;, &amp;out_info: ptr) -&gt; u32
+
+// 批量列式导入：columns 是 SaDbColumnInput 数组
+sa_db_ingest_columns(&lt;table prefix&gt;, row_count: u64,
+                     columns: ptr, columns_len: u64, &amp;out_info: ptr) -&gt; u32
+
+// 插入一条固定宽度行，布局必须与当前 schema 的列 stride 完全一致
+sa_db_insert_row(&lt;table prefix&gt;, &amp;row: ptr, row_len: u64, &amp;out_info: ptr) -&gt; u32
+
+// 对一段连续行的某 u64 列做原地加法更新
+sa_db_update_u64_add(&lt;table prefix&gt;, column_index: u64, start_row: u64,
+                     update_count: u64, delta: u64, &amp;out_updated: ptr) -&gt; u32</code></pre>
+<p>语义要点：</p>
+<ul>
+<li><code>init_schema</code> 同时接收路径与内容，便于内存根（<code>:memory:</code>）场景不落盘也能建表。</li>
+<li><code>insert_row</code> 内部把行切成列切片后走同一条列 ingest 提交路径，所以同样推进 epoch 并重建持久化索引。</li>
+<li>所有写入都会推进表 epoch 并重建已有索引。</li>
+</ul>
+
+<h2 id="g2">分组 2：按唯一键的行写路径</h2>
+<p>这一组的共同前提是<strong>目标列已经建立了同类型的唯一索引</strong>，因此具备主键语义而非普通匹配。
+以 u64 为例：</p>
+<pre><code>// upsert：key 存在则原子替换，out_inserted=0；不存在则追加，out_inserted=1
+sa_db_upsert_row_u64_key(&lt;table prefix&gt;, column_index: u64, expected: u64,
+                         &amp;row: ptr, row_len: u64, &amp;out_inserted: ptr, &amp;out_info: ptr) -&gt; u32
+
+// update：严格更新，key 缺失返回 SA_DB_ERR_NOT_FOUND，绝不追加
+sa_db_update_row_u64_key(&lt;table prefix&gt;, column_index: u64, expected: u64,
+                         &amp;row: ptr, row_len: u64, &amp;out_info: ptr) -&gt; u32
+
+// delete：按唯一键删除一行，重写剩余行到新列段
+sa_db_delete_u64_key(&lt;table prefix&gt;, column_index: u64, expected: u64, &amp;out_info: ptr) -&gt; u32</code></pre>
+<table>
+<tr><th>键形态</th><th>upsert / update / delete 后缀</th><th>额外参数</th><th>典型用途</th></tr>
+<tr><td><code>u64</code> / <code>i64</code></td><td><code>*_u64_key</code> / <code>*_i64_key</code></td><td><code>expected</code></td><td>自增主键、编码日期/时间戳/金额分的 signed 键</td></tr>
+<tr><td><code>u32</code> / <code>i32</code> / <code>u16</code> / <code>i16</code> / <code>u8</code> / <code>i8</code></td><td><code>*_{u32,i32,u16,i16,u8,i8}_key</code></td><td><code>expected</code>（对应宽度）</td><td>状态码、渠道、仓库号、行号、小型外键、优先级</td></tr>
+<tr><td><code>(u64,u64)</code></td><td><code>*_u64_pair_key</code></td><td><code>column_index2, key1, key2</code></td><td><code>(order_id,line_no)</code>、<code>(product_id,warehouse_id)</code></td></tr>
+<tr><td><code>(u64,i64)</code></td><td><code>*_u64_i64_pair_key</code></td><td><code>column_index2, key1, key2(i64)</code></td><td><code>(customer_id,order_day)</code>、<code>(status_id,due_day)</code></td></tr>
+<tr><td>blob 精确值</td><td><code>*_blob_eq_key</code></td><td><code>&amp;store_name, store_name_len, &amp;value, value_len</code></td><td>单据号、客户/供应商编码、SKU、外部 ID</td></tr>
+</table>
+<p>三条硬性校验规则（违反即失败且不推进 epoch）：</p>
+<ul>
+<li>upsert/update 的 <code>expected</code> 必须等于行数据里 key 列实际编码出的值，否则返回
+<code>SA_DB_ERR_INVALID_FORMAT</code>。blob 形态下则是行的 <code>blob_handle</code> 必须指向与 key 参数相同的字节。</li>
+<li>update/delete 在键缺失时返回 <code>SA_DB_ERR_NOT_FOUND</code>。</li>
+<li>批量引入重复键时返回 <code>SA_DB_ERR_CONSTRAINT</code>，active manifest 保持在上一个 epoch。</li>
+</ul>
+<div class="note"><span class="label">注意</span>哈希只用于缩小候选集。blob_eq 路径会把索引命中的候选行拿回真实 blob 字节做比对，
+因此哈希碰撞不会选中错误的行。</div>
+
+<h2 id="g3">分组 3：单表事务 tx_*</h2>
+<pre><code>sa_db_tx_begin(&lt;table prefix&gt;, &amp;out_handle: ptr) -&gt; u32
+sa_db_tx_insert_row(handle: ptr, &amp;row: ptr, row_len: u64, &amp;out_info: ptr) -&gt; u32
+sa_db_tx_insert_rows(handle: ptr, &amp;rows: ptr, rows_len: u64, row_count: u64, &amp;out_info: ptr) -&gt; u32
+sa_db_tx_add_columns(handle: ptr, row_count: u64, columns: ptr, columns_len: u64, &amp;out_info: ptr) -&gt; u32
+sa_db_tx_dict_intern(handle: ptr, &amp;dict_name: ptr, dict_name_len: u64,
+                     &amp;value: ptr, value_len: u64, &amp;out_id: ptr, &amp;out_inserted: ptr, &amp;out_info: ptr) -&gt; u32
+sa_db_tx_blob_put(handle: ptr, &amp;store_name: ptr, store_name_len: u64,
+                  &amp;value: ptr, value_len: u64, &amp;out_id: ptr, &amp;out_info: ptr) -&gt; u32
+sa_db_tx_commit(handle: ptr, &amp;out_info: ptr) -&gt; u32
+sa_db_tx_rollback(handle: ptr) -&gt; u32</code></pre>
+<ul>
+<li>所有 upsert/update/delete 键形态都有对应的 <code>tx_*</code> 变体，参数只是把
+<code>&lt;table prefix&gt;</code> 换成 <code>handle</code>。</li>
+<li>事务期间操作的是<strong>内存中的事务镜像</strong>；在 <code>tx_commit</code> 之前不会有新的表 epoch 或 manifest 发布。</li>
+<li>commit 时按需写出变更行段、事务引用的版本化字典/blob artifact、重建全部持久化索引，然后一次性推进 manifest。</li>
+<li>纯字典或纯 blob 的事务也是合法的，会推进 epoch 但不重写行段。</li>
+<li>恢复机制：commit 先写 <code>&lt;table&gt;.tx.&lt;epoch&gt;.pending</code>，
+在事务版本化 meta 落盘后再写可校验的 <code>.commit</code> 标记。<code>recover</code> 会忽略只有 pending 的 meta、
+校验 commit 标记里的 meta hash 与字节数，并在 manifest 陈旧或损坏时补全已提交事务。</li>
+<li>commit 失败（例如批次里出现重复唯一键）时旧 manifest 仍然可见，事务句柄被关闭；
+<code>tx_rollback</code> 直接丢弃镜像，不发布任何行或 blob handle。</li>
+<li>这是<strong>单表、单写者</strong>模型；读句柄仍只看到已提交快照。</li>
+</ul>
+
+<h2 id="g4">分组 4：列批量会话 coltx_*</h2>
+<pre><code>sa_db_coltx_begin(&lt;table prefix&gt;, &amp;out_handle: ptr) -&gt; u32
+sa_db_coltx_add_columns(handle: ptr, row_count: u64, columns: ptr, columns_len: u64) -&gt; u32
+sa_db_coltx_commit(handle: ptr, &amp;out_info: ptr) -&gt; u32
+sa_db_coltx_rollback(handle: ptr) -&gt; u32</code></pre>
+<p>面向批量的写入会话，与 <code>tx_begin</code> 的关键差别是<strong>不在整个会话期间持有全局变更互斥</strong>：</p>
+<ul>
+<li><code>add_columns</code> 校验一批固定宽度列数据，在提交路径之外完成段文件暂存与哈希计算，产物仅本会话可见。</li>
+<li>ABI 句柄注册表使用共享锁加每会话引用计数，不同 coltx 会话的暂存 I/O 不会再被一把全局互斥串行化。</li>
+<li><code>coltx_commit</code> 只取一次表写锁，把所有已暂存批次发布为新段、重建索引、推进一次 manifest。</li>
+<li><code>coltx_rollback</code> 丢弃所有暂存文件。</li>
+</ul>
+<p>README 明确建议：多线程 ERP 导入和大成员表装载应优先走这条路径，而不是并发裸调 <code>sa_db_ingest_columns</code>。</p>
+
+<h2 id="g5">分组 5：索引</h2>
+<pre><code>// 单列索引家族，全部同形：
+sa_db_create_u64_index(&lt;table prefix&gt;, column_index: u64, unique: u32, &amp;out_info: ptr) -&gt; u32
+// 同形还有：create_i64_index / create_u32_index / create_i32_index /
+//           create_u8_index / create_i8_index / create_u16_index / create_i16_index /
+//           create_f32_index / create_f64_index
+
+// 组合索引
+sa_db_create_u64_pair_index(&lt;table prefix&gt;, column_index: u64, column_index2: u64,
+                            unique: u32, &amp;out_info: ptr) -&gt; u32
+sa_db_create_u64_i64_pair_index(&lt;table prefix&gt;, column_index: u64, column_index2: u64,
+                                unique: u32, &amp;out_info: ptr) -&gt; u32
+
+// blob/text 索引：绑定一个 blob_handle 列与一个命名 store
+sa_db_create_blob_eq_index(&lt;table prefix&gt;, column_index: u64,
+                           &amp;store_name: ptr, store_name_len: u64, unique: u32, &amp;out_info: ptr) -&gt; u32
+// 另有 create_blob_token_index / create_blob_prefix_index / create_blob_contains_index
+
+// 批量建索引：requests 是 SaDbCreateIndexRequest 数组
+sa_db_create_indexes(&lt;table prefix&gt;, requests: ptr, requests_len: u64, &amp;out_info: ptr) -&gt; u32</code></pre>
+<table>
+<tr><th>索引类别</th><th>加速的查询</th><th>约束与限制</th></tr>
+<tr><td>整数族 <code>u8…u64</code> 及 signed 对应</td><td>点查 find、范围 range、计数 count_cmp、get、min/max</td><td>signed 用有符号排序，负数排在 0 之前</td></tr>
+<tr><td><code>f32</code> / <code>f64</code></td><td>同上</td><td>拒绝 NaN 与 ±Inf（<code>SA_DB_ERR_INVALID_FORMAT</code>），因其排序不是稳定业务数据</td></tr>
+<tr><td><code>u64_pair</code> / <code>u64_i64_pair</code></td><td>精确 tuple 点查、固定首键 + 第二键范围分页、固定首键全列表</td><td><code>unique=1</code> 约束整个 tuple；第二键为 signed 时保持有符号顺序</td></tr>
+<tr><td><code>blob_eq</code></td><td>精确文本/blob 过滤；unique 时支持按值取整行</td><td>约束的是真实字节而非哈希</td></tr>
+<tr><td><code>blob_token</code></td><td>ASCII token 全匹配，大小写不敏感</td><td>token 模型限定 ASCII 字母/数字/下划线；回快照字节二次确认</td></tr>
+<tr><td><code>blob_prefix</code></td><td>token 前缀（typeahead 形态），大小写不敏感</td><td>只在 token 起始处匹配，前缀最长 64 字节</td></tr>
+<tr><td><code>blob_contains</code></td><td>字节级子串包含</td><td>三元组候选索引，needle 至少 3 字节才走索引；空串与 1–2 字节保持扫描路径以保证精确语义</td></tr>
+</table>
+<p>索引在 ingest / 行写 / compact / qmod 写入后都会重建；相关 blob store 追加值时也会重建绑定该 store 的 exact 索引。
+range 类查询<strong>要求目标列已有持久化索引</strong>，这样才能用二分边界而不是全表扫描。</p>
+
+<h2 id="g6">分组 6：字典与 blob</h2>
+<h3>低基数字符串字典</h3>
+<pre><code>sa_db_dict_intern(&lt;table prefix&gt;, &amp;dict_name: ptr, dict_name_len: u64,
+                  &amp;value: ptr, value_len: u64, &amp;out_id: ptr, &amp;out_inserted: ptr, &amp;out_info: ptr) -&gt; u32
+sa_db_dict_intern_many(&lt;table prefix&gt;, &amp;dict_name: ptr, dict_name_len: u64, values: ptr, values_len: u64,
+                       out_ids: ptr, out_ids_len: u64, out_inserted: ptr, out_inserted_len: u64, &amp;out_info: ptr) -&gt; u32
+sa_db_dict_lookup(&lt;table prefix&gt;, &amp;dict_name: ptr, dict_name_len: u64,
+                  &amp;value: ptr, value_len: u64, &amp;out_found: ptr, &amp;out_id: ptr) -&gt; u32
+sa_db_dict_value_len(&lt;table prefix&gt;, &amp;dict_name: ptr, dict_name_len: u64, id: u64, &amp;out_found: ptr, &amp;out_len: ptr) -&gt; u32
+sa_db_dict_value_copy(&lt;table prefix&gt;, &amp;dict_name: ptr, dict_name_len: u64, id: u64,
+                      &amp;out_buf: ptr, out_buf_len: u64, &amp;out_found: ptr, &amp;out_written: ptr) -&gt; u32</code></pre>
+<ul>
+<li>把非空字节串（如 <code>active</code>、<code>paid</code>、<code>warehouse_a</code>）映射到命名字典内稳定的 1-based <code>u64</code> ID；
+ID <code>0</code> 预留给上层表达 null/unknown。</li>
+<li>重复 intern 返回既有 ID 且<strong>不推进表 epoch</strong>；行里存的仍是普通 <code>u64</code>，
+因此可以直接复用 u64 索引、范围读、投影与 row API。</li>
+<li>字典本身是版本化表 artifact，随 snapshot/restore/verify/recover/lock/unlock/remove 一致维护。</li>
+<li>它<strong>不是</strong>通用 varchar/blob 存储，定位是稳定标签集合的去重。</li>
+</ul>
+
+<h3>通用变长 blob 存储</h3>
+<pre><code>sa_db_blob_put(&lt;table prefix&gt;, &amp;store_name: ptr, store_name_len: u64,
+               &amp;value: ptr, value_len: u64, &amp;out_id: ptr, &amp;out_info: ptr) -&gt; u32
+sa_db_blob_value_len(&lt;table prefix&gt;, &amp;store_name: ptr, store_name_len: u64, id: u64, &amp;out_found: ptr, &amp;out_len: ptr) -&gt; u32
+sa_db_blob_value_copy(&lt;table prefix&gt;, &amp;store_name: ptr, store_name_len: u64, id: u64,
+                      &amp;out_buf: ptr, out_buf_len: u64, &amp;out_found: ptr, &amp;out_written: ptr) -&gt; u32</code></pre>
+<ul>
+<li>向命名 store 追加一个值并返回稳定的 1-based handle；<code>0</code> 预留给 null/missing 语义。</li>
+<li>空值合法；<strong>重复相同字节会得到不同 handle</strong>——这条路是给 varchar/blob 数据用的，不做低基数去重。</li>
+<li>行内只存 8 字节 <code>blob_handle</code>，真实字节在 store 里，因此行查询保持固定宽度。</li>
+</ul>
+
+<h2 id="g7">分组 7：读句柄查询</h2>
+<h3>生命周期与元信息</h3>
+<pre><code>sa_db_open_read_table(&lt;table prefix&gt;, &amp;out_handle: ptr) -&gt; u32
+sa_db_close_read_table(handle: ptr) -&gt; u32
+sa_db_snapshot_info_handle(handle: ptr, &amp;out_info: ptr) -&gt; u32        // SaDbSnapshotInfo
+sa_db_column_info_handle(handle: ptr, column_index: u64, &amp;out_info: ptr) -&gt; u32          // SaDbColumnInfo
+sa_db_column_logical_info_handle(handle: ptr, column_index: u64, &amp;out_info: ptr) -&gt; u32  // SaDbColumnLogicalInfo
+sa_db_export_null_bitmap_handle(handle: ptr, column_index: u64, &amp;out_bitmap: ptr, out_bitmap_len: u64,
+                                &amp;out_written_bytes: ptr, &amp;out_row_count: ptr) -&gt; u32</code></pre>
+<p><code>export_null_bitmap_handle</code> 把逻辑 <code>u8 null_bitmap</code> 列导出成 packed 位图，
+供各 <code>*_NULL_BITMAP_HANDLE</code> 变体直接复用。</p>
+
+<h3>聚合与统计</h3>
+<pre><code>sa_db_sum_u64_handle(handle: ptr, column_index: u64, &amp;out_sum: ptr) -&gt; u32      // 另有 sum_i64
+sa_db_stats_rows_u64_handle(handle: ptr, column_index: u64, &amp;in_rows: ptr, in_rows_len: u64,
+                            &amp;out_count: ptr, &amp;out_sum: ptr, &amp;out_min: ptr, &amp;out_max: ptr) -&gt; u32  // 另有 i64 版
+sa_db_group_sum_i64_by_u64_handle(handle: ptr, group_column_index: u64, sum_column_index: u64,
+                                  offset: u64, limit: u64, &amp;out_keys: ptr, &amp;out_counts: ptr,
+                                  &amp;out_sums: ptr, out_len: u64, &amp;out_written: ptr, &amp;out_total: ptr) -&gt; u32
+sa_db_min_u64_handle(handle: ptr, column_index: u64, &amp;out_min: ptr) -&gt; u32
+sa_db_max_u64_handle(handle: ptr, column_index: u64, &amp;out_max: ptr) -&gt; u32</code></pre>
+<ul>
+<li><code>stats_rows_*</code> 一次快照遍历返回候选行集的 <code>count/sum/min/max</code>；空候选集返回全零。</li>
+<li>group 家族共四个基础变体（sum / stats，是否带 rows 输入）加上对应 sorted 变体；
+sorted 版本按 <code>sort_by</code>（<code>0=key, 1=count, 2=sum, 3=min, 4=max</code>）与 <code>descending</code> 排序，
+相等值保持首次出现顺序，Top N 报表可以确定性地翻页。</li>
+<li>min/max 有完整的 u8/i8/u16/i16/u32/i32/u64/i64/f32/f64 覆盖。</li>
+</ul>
+
+<h3>点查、计数与范围</h3>
+<pre><code>sa_db_count_u64_eq_handle(handle: ptr, column_index: u64, expected: u64, &amp;out_count: ptr) -&gt; u32
+sa_db_count_u64_cmp_handle(handle: ptr, column_index: u64, op: u32, expected: u64, &amp;out_count: ptr) -&gt; u32
+sa_db_find_u64_handle(handle: ptr, column_index: u64, expected: u64,
+                      &amp;out_found: ptr, &amp;out_row_index: ptr) -&gt; u32
+sa_db_range_u64_handle(handle: ptr, column_index: u64, min_value: u64, max_value: u64,
+                       offset: u64, limit: u64, &amp;out_rows: ptr, out_rows_len: u64,
+                       &amp;out_written: ptr, &amp;out_total: ptr) -&gt; u32
+sa_db_range_u64_pair_handle(handle: ptr, column_index: u64, column_index2: u64, key1: u64,
+                            min_key2: u64, max_key2: u64, offset: u64, limit: u64,
+                            &amp;out_rows: ptr, out_rows_len: u64, &amp;out_written: ptr, &amp;out_total: ptr) -&gt; u32</code></pre>
+<ul>
+<li>count/find/range/get/min/max 覆盖 u8/i8/u16/i16/u32/i32/u64/i64 以及 finite f32/f64；
+另有 <code>count_bool_handle</code>、<code>find_bool_handle</code> 面向逻辑 bool 列。</li>
+<li>组合键侧有 <code>find_u64_pair_handle</code>、<code>find_u64_i64_pair_handle</code>、
+<code>filter_u64_pair_key1_handle</code>、<code>filter_u64_i64_pair_key1_handle</code>，
+以及把第二键写成日期/时间戳的便捷封装
+<code>range_u64_date_pair_handle</code>、<code>range_u64_timestamp_ms_pair_handle</code>、
+<code>range_u64_timestamp_us_pair_handle</code>。</li>
+<li>带 null bitmap 的变体在分页前先应用空值谓词，<code>total/offset/limit</code> 都按过滤后的结果计算。</li>
+<li>decimal/date/timestamp 的 typed 封装（如 <code>range_decimal_i64_handle</code>、<code>range_date_handle</code>、
+<code>range_timestamp_ms_handle</code>）直接接收业务参数，内部编码成 scaled i64 / epoch days 再走 signed 索引；
+非法日期或超出当日单位的 subday 值返回 <code>SA_DB_ERR_INVALID_ARGUMENT</code>，不会执行范围查询。</li>
+</ul>
+
+<h3>候选行集组合（planner 构件）</h3>
+<pre><code>sa_db_filter_rows_u64_range_handle(handle: ptr, column_index: u64, &amp;in_rows: ptr, in_rows_len: u64,
+                                   min_value: u64, max_value: u64, offset: u64, limit: u64,
+                                   &amp;out_rows: ptr, out_rows_len: u64,
+                                   &amp;out_written: ptr, &amp;out_total: ptr) -&gt; u32
+sa_db_intersect_rows_handle(handle: ptr, &amp;left_rows: ptr, left_rows_len: u64,
+                            &amp;right_rows: ptr, right_rows_len: u64, offset: u64, limit: u64,
+                            &amp;out_rows: ptr, out_rows_len: u64, &amp;out_written: ptr, &amp;out_total: ptr) -&gt; u32
+sa_db_plan_u64_i64_ranges_handle(handle: ptr, u64_column_index: u64, u64_min_value: u64, u64_max_value: u64,
+                                 i64_column_index: u64, i64_min_value: i64, i64_max_value: i64,
+                                 offset: u64, limit: u64, &amp;out_rows: ptr, out_rows_len: u64,
+                                 &amp;out_info: ptr) -&gt; u32</code></pre>
+<ul>
+<li><code>filter_rows_*_handle</code> 接收既有 row-id 列表，保持输入顺序地追加一列谓词；
+覆盖整数族、finite float、decimal/date/timestamp、bool、dict_eq 与四种 blob 谓词。</li>
+<li><code>intersect/union/except_rows_handle</code> 完成 AND/OR/排除三种组合：union 与 except 会去重、
+保留首次出现顺序且左表在前，三者都遵守同一套分页契约。</li>
+<li>plan 家族估算两侧谓词的候选规模后<strong>先扫较小的一侧</strong>，并在插件内完成第二个谓词过滤，
+通过 <code>SaDbPlanInfo.first_predicate</code>（1 或 2，平局取 1）告知调用方选了哪一侧，
+配合 <code>first_total</code>/<code>second_total</code> 可以审计决策。
+两谓词形态覆盖 <code>u64+i64</code>、<code>u64+u64</code>、<code>i64+i64</code>、<code>u64+blob_eq</code>、
+<code>i64+blob_eq</code>、<code>u64+dict_eq</code>、<code>i64+dict_eq</code>；
+三谓词形态覆盖 <code>u64+i64+blob_eq</code>、<code>u64+i64+bool</code>、<code>u64+i64+i64</code>，
+返回 <code>SaDbPlan3Info</code>。README 强调这是 planner 构件而<strong>不是 SQL 优化器</strong>，
+更宽的形状仍需显式组合上面的构件。</li>
+</ul>
+
+<h3>物化：排序、投影与取整行</h3>
+<pre><code>sa_db_sort_rows_u64_handle(handle: ptr, column_index: u64, &amp;in_rows: ptr, in_rows_len: u64,
+                           descending: u32, offset: u64, limit: u64, &amp;out_rows: ptr, out_rows_len: u64,
+                           &amp;out_written: ptr, &amp;out_total: ptr) -&gt; u32
+sa_db_project_rows_handle(handle: ptr, &amp;row_indices: ptr, row_indices_len: u64,
+                          &amp;column_indices: ptr, column_indices_len: u64,
+                          &amp;out_bytes: ptr, out_bytes_len: u64,
+                          &amp;out_written_rows: ptr, &amp;out_required_bytes: ptr) -&gt; u32
+sa_db_get_row_handle(handle: ptr, row_index: u64, &amp;out_row: ptr, out_row_len: u64) -&gt; u32
+sa_db_get_row_u64_key_handle(handle: ptr, column_index: u64, expected: u64,
+                             &amp;out_row: ptr, out_row_len: u64) -&gt; u32</code></pre>
+<ul>
+<li><code>sort_rows_*</code> 校验每个候选行都在范围内，等值键保持输入顺序，输出稳定分页；
+float 变体遇到 NaN/Inf 返回 <code>SA_DB_ERR_INVALID_FORMAT</code>。</li>
+<li><code>project_rows_handle</code> 输出按输入行序逐行打包、行内按请求列序拼接；
+buffer 过小返回 <code>SA_DB_ERR_CURSOR_OVERFLOW</code> 并填充 <code>required_bytes</code>；
+空输入合法，返回 <code>written_rows=0</code> 与 <code>required_bytes=0</code>，让空页也走同一路径。</li>
+<li><code>get_row_handle</code> 按快照行号复制完整定宽行；<code>get_row_*_key_handle</code>
+要求存在匹配的唯一索引（u64/i64/u32/i32/u8/i8/u16/i16/<code>(u64,u64)</code>/<code>(u64,i64)</code>/唯一 blob_eq），
+直接按键取整行，省掉一次 find。</li>
+</ul>
+
+<h2 id="g8">分组 8：逻辑类型 helper 与运维</h2>
+<h3>逻辑类型编解码</h3>
+<pre><code>sa_db_decimal_from_parts(negative: u32, whole: u64, fraction: u64, scale: u32, &amp;out_value: ptr) -&gt; u32
+sa_db_decimal_to_parts(value: i64, scale: u32, &amp;out_negative: ptr, &amp;out_whole: ptr, &amp;out_fraction: ptr) -&gt; u32
+sa_db_date_from_ymd(year: i64, month: u32, day: u32, &amp;out_days: ptr) -&gt; u32
+sa_db_date_to_ymd(days: i64, &amp;out_year: ptr, &amp;out_month: ptr, &amp;out_day: ptr) -&gt; u32
+sa_db_timestamp_ms_from_parts(days: i64, millis_of_day: u64, &amp;out_ms: ptr) -&gt; u32   // us 版同理
+sa_db_timestamp_ms_to_parts(value_ms: i64, &amp;out_days: ptr, &amp;out_millis_of_day: ptr) -&gt; u32
+sa_db_bool_encode(value: u32, &amp;out_encoded: ptr) -&gt; u32
+sa_db_bool_decode(encoded: u64, &amp;out_value: ptr) -&gt; u32
+sa_db_null_bitmap_required_bytes(row_count: u64, &amp;out_len: ptr) -&gt; u32
+sa_db_null_bitmap_clear(&amp;bitmap: ptr, bitmap_len: u64) -&gt; u32
+sa_db_null_bitmap_set(&amp;bitmap: ptr, bitmap_len: u64, row_index: u64, is_null: u32) -&gt; u32
+sa_db_null_bitmap_get(&amp;bitmap: ptr, bitmap_len: u64, row_index: u64, &amp;out_is_null: ptr) -&gt; u32</code></pre>
+<p>这些 helper <strong>不引入新的物理格式</strong>：金额编码为 scaled <code>i64</code>，日期为 epoch days，
+时间戳为 epoch ms/us，布尔规范化为 <code>0/1</code>，可空字段用 sidecar null bitmap。
+README 给出的两个换算样例是 <code>DB_DECIMAL_FROM_PARTS(1, 1, 0, 2)</code> 把 <code>-1.00</code> 编码为 <code>-100</code>，
+<code>2024-02-29</code> 编码为 epoch day <code>19782</code>。schema 注解写法如
+<code>// i64 decimal(2) nullable</code>、<code>// i64 date</code>、<code>// u8 bool</code>；
+scale 上限为 18。无注解的旧 schema 得到 <code>SA_DB_LOGICAL_NONE</code>、scale 0、nullable 0。</p>
+
+<h3>表运维</h3>
+<pre><code>sa_db_snapshot(&lt;table prefix&gt;, &amp;out_info: ptr) -&gt; u32
+sa_db_restore(&lt;table prefix&gt;, epoch: u64, &amp;out_info: ptr) -&gt; u32
+sa_db_recover(&lt;table prefix&gt;, &amp;out_info: ptr) -&gt; u32
+sa_db_verify(&lt;table prefix&gt;, &amp;out_info: ptr) -&gt; u32
+sa_db_compact(&lt;table prefix&gt;, &amp;out_info: ptr) -&gt; u32
+sa_db_lock(&lt;table prefix&gt;, &amp;out_info: ptr) -&gt; u32
+sa_db_unlock(&lt;table prefix&gt;, &amp;out_info: ptr) -&gt; u32</code></pre>
+<p>七条运维调用与 CLI 的同名命令一一对应，行为一致；区别在于它们可以被 SA 程序内嵌调用，
+且支持 <code>:memory:</code> 内存根（内存根的 snapshot/restore 产物留在进程内命名空间，不会创建真实的
+<code>:memory:*</code> 目录）。</p>
+
+<h2 id="removed">已移除的调用</h2>
+<p>以下符号不再从 <code>libdb.so</code> 导出，老代码需要迁移到 read-handle 形态：</p>
+<table>
+<tr><th>已移除</th><th>替代</th></tr>
+<tr><td><code>sa_db_sum_u64</code></td><td><code>sa_db_sum_u64_handle</code></td></tr>
+<tr><td><code>sa_db_count_u64_eq</code></td><td><code>sa_db_count_u64_eq_handle</code></td></tr>
+<tr><td><code>DB_SUM_U64</code></td><td><code>DB_SUM_U64_HANDLE</code></td></tr>
+<tr><td><code>DB_COUNT_U64_EQ</code></td><td><code>DB_COUNT_U64_EQ_HANDLE</code></td></tr>
+</table>
+
+<div class="warning"><span class="label">警告</span>API 数量庞大但语义高度模式化。
+写代码时不要凭直觉拼参数顺序——同一族函数在不同键形态下的参数个数差异很大
+（例如 pair 键多两个 <code>column_index/key1/key2</code>，blob_eq 键多一组 store/value）。
+建议始终以仓库根目录的 <code>db.sai</code> 为准，并用 <code>db.sal</code> 的宏屏蔽槽位分配细节。</div>
+
+<p>读句柄查询的实际编排方式（先索引过滤、再候选行收窄、最后投影）见
+<a href="04_macros_usage.html">宏用法与完整示例</a>；哪些场景值得这么写见
+<a href="05_vs_sqlite.html">vs SQLite：选型对比</a>。</p>
+</body>
+</html>

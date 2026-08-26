@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>如何使用 sa_std：导入机制与契约体系</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; 如何使用 sa_std：导入机制与契约体系</div>
+<h1>如何使用 sa_std：导入机制与契约体系</h1>
+
+<p>这一页讲两件事：<code>sa_std</code> 的三类契约文件（<code>.sai</code> / <code>.sal</code> /
+<code>.sa</code>)如何分工与配合，以及 Sla 与 SA 汇编两侧分别怎么把它们导入。
+读完即可判断"我要的功能该导哪个文件"，也能看懂编译产物里的 std 调用是怎么来的。</p>
+
+<h2>三类契约的分工</h2>
+<table>
+<tr><th>扩展名</th><th>承载内容</th><th>谁消费它</th></tr>
+<tr><td><code>.sai</code></td><td><code>@extern</code> 函数契约，签名逐字即 ABI，由 sci 运行时的 Zig 模块实现</td><td>Sla 直接按名字调用；SA 用 <code>call @符号(...)</code></td></tr>
+<tr><td><code>.sal</code></td><td><code>#def</code> 布局与常量：<code>_SIZE</code>、<code>+偏移</code> 字段、错误码、枚举值</td><td>宏展开时取槽位大小与状态码；手工布局代码</td></tr>
+<tr><td><code>.sa</code></td><td><code>[MACRO] ... EXPAND ...</code> 汇编宏，把栈上槽位分配与 extern 调用封装成一条指令</td><td>SA 手写代码；Sla 类型方法面经规则展开到这些宏</td></tr>
+</table>
+
+<p>各取一段真实片段。函数契约 <code>.sai</code>（摘自 <code>sci/sa_std/io/print.sai</code> 全文）：</p>
+<pre><code>// Legacy print contract for demos and simple applications.
+// Implemented by the Zig-backed sa_std.io library as stdout().write_all(bytes).
+@extern sa_print_bytes(&amp;msg: ptr, len: u64) -&gt; void</code></pre>
+
+<p>布局与常量契约 <code>.sal</code>（摘自 <code>sci/sa_std/fmt.sal</code>）：</p>
+<pre><code>#def SA_FMT_OK = 0
+#def SA_FMT_ERR_OVERFLOW = 3
+#def SA_FMT_BASE_DECIMAL = 10
+#def SA_FMT_BASE_HEX_LOWER = 16
+#def SaFmtBuffer_SIZE = 24
+#def SaFmtBuffer_ptr = +0
+#def SaFmtBuffer_len = +8
+#def SaFmtBuffer_cap = +16</code></pre>
+
+<p>宏实现 <code>.sa</code>（摘自 <code>sci/sa_std/fs.sa</code>）。注意宏内部先
+<code>stack_alloc</code> 一个出参槽位，再调用 <code>.sai</code> 里声明的
+extern——这一段就是三层协作的最小样本：</p>
+<pre><code>[MACRO] FS_READ_TO_STRING %out_status, %out_buffer, %path, %path_len, %max_bytes
+    __fs_read_to_string_handle_%out_status = stack_alloc 8
+    %out_status = call @sa_std_fs_read_to_string(&amp;%path, %path_len, %max_bytes, &amp;__fs_read_to_string_handle_%out_status)
+    %out_buffer = load __fs_read_to_string_handle_%out_status+0 as u64
+[END_MACRO]</code></pre>
+
+<h2>三者如何配合：一个可核对的例子</h2>
+<p>Sla 写一行 <code>println("{}", result)</code>（摘自
+<code>demos/rosetta/02_mutability/main.sla</code>）：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let result = immutable_update_value();
+    println("{}", result);
+    return result;
+};</code></pre>
+<p>同一目录下编译器生成的 <code>main.sa</code> 把它展开成 fmt 契约加 print 契约的调用链：</p>
+<pre><code>tmp_4 = call @sa_fmt_u64(result, 10)
+tmp_5 = call @sa_fmt_buffer_data(tmp_4)
+tmp_6 = call @sa_fmt_buffer_len(tmp_4)
+tmp_7 = tmp_5
+call @sa_print_bytes(&amp;tmp_7, tmp_6)
+call @sa_fmt_buffer_free(^tmp_4)
+@const SLA_STR_0 = utf8:"\n"
+call @sa_print_bytes(&amp;SLA_STR_0, 1)</code></pre>
+<p>可见：<code>.sai</code> 提供被调用的符号；返回的 owned 缓冲经访问器三件套读出后交给
+打印；释放由生成的所有权指令完成。</p>
+
+<h2>Sla 侧怎么导</h2>
+<p>带 <code>sa_std/</code> 前缀写完整契约路径，摘自
+<code>demos/rosetta/01_hello_world/main.sla</code>：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"</code></pre>
+<p>需要宏与布局时把两者一起导，摘自
+<code>demos/rosetta/108_atomic_spin_lock/main.sla</code>：</p>
+<pre><code>@import "sa_std/sync/atomic.sal"
+@import "sa_std/sync/atomic.sa"
+@import "sa_std/core/result.sa"</code></pre>
+<p>解析顺序见 <a href="01_overview.html">标准库总览</a>：</p>
+<table>
+<tr><th>顺序</th><th>条件</th><th>解析位置</th></tr>
+<tr><td>1</td><td>已设置 <code>SA_STD_DIR</code></td><td>从 <code>$SA_STD_DIR</code> 解析 <code>sa_std/...</code></td></tr>
+<tr><td>2</td><td>未设置</td><td>从 <code>$HOME/projects/sci/sa_std</code> 解析</td></tr>
+</table>
+<div class="note"><span class="label">注意</span>Sla 编译器在类型检查之前加载导入的
+<code>.sai</code> / <code>.sal</code> 契约，所以契约里声明的 <code>@extern</code>
+函数对 Sla 代码直接可用，不需要额外的绑定声明。</div>
+
+<h2>SA 汇编侧怎么导</h2>
+<p>SA 文件顶部同样用 <code>@import</code> 列出依赖，且通常把宏、契约、布局一起列全。
+摘自 <code>sci/sa_std/string.sa</code> 的导入块：</p>
+<pre><code>@import "core/slice.sal"
+@import "core/slice.sa"
+@import "char.sa"
+@import "ascii.sa"
+@import "vec.sa"
+@import "vec.sal"
+@import "string.sai"
+@import "fmt.sai"
+@import "hash.sa"
+@import "string_format.sa"</code></pre>
+<p>注意库内部导入用的是<strong>相对 sa_std 根的路径</strong>（没有 <code>sa_std/</code> 前缀）；
+用户程序从外部导入时才写 <code>sa_std/...</code>。想一次拿到全部宏，可以导入聚合面
+<code>@import "sa_std/prelude.sa"</code>（见下文）。</p>
+
+<h2>缓冲三件套：分配式 / _into / 访问器</h2>
+<p>返回文本或字节的运行时模块遵循统一的三层约定，以 <code>sci/sa_std/fmt.sai</code> 为例：</p>
+<pre><code>// 分配式：返回 owned 缓冲句柄（u64），用完必须 free
+@extern sa_fmt_i64(value: i64, base: u32) -&gt; u64
+@extern sa_fmt_f64(value: f64, precision: u32) -&gt; u64
+
+// 写入式：调用者提供缓冲，零分配，返回状态码
+@extern sa_fmt_i64_into(value: i64, base: u32, out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32
+
+// 访问器三件套：数据指针 / 长度 / 释放
+@extern sa_fmt_buffer_data(buffer: u64) -&gt; &amp;ptr
+@extern sa_fmt_buffer_len(buffer: u64) -&gt; u64
+@extern sa_fmt_buffer_free(^buffer: u64) -&gt; i32</code></pre>
+<p>同一契约还提供第四个访问器 <code>sa_fmt_buffer_write_to(buffer: u64, writer: u64) -&gt; i32</code>，
+直接把缓冲内容写进 writer 句柄。<code>env.sai</code> 的约定完全一致：</p>
+<pre><code>@extern sa_env_get(key: ptr, key_len: u64) -&gt; u64
+@extern sa_env_buffer_data(buffer: u64) -&gt; &amp;ptr
+@extern sa_env_buffer_len(buffer: u64) -&gt; u64
+@extern sa_env_buffer_free(^buffer: u64) -&gt; i32</code></pre>
+<p><code>fs</code>（<code>sa_fs_read_buffer_* / sa_fs_dir_entries_* / sa_fs_metadata_* </code>）、
+<code>json</code>、<code>http2</code> 的结果缓冲都沿用这套命名，详见
+<a href="03_fmt.html">fmt</a>、<a href="07_env.html">env</a>、<a href="06_fs.html">fs</a> 各章。
+区别只有一点：<code>fmt</code>/<code>env</code> 的句柄是 <code>u64</code>，
+<code>json</code>/<code>io</code> 的节点与缓冲是 <code>ptr</code>。</p>
+
+<h2>Sla 方法面由 std_surface.sla_meta 驱动</h2>
+<p>Sla 里 <code>Vec::new()</code>、<code>values.push(2)</code>、<code>Some(9)</code>、
+<code>opt.unwrap_or(fallback)</code> 这些"类型方法"不是编译器硬编码的库语义，
+而是来自插件的规则表 <code>sa_plugin_sla/sla_std/std_surface.sla_meta</code>。文件开头写明它是数据而非逻辑：
+direct SAB 后端泛化地读取规则，把方法糖 lower 到已导入的 SA 宏。表中条目形如：</p>
+<pre><code>associated Vec new sa_std/vec.sa VEC_NEW out deps=sa_vec_new
+method Vec push sa_std/vec.sa VEC_PUSH receiver,value,elem_size deps=sa_vec_push,sa_mem_copy
+constructor Some Option sa_std/core/option.sa OPTION_NEW_SOME out,value
+method Option unwrap_or sa_std/core/option.sa OPTION_UNWRAP_OR out,receiver,value
+constructor Ok Result sa_std/core/result.sa RESULT_NEW_OK out,value
+method Result unwrap sa_std/core/result.sa RESULT_UNWRAP out,receiver</code></pre>
+<p>对应的真实用法。摘自 <code>sa_plugin_sla/tests/import_fixtures/std_nested/uses_vec.sla</code>，
+只需导入 <code>vec.sa</code> 即可用整套 Vec 方法面：</p>
+<pre><code>@import "sa_std/vec.sa"
+
+fn imported_vec_sum() -&gt; i32 {
+    let values: Vec&lt;i32&gt; = Vec::new();
+    values.push(2);
+    values.push(3);
+    return values[0] + values[1];
+}</code></pre>
+<p>摘自 <code>demos/rosetta/46_option_default/main.sla</code>：</p>
+<pre><code>fn choose(opt: Option&lt;i32&gt;, fallback: i32) -&gt; i32 {
+    opt.unwrap_or(fallback)
+}</code></pre>
+<p>集合与核心类型的完整方法清单见 <a href="05_collections.html">collections 一章</a>；
+要查某个方法 lower 到哪个宏，直接搜 <code>std_surface.sla_meta</code> 最快。</p>
+
+<h2>prelude 聚合导入</h2>
+<p><code>sci/sa_std/</code> 下有一对聚合文件，供不想逐个列导入的程序使用：</p>
+<table>
+<tr><th>文件</th><th>聚合内容</th></tr>
+<tr><td><code>prelude.sal</code></td><td>各子目录 prelude（<code>alloc</code>、<code>collections</code>、<code>core</code>、<code>encoding</code>、<code>ffi</code>、<code>io</code>、<code>os</code>、<code>sync</code>、<code>text</code>，另有 <code>marker</code> / <code>mem</code> / <code>num</code> / <code>thread</code> / <code>time</code>）加上顶层 <code>.sai</code> / <code>.sal</code> 契约，如 <code>env.sai</code>、<code>fs.sai</code>、<code>net.sai</code>、<code>process.sai</code>、<code>term.sai</code></td></tr>
+<tr><td><code>prelude.sa</code></td><td>同样的子目录 prelude 加顶层 <code>.sa</code> 宏实现，如 <code>vec.sa</code>、<code>string.sa</code>、<code>hashmap.sa</code>、<code>encoding/json.sa</code></td></tr>
+</table>
+<p><code>prelude.sa</code> 头部注释明确了它的定位："Explicit public facade aggregation for
+applications and smoke tests. This is opt-in; the compiler does not inject it implicitly."——
+即显式可选，编译器不会隐式注入。仓库中的真实使用者是 SA 测试
+<code>sci/tests/unit_framework/std_prelude_import_surface.sa</code>，它只写一行
+<code>@import "sa_std/prelude.sa"</code> 就能使用 <code>CSTRING_FROM_SLICE_WITH_NUL</code> 等宏。
+<code>prelude.sal</code> 是同一聚合思路的契约面（常量 + extern），适合一次拿全签名的场景；
+仓库内目前没有对它的直接导入者，两个 prelude 互不引用。</p>
+
+<div class="warning"><span class="label">警告</span>聚合导入会把整个库面拉进编译单元，
+编译时间与符号量都会上升；demo、测试之外的正式程序建议仍按需导入单个契约文件。</div>
+
+</body>
+</html>

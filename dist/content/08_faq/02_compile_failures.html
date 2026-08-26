@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>编译失败排查</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">FAQ 与故障排查 &gt; 编译失败排查</div>
+<h1>编译失败排查</h1>
+
+<p>这一页解决两类最常见的编译问题：<code>sa sla check</code> 通过但 <code>build-exe</code>/<code>test</code> 失败，以及 direct SAB 报「不支持特性」而回退。读完可以判断失败属于哪个阶段，并用环境变量定位触发回退的具体特性。</p>
+
+<h2>check 过了，build/test 却失败</h2>
+
+<p><code>sa sla check</code> 与 build/test 后端并不共享完全相同的解析与降低逻辑。真实案例（issue026）：在结构体字面量字段或 <code>let</code> 初始化器中直接写 <code>ptr_add</code>，<code>check</code> 接受，但 <code>build</code>/strict SAB 在导入展开阶段报 <code>found ',', expected colon</code> 或后续 Trap。项目侧的规避方式是把指针偏移切片改为先分配/拷贝 basename 再返回。</p>
+
+<p>遇到这类分歧时的排查顺序：</p>
+<ol>
+<li>把可疑表达式从内联位置挪到局部变量，逐段缩小触发面；</li>
+<li>分别用 <code>--test-backend sa</code> 与 <code>--test-backend sab</code> 跑一次，确认是后端差异还是前端解析差异；</li>
+<li>加 <code>--trace-panic --jobs 1</code> 拿到更完整的 Trap 信息。</li>
+</ol>
+
+<h2>识别失败的阶段与 Phase 归属</h2>
+
+<p>SAB 主线优先走 direct AST-&gt;SAB 编码器；当某特性未被覆盖时才退回内存中的 SA 兼容降低 + SCI 展平器。direct 路径的典型错误是：</p>
+
+<pre><code>SAB Direct Error: direct SLA-to-SAB lowering failed without fallback: error.UnsupportedSabDirectFeature
+SAB Error: failed to encode SAB ... error.VerificationTrap</code></pre>
+
+<p><code>VerificationTrap</code> 通常是底层 SA 验证器的 Trap 冒泡上来（例如 <code>UseAfterMove: moved value is no longer usable</code>），此时改用 SA 文本后端往往能看到寄存器名、期望状态与实际状态等更多细节。</p>
+
+<p>roadmap_status_cn.md §2（快照 2026-07-01）把当时 no-fallback 扫描剩余失败按 Phase 归类，可作为「我踩到的坑属于哪一类」的参照：</p>
+
+<table>
+<tr><th>Phase</th><th>主题</th><th>当时的代表性失败</th></tr>
+<tr><td>Phase 3</td><td>调用 / 赋值</td><td><code>assign_move_cleanup</code>（UseAfterMove 与赋值/循环清理协调）、<code>var_comprehensive</code>、<code>rc_dyn_trait</code></td></tr>
+<tr><td>Phase 4</td><td>Std 元数据</td><td><code>sets</code>、<code>std_import</code>、<code>sla_import_nested_contract</code></td></tr>
+<tr><td>Phase 5</td><td>聚合 / 枚举 / Derive</td><td><code>enum_match</code>（标签/负载布局 + match 提取）、<code>derive_semantics</code>、<code>struct_update</code>、<code>spaceship_cmp</code></td></tr>
+<tr><td>Phase 6</td><td>协议 / 迭代器</td><td><code>for_in_protocol</code>、<code>generic_for_in_protocol</code></td></tr>
+<tr><td>Phase 8</td><td>异步</td><td><code>async_await</code>（async 状态机 / Future / task）</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>该清单是带日期的进度快照而非长期保证；direct_sab_historical_69_corpus.md 在 2026-07-12 记录本地 strict direct-SAB no-fallback 扫描已通过 134/134。以你本机的扫描结果为准。</div>
+
+<h2>定位回退原因</h2>
+
+<p>默认情况下回退是静默的。要强制暴露它，用 no-fallback 模式跑单个文件（运行目录为插件仓库根）：</p>
+
+<pre><code>SLA_SAB_NO_FALLBACK=1 timeout 120s ./zig-out/bin/sla-local-cli sla test tests/test_unit_xxx.sla \
+    --test-backend sab --jobs 1 --trace-panic</code></pre>
+
+<ul>
+<li><code>SLA_SAB_NO_FALLBACK=1</code>：禁止回退到 SA 兼容编码器，不支持的特性直接报错而不是静默变慢。</li>
+<li><code>SLA_SAB_TRACE_UNSUPPORTED=1</code>：与上面组合使用，打印具体是哪些特性触发了回退。</li>
+<li><code>SLA_PROFILE=1</code>：输出各阶段计时（parse / import expand / type check / sab direct codegen 等），用于确认时间花在哪一段。</li>
+<li><code>--jobs 1</code> + <code>--trace-panic</code>：串行执行并保留 panic 追踪，便于复现。</li>
+</ul>
+
+<pre><code>SLA_SAB_TRACE_UNSUPPORTED=1 SLA_SAB_NO_FALLBACK=1 timeout 180s \
+    ./zig-out/bin/sla-local-cli sla test tests/test_unit_xxx.sla \
+    --test-backend sab --jobs 1 --trace-panic</code></pre>
+
+<h2>常见错误类别速查</h2>
+
+<table>
+<tr><th>现象</th><th>常见原因</th><th>处理思路</th></tr>
+<tr><td>UseAfterMove / 双重释放</td><td>switch/match 分支清理、按值实参消费、借用形参被移动后再释放等历史缺陷类别</td><td>缩小到最小复现；检查是否在同一值上混用按值调用与后续读取</td></tr>
+<tr><td>借用相关行为差异</td><td>传局部 <code>Vec</code> 与传结构体字段的借用 <code>Vec</code> 曾出现路径差异</td><td>对比两种传参形态的最小测试；必要时先拷贝到局部</td></tr>
+<tr><td>字面量被拒</td><td><code>u64::MAX</code> 一类的超大十进制字面量曾报 <code>InvalidCharacter</code></td><td>升级编译器或改用位运算构造</td></tr>
+<tr><td>无符号运算结果异常</td><td>无符号二元运算曾被降级为有符号语义</td><td>避免依赖溢出回绕；显式拆步运算验证</td></tr>
+<tr><td>命令打印 ok 但外层超时退出（124）</td><td>子进程未退出导致外层 <code>timeout</code> 截断</td><td>加过滤参数缩小运行面，或升级插件版本</td></tr>
+</table>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/testing_and_verification_cn.md §2、roadmap_status_cn.md §2、issue001/002/004/013/026/028/040/045/046、direct_sab_historical_69_corpus.md。</p>
+</body>
+</html>

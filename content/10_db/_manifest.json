@@ -1,0 +1,95 @@
+{
+  "topics": [
+    {
+      "id": "overview",
+      "title": "db 插件总览：定位与架构",
+      "file": "01_overview.html",
+      "keywords": [
+        "db",
+        "sa_plugin_db",
+        "列式存储",
+        "数据库插件",
+        "架构",
+        "sap.json",
+        "存储布局"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cli",
+      "title": "CLI 命令详解",
+      "file": "02_cli.html",
+      "keywords": [
+        "CLI",
+        "sa db",
+        "init",
+        "ingest",
+        "index-u64",
+        "snapshot",
+        "verify",
+        "qmod"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "api",
+      "title": "SA API 八大分组",
+      "file": "03_api.html",
+      "keywords": [
+        "API",
+        "db.sai",
+        "读句柄",
+        "read handle",
+        "事务",
+        "索引",
+        "字典",
+        "blob"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "macros-usage",
+      "title": "宏用法与完整示例",
+      "file": "04_macros_usage.html",
+      "keywords": [
+        "宏",
+        "EXPAND",
+        "db.sal",
+        "DB_INIT_SCHEMA",
+        "DB_INSERT_ROW",
+        "示例"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "vs-sqlite",
+      "title": "vs SQLite：选型对比",
+      "file": "05_vs_sqlite.html",
+      "keywords": [
+        "SQLite",
+        "选型",
+        "ACID",
+        "WAL",
+        "性能对比",
+        "B-Tree",
+        "类型系统"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "limits-perf",
+      "title": "边界、性能与最佳实践",
+      "file": "06_limits_perf.html",
+      "keywords": [
+        "限制",
+        "边界",
+        "性能",
+        "最佳实践",
+        "benchmark",
+        "未标定",
+        ":memory:"
+      ],
+      "parent": "overview"
+    }
+  ]
+}

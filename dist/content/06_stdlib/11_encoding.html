@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>encoding 与 text：JSON 与正则</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; encoding 与 text：JSON 与正则</div>
+<h1>encoding 与 text：JSON 与正则</h1>
+
+<p>这一页列出 <code>sa_std/encoding/json.sai</code> 与 <code>sa_std/text/regex.sai</code>
+的 extern 函数。读完即可解析 JSON 并按 key 取值、用 writer 生成 JSON，以及编译和匹配正则。</p>
+
+<h2>encoding/json.sai</h2>
+<p>JSON 文档与子节点是不透明 owned <code>ptr</code>，必须 <code>sa_json_free</code>；
+字符串化结果为 owned 缓冲句柄。</p>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_json_parse(&amp;json_bytes: ptr, len: u64) -&gt; ^ptr</code></td><td>解析 JSON 文本为根节点</td></tr>
+<tr><td><code>sa_json_kind(node: ptr) -&gt; u32</code></td><td>节点类型（对象/数组/字符串/数字等）</td></tr>
+<tr><td><code>sa_json_object_get(node: ptr, &amp;key: ptr, key_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>按键取子节点；<code>sa_json_array_get(node, index, ...)</code> 按下标取</td></tr>
+<tr><td><code>sa_json_object_get_string / _get_bool / _get_i64 / _get_f64(node, &amp;key, key_len, &amp;out_...) -&gt; i32</code></td><td>按 key 直接取标量</td></tr>
+<tr><td><code>sa_json_as_i64 / _as_f64 / _as_bool(node: ptr, &amp;out_value: ptr) -&gt; i32</code></td><td>把当前节点转为标量</td></tr>
+<tr><td><code>sa_json_string_ptr(node: ptr) -&gt; &amp;ptr</code> / <code>sa_json_string_len(node: ptr) -&gt; u64</code></td><td>字符串节点的数据与长度</td></tr>
+<tr><td><code>sa_json_value_count(node: ptr, &amp;out_count: ptr) -&gt; i32</code></td><td>成员/元素个数；<code>sa_json_object_key_at</code> 取第 n 个 key</td></tr>
+<tr><td><code>sa_json_stringify(node: ptr, &amp;out_handle: ptr) -&gt; i32</code></td><td>序列化为 JSON 文本缓冲</td></tr>
+<tr><td><code>sa_json_buffer_data(buffer: ptr) -&gt; &amp;ptr / _len(buffer) -&gt; u64 / _free(^buffer) -&gt; i32!</code></td><td>缓冲三件套</td></tr>
+<tr><td><code>sa_json_free(^node: ptr) -&gt; i32!</code></td><td>释放节点树</td></tr>
+</table>
+
+<h3>流式扫描与 writer</h3>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_json_scanner_new(&amp;out_handle: ptr) -&gt; i32</code> + <code>_feed / _end_input / _next / _free</code></td><td>增量喂入字节的 token 扫描器</td></tr>
+<tr><td><code>sa_json_stream_new(&amp;json_bytes: ptr, len: u64) -&gt; ^ptr</code> + <code>_next / _get_slice_ptr / _get_slice_len / _free</code></td><td>对已有文本的流式遍历</td></tr>
+<tr><td><code>sa_json_writer_new(whitespace: u32, emit_null_optional_fields: u8, emit_strings_as_arrays: u8, escape_unicode: u8, emit_nonportable_numbers_as_strings: u8, &amp;out_handle: ptr) -&gt; i32</code></td><td>创建 writer，五个选项控制输出风格</td></tr>
+<tr><td><code>sa_json_writer_begin_object / end_object / begin_array / end_array(writer: ptr) -&gt; i32</code></td><td>结构控制</td></tr>
+<tr><td><code>sa_json_writer_field_i64(writer: ptr, &amp;key: ptr, key_len: u64, value: i64) -&gt; i32</code></td><td>写对象字段；同类有 string/bool/f64/null/node 及无 key 的 <code>write_*</code></td></tr>
+<tr><td><code>sa_json_writer_finish(writer: ptr, &amp;out_handle: ptr) -&gt; i32</code> 或 <code>sa_json_writer_finish_buffer(writer: ptr) -&gt; ptr</code></td><td>结束并取输出</td></tr>
+</table>
+
+<h2>text/regex.sai</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_regex_compile(&amp;pattern: ptr, pattern_len: u64, cflags: i32) -&gt; ^ptr</code></td><td>编译正则，flags 为 POSIX cflags 语义</td></tr>
+<tr><td><code>sa_regex_match(regex: ptr, &amp;text: ptr, text_len: u64) -&gt; ^ptr</code></td><td>执行匹配，返回 match 对象</td></tr>
+<tr><td><code>sa_regex_group_count(regex: ptr) -&gt; u64</code></td><td>捕获组数量</td></tr>
+<tr><td><code>sa_regex_group_ptr(match: ptr, group_idx: u32) -&gt; &amp;ptr</code> / <code>sa_regex_group_len(match: ptr, group_idx: u32) -&gt; u64</code></td><td>读取某个捕获组的文本范围</td></tr>
+<tr><td><code>sa_regex_match_free(^match: ptr) -&gt; i32!</code> / <code>sa_regex_free(^regex: ptr) -&gt; i32!</code></td><td>先释放 match，再释放 regex</td></tr>
+</table>
+
+<h2>真实示例</h2>
+<p>Sla 直接调用 JSON 宏摘自
+<code>sa_plugin_sla/tests/test_unit_imported_json_direct.sla</code>：</p>
+<pre><code>@import "sa_std/string.sa"
+@import "sa_std/encoding/json.sa"
+@import "import_fixtures/pkgjson/json_helpers.sa"
+
+fn imported_json_kind(data: ptr, data_len: int) -&gt; int {
+    let root = JSON_PARSE(data, data_len);
+    return JSON_KIND(root);
+}
+
+fn imported_json_get_type(data: ptr, data_len: int) -&gt; int {
+    let root = JSON_PARSE(data, data_len);
+    let t = SLA_JSON_OBJECT_GET(root, STR_PTR("types"), STR_LEN("types"));
+    return JSON_KIND(t);
+}</code></pre>
+<p>其中 <code>SLA_JSON_OBJECT_GET</code> 是项目侧包装宏，展开为
+<code>@sa_json_object_get(...)</code> 调用（见
+<code>tests/import_fixtures/pkgjson/json_helpers.sa</code>）。</p>
+
+<div class="note"><span class="label">注意</span>测试中根节点 kind 为 <code>7</code>、
+字符串节点 kind 为 <code>5</code>——<code>sa_json_kind</code> 的具体枚举值请以运行时头文件为准，
+不要凭记忆猜测。</div>
+
+</body>
+</html>

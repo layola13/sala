@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>错误码与诊断</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SA 汇编与 SAB &gt; 错误码与诊断</div>
+<h1>错误码与诊断</h1>
+
+<p>这一页解释 SA 的诊断体系：公开 trap 名称、JSON 诊断 <code>TrapReport</code> 的字段，
+以及运行时 ABI 退出码。读完可以看懂一次失败编译的 JSON 输出并定位到具体阶段。</p>
+
+<h2>基本规则</h2>
+<ul>
+<li>Trap 名是稳定的公开标识符；trap 枚举的序号<strong>不是</strong>公开数字编码，不要按枚举顺序推断含义。</li>
+<li>输出是 JSON-first 的结构化诊断，而不是裸字符串。</li>
+<li>语义/语法失败由 <code>src/common/trap.zig</code> 定义的 trap 名描述。</li>
+</ul>
+
+<h2>TrapReport 字段</h2>
+<table>
+<tr><th>字段</th><th>含义</th></tr>
+<tr><td><code>trap</code></td><td>公开 trap 名称</td></tr>
+<tr><td><code>line</code> / <code>source_line</code></td><td>展开后行号 / 源码行号（均从 1 起）</td></tr>
+<tr><td><code>register</code> / <code>registers</code></td><td>主寄存器名 / 相关寄存器列表</td></tr>
+<tr><td><code>expected_mask</code> / <code>actual_mask</code></td><td>期望与实际的能力掩码（及对应人类可读名）</td></tr>
+<tr><td><code>upstream_loc</code></td><td>上游源位置 <code>{file,line,col}</code> 或 <code>null</code>（来自 <code>#loc</code>）</td></tr>
+<tr><td><code>function</code> / <code>is_ffi_wrapper</code></td><td>当前函数声明全文 / 是否为气闸包装函数</td></tr>
+<tr><td><code>message</code> / <code>hint</code></td><td>主消息 / 可选修复建议</td></tr>
+</table>
+
+<pre><code>{
+  "trap": "UnknownRegister",
+  "line": 13,
+  "source_line": 24,
+  "register": "after",
+  "registers": [],
+  "expected_mask": null,
+  "actual_mask": null,
+  "expected_mask_name": null,
+  "actual_mask_name": null,
+  "upstream_loc": null,
+  "function": "@main() -> i32:",
+  "is_ffi_wrapper": false,
+  "message": "register is not declared in the current scope",
+  "hint": null
+}</code></pre>
+
+<h2>常见 Trap 分类（已发射，非 roadmap-only）</h2>
+<table>
+<tr><th>类别</th><th>Trap</th><th>触发场景</th></tr>
+<tr><td rowspan="3">语法 / 结构</td><td><code>ForbiddenSyntax</code></td><td>出现 <code>{}</code>、<code>if</code>、<code>while</code> 等禁用语法；宏/导入类错误也多映射到此</td></tr>
+<tr><td><code>DuplicateDef</code> / <code>DuplicateLabel</code></td><td>重复 <code>#def</code>；同一函数内重复 label</td></tr>
+<tr><td><code>FallthroughForbidden</code></td><td>基本块没有以终结指令结束</td></tr>
+<tr><td rowspan="4">所有权 / 借用</td><td><code>UseAfterMove</code></td><td>访问已被消费的寄存器（"moved value is no longer usable"）</td></tr>
+<tr><td><code>BorrowConflict</code> / <code>DoubleMutableBorrow</code> / <code>ReadWriteConflict</code></td><td>对锁定中的源做冲突访问或二次独占借用</td></tr>
+<tr><td><code>MemoryLeak</code> / <code>EarlyReturnLeak</code></td><td>函数退出或 <code>?</code> 早返回路径上仍有活跃寄存器</td></tr>
+<tr><td><code>StackEscape</code> / <code>InteriorPtrEscape</code></td><td>栈分配逃逸原生边界；内部指针跨越 FFI 边界</td></tr>
+<tr><td rowspan="3">契约</td><td><code>CapabilityMismatch</code></td><td>调用点前缀不满足被调用方契约</td></tr>
+<tr><td><code>FallibleContractMismatch</code></td><td>对非可失败值用 <code>?</code>，或可失败返回路径不匹配</td></tr>
+<tr><td><code>ConstMutation</code> / <code>FfiOwnershipViolation</code> / <code>IllegalUnsafeContext</code></td><td>改写 <code>@const</code>；对 FFI 视图做 <code>^</code>/<code>!</code>；气闸指令出现在 <code>@ffi_wrapper</code> 外</td></tr>
+<tr><td>原子</td><td><code>InvalidAtomicOrdering</code> / <code>AtomicOrderingMismatch</code></td><td>flattener 阶段的序组合非法；Referee 阶段同地址 RMW 序不允许</td></tr>
+<tr><td>其他</td><td><code>ImportResolutionFailed</code>、<code>MacroRecursionLimit</code>（深度 &gt; 256）、<code>UnsupportedType</code>、<code>ArenaOOM</code> 等</td><td>见官方 errorcode 文档全表</td></tr>
+</table>
+<div class="note"><span class="label">注意</span><code>GasExceeded</code>、
+<code>SnapshotVersionMismatch</code>、<code>VTableSignatureMismatch</code> 目前是保留命名空间，
+尚未接入当前管线（roadmap-only），遇到问题不要指望它们出现。</div>
+
+<h2>阶段归属速判</h2>
+<ul>
+<li>报错来自 flattener 映射（多为 <code>ForbiddenSyntax</code> 一族）→ 文本解析/宏展开阶段。</li>
+<li>带掩码字段的结构化 JSON → Referee（<code>src/referee/verifier.zig</code> 是主要发射者）。</li>
+<li><code>error: &lt;name&gt;</code> 形式 → 解释器 / driver 内部错误，目前不是 SA Trap JSON。</li>
+</ul>
+
+<h2>运行时 ABI 退出码</h2>
+<p>以下不是 trap 编码，而是 <code>sa_std</code> 运行时调用返回的整数：</p>
+<table>
+<tr><th>码</th><th>名称</th><th>码</th><th>名称</th></tr>
+<tr><td><code>0</code></td><td><code>SA_STD_OK</code></td><td><code>6</code></td><td><code>SA_STD_ERR_IO</code></td></tr>
+<tr><td><code>1</code></td><td><code>SA_STD_ERR_INVALID_ARGUMENT</code></td><td><code>7</code></td><td><code>SA_STD_ERR_NET</code></td></tr>
+<tr><td><code>2</code></td><td><code>SA_STD_ERR_INVALID_HANDLE</code></td><td><code>8</code></td><td><code>SA_STD_ERR_UNSUPPORTED</code></td></tr>
+<tr><td><code>3</code></td><td><code>SA_STD_ERR_NOT_FOUND</code></td><td><code>9</code></td><td><code>SA_STD_ERR_TRUNCATED</code></td></tr>
+<tr><td><code>4</code></td><td><code>SA_STD_ERR_ACCESS</code></td><td><code>127</code></td><td><code>SA_STD_ERR_UNKNOWN</code></td></tr>
+<tr><td><code>5</code></td><td><code>SA_STD_ERR_NO_MEMORY</code></td><td></td><td></td></tr>
+</table>
+<p>另外，<code>panic(code)</code> 在 native 上会向 stderr 写 <code>PANIC: code=&lt;N&gt;</code>
+并以 <code>_exit(128+code)</code> 退出。</p>
+
+<p>下一页：<a href="06_limitations.html">已知限制</a>。</p>
+</body>
+</html>
