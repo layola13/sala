@@ -60,5 +60,6 @@ sa db lock / unlock &lt;table&gt;</code></pre>
 <div class="warning"><span class="label">警告</span>定位边界（README 明示）：这不是 SQLite 式 ACID/WAL/多表隔离的替代品。
 事务是单表、单写者；写路径由进程内互斥加每表 advisory 锁串行化，提交走临时文件原子改名。
 浮点索引拒绝 NaN/±Inf；blob contains 索引要求 needle 至少 3 字节。中文说明见仓库内 <code>README_cn.md</code>。</div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处</footer>
 </body>
 </html>

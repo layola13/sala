@@ -10,6 +10,7 @@
   python build.py --serve    # 构建后启动本地 HTTP 服务预览
 """
 import json
+import os
 import re
 import shutil
 import sys
@@ -84,13 +85,33 @@ def check_links(all_topics):
 
 # ---------------------------------------------------------------- dist 输出
 
+COPYRIGHT_HTML = (
+    '<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · '
+    '转载请注明出处</footer>'
+)
+
+
+def _inject_copyright(html: str) -> str:
+    if "class=\"copyright\"" in html:
+        return html
+    return html.replace("</body>", COPYRIGHT_HTML + "\n</body>")
+
+
 def write_dist(sections, all_topics):
     if DIST.exists():
         shutil.rmtree(DIST)
     DIST.mkdir(parents=True)
 
-    # 1. 复制内容页（保持 content/<sec>/<page>.html 结构）
-    shutil.copytree(CONTENT, DIST / "content")
+    # 1. 复制内容页（保持 content/<sec>/<page>.html 结构），并注入版权页脚
+    for src_dir, dirs, files in os.walk(CONTENT):
+        rel = os.path.relpath(src_dir, CONTENT)
+        dest = DIST / "content" if rel == "." else DIST / "content" / rel
+        dest.mkdir(parents=True, exist_ok=True)
+        for fn in files:
+            data = (Path(src_dir) / fn).read_text(encoding="utf-8")
+            if fn.endswith(".html"):
+                data = _inject_copyright(data)
+            (dest / fn).write_text(data, encoding="utf-8")
     # 2. 资源
     shutil.copytree(ROOT / "assets", DIST / "assets")
 
@@ -253,6 +274,8 @@ VIEWER_HTML = r"""<!DOCTYPE html>
     <button id="btn-print" title="打印当前主题">🖨 打印</button>
     <span class="spacer"></span>
     <span class="title">__TITLE__</span>
+    <span class="sep"></span>
+    <span class="copyright">© 2026 layola13</span>
   </div>
   <div class="main">
     <div class="navpane" id="navpane">

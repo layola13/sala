@@ -162,3 +162,12 @@ blockquote { margin: 10px 0; padding: 6px 14px; border-left: 4px solid var(--acc
   body { background: #fff; }
   pre, table, blockquote { page-break-inside: avoid; }
 }
+
+/* 版权页脚 */
+footer.copyright {
+  margin-top: 2em;
+  padding-top: 0.8em;
+  border-top: 1px solid #d0d4da;
+  color: #6a737d;
+  font-size: 12px;
+}

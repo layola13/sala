@@ -56,5 +56,6 @@
 <p>SLA 前端在 <code>@import</code> 时目前采取「全展开合并」模式：多个模块会被合并进单个 <code>.sa</code>/<code>.sab</code>，真实项目里出现过展开后上万条 SA 指令的单文件，这给展平器、验证器和后端都带来压力。按模块拆分输出、复用 SA 原生 <code>@import</code> 链接的模块化编译方案在设计文档中有规划，尚未成为当前行为——不要假设现在就是按模块缓存编译的。</p>
 
 <p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/roadmap_status_cn.md §6、compilation_optimization_cn.md、benchmarking_cn.md、testing_and_verification_cn.md §6。</p>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处</footer>
 </body>
 </html>

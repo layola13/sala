@@ -60,3 +60,10 @@ python build.py --serve     # 构建并启动 http://127.0.0.1:8765/default.html
   "parent": null                  // 或另一个 topic 的 id，形成二级树
 }
 ```
+
+## 版权声明
+
+Copyright © 2026 layola13. 保留所有权利。
+
+本文档基于 SA / SLA 工具链的真实源码与仓库文档编写，内容中的第三方事实素材
+（命令、契约签名、性能数据等）版权归各自上游项目所有。转载请注明出处。
