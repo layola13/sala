@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>CLI 用法详解</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">vm 虚拟机 &gt; CLI 用法详解</div>
+<h1>CLI 用法详解</h1>
+
+<p>本页逐条解释 <code>sa vm run</code> 和 <code>sa vm test</code> 的所有命令行参数、可选环境变量与典型运行模式。
+读完本节可以拼出任何想用的解释执行命令，并理解每种模式对返回码的影响。</p>
+
+<h2>用法骨架</h2>
+<p>vm 子命令的完整用法定义在 <code>src/plugin.zig::usageText()</code>，复刻如下：</p>
+<pre><code>Usage: sa vm &lt;run|test&gt; [--allow-ffi] [--sandboxed] [--stats] [--profile=N]
+           [--policy=&lt;file.json&gt;] [--fuel=N] [--deadline-ms=N]
+           [--mem-cap-bytes=N] [--max-call-depth=N] &lt;file.sa|.sab&gt;</code></pre>
+
+<p>位置参数必须是 <code>.sa</code> / <code>.sal</code> 源码或 <code>.sab</code> 字节码模块。输入是 SAB 还是源码，
+由前 4 字节是否匹配 SAB 魔数（<code>"SAB\x00"</code>）决定，而非扩展名——你也可以把 <code>.sa</code> 命名成
+任意后缀只要头部 4 字节正确（不推荐，扩展名优先）。</p>
+
+<p>解析顺序：先吃 <code>argv[0]=="sa"</code>、<code>argv[1]=="vm"</code>，然后要求 <code>argv[2] ∈ {run, test}</code>。
+后面从 <code>argv[3]</code> 起扫选项；遇到第一个非 <code>--</code> 开头的 token 就当作 <code>file_path</code>，并停止解析剩余 flag。</p>
+
+<h2>子命令</h2>
+<table>
+<tr><th>名称</th><th>行为</th><th>返回码来源</th></tr>
+<tr><td><code>run</code></td><td>解析并执行；若源码里没有 <code>@main</code> 则退回到 <code>@test</code> 模式</td><td><code>@main</code> 的 <code>return</code> 值（截断到 <code>u8</code>）</td></tr>
+<tr><td><code>test</code></td><td>遍历所有 <code>@test</code> 函数并按字典序逐个执行</td><td>全部通过返回 0；任一 <code>panic</code> 终止用 <code>128 + (code &amp; 0x7f)</code></td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>两条子命令在 vm 内部共享同一份解析 / 沙箱 / 入口；差别只是「是找 <code>@main</code> 还是找所有 <code>@test</code>」。</div>
+
+<h2>标志位</h2>
+<table>
+<tr><th>标志</th><th>语法</th><th>行为</th><th>退出 / 副作用</th></tr>
+<tr><td><code>--allow-ffi</code></td><td>单独存在，无值</td><td>把 <code>FfiManager.allow_ffi</code> 置 true，<code>dlopen</code>/<code>dlsym</code>/<code>dlclose</code>/<code>dlerror</code> 这 4 个原始 libc 符号才会在 <code>resolveSymbol</code> 里被返回</td><td>与 <code>--sandboxed</code> 冲突，组合使用直接 <code>E_SANDBOX_MISCONFIG</code> → 退出 234</td></tr>
+<tr><td><code>--sandboxed</code></td><td>单独存在，无值</td><td>加载 <code>policy_mod.parseSandboxed(allocator)</code> 给出的内置默认拒绝策略</td><td>同时禁止 <code>--allow-ffi</code> 与 <code>--policy</code>；冲突即 <code>E_SANDBOX_MISCONFIG</code> → 退出 234</td></tr>
+<tr><td><code>--stats</code></td><td>单独存在，无值</td><td>执行完后向 stderr 打印「VM stats:」块</td><td>不影响退出码</td></tr>
+<tr><td><code>--profile=N</code></td><td><code>--profile=10</code> 或 <code>--profile 10</code></td><td>包含 <code>--stats</code> 的全部内容，再追加按 inclusive 耗时排序的 Top N 函数表</td><td>0 不允许（解析失败 → 退出 1）</td></tr>
+<tr><td><code>--policy=path</code></td><td><code>--policy=foo.json</code> 或 <code>--policy foo.json</code></td><td>从 JSON 装载 <code>sa.vm.policy/1</code> 策略</td><td>策略解析失败 → <code>E_POLICY_INVALID</code> → 退出 233</td></tr>
+<tr><td><code>--fuel=N</code></td><td>—</td><td>按编译后基本块计费，超额抛 <code>E_FUEL_EXHAUSTED</code></td><td>退出 229</td></tr>
+<tr><td><code>--deadline-ms=N</code></td><td>—</td><td>挂钟时长上限（每 1024 块 + FFI/builtin 边界采样）</td><td>退出 230</td></tr>
+<tr><td><code>--mem-cap-bytes=N</code></td><td>—</td><td>VM 执行分配器的字节上限（0 = 不限）</td><td>退出 231</td></tr>
+<tr><td><code>--max-call-depth=N</code></td><td>—</td><td>guest 递归层数上限，0 不允许</td><td>默认 100000；超出时叠加 TEB host-stack 闸门（256 KiB headroom）→ <code>E_STACK_OVERFLOW</code> → 退出 235</td></tr>
+</table>
+
+<p>所有数值型 flag 解析失败会立刻在 stderr 打印 <code>Invalid value for --xxx: yyy</code> 并退出 1。
+未识别的 <code>--xxx</code> 退出 1 并打印 <code>Unknown vm option: xxx</code>。</p>
+
+<h2>退出码与边界</h2>
+<p>退出码的生成顺序（与 <code>src/plugin.zig::runVmCommand</code> 的控制流一致）：</p>
+<ol>
+<li>参数错误（含 usage 未对齐、未知 flag、缺文件路径、flag 缺值、数值非法）：退出 1。</li>
+<li>读源 / 预处理 / 解析 / FFI 加载失败：退出 1。</li>
+<li>策略无效：<code>E_POLICY_INVALID</code> → 233。</li>
+<li><code>--sandboxed</code> 与 <code>--policy</code> / <code>--allow-ffi</code> 同时使用：<code>E_SANDBOX_MISCONFIG</code> → 234。</li>
+<li>执行期 <code>panic</code>：<code>PANIC[code]: msg</code> 写到 stderr，返回 <code>128 + (code &amp; 0x7f)</code>。</li>
+<li>沙箱资源违规：<code>E_FUEL_EXHAUSTED</code> → 229、<code>E_TIMEOUT</code> → 230、<code>E_MEM_QUOTA</code> → 231、<code>E_STACK_OVERFLOW</code> → 235、<code>E_CAPABILITY_DENIED</code> → 228。</li>
+<li>正常返回：<code>@main</code> 的 <code>return</code> 整数（截断到 <code>u8</code>）。</li>
+</ol>
+
+<h2>环境变量</h2>
+<p>所有变量都被插件宿主与 vm 实现按以下顺序读取，缺省即视为未设置。</p>
+<table>
+<tr><th>变量</th><th>用途</th><th>典型值</th></tr>
+<tr><td><code>SA_PLUGIN_DEV</code></td><td>允许加载 <code>SA_PLUGINS_PATH</code> 指向的本地 <code>libvm.so</code>，跳过沙箱 <code>permissions.lock</code> 校验</td><td><code>1</code></td></tr>
+<tr><td><code>SA_PLUGINS_PATH</code></td><td>本地 vm 共享库绝对路径</td><td><code>$PWD/zig-out/lib/libvm.so</code></td></tr>
+<tr><td><code>SA_CACHE</code></td><td>vm 持久预处理缓存的根目录</td><td>任意可写绝对路径</td></tr>
+<tr><td><code>SA_VM_POLICY</code></td><td>未显式给 <code>--policy</code> 时回退到此文件</td><td>策略 JSON 路径</td></tr>
+<tr><td><code>SA_VM_FUEL</code></td><td>回退 fuel</td><td>十进制整数</td></tr>
+<tr><td><code>SA_VM_DEADLINE_MS</code></td><td>回退挂钟上限（ms）</td><td>十进制整数</td></tr>
+<tr><td><code>SA_VM_MEM_CAP_BYTES</code></td><td>回退内存上限（bytes）</td><td>十进制整数</td></tr>
+<tr><td><code>SA_VM_DISABLE_CALL_CACHE</code></td><td>关停 call cache</td><td><code>1</code> 即关</td></tr>
+<tr><td><code>SA_VM_DISABLE_TAIL_RESTART</code></td><td>关停尾自调重启</td><td><code>1</code> 即关</td></tr>
+<tr><td><code>SA_VM_DISABLE_BLOCK_FASTPATH</code></td><td>关停基本块 fast arm</td><td><code>1</code> 即关</td></tr>
+<tr><td><code>SA_VM_DISABLE_INTERPRETED_FASTPATH</code></td><td>关停已解释函数 fast path</td><td><code>1</code> 即关</td></tr>
+<tr><td><code>SA_VM_DISABLE_PREPROCESS_CACHE</code></td><td>关停持久预处理缓存</td><td><code>1</code> 即关</td></tr>
+<tr><td><code>SA_VM_DISABLE_PARSE_CACHE</code></td><td>关停 in-process parse cache LRU</td><td><code>1</code> 即关</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span><code>SA_VM_POLICY</code> / <code>SA_VM_FUEL</code> / <code>SA_VM_DEADLINE_MS</code> / <code>SA_VM_MEM_CAP_BYTES</code> 都在 CLI 显式 flag 之后回填：
+"CLI 显式 flag 覆盖 env，env 覆盖 policy 内的 limits"。详见 <a href="05_limits.html">资源限制与退出码</a>。</div>
+
+<h2>完整可复制示例</h2>
+
+<h3>本地开发期最简调用</h3>
+<pre><code>SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" \
+    sa vm run tests/hello_world.sa</code></pre>
+
+<h3>带执行统计</h3>
+<pre><code>SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" \
+    sa vm run --stats app.sa</code></pre>
+<p>输出会写到 stderr，形如：</p>
+<pre><code>VM stats:
+  preprocess_ns=...
+  preprocess_cache=hit|miss|disabled
+  parse_ns=...
+  parse_cache=hit|miss|disabled|clone_failed|store_failed
+  ffi_load_ns=...
+  bind_ns=...
+  execute_ns=...
+  total_ns=...
+  function_calls=...
+  interpreted_calls=...
+  bytecode_ops=...
+  slow_ops=...
+  fast_block_hits=...
+  tail_restarts=...
+  call_cache_hits=...
+  call_cache_misses=...
+  call_cache_stores=...
+  call_cache_clears=...
+  frame_pool_hits=...
+  frame_pool_misses=...
+  frame_pool_releases=...
+  memory_epoch_bumps=...
+  max_call_depth=...</code></pre>
+
+<h3>Top 10 函数 profile</h3>
+<pre><code>SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" \
+    sa vm run --profile=10 app.sa</code></pre>
+<p>在 <code>--stats</code> 全部内容之后追加：</p>
+<pre><code>VM profile top 10:
+  @fib calls=... total_ns=... avg_ns=...
+  ...</code></pre>
+
+<h3>沙箱：夹具 + 资源上限 + 策略</h3>
+<pre><code>SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" \
+    sa vm run --fuel=1000000 --deadline-ms=5000 \
+    --mem-cap-bytes=134217728 --max-call-depth=50000 \
+    --policy policy.json tests/fibonacci.sa</code></pre>
+
+<h3>SAB 字节码</h3>
+<pre><code>SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" \
+    sa vm run build/app.sab</code></pre>
+<p>vm 通过 <code>"SAB\x00"</code> 魔数识别 SAB 文件，复用 <code>src/sab_loader.zig</code> 的 <code>loadProgram</code> 重建
+与文本解析路径同形的 <code>Program</code>，不需要再走预处理。</p>
+
+<h3>@test 模式</h3>
+<pre><code>SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" \
+    sa vm test tests/vm_test_mode.sa</code></pre>
+
+<h3>隔离沙箱（拒绝一切未列出的 extern）</h3>
+<pre><code>SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" \
+    sa vm run --sandboxed tests/sandboxed.sa</code></pre>
+
+<h3>逐项关停优化（debug 工具）</h3>
+<pre><code>SA_VM_DISABLE_CALL_CACHE=1           sa vm run --stats app.sa
+SA_VM_DISABLE_TAIL_RESTART=1         sa vm run --stats app.sa
+SA_VM_DISABLE_BLOCK_FASTPATH=1       sa vm run --stats app.sa
+SA_VM_DISABLE_INTERPRETED_FASTPATH=1 sa vm run --stats app.sa
+SA_VM_DISABLE_PREPROCESS_CACHE=1     sa vm run --stats app.sa
+SA_VM_DISABLE_PARSE_CACHE=1          sa vm run --stats app.sa</code></pre>
+
+<h2>常见误区</h2>
+<ul>
+<li>把 <code>.sa</code> 当作 <code>.sab</code> 跑：vm 看前 4 字节而不是扩展名；错放字节码会被 <code>SAB loading failed</code> 拒绝。</li>
+<li>在 <code>--policy</code> 文件里写错 schema：被识别为非 <code>sa.vm.policy/1</code>，<code>E_POLICY_INVALID</code> → 233，且事件流里没有 <code>start</code> 行——执行没开始。</li>
+<li>依赖 <code>SA_CACHE</code> 而忘了它没有设置时的回退路径：vm 会自动用 <code>$HOME/.cache/sa/vm/preprocess</code>。</li>
+</ul>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

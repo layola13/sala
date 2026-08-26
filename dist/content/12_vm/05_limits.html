@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>资源限制与退出码</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">vm 虚拟机 &gt; 资源限制与退出码</div>
+<h1>资源限制与退出码</h1>
+
+<p>本页逐字摘录 <code>src/sandbox.zig</code> 的所有默认值与 <code>src/plugin.zig</code> 的退出码映射，
+并列出策略（<code>sa.vm.policy/1</code>）和环境变量回退顺序。读完本节可以在不读源码的前提下，准确预测
+任何 <code>sa vm ...</code> 调用在边界条件下的退出码与 stderr 输出。</p>
+
+<h2>资源限制项与默认值</h2>
+<p>以下字段在 <code>src/sandbox.zig::Limits</code> 中定义。除 <code>max_call_depth</code> / <code>stack_headroom_bytes</code> 之外，
+所有字段默认值都是 <code>null</code> 或 0，即"无上限"——dev 路径不带任何 flag 时 vm 与未加固模式无差别。</p>
+
+<table>
+<tr><th>字段</th><th>类型</th><th>默认值</th><th>CLI flag</th><th>env 回退</th><th>policy.limits 段</th></tr>
+<tr><td><code>fuel</code></td><td><code>?u64</code></td><td><code>null</code>（无计费）</td><td><code>--fuel=N</code></td><td><code>SA_VM_FUEL=N</code></td><td><code>"fuel": N</code></td></tr>
+<tr><td><code>wall_clock_ms</code></td><td><code>?u64</code></td><td><code>null</code>（无限时）</td><td><code>--deadline-ms=N</code></td><td><code>SA_VM_DEADLINE_MS=N</code></td><td><code>"wall_clock_ms": N</code></td></tr>
+<tr><td><code>mem_cap_bytes</code></td><td><code>?u64</code></td><td><code>null</code>（不限内存）</td><td><code>--mem-cap-bytes=N</code></td><td><code>SA_VM_MEM_CAP_BYTES=N</code></td><td><code>"mem_cap_bytes": N</code></td></tr>
+<tr><td><code>max_call_depth</code></td><td><code>u32</code></td><td><code>100_000</code>（<code>default_max_call_depth</code>）</td><td><code>--max-call-depth=N</code></td><td>—</td><td>—</td></tr>
+<tr><td><code>stack_headroom_bytes</code></td><td><code>usize</code></td><td><code>256 * 1024</code>（<code>default_stack_headroom_bytes</code>）</td><td>—</td><td>—</td><td>—</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span><code>max_call_depth</code> 与 <code>stack_headroom_bytes</code> <strong>没有 CLI/env 开关</strong>，但即使不设任何 cap，递归失控也不会硬崩：
+vm 会优先撞到 TEB 栈守页（Windows）或 host stack，触发 <code>E_STACK_OVERFLOW</code> panic 退出 235，
+而不是 <code>0xC0000005</code> abort。</div>
+
+<h2>Fuel 计费公式</h2>
+<p>逐字摘自 <code>src/sandbox.zig::blockCost</code>：</p>
+<pre><code>cost = body_words * 1 + slow_words * 15 + call_words * 31 + terminator(1)
+fast-arm 固定 = 4
+空块也至少 = 1（否则 while(true){} 是免费的）</code></pre>
+<p>对应常量为：</p>
+<table>
+<tr><th>常量</th><th>值</th></tr>
+<tr><td><code>block_cost_base</code></td><td>1</td></tr>
+<tr><td><code>block_cost_slow_op</code></td><td>15</td></tr>
+<tr><td><code>block_cost_call</code></td><td>31</td></tr>
+<tr><td><code>block_cost_fast_arm</code></td><td>4</td></tr>
+<tr><td><code>clock_check_interval_blocks</code></td><td>1024</td></tr>
+</table>
+
+<p>挂钟检查是惰性的：每 1024 个计费块采样一次；FFI / pthread / builtin / broker 调用边界强制采样。
+一个阻塞的系统调用（卡在 native FFI 里）无法被中途中断。</p>
+
+<h2>优先级与回退顺序</h2>
+<p><code>src/plugin.zig::applySandboxEnvFallbacks</code> 与随后的 <code>if (sandbox_options.xxx) |v| limits.xxx = v;</code>
+实现以下优先级：</p>
+<ol>
+<li><strong>CLI 显式 flag 永远赢</strong>（且不报冲突，effective 值会回显在 <code>start</code> 事件中）。</li>
+<li><strong>env 回退</strong>：<code>SA_VM_FUEL</code> / <code>SA_VM_DEADLINE_MS</code> / <code>SA_VM_MEM_CAP_BYTES</code> / <code>SA_VM_POLICY</code>（注意 <code>SA_VM_POLICY</code> 是回退到 <code>--policy</code>，不是回退到 cap）。</li>
+<li><strong>策略文件的 <code>limits</code> 段</strong>：解析后把 <code>fuel</code> / <code>wall_clock_ms</code> / <code>mem_cap_bytes</code> 三个非空字段填入 <code>Limits</code>。</li>
+<li><strong>否则关闭</strong>。</li>
+</ol>
+<p>对应源码骨架：</p>
+<pre><code>if (parsed_policy) |*policy| {
+    if (policy.limits.fuel != null)         limits.fuel          = policy.limits.fuel;
+    if (policy.limits.wall_clock_ms != null) limits.wall_clock_ms = policy.limits.wall_clock_ms;
+    if (policy.limits.mem_cap_bytes orelse 0 != 0) limits.mem_cap_bytes = policy.limits.mem_cap_bytes;
+}
+if (sandbox_options.fuel)         |v| limits.fuel          = v;
+if (sandbox_options.deadline_ms)  |v| limits.wall_clock_ms = v;
+if (sandbox_options.mem_cap_bytes) |v| limits.mem_cap_bytes = if (v == 0) null else v;
+if (sandbox_options.max_call_depth) |v| limits.max_call_depth = v;</code></pre>
+
+<h2>内存配额（<code>QuotaAllocator</code>）</h2>
+<p><code>src/sandbox.zig::QuotaAllocator</code> 包住 <code>std.heap.c_allocator</code>，在 <code>alloc / resize / remap</code>
+前做 <code>live_bytes + additional &lt;= cap</code> 校验；超限返回 <code>null</code> / <code>false</code>，被 vm 翻译为
+<code>E_MEM_QUOTA</code> panic（<code>.alloc</code> / <code>stack_alloc</code> 指令 + 帧分配两个 catch 点）。
+注意：<strong>解析 arena 不走 quota</strong>，quota 只覆盖执行期的 <code>exec_allocator</code>。</p>
+
+<p>跟踪指标（<code>--stats</code> 不直接暴露，但 <code>violation</code> 事件里的 <code>mem_peak_bytes</code> 是它）：</p>
+<ul>
+<li><code>live_bytes</code>：当前在用字节。</li>
+<li><code>peak_bytes</code>：本进程 VM 期内最大瞬时值。</li>
+</ul>
+
+<h2>退出码与 panic code 映射</h2>
+<p><code>src/sandbox.zig</code> 顶端定义所有保留码（<code>code_*</code> 常量），<code>src/plugin.zig</code> 始终以
+<code>128 + code</code> 计算进程退出码（<code>code &amp; 0x7f</code> 用于 <code>panic</code>，但保留码都 &lt; 128，所以"+"与"+&amp;0x7f"等价）。</p>
+
+<table>
+<tr><th>code</th><th>名称</th><th>退出码</th><th>触发条件</th></tr>
+<tr><td>100</td><td><code>E_CAPABILITY_DENIED</code></td><td>228</td><td>策略拒绝（fs / http / env / process / extern.allow / ffi / threads / net_raw 任一）</td></tr>
+<tr><td>101</td><td><code>E_FUEL_EXHAUSTED</code></td><td>229</td><td>block-cost 累计超出 <code>--fuel</code>（或 <code>policy.limits.fuel</code>）</td></tr>
+<tr><td>102</td><td><code>E_TIMEOUT</code></td><td>230</td><td>挂钟超出 <code>--deadline-ms</code>（每 1024 块 + FFI/builtin 边界采样）</td></tr>
+<tr><td>103</td><td><code>E_MEM_QUOTA</code></td><td>231</td><td>执行分配器 <code>QuotaAllocator</code> 拒绝 <code>alloc / resize / remap</code></td></tr>
+<tr><td>104</td><td><code>E_VERIFY_FAILED</code></td><td>232（reserved）</td><td>当前未触发，保留位</td></tr>
+<tr><td>105</td><td><code>E_POLICY_INVALID</code></td><td>233</td><td><code>--policy</code> JSON 不通过 schema 校验（含未知键、非绝对路径 fs pattern 等，<strong>fail closed</strong>）</td></tr>
+<tr><td>106</td><td><code>E_SANDBOX_MISCONFIG</code></td><td>234（reserved）</td><td><code>--sandboxed</code> 与 <code>--policy</code> / <code>--allow-ffi</code> 同时使用</td></tr>
+<tr><td>107</td><td><code>E_STACK_OVERFLOW</code></td><td>235</td><td>guest 递归超 <code>max_call_depth</code> 或 host stack headroom 不足（256 KiB）</td></tr>
+</table>
+
+<p>所有 <code>code_*</code> 常量命名可通过 <code>sandbox_mod.nameForCode</code> 取人类可读字符串
+（<code>E_FUEL_EXHAUSTED</code>、<code>E_TIMEOUT</code> 等），便于写入事件。</p>
+
+<h2>事件协议：<code>sa-vm-event</code></h2>
+<p>每次启动只要配置了任何 cap 或 policy，vm 会先写一行 <code>start</code> 事件：</p>
+<pre><code>sa-vm-event: {"v":1,"event":"start","fuel":N|null,"wall_clock_ms":N|null,"mem_cap_bytes":N|null,"max_call_depth":N,"stack_headroom_bytes":N}</code></pre>
+<p>每个 cap 违规写一行 <code>violation</code> 事件：</p>
+<pre><code>sa-vm-event: {"v":1,"event":"violation","code":N,"name":"E_...","detail":"...","fuel_used":N,"wall_ms":N,"mem_peak_bytes":N}</code></pre>
+<p>事件是单行 JSON 以 <code>\n</code> 结尾，可用 <code>grep '^sa-vm-event:'</code> 抓取。
+schema version 字段 <code>"v":1</code> 用于未来扩展兼容。</p>
+
+<h2>策略 schema：<code>sa.vm.policy/1</code></h2>
+<p>传给 <code>--policy=foo.json</code> 的文件必须以 <code>"schema": "sa.vm.policy/1"</code> 起头。
+以下字段会被读取，<strong>未知键会让解析失败</strong>（fail closed）以免误用旧策略：</p>
+<table>
+<tr><th>键</th><th>子键</th><th>作用</th></tr>
+<tr><td><code>schema</code></td><td>—</td><td>必须为 <code>"sa.vm.policy/1"</code></td></tr>
+<tr><td><code>limits</code></td><td><code>fuel</code> / <code>wall_clock_ms</code> / <code>mem_cap_bytes</code></td><td>资源 cap，CLI flag 覆盖</td></tr>
+<tr><td><code>extern</code></td><td><code>allow</code> (string[])</td><td>Layer 1 符号白名单；默认拒绝</td></tr>
+<tr><td><code>fs</code></td><td><code>read</code> (string[])、<code>write</code> (string[])</td><td>Glob 路径模式；Windows 走 realpath 规范化后匹配</td></tr>
+<tr><td><code>http</code></td><td><code>allow</code> (object[])</td><td>每个对象：<code>host</code> / <code>methods</code> / <code>path</code> / <code>port</code></td></tr>
+<tr><td><code>env</code></td><td>string[]</td><td>可读 / 写的环境变量名单</td></tr>
+<tr><td><code>process</code></td><td><code>spawn</code> (bool) / <code>exec</code> (object[])</td><td>spawn 开关 + exec 路径 / 参数白名单</td></tr>
+</table>
+
+<div class="warning"><span class="label">警告</span>非绝对路径的 fs 模式会被 <code>policy.zig</code> 直接拒收（<code>fs_path_invalid</code>）。
+这包括 <code>..</code>、junction / symlink 跳出、8.3 短名绕过、NTFS 备用数据流、<code>CON</code> / <code>NUL</code> / <code>COM1..</code> 等 DOS 设备名。
+详情见 <code>src/policy.zig</code> 头注释的威胁表。</div>
+
+<h2>典型冲突与诊断流程</h2>
+<p>用一张表快速对症：</p>
+
+<table>
+<tr><th>症状</th><th>可能退出码</th><th>查看位置</th></tr>
+<tr><td>无限循环程序一直跑</td><td>无（<code>--fuel</code> 未设）/ 229</td><td>确认 <code>fuel</code> 是否到达 0；<code>violation</code> 事件的 <code>fuel_used</code> 字段</td></tr>
+<tr><td>长任务被中途打断</td><td>230</td><td><code>wall_ms</code> 接近 <code>wall_clock_ms</code></td></tr>
+<tr><td>大 <code>alloc</code> 被拒</td><td>231</td><td><code>mem_peak_bytes</code> 接近 <code>mem_cap_bytes</code></td></tr>
+<tr><td>深度递归崩溃</td><td>235</td><td>检查是否撞了 <code>max_call_depth</code> 或 TEB 守页</td></tr>
+<tr><td><code>call @fn</code> 在解析阶段被拒</td><td>228</td><td><code>detail</code> 含 <code>extern_not_allowed</code> 或具体 <code>DenyReason.label()</code></td></tr>
+<tr><td><code>--policy=...</code> 没生效</td><td>233</td><td>确认 JSON schema 头；<code>violation</code> 不存在，但 stderr 有 <code>"Invalid VM run policy"</code> 行</td></tr>
+<tr><td><code>--sandboxed</code> + <code>--allow-ffi</code> 同时给</td><td>234</td><td>stderr 包含 <code>E_SANDBOX_MISCONFIG</code></td></tr>
+<tr><td><code>panic(11)</code> / 断言失败</td><td>139（=128+11）</td><td>stderr 包含 <code>PANIC[11]: ...</code>（无 backtrace）</td></tr>
+</table>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

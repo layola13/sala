@@ -393,6 +393,43 @@ var TOC = [
   ]
  },
  {
+  "t": "vm 虚拟机",
+  "f": null,
+  "c": [
+   {
+    "t": "vm 总览：定位与架构",
+    "f": "content/12_vm/01_overview.html",
+    "c": [
+     {
+      "t": "CLI 用法详解",
+      "f": "content/12_vm/02_cli.html",
+      "c": []
+     },
+     {
+      "t": "解释器内部机制",
+      "f": "content/12_vm/03_internals.html",
+      "c": []
+     },
+     {
+      "t": "FFI 桥与宿主互操作",
+      "f": "content/12_vm/04_ffi_bridge.html",
+      "c": []
+     },
+     {
+      "t": "资源限制与退出码",
+      "f": "content/12_vm/05_limits.html",
+      "c": []
+     },
+     {
+      "t": "端到端示例",
+      "f": "content/12_vm/06_examples.html",
+      "c": []
+     }
+    ]
+   }
+  ]
+ },
+ {
   "t": "标准库",
   "f": null,
   "c": [

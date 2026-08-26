@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>端到端示例</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">vm 虚拟机 &gt; 端到端示例</div>
+<h1>端到端示例</h1>
+
+<p>本页取插件仓库 <code>tests/</code> 目录里的<b>真实脚本</b>逐段讲解，覆盖 <code>run</code> 与 <code>test</code>
+两种模式、宏展开、内存操作、动态分发与受控运行。每段都标注出处文件路径；沙箱一节的脚本则取自
+<code>src/plugin.zig</code> 内嵌的测试夹具。</p>
+
+<h2>最小程序结构（run 模式）</h2>
+<p><b>出处：<code>D:/projects/sla/sa_plugin_vm/tests/hello_world.sa</code></b></p>
+<pre><code>@import "sa_std/io/print.sai"
+
+@const HELLO_MSG = utf8:"hello, saasm\n"
+
+@main() -&gt; i32:
+L_ENTRY:
+    call @sa_print_bytes(&amp;HELLO_MSG, 13)
+    return 0</code></pre>
+<ul>
+<li><code>@import</code> 拉入标准库的打印契约声明，使 <code>sa_print_bytes</code> 可被解析。</li>
+<li><code>@const NAME = utf8:"..."</code> 定义字节常量；预处理器同时自动生成伴随常量 <code>HELLO_MSG_len = 13</code>，
+因此长度不必手算——这里显式写 <code>13</code> 与之一致。</li>
+<li><code>@main() -&gt; i32:</code> 是入口签名，<code>L_ENTRY:</code> 是第一个基本块标签；
+<code>&amp;NAME</code> 取常量地址，返回值 <code>0</code> 即进程退出码。</li>
+</ul>
+<pre><code># 运行
+SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" sa vm run tests/hello_world.sa</code></pre>
+
+<h2>递归调用与退出码</h2>
+<p><b>出处：<code>tests/fibonacci.sa</code></b>（节选）</p>
+<pre><code>@const RESULT_OK = utf8:"21\n"
+@const RESULT_ERR = utf8:"error\n"
+
+@fib(n: i32) -&gt; i32:
+L_ENTRY:
+    base = sle n, 1
+    br base -&gt; L_BASE, L_REC
+
+L_BASE:
+    !base
+    return n
+
+L_REC:
+    !base
+    n1 = sub n, 1
+    n2 = sub n, 2
+    a = call @fib(n1)
+    b = call @fib(n2)
+    sum = add a, b
+    !n
+    !a
+    !b
+    return sum
+
+@main() -&gt; i32:
+L_ENTRY:
+    result = call @fib(8)
+    ok = eq result, 21
+    !result
+    br ok -&gt; L_OK, L_ERR
+
+L_OK:
+    !ok
+    call @sa_print_bytes(&amp;RESULT_OK, 3)
+    return 0
+
+L_ERR:
+    !ok
+    call @sa_print_bytes(&amp;RESULT_ERR, 6)
+    return 1</code></pre>
+<p>要点：</p>
+<ul>
+<li>内部函数递归由解释器通过实例化子帧实现，参数按位置填入新帧的前几个槽。</li>
+<li><code>!reg</code> 是所有权消费提示，在解释器里是无害的 no-op，但保留了源语言的所有权语义痕迹。</li>
+<li>失败分支 <code>return 1</code> 让进程退出码为 <code>1</code>，可直接用于 shell 判断。
+<code>fib(8) == 21</code> 与字符串字面量一致。</li>
+</ul>
+
+<h2>条件分支与内存写入循环</h2>
+<p><b>出处：<code>tests/if_else.sa</code>、<code>tests/loop.sa</code></b>。<code>if_else.sa</code> 用
+<code>sgt</code> 比较、<code>br</code> 双分支实现 <code>max(10, 20)</code>，结构与上例相同。<code>loop.sa</code>
+展示了完整的栈上计数器循环与指针运算：</p>
+<pre><code>@fill_zero(&amp;arr: ptr) -&gt; void:
+L_ENTRY:
+    i_slot = stack_alloc 8          # 栈槽：8 字节局部变量
+    store i_slot+0, 0 as u64        # 带偏移的类型化存储
+    jmp L_COND
+
+L_COND:
+    i = load i_slot+0 as u64        # 类型化读取
+    more = ult i, 4                 # 无符号小于
+    br more -&gt; L_BODY, L_END
+
+L_BODY:
+    slot = ptr_add arr, i           # 指针算术
+    store slot+0, 0 as u8
+    next = add i, 1
+    store i_slot+0, next as u64
+    ...
+    jmp L_COND</code></pre>
+<p><code>i_slot</code> 这类 <code>stack_alloc</code> 存储正是让所在函数被标记为「需要 arena」的原因：
+帧随返回整体释放，堆段不会泄漏。主函数先 <code>alloc 4</code> 分配堆缓冲、写入 1..4 再调用清零函数，
+最后逐字节读回验证。</p>
+
+<h2>宏：卫生重命名</h2>
+<p><b>出处：<code>tests/hygiene_macro.sa</code></b></p>
+<pre><code>[MACRO] BAR %out, %x
+    _tmp = add %x, 1
+    %out = _tmp
+[END_MACRO]
+
+@main() -&gt; i32:
+L_ENTRY:
+    EXPAND BAR _a, 5
+    EXPAND BAR _b, 10
+
+    # Verify parameter substitution and register isolation:
+    oka = eq _a, 6
+    okb = eq _b, 11
+    ok = and oka, okb
+    ...</code></pre>
+<p>两次展开中的 <code>_tmp</code> 都以 <code>_</code> 开头，属于「宏体局部名」，会被分别改写成带单调计数器后缀的名字
+（形如 <code>_tmp__sa_hyg&lt;N&gt;</code>），因此两次展开各自占用独立寄存器槽，互不覆盖——这就是注释里说的
+register isolation。<code>%out</code>/<code>%x</code> 则按位置替换为实参。</p>
+
+<h2>宏：<code>[REP N]</code> 循环展开</h2>
+<p><b>出处：<code>tests/rep_macro.sa</code></b>（节选）</p>
+<pre><code>    _sum_slot = stack_alloc 8
+    store _sum_slot+0, 0 as u64
+
+    [REP 3]
+    # Each iteration has its own hygienic label L_ITER and local register _step_val
+    # as well as substituting the loop index %i
+    L_ITER:
+        _step_val_%i = add %i, 1
+        _curr_sum = load _sum_slot+0 as u64
+        _next_sum = add _curr_sum, _step_val_%i
+        store _sum_slot+0, _next_sum as u64
+        !_step_val_%i
+        !_curr_sum
+        !_next_sum
+    [END_REP]
+
+    final_sum = load _sum_slot+0 as u64
+    ok = eq final_sum, 6 # 1 + 2 + 3 = 6</code></pre>
+<p><code>[REP 3]</code> 把块体重复三次，每次把 <code>%i</code> 替换为步号 0/1/2，并给 <code>L_ITER</code>
+这样的标签做卫生改写以免重复定义。累加结果 6 与断言一致。</p>
+
+<div class="note"><span class="label">提示</span>标准库大量依赖这套机制：<code>tests/generics_monomorph.sa</code>
+导入 <code>sa_std/core/option.sal</code> 后用 <code>EXPAND OPTION_IS_SOME has_value, opt</code>、
+<code>EXPAND OPTION_GET value, opt</code>、<code>EXPAND OPTION_SET_SOME opt, 42</code>
+针对 <code>i32</code> 手工实例化出 <code>@unwrap_or_i32</code>——即「单态化靠宏展开」这一模式在解释器下同样成立。</div>
+
+<h2>尾自调用与 arena 帧</h2>
+<p><b>出处：<code>tests/vm_tail_arena.sa</code></b>（节选）</p>
+<pre><code>@count_with_slot(i: u64, n: u64) -&gt; u64:
+L_ENTRY:
+    done = eq i, n
+    slot = stack_alloc 8
+    store slot+0, i as u64
+    br done -&gt; L_DONE, L_STEP
+L_STEP:
+    one = 1 as u64
+    ni = add i, one
+    result = call @count_with_slot(ni, n)
+    !slot
+    ...
+    return result
+L_DONE:
+    !slot
+    !done
+    return i
+
+# main 里：n = 2048，result 应等于 n</code></pre>
+<p>该函数既做尾自调用又需要 <code>stack_alloc</code> 的 arena 帧。解释器把尾自调用识别出来后<b>不新建帧</b>，
+而是原地更新实参并从块 0 重启当前帧，于是 2048 层递归只占用一层帧空间。
+这正是 README 提到的回归点：「covers tail self-calls in functions that need arena-backed stack_alloc frames」。</p>
+
+<h2>虚表与间接调用（动态分发）</h2>
+<p><b>出处：<code>tests/trait_vtable.sa</code></b>（节选）</p>
+<pre><code>@const BUTTON_VT = vtable { draw = @button_draw }
+
+#def DynDraw_SIZE = 16
+#def DynDraw_DATA = +0
+#def DynDraw_VTABLE = +8
+#def VTable_draw = +0
+#def Button_SIZE = 4
+#def Button_id = +0
+
+@render(&amp;item: ptr) -&gt; i32:
+L_ENTRY:
+    data_ptr = load item+DynDraw_DATA as ptr
+    vtable_ptr = load item+DynDraw_VTABLE as ptr
+    draw_fn = load vtable_ptr+VTable_draw as ptr
+    result = call_indirect draw_fn(&amp;data_ptr)
+    ...</code></pre>
+<ul>
+<li><code>vtable { draw = @button_draw }</code> 在预处理期原样保留，到绑定阶段才被具体化为函数指针数组。</li>
+<li>胖指针布局：数据指针与虚表指针各占一个槽位；方法地址从虚表偏移处加载后经 <code>call_indirect</code> 调用。</li>
+<li><code>#def</code> 常量在第二遍替换中生效，所以字段偏移写成可读的形式而性能不受影响。</li>
+</ul>
+
+<h2>test 模式</h2>
+<p><b>出处：<code>tests/vm_test_mode.sa</code></b>（完整内容）</p>
+<pre><code>@test "vm harness"():
+L_ENTRY:
+    sum = add 2, 3
+    ok = eq sum, 5
+    br ok -&gt; L_PASS, L_FAIL
+L_PASS:
+    return
+L_FAIL:
+    panic(11)</code></pre>
+<ul>
+<li><code>@test "...":</code> 定义的函数名以 <code>test </code> 开头，这是 vm 识别测试函数的唯一依据。</li>
+<li>测试函数<b>不能带参数</b>，否则报错退出码 1。</li>
+<li>框架本身不判断布尔值：用例自行分支，失败侧用 <code>panic(11)</code> 终止——进程退出码为
+<code>128 + (11 &amp; 0x7f)</code> = <code>139</code>。</li>
+<li>全部 <code>@test</code> 按<b>名字排序</b>依次执行；全部跑完且无 panic 则退出码 <code>0</code>。</li>
+</ul>
+<pre><code>sa vm test tests/vm_test_mode.sa</code></pre>
+<p>配套的两个夹具演示了同一份死代码链在两种模式下的行为：
+<code>tests/vm_dead_pure.sa</code>（含 <code>@main</code>）与 <code>tests/vm_dead_pure_test_mode.sa</code>
+（改为 <code>@test "dead pure chain"</code>）。两者都在 <code>load p+0 as u64</code> 处解引用一个从未初始化的指针值，
+用于回归验证这类「纯但无效」的加载链不会让 VM 触碰非法内存而崩溃。</p>
+
+<h2>观测：计数循环与 <code>--stats</code></h2>
+<p><b>出处：<code>tests/bench.sa</code></b>（节选）</p>
+<pre><code>@const RESULT_OK = utf8:"[PASS] Loop benchmark completed successfully!\n"
+
+@main():
+L_ENTRY:
+    sum_ptr = stack_alloc 8
+    i_ptr = stack_alloc 8
+    store sum_ptr+0, 0 as u64
+    store i_ptr+0, 0 as u64
+    limit = 100000
+    jmp L_COND
+
+L_COND:
+    i = load i_ptr+0 as u64
+    cond = ult i, limit
+    br cond -&gt; L_BODY, L_EXIT
+
+L_BODY:
+    sum = load sum_ptr+0 as u64
+    sq = mul i, i
+    next_sum = add sum, sq
+    next_i = add i, 1
+    store sum_ptr+0, next_sum as u64
+    store i_ptr+0, next_i as u64
+    ...
+    jmp L_COND
+...</code></pre>
+<p>这是一个典型的「寄存器提升受阻」循环：求和与计数都放在栈槽里，每轮都要 load/store。
+配合观测开关可以看到解释器各路径的实际占比：</p>
+<pre><code>sa vm run --stats tests/bench.sa
+# 关注 fast_block_hits（快速臂命中）、slow_ops（慢路径回查）、
+# tail_restarts、call_cache_* 与 frame_pool_* 各项
+
+SA_VM_DISABLE_BLOCK_FASTPATH=1 sa vm run --stats tests/bench.sa   # 关掉块快速路径再对比
+sa vm run --profile=5 tests/bench.sa                              # 附带最耗时函数排行</code></pre>
+
+<h2>FFI：调用已安装插件的符号</h2>
+<p><b>出处：<code>tests/http_client_test.sa</code></b></p>
+<pre><code>@extern sa_http_client_new(use_tls: u32, &amp;out_client: ptr) -&gt; u32
+@extern sa_http_client_free(client: ptr) -&gt; u32
+
+@main() -&gt; i32:
+L_ENTRY:
+    client_slot = stack_alloc 8
+    status = call @sa_http_client_new(0, &amp;client_slot)
+
+    ok = eq status, 0
+    br ok -&gt; L_FREE, L_ERR
+
+L_FREE:
+    client = load client_slot+0 as ptr
+    status2 = call @sa_http_client_free(client)
+
+    ok2 = eq status2, 0
+    br ok2 -&gt; L_SUCCESS, L_ERR
+
+L_SUCCESS:
+    call @sa_print_bytes(&amp;MSG_OK, 55)
+    return 0
+
+L_ERR:
+    call @sa_print_bytes(&amp;MSG_ERR, 52)
+    return 1</code></pre>
+<ul>
+<li><code>@extern</code> 声明类型化签名，绑定阶段解析到已安装 http-client 插件导出的符号后经 libffi 分发。</li>
+<li><code>&amp;client_slot</code> 把栈槽地址作为出参传入，随后 <code>load client_slot+0 as ptr</code> 取回句柄。</li>
+<li>该符号列在 <code>sap.json</code> 的 <code>dependencies."http-client".symbols</code> 中，因此能被懒加载命中；
+若该可选插件未安装，调用会以符号未解析告终，但不影响其他不涉及它的程序运行。</li>
+</ul>
+
+<h2>沙箱行为演示（内嵌测试夹具）</h2>
+<p><b>出处：<code>src/plugin.zig</code> 的测试夹具常量</b>。这三个脚本专门用来触发资源限制，
+是验证 <a href="05_limits.html">退出码表</a> 最直接的素材。</p>
+
+<h3>无限循环 → <code>E_FUEL_EXHAUSTED</code> / <code>E_TIMEOUT</code></h3>
+<pre><code>@main() -&gt; i32:
+L_ENTRY:
+    jmp L_ENTRY</code></pre>
+<pre><code>sa vm run --fuel=1000 infinite.sa       # 退出码 229，事件行 code=101
+sa vm run --deadline-ms=40 infinite.sa  # 退出码 230，事件行 code=102</code></pre>
+<p>空体回边块仍要烧最少 1 单位燃料，所以 fuel 能杀掉这种循环；墙钟则是另一种独立手段。</p>
+
+<h3>分配风暴 → <code>E_MEM_QUOTA</code></h3>
+<pre><code>@main() -&gt; i32:
+L_LOOP:
+    p = alloc 1048576
+    jmp L_LOOP</code></pre>
+<pre><code>sa vm run --mem-cap-bytes=8388608 memhog.sa   # 退出码 231，事件行 code=103</code></pre>
+
+<h3>非尾自递归 → <code>E_STACK_OVERFLOW</code></h3>
+<p><code>DEEP_RECURSION_SA</code> 夹具定义了一个把返回值加一后再返回的计数函数
+<code>@count(i, n)</code>，主函数以 200000 调用它——因为多了一步 <code>add r, one</code>，
+这个调用不是尾调用，帧会真正累积。不加任何标志直接运行即可看到干净的中止而非宿主崩溃：</p>
+<pre><code>sa vm run deep.sa                        # 退出码 235，事件行 code=107
+sa vm run --max-call-depth=1000 deep.sa  # 显式收紧深度上限</code></pre>
+
+<h3>能力拒绝 → <code>E_CAPABILITY_DENIED</code></h3>
+<p>仓库测试还包含一组策略端到端用例：允许子树内的文件读取成功执行，子树外的同一种调用则以
+退出码 228 失败，事件行的 detail 同时给出原因标签（如 <code>fs_not_allowed</code>、
+<code>host_not_allowed</code>、<code>extern_not_allowed</code>）和目标字符串。
+其中一条结论值得记住：<b>URL 不在域名白名单时，加不加 <code>--allow-ffi</code> 结果完全一样</b>，
+因为能力判定发生在任何 FFI 机制介入之前。</p>
+
+<h2>把示例跑起来</h2>
+<pre><code># 在 D:/projects/sla/sa_plugin_vm 下构建后
+zig build -Doptimize=ReleaseFast
+
+# run 模式
+for f in hello_world fibonacci if_else loop hygiene_macro rep_macro trait_vtable \
+         generics_monomorph bench vm_tail_arena; do
+  SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" sa vm run "tests/$f.sa"
+done
+
+# test 模式
+SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" sa vm test tests/vm_test_mode.sa
+SA_PLUGIN_DEV=1 SA_PLUGINS_PATH="$PWD/zig-out/lib/libvm.so" sa vm test tests/vm_dead_pure_test_mode.sa</code></pre>
+
+<p>相关页面：<a href="02_cli.html">CLI 用法详解</a>、<a href="03_internals.html">解释器内部机制</a>、<a href="05_limits.html">资源限制与退出码</a>。</p>
+
+</body>
+</html>

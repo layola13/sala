@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>vm 总览：定位与架构</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">vm 虚拟机 &gt; vm 总览：定位与架构</div>
+<h1>vm 总览：定位与架构</h1>
+
+<p>本页说明 <code>sa_plugin_vm</code> 在 SA / SLA 工具链中的位置：它是一个独立的动态解释器虚拟机插件，
+通过注册 <code>vm</code> 子命令拦截 <code>sa vm ...</code> 调用，把 SA 汇编（<code>.sa</code> / <code>.sal</code>）以及 SAB v4 字节码模块
+直接在宿主 OS 上解释执行。读完本页可以分清「解释执行」与「编译为原生可执行文件」两条路径的分工，并掌握 vm 的四层架构与能力域地图。</p>
+
+<h2>在工具链中的位置</h2>
+<p>SA / SLA 工具链默认只把 <code>.sa</code> 编译到原生可执行文件（<code>sa build-exe</code> 走 SLA → SA → 后端这条线）。
+<code>sa_plugin_vm</code> 通过 SA 的动态命令分发 ABI（<code>saasm_plugin_descriptor_v1</code>）注册一个 <code>vm</code> 子命令，
+所有 <code>sa vm ...</code> 调用都被它截走，<strong>无需修改主线编译器</strong>。</p>
+
+<table>
+<tr><th>路径</th><th>入口</th><th>产物</th><th>典型用途</th></tr>
+<tr><td>原生路径</td><td><code>sa build-exe app.sa</code></td><td>可执行文件 / 共享库</td><td>发布、性能基准、需要 OS 全部能力</td></tr>
+<tr><td>解释路径</td><td><code>sa vm run app.sa</code></td><td>无产物（直接执行）</td><td>本地开发迭代、CI 烟雾测试、沙箱夹具、TheAlgorithms 兼容性自检</td></tr>
+</table>
+
+<p>两套路径共用同一份前端语义——vm 消费的是与编译路径完全等价的解析后 IR；
+但 vm 不发射目标代码，而是把每条指令在栈帧上解释。开发期常见的工作流是先用 <code>sa vm run --stats</code> 验证逻辑，
+再切到 <code>sa build-exe</code> 出产物。</p>
+
+<h2>与 build-exe 的明确分工</h2>
+<ul>
+<li><strong>vm 负责</strong>：动态解释、内置调试输出（<code>--stats</code>、<code>--profile=N</code>）、资源沙箱（fuel / 时钟 / 内存 / 递归深度）、
+能力策略（<code>sa.vm.policy/1</code>）、<code>@test</code> 模式、SAB 字节码加载、跨插件 FFI。</li>
+<li><strong>build-exe 负责</strong>：可执行文件链接、链接时优化、JIT/AOT 不可达特性（<code>inline_assembly</code>、
+架构相关的 SIMD intrinsics、<code>pkg_bin_multiple</code> 多入口包）、发布签名。</li>
+<li><strong>交叉</strong>：vm 本身可以被 build-exe 编译产出（<code>zig build -Doptimize=ReleaseFast</code> 生成
+<code>libvm.so</code> / <code>vm.dll</code>），所以「vm 是 build-exe 的目标程序」、「build-exe 编译出 vm」同时成立——这是插件宿主关系，不是替代关系。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>vm 权限较宽（项目 FS 全操作、本机网络、缓存目录），在正式运行模式下需要
+沙箱 <code>permissions.lock</code>，本地验证统一加 <code>SA_PLUGIN_DEV=1</code>。详见 <a href="05_limits.html">资源限制与退出码</a>。</div>
+
+<h2>四层架构</h2>
+<p>vm 把「源码」到「执行」切成 4 个层次，每一层都独立可测、可关停（对应一个或多个 <code>SA_VM_DISABLE_*</code> 环境变量）：</p>
+
+<table>
+<tr><th>层</th><th>源码文件</th><th>职责</th><th>可关停开关</th></tr>
+<tr><td>1. 预处理</td><td><code>src/parser.zig</code></td><td>两遍预处理：预扫 <code>[MACRO]</code> / <code>#def</code>，再展开 <code>EXPAND</code>、递归 <code>@import</code>、常量解码（<code>utf8:"..."</code>、<code>struct {…}</code> 十六进制）</td><td><code>SA_VM_DISABLE_PREPROCESS_CACHE</code></td></tr>
+<tr><td>2. 解析 / 字节码</td><td><code>src/parser.zig</code>、<code>src/sab_loader.zig</code></td><td>解析为 <code>Program</code>（基本块、寄存器表、签名表），或从 SAB v4 字节码重建同形结构</td><td><code>SA_VM_DISABLE_PARSE_CACHE</code></td></tr>
+<tr><td>3. 栈帧执行</td><td><code>src/vm.zig</code></td><td>线性栈分配的帧跟踪、指令分发（<code>pc</code> 走基本块偏移）、内部子程序递归调用、调用缓存、尾自调重启</td><td><code>SA_VM_DISABLE_CALL_CACHE</code>、<code>SA_VM_DISABLE_TAIL_RESTART</code>、<code>SA_VM_DISABLE_BLOCK_FASTPATH</code>、<code>SA_VM_DISABLE_INTERPRETED_FASTPATH</code></td></tr>
+<tr><td>4. FFI 桥</td><td><code>src/ffi.zig</code>、<code>src/io_classify.zig</code></td><td>libffi 类型化分发、POSIX <code>dlopen</code> / <code>dlsym</code>、内置 shim（<code>fd_*</code> / <code>mmap</code> / <code>signal</code> / <code>pthread_*</code> / <code>sqlite3_*</code> / <code>sa_time_*</code>）、策略引擎在分发点拦截</td><td>—</td></tr>
+</table>
+
+<h2>能力域地图</h2>
+<p>从 <code>sap.json</code> 的 <code>permissions</code> 段可以读出 vm 正式注册的能力面。本地开发期这些声明用于
+<code>SA_PLUGIN_DEV=1</code> 路径；正式期被 <code>permissions.lock</code> 收紧。</p>
+
+<ul>
+<li><strong>fs</strong>：<code>$PROJECT/**</code> 全操作（read / write / create / delete / metadata）、
+<code>$SA_PLUGINS_HOME/**</code> 只读、<code>$HOME/.sa/std/**</code> 只读、<code>$SA_CACHE/**</code> 读写。</li>
+<li><strong>net</strong>：声明域名（example.com / api.example.com / localhost / 127.0.0.1 / [::1] / 端口 18395），
+但运行时由 <code>policy.zig</code> 二次过滤，仅在 <code>policy.http.allow</code> 中放行的目标才允许实际访问。</li>
+<li><strong>env</strong>：<code>HOME</code>、<code>SA_PLUGINS_HOME</code>、<code>SA_STD_DIR</code>、<code>SA_CACHE</code> 以及以 <code>SA_</code> 开头的所有变量。</li>
+<li><strong>process</strong>：允许 spawn；<code>exec</code> 清单只列了 <code>/bin/echo</code>、<code>/usr/bin/echo</code>，其它二进制走 <code>process_exec_not_allowed</code> 拒绝。</li>
+</ul>
+
+<p>可选依赖（按需 dlopen 已安装插件）：<code>http-client</code>、<code>http-server</code>、<code>deno</code>、<code>node</code>，
+每个的符号清单都被 <code>sap.json</code> 钉死。vm 不强制依赖它们存在；缺失时不影响其它符号解析。</p>
+
+<h2>运行期组件</h2>
+<p>一次 <code>sa vm run</code> 调用的主流程（<code>src/plugin.zig::runVmCommand</code>）：</p>
+<ol>
+<li>解析 argv；统计 sandbox 选项；按 <code>argv[2] ∈ {run, test}</code> 决定模式。</li>
+<li>检测 SAB 魔数（<code>"SAB\x00"</code>）决定走 <code>sab_loader</code> 还是 <code>parser</code>。</li>
+<li>预处理（含可选 persistent cache）→ 解析（含可选 in-process LRU）→ 绑定（解析 <code>@extern</code> / 函数符号）。</li>
+<li>需要 FFI 时（<code>--allow-ffi</code> 或程序出现 <code>@extern</code>）<code>FfiManager.loadDeclaredDependencies</code> 按依赖列表懒加载。</li>
+<li>解析策略（<code>--policy</code> / <code>--sandboxed</code> / 环境变量 / CLI 显式覆盖），并按 "CLI 显式 > env > policy" 顺序合成最终 <code>Limits</code>。</li>
+<li>构造 <code>QuotaAllocator</code>（如开了 mem-cap）、<code>VM</code> 实例、<code>setPolicy</code>、<code>configureSandbox</code>。</li>
+<li>写出 <code>sa-vm-event: {"event":"start", ...}</code>（仅在有 cap / policy 时）。</li>
+<li><code>vm.run()</code> 或 <code>vm.runTests()</code> 解释执行。退出码即返回值；<code>panic</code> 走 <code>128 + (code &amp; 0x7f)</code>。</li>
+<li>如有 <code>--stats</code> / <code>--profile=N</code> 写出统计块。</li>
+</ol>
+
+<h2>沙箱安全模型速览</h2>
+<p>vm 的"沙箱"由三层叠加（详见 <a href="05_limits.html">资源限制与退出码</a>）：</p>
+<ul>
+<li><strong>资源上限</strong>：fuel / wall clock / mem quota / call depth，违规统一走 panic → 退出码。</li>
+<li><strong>能力策略</strong>：<code>sa.vm.policy/1</code> JSON，<code>extern.allow</code>（默认拒绝的符号白名单）+ <code>fs</code> / <code>http</code> / <code>env</code> / <code>process</code> 细粒度控制。</li>
+<li><strong>原始 libc FFI 闸门</strong>：<code>dlopen</code> / <code>dlsym</code> / <code>dlclose</code> / <code>dlerror</code> 只有 <code>--allow-ffi</code> 才暴露。</li>
+</ul>
+
+<p>合规的失败路径都通过 <code>sa-vm-event: {"v":1,"event":"violation","code":N,"name":"...",...}</code> 单行 JSON 报告，
+宿主脚本可以直接 grep 抓取。</p>
+
+<div class="warning"><span class="label">警告</span>已知范围外项：inline assembly、SIMD intrinsics、多二进制包；
+浮点比较尚不支持（位存储已实现）；线程模型是同步的；panic 无 backtrace。
+详见 <a href="03_internals.html">解释器内部机制</a> 与 <a href="05_limits.html">资源限制与退出码</a>。</div>
+</body>
+</html>

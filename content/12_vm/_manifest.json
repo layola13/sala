@@ -1,0 +1,96 @@
+{
+  "topics": [
+    {
+      "id": "overview",
+      "title": "vm 总览：定位与架构",
+      "file": "01_overview.html",
+      "keywords": [
+        "vm",
+        "解释器虚拟机",
+        "sa_plugin_vm",
+        "build-exe 分工",
+        "架构",
+        "CLI-only 插件"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cli",
+      "title": "CLI 用法详解",
+      "file": "02_cli.html",
+      "keywords": [
+        "sa vm run",
+        "sa vm test",
+        "--stats",
+        "--profile",
+        "--allow-ffi",
+        "--sandboxed",
+        "环境变量",
+        "退出码"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "internals",
+      "title": "解释器内部机制",
+      "file": "03_internals.html",
+      "keywords": [
+        "两遍预处理",
+        "栈帧",
+        "指令分发",
+        "quickening",
+        "[MACRO]",
+        "[REP]",
+        "SAB 字节码",
+        "--stats 计数器"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "ffi-bridge",
+      "title": "FFI 桥与宿主互操作",
+      "file": "04_ffi_bridge.html",
+      "keywords": [
+        "FFI",
+        "@extern",
+        "libffi",
+        "dlopen",
+        "内置 shim",
+        "pthread_*",
+        "extern.allow"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "limits",
+      "title": "资源限制与退出码",
+      "file": "05_limits.html",
+      "keywords": [
+        "--fuel",
+        "--deadline-ms",
+        "--mem-cap-bytes",
+        "--max-call-depth",
+        "sa.vm.policy/1",
+        "E_FUEL_EXHAUSTED",
+        "sa-vm-event",
+        "退出码表"
+      ],
+      "parent": "overview"
+    },
+    {
+      "id": "examples",
+      "title": "端到端示例",
+      "file": "06_examples.html",
+      "keywords": [
+        "示例",
+        "hello_world",
+        "fibonacci",
+        "@test 模式",
+        "虚表",
+        "卫生宏",
+        "沙箱夹具"
+      ],
+      "parent": "overview"
+    }
+  ]
+}

@@ -618,6 +618,62 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="vm 虚拟机">
+<param name="Local" value="../dist/content/12_vm/01_overview.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="vm 总览：定位与架构">
+<param name="Local" value="../dist/content/12_vm/01_overview.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI 用法详解">
+<param name="Local" value="../dist/content/12_vm/02_cli.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="解释器内部机制">
+<param name="Local" value="../dist/content/12_vm/03_internals.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="FFI 桥与宿主互操作">
+<param name="Local" value="../dist/content/12_vm/04_ffi_bridge.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="资源限制与退出码">
+<param name="Local" value="../dist/content/12_vm/05_limits.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="端到端示例">
+<param name="Local" value="../dist/content/12_vm/06_examples.html">
+</OBJECT>
+</UL>
+</UL>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="标准库">
 <param name="Local" value="../dist/content/06_stdlib/01_overview.html">
 </OBJECT>

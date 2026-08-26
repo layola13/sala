@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>FFI 桥与宿主互操作</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">vm 虚拟机 &gt; FFI 桥与宿主互操作</div>
+<h1>FFI 桥与宿主互操作</h1>
+
+<p>本页说明 vm 如何把 SA 汇编里的 <code>@extern</code> 调用、<code>call @fn</code> 内置函数以及
+对宿主插件符号的引用，桥到 libffi / POSIX <code>dlopen</code> / Windows <code>LoadLibraryExW</code> 这一层。
+读完本节可以理解 <code>sap.json</code> 依赖块如何生效、<code>--allow-ffi</code> 究竟打开什么、策略引擎在分发点的拦截位置，
+以及 vm 自带 shim 的全部清单。</p>
+
+<h2>三类互操作通道</h2>
+<table>
+<tr><th>通道</th><th>SA 端写法</th><th>vm 端实现</th><th>典型代表</th></tr>
+<tr><td>类型化 FFI</td><td><code>@extern fd_open(path: ptr) -&gt; i32</code> + <code>call @fd_open(&amp;PATH)</code></td><td><code>src/ffi.zig::callSymbolWithPtr</code> 经 libffi 调入</td><td>全部 <code>@extern</code> 声明</td></tr>
+<tr><td>原始 libc FFI</td><td><code>@extern dlopen(...)</code></td><td>仅当 <code>--allow-ffi</code> 时 <code>resolveSymbol</code> 才会返回这些符号</td><td><code>dlopen</code> / <code>dlsym</code> / <code>dlclose</code> / <code>dlerror</code></td></tr>
+<tr><td>内置 shim</td><td>直接 <code>call @fd_open(...)</code>（无 <code>@extern</code> 也可）</td><td>解析期就把名字映射到 vm 自带的 <code>pub export fn</code></td><td><code>fd_*</code> / <code>mmap</code> / <code>signal</code> / <code>pthread_*</code> / <code>sqlite3_*</code> / <code>sa_time_*</code></td></tr>
+</table>
+
+<h2>类型化 FFI：libffi 桥</h2>
+<p>每个 <code>@extern</code> 在解析期被折叠为 <code>parser.ExternSignature</code>，结构为「返回类型 + 参数类型数组」。
+vm 在执行 <code>call @fn</code> 时把 guest 寄存器里的值按签名 pack 到 <code>FfiValue</code> extern union（来源
+<code>src/ffi.zig::writeArgValue</code>），然后用 <code>ffi_prep_cif</code> + <code>ffi_call</code> 走 libffi。</p>
+
+<p>参数类型支持：<code>void / i1 / u8 / i8 / u16 / i16 / u32 / i32 / u64 / i64 / f32 / f64 / ptr</code>。
+指针和整型在 64 bit 平台上宽度一致；<code>i32</code> 会做符号扩展，<code>u32</code> 走零扩展。</p>
+
+<h3>Windows 上的 libffi</h3>
+<p>Windows 平台 libffi 不在系统 DLL 中。vm 在第一次 <code>callSymbolWithPtr</code> 时尝试按
+<code>libffi-8.dll → libffi-7.dll → ffi.dll</code> 顺序 LoadLibrary + GetProcAddress，解析所有
+<code>ffi_type_*</code> 静态量。失败则返回 <code>error.WindowsLibffiUnavailable</code>。</p>
+
+<h2>原始 libc FFI：<code>--allow-ffi</code></h2>
+<p>POSIX <code>dlopen</code>、<code>dlsym</code>、<code>dlclose</code>、<code>dlerror</code> 在 vm 中以 <code>pub const</code> 包成
+与平台无关的函数指针（Linux / macOS 走 <code>@cImport</code>，Windows 走 <code>LoadLibraryExW</code> / <code>FreeLibrary</code>）。
+它们只在 <code>FfiManager.allow_ffi = true</code> 时由 <code>resolveSymbol</code> 返回——</p>
+<pre><code>if (std.mem.eql(u8, symbol_name, "dlopen")) return if (self.allow_ffi) ... else null;
+if (std.mem.eql(u8, symbol_name, "dlsym"))  return if (self.allow_ffi) ... else null;
+if (std.mem.eql(u8, symbol_name, "dlclose")) return if (self.allow_ffi) ... else null;
+if (std.mem.eql(u8, symbol_name, "dlerror")) return if (self.allow_ffi) ... else null;</code></pre>
+<p>也就是说：</p>
+<ul>
+<li>不加 <code>--allow-ffi</code>：guest 即使声明 <code>@extern dlopen</code> 也会在符号解析阶段得到 <code>null</code>，最终 <code>Symbol not found</code>。</li>
+<li>加 <code>--allow-ffi</code>：上述 4 个符号可直接调用，但能力仍然由 <code>sa.vm.policy/1</code> 的 <code>extern.allow</code> / <code>fs</code> / <code>http</code> 等进一步收紧。</li>
+</ul>
+
+<h2>插件依赖加载（<code>sap.json</code>）</h2>
+<p><code>FfiManager.loadDeclaredDependencies</code> 不扫描 <code>SA_PLUGINS_PATH</code>，而是读
+<code>$SA_PLUGINS_HOME/installed/vm/current/sap.json</code>（Windows 默认 <code>C:/Users/Public/.sa_plugins</code>，
+Linux 默认 <code>$HOME/.local/share/sa_plugins</code>），从 <code>dependencies</code> 段拿到全部依赖名（按 sap.json 顺序）。</p>
+<p>之后每次 <code>resolveSymbol</code> 第一次需要某依赖时，<code>loadInstalledPlugin</code> 用
+<code>{plugins_home}/installed/{name}/current/lib{name}.so</code>（Windows 是 <code>{name}.dll</code>）走 <code>dlopen(..., RTLD_NOW=2)</code>；
+成功则把句柄加入 <code>handles</code> 列表，后续 <code>dlsym</code> 直接在新句柄上查找。</p>
+
+<p>在 <code>sap.json</code> 里 vm 钉死了 4 个可选依赖：</p>
+<table>
+<tr><th>name</th><th>版本</th><th>符号数</th><th>作用</th></tr>
+<tr><td><code>http-client</code></td><td><code>&gt;=0.1.0</code></td><td>14</td><td>同步 HTTP 客户端桥</td></tr>
+<tr><td><code>http-server</code></td><td><code>&gt;=0.1.0</code></td><td>19</td><td>同步 HTTP 服务端桥</td></tr>
+<tr><td><code>deno</code></td><td><code>&gt;=0.1.0</code></td><td>1</td><td><code>sa_deno_plugin_hostname</code></td></tr>
+<tr><td><code>node</code></td><td><code>&gt;=0.1.0</code></td><td>7</td><td><code>os.cpus</code> / <code>timers.sleep</code> / <code>dgram.*</code></td></tr>
+</table>
+
+<p>如果某个依赖未安装，<code>dlopen</code> 失败会被打印到 stderr，但 vm 不会因此终止——它是
+"<code>Declared FFI dependency not loaded</code>" 的软错误，其余不依赖该插件的符号仍可解析。</p>
+
+<h2>内置 shim 清单</h2>
+<p>下列符号在 <code>src/ffi.zig::resolveSymbol</code> 里被强制映射到 vm 自带的 <code>pub export fn</code>，不依赖任何 .so / .dll：</p>
+
+<table>
+<tr><th>族</th><th>符号</th><th>实现</th></tr>
+<tr><td>fd</td><td><code>fd_open</code>、<code>fd_read</code>、<code>fd_close</code></td><td>目前为占位（<code>fd_open</code> 恒返回 3、<code>fd_read</code> 恒返回 3、<code>fd_close</code> 恒返回 0），用于兼容现有 demo</td></tr>
+<tr><td>mmap</td><td><code>mmap</code>、<code>munmap</code></td><td><code>mmap</code> 用 <code>std.heap.page_allocator.alloc</code>；<code>munmap</code> 占位返回 0</td></tr>
+<tr><td>signal</td><td><code>signal</code></td><td>占位：返回原 <code>sig</code></td></tr>
+<tr><td>pthread</td><td><code>pthread_spawn</code>、<code>pthread_spawn_detached</code>、<code>pthread_join</code>、<code>pthread_drop</code></td><td>占位：s 系列返回 0、<code>pthread_drop</code> no-op</td></tr>
+<tr><td>sqlite3</td><td><code>sqlite3_prepare</code>、<code>sqlite3_step</code>、<code>sqlite3_finalize</code></td><td>占位：<code>prepare</code>/<code>finalize</code> 返回 0，<code>step</code> 恒返回 100（SQLITE_DONE）</td></tr>
+<tr><td>sa_time</td><td><code>sa_time_sleep_ms</code>、<code>sa_time_sleep_ns</code></td><td>真实实现：<code>std.time.sleep</code></td></tr>
+</table>
+
+<div class="warning"><span class="label">警告</span><code>fd_*</code> / <code>mmap</code> / <code>signal</code> / <code>pthread_*</code> / <code>sqlite3_*</code> 当前是
+<strong>占位实现</strong>，仅用于让现有 demo / 标准库 facade 在 vm 上跑通；不要把它们当作真实 OS 行为。
+生产路径请走 <code>sa build-exe</code>。</div>
+
+<h2>策略引擎在 FFI 路径上的拦截</h2>
+<p>能力策略（<code>src/policy.zig</code>，schema <code>sa.vm.policy/1</code>）在 <code>src/io_classify.zig</code> 的协助下，
+对每条 <code>call @fn</code> 做两层检查：</p>
+
+<h3>Layer 1：<code>extern.allow</code> 名称白名单</h3>
+<p>默认拒绝。被调用的 extern 符号名必须在策略的 <code>extern.allow</code> 列表里，否则抛
+<code>extern_not_allowed</code>，<strong>且发生在 libffi / dlopen 解析之前</strong>。
+这意味着：策略拒绝时不会泄露目标文件 / 句柄加载错误信息——调用方只能看到 "<code>NAME denied by run policy</code>"。</p>
+
+<h3>Layer 2：<code>fs / http / env / process</code> 参数路由</h3>
+<p>通过 <code>io_classify</code> 把每个已知符号族映射到对应的策略检查：</p>
+<table>
+<tr><th>符号族</th><th>策略段</th><th>检查函数</th></tr>
+<tr><td><code>fd_*</code>、<code>sa_print_bytes</code>、<code>sa_fmt_*</code></td><td><code>fs</code></td><td><code>policy.checkFs</code></td></tr>
+<tr><td><code>sa_http_client_*</code>、<code>sa_http_server_*</code></td><td><code>http</code></td><td><code>policy.checkHttp</code></td></tr>
+<tr><td>env 读 / 写</td><td><code>env</code></td><td><code>policy.checkEnv</code></td></tr>
+<tr><td>process spawn / exec</td><td><code>process</code></td><td><code>policy.checkProcessSpawn</code></td></tr>
+</table>
+
+<p>每条 <code>deny</code> 都以 <code>E_CAPABILITY_DENIED</code>（panic code 100，退出码 228）形式报告，并在
+<code>sa-vm-event: {...}</code> 的 <code>detail</code> 中给出可读的 <code>DenyReason.label()</code>
+（<code>fs_not_allowed</code>、<code>host_not_allowed</code>、<code>extern_not_allowed</code> 等）。
+位于拒绝路径上的源码位置与具体目标（如越界 URL）也会被嵌入事件。</p>
+
+<h2>能力边界速查</h2>
+<ul>
+<li><strong>已强制</strong>：<code>extern.allow</code> 名称白名单、<code>fs.read/write</code> 子树匹配（glob + Windows realpath）、
+<code>http</code> 域 / 方法 / 路径 / 端口 / IP literal / 私有地址 / 重定向次数 / 降级拦截、<code>env</code> 名单、<code>process</code> spawn 与 exec 白名单、<code>ffi</code> / <code>threads</code> / <code>net_raw</code> 总开关。</li>
+<li><strong>未强制</strong>：原生插件内部自发的 redirect（不在 vm 调度点）、单次 shim 调用内部的 check-to-use TOCTOU 窗口。</li>
+<li><strong>符号族分类</strong>：见 <code>src/io_classify.zig</code>。未在分类里的符号只走 Layer 1 检查。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>策略与 <code>--sandboxed</code> 内置 profile 的关系：<code>--sandboxed</code> 等价于强制一份默认拒绝策略
+（资源 caps + 最小 extern 集），<strong>不能</strong>与 <code>--policy</code> 或 <code>--allow-ffi</code> 同时使用——冲突会触发
+<code>E_SANDBOX_MISCONFIG</code>，退出码 234。</div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

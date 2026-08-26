@@ -34,6 +34,7 @@ SECTIONS = [
     {"dir": "05_plugins",    "title": "插件参考"},
     {"dir": "10_db",         "title": "db 数据库插件"},
     {"dir": "11_ecs",        "title": "ECS 开发（sla_ecs）"},
+    {"dir": "12_vm",         "title": "vm 虚拟机"},
     {"dir": "06_stdlib",     "title": "标准库"},
     {"dir": "07_ui",         "title": "SAX / MUI 界面开发"},
     {"dir": "08_faq",        "title": "FAQ 与故障排查"},

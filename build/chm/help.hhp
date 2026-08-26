@@ -77,6 +77,12 @@ Default Font=Î¢ÈíÑÅºÚ,9,0
 ../dist/content/11_ecs/03_macros.html
 ../dist/content/11_ecs/04_sa3d_ecs.html
 ../dist/content/11_ecs/05_status.html
+../dist/content/12_vm/01_overview.html
+../dist/content/12_vm/02_cli.html
+../dist/content/12_vm/03_internals.html
+../dist/content/12_vm/04_ffi_bridge.html
+../dist/content/12_vm/05_limits.html
+../dist/content/12_vm/06_examples.html
 ../dist/content/06_stdlib/01_overview.html
 ../dist/content/06_stdlib/13_usage_guide.html
 ../dist/content/06_stdlib/14_recipes.html
