@@ -101,6 +101,31 @@ fn main() -&gt; i32 {
 }</code></pre>
 <p>整文件读取必须设置 <code>max_bytes</code>，并在所有成功路径释放 owned buffer；否则会产生 VM 句柄泄漏。</p>
 
+<h3>3.5 相对路径（推荐，减少重复 token）</h3>
+<p>文件和目录路径可以相对于当前对话确认的 workspace（VM 的 <code>cwd</code>）书写。broker 会在 capability 检查时自动拼接并规范化相对路径；<code>.</code> 表示 workspace 根目录，<code>..</code> 不能越过 policy 允许的根。SLA 源码中的相对路径也由 VM 进程以该 workspace 为当前目录解析。</p>
+<pre><code>@import "sa_std/fs.sai"
+@import "sa_std/string.sa"
+
+fn main() -&gt; i32 {
+    let path = "src/main.ts";
+    let generated = "generated/report.txt";
+    let first = sa_fs_read_lines_to_stdout(STR_PTR(path), STR_LEN(path), 1, 80, 32768);
+    if first != 0 { return first; }
+    return sa_fs_write_file(STR_PTR(generated), STR_LEN(generated), STR_PTR("status = ready\n"), 15);
+}</code></pre>
+<pre><code>"requested_caps": {
+  "fs": [
+    { "op": "read", "path": "src" },
+    { "op": "read", "path": "src/main.ts" },
+    { "op": "write", "path": "generated/report.txt" }
+  ]
+}</code></pre>
+<ul>
+<li>目录读取/搜索使用目录相对路径，例如 <code>src</code>、<code>tests/fixtures</code>；目录创建使用 <code>create</code>，文件覆盖写使用 <code>write</code>。</li>
+<li>读、写、复制、移动的每一个源和目标仍分别检查；相对路径不会放宽 policy。</li>
+<li>不要在同一请求中反复写完整盘符路径；只有跨 workspace 的已批准 additional root 才使用绝对路径或明确根路径。</li>
+</ul>
+
 <h2>四、写入、追加和原子编辑</h2>
 <h3>4.1 覆盖写入</h3>
 <pre><code>@import "sa_std/fs.sai"
