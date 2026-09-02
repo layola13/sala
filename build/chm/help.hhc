@@ -668,6 +668,14 @@
 <param name="Local" value="../dist/content/12_vm/06_examples.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Codex Ultra 集成与 SLA 速查">
+<param name="Local" value="../dist/content/12_vm/07_codex_ultra.html">
+</OBJECT>
+</UL>
 </UL>
 </UL>
 <UL>

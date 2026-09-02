@@ -49,6 +49,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="API"><param name="Local" value="../dist/content/06_stdlib/16_api_externs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="app.css 拼接"><param name="Local" value="../dist/content/07_ui/04_styling.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="app.sax"><param name="Local" value="../dist/content/07_ui/03_project_structure.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="apply_patch"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Arc"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="args"><param name="Local" value="../dist/content/06_stdlib/07_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ascii"><param name="Local" value="../dist/content/06_stdlib/04_string.html"></OBJECT>
@@ -82,6 +83,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="className"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI"><param name="Local" value="../dist/content/10_db/02_cli.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI-only 插件"><param name="Local" value="../dist/content/12_vm/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Codex Ultra"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Component"><param name="Local" value="../dist/content/07_ui/02_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ComponentDesc"><param name="Local" value="../dist/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="const"><param name="Local" value="../dist/content/08_faq/01_faq.html"></OBJECT>
@@ -242,11 +244,15 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa.vm.policy/1"><param name="Local" value="../dist/content/12_vm/05_limits.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA3D_ECS"><param name="Local" value="../dist/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA_EXE"><param name="Local" value="../dist/content/04_cli/10_env_vars.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_fs_edit_file"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_fs_find_files_to_stdout"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_fs_read_lines_to_stdout"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_plugin_db"><param name="Local" value="../dist/content/10_db/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA_PLUGIN_DEV"><param name="Local" value="../dist/content/07_ui/06_toolchain.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_plugin_vm"><param name="Local" value="../dist/content/12_vm/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_std"><param name="Local" value="../dist/content/06_stdlib/15_api_index.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA_STD_DIR"><param name="Local" value="../dist/content/06_stdlib/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_vm_run"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SAB"><param name="Local" value="../dist/content/08_faq/01_faq.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sab"><param name="Local" value="../dist/content/04_cli/06_sab.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SAB 后端"><param name="Local" value="../dist/content/04_cli/07_test.html"></OBJECT>
@@ -273,6 +279,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Sla"><param name="Local" value="../dist/content/01_overview/01_sa_sla_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sla"><param name="Local" value="../dist/content/05_plugins/10_sla.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sla 命令"><param name="Local" value="../dist/content/04_cli/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA 语法"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sla.exe"><param name="Local" value="../dist/content/04_cli/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sla_ecs"><param name="Local" value="../dist/content/11_ecs/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA_PROFILE"><param name="Local" value="../dist/content/04_cli/10_env_vars.html"></OBJECT>
@@ -473,6 +480,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="类型系统"><param name="Local" value="../dist/content/10_db/05_vs_sqlite.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="索引"><param name="Local" value="../dist/content/10_db/03_api.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="纯界面工程"><param name="Local" value="../dist/content/07_ui/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="线程策略"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="组件"><param name="Local" value="../dist/content/05_plugins/03_react.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="组件库"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="终端"><param name="Local" value="../dist/content/05_plugins/06_tui.html"></OBJECT>

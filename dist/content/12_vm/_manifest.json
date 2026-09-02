@@ -91,6 +91,22 @@
         "沙箱夹具"
       ],
       "parent": "overview"
+    },
+    {
+      "id": "codex-ultra",
+      "title": "Codex Ultra 集成与 SLA 速查",
+      "file": "07_codex_ultra.html",
+      "keywords": [
+        "Codex Ultra",
+        "sa_vm_run",
+        "SLA 语法",
+        "apply_patch",
+        "sa_fs_edit_file",
+        "sa_fs_find_files_to_stdout",
+        "sa_fs_read_lines_to_stdout",
+        "线程策略"
+      ],
+      "parent": "overview"
     }
   ]
 }

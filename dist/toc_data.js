@@ -424,6 +424,11 @@ var TOC = [
       "t": "端到端示例",
       "f": "content/12_vm/06_examples.html",
       "c": []
+     },
+     {
+      "t": "Codex Ultra 集成与 SLA 速查",
+      "f": "content/12_vm/07_codex_ultra.html",
+      "c": []
      }
     ]
    }
