@@ -248,6 +248,35 @@
         "常量"
       ],
       "parent": "api-index"
+    },
+    {
+      "id": "tls-client",
+      "title": "tls_client：TLS 客户端",
+      "file": "19_tls_client.html",
+      "keywords": [
+        "TLS",
+        "tls_client",
+        "HTTPS",
+        "证书验证",
+        "SNI",
+        "CA"
+      ],
+      "parent": null
+    },
+    {
+      "id": "ws-client",
+      "title": "ws_client：WebSocket 客户端",
+      "file": "20_ws_client.html",
+      "keywords": [
+        "WebSocket",
+        "ws_client",
+        "RFC 6455",
+        "wss",
+        "mask",
+        "ping",
+        "pong"
+      ],
+      "parent": null
     }
   ]
 }

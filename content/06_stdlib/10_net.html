@@ -9,9 +9,10 @@
 <div class="topic-header">标准库 &gt; net：TCP / UDP / Unix 套接字与 HTTP/2</div>
 <h1>net：TCP / UDP / Unix 套接字与 HTTP/2</h1>
 
-<p>这一页概述三个网络契约：<code>net.sai</code>（套接字与地址）、<code>netx.sai</code>
-（io_uring 反应器）和 <code>http2.sai</code>（HTTP/2 客户端与协议工具）。
-读完即可选择合适的层次发起 TCP 连接或编写监听服务。</p>
+<p>这一页概述五个网络契约：<code>net.sai</code>（套接字与地址）、<code>netx.sai</code>
+（io_uring 反应器）、<code>http2.sai</code>（HTTP/2 客户端与协议工具）、
+<code>tls_client.sai</code>（TLS 客户端）与 <code>ws_client.sai</code>（WebSocket 客户端）。
+读完即可选择合适的层次发起 TCP/TLS/WebSocket 连接或编写监听服务。</p>
 
 <h2>net.sai：套接字</h2>
 <p>TcpStream、TcpListener、UdpSocket 与 NetAddr 都是不透明 <code>u64</code> 句柄。
@@ -62,6 +63,22 @@
 <div class="note"><span class="label">注意</span>地址对象（NetAddr）是 owned 值，
 访问完必须调用 <code>sa_net_addr_free</code>；
 JA3/JA4 指纹摘要函数（<code>sa_std_net_ja3_hash</code> 等）也在此契约中。</div>
+
+<h2>tls_client.sai / ws_client.sai：TLS 与 WebSocket 客户端</h2>
+<p>应用层出站加密与 WebSocket 能力已从插件下沉到 <code>sa_std</code>，纯 Zig 实现、
+无原生库依赖。详见独立页面：</p>
+<ul>
+<li><a href="19_tls_client.html"><code>tls_client.sai</code></a>：TLS 客户端。
+<code>connect()</code> 一次完成 TCP 拨号 + 握手，验证永远开启（SNI + hostname 核对 +
+系统 CA），无关闭开关；错误码含 <code>-100</code>（证书验证失败）。</li>
+<li><a href="20_ws_client.html"><code>ws_client.sai</code></a>：RFC 6455 WebSocket 客户端。
+<code>ws://</code> 直连、<code>wss://</code> 复用 <code>sa_tls_client</code>；
+客户端帧强制 mask，分片自动重组，ping 自动回 pong，协议违规时 <code>recv()</code>
+返回 <code>-5</code>。</li>
+</ul>
+<p>IPv6 开箱即用（<code>[::1]:port</code> 已实测）。HTTP/3 仍只有能力探测骨架
+（<code>sa_quic.zig</code>），SSH 客户端尚未实现——见
+<a href="../08_faq/05_limitations_roadmap.html">局限与路线图</a>。</p>
 
 </body>
 </html>

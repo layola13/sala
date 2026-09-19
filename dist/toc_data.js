@@ -27,6 +27,11 @@ var TOC = [
     "t": "项目与 workspace",
     "f": "content/01_overview/05_projects_workspace.html",
     "c": []
+   },
+   {
+    "t": "scodex-mini：SLA 写成的 Codex 最小单元",
+    "f": "content/01_overview/06_scodex_mini.html",
+    "c": []
    }
   ]
  },
@@ -529,6 +534,16 @@ var TOC = [
       "c": []
      }
     ]
+   },
+   {
+    "t": "tls_client：TLS 客户端",
+    "f": "content/06_stdlib/19_tls_client.html",
+    "c": []
+   },
+   {
+    "t": "ws_client：WebSocket 客户端",
+    "f": "content/06_stdlib/20_ws_client.html",
+    "c": []
    }
   ]
  },

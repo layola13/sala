@@ -60,6 +60,21 @@
 <li>泛型容器 <code>for in</code> 协议的成熟度低于直接索引或显式容器方法。</li>
 </ul>
 
+<h2>网络协议能力现状（2026-09-19）</h2>
+<table>
+<tr><th>协议</th><th>状态</th><th>说明</th></tr>
+<tr><td>TCP / UDP / Unix socket</td><td>✅ 有</td><td><code>net.sai</code>，另有 io_uring 反应器 <code>netx.sai</code></td></tr>
+<tr><td>TLS client</td><td>✅ 有</td><td><code>sa_std/tls_client.sai</code>，纯 Zig <code>std.crypto.tls</code>，系统 CA + SNI + hostname 验证，无关闭开关</td></tr>
+<tr><td>WebSocket client</td><td>✅ 有</td><td><code>sa_std/ws_client.sai</code>，纯 Zig RFC 6455；<code>wss://</code> 复用 TLS client</td></tr>
+<tr><td>HTTP/2</td><td>✅ 有</td><td><code>sa_std/http2.sai</code>，libnghttp2 经 dlopen 驱动</td></tr>
+<tr><td>IPv6</td><td>✅ 有</td><td>客户端底层经 <code>tcpConnectToHost</code> 原生支持，<code>[::1]</code> 已实测</td></tr>
+<tr><td>HTTP/3 / QUIC</td><td>❌ 仅骨架</td><td><code>src/runtime/sa_quic.zig</code> 只有能力探测（dlopen 找 ngtcp2/nghttp3），连接/流/ACK 等协议状态机未实现</td></tr>
+<tr><td>SSH client</td><td>❌ 无</td><td>没有任何实现；如需补，先做 password/publickey 认证的 exec 通道</td></tr>
+<tr><td>DTLS client</td><td>❌ 无</td><td>现有 <code>sa_dtls.zig</code> 是 DTLS 服务端能力包装，非客户端</td></tr>
+</table>
+<p>HTTP/3 的取舍：它的收益集中在弱网/高丢包/跨网切换场景（0-RTT、连接迁移、
+无 TCP 队头阻塞）；机房到机房的稳定网络下 HTTP/1.1/2 已足够，当前没有被它卡住的消费者。</p>
+
 <p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/roadmap_status_cn.md §1-§2、direct_sab_historical_69_corpus.md、rust_surface_compat_report_cn.md、mutability_decision_cn.md、sa_std_macro_gap_audit.md、operator_overload_decision_cn.md、faq.md。</p>
 </body>
 </html>

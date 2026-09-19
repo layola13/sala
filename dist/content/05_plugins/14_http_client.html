@@ -91,8 +91,49 @@ timeout 30s  env SA_PLUGIN_DEV=1 sa plugin list     # 验证已注册</code></pr
 <code>SSL_CERT_FILE</code>、<code>SSL_CERT_DIR</code>、<code>HTTP_PROXY</code>、<code>HTTPS_PROXY</code>、
 <code>NO_PROXY</code> 以及小写形式 <code>http_proxy</code> / <code>https_proxy</code> / <code>no_proxy</code>，
 另含通配 <code>SA_*</code>。代理与证书路径变量成对出现，覆盖大小写两种惯例。</li>
-<li>process：<code>{"spawn": false, "exec": []}</code> —— 完全禁止派生子进程。</li>
+<li>process：当前 <code>sap.json</code> 已不再声明 <code>process</code> 段——
+旧文档中「完全禁止派生子进程」的写法已过时。2026-09 起插件改用
+<strong>curl 子进程</strong>处理 proxy + TLS（见下文「传输层」），这是当前最稳定的路径。</li>
 </ul>
+
+<h2>传输层：curl 子进程优先</h2>
+<p>2026-09 的重写之后，HTTPS 请求默认走系统 <code>curl</code> 子进程
+（<code>curlHttpPost</code>），由 curl 处理代理认证、TLS、chunked 编码——
+这是实测最稳定的组合（此前 Zig 原生 TLS 路径在代理场景下不稳定）。
+手动拼装的 HTTP/1.0 实现保留为 fallback。请求体经 <code>/tmp/curl_body_tmp.json</code>
+临时文件中转，用后删除。</p>
+
+<h2>重试机制</h2>
+<p><code>httpRequestExec</code> 统一包装了重试：首次请求与工具调用后的后续请求都走同一入口。</p>
+<table>
+<tr><th>项</th><th>规则</th></tr>
+<tr><td>重试条件</td><td>HTTP <code>429</code>、<code>5xx</code>、短暂网络错误；其他 <code>4xx</code> 不重试</td></tr>
+<tr><td>次数</td><td>最多 5 次重试（共 6 次尝试）</td></tr>
+<tr><td>退避</td><td>指数退避 1 / 2 / 4 / 8 / 16 秒</td></tr>
+<tr><td><code>Retry-After</code></td><td>响应头存在时取「退避与 Retry-After 的较大值」，上限 5 分钟</td></tr>
+</table>
+
+<h2>原生 SSE：<code>sa_http_client_sse_turn</code></h2>
+<p>高层原生 API，一次调用完成「SSE POST + 增量事件解析 + 实时 stdout 输出 +
+工具调用累积」一整轮 turn（<code>sa_http_client.sai</code> 第 68 行）：</p>
+<pre><code>@extern sa_http_client_sse_turn(&amp;url: ptr, url_len: u64, &amp;body: ptr, body_len: u64,
+    &amp;key: ptr, key_len: u64, api_mode: u64,
+    &amp;out_text: ptr, &amp;out_text_len: ptr, &amp;out_calls: ptr, &amp;out_calls_len: ptr) -&gt; u32</code></pre>
+<ul>
+<li><code>api_mode</code>：<code>0</code> = Responses API，<code>1</code> = Chat Completions；</li>
+<li>支持 Responses（<code>output_text.delta</code>、function_call 参数分片、completed）
+与 Chat（content delta、tool_calls 按 index 路由）双 API；</li>
+<li>多工具调用：按 <code>call_id</code>（Responses）或 <code>index</code>（Chat）路由分片，
+支持并行/乱序；</li>
+<li>SSE 规范细节：CRLF 分隔符、多行 <code>data:</code> 按 <code>\n</code> 拼接、
+<code>[DONE]</code> 结束；</li>
+<li>返回值：<code>0</code> = 文本完成，<code>1</code> = 有工具调用，<code>2</code> = 错误；</li>
+<li>重试仅作用于初始 POST（规则同上）；<strong>流开始后不再重试</strong>，
+流中失败直接返回错误。</li>
+</ul>
+<p>配套释放函数：<code>sa_http_client_sse_turn_free(ptr, len)</code>。
+主要消费者是 <a href="../01_overview/06_scodex_mini.html">scodex-mini</a>
+（<code>stream:true</code> 的 Responses / Chat 双模式）。</p>
 
 <h2>请求生命周期与句柄约定</h2>
 <p>两套 ABI 都遵循同一条所有权流水线：</p>
@@ -261,8 +302,11 @@ WebSocket 保留 client 与连接直到 ws 释放。</li>
 <h2>范围外项（文档明确声明不做）</h2>
 <div class="warning"><span class="label">警告</span>产品目标是 Linux x86_64。以下各项由 README 与
 v2 ABI 文档明确划出基础范围：<strong>HTTP/2、HTTP/3、严格的非阻塞 TLS record 恢复
-（部分超时的 TLS record 会使连接不可用并被关闭而不是重放）、自动重试、可中断 DNS</strong>。
-此外 v2 不自动跟随重定向、不重试请求；遗留阻塞 WebSocket 仅作兼容保留。
+（部分超时的 TLS record 会使连接不可用并被关闭而不是重放）、可中断 DNS</strong>。
+注意「自动重试」已于 2026-09 移出范围外：<code>httpRequestExec</code> 现对
+429/5xx/短暂网络错误做最多 5 次重试（见上文「重试机制」）。
+v2 仍不自动跟随重定向；遗留阻塞 WebSocket 仅作兼容保留（新的 WebSocket 客户端能力
+在 <a href="../06_stdlib/20_ws_client.html"><code>sa_std/ws_client.sai</code></a>）。
 评估文档还指出缺少 mTLS 客户端证书 API（建议形态 <code>client_set_cert</code>）——当前契约中确实没有。</div>
 
 <blockquote>同样要区分口径：SCI 侧的 <code>docs/http_client_plugin.md</code> 把「与

@@ -73,6 +73,22 @@
         "项目结构"
       ],
       "parent": null
+    },
+    {
+      "id": "scodex-mini",
+      "title": "scodex-mini：SLA 写成的 Codex 最小单元",
+      "file": "06_scodex_mini.html",
+      "keywords": [
+        "scodex-mini",
+        "codex",
+        "agent",
+        "SSE",
+        "会话持久化",
+        "--resume",
+        "Responses",
+        "Chat Completions"
+      ],
+      "parent": null
     }
   ]
 }

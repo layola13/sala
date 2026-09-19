@@ -4,9 +4,9 @@ Compiled file=..\..\SA_SLDA_Help.chm
 Contents file=help.hhc
 Index file=help.hhk
 Default Topic=..\dist\content\01_overview\01_sa_sla_overview.html
-Title=SA / SLA °ïÖúÎÄµµ
-Language=0x804 ÖĞÎÄ(ÖĞ»ªÈËÃñ¹²ºÍ¹ú)
-Default Font=Î¢ÈíÑÅºÚ,9,0
+Title=SA / SLA å¸®åŠ©æ–‡æ¡£
+Language=0x804 ä¸­æ–‡(ä¸­åäººæ°‘å…±å’Œå›½)
+Default Font=å¾®è½¯é›…é»‘,9,0
 
 [FILES]
 ../dist/content/01_overview/01_sa_sla_overview.html
@@ -14,6 +14,7 @@ Default Font=Î¢ÈíÑÅºÚ,9,0
 ../dist/content/01_overview/03_quick_start.html
 ../dist/content/01_overview/04_toolchain.html
 ../dist/content/01_overview/05_projects_workspace.html
+../dist/content/01_overview/06_scodex_mini.html
 ../dist/content/02_sla_lang/01_lexical.html
 ../dist/content/02_sla_lang/02_types.html
 ../dist/content/02_sla_lang/03_functions.html
@@ -102,6 +103,8 @@ Default Font=Î¢ÈíÑÅºÚ,9,0
 ../dist/content/06_stdlib/16_api_externs.html
 ../dist/content/06_stdlib/17_api_macros.html
 ../dist/content/06_stdlib/18_api_layout.html
+../dist/content/06_stdlib/19_tls_client.html
+../dist/content/06_stdlib/20_ws_client.html
 ../dist/content/07_ui/01_overview.html
 ../dist/content/07_ui/02_syntax.html
 ../dist/content/07_ui/03_project_structure.html

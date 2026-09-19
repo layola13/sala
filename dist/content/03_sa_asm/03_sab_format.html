@@ -61,7 +61,18 @@ SA_PLUGIN_DEV=1 sa sla sab workspace --sab-out /tmp/workspace.sab -o /tmp/app
 sa build-exe /tmp/main.sab -o /tmp/app
 
 # 反汇编为可读文本（仅调试用，不在编译主链路上）
-SA_PLUGIN_DEV=1 sa sla sab disasm /tmp/main.sab --out /tmp/main.disasm.sa</code></pre>
+SA_PLUGIN_DEV=1 sa sla sab disasm /tmp/main.sab --out /tmp/main.disasm.sa
+
+# 从已校验程序直接产生 .sab 二进制（sci 宿主命令，不走 SLA 插件）
+sa check --emit-sab /tmp/main.sab /tmp/main.sa
+sa check --emit-sab /tmp/from_sab.sab /tmp/main.sab   # 输入也可以是 .sab</code></pre>
+
+<div class="note"><span class="label">注意</span>SAB 已于 2026-09 扶正为一等格式，
+不再是 experimental。<code>sa build / run / test / build-exe / build-obj / build-wasm / check</code>
+全部接受 <code>.sab</code> 输入，与 <code>.sa</code> 功能对等。<strong>损坏的
+<code>.sab</code> 直接报 SAB 专用错误</strong>（截断 → <code>TruncatedSab</code>、
+非 SAB 文件 → <code>InvalidSabMagic</code>），<strong>不会静默回退到
+<code>.sa</code> 文本解析</strong>——拿到 SAB 错误就修文件，不要指望文本兜底。</div>
 
 <p>SA 侧由 <code>src/sab.zig</code> 的 <code>decodeModule</code> 解码，
 产出的结构与文本 Flattener 完全等价，Referee 和 Emitter 不感知输入来源。

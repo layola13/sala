@@ -28,6 +28,13 @@ SA_PLUGIN_DEV=1 sa sla build-exe src/main.sla -o bin/app --release-fast --jobs 4
 <tr><td><code>--no-incremental</code>、<code>--ci</code> 等</td><td>增量缓存开关等通用编译选项。</td></tr>
 </table>
 
+<h2>sa check</h2>
+<p>扁平化并校验 <code>.sa</code> / <code>.sab</code> 文件，不做 codegen 与链接。
+<code>--emit-sab &lt;path&gt;</code> 把校验通过的程序写成 <code>.sab</code> 二进制
+（输入可以是 <code>.sa</code> 也可以是 <code>.sab</code>）。</p>
+<pre><code>sa check /tmp/main.sa
+sa check --emit-sab /tmp/main.sab /tmp/main.sa</code></pre>
+
 <h2>sa test</h2>
 <p>编译并运行源文件中的测试，支持过滤与调试开关。</p>
 <pre><code># 宿主原生用法
