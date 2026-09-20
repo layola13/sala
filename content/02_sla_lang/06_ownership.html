@@ -35,6 +35,24 @@
 <p>被移动后的变量在前端即标记为 <code>Consumed</code>，再次使用会得到明确的
 <code>UseAfterMove</code> 编译错误——与 SA Referee 的拦截一致，只是提前到了 SLA 层。</p>
 
+<h2>取地址 &amp; 与栈驻留（stack homing）</h2>
+<p>SLA 编译器把函数参数和 <code>let</code> 绑定“驻留”（home）到栈槽：
+lowering 后你会看到 <code>x = stack_alloc 8</code>，寄存器里存的是槽地址而非值。
+这带来两条语义规则：</p>
+<ul>
+<li><b>值上下文自动取值</b>：在表达式里使用已驻留变量时，编译器自动插入
+<code>load x+0 as u64</code>。写 <code>ch</code> 就得到字符值，不需要手动 load；</li>
+<li><b><code>&amp;x</code> 直接给栈槽地址</b>：对已驻留变量取地址不创建临时变量，
+直接返回其栈槽地址。这正是 extern 函数 OUT 参数的写法：
+<pre><code>let kind = 0;
+let code = 0;
+let st = sa_tui_read_event(handle, timeout_ms, &amp;kind, &amp;code);
+// 插件写入的就是 kind/code 自己的栈槽，调用后可直接读取</code></pre></li>
+</ul>
+<div class="note"><span class="label">注意</span>宏（macro）做文本替换时必须感知驻留：
+宏参数在值上下文出现时，展开体需要显式 <code>load</code> 取值，
+否则存入的是槽地址而非变量的值。见<a href="08_extensions.html">扩展：宏</a>一节。</div>
+
 <h2>方法调用：自动借用与自动移动（UFCS）</h2>
 <p>对 <code>x.method(y)</code>，编译器按接收者签名静态展开：</p>
 <table>

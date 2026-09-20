@@ -59,6 +59,12 @@ fn test_macro_hygiene(val: int) -&gt; int {
 }</code></pre>
 <p>宏可以跨文件导入使用（导入宏走共享 lowering 路径），也可嵌套定义；
 同名重复声明会得到 redeclaration 错误（见 <code>tests/test_error_redeclaration_macro.sla</code>）。</p>
+<div class="note"><span class="label">注意</span>宏展开是文本替换，必须感知调用方变量的栈驻留（stack homing）：
+实参若是函数参数或 <code>let</code> 变量，lowering 后它可能是栈槽地址而非值。
+宏体在<b>值上下文</b>使用参数时要显式 <code>load</code> 取值，
+在<b>地址上下文</b>（如传给 extern 的 OUT 参数）则直接用参数本身代表槽地址，
+不要再套一层临时变量去取地址。语义细则见
+<a href="06_ownership.html">所有权：取地址与栈驻留</a>。</div>
 
 <h2>@expand_tuple：固定 arity 模板</h2>
 <p>用于批量生成同形的 tuple/arity 声明，避免手写 <code>AnyOf5</code>/<code>AnyOf6</code> 式扩张。

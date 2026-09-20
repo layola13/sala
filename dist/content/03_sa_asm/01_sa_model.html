@@ -38,6 +38,11 @@
 分配栈槽（用于可变局部变量，不能逃逸出当前帧）。字段访问不是语法，而是约定：
 用 <code>#def Point_x = +0</code> 声明偏移常量，再用
 <code>load point+Point_x as i32</code> / <code>store point+Point_x, v as i32</code> 读写。</p>
+<div class="note"><span class="label">注意</span>SLA 编译器把函数参数和 <code>let</code> 绑定自动驻留（home）到栈槽，
+即你会在 lowering 输出里看到 <code>ch = stack_alloc 8</code> 这类指令。
+此时寄存器存的是槽地址：值上下文由编译器自动插入 <code>load</code>，
+<code>&amp;ch</code> 则直接得到槽地址。宏做文本替换时必须感知这一层，
+否则会把地址当成值存入。语言层语义见 <a href="../02_sla_lang/06_ownership.html">所有权：取地址与栈驻留</a>。</div>
 
 <h2>五符号契约</h2>
 <table>

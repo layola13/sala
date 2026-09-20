@@ -39,7 +39,7 @@
       "id": "ownership",
       "title": "所有权与生命周期",
       "file": "06_ownership.html",
-      "keywords": ["所有权", "借用", "move", "drop", "&self", "&mut", "UseAfterMove"],
+      "keywords": ["所有权", "借用", "move", "drop", "&self", "&mut", "UseAfterMove", "取地址", "栈驻留", "stack homing"],
       "parent": null
     },
     {
