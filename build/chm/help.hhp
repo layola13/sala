@@ -39,6 +39,7 @@ Default Font=微软雅黑,9,0
 ../dist/content/03_sa_asm/04_pipeline.html
 ../dist/content/03_sa_asm/05_diagnostics.html
 ../dist/content/03_sa_asm/06_limitations.html
+../dist/content/03_sa_asm/07_sab_parity.html
 ../dist/content/04_cli/01_overview.html
 ../dist/content/04_cli/02_init.html
 ../dist/content/04_cli/03_check.html

@@ -170,6 +170,11 @@ var TOC = [
     "t": "已知限制",
     "f": "content/03_sa_asm/06_limitations.html",
     "c": []
+   },
+   {
+    "t": "SAB 与 SA-text 一致性进展",
+    "f": "content/03_sa_asm/07_sab_parity.html",
+    "c": []
    }
   ]
  },

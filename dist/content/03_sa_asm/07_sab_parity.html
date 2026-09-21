@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SAB 与 SA-text 一致性进展</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SA 汇编与 SAB &gt; SAB 与 SA-text 一致性进展</div>
+<h1>SAB 与 SA-text 一致性进展（2026-09-21）</h1>
+
+<p>本页记录 SAB direct-codegen 与 SA-text 语义对齐工作的真实进度与剩余问题。
+<strong>定位：SA-text 是语义标准，SAB 是从属产物</strong>——SAB 只为解决
+SA 文本编译速度慢、体积大的问题而存在，一切语义分歧以 SA-text 为准。</p>
+
+<div class="note"><span class="label">注意</span>本页只写可验证的事实：exit 码、
+pass/fail 数字、commit hash、仓库状态。凡未跑完的验证，明确标为"未完成"，
+不把定向用例通过表述为全部完成。</div>
+
+<h2>质量门禁（不可绕过）</h2>
+<ul>
+<li>strict 模式必须设置 <code>SLA_SAB_NO_FALLBACK=1</code>：SAB 失败必须显式非零退出，<strong>禁止静默回退 SA-text</strong>。</li>
+<li>禁止应用层 workaround：分歧必须根修 codegen、flattener、编码器或 verifier。</li>
+<li>捕获被测命令自身的 <code>$?</code>，不用管道末端状态冒充。</li>
+<li>开发/debug 构建零优化（O0）；只有显式 <code>--release-small</code> / <code>--release-fast</code> 才用 O1/O3。</li>
+</ul>
+
+<h2>已完成（2026-09-21 实测）</h2>
+
+<h3>strict sweep：520/520</h3>
+<pre><code>STRICT SWEEP (all): pass=520 fail=0 total=520
+# 2026-09-21 08:41 UTC，源码 = sa_plugin_sla@cc0ade9
+# SLA_SAB_NO_FALLBACK=1, SA_PLUGIN_DEV=1</code></pre>
+<p>覆盖 <code>tests/test_unit_*.sla</code> 全部单元测试用例与
+<code>demos/rosetta/*/main.sla</code> 全部 rosetta 用例，共 520 个。
+旧基线为 pass=502 fail=18 total=520（SWEEP_EXIT=1）。</p>
+
+<div class="note"><span class="label">范围声明</span>sweep 只验证
+<code>sa sla sab build</code> 在 strict 模式下 direct 构建成功
+（无 fallback、无 <code>UnsupportedSabDirectFeature</code>），
+<strong>不验证运行期输出对等</strong>。SA-text / SAB / native 三路执行
+parity 回归尚未建立，见剩余问题。</div>
+
+<h3>插件单元测试：299/299</h3>
+<pre><code>Build Summary: 5/5 steps succeeded; 299/299 tests passed
+# zig build test, exit 0</code></pre>
+
+<h3>direct-SAB 根修的 rosetta 用例（18 个，strict SAB exit 0）</h3>
+<table>
+<tr><th>用例</th><th>根因</th><th>commit</th></tr>
+<tr><td>32 trait_object_vector</td><td><code>vec.iter().map().sum()</code> 未内联</td><td><code>977f154</code></td></tr>
+<tr><td>33 iterator_map</td><td><code>array.into_iter().map().sum()</code> 未内联</td><td><code>977f154</code></td></tr>
+<tr><td>34 iterator_filter</td><td><code>array.into_iter().filter().sum()</code> 未内联</td><td><code>39c1105</code></td></tr>
+<tr><td>35 fold_str_array</td><td>字符串字面量 slice 语义与 SA-text 不一致</td><td><code>e0f0bf2</code></td></tr>
+<tr><td>49 pipeline_map</td><td>—</td><td>—</td></tr>
+<tr><td>65 job_scheduler</td><td>—</td><td>—</td></tr>
+<tr><td>66 actor_mailbox</td><td>—</td><td>—</td></tr>
+<tr><td>68 parser_tokens</td><td>—</td><td>—</td></tr>
+<tr><td>73 scene_nodes</td><td>—</td><td>—</td></tr>
+<tr><td>113 union_ffi_types</td><td>union 字面量缺 lowering</td><td><code>2b373b4</code></td></tr>
+<tr><td>117 inline_assembly</td><td>SA-text 对 <code>asm!</code> 本就是 no-op（返回 dummy 0），SAB 需同等对待</td><td><code>cc0ade9</code></td></tr>
+<tr><td>121 rwlock_reader_writer</td><td>deref store 后 <code>UnknownRegister</code>；Result 分支合流、guard 解锁</td><td><code>d3a4b93</code></td></tr>
+<tr><td>160 manually_drop_union</td><td><code>ManuallyDrop::new</code> / <code>into_inner</code></td><td><code>cdf3e4b</code></td></tr>
+<tr><td>171 anyhow_dynamic_error</td><td><code>Result::map</code> 闭包内联</td><td><code>dca0768</code></td></tr>
+<tr><td>173 catch_unwind_panic</td><td>catch_unwind 模式缺 lowering</td><td><code>4a00bae</code></td></tr>
+<tr><td>185 dynamic_lib_dlopen</td><td>void unsafe 块直接报 Unsupported；<code>string.as_ptr()</code> 被当普通静态调用，应发 <code>STR_AS_PTR</code> fragment</td><td><code>96166bf</code></td></tr>
+<tr><td>187 opengl_context_swap</td><td>被 185 修复顺带修好</td><td><code>96166bf</code></td></tr>
+<tr><td>302 operator_overload_neg</td><td>一元负号需 scalar-minus-struct lowering</td><td><code>7be285f</code></td></tr>
+</table>
+<p>以上均为 <code>fix/toolchain-reliability</code> 分支本地 commits，未 push。</p>
+
+<h3>SA-text 端根因修复（语义标准侧）</h3>
+<ul>
+<li>参数 homing 导致 <code>RegisterRedefinition</code>（<code>d9e2f78</code>）</li>
+<li>assign hint 的 <code>UseAfterMove</code>（<code>85b5326</code>）</li>
+<li>assignment rebind 临时量泄漏（<code>5f010ef</code>）</li>
+<li><code>VEC_NEW</code> owning 临时量接管（<code>5dca3cf</code>）</li>
+<li><code>let</code> owning 临时量泄漏（<code>15753a3</code>）</li>
+<li>copy idiom / 参数 homing（<code>95dd04e</code>）</li>
+</ul>
+
+<h2>剩余问题（未完成，不回避）</h2>
+<ol>
+<li><strong>三路执行 parity 回归缺失</strong>：sweep 只测 build。
+SA-text / strict SAB / native 三路运行对等回归尚未建立。</li>
+<li><strong>match / ownership 回归未补齐</strong>：enum / Option / Result 多 case、
+空 body、赋值 body、loop back-edge、<code>exprReferencesIdentifier()</code>
+全要求，三路真实 exit 未验证。</li>
+<li><strong>Option SAB 缺口</strong>：<code>Option::Some(42)</code> 在 strict SAB
+报 <code>static call Some has no lowering plan</code>，未根修。</li>
+<li><strong>SA-text Result match 泄漏</strong>：最小复现 exit 1，
+<code>MemoryLeak: live registers remain at function exit</code>。
+SA-text 是语义标准，必须先根修再谈 SAB parity。</li>
+<li><strong>sci 全集未过</strong>：<code>zig build test</code> 仍 exit 1，
+27 个历史失败未逐项根查；BorrowView 非法逃逸/越界负例未补。</li>
+<li><strong>scodex-mini 未重跑</strong>：源码变化后四模式（SA-text O0 /
+strict SAB O0 / release-small / release-fast）构建与完整功能 E2E
+（Responses/Chat 文本与工具调用、会话落库、--list/--resume、MCP、
+apply_patch、SSE 真实事件格式）均未重做。</li>
+<li><strong>ReleaseFast 重建与安装审计未做</strong>：最终 <code>zig build
+-Doptimize=ReleaseFast</code>、插件 dev 重装、安装 hash/mtime 记录均未执行
+（防止 Debug <code>libdb.so</code> 污染 benchmark）。</li>
+<li><strong>native build/run 未补</strong>：117 / 121 / 185 / 187 缺 native
+三路验证；121 的 contention 与锁获取失败路径未审
+（锁失败时是否错误登记/释放 guard）。</li>
+<li><strong>代码仓库只有本地 commits，未 push</strong>：
+<code>sa_plugin_sla</code>（<code>fix/toolchain-reliability</code>，ahead 34）、
+<code>scodex-mini</code>（<code>feature/apply-patch</code>，ahead 3）。</li>
+</ol>
+
+<h2>仓库状态快照（2026-09-21 UTC）</h2>
+<pre><code>sa_plugin_sla  fix/toolchain-reliability  cc0ade9  ahead 34, 工作树干净, 无 stash
+sci            cross-platform             e2530bf4 工作树干净, 无 stash
+scodex-mini    feature/apply-patch        4af0af5  ahead 3,  工作树干净, 无 stash</code></pre>
+
+<p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

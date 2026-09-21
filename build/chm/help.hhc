@@ -277,6 +277,14 @@
 <param name="Local" value="../dist/content/03_sa_asm/06_limitations.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SAB 与 SA-text 一致性进展">
+<param name="Local" value="../dist/content/03_sa_asm/07_sab_parity.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

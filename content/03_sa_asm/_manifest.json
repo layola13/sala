@@ -41,6 +41,13 @@
       "file": "06_limitations.html",
       "keywords": ["已知限制", "PhiStateConflict", "借用冲突", "move", "宏限制", "回退路径"],
       "parent": null
+    },
+    {
+      "id": "sab-parity-status",
+      "title": "SAB 与 SA-text 一致性进展",
+      "file": "07_sab_parity.html",
+      "keywords": ["SAB", "SA-text", "一致性", "strict sweep", "direct", "剩余问题", "进展", "520"],
+      "parent": null
     }
   ]
 }
