@@ -87,6 +87,20 @@ parity 回归尚未建立，见剩余问题。</div>
 <p>暂停前最后一次确认：无正在运行的修复进程、无活跃子代理；
 三个代码仓库工作树干净、无 stash，所有进度已本地提交。</p>
 
+<h2>剩余工作量清单</h2>
+<p>暂停时尚有以下工作未完成。每项都给出验收标准，恢复后按此逐项关闭。</p>
+<table>
+<tr><th>工作项</th><th>验收标准</th><th>状态</th></tr>
+<tr><td>match / ownership 三路回归</td><td>enum / Option / Result × 多 case、空 body、赋值 body、if-else 后新值、loop 外层绑定与 back-edge、<code>exprReferencesIdentifier()</code> 嵌套表达式/分支/循环/多参数全矩阵；SA-text、strict SAB、native 三路真实 exit 0</td><td>未开始</td></tr>
+<tr><td>SAB Option 构造与 match lowering 根修</td><td><code>Option::Some(42)</code> / <code>Option::None</code> 在 strict SAB（<code>SLA_SAB_NO_FALLBACK=1</code>）下构建 exit 0，不再报 <code>static call Some has no lowering plan</code> / <code>UnsupportedSabDirectFeature</code></td><td>未开始（阻塞项）</td></tr>
+<tr><td>SA-text Result match MemoryLeak 根修</td><td>最小复现 <code>Result::Ok(100)</code> match 取值用例 exit 0，不再报 <code>error[MemoryLeak]: live registers remain at function exit</code>（trap_code 1012）；SA-text 是语义标准，必须先于 SAB parity 根修</td><td>未开始（阻塞项）</td></tr>
+<tr><td>sci 全集根修到 exit 0</td><td><code>zig build test</code> exit 0；27 个历史失败逐项根查（不预设"与本次修改无关"）；补 BorrowView 非法逃逸/越界负例</td><td>未开始</td></tr>
+<tr><td>scodex-mini 四模式构建 + 完整功能 E2E</td><td>SA-text O0、strict SAB O0、strict SAB release-small、strict SAB release-fast 四模式构建通过；功能门禁：Responses 文本 SSE、Responses 工具调用两轮、Chat 文本、Chat 工具调用两轮、会话落库、<code>--list</code>、<code>--resume</code>、image/file/profile、MCP、apply_patch、SSE 真实事件格式</td><td>未开始</td></tr>
+<tr><td>插件最终单测 + ReleaseFast 重建与安装审计</td><td>最终 dev 安装后重跑 <code>zig build test</code> 复核；<code>zig build -Doptimize=ReleaseFast</code> 重建并重装；记录 repo/installed SHA-256、size、mtime（防止 Debug <code>libdb.so</code> 污染 benchmark）</td><td>未开始</td></tr>
+<tr><td>rosetta native 三路验证</td><td>32 / 35 / 117 / 185 / 187 补 native build/run；121 另补 contention 与锁获取失败路径（guard 获取失败时是否错误登记/释放）、fragment dependency inclusion 通用性审查</td><td>未开始</td></tr>
+<tr><td>最终仓库状态审计</td><td>三仓库 branch / HEAD / status / stash / ahead-behind 确认；只保留已授权 push，无未授权推送</td><td>暂停后执行</td></tr>
+</table>
+
 <h2>剩余问题（未完成，不回避）</h2>
 <ol>
 <li><strong>三路执行 parity 回归缺失</strong>：sweep 只测 build。
@@ -118,6 +132,45 @@ apply_patch、SSE 真实事件格式）均未重做。</li>
 含 verifier 根修与 opt 0 政策）、
 <code>scodex-mini</code>（<code>feature/apply-patch</code>，3 个 commits）。</li>
 </ol>
+
+<h2>遇到的问题记录</h2>
+
+<h3>已解决：sweep 基线 502/18 → 520/0</h3>
+<p>2026-09-21 前 strict sweep 基线为 <code>pass=502 fail=18 total=520</code>
+（<code>SWEEP_EXIT=1</code>）。18 个失败均为 SAB direct-codegen 缺 lowering 或
+语义分歧，逐个根修后达到 <code>pass=520 fail=0 total=520</code>
+（<code>SWEEP_EXIT=0</code>，被测命令自身 <code>$?</code> 已捕获）。
+根因与 commit 见上表；其中 SA-text 语义标准侧同时根修了参数 homing
+<code>RegisterRedefinition</code>、assign hint <code>UseAfterMove</code>、
+rebind/VEC_NEW/let owning 临时量泄漏、copy idiom 等 6 处。</p>
+
+<h3>当前阻塞（暂停时未解决）</h3>
+<ol>
+<li><strong>SAB Option 缺口</strong>：<code>Option::Some(42)</code> 在 strict SAB 下报
+<code>[sab-direct] static call Some has no lowering plan</code>，
+<code>let x value call_expr failed: UnsupportedSabDirectFeature</code>；
+SA-text 可通过。Option 构造与 Option match lowering 均缺失，必须根修。</li>
+<li><strong>SA-text Result match 泄漏</strong>：最小复现 exit 1，
+<pre><code>error[MemoryLeak]: live registers remain at function exit
+# trap_code 1012, register "tmp_1", function @test "result match"()</code></pre>
+SA-text 是语义标准，必须先根修 SA-text 的所有权释放，再谈 SAB parity。</li>
+<li><strong>sci 全集 exit 1</strong>：<code>~/workspace/repro/sci_test.log</code>
+记录 <code>SCI_TEST_EXIT=1</code>，27 个历史失败尚未逐项根查。</li>
+<li><strong>三路执行 parity 回归缺失</strong>：sweep 只验证 strict direct 构建，
+SA-text / SAB / native 运行期输出对等回归尚未建立。</li>
+</ol>
+
+<h3>过程教训</h3>
+<ul>
+<li>后台 sweep 任务 <code>~/workspace/repro/sweep_20260921_35fix.log</code>
+运行约 216 秒后收到 SIGTERM，无输出——该证据作废，未混入任何结论。</li>
+<li>严格要求捕获被测命令自身的 <code>$?</code>，不用管道末端状态冒充；
+最终轮单独重跑并捕获 <code>SWEEP_EXIT=0</code> 后才视为确认。</li>
+<li><code>zig build test</code>（不带 <code>-Doptimize</code>）的 install step 会把
+<code>zig-out/lib/libdb.so</code> 覆盖成 Debug 构建，污染 benchmark——最终必须
+<code>zig build -Doptimize=ReleaseFast</code> 重建并重装。</li>
+<li>凭证类操作（GitHub PAT）只做用户当场指定的一次，用完即忘，不存档。</li>
+</ul>
 
 <h2>仓库状态快照（2026-09-21 UTC，暂停时）</h2>
 <pre><code>sa_plugin_sla  fix/toolchain-reliability  cc0ade9  已 push（34 commits），工作树干净, 无 stash
