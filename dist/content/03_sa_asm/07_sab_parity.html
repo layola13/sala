@@ -91,7 +91,7 @@ parity 回归尚未建立，见剩余问题。</div>
 <p>暂停时尚有以下工作未完成。每项都给出验收标准，恢复后按此逐项关闭。</p>
 <table>
 <tr><th>工作项</th><th>验收标准</th><th>状态</th></tr>
-<tr><td>match / ownership 三路回归</td><td>enum / Option / Result × 多 case、空 body、赋值 body、if-else 后新值、loop 外层绑定与 back-edge、<code>exprReferencesIdentifier()</code> 嵌套表达式/分支/循环/多参数全矩阵；SA-text、strict SAB、native 三路真实 exit 0</td><td>进行中（2026-09-22）：5 用例小矩阵 SA-text + strict SAB + native 全过（<code>6f3748c</code> 根修泄漏并 push）；完整大矩阵与 <code>exprReferencesIdentifier()</code> 嵌套仍未验证</td></tr>
+<tr><td>match / ownership 三路回归</td><td>enum / Option / Result × 多 case、空 body、赋值 body、if-else 后新值、loop 外层绑定与 back-edge、<code>exprReferencesIdentifier()</code> 嵌套表达式/分支/循环/多参数全矩阵；SA-text、strict SAB、native 三路真实 exit 0</td><td>进行中（2026-09-22）：10 用例矩阵（多 case/赋值 body/if-else 新值/loop back-edge/None 拼写/自定义枚举/嵌套 match/if-else 套 match/空臂/嵌套表达式臂）SA-text + strict SAB + native 三路全过， regression 文件 <code>tests/test_unit_match_ownership_matrix.sla</code> 已入库并 push（<code>59388d4</code>），sweep 521/521；<code>exprReferencesIdentifier()</code> 专项嵌套仍未验证</td></tr>
 <tr><td>SAB Option 构造与 match lowering 根修</td><td><code>Option::Some(42)</code> / <code>Option::None</code> 在 strict SAB（<code>SLA_SAB_NO_FALLBACK=1</code>）下构建 exit 0，不再报 <code>static call Some has no lowering plan</code> / <code>UnsupportedSabDirectFeature</code></td><td>部分完成（2026-09-22）：<code>acbabaf</code> 根修 None 全家桶并 push，见问题记录；完整验收矩阵仍未关闭</td></tr>
 <tr><td>SA-text Result match MemoryLeak 根修</td><td>最小复现 <code>Result::Ok(100)</code> match 取值用例 exit 0，不再报 <code>error[MemoryLeak]: live registers remain at function exit</code>（trap_code 1012）；SA-text 是语义标准，必须先于 SAB parity 根修</td><td>未开始（阻塞项）</td></tr>
 <tr><td>sci 全集根修到 exit 0</td><td><code>zig build test</code> exit 0；27 个历史失败逐项根查（不预设"与本次修改无关"）；补 BorrowView 非法逃逸/越界负例</td><td>未开始</td></tr>
@@ -220,7 +220,9 @@ scodex-mini    feature/apply-patch        4af0af5  已 push（3 commits）， �
 sa_plugin_sla  fix/toolchain-reliability  acbabaf  已 push（None 全家桶根修，+66 行）；
 sci cross-platform c4205f62、sala main、codexmini feature/apply-patch 工作树干净（sci 构建产物已还原）
 --- 2026-09-22 追记(二) ---
-sa_plugin_sla  fix/toolchain-reliability  6f3748c  已 push（分支堆值进槽泄漏根修，+22 行）</code></pre>
+sa_plugin_sla  fix/toolchain-reliability  6f3748c  已 push（分支堆值进槽泄漏根修，+22 行）
+--- 2026-09-22 追记(三) ---
+sa_plugin_sla  fix/toolchain-reliability  59388d4  已 push（三路回归矩阵入库，10 用例，sweep 521/521）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
