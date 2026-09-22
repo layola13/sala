@@ -94,7 +94,7 @@ parity 回归尚未建立，见剩余问题。</div>
 <tr><td>match / ownership 三路回归</td><td>enum / Option / Result × 多 case、空 body、赋值 body、if-else 后新值、loop 外层绑定与 back-edge、<code>exprReferencesIdentifier()</code> 嵌套表达式/分支/循环/多参数全矩阵；SA-text、strict SAB、native 三路真实 exit 0</td><td>进行中（2026-09-22）：10 用例矩阵（多 case/赋值 body/if-else 新值/loop back-edge/None 拼写/自定义枚举/嵌套 match/if-else 套 match/空臂/嵌套表达式臂）SA-text + strict SAB + native 三路全过， regression 文件 <code>tests/test_unit_match_ownership_matrix.sla</code> 已入库并 push（<code>59388d4</code>），sweep 521/521；<code>exprReferencesIdentifier()</code> 专项嵌套仍未验证</td></tr>
 <tr><td>SAB Option 构造与 match lowering 根修</td><td><code>Option::Some(42)</code> / <code>Option::None</code> 在 strict SAB（<code>SLA_SAB_NO_FALLBACK=1</code>）下构建 exit 0，不再报 <code>static call Some has no lowering plan</code> / <code>UnsupportedSabDirectFeature</code></td><td>部分完成（2026-09-22）：<code>acbabaf</code> 根修 None 全家桶并 push，见问题记录；完整验收矩阵仍未关闭</td></tr>
 <tr><td>SA-text Result match MemoryLeak 根修</td><td>最小复现 <code>Result::Ok(100)</code> match 取值用例 exit 0，不再报 <code>error[MemoryLeak]: live registers remain at function exit</code>（trap_code 1012）；SA-text 是语义标准，必须先于 SAB parity 根修</td><td>未开始（阻塞项）</td></tr>
-<tr><td>sci 全集根修到 exit 0</td><td><code>zig build test</code> exit 0；27 个历史失败逐项根查（不预设"与本次修改无关"）；补 BorrowView 非法逃逸/越界负例</td><td>未开始</td></tr>
+<tr><td>sci 全集根修到 exit 0</td><td><code>zig build test</code> exit 0；27 个历史失败逐项根查（不预设"与本次修改无关"）；补 BorrowView 非法逃逸/越界负例</td><td>进行中（2026-09-22）：<code>sa-std-runtime</code> 14/14（<code>sci@71e02f12</code> 门控 v6 并 push）；见问题记录</td></tr>
 <tr><td>scodex-mini 四模式构建 + 完整功能 E2E</td><td>SA-text O0、strict SAB O0、strict SAB release-small、strict SAB release-fast 四模式构建通过；功能门禁：Responses 文本 SSE、Responses 工具调用两轮、Chat 文本、Chat 工具调用两轮、会话落库、<code>--list</code>、<code>--resume</code>、image/file/profile、MCP、apply_patch、SSE 真实事件格式</td><td>未开始</td></tr>
 <tr><td>插件最终单测 + ReleaseFast 重建与安装审计</td><td>最终 dev 安装后重跑 <code>zig build test</code> 复核；<code>zig build -Doptimize=ReleaseFast</code> 重建并重装；记录 repo/installed SHA-256、size、mtime（防止 Debug <code>libdb.so</code> 污染 benchmark）</td><td>未开始</td></tr>
 <tr><td>rosetta native 三路验证</td><td>32 / 35 / 117 / 185 / 187 补 native build/run；121 另补 contention 与锁获取失败路径（guard 获取失败时是否错误登记/释放）、fragment dependency inclusion 通用性审查</td><td>未开始</td></tr>
@@ -159,6 +159,23 @@ rebind/VEC_NEW/let owning 临时量泄漏、copy idiom 等 6 处。</p>
 checker 判型 <code>Option&lt;infer&gt;</code> + SA-text/SAB 双后端 <code>OPTION_NEW_NONE</code> 发射。
 jev 三次会诊（诊断 h1 85-90%、落点 h1 54%、路线 a 68%）。验证只测修复点，未跑全量。</p>
 
+<h3>2026-09-22 追记(四)：sci sa-std-runtime 14/14 —— v6 门控 + Deno 误报结案</h3>
+<p>逐项根查（<code>sci@71e02f12</code>，<code>cross-platform</code> 已 push）：</p>
+<ul>
+<li><strong>udp multicast exit 29</strong>：实锤环境问题。容器无 multicast-capable 网卡，
+v6 join 返回 ENODEV（Python 独立复现）。按仓库先例（<code>udpSendtoPermitted</code>）
+加 <code>udpMulticastV6JoinPermitted()</code> 探针：C 源 v6 段包 <code>#if SA_MCAST_V6</code>，
+有能力才传 <code>-DSA_MCAST_V6=1</code>，v4 段无条件验证。双向证实：
+强制开 v6 回到 exit 29（门控真实生效），门控后 v4 exit 0 且输出校验通过。</li>
+<li><strong>Deno facade“失败”</strong>：误报，非产品 bug。证据链：
+独立 <code>zig test</code> 通过；进程内 body/exit/stdout/teardown 全正确；
+空 stub 体仍被 blame；哨兵测试证明崩溃跟着最后一个跑；
+plain 全量 13/14 仅挂 udp 且 Deno 通过。udp 修好后整步 14/14 全绿。
+根因在 <code>--listen</code> IPC 模式与失败测试共存时的归因，不在被测代码。</li>
+<li><strong>dynamic loading</strong>：此前失败系自定义 <code>--prefix</code> 下无
+<code>zig-out/lib</code>，默认 prefix 构建后通过，环境问题。</li>
+</ul>
+
 <h3>2026-09-22 追记(二)：if-else/match 分支构造堆值进结果槽泄漏 —— 已根修并 push</h3>
 <p>修复（<code>sa_plugin_sla@6f3748c</code>，<code>fix/toolchain-reliability</code> 已 push）：
 分支尾值进槽后，对非 homed、非栈上、指针传递的匿名 tmp 补显式 release
@@ -222,7 +239,9 @@ sci cross-platform c4205f62、sala main、codexmini feature/apply-patch 工作�
 --- 2026-09-22 追记(二) ---
 sa_plugin_sla  fix/toolchain-reliability  6f3748c  已 push（分支堆值进槽泄漏根修，+22 行）
 --- 2026-09-22 追记(三) ---
-sa_plugin_sla  fix/toolchain-reliability  59388d4  已 push（三路回归矩阵入库，10 用例，sweep 521/521）</code></pre>
+sa_plugin_sla  fix/toolchain-reliability  59388d4  已 push（三路回归矩阵入库，10 用例，sweep 521/521）
+--- 2026-09-22 追记(四) ---
+sci  cross-platform  71e02f12  已 push（udp v6 门控，sa-std-runtime 14/14）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
