@@ -91,8 +91,8 @@ parity 回归尚未建立，见剩余问题。</div>
 <p>暂停时尚有以下工作未完成。每项都给出验收标准，恢复后按此逐项关闭。</p>
 <table>
 <tr><th>工作项</th><th>验收标准</th><th>状态</th></tr>
-<tr><td>match / ownership 三路回归</td><td>enum / Option / Result × 多 case、空 body、赋值 body、if-else 后新值、loop 外层绑定与 back-edge、<code>exprReferencesIdentifier()</code> 嵌套表达式/分支/循环/多参数全矩阵；SA-text、strict SAB、native 三路真实 exit 0</td><td>未开始</td></tr>
-<tr><td>SAB Option 构造与 match lowering 根修</td><td><code>Option::Some(42)</code> / <code>Option::None</code> 在 strict SAB（<code>SLA_SAB_NO_FALLBACK=1</code>）下构建 exit 0，不再报 <code>static call Some has no lowering plan</code> / <code>UnsupportedSabDirectFeature</code></td><td>未开始（阻塞项）</td></tr>
+<tr><td>match / ownership 三路回归</td><td>enum / Option / Result × 多 case、空 body、赋值 body、if-else 后新值、loop 外层绑定与 back-edge、<code>exprReferencesIdentifier()</code> 嵌套表达式/分支/循环/多参数全矩阵；SA-text、strict SAB、native 三路真实 exit 0</td><td>进行中（2026-09-22）：5 用例小矩阵 SA-text + strict SAB 全过；native 发现 if-else 双分支构造 Result 泄漏（新阻塞，见问题记录）</td></tr>
+<tr><td>SAB Option 构造与 match lowering 根修</td><td><code>Option::Some(42)</code> / <code>Option::None</code> 在 strict SAB（<code>SLA_SAB_NO_FALLBACK=1</code>）下构建 exit 0，不再报 <code>static call Some has no lowering plan</code> / <code>UnsupportedSabDirectFeature</code></td><td>部分完成（2026-09-22）：<code>acbabaf</code> 根修 None 全家桶并 push，见问题记录；完整验收矩阵仍未关闭</td></tr>
 <tr><td>SA-text Result match MemoryLeak 根修</td><td>最小复现 <code>Result::Ok(100)</code> match 取值用例 exit 0，不再报 <code>error[MemoryLeak]: live registers remain at function exit</code>（trap_code 1012）；SA-text 是语义标准，必须先于 SAB parity 根修</td><td>未开始（阻塞项）</td></tr>
 <tr><td>sci 全集根修到 exit 0</td><td><code>zig build test</code> exit 0；27 个历史失败逐项根查（不预设"与本次修改无关"）；补 BorrowView 非法逃逸/越界负例</td><td>未开始</td></tr>
 <tr><td>scodex-mini 四模式构建 + 完整功能 E2E</td><td>SA-text O0、strict SAB O0、strict SAB release-small、strict SAB release-fast 四模式构建通过；功能门禁：Responses 文本 SSE、Responses 工具调用两轮、Chat 文本、Chat 工具调用两轮、会话落库、<code>--list</code>、<code>--resume</code>、image/file/profile、MCP、apply_patch、SSE 真实事件格式</td><td>未开始</td></tr>
@@ -108,8 +108,11 @@ SA-text / strict SAB / native 三路运行对等回归尚未建立。</li>
 <li><strong>match / ownership 回归未补齐</strong>：enum / Option / Result 多 case、
 空 body、赋值 body、loop back-edge、<code>exprReferencesIdentifier()</code>
 全要求，三路真实 exit 未验证。</li>
-<li><strong>Option SAB 缺口</strong>：<code>Option::Some(42)</code> 在 strict SAB
-报 <code>static call Some has no lowering plan</code>，未根修。</li>
+<li><strong>Option SAB 缺口（部分关闭 2026-09-22）</strong>：<code>Option::Some(42)</code>
+在 HEAD 已可通过（<code>434443b</code> 起）；剩余的裸 <code>Option::None</code> /
+<code>None()</code> / <code>Option::None()</code> 由 <code>acbabaf</code> 根修并 push
+（归一化为 None 调用 + check/双后端 <code>OPTION_NEW_NONE</code> 发射），5 用例矩阵双后端全过，
+strict sweep 保持 520/520。</li>
 <li><strong>SA-text Result match 泄漏</strong>：最小复现 exit 1，
 <code>MemoryLeak: live registers remain at function exit</code>。
 SA-text 是语义标准，必须先根修再谈 SAB parity。</li>
@@ -144,6 +147,32 @@ apply_patch、SSE 真实事件格式）均未重做。</li>
 <code>RegisterRedefinition</code>、assign hint <code>UseAfterMove</code>、
 rebind/VEC_NEW/let owning 临时量泄漏、copy idiom 等 6 处。</p>
 
+<h3>2026-09-22 追记：Option::None 全家桶根修（已 push）</h3>
+<p>裸 <code>Option::None</code>（无括号）parse 为 <code>enum_literal</code>，但 stdlib-import
+链从不物化 <code>Option</code> 枚举 decl，<code>tc.enums</code> 为空，
+<code>checkExpr enum_literal NotAStruct</code>（check/test/sab 全路径可复现；
+<code>sa sla check</code> 因不解析 test body 而表现为通过）。
+<code>None()</code> / <code>Option::None()</code> 调用形式此前完全无支持
+（<code>Undefined call: None</code>）。
+修复（<code>sa_plugin_sla@acbabaf</code>，<code>fix/toolchain-reliability</code> 已 push）：
+<code>lowering_rules.isOptionNoneCall</code> + mono 零字段字面量归一化为等价 static call +
+checker 判型 <code>Option&lt;infer&gt;</code> + SA-text/SAB 双后端 <code>OPTION_NEW_NONE</code> 发射。
+jev 三次会诊（诊断 h1 85-90%、落点 h1 54%、路线 a 68%）。验证只测修复点，未跑全量。</p>
+
+<h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏</h3>
+<p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
+<pre><code>@import "sa_std/core/result.sa"
+fn main() -&gt; i32 {
+    let flag: bool = true;
+    let r: Result&lt;i32, i32&gt; = if flag { Result::Ok(3) } else { Result::Err(4) };
+    return 0;
+}</code></pre>
+<p>报 <code>error[MemoryLeak]: live registers remain at function exit</code>
+（trap_code 1012，复现中为 <code>tmp_4</code>）。同形 i32 版本 native 干净返回；
+match 产出 Result 的用例 native exit 0。jev 仲裁 h1（96%）：
+if-expr 结果槽 merge 对枚举分支构造的 alloc tmp 缺 transfer/release 记账。
+待根修（下一项工作）。三路矩阵其余 4/5 native exit 0。</p>
+
 <h3>当前阻塞（暂停时未解决）</h3>
 <ol>
 <li><strong>SAB Option 缺口</strong>：<code>Option::Some(42)</code> 在 strict SAB 下报
@@ -175,7 +204,10 @@ SA-text / SAB / native 运行期输出对等回归尚未建立。</li>
 <h2>仓库状态快照（2026-09-21 UTC，暂停时）</h2>
 <pre><code>sa_plugin_sla  fix/toolchain-reliability  cc0ade9  已 push（34 commits），工作树干净, 无 stash
 sci            cross-platform             e2530bf4 已 push（9 commits）， 工作树干净, 无 stash
-scodex-mini    feature/apply-patch        4af0af5  已 push（3 commits）， 工作树干净, 无 stash</code></pre>
+scodex-mini    feature/apply-patch        4af0af5  已 push（3 commits）， 工作树干净, 无 stash
+--- 2026-09-22 追记 ---
+sa_plugin_sla  fix/toolchain-reliability  acbabaf  已 push（None 全家桶根修，+66 行）；
+sci cross-platform c4205f62、sala main、codexmini feature/apply-patch 工作树干净（sci 构建产物已还原）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
