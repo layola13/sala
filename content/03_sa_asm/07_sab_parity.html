@@ -187,6 +187,28 @@ scope 收敛在共享 tail 路径一次完成，if 与 match 同受益。
 native 全部 exit 0（此前 1012）；SA-text 路径 native exit 0；
 双 test 后端矩阵 5/5；strict sweep 保持 520/520。</p>
 
+<h3>2026-09-24 追记(五)：by-value ptr 穿透读根修 + 宏索引缓存 v8（已 push）</h3>
+<p>现象：<code>tests/test_unit_protocol_json_balance_cleanup.sla</code> 的
+<code>protocol_json_test_first_byte_value(STR_PTR(json))</code>（by-value 传参 +
+<code>PTR_READ_U8(data)</code>）在 SA-text 后端 panic 19049，
+strict SAB 5/5 通过而 SA-text 4/5。SA-text 是语义标准，必须先根修。</p>
+<p>根因两层（<code>sa_plugin_sla@e8d1d66</code> + <code>@363ff07</code>，
+<code>fix/toolchain-reliability</code> 均已 push）：</p>
+<ul>
+<li>标量/指针/fn-ptr 宏实参没有可投影字段，物化进槽再 <code>load slot+off</code>
+读到的是值自身字节（如指针地址低字节）而非穿透读，改为直接透传；
+纯数字位移（<code>load %p+0 as u8</code>）是经由地址的穿透读写，
+不再误标 <code>addressable</code>，只有命名位移才是字段投影。</li>
+<li>上述分类修复后 SA-text 仍失败：磁盘宏索引 <code>.sla-cache/macros/*.idx</code>
+以 <code>idx-format-v7</code> 复用旧掩码（<code>PTR_READ_U8</code> 的
+<code>addrslot=0b10</code> 陈旧），缓存格式升至 <code>v8</code> 后失效重建即恢复。</li>
+</ul>
+<p>验证（只测修复点与相邻项，未跑全量）：protocol fixture SA-text 5/5 +
+strict SAB 5/5；相邻 if/branch/merge 6 个 fixture strict SAB 8/8；
+<code>zig build</code> 通过。附带清理：删除调试遗留的 3 处无条件
+<code>std.debug.print</code>，移除误提交的生成产物
+<code>tests/test_unit_protocol_json_balance_cleanup.test.sa</code>（生成产物不入库）。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -241,7 +263,10 @@ sa_plugin_sla  fix/toolchain-reliability  6f3748c  已 push（分支堆值进槽
 --- 2026-09-22 追记(三) ---
 sa_plugin_sla  fix/toolchain-reliability  59388d4  已 push（三路回归矩阵入库，10 用例，sweep 521/521）
 --- 2026-09-22 追记(四) ---
-sci  cross-platform  71e02f12  已 push（udp v6 门控，sa-std-runtime 14/14）</code></pre>
+sci  cross-platform  71e02f12  已 push（udp v6 门控，sa-std-runtime 14/14）
+--- 2026-09-24 追记(五) ---
+sa_plugin_sla  fix/toolchain-reliability  e8d1d66  已 push（标量指针宏实参透传 + 数字位移不标addressable）
+sa_plugin_sla  fix/toolchain-reliability  363ff07  已 push（宏索引缓存v8 + 删DBG + 移除误提交.test.sa；protocol SA/SAB 5/5）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
