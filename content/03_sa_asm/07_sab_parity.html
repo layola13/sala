@@ -220,6 +220,26 @@ strict SAB 5/5；相邻 if/branch/merge 6 个 fixture strict SAB 8/8；
 trap 1012 不再出现。阻塞关闭。</li>
 </ul>
 
+<h3>2026-09-25 追记(七)：SAB 解码 expanded_line 覆盖根修（sci@2dfa3d5，已 push）</h3>
+<p>根因（<code>sci/src/sab.zig</code> 的 <code>readInstructions</code>，
+自 2026-06-26 旧提交沿用）：解码以指令序号覆盖 <code>expanded_line</code>
+（<code>item.expanded_line = @intCast(idx)</code>），而编码侧原样写入
+Flattener 的宏展开行号。SAB 路径的 Referee 诊断行号
+（<code>verifier.zig</code> L1419/1567）、const 交错排序（L2022）、
+函数头解析行号（L2039）因此与 SA-text 文本路径分歧，违反
+“解码产出与 Flattener 等价、Referee 不感知输入来源”。</p>
+<p>修复：删除该覆盖行（循环同步去掉未用 <code>idx</code> 绑定），
+解码保留编码值；新增回归测试
+<code>sab roundtrip preserves expanded_line from SA-text</code>，
+用非连续值（10/42/7）与边界 0 双保留断言（旧逻辑下必败）。
+现有 roundtrip 测试全用连续值（0,1,2…），行为不受影响。</p>
+<p>验证（只测改动点，未跑全量）：<code>zig test src/sab.zig --test-filter "roundtrip"</code>
+8/8 通过。缺口如实记录：全量 suite 在 163/189
+（<code>macro PBT rejects invalid definitions and invocations</code>）
+处超时（280s/850s 两次 <code>ZIG_EXIT:124</code>），改动前即存在，
+与本次无关，需另查；strict 无回退 sweep
+（全部 DEMO/TEST 走 SAB 不 FALLBACK）待补跑。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -281,7 +301,10 @@ sa_plugin_sla  fix/toolchain-reliability  363ff07  已 push（宏索引缓存v8 
 --- 2026-09-24 追记(六) ---
 仅复测关闭两项阻塞，无源码改动、无新 commit：
 if-else Result 进结果槽泄漏与 SA-text Result match 泄漏的最小复现及变体，
-SA / SAB native 全部 exit 0（系 6f3748c 已覆盖）</code></pre>
+SA / SAB native 全部 exit 0（系 6f3748c 已覆盖）
+--- 2026-09-25 追记(七) ---
+sci  main  2dfa3d5  已 push（SAB 解码 expanded_line 覆盖根修 + roundtrip 回归测试，roundtrip 8/8；
+全量 suite 163/189 macro PBT 超时系旧有问题，未动；strict sweep 待补跑）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
