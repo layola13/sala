@@ -240,6 +240,18 @@ Flattener 的宏展开行号。SAB 路径的 Referee 诊断行号
 与本次无关，需另查；strict 无回退 sweep
 （全部 DEMO/TEST 走 SAB 不 FALLBACK）待补跑。</p>
 
+<h3>2026-09-25 追记(八)：BorrowView 栈逃逸负例补齐（sci@1c68d78，已 push）</h3>
+<p>对应剩余清单“sci 全集根修到 exit 0”中的“补 BorrowView 非法逃逸/越界负例”。
+核查结论：非法逃逸已有实现——borrow view 经 <code>origins</code> 链追踪到
+<code>stack_alloc</code> 时，return/move 路径报 <code>stack_escape</code>
+（<code>verifier.zig</code> L2474f/L2601f/L3592f），本次补 2 个负例锁定该行为：
+<code>borrow view of stack_alloc traps on return escape</code> 与
+<code>traps on move escape</code>。
+越界：verifier/referee 均无 alloc size 模型，offset 越界编译期无检查，
+属缺失能力而非可补测试项，记为后续工作，本次不动。</p>
+<p>验证（只测改动点，未跑全量）：<code>zig test src/verifier.zig --test-filter "borrow"</code>
+16/16 通过（含新增 2 例与既有 14 例）。全量 suite 与 strict sweep 缺口同追记(七)。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -304,7 +316,10 @@ if-else Result 进结果槽泄漏与 SA-text Result match 泄漏的最小复现�
 SA / SAB native 全部 exit 0（系 6f3748c 已覆盖）
 --- 2026-09-25 追记(七) ---
 sci  main  2dfa3d5  已 push（SAB 解码 expanded_line 覆盖根修 + roundtrip 回归测试，roundtrip 8/8；
-全量 suite 163/189 macro PBT 超时系旧有问题，未动；strict sweep 待补跑）</code></pre>
+全量 suite 163/189 macro PBT 超时系旧有问题，未动；strict sweep 待补跑）
+--- 2026-09-25 追记(八) ---
+sci  main  1c68d78  已 push（BorrowView 栈逃逸 return/move 双负例，borrow 16/16；
+越界无 size 模型属后续工作，全量/sweep 缺口同上）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
