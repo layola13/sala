@@ -475,6 +475,27 @@ addr2line 定为 <code>sa_std.sa_fmt_u64_into</code> 内。
 双后端 5/5。剩余仅 for_in×2：共享 typechecker 一致拒绝，
 特性缺口而非分歧。</p>
 
+<h3>2026-09-25 追记(二十一)：for-in 协议方法纳入双剪枝可达集，sweep 129/129（sa_plugin_sla@cc6f1c4，已 push）</h3>
+<p>for_in×2 在 <code>check</code> / <code>build</code> 下全过，
+唯 <code>test</code> 管线报 <code>must be array or implement Iterable</code>：
+for-in 无 end 的协议形态隐式调用 <code>iter_len</code> /
+<code>iter_at</code>，但测试剪枝的两套可达 walk
+（句法 <code>collectSyntacticReachableBlock</code> 与 tc 系
+<code>collectReachableBlock</code>）只走 start/end/body，
+从不标记协议方法，impl 方法过滤将其剪掉，typecheck 随后失败。
+注意此前“共享 typechecker 一致拒绝”的判断是误判——病根在剪枝，
+不在类型规则（<code>protocolIterableElementType</code> 本就支持结构协议）。</p>
+<p>修复：句法侧按 facts 解析接收者类型，
+复用 <code>markSyntacticAssociatedCallCandidates</code>
+（未知类型回退全候选，只多保留）；tc 侧（后类型检查，
+<code>expr_types</code> 可用）按 <code>dynConcreteTypeName</code> 精确定位
+<code>Type_iter_len</code> / <code>Type_iter_at</code>，
+且仅用 map 自有 key（栈内存不外逃）。
+验证（全程单线程 <code>--jobs 1</code> 串行）：
+for_in/generic_for_in 双后端全过；
+strict sweep <b>129/129</b>；插件单测 168/171
+（3 失败仍为预存 import 展开 FileNotFound 环境项，无新增）。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -580,7 +601,11 @@ sci  cross-platform  4a9b5594（sa_fmt_u64原生SIGILL阻塞7文件，手写.sa�
 sci  cross-platform  fb407277  已 push（基线CPU重建tracked libsa_std.a，
 提交版含AVX-512致原生SIGILL；换库后清tests/.sa_cache，全程--jobs 1串行；
 sweep 127/129，tsconfig经/home/vscode软链双后端5/5；仅剩for_in×2，
-共享typecheck一致拒绝，特性缺口非分歧）</code></pre>
+共享typecheck一致拒绝，特性缺口非分歧）
+--- 2026-09-25 追记(二十一) ---
+sa_plugin_sla  master  cc6f1c4  已 push（for-in协议方法纳入双剪枝可达集，
+此前“一致拒绝”系误判，病根在剪枝而非类型规则；单线程strict sweep 129/129；
+插件单测168/171，3失败仍为预存环境项）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
