@@ -326,6 +326,24 @@ sab 全过，<code>Option::None()</code> 双后端过；
 至此 sala 验收的 Option 缺口三段（Some lowering / None 字面量 / None 调用）
 全部关闭；match lowering 与三路 sweep 缺口延续。</p>
 
+<h3>2026-09-25 追记(十三)：Option/Result match 缺口实测与移植设计（未动手，已定位）</h3>
+<p>实测（<code>SLA_SAB_NO_FALLBACK=1</code>，插件 DEBUG 现装）：
+canon 形态（<code>demos/rosetta/146_never_type_fallback</code>，
+临时 scrutinee + 发散 None 臂）SA 后端通过、strict SAB 报
+<code>UnsupportedSabDirectFeature</code>，落点为
+<code>sab_codegen.genMatch</code>（只认已声明 enum，合成 Option/Result
+无 lowering；注释称走 std-surface 实为未实现）。
+自写收敛形态（let 绑定 scrutinee + 双臂收敛取值）双后端同挂
+<code>PhiStateConflict</code>（trap 1015，绑定跨路径状态不一致），
+属 verifier 语义而非 lowering 缺口，不在此列。</p>
+<p>移植设计（下轮）：仿 <code>codegen.genOptionMatchExpr</code>（约 115 行）
+在 sab 侧新增 <code>genOptionMatch</code>，复用已验证原语
+（<code>emitStdOptionMethod is_some/get</code>、<code>emitBranch</code>、
+<code>genBlockTailValueStore</code>）与 <code>genMatch</code> 的绑定物化模式
+（intern tmp + payload load + <code>pushTypedLocal</code>）；
+仅接 Some/None/Ok/Err 四变体 + guard，其余仍回退。
+验收：r146 与收敛/发散变体 strict SAB + SA 双后端，回归文件入库。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -405,7 +423,10 @@ sa_plugin_sla  master  af694e2  已 push（Option::Some/None+Result::Ok/Err stri
 回归文件双后端2/2；None()/Option::None()调用形态仍缺，记后续）
 --- 2026-09-25 追记(十二) ---
 sa_plugin_sla  master  2404f8a  已 push（None()/Option::None()双后端打通，
-None全家桶6形态sab全过，回归文件双后端3/3；Option缺口三段全关）</code></pre>
+None全家桶6形态sab全过，回归文件双后端3/3；Option缺口三段全关）
+--- 2026-09-25 追记(十三) ---
+match缺口实测：canon r146 SA过/strict挂（genMatch无Option路径），
+收敛形态双挂属verifier语义；移植设计已定，下轮动手</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
