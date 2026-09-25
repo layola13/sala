@@ -344,6 +344,24 @@ canon 形态（<code>demos/rosetta/146_never_type_fallback</code>，
 仅接 Some/None/Ok/Err 四变体 + guard，其余仍回退。
 验收：r146 与收敛/发散变体 strict SAB + SA 双后端，回归文件入库。</p>
 
+<h3>2026-09-25 追记(十四)：Option/Result match strict 落地 + 合流潜伏 bug 根修（sa_plugin_sla@50e4995，已 push）</h3>
+<p>按追记(十三)设计移植 <code>genOptionMatch</code> 并一次过 r146。
+排查中挖出 <code>genMatch</code> 本体潜伏 bug：多 fallthrough 臂在
+not-taken 路径不释放上臂 flag，merge 报 <code>PhiStateConflict</code>
+（旧测试臂全 return 从未触发；用户枚举收敛臂同挂证实，与 Option 无关）。
+修法与 codegen 同形（下一 check/not-match 处释放上臂 flag），
+两函数同修；另补 sab <code>genStmt</code> 对 switch/match 语句丢弃返回值
+不释放（与 codegen 同形），消 void 臂 <code>UnknownRegister</code>。</p>
+<p>验证（<code>SLA_SAB_NO_FALLBACK=1</code>，DEBUG 重建安装）：
+strict sab 10 形态全过（r146/通配/void/guard/单fallthrough/Option收敛/
+Result收敛/enum收敛/enum忽略）；回归文件
+（新增 <code>tests/test_unit_option_match.sla</code>、
+<code>test_unit_enum_match.sla</code> 追收敛用例）双后端 3/3+3/3；
+zig 单测 <code>-atch</code> 2/2。已知良性分歧：收敛移动绑定臂 SAB 过而
+SA-text 拒（槽位纪律旧限，回归文件避开以保 sweep 全绿）。
+附带：<code>sla test</code> 会删 demo 下 <code>*.test.sa</code>
+（tracked 文件，已还原；跑 sweep 后须复查工作树）。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -426,7 +444,10 @@ sa_plugin_sla  master  2404f8a  已 push（None()/Option::None()双后端打通�
 None全家桶6形态sab全过，回归文件双后端3/3；Option缺口三段全关）
 --- 2026-09-25 追记(十三) ---
 match缺口实测：canon r146 SA过/strict挂（genMatch无Option路径），
-收敛形态双挂属verifier语义；移植设计已定，下轮动手</code></pre>
+收敛形态双挂属verifier语义；移植设计已定，下轮动手
+--- 2026-09-25 追记(十四) ---
+sa_plugin_sla  master  50e4995  已 push（genOptionMatch落地+合流潜伏bug根修，
+strict 10形态全过，回归双后端3/3+3/3；收敛移动绑定臂属良性分歧）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
