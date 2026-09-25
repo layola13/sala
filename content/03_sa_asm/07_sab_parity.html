@@ -632,7 +632,11 @@ sa_plugin_sla  master  eca396e  已 push（传递导入发现容忍回退a292e65
 --- 2026-09-25 追记(二十三) ---
 sci  cross-platform  9c63022e  已 push（缓存键混入运行时库size+mtime指纹：
 换库后旧链接产物曾被静默复用致本地SIGILL；中央computeProjectBuildKey
-混入，缺失回退旧行为；touch验证新key重链通过，smoke通过）</code></pre>
+混入，缺失回退旧行为；touch验证新key重链通过，smoke通过）
+--- 已知问题（基线同挂，非回归，另立项）---
+sla单测 keeps-imported-dyn-trait（plain路径SAB-generate缺entry驱动的
+死函数消除，未使用的unused_dyn被发射致VerificationTrap，SA后端天然跳过；
+81105da基线工作树对照同挂；sweep与parity不受影响）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
