@@ -379,6 +379,21 @@ typecheck（<code>Undefined call: f</code>），系 pruning 把仅被调位的
 仅剩 thread 闭包尾用例 PANIC 1412（另记）。基线仓
 （<code>/tmp/opencode/sla_base@e68634c</code>，本机保留）可复用后续对照。</p>
 
+<h3>2026-09-25 追记(十六)：线程闭包捕获栈槽根修，fn_ptr 11/11（sa_plugin_sla@849e965，已 push）</h3>
+<p>接追记(十五)遗留的 PANIC 1412。二分到最小形态：循环体
+<code>let value = i</code> 被闭包捕获即挂（与 Vec/fn 指针无关），
+SA 过、strict 挂。根因：循环体 let 降为 stack slot，其寄存器存的是地址；
+<code>genThreadSpawn</code> 原样存入 capture slot，而 worker 按值 bits 读
+（与 SA-text 存 <code>value as ptr</code> 约定一致），worker 算的是垃圾地址位。
+修复：新增 <code>localRegIsAddress</code> 判定（is_stack_alloc 或 stack_ty），
+地址形态先 <code>emitLoad</code> 再存；非 prim 大值仍 loud 失败。
+回归进 <code>test_unit_thread_closure_direct_call_merge_direct.sla</code>
+（<code>loop_capture_sum</code>）。</p>
+<p>验证（<code>SLA_SAB_NO_FALLBACK=1</code>，DEBUG 重建安装）：
+loopcap/loopjoin/fn_ptr 11/11（含 1412）/thread 三件套/closures 全过，
+回归文件双后端 2/2，zig 单测 <code>-hread</code> 2/2。
+sweep 计数更新：116/129 → <b>117/129</b>（fn_ptr 转正），剩余 12 失败仍为基线同构。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -467,7 +482,10 @@ sa_plugin_sla  master  50e4995  已 push（genOptionMatch落地+合流潜伏bug�
 strict 10形态全过，回归双后端3/3+3/3；收敛移动绑定臂属良性分歧）
 --- 2026-09-25 追记(十五) ---
 strict sweep 116/129（新回归文件在PASS内），13失败全部基线同构零回归，
-附带修好fn_ptr 10子测试；基线仓/tmp/opencode/sla_base保留</code></pre>
+附带修好fn_ptr 10子测试；基线仓/tmp/opencode/sla_base保留
+--- 2026-09-25 追记(十六) ---
+sa_plugin_sla  master  849e965  已 push（线程闭包捕获栈槽先load再存，
+fn_ptr 11/11含PANIC1412，回归文件双后端2/2）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
