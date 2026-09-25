@@ -394,6 +394,24 @@ loopcap/loopjoin/fn_ptr 11/11（含 1412）/thread 三件套/closures 全过，
 回归文件双后端 2/2，zig 单测 <code>-hread</code> 2/2。
 sweep 计数更新：116/129 → <b>117/129</b>（fn_ptr 转正），剩余 12 失败仍为基线同构。</p>
 
+<h3>2026-09-25 追记(十七)：调用点事实求交，shallow_copy 转正，sweep 118/129（sa_plugin_sla@18b103e，已 push）</h3>
+<p>接追记(十五)遗留的 shallow_copy 2过1挂。逐层二分：最小形态双过、
+单抽 false 分支双过、换序即过——顺序相关的文件内跨测试污染。
+产物对拍实锤：同函数 <code>should_warm</code> 在单测文件里含
+<code>return false</code>，在双测文件里该臂消失（共享 AST 被原地改写）。</p>
+<p>根因全链：test 管线独有 <code>prune_for_test_codegen</code>，
+调用点常量事实按局部名 key 并入 callee（t1 的
+<code>change.reason=4</code>）；<code>mergeFunctionFacts</code> 只对 import
+集求交，int/bool 值事实首 site 胜出；随后
+<code>pruneKnownFalseBranches</code> 把 <code>change.reason != 4</code>
+判假并原地清空共享 <code>should_warm</code> 的 then-block，
+t2（reason=1）复用被破坏的函数。<code>sla build</code> 无此剪枝故正常。</p>
+<p>修复：merge 对 known_int/known_bool 求交（值一致保留，
+新增 <code>retainOnlyEqualInt/Bool</code>，删 key 并释放）；
+单调用点行为不变，多 site 分歧保守不剪；单测锁定。
+验证：shallow_copy 双后端 3/3；全量重扫 <b>118/129</b>，
+剩余 11 失败全部基线同构；zig 单测 <code>-mergeFunctionFacts</code> 1/1。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -485,7 +503,10 @@ strict sweep 116/129（新回归文件在PASS内），13失败全部基线同构
 附带修好fn_ptr 10子测试；基线仓/tmp/opencode/sla_base保留
 --- 2026-09-25 追记(十六) ---
 sa_plugin_sla  master  849e965  已 push（线程闭包捕获栈槽先load再存，
-fn_ptr 11/11含PANIC1412，回归文件双后端2/2）</code></pre>
+fn_ptr 11/11含PANIC1412，回归文件双后端2/2）
+--- 2026-09-25 追记(十七) ---
+sa_plugin_sla  master  18b103e  已 push（调用点事实求交，
+shallow_copy双后端3/3，sweep 118/129，剩11失败基线同构）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
