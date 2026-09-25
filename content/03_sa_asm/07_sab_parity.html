@@ -252,6 +252,24 @@ Flattener 的宏展开行号。SAB 路径的 Referee 诊断行号
 <p>验证（只测改动点，未跑全量）：<code>zig test src/verifier.zig --test-filter "borrow"</code>
 16/16 通过（含新增 2 例与既有 14 例）。全量 suite 与 strict sweep 缺口同追记(七)。</p>
 
+<h3>2026-09-25 追记(九)：reachability 嵌套专项根修（sa_plugin_sla@979c6a9，已 push）</h3>
+<p>对应剩余清单“match / ownership 三路回归”中的
+“<code>exprReferencesIdentifier()</code> 专项嵌套仍未验证”。
+核查结论：文档中的旧函数名在现 HEAD 已不存在，继任者为
+<code>plugin.zig</code> 的 <code>reachabilityNodeUsesIdentifier</code>
+（两处 dead-let 剪枝共用）。逐项比对 <code>ast.Node</code> 全变体发现三处漏判：
+<code>call_expr</code> 只看 args、不看 <code>func_name</code> /
+<code>associated_target</code>（<code>Target::func</code> 经 parser 实证进该形态）；
+<code>release_stmt</code> 与 <code>inline_asm_expr</code> 直接掉进
+<code>else =&gt; false</code>。后果是被调函数值（<code>f(1)</code>）、
+关联调用（<code>t::run</code>）、<code>release(!v)</code>、asm 操作数提及
+均误判未使用而剪掉 live let。</p>
+<p>修复均为保守方向（只多保留、不误剪）：call 比对函数名与关联目标；
+release/inline_asm 新增显式臂。新增 2 专项测试；
+反证：仅回退修补保留测试时 2/3 失败，修后
+<code>zig build test -Dtest-filter="treats" --summary all</code> 3/3 通过。
+同形 snapshot 系 2 个 walker 语义不同，未动；全量/sweep 缺口延续。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -319,7 +337,10 @@ sci  main  2dfa3d5  已 push（SAB 解码 expanded_line 覆盖根修 + roundtrip
 全量 suite 163/189 macro PBT 超时系旧有问题，未动；strict sweep 待补跑）
 --- 2026-09-25 追记(八) ---
 sci  main  1c68d78  已 push（BorrowView 栈逃逸 return/move 双负例，borrow 16/16；
-越界无 size 模型属后续工作，全量/sweep 缺口同上）</code></pre>
+越界无 size 模型属后续工作，全量/sweep 缺口同上）
+--- 2026-09-25 追记(九) ---
+sa_plugin_sla  master  979c6a9  已 push（reachability 补callee/关联目标/release/asm，
+反证2/3失败→修后3/3；snapshot系walker未动，全量/sweep缺口延续）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
