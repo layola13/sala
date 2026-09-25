@@ -362,6 +362,23 @@ SA-text 拒（槽位纪律旧限，回归文件避开以保 sweep 全绿）。
 附带：<code>sla test</code> 会删 demo 下 <code>*.test.sa</code>
 （tracked 文件，已还原；跑 sweep 后须复查工作树）。</p>
 
+<h3>2026-09-25 追记(十五)：strict 全量 sweep 116/129，零回归（sa_plugin_sla@50e4995）</h3>
+<p>按仓库文档 §2.1 本地命令全量跑 <code>tests/test_unit_*.sla</code>
+（129 文件，含新增 <code>test_unit_option_match.sla</code> 与追补的
+<code>test_unit_enum_match.sla</code>，两文件均在 PASS 内）：
+<code>PASS 116/129</code>。13 个失败逐项在改动前基线
+（<code>e68634c</code> 另建干净构建）复跑对照，全部同构
+（同 trap/同 panic 码/同超时）：StackEscape×3（array_to_slice、
+async_while_let、derive）、async 超时×2（block_on、spaceship）、
+for-in TypeMismatch×2、HASHSET_SENTINEL×2（sets、mixed）、
+user_macro UnknownRegister×1、tsconfig PANIC 41041（0/5）、
+shallow_copy（同为 2过1挂）、fn_ptr 尾用例 PANIC 1412。</p>
+<p>附带修复：基线 <code>test_unit_fn_ptr_value.sla</code> 整文件死于
+typecheck（<code>Undefined call: f</code>），系 pruning 把仅被调位的
+<code>let f</code> 剪掉所致；追记(九)的 reachability 修补使其 10/11 通过，
+仅剩 thread 闭包尾用例 PANIC 1412（另记）。基线仓
+（<code>/tmp/opencode/sla_base@e68634c</code>，本机保留）可复用后续对照。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -447,7 +464,10 @@ match缺口实测：canon r146 SA过/strict挂（genMatch无Option路径），
 收敛形态双挂属verifier语义；移植设计已定，下轮动手
 --- 2026-09-25 追记(十四) ---
 sa_plugin_sla  master  50e4995  已 push（genOptionMatch落地+合流潜伏bug根修，
-strict 10形态全过，回归双后端3/3+3/3；收敛移动绑定臂属良性分歧）</code></pre>
+strict 10形态全过，回归双后端3/3+3/3；收敛移动绑定臂属良性分歧）
+--- 2026-09-25 追记(十五) ---
+strict sweep 116/129（新回归文件在PASS内），13失败全部基线同构零回归，
+附带修好fn_ptr 10子测试；基线仓/tmp/opencode/sla_base保留</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
