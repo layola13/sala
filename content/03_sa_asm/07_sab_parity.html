@@ -288,6 +288,29 @@ zig-out/lib/libsa_asm.a  110185954 bytes  2026-09-25 02:00:21  sha256:fc659ef5�
 （全量单测有用户禁令；正式安装路径未执行）。另：用户指示此后测试构建
 一律默认 DEBUG，不用 RELEASE。</p>
 
+<h3>2026-09-25 追记(十一)：Option/Result 关联构造 strict SAB 根修（sa_plugin_sla@af694e2，已 push）</h3>
+<p>对应剩余清单“SAB Option 构造与 match lowering 根修”验收项。
+实测现 HEAD 缺口（<code>SLA_SAB_NO_FALLBACK=1</code>）：
+<code>Option::Some(42)</code> 报 <code>UnsupportedSabDirectFeature</code>
+（规则表有 <code>constructor Some Option</code>，但分发只查
+<code>associated</code> 规则）；<code>Option::None</code>（无括号字面量）
+typecheck 报 <code>NotAStruct</code>（Option 为合成类型无声明）；
+<code>None()</code> / <code>Option::None()</code> typecheck 报
+<code>Undefined call</code>（新语法面，本次不动，记后续）。</p>
+<p>修复：associated 未命中后，对 Option/Result 构造简写
+（Some/None/Ok/Err，限参数元数）回退到既有 constructor surface 规则，
+与 SA-text（codegen 匹配裸 Some/Ok/Err 忽略 target）对等；
+typechecker 放行无字段 <code>Option::None</code> 字面量为
+<code>Option&lt;infer&gt;</code>，双后端字面量发射直发
+<code>OPTION_NEW_NONE</code>。回归用例进
+<code>tests/test_unit_option_direct.sla</code>。</p>
+<p>验证（工具链：LLVM-14 现装，插件 DEBUG 构建安装）：
+sab strict 全过（some42/onone/nonebare/opt-direct/opt-methods 5/result-direct），
+sa 后端对等全过，Result::Ok/Err 双后端过，回归文件双后端 2/2，
+<code>zig build test -Dtest-filter=Option</code> 1/1。
+“当前阻塞”中的 SAB Option 缺口第一段（Some 无 lowering 计划）关闭；
+裸 None()/None() 调用形态仍缺，记入后续。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -361,7 +384,10 @@ sa_plugin_sla  master  979c6a9  已 push（reachability 补callee/关联目标/r
 反证2/3失败→修后3/3；snapshot系walker未动，全量/sweep缺口延续）
 --- 2026-09-25 追记(十) ---
 sci ReleaseFast 构建通过（sa 22MB，sha256:c76d7851…，--help exit 0），
-libsa_std.a 污染已还原；dev重装+全量复核未做（单测禁令），此后测试构建用DEBUG</code></pre>
+libsa_std.a 污染已还原；dev重装+全量复核未做（单测禁令），此后测试构建用DEBUG
+--- 2026-09-25 追记(十一) ---
+sa_plugin_sla  master  af694e2  已 push（Option::Some/None+Result::Ok/Err strict双后端全过，
+回归文件双后端2/2；None()/Option::None()调用形态仍缺，记后续）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
