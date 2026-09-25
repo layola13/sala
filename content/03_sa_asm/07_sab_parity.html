@@ -455,6 +455,26 @@ for_in×2 为共享 typechecker 一致拒绝
 3 失败为预存 import 展开 FileNotFound 环境项；
 改动域（prune/reachability/mergeFunctionFacts）定向单测全过。</p>
 
+<h3>2026-09-25 追记(二十)：提交版 libsa_std.a 含 AVX-512 致原生 SIGILL（sci@fb407277，已 push）</h3>
+<p>接追记(十九)。逐层二分：去 release 版最小复现仍崩；
+<code>sa_fmt_u64_into</code>（无分配器/无锁）同崩；
+纯 Zig 同款 <code>bufPrintIntToSlice</code> 调用正常；
+dmesg 故障 IP 落在 <code>vmovdqa64 %zmm0</code>，
+addr2line 定为 <code>sa_std.sa_fmt_u64_into</code> 内。
+对拍：提交版 <code>artifacts/sa_std/libsa_std.a</code> 含 9097 处 zmm，
+本地 <code>zig-out</code> 新鲜构建为 0——提交版系 AVX-512 机器产物，
+在无 AVX-512 的 CPU（如 AMD EPYC 7B12）上任何触及向量化运行时的
+原生路径皆 SIGILL。注意 <code>sa build</code> 链接的正是该提交版库，
+且 <code>tests/.sa_cache</code> 的键未覆盖库内容，换库后必须清缓存
+（另：<code>/tmp/.sa_cache</code> 同理；全程单线程 <code>--jobs 1</code> 串行）。</p>
+<p>修复：按仓库既有机制用本地基线 CPU 重建 tracked artifact 并提交
+（<code>sci@fb407277</code>，与 <code>zig-out</code> 产物 md5 一致）。
+验证：最小复现 exit 0 且全 exe 0 zmm；单线程全量重扫
+<b>127/129</b>（此前 120/129），tsconfig 经
+<code>/home/vscode</code> 同构软链接（硬编码 fixture 路径的环境适配）
+双后端 5/5。剩余仅 for_in×2：共享 typechecker 一致拒绝，
+特性缺口而非分歧。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -555,7 +575,12 @@ sa_plugin_sla  master  e10b412  已 push（栈槽免释放 e2b96f8 + 本地宏�
 sweep 120/129，剩9文件双后端失败特征逐项同构，零分歧；插件单测168/171，
 3失败为预存import展开FileNotFound环境项）
 sci  cross-platform  4a9b5594（sa_fmt_u64原生SIGILL阻塞7文件，手写.sa复现，
-属运行时范畴待修；for_in×2共享typecheck一致拒绝，特性缺口非分歧）</code></pre>
+属运行时范畴待修；for_in×2共享typecheck一致拒绝，特性缺口非分歧）
+--- 2026-09-25 追记(二十) ---
+sci  cross-platform  fb407277  已 push（基线CPU重建tracked libsa_std.a，
+提交版含AVX-512致原生SIGILL；换库后清tests/.sa_cache，全程--jobs 1串行；
+sweep 127/129，tsconfig经/home/vscode软链双后端5/5；仅剩for_in×2，
+共享typecheck一致拒绝，特性缺口非分歧）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
