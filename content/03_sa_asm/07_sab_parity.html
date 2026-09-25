@@ -412,6 +412,49 @@ t2（reason=1）复用被破坏的函数。<code>sla build</code> 无此剪枝�
 验证：shallow_copy 双后端 3/3；全量重扫 <b>118/129</b>，
 剩余 11 失败全部基线同构；zig 单测 <code>-mergeFunctionFacts</code> 1/1。</p>
 
+<h3>2026-09-25 追记(十八)：SAB 栈槽免显式释放 + 本地宏剪枝补 callee（sa_plugin_sla@e2b96f8/@e10b412，均已 push）</h3>
+<p>本轮以 <code>SLA_SAB_NO_FALLBACK=1</code> 全量执行口径重扫
+<code>tests/test_unit_*.sla</code>（129 文件）：基线 <b>115/129</b>，
+14 个失败中 5 个为真分歧（SA 过 / strict SAB 挂），其余双后端同挂。
+收敛移动绑定分歧（追记(十四)良性分歧）在现 HEAD 复测双后端全过，证伪关闭。</p>
+<ul>
+<li><code>e2b96f8</code> 数组借用切片 / 混合集合 / 集合冒烟 strict SAB 报
+<code>StackEscape</code>（trap 1025）：<code>sab_codegen.emitRelease</code>
+对 non-owning 寄存器发 <code>move_</code>，字符串字面量与切片物化的
+栈槽经不起 move/release。新增 <code>stack_alloc_regs</code> 集合
+（<code>emitStackAlloc</code> 登记），遇栈槽直接记 released 返回；
+数组借用切片 call 后释放同步置空，与 SA-text
+（<code>codegen.genArrayBorrowToSliceArg</code> 硬编码
+<code>release_after_call=false</code>）对等。 prim 验证：
+array_to_slice / mixed_collections / sets（含被顺带修好的
+async_while_let）strict SAB 全过，SA 后端无回归。</li>
+<li><code>e10b412</code> user_macro strict SAB 报
+<code>UnknownRegister: callee is not declared</code>：
+SA 路径从不剪枝，SAB 测试路径
+<code>pruneUnreachableFilteredTestDecls</code> 的
+<code>markReachableCallTarget</code> 只处理 imported 宏的
+<code>direct_callees</code>，本地宏体内的普通函数
+（如 <code>direct_macro_add</code>）被丢弃。补本地宏分支
+（<code>tc.macros</code）：沿宏体 walk 可达调用，
+reachable 兼作宏循环守卫。user_macro 双后端 2/2。</li>
+</ul>
+<p>本轮后 sweep <b>120/129</b>。剩余 9 文件双后端失败特征逐项同构
+（同 signal / 同 trap 计数），零分歧，见追记(十九)。</p>
+
+<h3>2026-09-25 追记(十九)：sci 原生 sa_fmt_u64 SIGILL 阻塞 + 剩余项归属（未动手，已定位）</h3>
+<p>剩余 9 文件中 7 个为双后端同构 <code>signal 4</code>
+（println_direct、option_match void 臂、imported_json×3、derive-debug、
+tsconfig×5）：手写最小 <code>.sa</code>（仅
+<code>call @sa_fmt_u64(7, 10)</code>，零 sla 参与）经
+<code>sa build</code> 成本地 exe 后同样 SIGILL（exit 132），
+病根在 <b>sci <code>cross-platform@4a9b5594</code> 运行时或其发射器</b>，
+非 SAB/SA-text 分歧。tsconfig 无 fmt 参与，属另路原生崩溃；
+for_in×2 为共享 typechecker 一致拒绝
+（<code>for iterable value must be array or implement Iterable</code>），
+特性缺口而非分歧。插件单测 168/171，
+3 失败为预存 import 展开 FileNotFound 环境项；
+改动域（prune/reachability/mergeFunctionFacts）定向单测全过。</p>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
@@ -506,7 +549,13 @@ sa_plugin_sla  master  849e965  已 push（线程闭包捕获栈槽先load再存
 fn_ptr 11/11含PANIC1412，回归文件双后端2/2）
 --- 2026-09-25 追记(十七) ---
 sa_plugin_sla  master  18b103e  已 push（调用点事实求交，
-shallow_copy双后端3/3，sweep 118/129，剩11失败基线同构）</code></pre>
+shallow_copy双后端3/3，sweep 118/129，剩11失败基线同构）
+--- 2026-09-25 追记(十八/十九) ---
+sa_plugin_sla  master  e10b412  已 push（栈槽免释放 e2b96f8 + 本地宏剪枝，
+sweep 120/129，剩9文件双后端失败特征逐项同构，零分歧；插件单测168/171，
+3失败为预存import展开FileNotFound环境项）
+sci  cross-platform  4a9b5594（sa_fmt_u64原生SIGILL阻塞7文件，手写.sa复现，
+属运行时范畴待修；for_in×2共享typecheck一致拒绝，特性缺口非分歧）</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
