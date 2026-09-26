@@ -64,17 +64,19 @@ fn compute() -&gt; Result&lt;i32, i32&gt; {
 
 <h2>async / await 对照（含一次重要纠正）</h2>
 <p>这是对比文档里被改写过的一节。v0.1 曾写「词法已有、运行时未完成」，
-v0.2（2026-06-15）根据实测测试文件纠正为「本身可用，缺的是 runtime 生态」。</p>
+v0.2（2026-06-15）根据实测测试文件纠正为「本身可用，缺的是 runtime 生态」。
+截至 2026-09-03，源码审计进一步确认：编译器已有若干专用 continuation/state-machine
+lowering，但仍没有通用的 N-await lowering 或 Tokio 等价 runtime。</p>
 <table>
 <tr><th>特性</th><th>Rust</th><th>SLA 当前</th></tr>
 <tr><td><code>async fn</code> 语法</td><td>有</td><td>已落地</td></tr>
 <tr><td><code>.await</code> 操作符</td><td>有</td><td>已落地</td></tr>
 <tr><td>future 类型</td><td><code>Future</code> trait</td><td><code>future&lt;T&gt;</code> 类型已实现</td></tr>
 <tr><td>同步上下文里 await</td><td>不允许，需 <code>block_on</code></td><td>已支持（<code>await_from_sync</code> 形态）</td></tr>
-<tr><td>嵌套 async</td><td>有</td><td>有</td></tr>
-<tr><td>Future 状态机</td><td>std + tokio</td><td>编译器 CPS 转换</td></tr>
+<tr><td>嵌套 async</td><td>有</td><td>单/双 await、join2 等形态已验证；三次以上连续 await 仍有限制</td></tr>
+<tr><td>Future 状态机</td><td>std + tokio</td><td>编译器专用 continuation/state-machine lowering；不是通用 N-await lowering</td></tr>
 <tr><td>async 运行时</td><td>tokio / async-std</td><td>暂无独立运行时（前端展平）</td></tr>
-<tr><td>实战可用度</td><td>生产级</td><td>可跑，运行时生态待补</td></tr>
+<tr><td>实战可用度</td><td>生产级</td><td>固定形态可跑；生产服务仍缺统一 runtime、调度/背压和完整取消传播</td></tr>
 </table>
 
 <p>实测证据是 <code>sa_plugin_sla/tests/test_unit_async_await.sla</code>
@@ -93,12 +95,11 @@ fn await_from_sync() -&gt; int {
     if result != 1 { panic(2); };
 }</code></pre>
 
-<div class="warning"><span class="label">警告</span>另一个口径也要看清楚：
-<code>roadmap_status_cn.md</code>（v0.1 / 2026-07-01）在 direct SAB no-fallback sweep
-（<code>SLA_SAB_NO_FALLBACK=1</code> 下跑 <code>tests/test_unit_*.sla</code>）中记录为 58/69 通过，
-其中 <code>async_await</code> 是尚未通过的 11 个测试文件之一，归入 Phase 8（async 状态机/Future/task）。
-这与「语法和前端路径已实测可跑」并不矛盾：一个是语言能力验证，一个是不走回退的主线收敛进度。
-引用任何一边都要带上日期与口径。</div>
+<div class="warning"><span class="label">更新后的验证口径（2026-09-03）</span>
+当前 <code>sa_plugin_sla</code> 记录的 async 矩阵为 native SA 35/35、SLA→SA→VM 35/35，
+strict direct SAB 34/35；唯一阻塞是线程池用例中的
+<code>stack_alloc + PIN_MUT_NEW + FUTURE_POLL_STATE</code> 组合。三次以上连续 await
+仍然没有通用 continuation lowering，因此不能把这些数字解释为完整 async runtime 已完成。</div>
 
 <h2>标准库总对照</h2>
 <p>来源：<code>rust_vs_sla_final_cn.md</code> §2.H（v0.2 / 2026-06-15）。</p>

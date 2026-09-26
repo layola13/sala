@@ -9,9 +9,18 @@
 <div class="topic-header">SLA 语言参考 &gt; async/await 现状</div>
 <h1>async/await 现状</h1>
 
-<p>SLA 已有 <code>async fn</code>/<code>.await</code> 语法与配套的 sa_std future 契约，
-但 async 状态机在 direct SAB 快路径上尚未完全覆盖。这一页给出当前可用的真实写法、
-驱动 future 的惯用模式，以及成熟度注意事项。</p>
+<p>SLA 已有 <code>async fn</code>/<code>.await</code> 语法与配套的 sa_std future 契约。
+当前编译器已经为单次 await、连续两次 await、<code>join2</code> 以及若干动态
+Pending/Ready 形态生成真实状态机；但这不是“所有 async 代码都已经有通用 runtime”。
+本页记录可验证的 lowering 范围、手动驱动方式和仍未完成的边界。</p>
+
+<div class="note"><span class="label">源码快照（2026-09-03）</span>
+权威实现位于 <code>sa_plugin_sla</code>，不是本帮助站点本身：
+<code>src/codegen.zig</code> 按 join2 → two-await → single-await → dynamic
+planner 选择专用构造器；<code>sa_std/core/future.sal</code> 定义
+<code>FutureState</code> 的动态 vtable 位于偏移 <code>+48</code>，动态状态必须通过
+<code>FUTURE_POLL_STATE</code> 分发。不要把动态 outer future 交给只读取内联 ready 布局的
+<code>FUTURE_READY_POLL_STATE</code>。</div>
 
 <h2>基本写法</h2>
 <p><code>async fn</code> 声明异步函数；调用它得到一个 future 值，用后缀 <code>.await</code> 取结果。
@@ -48,7 +57,7 @@ block_on 时，demo 使用轮询 + waker 的手写驱动：</p>
     PIN_MUT_NEW(pinned, future_ref);
 
     while unix_now_ns() &lt; deadline {
-        let poll = FUTURE_READY_POLL_STATE(PIN_MUT_GET_MUT(pinned));
+        let poll = FUTURE_POLL_STATE(PIN_MUT_GET_MUT(pinned), context);
         let ready = POLL_IS_READY(poll);
         if ready == true {
             let value: i32 = POLL_VALUE(poll);
@@ -90,17 +99,30 @@ while let Some(task) = queue.pop() {
 
 <h2>成熟度与建议</h2>
 <ul>
-<li>async/await 属于尚未进入 direct-SAB 快路径的特性，命中时会走 SA 兼容回退路径
-（roadmap 中 <code>async_await</code> 归属 Phase 8）；</li>
+<li>async/await 已部分进入 direct-SAB 快路径，但覆盖是专用 lowering，不是任意 async
+函数的通用 CPS/state-machine。当前已验证的重点是单 await、两次 await、join2、
+局部 Future 重新赋值和 Pending/Ready 恢复；</li>
+<li>当前源码记录中，35 个 <code>test_unit_async*.sla</code> 通过 native SA，
+SLA→SA→VM 矩阵也是 35/35；strict direct SAB 为 34/35，线程池用例仍受
+<code>stack_alloc + PIN_MUT_NEW + FUTURE_POLL_STATE</code> 组合限制。这个数字是
+2026-09-03 的验证快照，发布前应重新运行；</li>
+<li>三次或更多连续 await 尚无通用 continuation lowering：尚未统一保存每个 stage、
+pending inner future、跨阶段局部值和 cleanup。不能据此宣称“高级 async/await 已完成”；</li>
+<li><code>sa_std/core/task.sa</code> 的 executor 是任务数组上的轮询循环；
+<code>run_until_complete</code> 没有 Tokio 级 reactor、调度公平性、背压或结构化并发。
+线程池示例是真实 OS 线程 + <code>Arc&lt;Mutex&gt;</code>，但仍由手写
+<code>block_on</code> 和 sleep 驱动；</li>
 <li>demo 009 的简化 <code>block_on</code> 在 future 未立即就绪时会 panic；需要真挂起请参考 demo 314 的轮询写法；</li>
 <li>不要假设 rosetta 树中的 async demo 全部端到端通过，按需单独验证：
 <code>SA_PLUGIN_DEV=1 sa sla test demos/rosetta/314_async_await_pending_resume/main.sla</code>。</li>
 </ul>
 
-<div class="note"><span class="label">注意</span>设计文档说明 SLA async 采用 CPS 风格转换而非 Rust 式状态机 +
-<code>Pin</code>/<code>Unpin</code> 用户面语义；demo 中出现的 <code>PIN_MUT_*</code> 来自 sa_std 契约，
-不是语言关键字。</div>
+<div class="note"><span class="label">注意</span>编译器内部使用 continuation/state-machine
+lowering，但 SLA 不提供 Rust 式 <code>Pin</code>/<code>Unpin</code> 用户面语义；demo 中出现的
+<code>PIN_MUT_*</code> 来自 sa_std 契约，不是语言关键字。HTTP client 的 async ABI
+目前是句柄 + poll/cancel 的插件接口，不能等同于统一的 SLA Future executor。</div>
 
 <p>相关页面：<a href="03_functions.html">函数与控制流</a>、<a href="10_maturity.html">特性成熟度总表</a>。</p>
 </body>
 </html>
+

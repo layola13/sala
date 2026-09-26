@@ -48,7 +48,7 @@ block_on 时，demo 使用轮询 + waker 的手写驱动：</p>
     PIN_MUT_NEW(pinned, future_ref);
 
     while unix_now_ns() &lt; deadline {
-        let poll = FUTURE_READY_POLL_STATE(PIN_MUT_GET_MUT(pinned));
+        let poll = FUTURE_POLL_STATE(PIN_MUT_GET_MUT(pinned), context);
         let ready = POLL_IS_READY(poll);
         if ready == true {
             let value: i32 = POLL_VALUE(poll);
@@ -105,3 +105,4 @@ while let Some(task) = queue.pop() {
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>
+

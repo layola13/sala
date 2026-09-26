@@ -51,7 +51,7 @@ direct AST→SAB 快路径，遇到未覆盖特性会回退到内存中的 SA �
 <tr><td><code>@derive</code> 语义</td><td>derive 生成的操作符/函数调用会回退</td><td>Phase 5</td></tr>
 <tr><td>结构体更新 <code>..base</code> / spaceship 比较</td><td>聚合更新、拷贝与操作符分发在 no-fallback 清单中</td><td>Phase 5</td></tr>
 <tr><td><code>for in</code> 协议（集合迭代）</td><td>非泛型协议与泛型特化均待落地</td><td>Phase 6</td></tr>
-<tr><td>async/await 状态机</td><td>Future/task 未覆盖</td><td>Phase 8</td></tr>
+<tr><td>async/await 状态机</td><td>单 await、两次 await、join2 及部分动态 Pending/Ready 已有 direct-SAB lowering；三次以上连续 await仍缺通用 continuation，executor 仍是轮询宏</td><td>Phase 8（部分完成）</td></tr>
 <tr><td>集合类 std 元数据（Set 等）、嵌套契约导入</td><td>std surface 缺口</td><td>Phase 4</td></tr>
 <tr><td>dyn trait 对象 + Rc 组合等调用物化</td><td>共享调用/参数物化计划仍在收敛</td><td>Phase 3/4</td></tr>
 </table>
