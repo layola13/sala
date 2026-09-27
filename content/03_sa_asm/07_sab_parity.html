@@ -658,6 +658,13 @@ SA-text私版仅查match/switch的val致fn-ptr内联误判，
 共享实现以SAB完备版为准双后端变薄，删两私版closureShadowsIdentifier；
 新夹具tests/test_unit_fnptr_inline_match_arm_guard.sla双后端全过；
 单测290/290，双sweep 200/200；剩余exprReferencesIdentifier嵌套即此共享扫描）
+--- 2026-09-27 追记(二十七) ---
+sa_plugin_sla  master  f815a63  已 push（SAB 18 rosetta全灭：array map/filter/fold与vec
+map内联镜像、raw_ptr len改CSTR_LEN、asm no-op、标量负结构体、RwLock读写+守卫跟踪、
+union字面量/ManuallyDrop调用与字段取址、for-in数组、catch_unwind静态求值、
+Result::map、str as_ptr、void unsafe、块尾终结值；18/18严格执行全过，
+单测290/290；12个单测执行失败经基线worktree逐项陷阱签名比对全系预存零回归；
+新夹具SAB执行待match值合并纪律根修，SA执行已过；JEV红队proceed）
 --- 已知问题（基线同挂，非回归，另立项）---
 sla单测 keeps-imported-dyn-trait（plain路径SAB-generate缺entry驱动的
 死函数消除，未使用的unused_dyn被发射致VerificationTrap，SA后端天然跳过；
