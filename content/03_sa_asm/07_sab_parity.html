@@ -683,6 +683,12 @@ vec_get fragment临时值经借用视图带InteriorPtr复合态，
 候选：sci验证器加Composite↔Uninit合并规则（沿用既有PATCH体例），
 或发射器回边前强制消费体定义复合临时值；本地/自有/单层/交换/选择
 全对照通过，唯借用穿透形状挂，基线一致非回归）
+--- 2026-09-27 追记(三十一) ---
+sa_plugin_sla  master  cc5494c  已 push（assign消费源镜像到清理跟踪，
+Copy数组move实参深拷贝：user_macro 2/2、array_direct 1/1、arrays 3/3转正；
+全量严格执行SAB 198/200、SA 196/200，余下6基线逐项一致零回归
+（vec_index复合合并、async×2、imported_macro、sa_repeated、switch）；
+单测290/290）
 --- 已知问题（基线同挂，非回归，另立项）---
 sla单测 keeps-imported-dyn-trait（plain路径SAB-generate缺entry驱动的
 死函数消除，未使用的unused_dyn被发射致VerificationTrap，SA后端天然跳过；
