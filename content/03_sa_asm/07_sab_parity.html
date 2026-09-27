@@ -675,6 +675,14 @@ rosetta SAB构建315/315）
 sa_plugin_sla  master  c586e5f  已 push（var_slot布尔夹具分支写反致恒假，
 改恒等双后端4/4；fallible_extern写死Windows绝对路径改hermetic写读，
 双后端3/3；余6执行失败另立项：user_macro/array/arrays/async/tsconfig/vec_index）
+--- 2026-09-27 追记(三十) ---
+vec_index诊断窄化（未修立项）：借用结构体vec字段循环索引，
+vec_get fragment临时值经借用视图带InteriorPtr复合态，
+回边释放不断其态，首入Uninitialized在HEAD合并无规则可配
+（Active/Consumed↔Uninit皆可配，唯Composite↔Uninit无）；
+候选：sci验证器加Composite↔Uninit合并规则（沿用既有PATCH体例），
+或发射器回边前强制消费体定义复合临时值；本地/自有/单层/交换/选择
+全对照通过，唯借用穿透形状挂，基线一致非回归）
 --- 已知问题（基线同挂，非回归，另立项）---
 sla单测 keeps-imported-dyn-trait（plain路径SAB-generate缺entry驱动的
 死函数消除，未使用的unused_dyn被发射致VerificationTrap，SA后端天然跳过；
