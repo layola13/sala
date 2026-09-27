@@ -633,6 +633,20 @@ sa_plugin_sla  master  eca396e  已 push（传递导入发现容忍回退a292e65
 sci  cross-platform  9c63022e  已 push（缓存键混入运行时库size+mtime指纹：
 换库后旧链接产物曾被静默复用致本地SIGILL；中央computeProjectBuildKey
 混入，缺失回退旧行为；touch验证新key重链通过，smoke通过）
+--- 2026-09-27 追记(二十四) ---
+sa_plugin_sla  master  885d600 + 1a7a20e  已 push（Y-SHARE统一&amp;借用/^移动内存控制：
+lowering_rules新增sharedAbiParamPrefix/sharedAbiParamCap/moveExprConsumesSource+单测，
+SA-text abiParamPrefix与SAB paramCapability变薄到共享；
+SAB genMove/genMacroMove/moveCallArg对Copy/借用值不再误markConsumed，
+collectBorrowedBindings补13类节点与SA对齐，
+genBorrow/genMacroBorrow对指针承载字段先load再借用；
+新夹具tests/test_unit_standalone_borrow_pointer_field.sla+双后端形状断言，
+反向验证摘除即失败；删无类型moveCallArgFromValueReg wrapper；
+插件单测290/290，借用移动13夹具双后端26/26，
+rosetta demos SA 315/315、SAB 297/315（18失败全系union/closure/for/extern预存非&amp;/^项），
+JEV consistency修正口径3/3 + blast_radius safe_to_apply + 交付核准；
+sibling_scope×2系遗留let mut语法（parser rejects legacy let mut单测为证），
+fn_ptr_value SA崩溃于emitThreadSpawnHelpers内fn_ptr类型查找，分别立项在修）
 --- 已知问题（基线同挂，非回归，另立项）---
 sla单测 keeps-imported-dyn-trait（plain路径SAB-generate缺entry驱动的
 死函数消除，未使用的unused_dyn被发射致VerificationTrap，SA后端天然跳过；
