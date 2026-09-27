@@ -665,6 +665,12 @@ union字面量/ManuallyDrop调用与字段取址、for-in数组、catch_unwind�
 Result::map、str as_ptr、void unsafe、块尾终结值；18/18严格执行全过，
 单测290/290；12个单测执行失败经基线worktree逐项陷阱签名比对全系预存零回归；
 新夹具SAB执行待match值合并纪律根修，SA执行已过；JEV红队proceed）
+--- 2026-09-27 追记(二十八) ---
+sa_plugin_sla  master  9502170  已 push（SAB match值合并纪律根修：
+check-flag逐臂释放次数不对称致PhiStateConflict，改if合并纪律永不释放flag；
+enum_match 3/3、option_match 3/3、refcell 20/20、新夹具转正全过，
+其余8失败与基线签名一致；单测290/290，双unit sweep 200/200，
+rosetta SAB构建315/315）
 --- 已知问题（基线同挂，非回归，另立项）---
 sla单测 keeps-imported-dyn-trait（plain路径SAB-generate缺entry驱动的
 死函数消除，未使用的unused_dyn被发射致VerificationTrap，SA后端天然跳过；
