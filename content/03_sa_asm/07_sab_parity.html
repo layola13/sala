@@ -647,6 +647,17 @@ rosetta demos SA 315/315、SAB 297/315（18失败全系union/closure/for/extern�
 JEV consistency修正口径3/3 + blast_radius safe_to_apply + 交付核准；
 sibling_scope×2系遗留let mut语法（parser rejects legacy let mut单测为证），
 fn_ptr_value SA崩溃于emitThreadSpawnHelpers内fn_ptr类型查找，分别立项在修）
+--- 2026-09-27 追记(二十五) ---
+sa_plugin_sla  master  604ea02  已 push（sibling×2去mut双后端全过；
+线程闭包capture携带被捕获者类型，pre-pass按函数播种params+按序记录let/const类型，
+helper发射期播种/清理，fn_ptr_value SA/SAB双过；单测290/290，双sweep 199/199）
+--- 2026-09-27 追记(二十六) ---
+sa_plugin_sla  master  f0d9adf  已 push（Y-SHARE sharedNodeUsesIdentifier：
+SA-text私版仅查match/switch的val致fn-ptr内联误判，
+单表达式函数体match臂引用参数被内联到无绑定调用点（实证错编译）；
+共享实现以SAB完备版为准双后端变薄，删两私版closureShadowsIdentifier；
+新夹具tests/test_unit_fnptr_inline_match_arm_guard.sla双后端全过；
+单测290/290，双sweep 200/200；剩余exprReferencesIdentifier嵌套即此共享扫描）
 --- 已知问题（基线同挂，非回归，另立项）---
 sla单测 keeps-imported-dyn-trait（plain路径SAB-generate缺entry驱动的
 死函数消除，未使用的unused_dyn被发射致VerificationTrap，SA后端天然跳过；
