@@ -26,7 +26,7 @@ sahelp/
 | content/02_sla_lang | SLA 语言参考 | 词法、语法、类型、所有权、特性清单 |
 | content/03_sa_asm | SA 汇编与 SAB | SA 指令集、SAB 字节码格式 |
 | content/04_cli | 命令行参考 | `sa sla …` 等全部 CLI 子命令 |
-| content/05_plugins | 插件参考 | sax/mui/react/vite/tui/vm/wgpu/db/deno/node/pkg/http_*/bc2sa 等 |
+| content/05_plugins | 插件参考 | sax/mui/react/vite/tui/vm/wgpu/db/deno/node/bun/pkg/http_*/bc2sa 等 |
 | content/06_stdlib | 标准库 | sa_std / sla_std 契约与模块 |
 | content/07_ui | SAX / MUI 界面开发 | 用 sax+mui+react+vite 写界面（参考 codex_ui） |
 | content/08_faq | FAQ 与故障排查 | 常见问题、已知问题、路线图状态 |

@@ -163,6 +163,22 @@
       "parent": "overview"
     },
     {
+      "id": "bun",
+      "title": "bun — Bun 兼容门面",
+      "file": "19_bun.html",
+      "keywords": [
+        "bun",
+        "Bun 兼容",
+        "BUN_ 宏",
+        "wyhash",
+        "xxhash",
+        "CryptoHasher",
+        "SigV4",
+        "覆盖度"
+      ],
+      "parent": "overview"
+    },
+    {
       "id": "pkg",
       "title": "pkg — 零信任包管理器",
       "file": "13_pkg.html",

@@ -299,6 +299,11 @@ var TOC = [
       "c": []
      },
      {
+      "t": "bun — Bun 兼容门面",
+      "f": "content/05_plugins/19_bun.html",
+      "c": []
+     },
+     {
       "t": "pkg — 零信任包管理器",
       "f": "content/05_plugins/13_pkg.html",
       "c": []

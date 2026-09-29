@@ -62,6 +62,7 @@ Default Font=微软雅黑,9,0
 ../dist/content/05_plugins/10_sla.html
 ../dist/content/05_plugins/11_deno.html
 ../dist/content/05_plugins/12_node.html
+../dist/content/05_plugins/19_bun.html
 ../dist/content/05_plugins/13_pkg.html
 ../dist/content/05_plugins/14_http_client.html
 ../dist/content/05_plugins/15_http_server.html

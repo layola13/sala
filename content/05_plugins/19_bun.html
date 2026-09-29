@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>bun — Bun 兼容门面</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; bun — Bun 兼容门面</div>
+<h1>bun — Bun 兼容门面</h1>
+
+<p><code>sa_plugin_bun</code> 把 <code>Bun</code> 命名空间的同步子集重写为 SA 原生 C-ABI 面：
+按其 <code>API_COVERAGE.md</code> 的自述，它是 "a native SA replacement surface for the synchronous
+subset of the Bun namespace. It does not call the <code>bun</code> executable and does not embed
+the Bun runtime"——不调用 <code>bun</code> 可执行文件、不嵌入 Bun 运行时。
+这一页讲清楚它的上游口径、60 个 extern 的构成、bit-exact 哈希的验证链，
+以及哪些内容明确不在范围内。</p>
+
+<div class="note"><span class="label">注意</span>权威资料依次是
+<code>sap.json</code>（能力段与权限）、<code>bun.sai</code>/<code>bun.sal</code>（ABI 契约与宏门面）、
+<code>API_COVERAGE.md</code>（覆盖度账本）、<code>tests/bun_smoke.zig</code>（41 项冒烟）。
+上游口径是 <code>oven-sh/bun</code> 的浅克隆（<code>--depth 1</code>，HEAD
+<code>9f70da07</code>，v1.4.2），类型契约以
+<code>packages/bun-types/bun.d.ts</code> 及其
+<code>{serve,sqlite,s3,sql,redis,ffi,shell,test}.d.ts</code> 为准。</div>
+
+<h2>一、定位与规模：60 个 extern 的构成</h2>
+<table>
+<tr><th>指标</th><th>数值</th><th>口径</th></tr>
+<tr><td><code>bun.sai</code> extern</td><td>60</td><td>实测 <code>grep -c '@extern'</code>；返回类型统一为 <code>u32</code>（0 ok / 1 not-found / 2 error / 3 unsupported-stub，与 node/deno 主面一致）</td></tr>
+<tr><td>宏门面</td><td><code>bun.sal</code> 94 个 <code>[MACRO]</code></td><td>60 个直调 + 别名层（<code>BUN_FILE/WRITE/SLEEP/GZIP/…</code>）+ 22 个 serve/websocket 委托</td></tr>
+<tr><td>Zig 源码</td><td><code>src/bun_saasm_api.zig</code> + <code>src/bun_hash.zig</code></td><td>前者为各域原生实现，后者为哈希算法 bit-exact 移植</td></tr>
+<tr><td>SA 侧冒烟</td><td><code>tests/bun_smoke.zig</code> 41 项</td><td>直连 <code>libbun.so</code> 的 Zig 宿主测试，非 <code>.sa</code> 测试</td></tr>
+<tr><td>产物</td><td><code>zig-out/lib/libbun.so</code></td><td><code>sap.json</code> <code>artifacts</code></td></tr>
+</table>
+
+<h2>二、五个 skills 与宿主权限边界</h2>
+<p><code>sap.json</code> 声明五个能力段：<code>bun.sys</code>、<code>bun.env</code>、<code>bun.fs</code>、
+<code>bun.hash</code>、<code>bun.process</code>。权限账本（由宿主强制执行）：</p>
+<table>
+<tr><th>维度</th><th>声明内容</th><th>影响</th></tr>
+<tr><td><code>fs</code></td><td><code>$PROJECT/**</code> 与 <code>/tmp/**</code> 的 read/write/create/delete</td>
+<td><code>BUN_FILE_READ_TEXT</code> / <code>BUN_WRITE</code> 等只能触达这两个根</td></tr>
+<tr><td><code>net</code></td><td><code>https://*</code> 全方法 + <code>http://localhost</code> / <code>http://127.0.0.1</code></td>
+<td><code>BUN_SERVE_*</code> 为 localhost 监听；出站经 <code>http-client</code></td></tr>
+<tr><td><code>env</code></td><td><code>HOME</code>、<code>PATH</code>、<code>TMPDIR</code>、<code>SA_*</code></td>
+<td><code>Bun.env</code> 三件套受白名单约束</td></tr>
+<tr><td><code>process</code></td><td><code>"spawn": true</code>，exec 白名单仅 <code>/usr/bin/env</code></td>
+<td><code>BUN_SPAWN_SYNC</code> 走原生 <code>Child.run</code>；<code>BUN_SHELL_EXEC</code> 走 <code>/bin/sh -c</code>，以宿主实际放行为准</td></tr>
+</table>
+
+<h2>三、三层调用架构</h2>
+<p>与 <a href="11_deno.html">deno</a> 相同的三层结构（<code>bun.sal</code> 头部
+<code>@import "bun.sai" + "sa_http_client.sai" + "sa_http_server.sai"</code>）：</p>
+<table>
+<tr><th>层级</th><th>走到的符号</th><th>宏族</th></tr>
+<tr><td>① 插件自身 C-ABI</td><td><code>sa_bun_plugin_*</code>（libbun.so 导出）</td>
+<td>version 系、env、文件、哈希、编解码、压缩、进程、semver、shell、stdio、能力快照</td></tr>
+<tr><td>② 复用兄弟插件</td><td><code>sa_http_server_*</code>（含 <code>websocket_upgrade/read/write/free</code>）</td>
+<td>18 个 <code>BUN_SERVE_*</code> + 4 个 <code>BUN_SERVE_WS_*</code>；出站 <code>fetch</code> 留在 http-client（它是 Web 全局，不是 <code>Bun.*</code> 命名空间 API）</td></tr>
+<tr><td>③ 复用 SA 标准库</td><td>后续按需</td><td>当前 .sal 未直接引用 sa_std 宏；serve 的帧级操作可按 deno 页方式经 <code>NET_WS_*</code> 扩展</td></tr>
+</table>
+
+<h2>四、BUN_* 宏族全景（94 个）</h2>
+<table>
+<tr><th>宏族（数量）</th><th>成员</th><th>代表形参顺序</th></tr>
+<tr><td>运行时信息（6）</td>
+<td><code>BUN_VERSION / REVISION / MAIN / ARGV_JSON / CWD / WHICH</code></td>
+<td><code>BUN_VERSION %out_ptr, %out_len, %out_status</code>（pinned <code>1.4.2</code> / <code>9f70da07</code>，随浅克隆刷新同步 bump）</td></tr>
+<tr><td>路径与时间（4）</td>
+<td><code>BUN_FILE_URL_TO_PATH / PATH_TO_FILE_URL / NANOSECONDS / SLEEP_SYNC</code>（+ 别名 <code>BUN_SLEEP</code>）</td>
+<td><code>BUN_NANOSECONDS %out_ns, %out_status</code></td></tr>
+<tr><td>环境变量（3）</td><td><code>BUN_ENV_GET / ENV_SET / ENV_DELETE</code></td>
+<td><code>BUN_ENV_GET %out_ptr, %out_len, %out_status, %key, %key_len</code>（1 = 缺失）</td></tr>
+<tr><td>文件（8+2 别名）</td>
+<td><code>BUN_FILE_READ_TEXT / FILE_READ_BASE64 / WRITE_TEXT_FILE / WRITE_FILE_BASE64 / FILE_SIZE / FILE_EXISTS / MKDIR / REMOVE</code>（+ <code>BUN_FILE / BUN_FILE_BYTES_BASE64 / BUN_WRITE</code>）</td>
+<td><code>BUN_FILE_READ_TEXT %out_ptr, %out_len, %out_status, %path, %path_len</code>（UTF-8 校验）</td></tr>
+<tr><td>哈希与随机（10+2 别名）</td>
+<td><code>BUN_HASH_U64 / HASH_CRC32 / HASH_WYHASH64 / HASH_XXHASH64 / HASH_XXHASH32 / HASH_ADLER32</code>（+ <code>BUN_HASH / BUN_HASH_XXHASH</code>）、<code>BUN_SHA256_HEX / SHA512_HEX / RANDOM_BYTES / RANDOM_UUID_V7</code>（+ <code>BUN_RANDOM_UUID</code>）</td>
+<td><code>BUN_HASH_WYHASH64 %out_hash, %out_status, %data, %data_len, %seed</code>；常量 <code>BUN_HASH_FNV1A64=0 / CRC32=1 / WYHASH64=2 / XXHASH64=3</code></td></tr>
+<tr><td>增量哈希（4）</td>
+<td><code>BUN_HASHER_NEW / UPDATE / DIGEST_HEX / FREE</code></td>
+<td><code>BUN_HASHER_NEW %out_status, %out_handle, %algo</code>（0=sha256, 1=sha512, 2=sha1, 3=md5；<code>Bun.CryptoHasher</code> 子集）</td></tr>
+<tr><td>压缩（4+4 别名）</td>
+<td><code>BUN_GZIP_COMPRESS / GZIP_DECOMPRESS / DEFLATE_COMPRESS / DEFLATE_DECOMPRESS</code>（+ <code>BUN_GZIP / GUNZIP / DEFLATE / INFLATE</code>）</td>
+<td>deflate 为 raw 流，与 <code>Bun.deflateSync</code> 一致</td></tr>
+<tr><td>文本与编解码（4）</td>
+<td><code>BUN_ESCAPE_HTML / STRING_WIDTH / BTOA / ATOB</code></td>
+<td><code>BUN_STRING_WIDTH</code> 按 <code>Bun.stringWidth</code> 计 CJK 为 2</td></tr>
+<tr><td>进程与 shell（4+1 别名）</td>
+<td><code>BUN_SPAWN_SYNC</code>（+ <code>BUN_SPAWN</code>）、<code>BUN_RESOLVE_SYNC / SHELL_ESCAPE / SHELL_EXEC</code>、<code>BUN_WRITE_STDOUT / WRITE_STDERR</code></td>
+<td><code>BUN_SPAWN_SYNC %out_code, %out_stdout_ptr, … %argv_json, %argv_json_len, %cwd, %cwd_len</code>（argv 为 JSON 数组串）</td></tr>
+<tr><td>HMAC 与签名（2）</td><td><code>BUN_HMAC_SHA256_HEX / S3_SIGV4_SIGNATURE</code></td>
+<td>SigV4 为 AWS 密钥派生全链（<code>Bun.S3</code> 的签名段，传输仍走 http-client）</td></tr>
+<tr><td>版本比较（1）</td><td><code>BUN_SEMVER_CMP</code></td>
+<td><code>%out_order</code> 为 <code>i32</code>（-1/0/1），非法输入走 status 2</td></tr>
+<tr><td>能力快照（7）</td>
+<td><code>BUN_SERVE/SQLITE/S3/REDIS/FFI/BUILD/TEST_SUPPORT_JSON</code></td>
+<td>status 3 + JSON，见第六节</td></tr>
+<tr><td>serve 委托（22）</td>
+<td>18 个 <code>BUN_SERVE_{NEW,START,ACCEPT,REQUEST_*,RESPONSE_*,STREAM_*,REQUEST_FREE,FREE}</code> + 4 个 <code>BUN_SERVE_WS_{UPGRADE,READ,WRITE,FREE}</code></td>
+<td>与 <code>DENO_SERVE_*</code> 同形，直调 <code>sa_http_server_*</code></td></tr>
+</table>
+
+<h2>五、bit-exact 哈希验证链</h2>
+<p><code>Bun.hash</code> 的 JS 绑定在 <code>src/runtime/api/HashObject.rs</code>：
+默认即 wyhash（seed 0），各算法函数统一为 <code>hash(seed, input) -&gt; Output</code>，
+字符串输入一律按 UTF-8 字节哈希——与 SA 侧字节语义一致，无需转码层。
+本插件在 <code>src/bun_hash.zig</code> 中逐位移植：</p>
+<ul>
+<li><strong>wyhash final4</strong>（<code>src/wyhash/lib.rs</code> 的 <code>Wyhash::hash</code>，48 字节 round + 4 secrets；
+注意与遗留的 <code>Wyhash11</code> 不是同一算法）：<code>Bun.hash("hello world") = 0x668d5e431c3b2573</code>，
+另覆盖 240 字节跨 round 路径与 seed=42，全部与活体 <code>bun@1.4.2</code> 一致。</li>
+<li><strong>XXH64/XXH32</strong>（经 <code>src/highway</code>，"bit-identical to the xxHash reference"）：
+含 <code>[240,0] = 0xb1d89115ab8aa560</code> 向量与空串大 seed（<code>16269921104521594740 → 3224619365169652240</code>）。</li>
+<li><strong>HMAC-SHA256</strong>：RFC 4231 TC1 经 CPython <code>hmac</code> 与 OpenSSL 双预言机确认；
+<strong>SigV4</strong> 经 CPython 链确认。</li>
+</ul>
+<div class="note"><span class="label">注意</span>seed 语义照录上游：<code>xxHash3</code> 在绑定层把 seed 截断到 u32
+后再展宽（<code>seed as u32 as u64</code>），移植该算法时必须保留此截断，否则输出漂移。
+<code>cityHash32</code> 无 seed 变体（JS 传入的 seed 被忽略）。</div>
+
+<h2>六、明确的未实现 / 范围外清单</h2>
+<p><strong>planned_native</strong>（标准算法，待移植；向量均在
+<code>test/js/bun/util/hash.test.js</code> 中备好）：<code>cityHash32/64</code>、
+<code>murmur32v3/v2</code>、<code>murmur64v2</code>、<code>rapidhash</code>、<code>xxHash3</code>、
+带 seed 的 <code>crc32</code>（当前只暴露 seed 0，即 zlib 标准值）。</p>
+<p><strong>stub_unsupported</strong>（status 3 + 快照 JSON）：<code>bun:sqlite</code>（用
+<code>sa_plugin_db</code>）、<code>Bun.S3</code> 对象传输（仅签名段原生）、
+<code>Bun.RedisClient</code>（RESP3 异步客户端）、<code>bun:ffi</code>（dlopen 桥，见
+<a href="18_ffi_vs_bc2sa.html">FFI vs bc2sa</a>）、<code>Bun.build</code>/Transpiler/plugin
+（打包子系统，见 <a href="05_vite.html">vite</a>）、<code>bun:test</code>（走原生 <code>sa test</code>）。</p>
+<p><strong>结构性限制</strong>：与 deno/node 相同——文件读写限 <code>$PROJECT/**</code> 与
+<code>/tmp/**</code>；<code>Bun.spawn</code> 的异步生命周期（exit 订阅、kill 信号组）不在范围内，
+只有 <code>spawnSync</code> 子集；裸 specifier（<code>lodash</code> 这类）的
+<code>resolveSync</code> 返回 1，需要 node_modules/Bun resolver 的完整实现。</p>
+<div class="warning"><span class="label">警告</span> wyhash 有<strong>两个不互通的变体</strong>
+（<code>Wyhash11</code> 32 字节 round / 5 primes vs 现行 final4 48 字节 round / 4 secrets）。
+上游注释明确 "THESE ARE DIFFERENT ALGORITHMS"。<code>Bun.hash()</code> 用的是 final4；
+若在 SA 侧手写哈希，务必用 <code>BUN_HASH_WYHASH64</code>（final4），不要误用遗留变体。</div>
+</body>
+</html>

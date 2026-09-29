@@ -40,6 +40,9 @@ direct SAB 快路径与 SA 兼容回退路径，以及两条路径各自的代�
 内存中的 SA 兼容 lowering + SCI flattener + SAB encoder。输出仍是 <code>.sab</code>，
 不会退回旧的 <code>.test.sa</code>。</p>
 
+<p>2026-09-28 更新：兼容回退已拆除（<code>sa_plugin_sla@e96e6b3</code>），
+<code>UnsupportedSabDirectFeature</code> 现为显式大声失败；上表 fallback 行与下文代价数字仅保留为历史说明。</p>
+
 <table>
 <tr><th>路径</th><th>阶段</th><th>特点</th></tr>
 <tr><td>direct（快）</td><td>AST → SAB 结构化 emitter</td><td>无文本解析；命中宏模板缓存后极快</td></tr>

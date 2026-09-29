@@ -39,7 +39,7 @@ SAB Error: failed to encode SAB ... error.VerificationTrap</code></pre>
 <tr><td>Phase 4</td><td>Std 元数据</td><td><code>sets</code>、<code>std_import</code>、<code>sla_import_nested_contract</code></td></tr>
 <tr><td>Phase 5</td><td>聚合 / 枚举 / Derive</td><td><code>enum_match</code>（标签/负载布局 + match 提取）、<code>derive_semantics</code>、<code>struct_update</code>、<code>spaceship_cmp</code></td></tr>
 <tr><td>Phase 6</td><td>协议 / 迭代器</td><td><code>for_in_protocol</code>、<code>generic_for_in_protocol</code></td></tr>
-<tr><td>Phase 8</td><td>异步</td><td><code>async_await</code>（async 状态机 / Future / task）</td></tr>
+<tr><td>Phase 8</td><td>异步</td><td><code>async_await</code>（历史快照；当前已覆盖单/双 await、join2 和部分动态状态机，三次以上 await 与通用 runtime 仍未完成）</td></tr>
 </table>
 
 <div class="note"><span class="label">注意</span>该清单是带日期的进度快照而非长期保证；direct_sab_historical_69_corpus.md 在 2026-07-12 记录本地 strict direct-SAB no-fallback 扫描已通过 134/134。以你本机的扫描结果为准。</div>

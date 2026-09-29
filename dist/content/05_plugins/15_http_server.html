@@ -9,7 +9,7 @@
 <div class="topic-header">插件参考 &gt; http-server — 内嵌 HTTP 服务端</div>
 <h1>http-server — 内嵌 HTTP 服务端</h1>
 
-<p>本页给出 <code>sa_plugin_http_server</code> 的完整参考：localhost-only 的定位边界及其原因、
+<p>本页给出 <code>sa_plugin_http_server</code> 的完整参考：安装策略下的 localhost-only 权限边界、
 安装验证、<code>sap.json</code> 权限模型、v1 与 v2 两套 ABI 的逐条签名与语义、
 <code>scaffold</code>/<code>serve</code> 命令的完整用法，以及取自真实仓库文件的端到端示例。
 读完本页你可以写出「accept → 读请求 → 发响应（一次性或流式）→ 关闭」的完整服务端循环，
@@ -20,16 +20,22 @@
 共享核心实现 <code>src/vite_api.zig</code> 与 <code>docs/plugin_evaluation_cn.md</code>
 （四插件合并评估文档的一份拷贝，评估日期 2026-06-15）。</p>
 
-<h2>定位：仅 localhost 监听及其原因</h2>
+<h2>定位：安装权限是 localhost-only，源码 ABI 接受 IP host</h2>
 <ul>
 <li><strong>sap.json 只声明两处监听目标</strong>：<code>http://localhost</code> 与
-<code>http://127.0.0.1</code>。权限面即能力面：它无法合法监听其他地址。</li>
+<code>http://127.0.0.1</code>。在插件权限策略不变时，安装后的能力仍是 loopback-only，
+不能把它当成公开监听器。</li>
+<li><strong>源码 ABI 的实际边界不同</strong>：<code>sa_http_server_start(_v2)</code> 接收
+<code>host</code> 字符串和端口，核心通过 <code>std.net.Address.parseIp(host, port)</code>
+解析 IP；源码层并没有把 host 写死为 localhost，因此 <code>0.0.0.0</code> 等 IP 可以被
+解析并交给监听器。是否允许使用，仍由 <code>sap.json</code> 和宿主策略决定。</li>
 <li><strong>为什么这样是对的</strong>（评估文档 §1.3）：对内部 microservice、SAX dev server、
 localhost-only IPC 而言这是正确选择；同时「无 <code>https://</code> 监听」与声明一致——
 server 没有 TLS，但 sap.json 也没假装能做 TLS，属于诚实声明，TLS 由反向代理承担。</li>
-<li><strong>已知缺口</strong>：缺 IPv6 <code>[::1]</code> 白名单（IPv6-first 环境会失败）、
-不能监听 <code>0.0.0.0</code> 或自定义端口段，因此不是生产级 HTTP 服务。
-评估文档明确指出「没有文档说清楚这个边界」是当时的不足，本页即为该边界的显式说明。</li>
+<li><strong>已知缺口</strong>：manifest 没有 IPv6/非回环 net 权限，因此策略控制下的
+<code>[::1]</code>、<code>0.0.0.0</code> 或其他公开地址仍不可依赖；此外本插件不提供 TLS。
+源码能解析地址不等于安装权限已经开放。评估文档明确指出「没有文档说清楚这个边界」
+是当时的不足，本页同时记录源码能力和 manifest 能力的区别。</li>
 <li><strong>host 参数必须是 IP 字面量</strong>：实现走 <code>std.net.Address.parseIp(host, port)</code>
 （<code>src/vite_api.zig</code> 的 <code>HttpServer.startWithOptions</code>），
 传主机名字符串不会解析。<code>start</code> 固定带 <code>reuse_address = true</code>。</li>
@@ -55,7 +61,7 @@ server 没有 TLS，但 sap.json 也没假装能做 TLS，属于诚实声明，T
 <table>
 <tr><th>类别</th><th>声明内容</th><th>说明</th></tr>
 <tr><td>fs</td><td>仅 <code>{"op":"metadata", "path":"$SA_PLUGINS_HOME/**"}</code></td><td>只读元数据用于发现自身共享资源；不允许读写任何项目文件</td></tr>
-<tr><td>net</td><td><code>http://localhost</code> 与 <code>http://127.0.0.1</code>，方法为 GET/POST/PUT/PATCH/DELETE/HEAD/OPTIONS</td><td>仅本机回环，七种方法</td></tr>
+<tr><td>net</td><td><code>http://localhost</code> 与 <code>http://127.0.0.1</code>，方法为 GET/POST/PUT/PATCH/DELETE/HEAD/OPTIONS</td><td>安装策略下仅本机回环；源码 ABI 可接收更宽的 IP host，但不会自动扩大 manifest 权限</td></tr>
 <tr><td>env</td><td><code>HOME</code>、<code>TMPDIR</code>、<code>TMP</code>、<code>TEMP</code>、<code>SA_*</code></td><td>基本环境变量</td></tr>
 <tr><td>process</td><td><code>{"spawn": false, "exec": []}</code></td><td>完全禁止派生子进程</td></tr>
 </table>
