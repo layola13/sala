@@ -709,11 +709,18 @@ async helpers门控对齐SA：vec_index 8/8、async_thread_pool 3/3转正；
 未从插件目录运行致4缺@import源双后端同错；
 vec_index无需sci验证器改动（追记三十候选一关闭），实为发射侧borrow作用域缺失；
 余：Box/dyn方法派发直降仍缺，tsconfig纯环境项）
---- 已知问题（2026-09-29复核，f5f473b之后）---
-双后端200/200结果一致零分歧（SA-bad/SAB-ok与SA-ok/SAB-fail皆零）；单测290/290。
-余：Box/dyn方法派发直降缺失（dyn单测SAB半段已删，能力缺但行为一致）；
-tsconfig纯环境项（SA_SLA_FIXTURE_DIR未置时双后端同挂，无分歧，置位后双后端5/5）。
-追记三十二的58缺口清单已撤回，系环境误报，见追记三十三。</code></pre>
+--- 2026-09-29 追记(三十四) ---
+sa_plugin_sla dyn registry单测SAB半段恢复（e96e6b3以“Box/dyn backlog”为由删除，
+复核为SAB-direct本就覆盖：build产物含get_id sig+vtable且剔除unused_dyn；
+恢复时附带修hermetic缺陷：单测tmpDir下std_surface规则需SLA_STD_DIR，
+现测试内stage真实规则文件，不依赖环境；290/290有/无env双跑全过；
+追记三十三“Box/dyn仍缺”关闭，余：tsconfig纯环境项）
+--- 已知问题（2026-09-29复核）---
+双后端200/200结果一致零分歧（SA-bad/SAB-ok与SA-ok/SAB-fail皆零）；
+单测290/290（含恢复的dyn registry SAB半段，有/无env双跑全过）。
+余：tsconfig纯环境项（SA_SLA_FIXTURE_DIR未置时双后端同挂，无分歧，置位后双后端5/5）。
+追记三十二的58缺口清单已撤回，系环境误报，见追记三十三；
+追记三十三的Box/dyn缺口已关闭，见追记三十四。</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
