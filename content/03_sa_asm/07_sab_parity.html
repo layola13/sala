@@ -699,17 +699,21 @@ dyn单测SAB半段因全程fallback掩盖而删除，SA半段保留registry覆�
 SAB新增Vec::remove直降（VEC_REMOVE+panic86）修UnknownRegister悬空；
 全量200严格执行SA 195/200、SAB 137/200，SA-bad/SAB-ok归零；
 单测290/290；SLA_SAB_NO_FALLBACK环境变量已失效）
---- 已知问题（基线同挂，非回归，另立项）---
-SAB-direct覆盖缺口58（基线worktree逐项同构，build管线正常者亦在内，
-病根在测试管线剪枝/计划层；fallback拆除后全部大声失败不再掩盖）：
-static-call-new×10（Cell/Box/Option/RefCell等associated构造，
-测试管线planStaticCallLowering无计划）、Some×3、expr_stmt×21（异构待逐项）、
-index×3、binary×2、零散11；运行时悬空callee×2
-（derive_semantics tmp_174、result_direct tmp_1，与已修vec_remove同族，
-修法同为补直降）；环境5（4缺@import源双后端同错，
-tsconfig需SA_SLA_FIXTURE_DIR，置位后双后端5/5）；
-vec_index复合合并（追记三十候选之sci验证器Composite↔Uninit规则）仍未修；
-Box/ dyn方法派发直降缺失（原dyn单测SAB半段即因此删除）</code></pre>
+--- 2026-09-29 追记(三十三) ---
+sa_plugin_sla  master  f5f473b  已 push（借用字段Vec len borrow作用域镜像、
+async helpers门控对齐SA：vec_index 8/8、async_thread_pool 3/3转正；
+正确环境（SLA_STD_DIR置位+插件目录cwd+SA_SLA_FIXTURE_DIR）下全量200双后端
+200/200结果一致零分歧，单测290/290；
+追记三十二“58缺口/SAB 137/200”复核为环境误报撤回：
+未置SLA_STD_DIR致std_surface规则空载（static-call-new/Some类大声失败），
+未从插件目录运行致4缺@import源双后端同错；
+vec_index无需sci验证器改动（追记三十候选一关闭），实为发射侧borrow作用域缺失；
+余：Box/dyn方法派发直降仍缺，tsconfig纯环境项）
+--- 已知问题（2026-09-29复核，f5f473b之后）---
+双后端200/200结果一致零分歧（SA-bad/SAB-ok与SA-ok/SAB-fail皆零）；单测290/290。
+余：Box/dyn方法派发直降缺失（dyn单测SAB半段已删，能力缺但行为一致）；
+tsconfig纯环境项（SA_SLA_FIXTURE_DIR未置时双后端同挂，无分歧，置位后双后端5/5）。
+追记三十二的58缺口清单已撤回，系环境误报，见追记三十三。</code></pre>
 
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>

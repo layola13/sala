@@ -103,9 +103,10 @@ while let Some(task) = queue.pop() {
 函数的通用 CPS/state-machine。当前已验证的重点是单 await、两次 await、join2、
 局部 Future 重新赋值和 Pending/Ready 恢复；</li>
 <li>当前源码记录中，35 个 <code>test_unit_async*.sla</code> 通过 native SA，
-SLA→SA→VM 矩阵也是 35/35；strict direct SAB 为 34/35，线程池用例仍受
-<code>stack_alloc + PIN_MUT_NEW + FUTURE_POLL_STATE</code> 组合限制。这个数字是
-2026-09-03 的验证快照，发布前应重新运行；</li>
+SLA→SA→VM 矩阵也是 35/35；2026-09-29 复核 strict direct SAB 同样 35/35
+（线程池用例经 helpers 门控对齐后转正，sa_plugin_sla@f5f473b）。
+此前“34/35、线程池受 <code>stack_alloc + PIN_MUT_NEW + FUTURE_POLL_STATE</code>
+组合限制”为 2026-09-03 快照，已 supersede；</li>
 <li>三次或更多连续 await 尚无通用 continuation lowering：尚未统一保存每个 stage、
 pending inner future、跨阶段局部值和 cleanup。不能据此宣称“高级 async/await 已完成”；</li>
 <li><code>sa_std/core/task.sa</code> 的 executor 是任务数组上的轮询循环；
