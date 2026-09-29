@@ -116,6 +116,10 @@ pending inner future、跨阶段局部值和 cleanup。不能据此宣称“高�
 <li>demo 009 的简化 <code>block_on</code> 在 future 未立即就绪时会 panic；需要真挂起请参考 demo 314 的轮询写法；</li>
 <li>不要假设 rosetta 树中的 async demo 全部端到端通过，按需单独验证：
 <code>SA_PLUGIN_DEV=1 sa sla test demos/rosetta/314_async_await_pending_resume/main.sla</code>。</li>
+<li>2026-09-29 实测：22 个抽查 demo（enum/match、闭包、trait/dyn、迭代器、Cell/RefCell、
+Box、derive、select/join/streams、基础 async）双后端执行输出完全一致；
+rosetta 314/315 双后端同 panic（跨 async fn 边界的嵌套 await，共享层缺口，
+非 SA/SAB 分歧，另立项）；</li>
 </ul>
 
 <div class="note"><span class="label">注意</span>编译器内部使用 continuation/state-machine
