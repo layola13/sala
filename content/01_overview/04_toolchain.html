@@ -85,7 +85,8 @@ value import 边自动擦除；<code>export default {..}</code> /
 （类型名不进捕获）；<code>typeof</code> 未知名的“unknown global”判定经
 binder 可见性（自建 scope 仍管所有权，binder 只答可见性）；
 <code>typeof v === "undefined"</code> 降为 null 检查；
-泛型按实参单态化布局（<code>Box&lt;i32&gt;</code> 与 <code>Box&lt;string&gt;</code> 分宽）；
+泛型按实参单态化布局（<code>Box&lt;i32&gt;</code> 与 <code>Box&lt;string&gt;</code> 分宽，
+递归经实例 shell 收敛）；
 已知类型的 <code>typeof</code> 折叠为常量（联合一致才折叠，any 仍拒）。
 注意 NoLib 衰减：方言原语注解（<code>i32</code>/<code>u64</code> 等）在检查器眼中是
 <code>Any</code>，类型精度只对真实 TS 类型（<code>number</code>/<code>string</code>/
