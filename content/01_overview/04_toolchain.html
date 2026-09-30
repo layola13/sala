@@ -76,7 +76,8 @@ value import 边自动擦除；<code>export default {..}</code> /
 （require 行需 sha256，无 hash 不输出有效行）。</li>
 <li><strong>类型驱动布局</strong>：结构体布局优先记录表，缺失时查检查器
 （工厂返回等推断类型、匿名形字段集）；<code>type X = {..}</code> 别名建布局，
-嵌套链按字段偏移下沉。</li>
+嵌套链按字段偏移下沉；类静态字面量折叠（heritage 类亦发布静态，实例化仍拒）；
+访问器（getter/setter）只记录不内联，读写报专属诊断。</li>
 <li><strong>守卫与窄化</strong>：<code>?.</code> 按可空性加 join；
 <code>typeof v === "undefined"</code> 降为 null 检查（子集 null/undefined 统一为 0）；
 <code>Date</code> 窄化为 <code>i64</code> 毫秒（UTC），
