@@ -88,14 +88,17 @@ binder 可见性（自建 scope 仍管所有权，binder 只答可见性）；
 泛型按实参单态化布局（<code>Box&lt;i32&gt;</code> 与 <code>Box&lt;string&gt;</code> 分宽）。</li>
 <li><strong>Node/Deno 投影</strong>：<code>os/path/crypto/Hash/url/querystring/util/console/Buffer</code>
 与 <code>Deno.*</code> 按调用形状投影到 <code>node.sai</code> / <code>deno.sai</code>
-原生符号（u32 状态检查，非零 panic）；异步（timers 等）与缺件保持大声拒。
+原生符号（u32 状态检查，非零 panic；<code>Deno.env.get</code> 缺失映射 null）；
+<code>Deno.env.*</code> 走两级命名空间路由；异步（timers 等）与缺件保持大声拒。
 完整表面见“插件参考 &gt; node”页第九节。</li>
 <li><strong>TSX</strong>：静态模板直出 <code>.sax</code>；<code>useState</code> 进
 state 槽、挂载期 <code>useEffect</code>（空体/ setter 常量）进
 <code>@onMount</code>；<code>document.createElement/appendChild/setAttribute</code>、
 <code>createTextNode</code>、<code>textContent/innerHTML</code> 读写与
-<code>el.textContent</code> 读（调用方 scratch + 满缓冲 panic）投影到 airlock
-DOM extern；其余 hooks/动态形态一律大声拒。</li>
+<code>el.textContent</code> 读（调用方 scratch + 满缓冲 panic）、
+<code>getAttribute/removeAttribute</code> 与 <code>className/id</code> 糖读投影到
+airlock DOM extern；<code>useEffect</code> 内 <code>console</code> 调用维持拒绝
+（.sax 无 print 机制）；其余 hooks/动态形态一律大声拒。</li>
 <li><strong>拒则大声的名录</strong>：异步定时器（<code>setTimeout</code> 等 6 个，
 缺事件循环，Phase 2）、<code>toLocale*</code>（缺 locale 后端）、非 ISO 的
 <code>Date.parse</code>（panic，非 NaN）、动态 <code>Buffer.concat</code> 数组、
