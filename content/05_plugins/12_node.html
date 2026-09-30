@@ -410,5 +410,29 @@ Web Crypto 的 RSA/ECDSA/ECDH/KDF/wrapKey/JWK 都还需要一等 ABI 面。</li>
 评估文档《四插件评估》（2026-06-15）明确指出缺少端到端真实 Node 脚本的差分 smoke，
 并把 node/deno 建议至少按 experimental 定位对待。选型前请先用
 <a href="01_overview.html">总览页</a>的安装命令自测，再用第六节的契约审计命令核对符号落地情况。</div>
+
+<h2>九、TS 前端投影（satsgo，2026-09-30 现状）</h2>
+<p>TypeScript 不直接调用本页 extern：satsgo 把 TS 调用面投影到
+<code>node.sai</code> 符号（<code>@import "node.sai"</code>），零运行时模拟；
+每个投影符号受 <code>tools/check_sa_std_projection.sh</code> 机器强制
+（名实必须同时落在 <code>node.sai</code> 与
+<code>all_exported_symbols.txt</code>）。当前 35 个：</p>
+<table>
+<tr><th>TS 面</th><th>形状</th></tr>
+<tr><td><code>os.*</code>（15 项：platform/arch/homedir…/cpus/version/userInfo/networkInterfaces）</td><td>零参 string out-param + u32 状态检查</td></tr>
+<tr><td><code>path.normalize/dirname/extname</code></td><td>一进（slice）一出，<code>NodeOut "string1"</code></td></tr>
+<tr><td><code>path.join/resolve</code></td><td>变参打包 16 字节 <code>{ptr,len}</code> 数组（<code>"argv"</code>，即插件 <code>SaSlice</code>）</td></tr>
+<tr><td><code>crypto.randomBytes/randomUUID</code>、<code>process.cwd</code></td><td>size/零参 + out-param</td></tr>
+<tr><td><code>createHash/createHmac + update/digest</code></td><td>句柄追踪（Map/Set 先例）：update 经 concat 折叠，digest 走一拍式 <code>crypto_hash/hmac</code>（hex 原生）</td></tr>
+<tr><td><code>querystring.*</code> / <code>url.parse/format/resolve</code></td><td>单/双 slice；parse/format 以 JSON 文本过界</td></tr>
+<tr><td><code>util.stripVTControlCharacters</code></td><td>纯 string→string（<code>format/inspect/isDeepStrictEqual</code> 缺件，大声拒）</td></tr>
+<tr><td><code>console.error/time/timeEnd/clear</code></td><td><code>log</code> 不动 sa_std；余下走插件（缺失 timer panic）</td></tr>
+</table>
+<p>纪律：不在子集的一律大声拒（<code>timers</code> 因 async、<code>createHash</code> 链的
+<code>base64</code> 编码、<code>digest</code> 后复用等）；<code>Date</code> 走
+<code>sa_std/time.sai</code>（见 <a href="../06_stdlib/08_time.html">time 页</a>），
+不走本插件。`import { a as b }` 别名经远端名解析，`export default {..}` /
+<code>export default ns</code> 命名空间对象按成员直达定义（见 satsgo
+<code>todo/03_npm.md</code> planck 实测：program 口径 56 文件链接）。</p>
 </body>
 </html>
