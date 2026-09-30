@@ -427,6 +427,9 @@ Web Crypto 的 RSA/ECDSA/ECDH/KDF/wrapKey/JWK 都还需要一等 ABI 面。</li>
 <tr><td><code>querystring.*</code> / <code>url.parse/format/resolve</code></td><td>单/双 slice；parse/format 以 JSON 文本过界</td></tr>
 <tr><td><code>util.stripVTControlCharacters</code></td><td>纯 string→string（<code>format/inspect/isDeepStrictEqual</code> 缺件，大声拒）</td></tr>
 <tr><td><code>console.error/time/timeEnd/clear</code></td><td><code>log</code> 不动 sa_std；余下走插件（缺失 timer panic）</td></tr>
+<tr><td><code>Buffer.byteLength/concat</code></td><td>u64 出槽 / 字面量元素静态打包（动态数组存不下 slice，大声拒）</td></tr>
+<tr><td><code>Deno.hostname/osRelease/readTextFile/writeTextFile</code></td><td>同形状（<code>deno.sai</code>，无线束清单以 sai 为准）；<code>Deno.env.*</code> 需两级路由，另立项</td></tr>
+<tr><td><code>setTimeout</code> 等 6 个异步定时器</td><td>无事件循环，大声拒（用户同名定义优先）</td></tr>
 </table>
 <p>纪律：不在子集的一律大声拒（<code>timers</code> 因 async、<code>createHash</code> 链的
 <code>base64</code> 编码、<code>digest</code> 后复用等）；<code>Date</code> 走
