@@ -59,6 +59,38 @@
 <tr><td><code>sa_plugin_bc2sa</code></td><td><code>clang</code>/<code>rustc</code> → LLVM bitcode → SA（实验性）</td></tr>
 </table>
 
+<h2>TS 前端：sa_plugin_ts 与 tsgo-sa（satsgo）</h2>
+<p>仓库内有两个 TypeScript → SA 前端：<code>sa_plugin_ts</code>（手写词法/解析，
+子集明确，286 个 demo 全过 <code>sa check</code>）与 <code>tsgo-sa</code>
+（satsgo，复用生产级 TS 解析/绑定/检查器，目标是替代前者）。
+两者共同纪律：<strong>拒则大声</strong>——不在子集的一律报定位错误，
+绝不静默错译；标准库一律复用 <code>sci/sa_std</code> 或插件原生后端，
+前端零运行时模拟（<code>tools/check_sa_std_projection.sh</code> 机器强制）。</p>
+<ul>
+<li><strong>多文件链接</strong>（<code>tsgo-sa build</code>）：import 图 + 可达集，
+值循环拒绝并给出链；<code>import type</code> 边与“仅类型位使用”的
+value import 边自动擦除；<code>export default {..}</code> /
+<code>export default ns</code> 命名空间对象按成员直达定义；
+<code>package.json</code> 依赖记入 <code>sa.mod</code> 注释与报告
+（require 行需 sha256，无 hash 不输出有效行）。</li>
+<li><strong>类型驱动布局</strong>：结构体布局优先记录表，缺失时查检查器
+（工厂返回等推断类型、匿名形字段集）；<code>type X = {..}</code> 别名建布局，
+嵌套链按字段偏移下沉。</li>
+<li><strong>守卫与窄化</strong>：<code>?.</code> 按可空性加 join；
+<code>typeof v === "undefined"</code> 降为 null 检查（子集 null/undefined 统一为 0）；
+<code>Date</code> 窄化为 <code>i64</code> 毫秒（UTC），
+<code>now/getTime/toISOString/parse/get 系/setter</code> 投影到
+<code>sa_std/time.sai</code>（见标准库 time 页）。</li>
+<li><strong>Node/Deno 投影</strong>：<code>os/path/crypto/Hash/url/querystring/util/console/Buffer</code>
+与 <code>Deno.*</code> 按调用形状投影到 <code>node.sai</code> / <code>deno.sai</code>
+原生符号（u32 状态检查，非零 panic）；异步（timers 等）与缺件保持大声拒。
+完整表面见“插件参考 &gt; node”页第九节。</li>
+<li><strong>TSX</strong>：静态模板直出 <code>.sax</code>；<code>useState</code> 进
+state 槽、挂载期 <code>useEffect</code> 进 <code>@onMount</code>；
+<code>document.createElement/appendChild</code> 等投影到 airlock DOM extern；
+其余 hooks/动态形态一律大声拒。</li>
+</ul>
+
 <h2>Agent-first 的宿主命令</h2>
 <p><code>sci</code> 面向 Agent 设计了一组自解释命令：全局 <code>--json</code> 输出结构化诊断
 （稳定错误码如 <code>SA-REF-010</code>，附 repair 建议）、<code>compile_tokens</code> /
