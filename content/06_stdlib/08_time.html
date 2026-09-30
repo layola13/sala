@@ -23,7 +23,23 @@
 <tr><td><code>sa_time_utc_now(&amp;out: ptr) -&gt; i32</code></td><td>当前 UTC 日历时间写入 SaTimeDate；返回普通 i32 状态码（不是 Fallible 结构）</td></tr>
 <tr><td><code>sa_time_sleep_ns(ns: u64) -&gt; i32</code></td><td>睡眠指定纳秒</td></tr>
 <tr><td><code>sa_time_sleep_ms(ms: u64) -&gt; i32</code></td><td>睡眠指定毫秒</td></tr>
+<tr><td><code>sa_time_iso_from_unix_ms(ms: i64) -&gt; u64</code></td><td>JS <code>Date.toISOString</code> 形状：UTC <code>YYYY-MM-DDTHH:MM:SS.sssZ</code>，返回新 buffer 句柄（经 <code>sa_fmt_buffer_data/len</code> 读回）</td></tr>
+<tr><td><code>sa_time_parse_iso(&amp;iso: ptr, len: u64, &amp;out_ms: ptr) -&gt; i32</code></td><td>严格 ISO <code>Date.parse</code>（<code>YYYY-MM-DD[THH:MM:SS[.sss]][Z|±HH:MM]</code>）；0 成功 1 非法，闰日/越界拒绝</td></tr>
+<tr><td><code>sa_time_get_full_year/month/date/hours/minutes/seconds/milliseconds/day(ms: i64) -&gt; i64</code></td><td>Date get 系（UTC；month 0 起，周日 0）</td></tr>
+<tr><td><code>sa_time_set_field(ms: i64, field: u64, value: i64) -&gt; i64</code></td><td>Date setter 系（field 0..6，month 入参 0 起）；越界按 JS 翻转归一，返回新毫秒值</td></tr>
 </table>
+
+<h2>TS 前端（satsgo Date 链）</h2>
+<p>satsgo 把 <code>Date</code> 窄化为 <code>i64</code> 毫秒值（UTC 子集，无时区）：
+<code>Date.now()</code> / 无参 <code>new Date()</code> 直调
+<code>sa_time_unix_ms</code>；<code>getTime</code> 是恒等；
+<code>toISOString</code> / get 系 / setter 系分别路由到上表三行；
+<code>getTimezoneOffset</code> 恒为 <code>0</code>；
+<code>new Date(x)</code> / <code>Date.parse</code> 之外的解析与格式化形态
+（RFC2822、双位年份、locale 串）一律大声拒绝。非法 ISO 在
+<code>Date.parse</code> 处 panic（NaN 在 i64 中不可表示）。移植注意：
+satsgo 发射的调用形状与上表签名逐位对齐，由
+<code>tools/check_sa_std_projection.sh</code> 机器强制。</p>
 
 <h2>Sla 侧类型面</h2>
 <p>Sla 代码使用 <code>SystemTime</code> / <code>Instant</code> / <code>Duration</code>
