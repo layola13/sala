@@ -85,7 +85,11 @@ value import 边自动擦除；<code>export default {..}</code> /
 （类型名不进捕获）；<code>typeof</code> 未知名的“unknown global”判定经
 binder 可见性（自建 scope 仍管所有权，binder 只答可见性）；
 <code>typeof v === "undefined"</code> 降为 null 检查；
-泛型按实参单态化布局（<code>Box&lt;i32&gt;</code> 与 <code>Box&lt;string&gt;</code> 分宽）。</li>
+泛型按实参单态化布局（<code>Box&lt;i32&gt;</code> 与 <code>Box&lt;string&gt;</code> 分宽）；
+已知类型的 <code>typeof</code> 折叠为常量（联合一致才折叠，any 仍拒）。
+注意 NoLib 衰减：方言原语注解（<code>i32</code>/<code>u64</code> 等）在检查器眼中是
+<code>Any</code>，类型精度只对真实 TS 类型（<code>number</code>/<code>string</code>/
+接口/导入名）有效；写可移植 TS 时优先真实类型。</li>
 <li><strong>Node/Deno 投影</strong>：<code>os/path/crypto/Hash/url/querystring/util/console/Buffer</code>
 与 <code>Deno.*</code> 按调用形状投影到 <code>node.sai</code> / <code>deno.sai</code>
 原生符号（u32 状态检查，非零 panic；<code>Deno.env.get</code> 缺失映射 null）；
