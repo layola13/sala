@@ -73,8 +73,8 @@ lowering，但仍没有通用的 N-await lowering 或 Tokio 等价 runtime。</p
 <tr><td><code>.await</code> 操作符</td><td>有</td><td>已落地</td></tr>
 <tr><td>future 类型</td><td><code>Future</code> trait</td><td><code>future&lt;T&gt;</code> 类型已实现</td></tr>
 <tr><td>同步上下文里 await</td><td>不允许，需 <code>block_on</code></td><td>已支持（<code>await_from_sync</code> 形态）</td></tr>
-<tr><td>嵌套 async</td><td>有</td><td>单/双 await、join2 等形态已验证；三次以上连续 await 仍有限制</td></tr>
-<tr><td>Future 状态机</td><td>std + tokio</td><td>编译器专用 continuation/state-machine lowering；不是通用 N-await lowering</td></tr>
+<tr><td>嵌套 async</td><td>有</td><td>单/双 await、join2、线性三/四连续 await 等形态已验证；跨 <code>async fn</code> 边界的嵌套 await 仍是缺口（rosetta 314/315 同失败）</td></tr>
+<tr><td>Future 状态机</td><td>std + tokio</td><td>编译器 continuation/state-machine lowering 已覆盖线性多 await；跨边界嵌套与统一 executor 仍缺</td></tr>
 <tr><td>async 运行时</td><td>tokio / async-std</td><td>暂无独立运行时（前端展平）</td></tr>
 <tr><td>实战可用度</td><td>生产级</td><td>固定形态可跑；生产服务仍缺统一 runtime、调度/背压和完整取消传播</td></tr>
 </table>

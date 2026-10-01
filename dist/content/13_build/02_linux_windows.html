@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Linux 与 Windows 本地构建</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">多平台编译 &gt; Linux 与 Windows 本地构建</div>
+<h1>Linux 与 Windows 本地构建</h1>
+
+<h2>安装 Zig 0.14.1</h2>
+<p>版本号必须 ≥ <code>build.zig.zon</code> 中的 <code>minimum_zig_version = "0.14.1"</code>。
+注意官方包命名是 <code>zig-&lt;arch&gt;-&lt;os&gt;-&lt;版本&gt;</code>（arch 在前）：</p>
+<pre><code># Linux x86_64
+curl -sL -o /tmp/zig.tar.xz \
+  https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz
+mkdir -p /opt/zig &amp;&amp; tar -xf /tmp/zig.tar.xz -C /opt/zig --strip-components=1
+ln -sf /opt/zig/zig /usr/local/bin/zig
+zig version   # 应输出 0.14.1</code></pre>
+<p>Windows 用对应 <code>zig-x86_64-windows-0.14.1.zip</code>，macOS 用
+<code>zig-aarch64-macos-0.14.1.tar.xz</code>（Apple Silicon）。CI 固定使用 0.14.1
+（<code>.github/workflows/ci.yml</code>），升级 Zig 前先确认全门禁通过。</p>
+
+<h2>Linux 原生构建（含 LLVM 后端）</h2>
+<p>Linux 默认开启 LLVM-C 后端，需要 LLVM 14 开发文件（与 CI 的
+<code>linux-full</code> 任务一致）：</p>
+<pre><code># 运行目录：sci 仓库根目录
+sudo apt-get install -y llvm-14-dev
+zig build                  # 完整构建，产物在 zig-out/
+zig build test             # 完整测试门禁（耗时较长，约 10 分钟以上）
+zig build linux-runtime    # Linux 专属运行时门禁
+zig build core             # 跨平台核心编译器检查（较快）</code></pre>
+<p>无 LLVM 环境时可用 <code>zig build -Dllvm=false</code> 快速验证编译，
+但 <code>wasm-matrix</code> 与部分 <code>plugin-host-smoke</code> 用例会因
+<code>LLVM-C backend is disabled</code> 而失败——这是环境限制，不是代码问题。</p>
+
+<h2>Windows 构建</h2>
+<pre><code># 运行目录：sci 仓库根目录
+# Windows 本机（含 LLVM-C 后端，LLVM 14 路径按本机调整）
+zig build -Dllvm=true -Dllvm-include-dir="C:\Program Files\LLVM\include" ^
+  -Dllvm-lib-dir="C:\Program Files\LLVM\lib" -Dllvm-lib-name=LLVM-C
+
+# Linux 主机交叉编译 Windows（无需 LLVM，用于验证可移植性）
+zig build -Dtarget=x86_64-windows-gnu -Dllvm=false -p zig-out-windows</code></pre>
+<p>已知修补（main 已包含）：Unix-domain socket 相关代码
+（<code>daemon_client.zig</code> 的 <code>connectUnixSocket</code>、
+<code>cli.zig</code> 的 <code>daemonCommand</code>）在 Zig 0.14.1 下无法为
+windows-gnu 编译，已用 <code>comptime</code> 分支隔离——Windows 上 daemon
+客户端直接返回 null、daemon 服务端报 unsupported。新增 Unix socket 逻辑时必须延续该模式，
+否则 Windows 交叉构建会失败。</p>
+
+<h2>已有验证结论</h2>
+<ul>
+<li><code>zig build</code>（Linux + LLVM 14）：通过，<code>zig-out/bin/sa</code> 约 20M；</li>
+<li><code>zig build core -Dllvm=false</code>：通过；</li>
+<li><code>zig build test -Dllvm=false</code>：361/365 通过，3 个失败均为环境原因
+（2 个需 LLVM 后端；1 个因 <code>-p</code> 改了输出前缀导致 <code>zig-out/lib</code> 缺失，
+重跑默认构建即恢复）；</li>
+<li><code>zig build sa-std-unit</code>：通过。</li>
+</ul>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

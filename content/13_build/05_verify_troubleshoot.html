@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>构建验证与故障排查</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">多平台编译 &gt; 构建验证与故障排查</div>
+<h1>构建验证与故障排查</h1>
+
+<h2>推荐验证顺序</h2>
+<pre><code># 运行目录：sci 仓库根目录
+zig build                          # 1. 默认全构建（含 LLVM 后端，需 llvm-14-dev）
+zig build core -Dllvm=false        # 2. 跨平台核心检查（快）
+zig build sa-std-unit              # 3. 标准运行时单元测试（含 FreeBSD 解析器用例）
+zig build test                     # 4. 完整门禁（慢，10 分钟以上；见下）
+# 交叉目标逐个验证（见矩阵总览与各章节）：
+zig build -Dtarget=x86_64-windows-gnu -Dllvm=false -p /tmp/sa-win
+zig build -Dtarget=aarch64-linux-gnu -Dllvm=false -p /tmp/sa-arm
+zig build -Dtarget=aarch64-macos -Dllvm=false -p /tmp/sa-mac
+sh tools/build_freebsd.sh --prefix /tmp/sa-fbsd</code></pre>
+
+<h2>已知现象（非代码问题）</h2>
+<table>
+<tr><th>现象</th><th>原因</th><th>处理</th></tr>
+<tr><td><code>wasm-matrix</code> / 部分 <code>plugin-host-smoke</code> 报 <code>LLVM-C backend is disabled</code></td><td>构建时传了 <code>-Dllvm=false</code>，相关测试需要 LLVM 后端</td><td>安装 llvm-14-dev 后用默认开关重跑</td></tr>
+<tr><td><code>sa_std dynamic loading helpers are usable from C</code> 报 <code>FileNotFound (zig-out/lib)</code></td><td>之前用 <code>-p</code> 把产物装到了别处，默认 <code>zig-out/lib</code> 缺失</td><td>跑一次默认 <code>zig build</code> 再测</td></tr>
+<tr><td><code>stdlib.h / dlfcn.h file not found</code>（freebsd 目标）</td><td>缺少 FreeBSD sysroot（Zig 不自带 freebsd libc）</td><td>走 <a href="04_freebsd.html">FreeBSD 章节</a> 的脚本/手动流程</td></tr>
+<tr><td><code>unable to find or provide libc for target 'x86_64-freebsd…'</code></td><td>只传了 <code>-Dsysroot</code>，缺 <code>-Dlibc</code> 描述文件</td><td>按脚本生成 <code>freebsd-libc.txt</code> 并传入</td></tr>
+<tr><td><code>undefined symbol: _c_recvmsg</code>（macOS dylib 链接）</td><td>旧代码，已修复：extern 名必须与 libc 真实符号一致</td><td>更新 main 到含该修复的版本</td></tr>
+<tr><td><code>std.net.if_nametoindex unimplemented for this OS</code>（freebsd）</td><td>旧代码，已修复：见 FreeBSD 兼容层</td><td>更新 main 到含该修复的版本</td></tr>
+<tr><td>裸 <code>zig test src/runtime/sa_std.zig</code> 报 posix <code>@bitCast size mismatch</code></td><td>裸测没链 libc，走进 std 的非 libc 路径；项目正规入口是 <code>zig build sa-std-unit</code>（带 <code>link_libc</code>）</td><td>用 <code>zig build sa-std-unit</code> 代替</td></tr>
+</table>
+
+<h2>构建副作用</h2>
+<p><code>zig build</code> 会把编出的库同步回源码树
+<code>artifacts/sa_std/libsa_std.a</code>（git 跟踪文件）。仅做本地验证时，
+结束用 <code>git checkout -- artifacts/sa_std/libsa_std.a</code> 还原，
+保持工作树干净。</p>
+</body>
+</html>

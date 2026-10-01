@@ -1,0 +1,82 @@
+{
+  "topics": [
+    {
+      "id": "build-matrix",
+      "title": "多平台编译矩阵总览",
+      "file": "01_matrix.html",
+      "keywords": [
+        "编译矩阵",
+        "交叉编译",
+        "triple",
+        "target",
+        "FreeBSD",
+        "ARM",
+        "macOS"
+      ],
+      "parent": null
+    },
+    {
+      "id": "build-linux-windows",
+      "title": "Linux 与 Windows 本地构建",
+      "file": "02_linux_windows.html",
+      "keywords": [
+        "Linux",
+        "Windows",
+        "Zig",
+        "LLVM",
+        "llvm-14-dev",
+        "安装",
+        "daemon",
+        "comptime"
+      ],
+      "parent": null
+    },
+    {
+      "id": "build-arm-mac",
+      "title": "交叉编译 ARM 与 macOS",
+      "file": "03_cross_arm_mac.html",
+      "keywords": [
+        "ARM",
+        "aarch64",
+        "macOS",
+        "Mach-O",
+        "dylib",
+        "recvmsg",
+        "交叉编译"
+      ],
+      "parent": null
+    },
+    {
+      "id": "build-freebsd",
+      "title": "FreeBSD 交叉编译",
+      "file": "04_freebsd.html",
+      "keywords": [
+        "FreeBSD",
+        "sysroot",
+        "base.txz",
+        "libc",
+        "build_freebsd.sh",
+        "if_nametoindex",
+        "uname",
+        "utsname"
+      ],
+      "parent": null
+    },
+    {
+      "id": "build-verify",
+      "title": "构建验证与故障排查",
+      "file": "05_verify_troubleshoot.html",
+      "keywords": [
+        "验证",
+        "故障排查",
+        "sa-std-unit",
+        "wasm-matrix",
+        "FileNotFound",
+        "artifacts",
+        "故障",
+        "排错"
+      ],
+      "parent": null
+    }
+  ]
+}

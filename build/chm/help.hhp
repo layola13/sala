@@ -87,6 +87,11 @@ Default Font=微软雅黑,9,0
 ../dist/content/12_vm/05_limits.html
 ../dist/content/12_vm/06_examples.html
 ../dist/content/12_vm/07_codex_ultra.html
+../dist/content/13_build/01_matrix.html
+../dist/content/13_build/02_linux_windows.html
+../dist/content/13_build/03_cross_arm_mac.html
+../dist/content/13_build/04_freebsd.html
+../dist/content/13_build/05_verify_troubleshoot.html
 ../dist/content/06_stdlib/01_overview.html
 ../dist/content/06_stdlib/13_usage_guide.html
 ../dist/content/06_stdlib/14_recipes.html

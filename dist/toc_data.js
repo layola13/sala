@@ -450,6 +450,37 @@ var TOC = [
   ]
  },
  {
+  "t": "多平台编译",
+  "f": null,
+  "c": [
+   {
+    "t": "多平台编译矩阵总览",
+    "f": "content/13_build/01_matrix.html",
+    "c": []
+   },
+   {
+    "t": "Linux 与 Windows 本地构建",
+    "f": "content/13_build/02_linux_windows.html",
+    "c": []
+   },
+   {
+    "t": "交叉编译 ARM 与 macOS",
+    "f": "content/13_build/03_cross_arm_mac.html",
+    "c": []
+   },
+   {
+    "t": "FreeBSD 交叉编译",
+    "f": "content/13_build/04_freebsd.html",
+    "c": []
+   },
+   {
+    "t": "构建验证与故障排查",
+    "f": "content/13_build/05_verify_troubleshoot.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "标准库",
   "f": null,
   "c": [

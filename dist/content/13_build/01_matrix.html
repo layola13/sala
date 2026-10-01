@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>多平台编译矩阵总览</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">多平台编译 &gt; 多平台编译矩阵总览</div>
+<h1>多平台编译矩阵总览</h1>
+
+<p>sci（SA 编译器）用 Zig 构建系统编译，<code>build.zig.zon</code> 要求
+<b>Zig 0.14.1</b>。下表是已验证可通过的全部目标（stock Zig 0.14.1，
+Linux x86_64 主机；main 分支已包含 cross-platform 分支的全部多平台运行时）：</p>
+
+<table>
+<tr><th>目标</th><th>Triple</th><th>命令</th><th>产物</th></tr>
+<tr><td>Linux x86_64（原生）</td><td><code>x86_64-linux-gnu</code>（默认）</td><td><code>zig build</code>（需 LLVM 14，见<a href="02_linux_windows.html">本地构建</a>）</td><td><code>zig-out/bin/sa</code>（约 20M）、<code>libsa_std.a/.so</code></td></tr>
+<tr><td>Windows x86_64</td><td><code>x86_64-windows-gnu</code></td><td><code>zig build -Dtarget=x86_64-windows-gnu -Dllvm=false</code></td><td><code>sa.exe</code>（约 11M）、<code>hubproxy.exe</code></td></tr>
+<tr><td>ARM Linux</td><td><code>aarch64-linux-gnu</code></td><td><code>zig build -Dtarget=aarch64-linux-gnu -Dllvm=false</code></td><td>ARM aarch64 ELF（<code>file</code> 可验证）</td></tr>
+<tr><td>macOS ARM</td><td><code>aarch64-macos</code></td><td><code>zig build -Dtarget=aarch64-macos -Dllvm=false</code></td><td>Mach-O arm64 <code>sa</code> + <code>libsa_std.dylib</code></td></tr>
+<tr><td>macOS Intel</td><td><code>x86_64-macos</code></td><td><code>zig build -Dtarget=x86_64-macos -Dllvm=false</code></td><td>同上，x86_64 Mach-O</td></tr>
+<tr><td>FreeBSD x86_64</td><td><code>x86_64-freebsd</code></td><td><code>sh tools/build_freebsd.sh</code>（需 sysroot，见<a href="04_freebsd.html">FreeBSD 章节</a>）</td><td>FreeBSD 14.4 ELF（interpreter <code>/libexec/ld-elf.so.1</code>）</td></tr>
+</table>
+
+<p>通用说明：</p>
+<ul>
+<li><code>-Dllvm=false</code> 关闭 LLVM-C 后端（交叉目标默认只能如此；Windows 原生除外，
+Linux 原生默认开启）。关闭后 <code>llvmc</code> 相关测试会跳过/失败，属预期行为。</li>
+<li><code>-p &lt;目录&gt;</code> 可把安装前缀从默认 <code>zig-out/</code> 改到别处；
+注意 <code>sa-std-runtime</code> 测试要求默认 <code>zig-out/lib</code> 存在，
+用 <code>-p</code> 构建后跑该测试会报 <code>FileNotFound</code>，先跑一次默认
+<code>zig build</code> 即可恢复。</li>
+<li>构建会同步产物到源码树 <code>artifacts/sa_std/libsa_std.a</code>（git 跟踪文件）；
+若只是本地验证，构建完用 <code>git checkout -- artifacts/sa_std/libsa_std.a</code> 还原，
+避免把本地构建产物混入提交。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>交叉编译只证明“编译 + 链接”通过。
+各目标的行为正确性仍需在真机（或 QEMU / Wine 等）上跑对应测试套件确认。</div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

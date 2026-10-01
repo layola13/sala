@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>FreeBSD 交叉编译</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">多平台编译 &gt; FreeBSD 交叉编译</div>
+<h1>FreeBSD 交叉编译</h1>
+
+<p>FreeBSD 是唯一需要“单独准备 sysroot”的目标，原因有三：Zig 0.14.1 官方不发布
+FreeBSD 主机二进制；不捆绑 freebsd libc；<code>zig build</code> 没有
+<code>--sysroot</code> 参数。为此 <code>build.zig</code> 新增了通用选项：</p>
+<table>
+<tr><th>选项</th><th>作用</th></tr>
+<tr><td><code>-Dsysroot=&lt;目录&gt;</code></td><td>设 <code>b.sysroot</code>，透传 <code>--sysroot</code> 给所有编译步骤</td></tr>
+<tr><td><code>-Dlibc=&lt;文件&gt;</code></td><td>设 <code>b.libc_file</code>，透传 <code>-libc</code>（libc 安装描述文件）</td></tr>
+</table>
+
+<h2>一键构建（推荐）</h2>
+<pre><code># 运行目录：sci 仓库根目录
+sh tools/build_freebsd.sh
+# 产物在 zig-out-freebsd/；可选参数：
+#   --target x86_64-freebsd --prefix &lt;输出目录&gt; --sysroot &lt;已有 sysroot&gt;</code></pre>
+<p>脚本首次运行会自动下载 FreeBSD 14.4-RELEASE <code>base.txz</code>（约 155M）
+解压为 sysroot，并生成 libc 描述文件（<code>include_dir / sys_include_dir /
+crt_dir</code> 指向 sysroot 内对应路径）。之后复用，不再下载。</p>
+
+<h2>手动构建</h2>
+<pre><code># 运行目录：sci 仓库根目录
+SYSROOT=/tmp/fbsd/sysroot   # base.txz 解压目录，含 usr/include/stdlib.h
+printf 'include_dir=%s/usr/include\nsys_include_dir=%s/usr/include\ncrt_dir=%s/usr/lib\nmsvc_lib_dir=\nkernel32_lib_dir=\ngcc_dir=\n' \
+  "$SYSROOT" "$SYSROOT" "$SYSROOT" &gt; /tmp/fbsd/libc.txt
+zig build -Dtarget=x86_64-freebsd -Dllvm=false \
+  -Dsysroot="$SYSROOT" -Dlibc=/tmp/fbsd/libc.txt -p zig-out-freebsd
+file zig-out-freebsd/bin/sa
+# 期望：ELF 64-bit LSB executable, x86-64, for FreeBSD 14.4, interpreter /libexec/ld-elf.so.1</code></pre>
+
+<h2>FreeBSD 原生构建（替代路线）</h2>
+<p>在 FreeBSD 主机上用 ports 的 Zig（<code>pkg install zig</code>）直接原生构建，
+不需要 sysroot：<code>zig build</code> 即可。但 <code>sa_std.zig</code> 含
+Linux-specific 代码（io_uring/epoll 等），真机行为仍需逐项验证。</p>
+
+<h2>sa_std.zig 的 FreeBSD 兼容层</h2>
+<p>以下全是 Zig 0.14 标准库对 freebsd 的缺口，已在 <code>src/runtime/sa_std.zig</code>
+内用 <code>comptime builtin.os.tag == .freebsd</code> 分支隔离，不影响其他平台：</p>
+<ul>
+<li><b>TCP_NODELAY</b>：<code>std.posix.TCP</code> 在 freebsd 上是 void，
+直接写常量 <code>1</code>（Linux/macOS/FreeBSD 同值）；</li>
+<li><b>hostname / os_release</b>：<code>std.posix.uname()</code> 在 freebsd 上是 void，
+改调 libc <code>uname</code>（FreeBSD <code>struct utsname</code> 五字段各 256 字节）；</li>
+<li><b>IP 字面量解析</b>：<code>Address.resolveIp</code> 与 <code>Ip6Address.resolve</code>
+最终都走到未实现的 <code>if_nametoindex</code>，freebsd 下改用文件内数字解析器
+（含 <code>::</code> 压缩与内嵌 IPv4），命名 zone 用 FreeBSD libc 自带的
+<code>if_nametoindex</code> 保持行为对等；解析器有单元测试，与 std 解析器 9 组向量逐字节一致。</li>
+</ul>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

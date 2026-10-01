@@ -78,8 +78,9 @@ fn main() -&gt; i32 {
 <h2>表达式与分号</h2>
 <p>SLA 是面向表达式的语言：<code>if/else</code> 与 <code>match</code> 可以作为值返回，
 例如 <code>fn max(a: i32, b: i32) -&gt; i32 { if a &gt; b { a } else { b } }</code>（demo 03_if_else）。
-同时，代码库中的惯例是给块语句补上尾随分号（如 <code>if ... {};</code>、<code>match ... ;</code>），
-真实 demo 中两种写法都存在。</p>
+用作语句的 <code>if</code> 块必须带尾随分号（<code>if ... {};</code>，缺了报 parse 错误）；
+<code>for</code>/<code>while</code> 块后不得加分号（加了同样报 parse 错误）。
+代码库中两种 <code>if</code> 写法（表达式位无分号、语句位有分号）都存在，对照树内用例即可。</p>
 
 <p>相关页面：<a href="03_functions.html">函数与控制流</a>、<a href="04_patterns.html">模式匹配</a>。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>

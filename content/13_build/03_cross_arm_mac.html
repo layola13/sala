@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>交叉编译 ARM 与 macOS</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">多平台编译 &gt; 交叉编译 ARM 与 macOS</div>
+<h1>交叉编译 ARM 与 macOS</h1>
+
+<p>ARM 与 macOS 目标<b>不需要单独准备工具链</b>：stock Zig 0.14.1 自带所需的
+libc（musl/glibc/darwin），可直接在 Linux x86_64 主机上交叉编译。
+这与 FreeBSD 不同（见<a href="04_freebsd.html">FreeBSD 章节</a>）。</p>
+
+<h2>ARM Linux（aarch64）</h2>
+<pre><code># 运行目录：sci 仓库根目录
+zig build -Dtarget=aarch64-linux-gnu -Dllvm=false -p zig-out-arm
+file zig-out-arm/bin/sa
+# 期望：ELF 64-bit LSB executable, ARM aarch64, ... interpreter /lib/ld-linux-aarch64.so.1</code></pre>
+
+<h2>macOS（ARM / Intel）</h2>
+<pre><code># 运行目录：sci 仓库根目录
+zig build -Dtarget=aarch64-macos -Dllvm=false -p zig-out-mac-arm
+zig build -Dtarget=x86_64-macos -Dllvm=false -p zig-out-mac-x64
+file zig-out-mac-arm/bin/sa
+# 期望：Mach-O 64-bit arm64 executable</code></pre>
+<p>产物包括 <code>sa</code>、<code>hubproxy</code>、<code>libsa_asm.a</code>、
+<code>libsa_std.a</code> 与 <code>libsa_std.dylib</code>。</p>
+
+<h2>已知修补：recvmsg 符号名</h2>
+<p><code>src/runtime/sa_std.zig</code> 的 <code>portableRecvmsg</code> 曾把 libc
+函数声明为 <code>extern "c" fn c_recvmsg</code>——这个符号根本不存在。
+Linux 能链接是因为 ELF 共享库允许未定义符号，而 macOS dylib 默认拒绝
+（<code>undefined symbol: _c_recvmsg</code>）。已修正为真实符号名
+<code>recvmsg</code>。教训：新增 <code>extern</code> 声明时，名字必须与目标
+libc 的实际符号逐字一致，并在 macOS（dylib 严格链接）上验证。</p>
+
+<div class="note"><span class="label">注意</span>macOS 上 <code>recvmsg</code> 语义、
+<code>__error()</code> errno 路径与 <code>msghdr</code> 布局尚未在真机跑通测试，
+交叉编译目前只保证链接通过。</div>
+</body>
+</html>
