@@ -364,8 +364,12 @@ slt/sdiv 等 BigInt 路径按解释器补符号扩展、extern 大返回 BigInt�
 <rect x="350" y="252" width="12" height="12" fill="#16a34a"/><text x="366" y="262" font-size="11" fill="#333">sa2js+node</text>
 <rect x="490" y="252" width="12" height="12" fill="#ea580c"/><text x="506" y="262" font-size="11" fill="#333">sa2js+bun</text>
 </svg>
-<p>注：wasm 在 read-write/indexOf 上反超 native（wasmtime JIT vs LLVM O1 所致，待跟进）；
-native 自身离 bun 原生 codec 仍有 19~67x（SA 后端循环未向量化，非 JS 特有问题）。</p>
+<p>注：wasm 曾在 read-write/indexOf 上反超 native，实测系默认 <code>sa build</code> 优化等级保守所致
+（非 wasmtime 更强）——改 <code>--release-fast</code> 重编后 native 直接反杀 20~50x：
+read-write 20.5M 扫描 <b>3.3ms（0.16ns/B，比 bun 原题 0.77ns/B 快约 5x）</b>，
+find 10.2M 查找 <b>5.6ms（0.55ns/元素）</b>（LLVM 向量化全开；校验和全过，非 DCE）。
+结论：默认构建偏保守是主因，要峰值请加 <code>--release-fast</code>；
+native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环密集负载 native 已全面领先。</p>
 
 <h2>15. 口径与下一步</h2>
 <ul>
