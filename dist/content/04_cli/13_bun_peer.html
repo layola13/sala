@@ -319,51 +319,51 @@ slt/sdiv 等 BigInt 路径按解释器补符号扩展、extern 大返回 BigInt�
 只列不比；大 workload 计 slowdown。</p>
 <table>
 <tr><th>peer</th><th>sa→native</th><th>sa→wasm</th><th>sa2js+node</th><th>sa2js+bun</th><th>bun 原题</th></tr>
-<tr><td>read-write 20.5M</td><td>150ms (7.3ns/B, 9.5x)</td><td>126ms (6.1ns/B, 7.9x)</td><td>1252ms (79x)</td><td>589ms (37x)</td><td>0.77ns/B</td></tr>
-<tr><td>fill 256KB×2</td><td>5.3ms（启动主导）</td><td>18.1ms（启动主导）</td><td>108ms</td><td>96ms</td><td>0.044ns/B</td></tr>
-<tr><td>slice 64KB×3</td><td>2.9ms（启动主导）</td><td>17.6ms（启动主导）</td><td>112ms</td><td>65ms</td><td>DCE，不比</td></tr>
-<tr><td>indexOf 10.2M</td><td>94.5ms (9.2ns/el, 33x)</td><td>69.9ms (6.8ns/el, 24x)</td><td>466ms (161x)</td><td>439ms (154x)</td><td>0.28ns/el</td></tr>
-<tr><td>includes 500×2K</td><td>10.0ms（启动主导）</td><td>20.6ms（启动主导）</td><td>124ms</td><td>110ms</td><td>9.45ns/search</td></tr>
-<tr><td>base64 1.5MB</td><td>20.2ms (13ns/B, 55x)</td><td>26.1ms (17ns/B, 71x)</td><td>269ms (746x)</td><td>213ms (592x)</td><td>0.24ns/B</td></tr>
-<tr><td>hex 2MB</td><td>38.6ms (19ns/B, 67x)</td><td>38.7ms (19ns/B, 67x)</td><td>471ms (821x)</td><td>401ms (698x)</td><td>0.28ns/B</td></tr>
-<tr><td>escape 819KB</td><td>19.1ms (23ns/B, 19x)</td><td>28.9ms (35ns/B, 29x)</td><td>1431ms (1455x)</td><td>294ms (299x)</td><td>1.2ns/B</td></tr>
+<tr><td>read-write 20.5M</td><td>2.4ms (0.05ns/B, WIN 14x, fast)</td><td>126ms (6.1ns/B, 7.9x)</td><td>1252ms (79x)</td><td>589ms (37x)</td><td>0.77ns/B</td></tr>
+<tr><td>fill 256KB×2</td><td>1.4ms（启动主导，fast）</td><td>18.1ms（启动主导）</td><td>108ms</td><td>96ms</td><td>0.044ns/B</td></tr>
+<tr><td>slice 64KB×3</td><td>1.3ms（启动主导，fast）</td><td>17.6ms（启动主导）</td><td>112ms</td><td>65ms</td><td>DCE，不比</td></tr>
+<tr><td>indexOf 10.2M</td><td>5.6ms (0.42ns/el, 1.5x, fast)</td><td>69.9ms (6.8ns/el, 24x)</td><td>466ms (161x)</td><td>439ms (154x)</td><td>0.28ns/el</td></tr>
+<tr><td>includes 500×2K</td><td>1.8ms（约1µs/search, ~100x, fast）</td><td>20.6ms（启动主导）</td><td>124ms</td><td>110ms</td><td>9.45ns/search</td></tr>
+<tr><td>base64 1.5MB</td><td>2.2ms (0.6ns/B, 2.5x, fast)</td><td>26.1ms (17ns/B, 71x)</td><td>269ms (746x)</td><td>213ms (592x)</td><td>0.24ns/B</td></tr>
+<tr><td>hex 2MB</td><td>3.1ms (0.9ns/B, 3.2x, fast)</td><td>38.7ms (19ns/B, 67x)</td><td>471ms (821x)</td><td>401ms (698x)</td><td>0.28ns/B</td></tr>
+<tr><td>escape 819KB</td><td>1.8ms (0.6ns/B, WIN 2x, fast)</td><td>28.9ms (35ns/B, 29x)</td><td>1431ms (1455x)</td><td>294ms (299x)</td><td>1.2ns/B</td></tr>
 </table>
 <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
-<text x="440" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Slowdown vs bun original by target (log)</text>
-<line x1="90" y1="190" x2="864" y2="190" stroke="#e5e7eb"/><text x="82" y="194" text-anchor="end" font-size="11" fill="#555">10</text>
-<line x1="90" y1="158" x2="864" y2="158" stroke="#e5e7eb"/><text x="82" y="162" text-anchor="end" font-size="11" fill="#555">30</text>
-<line x1="90" y1="124" x2="864" y2="124" stroke="#e5e7eb"/><text x="82" y="128" text-anchor="end" font-size="11" fill="#555">100</text>
-<line x1="90" y1="92" x2="864" y2="92" stroke="#e5e7eb"/><text x="82" y="96" text-anchor="end" font-size="11" fill="#555">300</text>
-<line x1="90" y1="58" x2="864" y2="58" stroke="#e5e7eb"/><text x="82" y="62" text-anchor="end" font-size="11" fill="#555">1000</text>
-<rect x="98" y="191.2" width="32" height="8.8" fill="#2563eb" rx="1"><title>read-write native: 9.5x</title></rect>
-<rect x="132" y="196.5" width="32" height="3.5" fill="#7c3aed" rx="1"><title>read-write wasm: 7.9x</title></rect>
-<rect x="166" y="130.4" width="32" height="69.6" fill="#16a34a" rx="1"><title>read-write node: 79x</title></rect>
-<rect x="200" y="152.2" width="32" height="47.8" fill="#ea580c" rx="1"><title>read-write bun: 37x</title></rect>
-<text x="151" y="215" text-anchor="middle" font-size="11" fill="#333">read-write</text>
-<rect x="253" y="155.5" width="32" height="44.5" fill="#2563eb" rx="1"><title>indexOf native: 33x</title></rect>
-<rect x="287" y="164.6" width="32" height="35.4" fill="#7c3aed" rx="1"><title>indexOf wasm: 24x</title></rect>
-<rect x="321" y="110" width="32" height="90" fill="#16a34a" rx="1"><title>indexOf node: 161x</title></rect>
-<rect x="355" y="111.2" width="32" height="88.8" fill="#ea580c" rx="1"><title>indexOf bun: 154x</title></rect>
-<text x="306" y="215" text-anchor="middle" font-size="11" fill="#333">indexOf</text>
-<rect x="408" y="140.8" width="32" height="59.2" fill="#2563eb" rx="1"><title>base64 native: 55x</title></rect>
-<rect x="442" y="133.5" width="32" height="66.5" fill="#7c3aed" rx="1"><title>base64 wasm: 71x</title></rect>
-<rect x="476" y="66" width="32" height="134" fill="#16a34a" rx="1"><title>base64 node: 746x</title></rect>
-<rect x="510" y="72.6" width="32" height="127.4" fill="#ea580c" rx="1"><title>base64 bun: 592x</title></rect>
-<text x="461" y="215" text-anchor="middle" font-size="11" fill="#333">base64</text>
-<rect x="562" y="135.1" width="32" height="64.9" fill="#2563eb" rx="1"><title>hex native: 67x</title></rect>
-<rect x="596" y="135.1" width="32" height="64.9" fill="#7c3aed" rx="1"><title>hex wasm: 67x</title></rect>
-<rect x="630" y="63.2" width="32" height="136.8" fill="#16a34a" rx="1"><title>hex node: 821x</title></rect>
-<rect x="664" y="67.8" width="32" height="132.2" fill="#ea580c" rx="1"><title>hex bun: 698x</title></rect>
-<text x="615" y="215" text-anchor="middle" font-size="11" fill="#333">hex</text>
-<rect x="717" y="171.3" width="32" height="28.7" fill="#2563eb" rx="1"><title>escape native: 19x</title></rect>
-<rect x="751" y="159.2" width="32" height="40.8" fill="#7c3aed" rx="1"><title>escape wasm: 29x</title></rect>
-<rect x="785" y="46.7" width="32" height="153.3" fill="#16a34a" rx="1"><title>escape node: 1455x</title></rect>
-<rect x="819" y="92.2" width="32" height="107.8" fill="#ea580c" rx="1"><title>escape bun: 299x</title></rect>
-<text x="770" y="215" text-anchor="middle" font-size="11" fill="#333">escape</text>
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Slowdown vs bun original by target (log)</text>
+<line x1="90" y1="189.6" x2="864" y2="189.6" stroke="#e5e7eb"/><text x="82" y="193.6" text-anchor="end" font-size="11" fill="#555">0.1</text>
+<line x1="90" y1="154.9" x2="864" y2="154.9" stroke-dasharray="5,3" stroke="#dc2626"/><text x="82" y="158.9" text-anchor="end" font-size="11" fill="#dc2626">1</text>
+<line x1="90" y1="120.3" x2="864" y2="120.3" stroke="#e5e7eb"/><text x="82" y="124.3" text-anchor="end" font-size="11" fill="#555">10</text>
+<line x1="90" y1="85.7" x2="864" y2="85.7" stroke="#e5e7eb"/><text x="82" y="89.7" text-anchor="end" font-size="11" fill="#555">100</text>
+<line x1="90" y1="51.1" x2="864" y2="51.1" stroke="#e5e7eb"/><text x="82" y="55.1" text-anchor="end" font-size="11" fill="#555">1000</text>
+<rect x="98.0" y="194.9" width="32" height="5.1" fill="#2563eb" rx="1"><title>read-write native: 0.07x</title></rect>
+<rect x="132.0" y="123.9" width="32" height="76.1" fill="#7c3aed" rx="1"><title>read-write wasm: 7.9x</title></rect>
+<rect x="166.0" y="89.2" width="32" height="110.8" fill="#16a34a" rx="1"><title>read-write node: 79.0x</title></rect>
+<rect x="200.0" y="100.6" width="32" height="99.4" fill="#ea580c" rx="1"><title>read-write bun: 37.0x</title></rect>
+<text x="166.0" y="215" text-anchor="middle" font-size="11" fill="#333">read-write</text>
+<rect x="252.8" y="148.9" width="32" height="51.1" fill="#2563eb" rx="1"><title>indexOf native: 1.5x</title></rect>
+<rect x="286.8" y="107.2" width="32" height="92.8" fill="#7c3aed" rx="1"><title>indexOf wasm: 24.0x</title></rect>
+<rect x="320.8" y="78.5" width="32" height="121.5" fill="#16a34a" rx="1"><title>indexOf node: 161.0x</title></rect>
+<rect x="354.8" y="79.2" width="32" height="120.8" fill="#ea580c" rx="1"><title>indexOf bun: 154.0x</title></rect>
+<text x="320.8" y="215" text-anchor="middle" font-size="11" fill="#333">indexOf</text>
+<rect x="407.6" y="141.2" width="32" height="58.8" fill="#2563eb" rx="1"><title>base64 native: 2.5x</title></rect>
+<rect x="441.6" y="90.8" width="32" height="109.2" fill="#7c3aed" rx="1"><title>base64 wasm: 71.0x</title></rect>
+<rect x="475.6" y="55.5" width="32" height="144.5" fill="#16a34a" rx="1"><title>base64 node: 746.0x</title></rect>
+<rect x="509.6" y="59.0" width="32" height="141.0" fill="#ea580c" rx="1"><title>base64 bun: 592.0x</title></rect>
+<text x="475.6" y="215" text-anchor="middle" font-size="11" fill="#333">base64</text>
+<rect x="562.4" y="137.5" width="32" height="62.5" fill="#2563eb" rx="1"><title>hex native: 3.2x</title></rect>
+<rect x="596.4" y="91.7" width="32" height="108.3" fill="#7c3aed" rx="1"><title>hex wasm: 67.0x</title></rect>
+<rect x="630.4" y="54.0" width="32" height="146.0" fill="#16a34a" rx="1"><title>hex node: 821.0x</title></rect>
+<rect x="664.4" y="56.5" width="32" height="143.5" fill="#ea580c" rx="1"><title>hex bun: 698.0x</title></rect>
+<text x="630.4000000000001" y="215" text-anchor="middle" font-size="11" fill="#333">hex</text>
+<rect x="717.2" y="165.4" width="32" height="34.6" fill="#2563eb" rx="1"><title>escape native: 0.5x</title></rect>
+<rect x="751.2" y="104.3" width="32" height="95.7" fill="#7c3aed" rx="1"><title>escape wasm: 29.0x</title></rect>
+<rect x="785.2" y="45.4" width="32" height="154.6" fill="#16a34a" rx="1"><title>escape node: 1455.0x</title></rect>
+<rect x="819.2" y="69.2" width="32" height="130.8" fill="#ea580c" rx="1"><title>escape bun: 299.0x</title></rect>
+<text x="785.2" y="215" text-anchor="middle" font-size="11" fill="#333">escape</text>
 <rect x="90" y="252" width="12" height="12" fill="#2563eb"/><text x="106" y="262" font-size="11" fill="#333">sa→native</text>
 <rect x="220" y="252" width="12" height="12" fill="#7c3aed"/><text x="236" y="262" font-size="11" fill="#333">sa→wasm</text>
 <rect x="350" y="252" width="12" height="12" fill="#16a34a"/><text x="366" y="262" font-size="11" fill="#333">sa2js+node</text>
-<rect x="490" y="252" width="12" height="12" fill="#ea580c"/><text x="506" y="262" font-size="11" fill="#333">sa2js+bun</text>
+<rect x="480" y="252" width="12" height="12" fill="#ea580c"/><text x="496" y="262" font-size="11" fill="#333">sa2js+bun</text>
 </svg>
 <p>注：wasm 曾在 read-write/indexOf 上反超 native，实测系默认 <code>sa build</code> 优化等级保守所致
 （非 wasmtime 更强）——改 <code>--release-fast</code> 重编后 native 直接反杀 20~50x：
