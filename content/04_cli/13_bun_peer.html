@@ -242,7 +242,21 @@ SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支�
 <rect x="430" y="290" width="12" height="12" fill="#ea580c"/><text x="446" y="300" font-size="11" fill="#333">sa2js+bun</text>
 </svg>
 <p>每输入字节绝对耗时。byte 系列 6 个 peer；indexOf/includes 为每元素/每次查找，单位不同，见上图倍数对比。</p>
-<h2>12. 口径与下一步</h2>
+<h2>12. 热点分布（字面量修复后，peer_rw32 node profiler）</h2>
+<svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">CPU samples by function (linear, %)</text>
+<text x="180" y="52" font-size="12" fill="#333">main（已内联的加/存＋循环） 55.0%</text><rect x="180" y="58" width="642" height="14" fill="#2563eb" rx="1"/>
+<text x="180" y="92" font-size="12" fill="#333">__sa_load_u32（acc/槽重载） 12.3%</text><rect x="180" y="98" width="144" height="14" fill="#16a34a" rx="1"/>
+<text x="180" y="122" font-size="12" fill="#333">__sa_ult（循环条件） 10.8%</text><rect x="180" y="128" width="126" height="14" fill="#7c3aed" rx="1"/>
+<text x="180" y="152" font-size="12" fill="#333">__sa_ptr_add（寻址） 10.4%</text><rect x="180" y="158" width="121" height="14" fill="#ea580c" rx="1"/>
+<text x="180" y="182" font-size="12" fill="#333">__sa_load_u8（元素装载） 8.3%</text><rect x="180" y="188" width="97" height="14" fill="#0d9488" rx="1"/>
+<text x="180" y="212" font-size="12" fill="#333">其余 3.2%（__sa_add/store 已完全内联，__sa_BU 消失）</text><rect x="180" y="218" width="37" height="14" fill="#64748b" rx="1"/>
+</svg>
+<p>修复前同位置是 <code>__sa_BU</code> 18.8%＋<code>__sa_add</code> 17.8%（BigInt 慢路径）；
+修复后 ALU 内联进 main，剩余 4 个调用皆为语义必需（装载／比较／寻址／槽重载）。
+槽提升（acc/计数器进局部变量）仅能省约 12%，不动；2x 仍需批量内存语义或证明式全内联。</p>
+
+<h2>13. 口径与下一步</h2>
 <ul>
 <li>本页全部 SA 侧数字出自 SA 源码编译产物；DCE 声明：mitata 单表达式 bench 有死码消除嫌疑，绝对值以带 sink 的刻度为准，相对排序一致。</li>
 <li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
