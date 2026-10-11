@@ -31,18 +31,24 @@ SA 对等程序只用 SA 写（FILL 4096 字节模式 <code>(i*37+11)&amp;0xff</
 
 <h2>2. SA 对等程序数字（20.5M 字节扫描＋校验）</h2>
 <table>
-<tr><th>组合</th><th>耗时</th><th>折合每字节</th><th>结果</th></tr>
-<tr><td>sa2js+node（u64 累加）</td><td>2590ms</td><td>128ns/B</td><td>PEER OK</td></tr>
-<tr><td>sa2js+bun（u64 累加）</td><td>11361ms</td><td>554ns/B</td><td>PEER OK</td></tr>
-<tr><td>sa2js+node（u32 槽版）</td><td>3108ms</td><td>152ns/B</td><td>PEER32 OK</td></tr>
-<tr><td>sa2js+bun（u32 槽版）</td><td>5242ms</td><td>256ns/B</td><td>PEER32 OK（bun 下 BigInt 换 Number 直接减半）</td></tr>
+<tr><th>组合</th><th>耗时（字面量修复前）</th><th>耗时（修复后）</th><th>结果</th></tr>
+<tr><td>sa2js+node（u64 累加）</td><td>2590ms</td><td>3091ms（混合转换税，见 §3）</td><td>PEER OK</td></tr>
+<tr><td>sa2js+bun（u64 累加）</td><td>11361ms</td><td>11303ms</td><td>PEER OK</td></tr>
+<tr><td>sa2js+node（u32 槽版）</td><td>3108ms</td><td><b>1252ms（2.5x↑）</b></td><td>PEER32 OK</td></tr>
+<tr><td>sa2js+bun（u32 槽版）</td><td>5242ms</td><td><b>589ms（8.9x↑）</b></td><td>PEER32 OK</td></tr>
 </table>
+<p>u32 求和（9.3M 次，46340×200）：node 1286→<b>409ms（3.1x↑）</b>，bun 2402→<b>247ms（9.7x↑）</b>；
+u64 求和（10M）node 保持 505ms 无回归。bun 自编译 1.4.4 与系统 1.4.3 数字一致（瓶颈在生成代码，不在 bun 版本）。</p>
 
 <h2>3. 核心发现：无类型整数字面量域污染（已实证）</h2>
 <ul>
 <li>u32 槽版在 node 反而比 u64 版慢（3108ms vs 2590ms）。profiler 显示 u32 版 <code>__sa_BU</code> 占 18.8%、<code>__sa_add</code> 17.8%（全是 BigInt 路径）。</li>
 <li>查生成代码：<code>r3 = __sa_ult(r2, 4096n)</code>——SA 里无类型字面量 <code>4096/1/37/522240</code> 一律按 u64（BigInt）发射，
 u32 寄存器 × BigInt 字面量 = 每次迭代全走混合慢路径＋转制（megamorphic，不可内联）。u64 版反而因全 BigInt 单态更快。</li>
+<li><b>已修复</b>（<code>src/emit_js.zig resolveValueToJs</code>）：幅值在 32 位内的 <code>imm_i64/imm_u64</code> 改发 Number，
+超范围才发 BigInt。运行时 helper 按 <code>typeof</code> 分派，任一操作数为 BigInt 即走 64 位路径，语义不变；
+全 32 位表达式则保持 Number 单态、可内联。u32 循环 node 3.1x / bun 9.7x，u64 求和无回归。
+u64 累加 peer 在 node 微升（2590→3091ms）是字面量 Number→BigInt 转换税，属预期内小代价。</li>
 <li>引擎探测（纯 V8/JSC 行为刻度，非 benchmark 主体）：同 workload 的 Number 域形态约 <b>1~3ns/B</b>。
 即修掉字面量定型后，同类循环可进 2~4x（相对 bun 原题 0.77ns/B）。这是 2x 路线的主入口。</li>
 <li>mitata load 小表（sa2js helper vs raw）：32 位读写 helper 只比 raw 贵 1~3ns（双运行时一致）；
