@@ -257,8 +257,8 @@ SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支�
 槽提升（acc/计数器进局部变量）仅能省约 12%，不动；2x 仍需批量内存语义或证明式全内联。</p>
 
 <h2>13. 融合批量原语反超（slope 口径，启动/预热对消后）</h2>
-<p>逐元素 helper 在 bulk 操作上永远追不上原生 codec，于是发射器新增 6 个融合原语
-（<code>sa_mfill/sa_mcopy/sa_msum_u8/sa_msum_u32/sa_mwrite_u8/sa_mfind_u32</code>，
+<p>逐元素 helper 在 bulk 操作上永远追不上原生 codec，于是发射器新增 9 个融合原语
+（<code>sa_mfill/sa_mcopy/sa_msum_u8/sa_msum_u32/sa_mwrite_u8/sa_mfind_u32/sa_b64dec/sa_hexdec/sa_esc_html</code>，
 一次宿主调用执行紧凑循环或引擎 intrinsic，与 bun 的 Buffer 底层同级；全部 SA 可调，
 零手写 mjs）。方法论：单次 wall 含 30~90ms 启动＋JIT 预热（fill0 假象、find 单次/斜率差 7x），
 一律用双点斜率（REPS 与 2×REPS 差分）报告稳态。</p>
@@ -272,28 +272,37 @@ SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支�
 <tr><td>hex-host 64KB（vs 18.4µs，同尺寸）</td><td>0.28ns/B</td><td>3.6ns/B 12.9x</td><td>1.0ns/B 3.7x</td><td>4KB→16KB→64KB三档测 flatline：链税是 throughput（TextDecoder＋parse＋拷出三遍）非固定成本；再压需单遍融合解码（立项）。比纯 SA 版好 50~140x</td></tr>
 <tr><td>escape-fused 4KB（vs 57KB 69µs）</td><td>1.2ns/B</td><td>6.1ns/B 5.1x</td><td>5.1ns/B 4.3x</td><td>单调用紧凑循环，比逐元素版好 70~285x（1455x→5.1x）；无 host intrinsic，余量是分支标量 vs SIMD</td></tr>
 </table>
-<svg viewBox="0 0 880 260" xmlns="http://www.w3.org/2000/svg" role="img">
-<text x="440" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Fused peer slowdown vs bun original (log, &lt;1 = WIN)</text>
-<line x1="90" y1="170" x2="864" y2="170" stroke="#e5e7eb"/><text x="82" y="174" text-anchor="end" font-size="11" fill="#555">0.3</text>
-<line x1="90" y1="148" x2="864" y2="148" stroke="#e5e7eb"/><text x="82" y="152" text-anchor="end" font-size="11" fill="#555">0.5</text>
-<line x1="90" y1="118" x2="864" y2="118" stroke="#dc2626" stroke-dasharray="5,3"/><text x="82" y="122" text-anchor="end" font-size="11" fill="#dc2626">1.0</text>
-<line x1="90" y1="88" x2="864" y2="88" stroke="#e5e7eb"/><text x="82" y="92" text-anchor="end" font-size="11" fill="#555">2</text>
-<line x1="90" y1="48" x2="864" y2="48" stroke="#e5e7eb"/><text x="82" y="52" text-anchor="end" font-size="11" fill="#555">5</text>
-<rect x="98" y="157.5" width="38" height="12.5" fill="#16a34a" rx="1"><title>u32sum node: 0.40x WIN</title></rect>
-<rect x="138" y="147" width="38" height="23" fill="#ea580c" rx="1"><title>u32sum bun: 0.51x WIN</title></rect>
-<text x="136" y="185" text-anchor="middle" font-size="11" fill="#333">u32sum</text>
-<rect x="291" y="120" width="38" height="50" fill="#16a34a" rx="1"><title>fill node: 0.95x WIN</title></rect>
-<rect x="331" y="111.4" width="38" height="58.6" fill="#ea580c" rx="1"><title>fill bun: 1.16x</title></rect>
-<text x="329" y="185" text-anchor="middle" font-size="11" fill="#333">fill-2M</text>
-<rect x="484" y="100.3" width="38" height="69.7" fill="#16a34a" rx="1"><title>write node: 1.5x</title></rect>
-<rect x="524" y="126" width="38" height="44" fill="#ea580c" rx="1"><title>write bun: 0.83x WIN</title></rect>
-<text x="522" y="185" text-anchor="middle" font-size="11" fill="#333">write-u8</text>
-<rect x="677" y="53" width="38" height="117" fill="#16a34a" rx="1"><title>find node: 4.5x</title></rect>
-<rect x="717" y="72" width="38" height="98" fill="#ea580c" rx="1"><title>find bun: 2.9x</title></rect>
-<text x="715" y="185" text-anchor="middle" font-size="11" fill="#333">find-u32</text>
-<rect x="90" y="226" width="12" height="12" fill="#16a34a"/><text x="106" y="236" font-size="11" fill="#333">sa2js+node</text>
-<rect x="250" y="226" width="12" height="12" fill="#ea580c"/><text x="266" y="236" font-size="11" fill="#333">sa2js+bun</text>
-<text x="410" y="236" font-size="11" fill="#dc2626">红色虚线 = bun 原题水平（1.0x），柱低于线即反超</text>
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Fused peer slowdown vs bun original (log, &lt;1 = WIN)</text>
+<line x1="90" y1="179.6" x2="864" y2="179.6" stroke="#e5e7eb"/><text x="82" y="183.6" text-anchor="end" font-size="11" fill="#555">0.5</text>
+<line x1="90" y1="152.0" x2="864" y2="152.0" stroke-dasharray="5,3" stroke="#dc2626"/><text x="82" y="156.0" text-anchor="end" font-size="11" fill="#dc2626">1.0</text>
+<line x1="90" y1="124.3" x2="864" y2="124.3" stroke="#e5e7eb"/><text x="82" y="128.3" text-anchor="end" font-size="11" fill="#555">2</text>
+<line x1="90" y1="87.8" x2="864" y2="87.8" stroke="#e5e7eb"/><text x="82" y="91.8" text-anchor="end" font-size="11" fill="#555">5</text>
+<line x1="90" y1="60.2" x2="864" y2="60.2" stroke="#e5e7eb"/><text x="82" y="64.2" text-anchor="end" font-size="11" fill="#555">10</text>
+<rect x="96.0" y="188.5" width="28" height="11.5" fill="#16a34a" rx="1"><title>u32sum sa2js+node: 0.40x</title></rect>
+<rect x="126.0" y="178.8" width="28" height="21.2" fill="#ea580c" rx="1"><title>u32sum sa2js+bun: 0.51x</title></rect>
+<text x="128.0" y="215" text-anchor="middle" font-size="10" fill="#333">u32sum</text>
+<rect x="206.6" y="154.0" width="28" height="46.0" fill="#16a34a" rx="1"><title>fill-2M sa2js+node: 0.95x</title></rect>
+<rect x="236.6" y="146.1" width="28" height="53.9" fill="#ea580c" rx="1"><title>fill-2M sa2js+bun: 1.16x</title></rect>
+<text x="238.57142857142856" y="215" text-anchor="middle" font-size="10" fill="#333">fill-2M</text>
+<rect x="317.1" y="135.8" width="28" height="64.2" fill="#16a34a" rx="1"><title>write-u8 sa2js+node: 1.50x</title></rect>
+<rect x="347.1" y="159.4" width="28" height="40.6" fill="#ea580c" rx="1"><title>write-u8 sa2js+bun: 0.83x</title></rect>
+<text x="349.1428571428571" y="215" text-anchor="middle" font-size="10" fill="#333">write-u8</text>
+<rect x="427.7" y="92.0" width="28" height="108.0" fill="#16a34a" rx="1"><title>find-u32 sa2js+node: 4.50x</title></rect>
+<rect x="457.7" y="109.5" width="28" height="90.5" fill="#ea580c" rx="1"><title>find-u32 sa2js+bun: 2.90x</title></rect>
+<text x="459.7142857142857" y="215" text-anchor="middle" font-size="10" fill="#333">find-u32</text>
+<rect x="538.3" y="87.8" width="28" height="112.2" fill="#16a34a" rx="1"><title>b64-host sa2js+node: 5.00x</title></rect>
+<rect x="568.3" y="108.2" width="28" height="91.8" fill="#ea580c" rx="1"><title>b64-host sa2js+bun: 3.00x</title></rect>
+<text x="570.2857142857142" y="215" text-anchor="middle" font-size="10" fill="#333">b64-host</text>
+<rect x="648.9" y="50.0" width="28" height="150.0" fill="#16a34a" rx="1"><title>hex-host sa2js+node: 12.90x</title></rect>
+<rect x="678.9" y="99.8" width="28" height="100.2" fill="#ea580c" rx="1"><title>hex-host sa2js+bun: 3.70x</title></rect>
+<text x="680.8571428571429" y="215" text-anchor="middle" font-size="10" fill="#333">hex-host</text>
+<rect x="759.4" y="87.0" width="28" height="113.0" fill="#16a34a" rx="1"><title>esc-fused sa2js+node: 5.10x</title></rect>
+<rect x="789.4" y="93.8" width="28" height="106.2" fill="#ea580c" rx="1"><title>esc-fused sa2js+bun: 4.30x</title></rect>
+<text x="791.4285714285714" y="215" text-anchor="middle" font-size="10" fill="#333">esc-fused</text>
+<rect x="90" y="250" width="12" height="12" fill="#16a34a"/><text x="106" y="260" font-size="11" fill="#333">sa2js+node</text>
+<rect x="230" y="250" width="12" height="12" fill="#ea580c"/><text x="246" y="260" font-size="11" fill="#333">sa2js+bun</text>
+<text x="380" y="260" font-size="11" fill="#dc2626">红色虚线 = bun 原题水平（1.0x），柱低于线即反超</text>
 </svg>
 <p>附带：64 位正确性。融合开发中 rw3-batch（u64 累加 8.8e12）曾翻红，定位到发射器字面量 Number 化与
 运行时 <code>|0</code> 截断的交互——解释器是 64 位语义，Number 路径 32 位。已修复：
