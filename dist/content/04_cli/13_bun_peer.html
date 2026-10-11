@@ -268,6 +268,7 @@ SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支�
 <tr><td>fill 2MB（vs fill 93µs）</td><td>93µs</td><td>87.5µs <b>WIN 1.06x</b></td><td>108µs 1.16x</td><td>同 memset，扯平</td></tr>
 <tr><td>write-u8 4KB（vs writeUInt8 6.4µs）</td><td>6.4µs</td><td>10.8µs 1.7x</td><td>6.2µs ≈1.0x 扯平</td><td>wr－rw2 双斜率相减（两端皆每rep可观测，DSE-proof）；边界检查墙</td></tr>
 <tr><td>find-u32（vs includes 245ns）</td><td>245ns</td><td>~1.1µs 约4.5x</td><td>~0.7µs 约2.9x</td><td>对齐时走 TypedArray.indexOf 宿主 intrinsic（与 includes 同级调用），比首字节过滤版再快约三成；余量是 wrapper＋SA 开销，原生 memchr 仍是墙</td></tr>
+<tr><td>includes-fused 4KB（vs long-miss 9.45ns）</td><td>9.45ns</td><td>6.8µs 720x</td><td>4.5µs 470x</td><td>首字节过滤＋memcmp 单调用，比逐元素版好约 36x（26000x→700x）；余量是朴素逐位 vs SIMD memchr</td></tr>
 <tr><td>base64-host 64KB（vs 1MB 250µs）</td><td>0.24ns/B</td><td>1.2ns/B 5x</td><td>0.73ns/B 3x</td><td>走 host Buffer，比纯 SA 查表版好 150x；4KB→64KB 从 7.1x/5.4x 收敛到 5x/3x，余量是链税</td></tr>
 <tr><td>hex-host 64KB（vs 18.4µs，同尺寸）</td><td>0.28ns/B</td><td>3.6ns/B 12.9x</td><td>1.0ns/B 3.7x</td><td>4KB→16KB→64KB三档测 flatline：链税是 throughput（TextDecoder＋parse＋拷出三遍）非固定成本；再压需单遍融合解码（立项）。比纯 SA 版好 50~140x</td></tr>
 <tr><td>escape-fused 4KB（vs 57KB 69µs）</td><td>1.2ns/B</td><td>6.1ns/B 5.1x</td><td>5.1ns/B 4.3x</td><td>单调用紧凑循环，比逐元素版好 70~285x（1455x→5.1x）；无 host intrinsic，余量是分支标量 vs SIMD</td></tr>
