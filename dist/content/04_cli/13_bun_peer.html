@@ -56,7 +56,28 @@ bun 下 <code>BigInt64Array</code>（41~47ns）远慢于 <code>DataView.getBigIn
 <code>__sa_use_dv64</code> 开关（bun 走 DataView，node 保持类型数组），i64 循环 bun 5274→4088ms。</li>
 </ul>
 
-<h2>4. 口径与下一步</h2>
+<h2>4. buffer-fill 对等（256KB 填充＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（fill＋verify 单遍，含冷启动）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>108ms</td><td>FILL OK</td></tr>
+<tr><td>sa2js+bun</td><td>96ms</td><td>FILL OK</td></tr>
+</table>
+<p>bun 原题参照：fill 16KB ≈ 335ns（0.02ns/B），fill 2MB ≈ 93µs（0.044ns/B，单次 memset）。
+SA 版每字节约 7 个 helper 调用（ptr_add＋store＋slot 存取＋比较），差距约 3 个数量级——bulk 内存操作的下个优化点是
+slot→局部变量提升（循环计数器不经内存槽），与字面量修复正交。</p>
+
+<h2>5. buffer-slice 对等（64KB 真拷贝＋校验）＋ DCE 实锤</h2>
+<table>
+<tr><th>组合</th><th>耗时（fill＋copy＋verify 单遍）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>112ms</td><td>SLICE OK</td></tr>
+<tr><td>sa2js+bun</td><td>65ms</td><td>SLICE OK</td></tr>
+</table>
+<p>bun 原题 slice(1M) 显示 61ns——1MB 拷贝不可能 61ns 完成，<b>证实为死码消除</b>（结果被丢弃，拷贝被整个优化掉；
+64B/1KB/1M 全是同一 55~75ns 调用开销）。因此 bun slice 数字只能作调用开销参照，不能作拷贝带宽参照。
+SA 版做的是带校验的真拷贝（65~112ms/64KB）。按内存带宽估算引擎真拷贝 64KB 约 3~10µs，SA 差距约 4 个数量级，
+与 §4 同一优化方向（逐元素 helper 调用 → 批量内存语义）。</p>
+
+<h2>6. 口径与下一步</h2>
 <ul>
 <li>本页全部 SA 侧数字出自 SA 源码编译产物；DCE 声明：mitata 单表达式 bench 有死码消除嫌疑，绝对值以带 sink 的刻度为准，相对排序一致。</li>
 <li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
