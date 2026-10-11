@@ -268,6 +268,8 @@ SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支�
 <tr><td>fill 2MB（vs fill 93µs）</td><td>93µs</td><td>87.5µs <b>WIN 1.06x</b></td><td>108µs 1.16x</td><td>同 memset，扯平</td></tr>
 <tr><td>write-u8 4KB（vs writeUInt8 6.4µs）</td><td>6.4µs</td><td>~9.9µs 1.5x</td><td>~5.2µs <b>WIN 1.2x</b></td><td>边界检查墙，bun 险胜</td></tr>
 <tr><td>find-u32（vs includes 245ns）</td><td>245ns</td><td>1.1µs 4.5x</td><td>0.72µs 2.9x</td><td>原生 memchr 墙，输但比逐元素版好 30x</td></tr>
+<tr><td>base64-host（vs 1MB 250µs）</td><td>0.24ns/B</td><td>1.7ns/B 7.1x</td><td>1.3ns/B 5.4x</td><td>走 host Buffer，比纯 SA 查表版好 105x；余量是 TextDecoder＋拷出链</td></tr>
+<tr><td>hex-host（vs 64KB 18.4µs）</td><td>0.28ns/B</td><td>4.5ns/B 16x</td><td>1.4ns/B 5x</td><td>比纯 SA 版好 52~143x；小输入已与 bun 512B 档（1.17ns/B）扯平</td></tr>
 </table>
 <svg viewBox="0 0 880 260" xmlns="http://www.w3.org/2000/svg" role="img">
 <text x="440" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Fused peer slowdown vs bun original (log, &lt;1 = WIN)</text>
