@@ -232,7 +232,7 @@ var TOC = [
       "f": "content/04_cli/11_build_js.html",
       "c": [
        {
-        "t": "六路对照基准（sa2native/sa2wasm/sa2js/手写JS）",
+        "t": "四路对照基准（sa2native/sa2wasm/sa2js）",
         "f": "content/04_cli/12_sixway.html",
         "c": []
        },

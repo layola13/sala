@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'>
-<title>六路对照基准（sa2native/sa2wasm/sa2js/手写JS）</title>
+<title>四路对照基准（sa2native/sa2wasm/sa2js）</title>
 <link rel="stylesheet" href="../../assets/help.css"><style>
 body{font-family:system-ui,'Noto Sans SC',sans-serif;max-width:960px;margin:0 auto;padding:24px;color:#111}
 table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
@@ -10,8 +10,8 @@ svg{width:100%;height:auto;background:#fff;border:1px solid #e5e7eb;border-radiu
 h2{margin-top:36px;border-bottom:2px solid #2563eb;padding-bottom:6px}
 code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
 </style></head><body>
-<div class="topic-header">命令行参考 &gt; 宿主侧命令 &gt; sa build-js &gt; 六路对照基准</div><h1>六路对照基准（同一 workload）</h1>
-<p>Workload：分配 K 个 CELL 对象（8B=Cell级 / 24B=Rc级），数组 pin 住全部存活，求和校验 <code>sum=K(K-1)/2</code>。六路：<b>sa→native / sa→wasm(node WASI) / sa→js+node / sa→js+bun / 手写JS+node / 手写JS+bun</b>。peak RSS 为子进程精确值（全新解释器 <code>peakrun</code> 取数）。JS 后端已含 P0+Slab 优化。</p>
+<div class="topic-header">命令行参考 &gt; 宿主侧命令 &gt; sa build-js &gt; 四路对照基准</div><h1>四路对照基准（同一 workload，SA-only）</h1>
+<p>Workload：分配 K 个 CELL 对象（8B=Cell级 / 24B=Rc级），数组 pin 住全部存活，求和校验 <code>sum=K(K-1)/2</code>。四路：<b>sa→native / sa→wasm(node WASI) / sa→js+node / sa→js+bun</b>，全部由同一 SA 程序编译运行，无手写 JS。peak RSS 为子进程精确值（全新解释器 <code>peakrun</code> 取数）。JS 后端已含 P0+Slab+字面量修复。</p>
 <h2>1. 运行耗时（对数轴，ms）</h2>
 <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
 <text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Wall time by target (log)</text>
@@ -22,168 +22,129 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
 <line x1="90" y1="76.0" x2="864" y2="76.0" stroke="#e5e7eb"/><text x="82" y="80.0" text-anchor="end" font-size="11" fill="#555">803</text>
 <line x1="90" y1="44.0" x2="864" y2="44.0" stroke="#e5e7eb"/><text x="82" y="48.0" text-anchor="end" font-size="11" fill="#555">2296</text>
 <text x="16" y="124.0" font-size="12" fill="#333" transform="rotate(-90 16 124.0)" text-anchor="middle">ms</text>
-<rect x="97.0" y="200.8" width="17.2" height="3.2" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=8B: 13</title></rect>
-<rect x="116.2" y="155.5" width="17.2" height="48.5" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=8B: 59</title></rect>
-<rect x="135.3" y="118.6" width="17.2" height="85.4" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=8B: 198</title></rect>
-<rect x="154.5" y="94.0" width="17.2" height="110.0" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=8B: 444</title></rect>
-<rect x="173.7" y="143.6" width="17.2" height="60.4" fill="#64748b" rx="1"><title>手写JS+node K=200K/CELL=8B: 87</title></rect>
-<rect x="192.8" y="173.5" width="17.2" height="30.5" fill="#0d9488" rx="1"><title>手写JS+bun K=200K/CELL=8B: 33</title></rect>
+<rect x="97.0" y="200.8" width="26.8" height="3.2" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=8B: 13</title></rect>
+<rect x="125.8" y="155.5" width="26.8" height="48.5" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=8B: 59</title></rect>
+<rect x="154.5" y="118.6" width="26.8" height="85.4" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=8B: 198</title></rect>
+<rect x="183.2" y="94.0" width="26.8" height="110.0" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=8B: 444</title></rect>
 <text x="154.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=200K/CELL=8B</text>
-<rect x="226.0" y="198.8" width="17.2" height="5.2" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=24B: 14</title></rect>
-<rect x="245.2" y="156.2" width="17.2" height="47.8" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=24B: 58</title></rect>
-<rect x="264.3" y="119.4" width="17.2" height="84.6" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=24B: 193</title></rect>
-<rect x="283.5" y="93.0" width="17.2" height="111.0" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=24B: 460</title></rect>
-<rect x="302.7" y="142.8" width="17.2" height="61.2" fill="#64748b" rx="1"><title>手写JS+node K=200K/CELL=24B: 90</title></rect>
-<rect x="321.8" y="173.0" width="17.2" height="31.0" fill="#0d9488" rx="1"><title>手写JS+bun K=200K/CELL=24B: 33</title></rect>
+<rect x="226.0" y="198.8" width="26.8" height="5.2" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=24B: 14</title></rect>
+<rect x="254.8" y="156.2" width="26.8" height="47.8" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=24B: 58</title></rect>
+<rect x="283.5" y="119.4" width="26.8" height="84.6" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=24B: 193</title></rect>
+<rect x="312.2" y="93.0" width="26.8" height="111.0" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=24B: 460</title></rect>
 <text x="283.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=200K/CELL=24B</text>
-<rect x="355.0" y="175.1" width="17.2" height="28.9" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=8B: 31</title></rect>
-<rect x="374.2" y="144.8" width="17.2" height="59.2" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=8B: 84</title></rect>
-<rect x="393.3" y="101.5" width="17.2" height="102.5" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=8B: 348</title></rect>
-<rect x="412.5" y="69.5" width="17.2" height="134.5" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=8B: 994</title></rect>
-<rect x="431.7" y="130.1" width="17.2" height="73.9" fill="#64748b" rx="1"><title>手写JS+node K=500K/CELL=8B: 136</title></rect>
-<rect x="450.8" y="158.0" width="17.2" height="46.0" fill="#0d9488" rx="1"><title>手写JS+bun K=500K/CELL=8B: 54</title></rect>
+<rect x="355.0" y="175.1" width="26.8" height="28.9" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=8B: 31</title></rect>
+<rect x="383.8" y="144.8" width="26.8" height="59.2" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=8B: 84</title></rect>
+<rect x="412.5" y="101.5" width="26.8" height="102.5" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=8B: 348</title></rect>
+<rect x="441.2" y="69.5" width="26.8" height="134.5" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=8B: 994</title></rect>
 <text x="412.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=500K/CELL=8B</text>
-<rect x="484.0" y="175.3" width="17.2" height="28.7" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=24B: 31</title></rect>
-<rect x="503.2" y="142.7" width="17.2" height="61.3" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=24B: 90</title></rect>
-<rect x="522.3" y="99.8" width="17.2" height="104.2" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=24B: 367</title></rect>
-<rect x="541.5" y="67.5" width="17.2" height="136.5" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=24B: 1061</title></rect>
-<rect x="560.7" y="129.5" width="17.2" height="74.5" fill="#64748b" rx="1"><title>手写JS+node K=500K/CELL=24B: 138</title></rect>
-<rect x="579.8" y="155.7" width="17.2" height="48.3" fill="#0d9488" rx="1"><title>手写JS+bun K=500K/CELL=24B: 59</title></rect>
+<rect x="484.0" y="175.3" width="26.8" height="28.7" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=24B: 31</title></rect>
+<rect x="512.8" y="142.7" width="26.8" height="61.3" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=24B: 90</title></rect>
+<rect x="541.5" y="99.8" width="26.8" height="104.2" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=24B: 367</title></rect>
+<rect x="570.2" y="67.5" width="26.8" height="136.5" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=24B: 1061</title></rect>
 <text x="541.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=500K/CELL=24B</text>
-<rect x="613.0" y="151.0" width="17.2" height="53.0" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=8B: 68</title></rect>
-<rect x="632.2" y="129.5" width="17.2" height="74.5" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=8B: 138</title></rect>
-<rect x="651.3" y="81.5" width="17.2" height="122.5" fill="#16a34a" rx="1"><title>sa→js+node K=1000K/CELL=8B: 670</title></rect>
-<rect x="670.5" y="48.3" width="17.2" height="155.7" fill="#ea580c" rx="1"><title>sa→js+bun K=1000K/CELL=8B: 1997</title></rect>
-<rect x="689.7" y="115.6" width="17.2" height="88.4" fill="#64748b" rx="1"><title>手写JS+node K=1000K/CELL=8B: 218</title></rect>
-<rect x="708.8" y="143.5" width="17.2" height="60.5" fill="#0d9488" rx="1"><title>手写JS+bun K=1000K/CELL=8B: 87</title></rect>
+<rect x="613.0" y="151.0" width="26.8" height="53.0" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=8B: 68</title></rect>
+<rect x="641.8" y="129.5" width="26.8" height="74.5" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=8B: 138</title></rect>
+<rect x="670.5" y="81.5" width="26.8" height="122.5" fill="#16a34a" rx="1"><title>sa→js+node K=1000K/CELL=8B: 670</title></rect>
+<rect x="699.2" y="48.3" width="26.8" height="155.7" fill="#ea580c" rx="1"><title>sa→js+bun K=1000K/CELL=8B: 1997</title></rect>
 <text x="670.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=1000K/CELL=8B</text>
-<rect x="742.0" y="155.0" width="17.2" height="49.0" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=24B: 60</title></rect>
-<rect x="761.2" y="125.5" width="17.2" height="78.5" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=24B: 158</title></rect>
-<rect x="818.7" y="114.7" width="17.2" height="89.3" fill="#64748b" rx="1"><title>手写JS+node K=1000K/CELL=24B: 225</title></rect>
-<rect x="837.8" y="142.1" width="17.2" height="61.9" fill="#0d9488" rx="1"><title>手写JS+bun K=1000K/CELL=24B: 92</title></rect>
+<rect x="742.0" y="155.0" width="26.8" height="49.0" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=24B: 60</title></rect>
+<rect x="770.8" y="125.5" width="26.8" height="78.5" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=24B: 158</title></rect>
 <text x="799.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=1000K/CELL=24B</text>
 <rect x="90" y="266" width="12" height="12" fill="#2563eb"/><text x="106" y="276" font-size="11" fill="#333">sa→native</text>
 <rect x="220" y="266" width="12" height="12" fill="#7c3aed"/><text x="236" y="276" font-size="11" fill="#333">sa→wasm(node)</text>
 <rect x="350" y="266" width="12" height="12" fill="#16a34a"/><text x="366" y="276" font-size="11" fill="#333">sa→js+node</text>
 <rect x="480" y="266" width="12" height="12" fill="#ea580c"/><text x="496" y="276" font-size="11" fill="#333">sa→js+bun</text>
-<rect x="610" y="266" width="12" height="12" fill="#64748b"/><text x="626" y="276" font-size="11" fill="#333">手写JS+node</text>
-<rect x="740" y="266" width="12" height="12" fill="#0d9488"/><text x="756" y="276" font-size="11" fill="#333">手写JS+bun</text>
 </svg>
 <h2>2. 峰值 RSS（MB）</h2>
 <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
 <text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Peak RSS by target</text>
 <line x1="90" y1="204.0" x2="864" y2="204.0" stroke="#e5e7eb"/><text x="82" y="208.0" text-anchor="end" font-size="11" fill="#555">0</text>
-<line x1="90" y1="172.0" x2="864" y2="172.0" stroke="#e5e7eb"/><text x="82" y="176.0" text-anchor="end" font-size="11" fill="#555">27</text>
-<line x1="90" y1="140.0" x2="864" y2="140.0" stroke="#e5e7eb"/><text x="82" y="144.0" text-anchor="end" font-size="11" fill="#555">55</text>
-<line x1="90" y1="108.0" x2="864" y2="108.0" stroke="#e5e7eb"/><text x="82" y="112.0" text-anchor="end" font-size="11" fill="#555">82</text>
-<line x1="90" y1="76.0" x2="864" y2="76.0" stroke="#e5e7eb"/><text x="82" y="80.0" text-anchor="end" font-size="11" fill="#555">110</text>
-<line x1="90" y1="44.0" x2="864" y2="44.0" stroke="#e5e7eb"/><text x="82" y="48.0" text-anchor="end" font-size="11" fill="#555">137</text>
+<line x1="90" y1="172.0" x2="864" y2="172.0" stroke="#e5e7eb"/><text x="82" y="176.0" text-anchor="end" font-size="11" fill="#555">23</text>
+<line x1="90" y1="140.0" x2="864" y2="140.0" stroke="#e5e7eb"/><text x="82" y="144.0" text-anchor="end" font-size="11" fill="#555">45</text>
+<line x1="90" y1="108.0" x2="864" y2="108.0" stroke="#e5e7eb"/><text x="82" y="112.0" text-anchor="end" font-size="11" fill="#555">68</text>
+<line x1="90" y1="76.0" x2="864" y2="76.0" stroke="#e5e7eb"/><text x="82" y="80.0" text-anchor="end" font-size="11" fill="#555">91</text>
+<line x1="90" y1="44.0" x2="864" y2="44.0" stroke="#e5e7eb"/><text x="82" y="48.0" text-anchor="end" font-size="11" fill="#555">113</text>
 <text x="16" y="124.0" font-size="12" fill="#333" transform="rotate(-90 16 124.0)" text-anchor="middle">MB</text>
-<rect x="97.0" y="190.5" width="17.2" height="13.5" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=8B: 12</title></rect>
-<rect x="116.2" y="145.4" width="17.2" height="58.6" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=8B: 50</title></rect>
-<rect x="135.3" y="141.3" width="17.2" height="62.7" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=8B: 54</title></rect>
-<rect x="154.5" y="119.0" width="17.2" height="85.0" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=8B: 73</title></rect>
-<rect x="173.7" y="130.5" width="17.2" height="73.5" fill="#64748b" rx="1"><title>手写JS+node K=200K/CELL=8B: 63</title></rect>
-<rect x="192.8" y="163.3" width="17.2" height="40.7" fill="#0d9488" rx="1"><title>手写JS+bun K=200K/CELL=8B: 35</title></rect>
+<rect x="97.0" y="187.6" width="26.8" height="16.4" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=8B: 12</title></rect>
+<rect x="125.8" y="133.1" width="26.8" height="70.9" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=8B: 50</title></rect>
+<rect x="154.5" y="128.1" width="26.8" height="75.9" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=8B: 54</title></rect>
+<rect x="183.2" y="101.1" width="26.8" height="102.9" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=8B: 73</title></rect>
 <text x="154.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=200K/CELL=8B</text>
-<rect x="226.0" y="190.5" width="17.2" height="13.5" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=24B: 12</title></rect>
-<rect x="245.2" y="141.8" width="17.2" height="62.2" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=24B: 53</title></rect>
-<rect x="264.3" y="133.9" width="17.2" height="70.1" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=24B: 60</title></rect>
-<rect x="283.5" y="115.3" width="17.2" height="88.7" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=24B: 76</title></rect>
-<rect x="302.7" y="129.5" width="17.2" height="74.5" fill="#64748b" rx="1"><title>手写JS+node K=200K/CELL=24B: 64</title></rect>
-<rect x="321.8" y="163.0" width="17.2" height="41.0" fill="#0d9488" rx="1"><title>手写JS+bun K=200K/CELL=24B: 35</title></rect>
+<rect x="226.0" y="187.6" width="26.8" height="16.4" fill="#2563eb" rx="1"><title>sa→native K=200K/CELL=24B: 12</title></rect>
+<rect x="254.8" y="128.7" width="26.8" height="75.3" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=200K/CELL=24B: 53</title></rect>
+<rect x="283.5" y="119.1" width="26.8" height="84.9" fill="#16a34a" rx="1"><title>sa→js+node K=200K/CELL=24B: 60</title></rect>
+<rect x="312.2" y="96.6" width="26.8" height="107.4" fill="#ea580c" rx="1"><title>sa→js+bun K=200K/CELL=24B: 76</title></rect>
 <text x="283.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=200K/CELL=24B</text>
-<rect x="355.0" y="179.7" width="17.2" height="24.3" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=8B: 21</title></rect>
-<rect x="374.2" y="137.1" width="17.2" height="66.9" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=8B: 57</title></rect>
-<rect x="393.3" y="131.6" width="17.2" height="72.4" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=8B: 62</title></rect>
-<rect x="412.5" y="95.6" width="17.2" height="108.4" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=8B: 93</title></rect>
-<rect x="431.7" y="106.0" width="17.2" height="98.0" fill="#64748b" rx="1"><title>手写JS+node K=500K/CELL=8B: 84</title></rect>
-<rect x="450.8" y="147.3" width="17.2" height="56.7" fill="#0d9488" rx="1"><title>手写JS+bun K=500K/CELL=8B: 49</title></rect>
+<rect x="355.0" y="174.6" width="26.8" height="29.4" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=8B: 21</title></rect>
+<rect x="383.8" y="123.0" width="26.8" height="81.0" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=8B: 57</title></rect>
+<rect x="412.5" y="116.4" width="26.8" height="87.6" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=8B: 62</title></rect>
+<rect x="441.2" y="72.7" width="26.8" height="131.3" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=8B: 93</title></rect>
 <text x="412.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=500K/CELL=8B</text>
-<rect x="484.0" y="179.7" width="17.2" height="24.3" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=24B: 21</title></rect>
-<rect x="503.2" y="128.4" width="17.2" height="75.6" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=24B: 65</title></rect>
-<rect x="522.3" y="116.0" width="17.2" height="88.0" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=24B: 75</title></rect>
-<rect x="541.5" y="86.0" width="17.2" height="118.0" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=24B: 101</title></rect>
-<rect x="560.7" y="106.0" width="17.2" height="98.0" fill="#64748b" rx="1"><title>手写JS+node K=500K/CELL=24B: 84</title></rect>
-<rect x="579.8" y="147.4" width="17.2" height="56.6" fill="#0d9488" rx="1"><title>手写JS+bun K=500K/CELL=24B: 48</title></rect>
+<rect x="484.0" y="174.6" width="26.8" height="29.4" fill="#2563eb" rx="1"><title>sa→native K=500K/CELL=24B: 21</title></rect>
+<rect x="512.8" y="112.4" width="26.8" height="91.6" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=500K/CELL=24B: 65</title></rect>
+<rect x="541.5" y="97.5" width="26.8" height="106.5" fill="#16a34a" rx="1"><title>sa→js+node K=500K/CELL=24B: 75</title></rect>
+<rect x="570.2" y="61.1" width="26.8" height="142.9" fill="#ea580c" rx="1"><title>sa→js+bun K=500K/CELL=24B: 101</title></rect>
 <text x="541.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=500K/CELL=24B</text>
-<rect x="613.0" y="157.8" width="17.2" height="46.2" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=8B: 40</title></rect>
-<rect x="632.2" y="124.2" width="17.2" height="79.8" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=8B: 68</title></rect>
-<rect x="651.3" y="119.0" width="17.2" height="85.0" fill="#16a34a" rx="1"><title>sa→js+node K=1000K/CELL=8B: 73</title></rect>
-<rect x="670.5" y="87.5" width="17.2" height="116.5" fill="#ea580c" rx="1"><title>sa→js+bun K=1000K/CELL=8B: 100</title></rect>
-<rect x="689.7" y="61.1" width="17.2" height="142.9" fill="#64748b" rx="1"><title>手写JS+node K=1000K/CELL=8B: 122</title></rect>
-<rect x="708.8" y="121.3" width="17.2" height="82.7" fill="#0d9488" rx="1"><title>手写JS+bun K=1000K/CELL=8B: 71</title></rect>
+<rect x="613.0" y="148.0" width="26.8" height="56.0" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=8B: 40</title></rect>
+<rect x="641.8" y="107.3" width="26.8" height="96.7" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=8B: 68</title></rect>
+<rect x="670.5" y="101.1" width="26.8" height="102.9" fill="#16a34a" rx="1"><title>sa→js+node K=1000K/CELL=8B: 73</title></rect>
+<rect x="699.2" y="63.0" width="26.8" height="141.0" fill="#ea580c" rx="1"><title>sa→js+bun K=1000K/CELL=8B: 100</title></rect>
 <text x="670.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=1000K/CELL=8B</text>
-<rect x="742.0" y="157.8" width="17.2" height="46.2" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=24B: 40</title></rect>
-<rect x="761.2" y="106.9" width="17.2" height="97.1" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=24B: 83</title></rect>
-<rect x="818.7" y="61.3" width="17.2" height="142.7" fill="#64748b" rx="1"><title>手写JS+node K=1000K/CELL=24B: 122</title></rect>
-<rect x="837.8" y="122.1" width="17.2" height="81.9" fill="#0d9488" rx="1"><title>手写JS+bun K=1000K/CELL=24B: 70</title></rect>
+<rect x="742.0" y="148.0" width="26.8" height="56.0" fill="#2563eb" rx="1"><title>sa→native K=1000K/CELL=24B: 40</title></rect>
+<rect x="770.8" y="86.4" width="26.8" height="117.6" fill="#7c3aed" rx="1"><title>sa→wasm(node) K=1000K/CELL=24B: 83</title></rect>
 <text x="799.5" y="230" text-anchor="middle" font-size="11" fill="#333">K=1000K/CELL=24B</text>
 <rect x="90" y="266" width="12" height="12" fill="#2563eb"/><text x="106" y="276" font-size="11" fill="#333">sa→native</text>
 <rect x="220" y="266" width="12" height="12" fill="#7c3aed"/><text x="236" y="276" font-size="11" fill="#333">sa→wasm(node)</text>
 <rect x="350" y="266" width="12" height="12" fill="#16a34a"/><text x="366" y="276" font-size="11" fill="#333">sa→js+node</text>
 <rect x="480" y="266" width="12" height="12" fill="#ea580c"/><text x="496" y="276" font-size="11" fill="#333">sa→js+bun</text>
-<rect x="610" y="266" width="12" height="12" fill="#64748b"/><text x="626" y="276" font-size="11" fill="#333">手写JS+node</text>
-<rect x="740" y="266" width="12" height="12" fill="#0d9488"/><text x="756" y="276" font-size="11" fill="#333">手写JS+bun</text>
 </svg>
 <h3>K=200K/CELL=8B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
 <tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>13.3</td><td>11.6</td></tr>
 <tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>58.9</td><td>50.2</td></tr>
 <tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>197.7</td><td>53.7</td></tr>
 <tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>443.8</td><td>72.8</td></tr>
-<tr><td>手写JS+node</td><td><span class='ok'>通过</span></td><td>87.1</td><td>63.0</td></tr>
-<tr><td>手写JS+bun</td><td><span class='ok'>通过</span></td><td>32.6</td><td>34.9</td></tr>
 </tbody></table>
 <h3>K=200K/CELL=24B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
 <tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>14.2</td><td>11.6</td></tr>
 <tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>57.6</td><td>53.3</td></tr>
 <tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>193.1</td><td>60.1</td></tr>
 <tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>459.8</td><td>76.0</td></tr>
-<tr><td>手写JS+node</td><td><span class='ok'>通过</span></td><td>89.5</td><td>63.8</td></tr>
-<tr><td>手写JS+bun</td><td><span class='ok'>通过</span></td><td>33.1</td><td>35.1</td></tr>
 </tbody></table>
 <h3>K=500K/CELL=8B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
 <tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>30.9</td><td>20.8</td></tr>
 <tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>83.8</td><td>57.3</td></tr>
 <tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>347.6</td><td>62.0</td></tr>
 <tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>993.9</td><td>92.9</td></tr>
-<tr><td>手写JS+node</td><td><span class='ok'>通过</span></td><td>135.6</td><td>84.0</td></tr>
-<tr><td>手写JS+bun</td><td><span class='ok'>通过</span></td><td>54.3</td><td>48.6</td></tr>
 </tbody></table>
 <h3>K=500K/CELL=24B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
 <tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>30.7</td><td>20.8</td></tr>
 <tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>89.6</td><td>64.8</td></tr>
 <tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>367.3</td><td>75.4</td></tr>
 <tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>1060.7</td><td>101.1</td></tr>
-<tr><td>手写JS+node</td><td><span class='ok'>通过</span></td><td>138.2</td><td>84.0</td></tr>
-<tr><td>手写JS+bun</td><td><span class='ok'>通过</span></td><td>58.6</td><td>48.5</td></tr>
 </tbody></table>
 <h3>K=1000K/CELL=8B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
 <tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>68.2</td><td>39.6</td></tr>
 <tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>138.3</td><td>68.4</td></tr>
 <tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>669.5</td><td>72.8</td></tr>
 <tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>1996.9</td><td>99.8</td></tr>
-<tr><td>手写JS+node</td><td><span class='ok'>通过</span></td><td>218.4</td><td>122.4</td></tr>
-<tr><td>手写JS+bun</td><td><span class='ok'>通过</span></td><td>87.4</td><td>70.9</td></tr>
 </tbody></table>
 <h3>K=1000K/CELL=24B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
 <tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>59.8</td><td>39.6</td></tr>
 <tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>158.0</td><td>83.2</td></tr>
 <tr><td>sa→js+node</td><td><span class='fail'>失败 rc=1</span></td><td>177.8</td><td>71.0</td></tr>
 <tr><td>sa→js+bun</td><td><span class='fail'>失败 rc=1</span></td><td>374.8</td><td>85.2</td></tr>
-<tr><td>手写JS+node</td><td><span class='ok'>通过</span></td><td>225.2</td><td>122.3</td></tr>
-<tr><td>手写JS+bun</td><td><span class='ok'>通过</span></td><td>91.6</td><td>70.2</td></tr>
 </tbody></table>
 <h2>3. 容量极限（本机48G可用）</h2><table><thead><tr><th>目标</th><th>线性内存</th><th>8B对象上限</th><th>24B对象上限</th><th>备注</th></tr></thead><tbody>
 <tr><td>sa→js（node/bun同）</td><td>16MB固定ArrayBuffer</td><td>~1M（520K×24B通过；1M×24B=32MB OOM）</td><td>~520K（524288×32B≈16MB理论值）</td><td>Slab后8B对象 16B→8B，容量翻倍</td></tr>
 <tr><td>sa→wasm（node WASI）</td><td>6页起可增长（无max）</td><td>≥1M（151ms通过）</td><td>1M通过；1.5M/2M node侧崩溃（SIGSEGV/SIGTRAP，待跟进）</td><td>增长上限在host侧</td></tr>
 <tr><td>sa→native</td><td>host RAM</td><td>50M×8B=800MB存活 5.0s / RSS 1.9GB</td><td>—</td><td>malloc开销约2.4x</td></tr>
-<tr><td>手写JS</td><td>V8/GC堆</td><td>1M对象 node 224ms/122MB；bun 86ms/71MB</td><td>同左</td><td>SA发射JS约为手写2~5x</td></tr>
 </tbody></table>
 <h2>4. 核心结论</h2><ul>
-<li><b>正确性</b>：同一SA程序六路输出一致（MEM OK），24B×1M仅JS因16MB硬顶OOM，符合设计。</li>
-<li><b>速度</b>：native最快；wasm/node约2~3x native；sa→js+node约7~10x；sa→js+bun在BigInt循环上最慢（bun的BigInt op比node慢6~7x，见microbench）；<b>手写JS在bun上最快</b>（200K仅36ms），说明SA发射的JS还有2~5x可追。</li>
+<li><b>正确性</b>：同一SA程序四路输出一致（MEM OK），24B×1M仅JS因16MB硬顶OOM，符合设计。</li>
+<li><b>速度</b>：native最快；wasm/node约2~3x native；sa→js+node约7~10x；sa→js+bun在BigInt循环上最慢
+（同 workload 下 u64 累加是 u32 的 19.2x，见 peer 页 §3；bun 的 BigInt op 显著慢于 node）。字面量修复后 u32 循环 bun 已进 4.1x native。</li>
 <li><b>内存</b>：RSS主要被运行时启动基线主导（node ~50MB起，bun ~35MB起）；native单位字节最省。</li>
-<li><b>下一步</b>：用 bun官方mitata（bench/snippets）对标sa2js的load路径 + <code>bun --heapStats</code>测流式RSS，做第二轮报告。</li>
-</ul><p style='color:#666;font-size:12px'>生成时间：2026-10-11 · 数据：/tmp/bench3/sixway_result.json · 方法：/tmp/bench3/sixway.py + peakrun.py</p>
+<li><b>口径声明</b>：本页所有 JS 数字均出自 SA 源码编译产物；历史版本中的手写 JS 对照系列已按“只写 SA、禁止手写 mjs”口径移除。</li>
+<li><b>下一步</b>：bun官方bench对等测试见 peer 页；bulk内存操作的 slot→局部变量提升是下个优化点。</li>
+</ul><p style='color:#666;font-size:12px'>生成时间：2026-10-11 · 数据：/tmp/bench3/sixway_result.json（仅 SA 四路） · 方法：/tmp/bench3/sixway.py + peakrun.py + report.py</p>
 </body></html>

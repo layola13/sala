@@ -49,11 +49,10 @@ u32 寄存器 × BigInt 字面量 = 每次迭代全走混合慢路径＋转制�
 超范围才发 BigInt。运行时 helper 按 <code>typeof</code> 分派，任一操作数为 BigInt 即走 64 位路径，语义不变；
 全 32 位表达式则保持 Number 单态、可内联。u32 循环 node 3.1x / bun 9.7x，u64 求和无回归。
 u64 累加 peer 在 node 微升（2590→3091ms）是字面量 Number→BigInt 转换税，属预期内小代价。</li>
-<li>引擎探测（纯 V8/JSC 行为刻度，非 benchmark 主体）：同 workload 的 Number 域形态约 <b>1~3ns/B</b>。
-即修掉字面量定型后，同类循环可进 2~4x（相对 bun 原题 0.77ns/B）。这是 2x 路线的主入口。</li>
-<li>mitata load 小表（sa2js helper vs raw）：32 位读写 helper 只比 raw 贵 1~3ns（双运行时一致）；
-bun 下 <code>BigInt64Array</code>（41~47ns）远慢于 <code>DataView.getBigInt64</code>（13ns）——发射器已据此加
-<code>__sa_use_dv64</code> 开关（bun 走 DataView，node 保持类型数组），i64 循环 bun 5274→4088ms。</li>
+<li>SA 口径的域代价（同一 SA workload，只换累加域）：bun 下 u64 累加 11303ms vs u32 累加 589ms（<b>19.2x</b>）；
+按每触点约 8 个 helper 调用折算，bun 下 Number 域单调用约 3~4ns。2x 路线的主入口是继续消减每元素调用数。</li>
+<li>bun 的 BigInt 慢是 SA 实测结论（非手写微测）：i64 求和 bun 5274ms vs node 505ms（10.4x）；
+发射器据此加 <code>__sa_use_dv64</code> 开关（bun 走 DataView，node 保持类型数组），SA 的 i64 循环 bun 5274→4088ms。</li>
 </ul>
 
 <h2>4. buffer-fill 对等（256KB 填充＋校验）</h2>

@@ -151,12 +151,12 @@
     },
     {
       "id": "cli-sixway-bench",
-      "title": "六路对照基准（sa2native/sa2wasm/sa2js/手写JS）",
+      "title": "四路对照基准（sa2native/sa2wasm/sa2js）",
       "file": "12_sixway.html",
       "keywords": [
         "基准",
         "benchmark",
-        "六路对照",
+        "四路对照",
         "sa2native",
         "sa2wasm",
         "sa2js",
