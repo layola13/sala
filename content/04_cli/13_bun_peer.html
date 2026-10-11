@@ -76,7 +76,18 @@ slot→局部变量提升（循环计数器不经内存槽），与字面量修�
 SA 版做的是带校验的真拷贝（65~112ms/64KB）。按内存带宽估算引擎真拷贝 64KB 约 3~10µs，SA 差距约 4 个数量级，
 与 §4 同一优化方向（逐元素 helper 调用 → 批量内存语义）。</p>
 
-<h2>6. 口径与下一步</h2>
+<h2>6. array-indexOf 对等（1024 u32 线性查找 ×10000 ＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（2500轮×4 needle×1024全扫描）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>466ms（45ns/元素）</td><td>FIND OK</td></tr>
+<tr><td>sa2js+bun</td><td>439ms（43ns/元素）</td><td>FIND OK</td></tr>
+</table>
+<p>bun 原题参照：<code>includes (1024 ints)</code> 245ns/次（needle 轮转防 hoist，平均深度约 890，折合约 0.3ns/元素）；
+<code>indexOf (1024 ints)</code> 显示 3.31ns——单次 1024 搜索不可能 3ns，属 DCE，不可作参照（slice 同类问题再现）。
+SA 版是全扫描＋分支记录（与 indexOf 提前退出略有差异，已注明），分支密集的整数代码 node/bun 打平。
+差距约 150x，仍是每元素 helper 调用数问题（本循环约 10 个/元素）。</p>
+
+<h2>7. 口径与下一步</h2>
 <ul>
 <li>本页全部 SA 侧数字出自 SA 源码编译产物；DCE 声明：mitata 单表达式 bench 有死码消除嫌疑，绝对值以带 sink 的刻度为准，相对排序一致。</li>
 <li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
