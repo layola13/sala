@@ -364,6 +364,14 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="宿主侧 sa build-exe / sa test 概览">
 <param name="Local" value="../dist/content/04_cli/09_host_commands.html">
 </OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="宿主侧 sa build-js（JS 编译目标）">
+<param name="Local" value="../dist/content/04_cli/11_build_js.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

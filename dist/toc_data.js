@@ -226,7 +226,13 @@ var TOC = [
    {
     "t": "宿主侧 sa build-exe / sa test 概览",
     "f": "content/04_cli/09_host_commands.html",
-    "c": []
+    "c": [
+     {
+      "t": "宿主侧 sa build-js（JS 编译目标）",
+      "f": "content/04_cli/11_build_js.html",
+      "c": []
+     }
+    ]
    },
    {
     "t": "环境变量",

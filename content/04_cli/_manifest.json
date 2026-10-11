@@ -132,6 +132,22 @@
         "SLA_PROFILE"
       ],
       "parent": null
+    },
+    {
+      "id": "cli-build-js",
+      "title": "宿主侧 sa build-js（JS 编译目标）",
+      "file": "11_build_js.html",
+      "keywords": [
+        "build-js",
+        "JS目标",
+        "ESM",
+        "CJS",
+        "npm_bind",
+        "node",
+        "bun",
+        "宿主"
+      ],
+      "parent": "cli-host-commands"
     }
   ]
 }
