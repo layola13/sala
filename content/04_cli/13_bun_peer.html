@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>bun官方bench对等测试（buffer-read-write）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:right}
+th{background:#f3f4f6}td:first-child,th:first-child{text-align:left}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; 宿主侧命令 &gt; sa build-js &gt; bun官方bench对等测试</div>
+<h1>bun 官方 bench 对等测试（buffer-read-write）</h1>
+
+<p>对标方法：bun 原题 <code>bench/snippets/buffer-read-write.mjs</code> <b>零改动</b>运行（mitata 数字为外部参照）；
+SA 对等程序只用 SA 写（FILL 4096 字节模式 <code>(i*37+11)&amp;0xff</code>＋5000 次全扫描求和校验，
+校验值 522240），<code>sa build-js</code> 编译后在 node / bun 双跑。所有被测 JS 产物均为 SA 生成，无手写 mjs。</p>
+
+<h2>1. bun 原题数字（本机实测，bun 1.4.3，mitata）</h2>
+<table>
+<tr><th>bench</th><th>avg</th></tr>
+<tr><td>readUInt8（4096B 全扫）</td><td>3159ns（≈0.77ns/B）</td></tr>
+<tr><td>readInt8（4096B 全扫）</td><td>3333ns</td></tr>
+<tr><td>readInt32LE（1024次）</td><td>3286ns</td></tr>
+<tr><td>readBigInt64LE</td><td>14669ns</td></tr>
+<tr><td>writeUInt8</td><td>6395ns</td></tr>
+</table>
+
+<h2>2. SA 对等程序数字（20.5M 字节扫描＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时</th><th>折合每字节</th><th>结果</th></tr>
+<tr><td>sa2js+node（u64 累加）</td><td>2590ms</td><td>128ns/B</td><td>PEER OK</td></tr>
+<tr><td>sa2js+bun（u64 累加）</td><td>11361ms</td><td>554ns/B</td><td>PEER OK</td></tr>
+<tr><td>sa2js+node（u32 槽版）</td><td>3108ms</td><td>152ns/B</td><td>PEER32 OK</td></tr>
+<tr><td>sa2js+bun（u32 槽版）</td><td>5242ms</td><td>256ns/B</td><td>PEER32 OK（bun 下 BigInt 换 Number 直接减半）</td></tr>
+</table>
+
+<h2>3. 核心发现：无类型整数字面量域污染（已实证）</h2>
+<ul>
+<li>u32 槽版在 node 反而比 u64 版慢（3108ms vs 2590ms）。profiler 显示 u32 版 <code>__sa_BU</code> 占 18.8%、<code>__sa_add</code> 17.8%（全是 BigInt 路径）。</li>
+<li>查生成代码：<code>r3 = __sa_ult(r2, 4096n)</code>——SA 里无类型字面量 <code>4096/1/37/522240</code> 一律按 u64（BigInt）发射，
+u32 寄存器 × BigInt 字面量 = 每次迭代全走混合慢路径＋转制（megamorphic，不可内联）。u64 版反而因全 BigInt 单态更快。</li>
+<li>引擎探测（纯 V8/JSC 行为刻度，非 benchmark 主体）：同 workload 的 Number 域形态约 <b>1~3ns/B</b>。
+即修掉字面量定型后，同类循环可进 2~4x（相对 bun 原题 0.77ns/B）。这是 2x 路线的主入口。</li>
+<li>mitata load 小表（sa2js helper vs raw）：32 位读写 helper 只比 raw 贵 1~3ns（双运行时一致）；
+bun 下 <code>BigInt64Array</code>（41~47ns）远慢于 <code>DataView.getBigInt64</code>（13ns）——发射器已据此加
+<code>__sa_use_dv64</code> 开关（bun 走 DataView，node 保持类型数组），i64 循环 bun 5274→4088ms。</li>
+</ul>
+
+<h2>4. 口径与下一步</h2>
+<ul>
+<li>本页全部 SA 侧数字出自 SA 源码编译产物；DCE 声明：mitata 单表达式 bench 有死码消除嫌疑，绝对值以带 sink 的刻度为准，相对排序一致。</li>
+<li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
+<li>下一步 peer 清单（第一类可 peer）：buffer-fill、buffer-slice、buffer-compare、array-map、array-sort、string-includes、typed-array-sort、base64-decode、escapeHTML；内存侧 <code>bun --heapStats</code> 流式 RSS 对比随后补。</li>
+</ul>
+</body>
+</html>

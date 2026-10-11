@@ -235,6 +235,11 @@ var TOC = [
         "t": "六路对照基准（sa2native/sa2wasm/sa2js/手写JS）",
         "f": "content/04_cli/12_sixway.html",
         "c": []
+       },
+       {
+        "t": "bun官方bench对等测试（buffer-read-write）",
+        "f": "content/04_cli/13_bun_peer.html",
+        "c": []
        }
       ]
      }

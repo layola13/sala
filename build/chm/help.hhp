@@ -52,6 +52,7 @@ Default Font=微软雅黑,9,0
 ../dist/content/04_cli/10_env_vars.html
 ../dist/content/04_cli/11_build_js.html
 ../dist/content/04_cli/12_sixway.html
+../dist/content/04_cli/13_bun_peer.html
 ../dist/content/05_plugins/01_overview.html
 ../dist/content/05_plugins/02_sax.html
 ../dist/content/05_plugins/03_react.html
