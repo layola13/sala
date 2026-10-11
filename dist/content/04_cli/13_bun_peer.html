@@ -326,7 +326,7 @@ slt/sdiv 等 BigInt 路径按解释器补符号扩展、extern 大返回 BigInt�
 <tr><td>includes 500×2K</td><td>1.8ms（约1µs/search, ~100x, fast）</td><td>20.6ms（启动主导）</td><td>124ms</td><td>110ms</td><td>9.45ns/search</td></tr>
 <tr><td>base64 1.5MB</td><td>2.2ms (0.6ns/B, 2.5x, fast)</td><td>26.1ms (17ns/B, 71x)</td><td>269ms (746x)</td><td>213ms (592x)</td><td>0.24ns/B</td></tr>
 <tr><td>hex 2MB</td><td>3.1ms (0.9ns/B, 3.2x, fast)</td><td>38.7ms (19ns/B, 67x)</td><td>471ms (821x)</td><td>401ms (698x)</td><td>0.28ns/B</td></tr>
-<tr><td>escape 819KB</td><td>1.8ms (0.6ns/B, WIN 2x, fast)</td><td>28.9ms (35ns/B, 29x)</td><td>1431ms (1455x)</td><td>294ms (299x)</td><td>1.2ns/B</td></tr>
+<tr><td>escape 819KB</td><td>1.8ms (0.6ns/B, WIN 2x, fast; 64KB同缓存复测约1.5x)</td><td>28.9ms (35ns/B, 29x)</td><td>1431ms (1455x)</td><td>294ms (299x)</td><td>1.2ns/B</td></tr>
 </table>
 <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
 <text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Slowdown vs bun original by target (log)</text>
@@ -355,7 +355,7 @@ slt/sdiv 等 BigInt 路径按解释器补符号扩展、extern 大返回 BigInt�
 <rect x="630.4" y="54.0" width="32" height="146.0" fill="#16a34a" rx="1"><title>hex node: 821.0x</title></rect>
 <rect x="664.4" y="56.5" width="32" height="143.5" fill="#ea580c" rx="1"><title>hex bun: 698.0x</title></rect>
 <text x="630.4000000000001" y="215" text-anchor="middle" font-size="11" fill="#333">hex</text>
-<rect x="717.2" y="165.4" width="32" height="34.6" fill="#2563eb" rx="1"><title>escape native: 0.5x</title></rect>
+<rect x="717.2" y="161.4" width="32" height="38.6" fill="#2563eb" rx="1"><title>escape native: 0.65x</title></rect>
 <rect x="751.2" y="104.3" width="32" height="95.7" fill="#7c3aed" rx="1"><title>escape wasm: 29.0x</title></rect>
 <rect x="785.2" y="45.4" width="32" height="154.6" fill="#16a34a" rx="1"><title>escape node: 1455.0x</title></rect>
 <rect x="819.2" y="69.2" width="32" height="130.8" fill="#ea580c" rx="1"><title>escape bun: 299.0x</title></rect>
