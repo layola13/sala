@@ -256,7 +256,50 @@ SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支�
 修复后 ALU 内联进 main，剩余 4 个调用皆为语义必需（装载／比较／寻址／槽重载）。
 槽提升（acc/计数器进局部变量）仅能省约 12%，不动；2x 仍需批量内存语义或证明式全内联。</p>
 
-<h2>13. 口径与下一步</h2>
+<h2>13. 融合批量原语反超（slope 口径，启动/预热对消后）</h2>
+<p>逐元素 helper 在 bulk 操作上永远追不上原生 codec，于是发射器新增 6 个融合原语
+（<code>sa_mfill/sa_mcopy/sa_msum_u8/sa_msum_u32/sa_mwrite_u8/sa_mfind_u32</code>，
+一次宿主调用执行紧凑循环或引擎 intrinsic，与 bun 的 Buffer 底层同级；全部 SA 可调，
+零手写 mjs）。方法论：单次 wall 含 30~90ms 启动＋JIT 预热（fill0 假象、find 单次/斜率差 7x），
+一律用双点斜率（REPS 与 2×REPS 差分）报告稳态。</p>
+<table>
+<tr><th>peer（slope）</th><th>bun 原题</th><th>sa2js+node</th><th>sa2js+bun</th><th>结论</th></tr>
+<tr><td>u32sum 4KB（vs readInt32LE 3.29µs）</td><td>3.29µs</td><td>1.31µs <b>WIN 2.5x</b></td><td>1.66µs <b>WIN 2.0x</b></td><td>融合胜逐个 C++ 调用</td></tr>
+<tr><td>fill 2MB（vs fill 93µs）</td><td>93µs</td><td>87.5µs <b>WIN 1.06x</b></td><td>108µs 1.16x</td><td>同 memset，扯平</td></tr>
+<tr><td>write-u8 4KB（vs writeUInt8 6.4µs）</td><td>6.4µs</td><td>~9.9µs 1.5x</td><td>~5.2µs <b>WIN 1.2x</b></td><td>边界检查墙，bun 险胜</td></tr>
+<tr><td>find-u32（vs includes 245ns）</td><td>245ns</td><td>1.1µs 4.5x</td><td>0.72µs 2.9x</td><td>原生 memchr 墙，输但比逐元素版好 30x</td></tr>
+</table>
+<svg viewBox="0 0 880 260" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Fused peer slowdown vs bun original (log, &lt;1 = WIN)</text>
+<line x1="90" y1="170" x2="864" y2="170" stroke="#e5e7eb"/><text x="82" y="174" text-anchor="end" font-size="11" fill="#555">0.3</text>
+<line x1="90" y1="148" x2="864" y2="148" stroke="#e5e7eb"/><text x="82" y="152" text-anchor="end" font-size="11" fill="#555">0.5</text>
+<line x1="90" y1="118" x2="864" y2="118" stroke="#dc2626" stroke-dasharray="5,3"/><text x="82" y="122" text-anchor="end" font-size="11" fill="#dc2626">1.0</text>
+<line x1="90" y1="88" x2="864" y2="88" stroke="#e5e7eb"/><text x="82" y="92" text-anchor="end" font-size="11" fill="#555">2</text>
+<line x1="90" y1="48" x2="864" y2="48" stroke="#e5e7eb"/><text x="82" y="52" text-anchor="end" font-size="11" fill="#555">5</text>
+<rect x="98" y="157.5" width="38" height="12.5" fill="#16a34a" rx="1"><title>u32sum node: 0.40x WIN</title></rect>
+<rect x="138" y="147" width="38" height="23" fill="#ea580c" rx="1"><title>u32sum bun: 0.51x WIN</title></rect>
+<text x="136" y="185" text-anchor="middle" font-size="11" fill="#333">u32sum</text>
+<rect x="291" y="120" width="38" height="50" fill="#16a34a" rx="1"><title>fill node: 0.95x WIN</title></rect>
+<rect x="331" y="111.4" width="38" height="58.6" fill="#ea580c" rx="1"><title>fill bun: 1.16x</title></rect>
+<text x="329" y="185" text-anchor="middle" font-size="11" fill="#333">fill-2M</text>
+<rect x="484" y="100.3" width="38" height="69.7" fill="#16a34a" rx="1"><title>write node: 1.5x</title></rect>
+<rect x="524" y="126" width="38" height="44" fill="#ea580c" rx="1"><title>write bun: 0.83x WIN</title></rect>
+<text x="522" y="185" text-anchor="middle" font-size="11" fill="#333">write-u8</text>
+<rect x="677" y="53" width="38" height="117" fill="#16a34a" rx="1"><title>find node: 4.5x</title></rect>
+<rect x="717" y="72" width="38" height="98" fill="#ea580c" rx="1"><title>find bun: 2.9x</title></rect>
+<text x="715" y="185" text-anchor="middle" font-size="11" fill="#333">find-u32</text>
+<rect x="90" y="226" width="12" height="12" fill="#16a34a"/><text x="106" y="236" font-size="11" fill="#333">sa2js+node</text>
+<rect x="250" y="226" width="12" height="12" fill="#ea580c"/><text x="266" y="236" font-size="11" fill="#333">sa2js+bun</text>
+<text x="410" y="236" font-size="11" fill="#dc2626">红色虚线 = bun 原题水平（1.0x），柱低于线即反超</text>
+</svg>
+<p>附带：64 位正确性。融合开发中 rw3-batch（u64 累加 8.8e12）曾翻红，定位到发射器字面量 Number 化与
+运行时 <code>|0</code> 截断的交互——解释器是 64 位语义，Number 路径 32 位。已修复：
+add/sub 去截断（double 精确到 2^53）、mul/div/shift/位运算/比较动态提升（小值快路，大值 BigInt）、
+slt/sdiv 等 BigInt 路径按解释器补符号扩展、extern 大返回 BigInt。20 个 peer＋探针全绿回执。
+残余已知边界：double 精确上限 2^53（16MB 内存内实际和远小于此）。赢的代价是发射器多了约 130 行，
+全部加法式（新 shim＋helper 分支），无既有行为改动。</p>
+
+<h2>14. 口径与下一步</h2>
 <ul>
 <li>本页全部 SA 侧数字出自 SA 源码编译产物；DCE 声明：mitata 单表达式 bench 有死码消除嫌疑，绝对值以带 sink 的刻度为准，相对排序一致。</li>
 <li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
