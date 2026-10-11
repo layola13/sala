@@ -375,7 +375,7 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="六路对照基准（sa2native/sa2wasm/sa2js/手写JS）">
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="四路对照基准（sa2native/sa2wasm/sa2js）">
 <param name="Local" value="../dist/content/04_cli/12_sixway.html">
 </OBJECT>
 </UL>
