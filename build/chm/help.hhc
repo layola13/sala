@@ -371,6 +371,14 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="宿主侧 sa build-js（JS 编译目标）">
 <param name="Local" value="../dist/content/04_cli/11_build_js.html">
 </OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="六路对照基准（sa2native/sa2wasm/sa2js/手写JS）">
+<param name="Local" value="../dist/content/04_cli/12_sixway.html">
+</OBJECT>
+</UL>
 </UL>
 </UL>
 <UL>

@@ -262,6 +262,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Result"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="RFC 6455"><param name="Local" value="../dist/content/06_stdlib/20_ws_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="rosetta"><param name="Local" value="../dist/content/08_faq/05_limitations_roadmap.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="RSS"><param name="Local" value="../dist/content/04_cli/12_sixway.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="rust"><param name="Local" value="../dist/content/05_plugins/17_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA"><param name="Local" value="../dist/content/03_sa_asm/01_sa_model.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa"><param name="Local" value="../dist/content/06_stdlib/17_api_macros.html"></OBJECT>
@@ -283,6 +284,9 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa.exe"><param name="Local" value="../dist/content/01_overview/04_toolchain.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa.mod"><param name="Local" value="../dist/content/05_plugins/13_pkg.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa.vm.policy/1"><param name="Local" value="../dist/content/12_vm/05_limits.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa2js"><param name="Local" value="../dist/content/04_cli/12_sixway.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa2native"><param name="Local" value="../dist/content/04_cli/12_sixway.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa2wasm"><param name="Local" value="../dist/content/04_cli/12_sixway.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA3D_ECS"><param name="Local" value="../dist/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA_EXE"><param name="Local" value="../dist/content/04_cli/10_env_vars.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa_fs_edit_file"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
@@ -435,6 +439,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="元编程"><param name="Local" value="../dist/content/09_rust_compare/04_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="入门"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="全自动安装包"><param name="Local" value="../dist/content/01_overview/02_install_build.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="六路对照"><param name="Local" value="../dist/content/04_cli/12_sixway.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="关键字"><param name="Local" value="../dist/content/02_sla_lang/01_lexical.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="内存安全保证"><param name="Local" value="../dist/content/09_rust_compare/03_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="内置 shim"><param name="Local" value="../dist/content/12_vm/04_ffi_bridge.html"></OBJECT>
@@ -451,6 +456,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="取地址"><param name="Local" value="../dist/content/02_sla_lang/06_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="可变性阶段"><param name="Local" value="../dist/content/09_rust_compare/03_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="可执行文件"><param name="Local" value="../dist/content/04_cli/05_build_exe.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="可视化报告"><param name="Local" value="../dist/content/04_cli/12_sixway.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="命令行"><param name="Local" value="../dist/content/04_cli/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="命名约定"><param name="Local" value="../dist/content/07_ui/03_project_structure.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="回退"><param name="Local" value="../dist/content/08_faq/02_compile_failures.html"></OBJECT>
@@ -459,6 +465,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="场景"><param name="Local" value="../dist/content/05_plugins/08_3dengines.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="场景选型"><param name="Local" value="../dist/content/09_rust_compare/01_positioning.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="场景选择"><param name="Local" value="../dist/content/09_rust_compare/08_migration.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="基准"><param name="Local" value="../dist/content/04_cli/12_sixway.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="基本类型"><param name="Local" value="../dist/content/02_sla_lang/02_types.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="大数组初始化"><param name="Local" value="../dist/content/08_faq/04_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="契约"><param name="Local" value="../dist/content/06_stdlib/16_api_externs.html"></OBJECT>

@@ -148,6 +148,24 @@
         "宿主"
       ],
       "parent": "cli-host-commands"
+    },
+    {
+      "id": "cli-sixway-bench",
+      "title": "六路对照基准（sa2native/sa2wasm/sa2js/手写JS）",
+      "file": "12_sixway.html",
+      "keywords": [
+        "基准",
+        "benchmark",
+        "六路对照",
+        "sa2native",
+        "sa2wasm",
+        "sa2js",
+        "node",
+        "bun",
+        "RSS",
+        "可视化报告"
+      ],
+      "parent": "cli-build-js"
     }
   ]
 }
