@@ -136,7 +136,113 @@ SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支�
 <p>对等清单现状（8/8 第一类）：read-write、fill、slice、indexOf、base64-decode、string-includes、from-hex、escapeHTML。
 排序类（array-sort/typed-array-sort）暂缺：SA 无 O(n log n) 原语，O(n²) 循环无法在 bun 的 N 下对等，待定。</p>
 
-<h2>11. 口径与下一步</h2>
+<h2>11. 柱状图总览（对数轴）</h2>
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Slowdown factor vs reference (log)</text>
+<line x1="90" y1="210.0" x2="864" y2="210.0" stroke="#e5e7eb"/><text x="82" y="214.0" text-anchor="end" font-size="11" fill="#555">3.5</text>
+<line x1="90" y1="176.8" x2="864" y2="176.8" stroke="#e5e7eb"/><text x="82" y="180.8" text-anchor="end" font-size="11" fill="#555">21.7</text>
+<line x1="90" y1="143.6" x2="864" y2="143.6" stroke="#e5e7eb"/><text x="82" y="147.6" text-anchor="end" font-size="11" fill="#555">136</text>
+<line x1="90" y1="110.4" x2="864" y2="110.4" stroke="#e5e7eb"/><text x="82" y="114.4" text-anchor="end" font-size="11" fill="#555">846</text>
+<line x1="90" y1="77.2" x2="864" y2="77.2" stroke="#e5e7eb"/><text x="82" y="81.2" text-anchor="end" font-size="11" fill="#555">5276</text>
+<line x1="90" y1="44.0" x2="864" y2="44.0" stroke="#e5e7eb"/><text x="82" y="48.0" text-anchor="end" font-size="11" fill="#555">32910</text>
+<text x="16" y="127.0" font-size="12" fill="#333" transform="rotate(-90 16 127.0)" text-anchor="middle">x</text>
+<rect x="98.0" y="153.4" width="5.8" height="56.6" fill="#16a34a" rx="1"><title>read-write
+(vs bun) sa2js+node: 79.0x</title></rect>
+<rect x="105.8" y="167.2" width="5.8" height="42.8" fill="#ea580c" rx="1"><title>read-write
+(vs bun) sa2js+bun: 37.0x</title></rect>
+<text x="133.0" y="236" text-anchor="middle" font-size="10" fill="#333">read-write</text>
+<text x="133.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="184.0" y="66.8" width="5.8" height="143.2" fill="#16a34a" rx="1"><title>fill
+(vs bun) sa2js+node: 9364.0x</title></rect>
+<rect x="191.8" y="68.9" width="5.8" height="141.1" fill="#ea580c" rx="1"><title>fill
+(vs bun) sa2js+bun: 8318.0x</title></rect>
+<text x="219.0" y="236" text-anchor="middle" font-size="10" fill="#333">fill</text>
+<text x="219.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="270.0" y="56.0" width="5.8" height="154.0" fill="#16a34a" rx="1"><title>slice-copy
+(vs 带宽估算) sa2js+node: 17000.0x</title></rect>
+<rect x="277.8" y="65.6" width="5.8" height="144.4" fill="#ea580c" rx="1"><title>slice-copy
+(vs 带宽估算) sa2js+bun: 10000.0x</title></rect>
+<text x="305.0" y="236" text-anchor="middle" font-size="10" fill="#333">slice-copy</text>
+<text x="305.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs 带宽估算)</text>
+<rect x="356.0" y="140.5" width="5.8" height="69.5" fill="#16a34a" rx="1"><title>indexOf
+(vs bun) sa2js+node: 161.0x</title></rect>
+<rect x="363.8" y="141.3" width="5.8" height="68.7" fill="#ea580c" rx="1"><title>indexOf
+(vs bun) sa2js+bun: 154.0x</title></rect>
+<text x="391.0" y="236" text-anchor="middle" font-size="10" fill="#333">indexOf</text>
+<text x="391.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="442.0" y="113.1" width="5.8" height="96.9" fill="#16a34a" rx="1"><title>base64
+(vs bun) sa2js+node: 728.0x</title></rect>
+<rect x="449.8" y="117.4" width="5.8" height="92.6" fill="#ea580c" rx="1"><title>base64
+(vs bun) sa2js+bun: 575.0x</title></rect>
+<text x="477.0" y="236" text-anchor="middle" font-size="10" fill="#333">base64</text>
+<text x="477.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="528.0" y="110.9" width="5.8" height="99.1" fill="#16a34a" rx="1"><title>from-hex
+(vs bun) sa2js+node: 821.0x</title></rect>
+<rect x="535.8" y="113.9" width="5.8" height="96.1" fill="#ea580c" rx="1"><title>from-hex
+(vs bun) sa2js+bun: 698.0x</title></rect>
+<text x="563.0" y="236" text-anchor="middle" font-size="10" fill="#333">from-hex</text>
+<text x="563.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="614.0" y="100.6" width="5.8" height="109.4" fill="#16a34a" rx="1"><title>escapeHTML
+(vs bun) sa2js+node: 1455.0x</title></rect>
+<rect x="621.8" y="129.3" width="5.8" height="80.7" fill="#ea580c" rx="1"><title>escapeHTML
+(vs bun) sa2js+bun: 299.0x</title></rect>
+<text x="649.0" y="236" text-anchor="middle" font-size="10" fill="#333">escapeHTML</text>
+<text x="649.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="700.0" y="48.0" width="5.8" height="162.0" fill="#16a34a" rx="1"><title>includes
+(vs bun) sa2js+node: 26328.0x</title></rect>
+<rect x="707.8" y="50.4" width="5.8" height="159.6" fill="#ea580c" rx="1"><title>includes
+(vs bun) sa2js+bun: 23175.0x</title></rect>
+<text x="735.0" y="236" text-anchor="middle" font-size="10" fill="#333">includes</text>
+<text x="735.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="786.0" y="197.6" width="5.8" height="12.4" fill="#16a34a" rx="1"><title>sum32
+(vs native) sa2js+node: 6.9x</title></rect>
+<rect x="793.8" y="207.1" width="5.8" height="2.9" fill="#ea580c" rx="1"><title>sum32
+(vs native) sa2js+bun: 4.1x</title></rect>
+<text x="821.0" y="236" text-anchor="middle" font-size="10" fill="#333">sum32</text>
+<text x="821.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs native)</text>
+<rect x="90" y="290" width="12" height="12" fill="#16a34a"/><text x="106" y="300" font-size="11" fill="#333">sa2js+node</text>
+<rect x="260" y="290" width="12" height="12" fill="#ea580c"/><text x="276" y="300" font-size="11" fill="#333">sa2js+bun</text>
+</svg>
+<p>slowdown = SA耗时 / 参照耗时。slice-copy 的参照为内存带宽估算（bun原题被DCE）；sum32 的参照为 native（59.6ms），其余为 bun 原题 mitata 数字。全部 SA 侧数字出自 SA 源码编译产物。</p>
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">ns per byte by peer (log)</text>
+<line x1="90" y1="210.0" x2="864" y2="210.0" stroke="#e5e7eb"/><text x="82" y="214.0" text-anchor="end" font-size="11" fill="#555">0.037</text>
+<line x1="90" y1="176.8" x2="864" y2="176.8" stroke="#e5e7eb"/><text x="82" y="180.8" text-anchor="end" font-size="11" fill="#555">0.336</text>
+<line x1="90" y1="143.6" x2="864" y2="143.6" stroke="#e5e7eb"/><text x="82" y="147.6" text-anchor="end" font-size="11" fill="#555">3.0</text>
+<line x1="90" y1="110.4" x2="864" y2="110.4" stroke="#e5e7eb"/><text x="82" y="114.4" text-anchor="end" font-size="11" fill="#555">27.1</text>
+<line x1="90" y1="77.2" x2="864" y2="77.2" stroke="#e5e7eb"/><text x="82" y="81.2" text-anchor="end" font-size="11" fill="#555">243</text>
+<line x1="90" y1="44.0" x2="864" y2="44.0" stroke="#e5e7eb"/><text x="82" y="48.0" text-anchor="end" font-size="11" fill="#555">2182</text>
+<text x="16" y="127.0" font-size="12" fill="#333" transform="rotate(-90 16 127.0)" text-anchor="middle">ns/B</text>
+<rect x="98.0" y="164.2" width="16.8" height="45.8" fill="#2563eb" rx="1"><title>read-write bun原题: 0.770ns</title></rect>
+<rect x="116.8" y="98.1" width="16.8" height="111.9" fill="#16a34a" rx="1"><title>read-write sa2js+node: 61.100ns</title></rect>
+<rect x="135.7" y="109.5" width="16.8" height="100.5" fill="#ea580c" rx="1"><title>read-write sa2js+bun: 28.800ns</title></rect>
+<text x="154.5" y="236" text-anchor="middle" font-size="10" fill="#333">read-write</text>
+<rect x="227.0" y="207.5" width="16.8" height="2.5" fill="#2563eb" rx="1"><title>fill bun原题: 0.044ns</title></rect>
+<rect x="245.8" y="69.2" width="16.8" height="140.8" fill="#16a34a" rx="1"><title>fill sa2js+node: 412.000ns</title></rect>
+<rect x="264.7" y="71.0" width="16.8" height="139.0" fill="#ea580c" rx="1"><title>fill sa2js+bun: 366.000ns</title></rect>
+<text x="283.5" y="236" text-anchor="middle" font-size="10" fill="#333">fill</text>
+<rect x="356.0" y="195.1" width="16.8" height="14.9" fill="#2563eb" rx="1"><title>slice-copy bun原题: 0.100ns</title></rect>
+<rect x="374.8" y="47.6" width="16.8" height="162.4" fill="#16a34a" rx="1"><title>slice-copy sa2js+node: 1715.000ns</title></rect>
+<rect x="393.7" y="56.0" width="16.8" height="154.0" fill="#ea580c" rx="1"><title>slice-copy sa2js+bun: 987.000ns</title></rect>
+<text x="412.5" y="236" text-anchor="middle" font-size="10" fill="#333">slice-copy</text>
+<rect x="485.0" y="181.9" width="16.8" height="28.1" fill="#2563eb" rx="1"><title>base64-dec bun原题: 0.240ns</title></rect>
+<rect x="503.8" y="82.2" width="16.8" height="127.8" fill="#16a34a" rx="1"><title>base64-dec sa2js+node: 174.800ns</title></rect>
+<rect x="522.7" y="85.8" width="16.8" height="124.2" fill="#ea580c" rx="1"><title>base64-dec sa2js+bun: 138.000ns</title></rect>
+<text x="541.5" y="236" text-anchor="middle" font-size="10" fill="#333">base64-dec</text>
+<rect x="614.0" y="179.5" width="16.8" height="30.5" fill="#2563eb" rx="1"><title>from-hex bun原题: 0.280ns</title></rect>
+<rect x="632.8" y="78.0" width="16.8" height="132.0" fill="#16a34a" rx="1"><title>from-hex sa2js+node: 230.000ns</title></rect>
+<rect x="651.7" y="80.5" width="16.8" height="129.5" fill="#ea580c" rx="1"><title>from-hex sa2js+bun: 195.500ns</title></rect>
+<text x="670.5" y="236" text-anchor="middle" font-size="10" fill="#333">from-hex</text>
+<rect x="743.0" y="157.5" width="16.8" height="52.5" fill="#2563eb" rx="1"><title>escapeHTML bun原题: 1.200ns</title></rect>
+<rect x="761.8" y="47.4" width="16.8" height="162.6" fill="#16a34a" rx="1"><title>escapeHTML sa2js+node: 1746.000ns</title></rect>
+<rect x="780.7" y="71.3" width="16.8" height="138.7" fill="#ea580c" rx="1"><title>escapeHTML sa2js+bun: 359.000ns</title></rect>
+<text x="799.5" y="236" text-anchor="middle" font-size="10" fill="#333">escapeHTML</text>
+<rect x="90" y="290" width="12" height="12" fill="#2563eb"/><text x="106" y="300" font-size="11" fill="#333">bun原题</text>
+<rect x="260" y="290" width="12" height="12" fill="#16a34a"/><text x="276" y="300" font-size="11" fill="#333">sa2js+node</text>
+<rect x="430" y="290" width="12" height="12" fill="#ea580c"/><text x="446" y="300" font-size="11" fill="#333">sa2js+bun</text>
+</svg>
+<p>每输入字节绝对耗时。byte 系列 6 个 peer；indexOf/includes 为每元素/每次查找，单位不同，见上图倍数对比。</p>
+<h2>12. 口径与下一步</h2>
 <ul>
 <li>本页全部 SA 侧数字出自 SA 源码编译产物；DCE 声明：mitata 单表达式 bench 有死码消除嫌疑，绝对值以带 sink 的刻度为准，相对排序一致。</li>
 <li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
