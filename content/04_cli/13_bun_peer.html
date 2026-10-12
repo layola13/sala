@@ -544,5 +544,18 @@ unroll×2＋双半块共享检查（→<b>0.70ns/B，余 4.7x，总 1.43x↑</b>
 <code>peer_b64bad</code> B64B OK、<code>peer_b64n5000</code> B64N OK、
 <code>llvmc-test</code> 102/102。判断：余量为 Cranelift 翻译质量地板（手写 LLVM 经 wasm 落地约当 C++ SIMD 的 1/5 密度），
 继续压需另一量级手段，本轮锁定 0.70。</p>
+<h2>28. JS codec 快照税地板裁决（2026-10-12实测）</h2>
+<p>jev #2 攻关结论：<b>无代码改动，地板实锤</b>。peer 调用粒度已是单调用 64KB（<code>peer_hex.sa:61</code>，
+无批量空间）。对照实验（手写 <code>/tmp</code> 紧循环，64KB×2000，3 样本中位数，只定方向不作口径）：
+快照编码 <code>latin1/ascii/utf8</code> 在 node 为 0.841/0.804/0.901ns/B，
+在 bun 为 0.199/0.253/0.233——latin1 在 bun 侧最优，ascii 分化（node +4%、bun -27%）否决，
+维持统一 latin1。决定性拆分（同 harness）：bun hex 全链 0.221→去快照 0.054、
+b64 全链 0.249→去快照 0.085——<b>快照独占约 0.165ns/B，恰等于全部余量；
+去快照后 parse+write 反超 bun 原题</b>（0.11~0.15/0.149）。快照不可省：
+host <code>write/from</code> 只要 string，node/bun 无 bytes-in 解码 API；
+快照本身已是 memcpy 速度。peer 斜率本轮复测（500/5000 双点、3 样本中位数）：
+hex node 0.82、bun ~0.2~0.3（小端启动敏感抖动大），b64 node 0.21、bun ~0.29，
+与历史记录（0.72/0.22、0.21/0.25）在噪声内一致。裁决：JS host 链到结构地板，
+与 native 标量终点同 pattern，不再投入；b64/hex 的 1.5~1.7x 即该路线终点线。</p>
 </body>
 </html>
