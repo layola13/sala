@@ -480,10 +480,14 @@ Zig 单测 1 则同体，ABI 三件套同步。</p>
 <p><code>sa_mfind_u8</code> 标量首字节环改单 <code>__sa_buf.indexOf(subarray)</code>
 调用（越界命中守卫，无 Buffer 回落标量环）：node 8.5µs→1.5µs（5.6x↑，与 node 原题
 2.9µs 持平偏胜）、bun 4µs→1.5µs（2.6x↑）；
-<code>sa_mfind_u32</code> 去 <code>subarray</code> 分配（直调
-<code>tu32.indexOf(t, base)</code>＋越界守卫）。证据
-<code>peer_findj.sa(+5000)</code>/<code>peer_findjh.sa</code>（命中路径）、
-<code>peer_findu32.sa(+5000)</code>，守卫逻辑另经 node 直验。</p>
+<code>sa_mfind_u32</code> 去 <code>subarray</code> 分配一版曾实测爆炸——miss 时
+<code>indexOf</code> 扫到视窗末尾（整个 16MB 线性内存，425µs/次），已回退有界版
+（8.5s→73ms，约 100x 恢复）：<code>subarray</code> 是负载语义（定界）而非可省
+分配。教训：<code>mfind_u8</code> 桥能快全靠 SA bump 分配使 needle 常在 hay 附近
+自终止（另经 node 直验 16MB 全扫行为），正确性则全靠越界守卫，与速度无关。
+证据 <code>peer_findj.sa(+5000)</code>/<code>peer_findjh.sa</code>（命中路径）、
+<code>peer_findu32.sa(+5000)</code>、<code>peer_findr.sa</code>（rotating needles
+1000/512/1023/2048，三命中一 miss，防引擎 hoisting），守卫逻辑另经 node 直验。</p>
 <p><b>否决项</b>：<code>Bun.escapeHTML</code> 桥接经完整审计（0~255 唯一差异是单引号
 风格，已有归一方案）后实测被否——其 string-in/string-out 形态每调用分配 3 大串，
 GC 税超 SIMD 收益（bridge 342µs vs 表环 155µs 斜率）。零分配原地表环胜出；
