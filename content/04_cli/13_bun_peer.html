@@ -436,7 +436,7 @@ u32 字 trick 仍需交织，省不出余下约 35%。要进 2x 须 swizzle 查�
 <table>
 <tr><th>wasm slope ns/B</th><th>标量环</th><th>核＋simd128</th><th>bun 原题</th></tr>
 <tr><td>hex 64KB</td><td>0.76</td><td>0.17（4.5x↑，余 1.2~1.5x）</td><td>0.11~0.15</td></tr>
-<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>1.0~1.1（Cranelift 密度税，余 ~6.7x）</td><td>0.149</td></tr>
+<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>0.70（§27 节食后，余 ~4.7x；此前 1.0~1.1）</td><td>0.149</td></tr>
 </table>
 <p><code>peer_b64t</code>（B64T OK，尾过渡）/<code>peer_b64bad</code>（B64B OK，非法截停）
 覆盖向量外路径；强制标量对照抓出标量尾 sextet 偏置误用 hex 值（48/55/87→4/65/71），已修正。
@@ -528,5 +528,21 @@ b64 锁定 <b>1.13ns/B±2%</b>）。本机复验：两 peer 重新构建后均�
 <code>peer_esc.sa</code> node/bun 双端 ESC OK、<code>peer_findj.sa</code> 双端 FINDJ OK；
 wasm（node WASI）<code>peer_hexbad.sa</code> HEXB OK；
 native <code>peer_rw_u64.sa</code> PEER OK。</p>
+<h2>27. wasm b64 节食 1.00→0.70ns/B（2026-10-12实测）</h2>
+<p>jev ROI 裁决（#1）后动刀 <code>emit_sa_b64dec_simd_wasm</code>（<code>src/emit_llvm_llvmc_shim.c</code>），
+四连击（node WASI 双点斜率 <code>peer_b64n5000/peer_b64n20000</code>，278/966ms 与复测 982ms，Δ983MB）：
+v32→v16（去 legalizer 对半拆分，1.00→1.00 无效，证伪拆分主因说）→
+合并改全宽 shuffle（7 奇宽→3 全宽＋掩码拼装，→0.86）→
+select 链拍平（4-deep 嵌套→并行或树，→0.77）→
+unroll×2＋双半块共享检查（→<b>0.70ns/B，余 4.7x，总 1.43x↑</b>）。直接加法双表分类经程序验证无解
+（<code>'+'</code>/<code>'/'</code> 共高半字节，约束图冲突），未采用。</p>
+<p>附带修两处正确性（此前无覆盖）：①向量块内非法曾被跳过且留垃圾（与 native 语义分叉），
+现倒回标量重解、与 native 对齐，新 peer <code>peer_b64mid.sa</code>（32B、坏字符在 offset 5，
+期望 n==3、首量子校验和 85）wasm/native 双端 B64M OK 锁定；
+②unroll 初版把双半块 validity 按 lane 或合并（A 坏 lane 被 B 好 lane 掩盖，全过），
+改各自归一后 AND，探针当场抓住。回归：<code>peer_b64t</code> B64T OK、
+<code>peer_b64bad</code> B64B OK、<code>peer_b64n5000</code> B64N OK、
+<code>llvmc-test</code> 102/102。判断：余量为 Cranelift 翻译质量地板（手写 LLVM 经 wasm 落地约当 C++ SIMD 的 1/5 密度），
+继续压需另一量级手段，本轮锁定 0.70。</p>
 </body>
 </html>
