@@ -649,5 +649,22 @@ wasm 后端<b>不 lowering</b>（原样 call 出去，链接即炸）；专用
 <p><b>审计请求正文（三问＋翻转条件＋已闭环备案）</b>已定稿，见本轮工作记录：
 Q1 pack 是否存在更优式、Q2 2.2x 引擎差归因、Q3 快照税是否为物理极限，
 每问附现状证据与“什么结果改变 verdict”。英文 GitHub 版待用户确认后再出。</p>
+<h2>34. Bun源码抄尽复盘：三输项各有归宿（2026-10-12）</h2>
+<p>用户问“抄了源码还找不到方案吗”——答案是找全了，且找全的结果恰恰是三处“无可抄”，各有实证：</p>
+<p>①native b64：<b>已抄中</b>（simdutf AVX2，0.068 反超 2.2x，§30）。这是唯一形态对得上的。</p>
+<p>②JS hex/b64：Bun 的 Buffer 编解码（simdutf＋Highway C++）直接吃 <b>string</b>（见
+<code>encoding.rs:construct_from_*</code> 取 string 切片），单遍、无中间物；
+我们的输入住在线性内存 bytes 里，host <code>write/from</code> 只要 string，
+快照强制——<b>抄的是形态，而形态我们够不着</b>。Bun 自家 bench（from 0.163/write 0.088）
+与§28 拆分互证。floor 立。</p>
+<p>③wasm b64：simdutf 内核清单实证（arm64/fallback/generic/haswell/icelake/lasx/lsx/ppc64/rvv/westmere）
+<b>无 wasm 后端</b>；能抄的翻译表已抄完（§31，0.64），pack 的 madd 在 v128 不存在。
+余 4.3x，合并重构预期仅 ~5%。</p>
+<p>④wasm hex：Bun 侧是 <b>Google-Highway SIMD</b>（<code>bun_core::strings</code> 经
+<code>highway_decode_hex8</code>，≥16 pairs，同 truncate 语义；Highway 同 Apache-2.0）。
+但 Highway 核是 x86/ARM dispatch，不可移植到 v128；算法层 hex 的 case-fold
+（2 compares）已是最优形，无可抄。wasmtime 1.2~1.5x 维持，node 侧差距归引擎（§32）。</p>
+<p>结论：clone 覆盖 <code>src/base64、src/simdutf_sys、src/runtime/webcore</code>＋simdutf 全核清单，
+可抄的已抄尽；三输的剩余杠杆只剩专家回音（Q1~Q3）、全量矩阵（待放行）、wasm b64 合并 ~5%。</p>
 </body>
 </html>
