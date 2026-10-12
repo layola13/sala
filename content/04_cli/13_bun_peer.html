@@ -419,6 +419,12 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 <p>工具链坑：本工具链 <code>-OReleaseFast</code> 误编译负掩码 <code>@shuffle</code>
 （零定位报错 <code>Assigned value does not match type of forward declaration</code>），
 已绕行 concat 中转＋单源正掩码并在代码注记；探针复现＋修复验证。</p>
+<p><b>裁决（2026-10-13，native b64 余 1.5x 为标量视界终点）</b>：<code>/tmp</code> 纯核探针
+（无 SA 调用开销）证实 unroll×2 零收益（0.236→0.236ns/B，后端-bound）；
+反汇编已见 128 条 SIMD（pshufb/paddb/movups 类）密集，9 shuffle/port5 为结构地板；
+u32 字 trick 仍需交织，省不出余下约 35%。要进 2x 须 swizzle 查找路线
+（SSSE3 门控 C 内核＋穷举差分，<code>std.x86</code> 本工具链不存在），已单独立项，
+验收线为 bun 同日 0.14ns/B。标量侧不再投入。</p>
 
 <h2>19. wasm SIMD128 内联核（2026-10-13实测）</h2>
 <p>wasm 链只认模块内 bitcode（extern 悬空 <code>wasm-ld: undefined symbol</code>），
@@ -512,5 +518,15 @@ rotating needles（1000/512/1023/2048，三命中一 miss，防 hoisting），�
 0.91µs、node 1.87µs——<b>与 bun 持平、胜 node 2x</b>（bun 原题 mitata 1.3ns 系 DCE
 假象：4KB 扫描不可能 1.3ns；同页 includes 147ns 倒是真的）。find 项至此在全部
 诚实形状下持平或反超。</p>
+<h2>26. b64 高精度斜率锁定＋本轮确认集（2026-10-13实测）</h2>
+<p>证据 peer（native <code>--release-fast</code>，校验和全过）：
+<code>sci/demos/compare/peer_b64nbig.sa</code>（B64BIG OK，单次 4MB 解码核率约 1ns/B，
+证实调用开销非主因）/<code>peer_b64n20000.sa</code>（B64N OK，20000 点双点斜率，
+b64 锁定 <b>1.13ns/B±2%</b>）。本机复验：两 peer 重新构建后均一次通过
+（B64N OK / B64BIG OK），与提交记录一致。</p>
+<p>本轮确认集（树干净 cd910356，全部一次通过）：JS
+<code>peer_esc.sa</code> node/bun 双端 ESC OK、<code>peer_findj.sa</code> 双端 FINDJ OK；
+wasm（node WASI）<code>peer_hexbad.sa</code> HEXB OK；
+native <code>peer_rw_u64.sa</code> PEER OK。</p>
 </body>
 </html>
