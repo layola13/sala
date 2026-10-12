@@ -565,6 +565,29 @@ host <code>write/from</code> 只要 string，node/bun 无 bytes-in 解码 API；
 快照本身已是 memcpy 速度。peer 斜率本轮复测（500/5000 双点、3 样本中位数）：
 hex node 0.82、bun ~0.2~0.3（小端启动敏感抖动大），b64 node 0.21、bun ~0.29，
 与历史记录（0.72/0.22、0.21/0.25）在噪声内一致。裁决：JS host 链到结构地板，
-与 native 标量终点同 pattern，不再投入；b64/hex 的 1.5~1.7x 即该路线终点线。</p>
+与 native 标量终点同 pattern，不再投入；b64/hex 的 1.5~1.7x 即该路线终点线。
+回读校验补记：去快照写入后逐字节回读求和，node/bun 双端同值（hex 3932160、b64 1392640），
+写确执行、非 DCE；自检脚本一处比对 bug 系 b64 输出覆盖 hex 区所致，不影响结论。</p>
+<h2>29. 阶段A审计：三点回归＋hex倒回修复＋bun-WASI（2026-10-12实测）</h2>
+<p>外部审计要求先自证，结论：<b>verdict 由“待统计复核”转“已复核”，数字全部复现</b>。
+三点回归（500/5000/20000×64KB，4 轮转序、去首轮预热、余下中位数，独立进程）：
+hex node 截距 46.6ms、<b>斜率 0.684、R²=1.0000</b>；
+hex bun 截距 37.3ms、<b>0.228、R²=1.0000</b>；
+b64 node 截距 48.6ms、<b>0.194、R²=0.9993</b>；
+b64 bun 截距 43.3ms、<b>0.229、R²=0.9973</b>；
+wasm b64（node WASI）截距 29.1ms、<b>0.663、R²=1.0000</b>（节食 0.70 在严格口径下成立）。
+线性假设成立，两点斜率无系统偏。</p>
+<p>hex 倒回修复：新 peer <code>peer_hexmid.sa</code>（32B、坏字符 offset 5，期望 n==2、首两字节 0xaa）
+抓出 wasm hex 与 native 分叉——native HEXM OK，wasm 跳过留垃圾返 16。
+起因与 b64 同源（向量块无效即跳过），同法倒回标量重解后 wasm/native 双端 HEXM OK，
+<code>peer_hexbad</code>/<code>peer_hext</code> 回归全过。</p>
+<p>bun-WASI 对照：同 wasm 模块在 bun 下（<code>wasi.wasiImport</code>，
+bun 1.4.3 的 <code>node:wasi</code> 无 <code>getImportObject</code>）B64N OK，
+三点斜率 <b>0.796、R²=0.9960</b>——同模块在 JSC 下比 V8 慢约 20%，截距 50.6ms。
+跨引擎比较口径不变（仍以 node-WASI 为准），差距方向对我方不利，属诚实口径。</p>
+<p>新鲜度审计：<code>zig-out/bin/sa</code>（09:14）新于 <code>src/emit_llvm_llvmc_shim.c</code>（09:12）；
+全部测速 wasm 构建均带 <code>--no-incremental</code>；
+<code>libsa_std.a</code>（07:53）早于 shim 改动但 shim 只进 sa 主二进制、不进 libsa，无污染。
+“6 赢 5 平 4 输”仍表述为已测样本结果，不外推；全量矩阵未跑。</p>
 </body>
 </html>
