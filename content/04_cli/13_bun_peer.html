@@ -445,7 +445,7 @@ LUT 要再加 2 条 shuffle，只会加压甚至反退化；
 <table>
 <tr><th>wasm slope ns/B</th><th>标量环</th><th>核＋simd128</th><th>bun 原题</th></tr>
 <tr><td>hex 64KB</td><td>0.76</td><td>0.17（4.5x↑，余 1.2~1.5x）</td><td>0.11~0.15</td></tr>
-<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>0.70（§27 节食后，余 ~4.7x；此前 1.0~1.1）</td><td>0.149</td></tr>
+<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>0.64（§31 hashXL后，余 ~4.3x；此前 1.0）</td><td>0.149</td></tr>
 </table>
 <p><code>peer_b64t</code>（B64T OK，尾过渡）/<code>peer_b64bad</code>（B64B OK，非法截停）
 覆盖向量外路径；强制标量对照抓出标量尾 sextet 偏置误用 hex 值（48/55/87→4/65/71），已修正。
@@ -609,5 +609,20 @@ native peer <code>b64n/b64mid/b64bad/b64nbig</code> 全过、
 双点斜率（n5000/n20000）<b>0.068ns/B，对 bun 同日 0.149 反超 2.2x</b>。
 教训：《无解》结论必须注明搜索边界；“抄”只抄算法（simdutf），Bun 的 Rust 胶水与我们无关；
 JS/wasm 靶点不受影响（host 形态 / 无 madd），§27/§28 地板维持。</p>
+<h2>31. wasm b64 hashXL 1.00→0.64（2026-10-12实测，三 bug 连环）</h2>
+<p>simdutf 无 wasm 后端，但 aqrit 翻译四件套（swizzle/avgr/addsat/bitmask）在 v128 全有映射
+（<code>llc</code> 离线验证单指令 lowering 后才动手）。分类 16 ops→~9 ops，
+双点斜率（n5000/n20000，3 样本中位数）<b>0.642ns/B，余 4.3x，总 1.56x↑</b>；
+回归 <code>b64t/bad/mid/hexbad/hext/hexmid</code> 全过、<code>llvmc-test</code> 102/102。
+路上连踩三坑，记为后车之鉴：
+①定签名 intrinsic 不可用 <code>GetIntrinsicDeclaration+类型表</code>（会造出不存在的
+<code>.v16i8</code> 后缀，链接期 undefined），须空类型表拿裸名；
+②有效性须按符号位（<code>SLT 0</code>，movemask 语义），<code>!=0</code> 把干净块全判非法
+（对但慢到标量级）；
+③也是最贵的一课：<b>WASM swizzle 索引≥16 直接归零</b>（pshufb 取低 4 位），四个查表索引须先
+<code>&amp;15</code>（掩码下 64 字母精确、192 非法全检出，经程序重验）。
+另：首次全挂时误判多时，实为一批掩码编辑未落盘——现每次改完必 <code>grep</code>＋读 <code>.bc</code> 反汇编确认；
+<code>--no-incremental</code> 旁还有按函数对象缓存（<code>.sa_cache</code>），测速前必清。
+地板判断维持（Cranelift 翻译质量），合并阶段不动（无 madd）。</p>
 </body>
 </html>
