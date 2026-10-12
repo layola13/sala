@@ -607,6 +607,8 @@ Bun 的 Buffer base64 就是 <b>simdutf</b>（Apache-2.0，Bun 本体 MIT），
 证据：Zig 3 单测全过（含新 <code>avx2 block invalid rewinds</code>）、
 native peer <code>b64n/b64mid/b64bad/b64nbig</code> 全过、
 双点斜率（n5000/n20000）<b>0.068ns/B，对 bun 同日 0.149 反超 2.2x</b>。
+复测备注：有负载机器（load ~0.9）复测 0.082（约 1.8x），安静机器 0.067~0.068；
+斜率随负载抖动 ±20%，WIN 在两种负载下成立；wasm b64 同期复测 0.656（前值 0.642~0.663一致）。
 教训：《无解》结论必须注明搜索边界；“抄”只抄算法（simdutf），Bun 的 Rust 胶水与我们无关；
 JS/wasm 靶点不受影响（host 形态 / 无 madd），§27/§28 地板维持。</p>
 <h2>31. wasm b64 hashXL 1.00→0.64（2026-10-12实测，三 bug 连环）</h2>
