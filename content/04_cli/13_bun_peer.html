@@ -425,6 +425,15 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 u32 字 trick 仍需交织，省不出余下约 35%。要进 2x 须 swizzle 查找路线
 （SSSE3 门控 C 内核＋穷举差分，<code>std.x86</code> 本工具链不存在），已单独立项，
 验收线为 bun 同日 0.14ns/B。标量侧不再投入。</p>
+<p><b>追裁（2026-10-12 swizzle 项目关闭，lookup-ceiling）</b>：可行性探针三项实锤——
+①LUT 分类三式（直接加／符号翻转／异或）经程序验证全部无解，死结是
+<code>'+'</code>/<code>'/'</code> 共高半字节导致的约束环冲突；
+②反汇编热循环 15 条 <code>pshufb</code>＋5 条 <code>pcmpeqb</code>，port5 已饱和，
+LUT 要再加 2 条 shuffle，只会加压甚至反退化；
+③core 斜率 0.203 vs bun 同日 0.149，差 33%，而分类仅占循环约 25%——
+免费分类最多 1.33x，现实 LUT 至多省 ~12% 到 0.19，数学到不了验收线。
+结论：native b64 1.5x 是双重地板（标量＋查找），除非汇编级整核重写（出口径），
+否则永久锁定；探针全在 <code>/tmp</code>，零代码改动。</p>
 
 <h2>19. wasm SIMD128 内联核（2026-10-13实测）</h2>
 <p>wasm 链只认模块内 bitcode（extern 悬空 <code>wasm-ld: undefined symbol</code>），
