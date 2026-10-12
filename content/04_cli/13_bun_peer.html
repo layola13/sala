@@ -414,7 +414,7 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 <table>
 <tr><th>native slope ns/B</th><th>bun 原题（同机）</th><th>SIMD 核</th></tr>
 <tr><td>hex 64KB</td><td>0.11~0.15</td><td>0.085（反超约 1.3~1.8x）</td></tr>
-<tr><td>base64 64KB</td><td>0.149</td><td>0.22（余 1.5x）</td></tr>
+<tr><td>base64 64KB</td><td>0.149</td><td><b>0.068（WIN 2.2x，§30 swizzle 落地）</b></td></tr>
 </table>
 <p>工具链坑：本工具链 <code>-OReleaseFast</code> 误编译负掩码 <code>@shuffle</code>
 （零定位报错 <code>Assigned value does not match type of forward declaration</code>），
@@ -589,5 +589,25 @@ bun 1.4.3 的 <code>node:wasi</code> 无 <code>getImportObject</code>）B64N OK�
 全部测速 wasm 构建均带 <code>--no-incremental</code>；
 <code>libsa_std.a</code>（07:53）早于 shim 改动但 shim 只进 sa 主二进制、不进 libsa，无污染。
 “6 赢 5 平 4 输”仍表述为已测样本结果，不外推；全量矩阵未跑。</p>
+<h2>30. native b64 swizzle 落地反超 2.2x（2026-10-12实测，订正§18双地板）</h2>
+<p>§18 的“标量终点”＋“lookup-ceiling”两 verdict 在此**一并订正为范围过窄**：
+前者只覆盖标量微调，后者只证伪了 4 种 naive 查表形式——真正的 Mula/aqrit scheme
+一直存在，只是不在我搜索的函数族里。转折点来自用户建议“直接看 bun 怎么写”：
+Bun 的 Buffer base64 就是 <b>simdutf</b>（Apache-2.0，Bun 本体 MIT），
+克隆回仓后在 <code>src/haswell/avx2_base64.cpp</code> 找到真核并合法移植（署名保留）：
+饱和压缩索引＋hash 查表翻译（32B 约 9 ops）＋<code>maddubs/madd</code> 打包（3 ops），
+把工作从 port5 搬走——这正是我方 15-shuffle 结构的死穴。</p>
+<p>门控探针（<code>/tmp</code> 独立文件）：64 字母×32 lane 穷举 2048/2048 精确、
+192 非法字节全检出、斜率 <b>0.043ns/B</b>（同条件现核 0.203 的 4.7x）。
+落地 <code>src/runtime/sa_b64_swizzle.c</code>（函数级 <code>target("avx2")</code>、
+裸 <code>cpuid+xgetbv</code> 门控、零 libgcc 依赖、精确 24B 存储无越界、标量尾），
+<code>sa_b64dec_simd</code> 内 AVX2 分发、非 x86_64 桩回退；
+公共 ABI 不变（两新符号是 lib 内部实现，不进 <code>sa_std.h</code>），
+<code>runtime-abi-check --platform both</code> 全绿（595 符号）。
+证据：Zig 3 单测全过（含新 <code>avx2 block invalid rewinds</code>）、
+native peer <code>b64n/b64mid/b64bad/b64nbig</code> 全过、
+双点斜率（n5000/n20000）<b>0.068ns/B，对 bun 同日 0.149 反超 2.2x</b>。
+教训：《无解》结论必须注明搜索边界；“抄”只抄算法（simdutf），Bun 的 Rust 胶水与我们无关；
+JS/wasm 靶点不受影响（host 形态 / 无 madd），§27/§28 地板维持。</p>
 </body>
 </html>
