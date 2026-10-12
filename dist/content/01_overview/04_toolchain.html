@@ -120,12 +120,12 @@ airlock DOM extern；<code>useEffect</code> 内 <code>console</code> 调用维�
 <code>main.go</code> 只留薄分发、领域 lowering 按归属落 <code>sa_*.go</code>）；
 拒则大声，标准库只映射 <code>sci/sa_std</code> 现货。</p>
 <ul>
-<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 1976 例，
-<code>--check</code> 1976/1976 + <code>--corpus</code>（对上游 286 agree）+
-LLVM 原生运行 1976/1976 全绿。覆盖：纯计算/字符串/数组全家（含嵌套解构缺省
-OOB 现场构造）/Map/Set/类（含构造接线：嵌套链读/串与数组 <code>?.</code> 守卫读）/
-接口布局/解构全形/正则子集/Math/Date/JSON子集/顶层快照（数组/对象/模板串）/
-IIFE/标签模板等；Node/Deno/http插件面经 <code>--dev</code> 链打通。</li>
+<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 1986 例，
+<code>--check</code> 1986/1986 + <code>--corpus</code>（对上游 286 agree）+
+LLVM 原生运行 1986/1986 全绿。覆盖：纯计算/字符串/数组全家（含嵌套解构缺省
+OOB 现场构造）/Map/Set/类（含构造接线：嵌套链读/串与数组 <code>?.</code> 守卫读/
+this 读）/接口布局/解构全形/正则子集/Math/Date/JSON子集/顶层快照（数组/对象/
+模板串）/IIFE/标签模板等；Node/Deno/http插件面经 <code>--dev</code> 链打通。</li>
 <li><strong>工具链</strong>：Go 1.27（<code>/usr/local/go</code）+
 真 Zig 0.14.1（<code>/opt/zig</code>，PATH 首位，shim 版不可用）+
 <code>llvm-14-dev</code>（<code>sci</code> 以 <code>zig build -Dllvm=true</code>
@@ -135,7 +135,9 @@ demos 1938–1947）与 <code>?.</code> 守卫读接线（<code>this.n = t?.leng
 <code>this.s = t?.[0] ?? "?"</code>，复用空合核与守卫槽，demos 1948–1957）与
 数组缺省 OOB 现场构造（<code>const [x = [9]] = nn</code>，新守卫 helper，
 demos 1958–1967）与数组 <code>?.</code> 下标接线（<code>this.n = a?.[0] ?? -1</code>，
-复用可选下标守卫，demos 1968–1977，1954 旧锁删除）。
+复用可选下标守卫，demos 1968–1977，1954 旧锁删除）与接线 this 读
+（<code>this.n = this.n + k</code>，finit 门 + thisSelf 注入，
+demos 1978–1987）。
 详见 <code>tsgosa/docs/todo.md</code>。</li>
 </ul>
 
