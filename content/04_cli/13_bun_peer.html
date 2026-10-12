@@ -392,5 +392,15 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 </table>
 <p>余量 = latin1 快照一遍＋单调用开销；bun 单 intrinsic 调用即最终形态，继续压需批量调用形状
 （一次解码更大块）或 SIMD。hex 融合项自此解冻（纯标量路线仍冻结）。</p>
+
+<h2>17. escape 表驱动（2026-10-12实测）</h2>
+<p>旧链每字节 6 连分支；新链 256B 长度表 fast-path（普通字节单分支）＋1536B 序列 rare-path
+（<code>emit_js.zig sa_esc_html</code>）。逐字节输出与旧链同构，peer 长度＋首尾字节锁定。
+证据 peer：<code>sci/demos/compare/peer_esc.sa(+500)</code>，64KB/8% 转义密度，双点斜率：</p>
+<table>
+<tr><th>escape 64KB slope</th><th>旧链 node</th><th>新链 node</th><th>旧链 bun</th><th>新链 bun</th></tr>
+<tr><td>ns/B</td><td>3.09</td><td>~3.1（持平，噪声内；500 点复测反快约 10%）</td><td>2.37</td><td>1.68（1.4x↑）</td></tr>
+</table>
+<p>V8 分支预测已打平旧链（94% 直通），表加载无收益；JSC 得 1.4x。分支 codec 要继续压仍需 SIMD（见 §13/§16）。</p>
 </body>
 </html>
