@@ -112,6 +112,28 @@ airlock DOM extern；<code>useEffect</code> 内 <code>console</code> 调用维�
 上述拒绝（影子规则）。</li>
 </ul>
 
+<h2>TS 前端：tsgosa（typescript-go 薄口，2026-10 现状）</h2>
+<p><code>tsgosa</code> 是 typescript-go 的浅克隆：复用其生产级解析/绑定/检查器，
+在既有管线末端把 JS 发射替换为 SA（<code>TranspileSA</code> 单文件口 +
+<code>tsgo build</code> 程序链接口），输出 <code>.sai</code> 给 <code>sci/sa</code>
+消费。纪律：六条铁律（已有架构做、替换 JS 逻辑、零新 Go 文件、禁原创语义、
+<code>main.go</code> 只留薄分发、领域 lowering 按归属落 <code>sa_*.go</code>）；
+拒则大声，标准库只映射 <code>sci/sa_std</code> 现货。</p>
+<ul>
+<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 1947 例，
+<code>--check</code> 1947/1947 + <code>--corpus</code>（对上游 286 agree）+
+LLVM 原生运行 1947/1947 全绿。覆盖：纯计算/字符串/数组全家/Map/Set/
+类（含构造接线/继承/私有）/接口布局/解构全形/正则子集/Math/Date/JSON
+子集/顶层快照（数组/对象/模板串）/IIFE/标签模板等；Node/Deno/http
+插件面经 <code>--dev</code> 链打通。</li>
+<li><strong>工具链</strong>：Go 1.27（<code>/usr/local/go</code）+
+真 Zig 0.14.1（<code>/opt/zig</code>，PATH 首位，shim 版不可用）+
+<code>llvm-14-dev</code>（<code>sci</code> 以 <code>zig build -Dllvm=true</code>
+构建，<code>/content/sci</code> 软链供插件构建）。最新增量：构造接线嵌套链读
+（<code>this.n = oo.p.v</code>，门-only，接 <code>saChainLeafDef</code> 纯判定，
+demos 1938–1947）。详见 <code>tsgosa/docs/todo.md</code>。</li>
+</ul>
+
 <h2>Agent-first 的宿主命令</h2>
 <p><code>sci</code> 面向 Agent 设计了一组自解释命令：全局 <code>--json</code> 输出结构化诊断
 （稳定错误码如 <code>SA-REF-010</code>，附 repair 建议）、<code>compile_tokens</code> /
