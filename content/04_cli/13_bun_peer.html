@@ -451,5 +451,21 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 <p><code>peer_promo_edge.sa</code> 覆盖 u32 回绕/i8/i16/i32 负数/u16/混合跳过，
 9 peer 双端＋12 demo 三端（解释器/node/bun）差分全绿；12 demo 中仅 04_loop 触发
 （其余被保守规则正确跳过），无误伤回归。</p>
+
+<h2>21. native 子串查找桥接（2026-10-13实测）</h2>
+<p>纯 SA 标量循环 miss 形（4KB haystack＋64B needle，首字节过滤＋逐位比对）
+native 默认档 28µs/次（6.8ns/B）；新 extern <code>sa_mfind_u8</code>（Zig
+<code>std.mem.indexOf</code> 直调，miss 返 <code>hay_len</code> 哨兵以避开 u64max
+字面量上溢）同形 0.35µs/次（0.085ns/B），<b>85x↑</b>。
+证据 peer：<code>sci/demos/compare/peer_findn.sa(+5000)</code>（FIND OK，
+标量基线）/<code>peer_findm.sa(+5000/+100k)</code>（FINDM OK），
+Zig 单测 1 则同体，ABI 三件套同步。</p>
+<table>
+<tr><th>find 4KB-miss 每次</th><th>SA 标量</th><th>sa_mfind_u8</th><th>node Buffer.indexOf</th><th>bun Buffer.indexOf</th></tr>
+<tr><td>µs</td><td>28</td><td>0.35（85x↑，胜 node 约 8x）</td><td>2.9（诚实值，累加防 DCE）</td><td>0.0004（不可采信：4KB/0.4ns≈10TB/s，引擎消除了 bench）</td></tr>
+</table>
+<p>诚实声明：bun 黑盒数在该形状下不可测（引擎证明 miss 后跳过扫描），故以 libc memmem
+类（node）为可比基准，我方胜约 8x；另记 u64max 字面量致解释器 <code>Overflow</code>，
+哨兵改 one-past-end 规避。</p>
 </body>
 </html>
