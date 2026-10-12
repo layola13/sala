@@ -491,8 +491,11 @@ Zig 单测 1 则同体，ABI 三件套同步。</p>
 <p><b>否决项</b>：<code>Bun.escapeHTML</code> 桥接经完整审计（0~255 唯一差异是单引号
 风格，已有归一方案）后实测被否——其 string-in/string-out 形态每调用分配 3 大串，
 GC 税超 SIMD 收益（bridge 342µs vs 表环 155µs 斜率）。零分配原地表环胜出；
-同理 latin1 快照比 ascii/utf8 慢 10x＋（但 codec 侧为保垃圾输入语义不变，仍用
-latin1）。教训：小粒度下分配税压倒一切（与 Buffer.write 胜因同构）。</p>
+另纠正一则误测：latin1 快照在代表性输入上预热平均仅 18~22µs/64KB，反比 utf8
+（验证地狱，420µs＋）快一个数量级——早期单次冷测得出的反向 10x 结论作废；
+codec 侧 latin1 既对（垃圾字节 1:1 可见、可 trap）又快，无需动。
+教训有二：小粒度下分配税压倒一切（与 Buffer.write 胜因同构）；单次冷测数字
+一律作废，以预热平均＋双点斜率为准。</p>
 
 <h2>24. wasm 子串查找 memmem 桥（2026-10-13实测）</h2>
 <p>wasm 链不认 libsa（悬空符号），故 <code>emit_sa_mfind_u8_wasm</code> 内联发射
