@@ -624,5 +624,14 @@ JS/wasm 靶点不受影响（host 形态 / 无 madd），§27/§28 地板维持�
 另：首次全挂时误判多时，实为一批掩码编辑未落盘——现每次改完必 <code>grep</code>＋读 <code>.bc</code> 反汇编确认；
 <code>--no-incremental</code> 旁还有按函数对象缓存（<code>.sa_cache</code>），测速前必清。
 地板判断维持（Cranelift 翻译质量），合并阶段不动（无 madd）。</p>
+<h2>32. wasm hex unroll 无收益＋引擎差备注（2026-10-12实测）</h2>
+<p>hex unroll×2（照抄 b64 的双半块＋共享检查）：node-WASI 同 harness A/B，
+单 16B 基线 <b>0.438</b> vs unroll 后 <b>0.463</b>——持平偏噪，无收益，已回退，
+零代码残留（正确性探针 <code>hexmid</code> 双端仍过）。hex 循环本已小，
+省不出循环开销。</p>
+<p>附带诚实备注：wasm hex 的 0.17（§19/§22）出自 <b>wasmtime</b>，
+node-WASI（V8）下从来是 0.44——引擎差约 2.6x。对 bun 原题（原生 C++ 0.11~0.15）
+的口径仍以 wasmtime 数为准（余 1.2~1.5x）；node-WASI 侧差距（约 3~4x）另记，
+不混用。 hext/hexbad 回归全过。</p>
 </body>
 </html>
