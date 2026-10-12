@@ -467,6 +467,14 @@ Zig 单测 1 则同体，ABI 三件套同步。</p>
 <p>诚实声明：bun 黑盒数在该形状下不可测（引擎证明 miss 后跳过扫描），故以 libc memmem
 类（node）为可比基准，我方胜约 8x；另记 u64max 字面量致解释器 <code>Overflow</code>，
 哨兵改 one-past-end 规避。</p>
+
+<h2>22. wasm hex 反超（2026-10-13实测）</h2>
+<p>case-fold 分类（<code>c|0x20</code> 后单 digit＋单 alpha 测试）替代三区间菱形，
+向量/标量同构；<code>peer_hexn20000.sa</code>（20000 点，±1% 稳定）＋
+<code>peer_hext.sa</code>（尾过渡）/<code>peer_hexbad.sa</code>（非法截停）锁正确性。
+同日背靠背：我方斜率 10.03µs/64KB（0.153ns/B）对 bun mitata 10.73µs（0.164ns/B），
+<b>0.93x 反超</b>。另记方法论教训：朴素手写计时循环（无 warmup）曾测出 bun 39µs
+（4x 虚高），口径必须以 mitata 为准、同日对比。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>
