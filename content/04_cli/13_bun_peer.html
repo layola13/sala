@@ -681,7 +681,10 @@ ROI 不够，不开 V8 issue。</p>
 <p><b>Q3（快照税）关闭</b>：标准 JS 无通用 bytes→string 零拷贝；external string 需 native
 addon 且交出字节所有权、保证不可变——纯 JS/wasm 靶点够不着。附带新 peer 预告：
 <code>Uint8Array.prototype.toBase64/fromBase64</code>（TC39）在 bun 1.4.3 已存在、
-node 20 缺席——未来 bun 侧对标物，建议建新 peer 跟踪，见§34-Bun-bench 注释。</p>
+node 20 缺席——未来 bun 侧对标物，建议建新 peer 跟踪，见§34-Bun-bench 注释。
+<b>实测跟进</b>：同 harness 下 bun <code>fromBase64</code> 0.384 vs
+<code>Buffer.from</code> 0.279（回读同值 1392640，防 DCE）——新 API 当前更慢，
+参照系维持 <code>Buffer.from</code> 不变，球门未动。</p>
 <p><b>全量矩阵</b>：当前可不跑；一切结论限定已测范围（§26/§29 原话维持）。
 <b>英文版</b>：三问皆已在中文通道实质答复，无需外发，英文版不再出。</p>
 </body>
