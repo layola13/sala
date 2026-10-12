@@ -445,7 +445,7 @@ LUT 要再加 2 条 shuffle，只会加压甚至反退化；
 <table>
 <tr><th>wasm slope ns/B</th><th>标量环</th><th>核＋simd128</th><th>bun 原题</th></tr>
 <tr><td>hex 64KB</td><td>0.76</td><td>0.17（4.5x↑，余 1.2~1.5x）</td><td>0.11~0.15</td></tr>
-<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>0.64（§31 hashXL后，余 ~4.3x；此前 1.0）</td><td>0.149</td></tr>
+<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>0.40（§36 dot-pack后，余 ~2.7x；此前 1.0）</td><td>0.149</td></tr>
 </table>
 <p><code>peer_b64t</code>（B64T OK，尾过渡）/<code>peer_b64bad</code>（B64B OK，非法截停）
 覆盖向量外路径；强制标量对照抓出标量尾 sextet 偏置误用 hex 值（48/55/87→4/65/71），已修正。
@@ -689,5 +689,13 @@ node 20 缺席——未来 bun 侧对标物，建议建新 peer 跟踪，见§34
 参照系维持 <code>Buffer.from</code> 不变，球门未动。</p>
 <p><b>全量矩阵</b>：当前可不跑；一切结论限定已测范围（§26/§29 原话维持）。
 <b>英文版</b>：三问皆已在中文通道实质答复，无需外发，英文版不再出。</p>
+<h2>36. wasm b64 dot-pack 0.64→0.40（2026-10-12实测，Q1实证回答）</h2>
+<p>专家 Q1 配方落地：零扩展交织（2 shuffle）＋两级 dot（<code>[64,1]</code>→12bit，
+<code>[4096,1]</code>→24bit）＋字节拾取＋压缩（9 ops 代 16），semtest 先验 MATCH
+（变化 sextet 全对）再进 shim。双点斜率 <b>0.403ns/B，余 2.7x</b>——超预期
+（预估 ~0.54），合并与翻译一样吃调度红利。三级连跳 1.00→0.64→0.40，
+总 <b>2.5x↑</b>。回归 b64t/bad/mid＋hex 系全过，llvmc 102/102。
+Q1 就此实证 closed：dot-pack 可行且显著，4.3x→2.7x；余量组成为翻译＋合并各半，
+再压需另一量级手段。</p>
 </body>
 </html>
