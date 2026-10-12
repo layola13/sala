@@ -120,14 +120,14 @@ airlock DOM extern；<code>useEffect</code> 内 <code>console</code> 调用维�
 <code>main.go</code> 只留薄分发、领域 lowering 按归属落 <code>sa_*.go</code>）；
 拒则大声，标准库只映射 <code>sci/sa_std</code> 现货。</p>
 <ul>
-<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 2055 例，
-<code>--check</code> 2055/2055 + <code>--corpus</code>（对上游 286 agree）+
-LLVM 原生运行 2055/2055 全绿。覆盖：纯计算/字符串/数组全家（含嵌套解构缺省
-OOB 现场构造：i32/串/嵌套元；Array.of 下标/取长；新鲜构造巡回）/Map/Set/类
-（含构造接线：嵌套链读/串与数组 <code>?.</code> 守卫读/this 读/复合赋值）/
-i32 值位句柄设防（数组/串/实例）/布尔相等核（双布尔/混合整数·调用/下标/
-Map 读松相等）/接口布局/解构全形/正则子集/Math/Date/JSON子集/顶层快照
-（数组/对象/模板串）/IIFE/标签模板等；Node/Deno/http插件面经
+<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 2062 例，
+<code>--check</code> 2062/2062 + <code>--corpus</code>（对上游 286 agree）+
+LLVM 原生运行 2062/2062 全绿。覆盖：纯计算/字符串/数组全家（含嵌套解构缺省
+OOB 现场构造：i32/串/嵌套元；Array.of 下标/取长；新鲜构造巡回；串数组 OOB
+空合回退）/Map/Set/类（含构造接线：嵌套链读/串与数组 <code>?.</code> 守卫读/
+this 读/复合赋值）/i32 值位句柄设防（数组/串/实例）/布尔相等核（双布尔/
+混合整数·调用/下标/Map 读松相等）/接口布局/解构全形/正则子集/Math/Date/
+JSON子集/顶层快照（数组/对象/模板串）/IIFE/标签模板等；Node/Deno/http插件面经
 <code>--dev</code> 链打通。</li>
 <li><strong>工具链</strong>：Go 1.27（<code>/usr/local/go</code>）+
 真 Zig 0.14.1（<code>/opt/zig</code>，PATH 首位，shim 版不可用）+
@@ -147,7 +147,8 @@ demos 1998–1999）与缺省子归属（臂内逆序释放，串/嵌套缺省�
 demos 2002–2011，1843 旧锁删除）与混合布尔相等（整数侧松相等，
 demos 2012–2021）与混合调用侧（number/boolean 返回调用，
 demos 2022–2030）与混合下标侧（越界折值，demos 2031–2040）与混合 Map 读
-（缺键折值，demos 2041–2050）与散残留回归锁（demos 2051–2058，零改码）。
+（缺键折值，demos 2041–2050）与散残留回归锁（demos 2051–2058，零改码）与
+串数组 OOB 空合锁（demos 2059–2065，零改码）。
 详见 <code>tsgosa/docs/todo.md</code>。</li>
 </ul>
 
