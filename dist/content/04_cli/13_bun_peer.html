@@ -378,6 +378,30 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 <li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
 <li>下一步 peer 清单（第一类可 peer）：buffer-fill、buffer-slice、buffer-compare、array-map、array-sort、string-includes、typed-array-sort、base64-decode、escapeHTML；内存侧 <code>bun --heapStats</code> 流式 RSS 对比随后补。</li>
 </ul>
+
+<h2>16. 主机 codec 两遍 in-place（2026-10-12实测）</h2>
+<p>旧链 <code>TextDecoder().decode(subarray)＋Buffer.from＋set</code> 三遍＋两次分配；
+新链 <code>__sa_buf.toString('latin1')＋__sa_buf.write(in-place)</code> 两遍零临时分配
+（<code>emit_js.zig sa_b64dec/sa_hexdec</code>）。clean-ASCII 全等等价；短输出（垃圾输入/越界）改 trap，
+杜绝静默截断。证据 peer：<code>sci/demos/compare/peer_hex.sa(+5000)/peer_b64.sa(+5000)</code>，
+双点斜率（500→5000次×64KB），校验和全过（HEX 480000/4800000，B64 85000/850000）。</p>
+<table>
+<tr><th>peer（slope ns/B）</th><th>bun 原题（同机）</th><th>旧链 node</th><th>新链 node</th><th>旧链 bun</th><th>新链 bun</th></tr>
+<tr><td>hex 64KB</td><td>0.11~0.15</td><td>0.90</td><td>0.72（1.25x↑，与 node 原题 0.95 持平）</td><td>0.26</td><td>0.22（1.2x↑，余 1.5~2x）</td></tr>
+<tr><td>base64 64KB</td><td>0.149</td><td>0.51</td><td>0.21（2.4x↑）</td><td>0.36</td><td>0.25（1.4x↑，余 1.7x）</td></tr>
+</table>
+<p>余量 = latin1 快照一遍＋单调用开销；bun 单 intrinsic 调用即最终形态，继续压需批量调用形状
+（一次解码更大块）或 SIMD。hex 融合项自此解冻（纯标量路线仍冻结）。</p>
+
+<h2>17. escape 表驱动（2026-10-12实测）</h2>
+<p>旧链每字节 6 连分支；新链 256B 长度表 fast-path（普通字节单分支）＋1536B 序列 rare-path
+（<code>emit_js.zig sa_esc_html</code>）。逐字节输出与旧链同构，peer 长度＋首尾字节锁定。
+证据 peer：<code>sci/demos/compare/peer_esc.sa(+500)</code>，64KB/8% 转义密度，双点斜率：</p>
+<table>
+<tr><th>escape 64KB slope</th><th>旧链 node</th><th>新链 node</th><th>旧链 bun</th><th>新链 bun</th></tr>
+<tr><td>ns/B</td><td>3.09</td><td>~3.1（持平，噪声内；500 点复测反快约 10%）</td><td>2.37</td><td>1.68（1.4x↑）</td></tr>
+</table>
+<p>V8 分支预测已打平旧链（94% 直通），表加载无收益；JSC 得 1.4x。分支 codec 要继续压仍需 SIMD（见 §13/§16）。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>
