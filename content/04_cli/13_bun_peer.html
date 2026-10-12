@@ -666,5 +666,23 @@ Q1 pack 是否存在更优式、Q2 2.2x 引擎差归因、Q3 快照税是否为�
 （2 compares）已是最优形，无可抄。wasmtime 1.2~1.5x 维持，node 侧差距归引擎（§32）。</p>
 <p>结论：clone 覆盖 <code>src/base64、src/simdutf_sys、src/runtime/webcore</code>＋simdutf 全核清单，
 可抄的已抄尽；三输的剩余杠杆只剩专家回音（Q1~Q3）、全量矩阵（待放行）、wasm b64 合并 ~5%。</p>
+<h2>35. 专家三回执＋术语订正：地板收回，改称当前实现实测结果（2026-10-12）</h2>
+<p><b>术语订正（必读）</b>：此前§27/§28/§30/§32 的“地板/终点线”表述一律收回，
+改称 <b>当前实现的实测结果</b>——数字与证据不变，但不再断言不可突破。
+低收益重构照停，专家回音亦不作为结项前置。</p>
+<p><b>Q1（pack）有候选，不保证更快</b>：两级 dot——先按权重 <code>[64,1]</code> 合 sextet 对
+（sextet 放 i7 侧），再按 <code>[4096,1]</code> 合 24 位，最后 shuffle 压成 12 字节；
+是否比 gather＋shift＋or 便宜取决于引擎机器码。结论：Q1 不必外发；
+dot-pack 列为未来理论尝试（预期 ~10%，按 ROI 门槛默认不上）。</p>
+<p><b>Q2（2.2x）本地补证</b>：<code>node --no-liftoff</code> 同 harness 复测 wasm b64
+斜率 <b>0.676</b>（默认 0.663）——分层编译不移动斜率（固定开销在双点差分中抵消），
+预热假设本地关闭。结论：差距确为逐字节执行成本差；要归因到具体热点须反汇编，
+ROI 不够，不开 V8 issue。</p>
+<p><b>Q3（快照税）关闭</b>：标准 JS 无通用 bytes→string 零拷贝；external string 需 native
+addon 且交出字节所有权、保证不可变——纯 JS/wasm 靶点够不着。附带新 peer 预告：
+<code>Uint8Array.prototype.toBase64/fromBase64</code>（TC39）在 bun 1.4.3 已存在、
+node 20 缺席——未来 bun 侧对标物，建议建新 peer 跟踪，见§34-Bun-bench 注释。</p>
+<p><b>全量矩阵</b>：当前可不跑；一切结论限定已测范围（§26/§29 原话维持）。
+<b>英文版</b>：三问皆已在中文通道实质答复，无需外发，英文版不再出。</p>
 </body>
 </html>
