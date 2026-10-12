@@ -502,5 +502,12 @@ bug：zext 须落 diffblk 而非 ret，LLVM verifier 当场抓住）。
 <code>peer_findjh.sa</code>（FINDH OK，命中路径覆盖 diffblk）：单次 4KB-miss
 约 0.5µs（0.12ns/B），与 native 版同级，相对 node-memmem（2.9µs）胜约 6x；
 bun 黑盒数同前不可比。</p>
+<h2>25. u32-find rotating 形持平（2026-10-13实测）</h2>
+<p>旧 4.5x/2.9x 出自老形状；新 peer <code>peer_findr.sa(+20000)</code> 照抄 bun 原题
+rotating needles（1000/512/1023/2048，三命中一 miss，防 hoisting），校验和
+3559/rep。同日背靠背每 rep（4 搜）：我方 node/bun 双端 0.93µs，对 bun 诚实 harness
+0.91µs、node 1.87µs——<b>与 bun 持平、胜 node 2x</b>（bun 原题 mitata 1.3ns 系 DCE
+假象：4KB 扫描不可能 1.3ns；同页 includes 147ns 倒是真的）。find 项至此在全部
+诚实形状下持平或反超。</p>
 </body>
 </html>
