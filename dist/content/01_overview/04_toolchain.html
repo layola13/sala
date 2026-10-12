@@ -120,14 +120,14 @@ airlock DOM extern；<code>useEffect</code> 内 <code>console</code> 调用维�
 <code>main.go</code> 只留薄分发、领域 lowering 按归属落 <code>sa_*.go</code>）；
 拒则大声，标准库只映射 <code>sci/sa_std</code> 现货。</p>
 <ul>
-<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 2019 例，
-<code>--check</code> 2019/2019 + <code>--corpus</code>（对上游 286 agree）+
-LLVM 原生运行 2019/2019 全绿。覆盖：纯计算/字符串/数组全家（含嵌套解构缺省
+<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 2028 例，
+<code>--check</code> 2028/2028 + <code>--corpus</code>（对上游 286 agree）+
+LLVM 原生运行 2028/2028 全绿。覆盖：纯计算/字符串/数组全家（含嵌套解构缺省
 OOB 现场构造：i32/串/嵌套元）/Map/Set/类（含构造接线：嵌套链读/串与数组
 <code>?.</code> 守卫读/this 读/复合赋值）/i32 值位句柄设防（数组/串/实例）/
-布尔相等核（双布尔与混合整数松相等）/接口布局/解构全形/正则子集/Math/Date/
-JSON子集/顶层快照（数组/对象/模板串）/IIFE/标签模板等；Node/Deno/http插件面经
-<code>--dev</code> 链打通。</li>
+布尔相等核（双布尔/混合整数/调用侧松相等）/接口布局/解构全形/正则子集/
+Math/Date/JSON子集/顶层快照（数组/对象/模板串）/IIFE/标签模板等；
+Node/Deno/http插件面经 <code>--dev</code> 链打通。</li>
 <li><strong>工具链</strong>：Go 1.27（<code>/usr/local/go</code）+
 真 Zig 0.14.1（<code>/opt/zig</code>，PATH 首位，shim 版不可用）+
 <code>llvm-14-dev</code>（<code>sci</code> 以 <code>zig build -Dllvm=true</code>
@@ -144,7 +144,8 @@ demos 1988–1997）与 i32 值位句柄设防（数组柄禁入，裸泛型豁�
 demos 1998–1999）与缺省子归属（臂内逆序释放，串/嵌套缺省真机全对，
 1966–1967 转正，demos 2000–2001）与布尔相等核（双边布尔值相等比较，
 demos 2002–2011，1843 旧锁删除）与混合布尔相等（整数侧松相等，
-demos 2012–2021）。
+demos 2012–2021）与混合调用侧（number/boolean 返回调用，
+demos 2022–2030）。
 详见 <code>tsgosa/docs/todo.md</code>。</li>
 </ul>
 

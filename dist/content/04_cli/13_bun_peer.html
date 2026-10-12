@@ -402,6 +402,55 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 <tr><td>ns/B</td><td>3.09</td><td>~3.1（持平，噪声内；500 点复测反快约 10%）</td><td>2.37</td><td>1.68（1.4x↑）</td></tr>
 </table>
 <p>V8 分支预测已打平旧链（94% 直通），表加载无收益；JSC 得 1.4x。分支 codec 要继续压仍需 SIMD（见 §13/§16）。</p>
+
+<h2>18. native 显式 SIMD 双核（2026-10-12实测）</h2>
+<p><code>sa_std.zig sa_hexdec_simd</code>（32 字符→16 字节向量＋标量尾，3 单测同体）与
+<code>sa_b64dec_simd</code>（32→24 Mula 交织，2 单测同体），ABI 经
+<code>sa_std.h</code> 声明＋<code>windows_unsupported</code> 注记，
+<code>runtime_abi_check --platform both</code> 全绿（594 符号）。
+证据 peer（native默认档，双点斜率，校验和全过）：
+<code>sci/demos/compare/peer_hexn.sa(+5000)</code> HEXN OK，
+<code>peer_b64n.sa(+5000)</code> B64N OK。</p>
+<table>
+<tr><th>native slope ns/B</th><th>bun 原题（同机）</th><th>SIMD 核</th></tr>
+<tr><td>hex 64KB</td><td>0.11~0.15</td><td>0.085（反超约 1.3~1.8x）</td></tr>
+<tr><td>base64 64KB</td><td>0.149</td><td>0.22（余 1.5x）</td></tr>
+</table>
+<p>工具链坑：本工具链 <code>-OReleaseFast</code> 误编译负掩码 <code>@shuffle</code>
+（零定位报错 <code>Assigned value does not match type of forward declaration</code>），
+已绕行 concat 中转＋单源正掩码并在代码注记；探针复现＋修复验证。</p>
+
+<h2>19. wasm SIMD128 内联核（2026-10-13实测）</h2>
+<p>wasm 链只认模块内 bitcode（extern 悬空 <code>wasm-ld: undefined symbol</code>），
+故 <code>emit_llvm_llvmc_shim.c</code> 内联发射 v128 核（hex 16→8、b64 32→24＋标量尾），
+仅当模块引用时定义（<code>wasm_compat</code> 内）。
+<code>+simd128</code> 自证对标量循环无效（247 vs 266ms），遂驱动默认
+<code>-mcpu=generic+simd128</code>（无此 flag 向量核标量退化反更慢：2.4ns/B）。
+证据 peer（wasmtime 25.0.2，<code>--release-fast --no-incremental</code>）：</p>
+<table>
+<tr><th>wasm slope ns/B</th><th>标量环</th><th>核＋simd128</th><th>bun 原题</th></tr>
+<tr><td>hex 64KB</td><td>0.76</td><td>0.17（4.5x↑，余 1.2~1.5x）</td><td>0.11~0.15</td></tr>
+<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>1.0~1.1（Cranelift 密度税，余 ~6.7x）</td><td>0.149</td></tr>
+</table>
+<p><code>peer_b64t</code>（B64T OK，尾过渡）/<code>peer_b64bad</code>（B64B OK，非法截停）
+覆盖向量外路径；强制标量对照抓出标量尾 sextet 偏置误用 hex 值（48/55/87→4/65/71），已修正。
+循环负载另记：rw peer wasm-fast 仅 21ms（默认档 97ms，4.6x↑），远胜 node（1.35s）。
+注：项目增量缓存不感知 driver 变更，测速须带 <code>--no-incremental</code>。</p>
+
+<h2>20. JS 未逃逸槽提升（2026-10-13实测）</h2>
+<p><code>emit_js.zig collectPromotableSlots</code>：单 <code>stack_alloc</code> 定义、
+全引用零偏移 plain load/store 基址、类型一致（32 位内联窄化，64 位镜像
+<code>asIntN</code>）、<code>&</code>/调用/重赋值一票否决；分配点原位 load 初始化，
+存储保留 <code>provKill</code>。手改四格试验证伪 sala §12“12%”结论
+（node 3.5x / bun 1.4x，双双 PEER32 OK）。编译器落地后：</p>
+<table>
+<tr><th>rw peer（同负载）</th><th>改前 node</th><th>改后 node</th><th>改前 bun</th><th>改后 bun</th></tr>
+<tr><td>u32 域</td><td>1.42s</td><td>0.46s（3.1x↑）</td><td>0.45s</td><td>0.34s（1.35x↑）</td></tr>
+<tr><td>u64 域</td><td>3.93s</td><td>2.39s（1.6x↑，BigInt 墙）</td><td>12.2s</td><td>12.0s（持平）</td></tr>
+</table>
+<p><code>peer_promo_edge.sa</code> 覆盖 u32 回绕/i8/i16/i32 负数/u16/混合跳过，
+9 peer 双端＋12 demo 三端（解释器/node/bun）差分全绿；12 demo 中仅 04_loop 触发
+（其余被保守规则正确跳过），无误伤回归。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>
