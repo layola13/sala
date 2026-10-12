@@ -489,5 +489,14 @@ Zig 单测 1 则同体，ABI 三件套同步。</p>
 GC 税超 SIMD 收益（bridge 342µs vs 表环 155µs 斜率）。零分配原地表环胜出；
 同理 latin1 快照比 ascii/utf8 慢 10x＋（但 codec 侧为保垃圾输入语义不变，仍用
 latin1）。教训：小粒度下分配税压倒一切（与 Buffer.write 胜因同构）。</p>
+
+<h2>24. wasm 子串查找 memmem 桥（2026-10-13实测）</h2>
+<p>wasm 链不认 libsa（悬空符号），故 <code>emit_sa_mfind_u8_wasm</code> 内联发射
+memmem 薄包装（空 needle→0、超长→miss、前向声明缺失时才定义；另修一处支配性
+bug：zext 须落 diffblk 而非 ret，LLVM verifier 当场抓住）。
+证据 <code>peer_findm100k.sa</code>（FINDM OK，10 万次）＋
+<code>peer_findjh.sa</code>（FINDH OK，命中路径覆盖 diffblk）：单次 4KB-miss
+约 0.5µs（0.12ns/B），与 native 版同级，相对 node-memmem（2.9µs）胜约 6x；
+bun 黑盒数同前不可比。</p>
 </body>
 </html>
