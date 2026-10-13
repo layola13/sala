@@ -127,4 +127,5 @@ Default Font=微软雅黑,9,0
 ../dist/content/08_faq/03_runtime_env.html
 ../dist/content/08_faq/04_performance.html
 ../dist/content/08_faq/05_limitations_roadmap.html
+../dist/content/14_zig017_perf/01_zig017_vs_014.html
 ../dist/assets/help.css

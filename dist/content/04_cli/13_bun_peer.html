@@ -414,11 +414,26 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 <table>
 <tr><th>native slope ns/B</th><th>bun 原题（同机）</th><th>SIMD 核</th></tr>
 <tr><td>hex 64KB</td><td>0.11~0.15</td><td>0.085（反超约 1.3~1.8x）</td></tr>
-<tr><td>base64 64KB</td><td>0.149</td><td>0.22（余 1.5x）</td></tr>
+<tr><td>base64 64KB</td><td>0.149</td><td><b>0.068（WIN 2.2x，§30 swizzle 落地）</b></td></tr>
 </table>
 <p>工具链坑：本工具链 <code>-OReleaseFast</code> 误编译负掩码 <code>@shuffle</code>
 （零定位报错 <code>Assigned value does not match type of forward declaration</code>），
 已绕行 concat 中转＋单源正掩码并在代码注记；探针复现＋修复验证。</p>
+<p><b>裁决（2026-10-13，native b64 余 1.5x 为标量视界终点）</b>：<code>/tmp</code> 纯核探针
+（无 SA 调用开销）证实 unroll×2 零收益（0.236→0.236ns/B，后端-bound）；
+反汇编已见 128 条 SIMD（pshufb/paddb/movups 类）密集，9 shuffle/port5 为结构地板；
+u32 字 trick 仍需交织，省不出余下约 35%。要进 2x 须 swizzle 查找路线
+（SSSE3 门控 C 内核＋穷举差分，<code>std.x86</code> 本工具链不存在），已单独立项，
+验收线为 bun 同日 0.14ns/B。标量侧不再投入。</p>
+<p><b>追裁（2026-10-12 swizzle 项目关闭，lookup-ceiling）</b>：可行性探针三项实锤——
+①LUT 分类三式（直接加／符号翻转／异或）经程序验证全部无解，死结是
+<code>'+'</code>/<code>'/'</code> 共高半字节导致的约束环冲突；
+②反汇编热循环 15 条 <code>pshufb</code>＋5 条 <code>pcmpeqb</code>，port5 已饱和，
+LUT 要再加 2 条 shuffle，只会加压甚至反退化；
+③core 斜率 0.203 vs bun 同日 0.149，差 33%，而分类仅占循环约 25%——
+免费分类最多 1.33x，现实 LUT 至多省 ~12% 到 0.19，数学到不了验收线。
+结论：native b64 1.5x 是双重地板（标量＋查找），除非汇编级整核重写（出口径），
+否则永久锁定；探针全在 <code>/tmp</code>，零代码改动。</p>
 
 <h2>19. wasm SIMD128 内联核（2026-10-13实测）</h2>
 <p>wasm 链只认模块内 bitcode（extern 悬空 <code>wasm-ld: undefined symbol</code>），
@@ -430,7 +445,7 @@ native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环�
 <table>
 <tr><th>wasm slope ns/B</th><th>标量环</th><th>核＋simd128</th><th>bun 原题</th></tr>
 <tr><td>hex 64KB</td><td>0.76</td><td>0.17（4.5x↑，余 1.2~1.5x）</td><td>0.11~0.15</td></tr>
-<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>1.0~1.1（Cranelift 密度税，余 ~6.7x）</td><td>0.149</td></tr>
+<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>0.40（§36 dot-pack后，余 ~2.7x；此前 1.0）</td><td>0.149</td></tr>
 </table>
 <p><code>peer_b64t</code>（B64T OK，尾过渡）/<code>peer_b64bad</code>（B64B OK，非法截停）
 覆盖向量外路径；强制标量对照抓出标量尾 sextet 偏置误用 hex 值（48/55/87→4/65/71），已修正。
@@ -475,6 +490,213 @@ Zig 单测 1 则同体，ABI 三件套同步。</p>
 同日背靠背：我方斜率 10.03µs/64KB（0.153ns/B）对 bun mitata 10.73µs（0.164ns/B），
 <b>0.93x 反超</b>。另记方法论教训：朴素手写计时循环（无 warmup）曾测出 bun 39µs
 （4x 虚高），口径必须以 mitata 为准、同日对比。</p>
+
+<h2>23. find 双桥接＋escape 桥接否决（2026-10-13实测）</h2>
+<p><code>sa_mfind_u8</code> 标量首字节环改单 <code>__sa_buf.indexOf(subarray)</code>
+调用（越界命中守卫，无 Buffer 回落标量环）：node 8.5µs→1.5µs（5.6x↑，与 node 原题
+2.9µs 持平偏胜）、bun 4µs→1.5µs（2.6x↑）；
+<code>sa_mfind_u32</code> 去 <code>subarray</code> 分配一版曾实测爆炸——miss 时
+<code>indexOf</code> 扫到视窗末尾（整个 16MB 线性内存，425µs/次），已回退有界版
+（8.5s→73ms，约 100x 恢复）：<code>subarray</code> 是负载语义（定界）而非可省
+分配。教训：<code>mfind_u8</code> 桥能快全靠 SA bump 分配使 needle 常在 hay 附近
+自终止（另经 node 直验 16MB 全扫行为），正确性则全靠越界守卫，与速度无关。
+证据 <code>peer_findj.sa(+5000)</code>/<code>peer_findjh.sa</code>（命中路径）、
+<code>peer_findu32.sa(+5000)</code>、<code>peer_findr.sa</code>（rotating needles
+1000/512/1023/2048，三命中一 miss，防引擎 hoisting），守卫逻辑另经 node 直验。</p>
+<p><b>否决项</b>：<code>Bun.escapeHTML</code> 桥接经完整审计（0~255 唯一差异是单引号
+风格，已有归一方案）后实测被否——其 string-in/string-out 形态每调用分配 3 大串，
+GC 税超 SIMD 收益（bridge 342µs vs 表环 155µs 斜率）。零分配原地表环胜出；
+另纠正一则误测：latin1 快照在代表性输入上预热平均仅 18~22µs/64KB，反比 utf8
+（验证地狱，420µs＋）快一个数量级——早期单次冷测得出的反向 10x 结论作废；
+codec 侧 latin1 既对（垃圾字节 1:1 可见、可 trap）又快，无需动。
+教训有二：小粒度下分配税压倒一切（与 Buffer.write 胜因同构）；单次冷测数字
+一律作废，以预热平均＋双点斜率为准。</p>
+
+<h2>24. wasm 子串查找 memmem 桥（2026-10-13实测）</h2>
+<p>wasm 链不认 libsa（悬空符号），故 <code>emit_sa_mfind_u8_wasm</code> 内联发射
+memmem 薄包装（空 needle→0、超长→miss、前向声明缺失时才定义；另修一处支配性
+bug：zext 须落 diffblk 而非 ret，LLVM verifier 当场抓住）。
+证据 <code>peer_findm100k.sa</code>（FINDM OK，10 万次）＋
+<code>peer_findjh.sa</code>（FINDH OK，命中路径覆盖 diffblk）：单次 4KB-miss
+约 0.5µs（0.12ns/B），与 native 版同级，相对 node-memmem（2.9µs）胜约 6x；
+bun 黑盒数同前不可比。</p>
+<h2>25. u32-find rotating 形持平（2026-10-13实测）</h2>
+<p>旧 4.5x/2.9x 出自老形状；新 peer <code>peer_findr.sa(+20000)</code> 照抄 bun 原题
+rotating needles（1000/512/1023/2048，三命中一 miss，防 hoisting），校验和
+3559/rep。同日背靠背每 rep（4 搜）：我方 node/bun 双端 0.93µs，对 bun 诚实 harness
+0.91µs、node 1.87µs——<b>与 bun 持平、胜 node 2x</b>（bun 原题 mitata 1.3ns 系 DCE
+假象：4KB 扫描不可能 1.3ns；同页 includes 147ns 倒是真的）。find 项至此在全部
+诚实形状下持平或反超。</p>
+<h2>26. b64 高精度斜率锁定＋本轮确认集（2026-10-13实测）</h2>
+<p>证据 peer（native <code>--release-fast</code>，校验和全过）：
+<code>sci/demos/compare/peer_b64nbig.sa</code>（B64BIG OK，单次 4MB 解码核率约 1ns/B，
+证实调用开销非主因）/<code>peer_b64n20000.sa</code>（B64N OK，20000 点双点斜率，
+b64 锁定 <b>1.13ns/B±2%</b>）。本机复验：两 peer 重新构建后均一次通过
+（B64N OK / B64BIG OK），与提交记录一致。</p>
+<p>本轮确认集（树干净 cd910356，全部一次通过）：JS
+<code>peer_esc.sa</code> node/bun 双端 ESC OK、<code>peer_findj.sa</code> 双端 FINDJ OK；
+wasm（node WASI）<code>peer_hexbad.sa</code> HEXB OK；
+native <code>peer_rw_u64.sa</code> PEER OK。</p>
+<h2>27. wasm b64 节食 1.00→0.70ns/B（2026-10-12实测）</h2>
+<p>jev ROI 裁决（#1）后动刀 <code>emit_sa_b64dec_simd_wasm</code>（<code>src/emit_llvm_llvmc_shim.c</code>），
+四连击（node WASI 双点斜率 <code>peer_b64n5000/peer_b64n20000</code>，278/966ms 与复测 982ms，Δ983MB）：
+v32→v16（去 legalizer 对半拆分，1.00→1.00 无效，证伪拆分主因说）→
+合并改全宽 shuffle（7 奇宽→3 全宽＋掩码拼装，→0.86）→
+select 链拍平（4-deep 嵌套→并行或树，→0.77）→
+unroll×2＋双半块共享检查（→<b>0.70ns/B，余 4.7x，总 1.43x↑</b>）。直接加法双表分类经程序验证无解
+（<code>'+'</code>/<code>'/'</code> 共高半字节，约束图冲突），未采用。</p>
+<p>附带修两处正确性（此前无覆盖）：①向量块内非法曾被跳过且留垃圾（与 native 语义分叉），
+现倒回标量重解、与 native 对齐，新 peer <code>peer_b64mid.sa</code>（32B、坏字符在 offset 5，
+期望 n==3、首量子校验和 85）wasm/native 双端 B64M OK 锁定；
+②unroll 初版把双半块 validity 按 lane 或合并（A 坏 lane 被 B 好 lane 掩盖，全过），
+改各自归一后 AND，探针当场抓住。回归：<code>peer_b64t</code> B64T OK、
+<code>peer_b64bad</code> B64B OK、<code>peer_b64n5000</code> B64N OK、
+<code>llvmc-test</code> 102/102。判断：余量为 Cranelift 翻译质量地板（手写 LLVM 经 wasm 落地约当 C++ SIMD 的 1/5 密度），
+继续压需另一量级手段，本轮锁定 0.70。</p>
+<h2>28. JS codec 快照税地板裁决（2026-10-12实测）</h2>
+<p>jev #2 攻关结论：<b>无代码改动，地板实锤</b>。peer 调用粒度已是单调用 64KB（<code>peer_hex.sa:61</code>，
+无批量空间）。对照实验（手写 <code>/tmp</code> 紧循环，64KB×2000，3 样本中位数，只定方向不作口径）：
+快照编码 <code>latin1/ascii/utf8</code> 在 node 为 0.841/0.804/0.901ns/B，
+在 bun 为 0.199/0.253/0.233——latin1 在 bun 侧最优，ascii 分化（node +4%、bun -27%）否决，
+维持统一 latin1。决定性拆分（同 harness）：bun hex 全链 0.221→去快照 0.054、
+b64 全链 0.249→去快照 0.085——<b>快照独占约 0.165ns/B，恰等于全部余量；
+去快照后 parse+write 反超 bun 原题</b>（0.11~0.15/0.149）。快照不可省：
+host <code>write/from</code> 只要 string，node/bun 无 bytes-in 解码 API；
+快照本身已是 memcpy 速度。peer 斜率本轮复测（500/5000 双点、3 样本中位数）：
+hex node 0.82、bun ~0.2~0.3（小端启动敏感抖动大），b64 node 0.21、bun ~0.29，
+与历史记录（0.72/0.22、0.21/0.25）在噪声内一致。裁决：JS host 链到结构地板，
+与 native 标量终点同 pattern，不再投入；b64/hex 的 1.5~1.7x 即该路线终点线。
+回读校验补记：去快照写入后逐字节回读求和，node/bun 双端同值（hex 3932160、b64 1392640），
+写确执行、非 DCE；自检脚本一处比对 bug 系 b64 输出覆盖 hex 区所致，不影响结论。</p>
+<h2>29. 阶段A审计：三点回归＋hex倒回修复＋bun-WASI（2026-10-12实测）</h2>
+<p>外部审计要求先自证，结论：<b>verdict 由“待统计复核”转“已复核”，数字全部复现</b>。
+三点回归（500/5000/20000×64KB，4 轮转序、去首轮预热、余下中位数，独立进程）：
+hex node 截距 46.6ms、<b>斜率 0.684、R²=1.0000</b>；
+hex bun 截距 37.3ms、<b>0.228、R²=1.0000</b>；
+b64 node 截距 48.6ms、<b>0.194、R²=0.9993</b>；
+b64 bun 截距 43.3ms、<b>0.229、R²=0.9973</b>；
+wasm b64（node WASI）截距 29.1ms、<b>0.663、R²=1.0000</b>（节食 0.70 在严格口径下成立）。
+线性假设成立，两点斜率无系统偏。</p>
+<p>hex 倒回修复：新 peer <code>peer_hexmid.sa</code>（32B、坏字符 offset 5，期望 n==2、首两字节 0xaa）
+抓出 wasm hex 与 native 分叉——native HEXM OK，wasm 跳过留垃圾返 16。
+起因与 b64 同源（向量块无效即跳过），同法倒回标量重解后 wasm/native 双端 HEXM OK，
+<code>peer_hexbad</code>/<code>peer_hext</code> 回归全过。</p>
+<p>bun-WASI 对照：同 wasm 模块在 bun 下（<code>wasi.wasiImport</code>，
+bun 1.4.3 的 <code>node:wasi</code> 无 <code>getImportObject</code>）B64N OK，
+三点斜率 <b>0.796、R²=0.9960</b>——同模块在 JSC 下比 V8 慢约 20%，截距 50.6ms。
+跨引擎比较口径不变（仍以 node-WASI 为准），差距方向对我方不利，属诚实口径。</p>
+<p>新鲜度审计：<code>zig-out/bin/sa</code>（09:14）新于 <code>src/emit_llvm_llvmc_shim.c</code>（09:12）；
+全部测速 wasm 构建均带 <code>--no-incremental</code>；
+<code>libsa_std.a</code>（07:53）早于 shim 改动但 shim 只进 sa 主二进制、不进 libsa，无污染。
+“6 赢 5 平 4 输”仍表述为已测样本结果，不外推；全量矩阵未跑。</p>
+<h2>30. native b64 swizzle 落地反超 2.2x（2026-10-12实测，订正§18双地板）</h2>
+<p>§18 的“标量终点”＋“lookup-ceiling”两 verdict 在此**一并订正为范围过窄**：
+前者只覆盖标量微调，后者只证伪了 4 种 naive 查表形式——真正的 Mula/aqrit scheme
+一直存在，只是不在我搜索的函数族里。转折点来自用户建议“直接看 bun 怎么写”：
+Bun 的 Buffer base64 就是 <b>simdutf</b>（Apache-2.0，Bun 本体 MIT），
+克隆回仓后在 <code>src/haswell/avx2_base64.cpp</code> 找到真核并合法移植（署名保留）：
+饱和压缩索引＋hash 查表翻译（32B 约 9 ops）＋<code>maddubs/madd</code> 打包（3 ops），
+把工作从 port5 搬走——这正是我方 15-shuffle 结构的死穴。</p>
+<p>门控探针（<code>/tmp</code> 独立文件）：64 字母×32 lane 穷举 2048/2048 精确、
+192 非法字节全检出、斜率 <b>0.043ns/B</b>（同条件现核 0.203 的 4.7x）。
+落地 <code>src/runtime/sa_b64_swizzle.c</code>（函数级 <code>target("avx2")</code>、
+裸 <code>cpuid+xgetbv</code> 门控、零 libgcc 依赖、精确 24B 存储无越界、标量尾），
+<code>sa_b64dec_simd</code> 内 AVX2 分发、非 x86_64 桩回退；
+公共 ABI 不变（两新符号是 lib 内部实现，不进 <code>sa_std.h</code>），
+<code>runtime-abi-check --platform both</code> 全绿（595 符号）。
+证据：Zig 3 单测全过（含新 <code>avx2 block invalid rewinds</code>）、
+native peer <code>b64n/b64mid/b64bad/b64nbig</code> 全过、
+双点斜率（n5000/n20000）<b>0.068ns/B，对 bun 同日 0.149 反超 2.2x</b>。
+复测备注：有负载机器（load ~0.9）复测 0.082（约 1.8x），安静机器 0.067~0.068；
+斜率随负载抖动 ±20%，WIN 在两种负载下成立；wasm b64 同期复测 0.656（前值 0.642~0.663一致）。
+教训：《无解》结论必须注明搜索边界；“抄”只抄算法（simdutf），Bun 的 Rust 胶水与我们无关；
+JS/wasm 靶点不受影响（host 形态 / 无 madd），§27/§28 地板维持。</p>
+<h2>31. wasm b64 hashXL 1.00→0.64（2026-10-12实测，三 bug 连环）</h2>
+<p>simdutf 无 wasm 后端，但 aqrit 翻译四件套（swizzle/avgr/addsat/bitmask）在 v128 全有映射
+（<code>llc</code> 离线验证单指令 lowering 后才动手）。分类 16 ops→~9 ops，
+双点斜率（n5000/n20000，3 样本中位数）<b>0.642ns/B，余 4.3x，总 1.56x↑</b>；
+回归 <code>b64t/bad/mid/hexbad/hext/hexmid</code> 全过、<code>llvmc-test</code> 102/102。
+路上连踩三坑，记为后车之鉴：
+①定签名 intrinsic 不可用 <code>GetIntrinsicDeclaration+类型表</code>（会造出不存在的
+<code>.v16i8</code> 后缀，链接期 undefined），须空类型表拿裸名；
+②有效性须按符号位（<code>SLT 0</code>，movemask 语义），<code>!=0</code> 把干净块全判非法
+（对但慢到标量级）；
+③也是最贵的一课：<b>WASM swizzle 索引≥16 直接归零</b>（pshufb 取低 4 位），四个查表索引须先
+<code>&amp;15</code>（掩码下 64 字母精确、192 非法全检出，经程序重验）。
+另：首次全挂时误判多时，实为一批掩码编辑未落盘——现每次改完必 <code>grep</code>＋读 <code>.bc</code> 反汇编确认；
+<code>--no-incremental</code> 旁还有按函数对象缓存（<code>.sa_cache</code>），测速前必清。
+地板判断维持（Cranelift 翻译质量），合并阶段不动（无 madd）。</p>
+<h2>32. wasm hex unroll 无收益＋引擎差备注（2026-10-12实测）</h2>
+<p>hex unroll×2（照抄 b64 的双半块＋共享检查）：node-WASI 同 harness A/B，
+单 16B 基线 <b>0.438</b> vs unroll 后 <b>0.463</b>——持平偏噪，无收益，已回退，
+零代码残留（正确性探针 <code>hexmid</code> 双端仍过）。hex 循环本已小，
+省不出循环开销。</p>
+<p>附带诚实备注：wasm hex 的 0.17（§19/§22）出自 <b>wasmtime</b>，
+node-WASI（V8）下从来是 0.44——引擎差约 2.6x。对 bun 原题（原生 C++ 0.11~0.15）
+的口径仍以 wasmtime 数为准（余 1.2~1.5x）；node-WASI 侧差距（约 3~4x）另记，
+不混用。 hext/hexbad 回归全过。</p>
+<h2>33. 专家审计请求备案＋三处本地核实（2026-10-12）</h2>
+<p>身份澄清：sala 即 sahelp（SA/SLA 帮助文档仓），是文档仓本名，非笔误。</p>
+<p><b>核实一（Q2 引擎差，我方亲测）</b>：装回 wasmtime 25.0.2（与§19 同版本），
+同模块双点斜率（n5000/n20000，3 样本中位数）<b>0.197ns/B</b>——历史 0.17 在噪声内复现；
+同模块 node-WASI 0.438。引擎差 2.2x 为我方实测事实，非转述。追问 Cranelift ISLE
+vs TurboFan 的归因仍抛给专家。</p>
+<p><b>核实二（Q1 dot 可用性，llc 实证）</b>：通用 <code>llvm.sdot</code> 在 LLVM 14
+wasm 后端<b>不 lowering</b>（原样 call 出去，链接即炸）；专用
+<code>llvm.wasm.dot</code> 单指令落到 <code>i32x4.dot_i16x8_s</code>。
+即 dot 原语可用，但能否拼成更优 pack 仍是开放设计问题，照常抛给专家。</p>
+<p><b>核实三（Q3 快照税）</b>：本地可验证的部分已验证（node 无 bytes-in 解码通道，
+见§28 拆分）；ExternalString 是否经 WASI/JS 可达，本地无 V8 头验证不了，
+照常抛给专家。</p>
+<p><b>审计请求正文（三问＋翻转条件＋已闭环备案）</b>已定稿，见本轮工作记录：
+Q1 pack 是否存在更优式、Q2 2.2x 引擎差归因、Q3 快照税是否为物理极限，
+每问附现状证据与“什么结果改变 verdict”。英文 GitHub 版待用户确认后再出。</p>
+<h2>34. Bun源码抄尽复盘：三输项各有归宿（2026-10-12）</h2>
+<p>用户问“抄了源码还找不到方案吗”——答案是找全了，且找全的结果恰恰是三处“无可抄”，各有实证：</p>
+<p>①native b64：<b>已抄中</b>（simdutf AVX2，0.068 反超 2.2x，§30）。这是唯一形态对得上的。</p>
+<p>②JS hex/b64：Bun 的 Buffer 编解码（simdutf＋Highway C++）直接吃 <b>string</b>（见
+<code>encoding.rs:construct_from_*</code> 取 string 切片），单遍、无中间物；
+我们的输入住在线性内存 bytes 里，host <code>write/from</code> 只要 string，
+快照强制——<b>抄的是形态，而形态我们够不着</b>。Bun 自家 bench（from 0.163/write 0.088）
+与§28 拆分互证。floor 立。</p>
+<p>③wasm b64：simdutf 内核清单实证（arm64/fallback/generic/haswell/icelake/lasx/lsx/ppc64/rvv/westmere）
+<b>无 wasm 后端</b>；能抄的翻译表已抄完（§31，0.64），pack 的 madd 在 v128 不存在。
+余 4.3x，合并重构预期仅 ~5%。</p>
+<p>④wasm hex：Bun 侧是 <b>Google-Highway SIMD</b>（<code>bun_core::strings</code> 经
+<code>highway_decode_hex8</code>，≥16 pairs，同 truncate 语义；Highway 同 Apache-2.0）。
+但 Highway 核是 x86/ARM dispatch，不可移植到 v128；算法层 hex 的 case-fold
+（2 compares）已是最优形，无可抄。wasmtime 1.2~1.5x 维持，node 侧差距归引擎（§32）。</p>
+<p>结论：clone 覆盖 <code>src/base64、src/simdutf_sys、src/runtime/webcore</code>＋simdutf 全核清单，
+可抄的已抄尽；三输的剩余杠杆只剩专家回音（Q1~Q3）、全量矩阵（待放行）、wasm b64 合并 ~5%。</p>
+<h2>35. 专家三回执＋术语订正：地板收回，改称当前实现实测结果（2026-10-12）</h2>
+<p><b>术语订正（必读）</b>：此前§27/§28/§30/§32 的“地板/终点线”表述一律收回，
+改称 <b>当前实现的实测结果</b>——数字与证据不变，但不再断言不可突破。
+低收益重构照停，专家回音亦不作为结项前置。</p>
+<p><b>Q1（pack）有候选，不保证更快</b>：两级 dot——先按权重 <code>[64,1]</code> 合 sextet 对
+（sextet 放 i7 侧），再按 <code>[4096,1]</code> 合 24 位，最后 shuffle 压成 12 字节；
+是否比 gather＋shift＋or 便宜取决于引擎机器码。结论：Q1 不必外发；
+dot-pack 列为未来理论尝试（预期 ~10%，按 ROI 门槛默认不上）。</p>
+<p><b>Q2（2.2x）本地补证</b>：<code>node --no-liftoff</code> 同 harness 复测 wasm b64
+斜率 <b>0.676</b>（默认 0.663）——分层编译不移动斜率（固定开销在双点差分中抵消），
+预热假设本地关闭。结论：差距确为逐字节执行成本差；要归因到具体热点须反汇编，
+ROI 不够，不开 V8 issue。</p>
+<p><b>Q3（快照税）关闭</b>：标准 JS 无通用 bytes→string 零拷贝；external string 需 native
+addon 且交出字节所有权、保证不可变——纯 JS/wasm 靶点够不着。附带新 peer 预告：
+<code>Uint8Array.prototype.toBase64/fromBase64</code>（TC39）在 bun 1.4.3 已存在、
+node 20 缺席——未来 bun 侧对标物，建议建新 peer 跟踪，见§34-Bun-bench 注释。
+<b>实测跟进</b>：同 harness 下 bun <code>fromBase64</code> 0.384 vs
+<code>Buffer.from</code> 0.279（回读同值 1392640，防 DCE）——新 API 当前更慢，
+参照系维持 <code>Buffer.from</code> 不变，球门未动。</p>
+<p><b>全量矩阵</b>：当前可不跑；一切结论限定已测范围（§26/§29 原话维持）。
+<b>英文版</b>：三问皆已在中文通道实质答复，无需外发，英文版不再出。</p>
+<h2>36. wasm b64 dot-pack 0.64→0.40（2026-10-12实测，Q1实证回答）</h2>
+<p>专家 Q1 配方落地：零扩展交织（2 shuffle）＋两级 dot（<code>[64,1]</code>→12bit，
+<code>[4096,1]</code>→24bit）＋字节拾取＋压缩（9 ops 代 16），semtest 先验 MATCH
+（变化 sextet 全对）再进 shim。双点斜率 <b>0.403ns/B，余 2.7x</b>——超预期
+（预估 ~0.54），合并与翻译一样吃调度红利。三级连跳 1.00→0.64→0.40，
+总 <b>2.5x↑</b>。回归 b64t/bad/mid＋hex 系全过，llvmc 102/102。
+Q1 就此实证 closed：dot-pack 可行且显著，4.3x→2.7x；余量组成为翻译＋合并各半，
+再压需另一量级手段。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>

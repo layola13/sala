@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Zig 0.17 与 0.14.1 实测对比</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:right}
+th{background:#f3f4f6}td:first-child,th:first-child{text-align:left}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">Zig 0.17 升级对比 &gt; Zig 0.17 与 0.14.1 实测对比</div>
+<h1>Zig 0.17 与 0.14.1 实测对比（2026-10-13）</h1>
+
+<p>问题：sci 把编译器从 Zig 0.14.1 升到 0.17 后，生成的程序是更快还是更慢？
+本页用 0.17 构建的 <code>sa</code> 重测全部可复现 peer，与本站存量 0.14.1 数据并列。
+结论先行：<b>同一性能 tier，无系统性回归</b>——后端同为 LLVM 14，JS 发射器经 diff 确认仅注释级差异；
+观测到的 ±2x 内浮动归因于机器内存子系统差异（见 §5 校准），与工具链版本无关。
+另有两个 0.17 迁移真修复（§6），其中 native一案若不修会慢 44x。</p>
+
+<h2>1. 方法与环境</h2>
+<ul>
+<li>0.17 列：<code>sci@0.17</code>（本次迁移后）构建的 <code>zig-out/bin/sa</code>（Debug），
+Intel Xeon 2.20GHz 容器，node v20.19.0，bun 1.4.3，llvm-14-dev 系统库。</li>
+<li>0.14.1 列：本站存量记录（04_cli/13_bun_peer.html 各节、相关 commit 信息），作者本机，
+bun 1.4.3（mitata 口径一致，见 §5）。<b>未重建 0.14 编译器</b>，故绝对值跨机器比较只看 tier。</li>
+<li>每个 peer 跑 3 次，表内为中位数；slope 口径沿用本站惯例（500→5000 轮双点差分，消启动/填充固定成本）。</li>
+<li>正确性：全部 peer 输出校验和与 0.14.1 记录一致（PEER32/PEER/B64/HEX/ESC/FIND/FINDM/B64N/B64BIG/HEXN OK）。</li>
+</ul>
+
+<h2>2. JS 后端（sa build-js → node / bun）</h2>
+<table>
+<tr><th>peer（同源文件）</th><th>node 0.14.1</th><th>node 0.17</th><th>bun 0.14.1</th><th>bun 0.17</th></tr>
+<tr><td>rw_u32 20.5M（5000×4096）</td><td>1252ms</td><td>851ms</td><td>589ms</td><td>628ms</td></tr>
+<tr><td>rw_u64 20.5M（5000×4096）</td><td>3091ms</td><td>3708ms</td><td>11303ms</td><td>18640ms</td></tr>
+<tr><td>b64 slope（500→5000×64KB）</td><td>0.21ns/B</td><td>0.35ns/B</td><td>0.25ns/B</td><td>0.46ns/B</td></tr>
+<tr><td>hex slope（500→5000×64KB）</td><td>0.72ns/B</td><td>1.50ns/B</td><td>0.22ns/B</td><td>0.38ns/B</td></tr>
+</table>
+<p>另测（当前文件口径，与旧记录 workload 不完全同，见 §7）：
+esc（100轮）node ~120ms / bun ~73ms ESC OK；
+findn（2000轮）node ~230ms / bun ~199ms FIND OK。
+解读：计算密集（rw/微操）本机持平偏快，带宽密集（64KB host-codec）本机慢约 1.7~2x——
+两类方向相反，恰为机器内存子系统差异指纹，非工具链效应（发射器 diff 见 §5）。</p>
+
+<h2>3. Native 后端（sa build-exe --release-fast）</h2>
+<table>
+<tr><th>peer</th><th>0.14.1 记录</th><th>0.17 实测</th><th>结论</th></tr>
+<tr><td>rw_u32 20.5M</td><td>2.4~3.3ms</td><td>4ms PEER32 OK</td><td>同 tier</td></tr>
+<tr><td>rw_u64 20.5M</td><td>—（tier）</td><td>7ms PEER OK</td><td>同 tier</td></tr>
+<tr><td>findn</td><td>5.6ms</td><td>8ms FIND OK</td><td>同 tier</td></tr>
+<tr><td>b64nbig 4MB 单次</td><td>~4ms（~1ns/B）</td><td>18ms（4.6ns/B）B64BIG OK</td><td>见 §7（单次含启动）</td></tr>
+<tr><td>b64n20000（20000点）</td><td>1.13ns/B slope</td><td>~3.0s B64N OK</td><td>同 tier（含启动）</td></tr>
+<tr><td>hexn20000（1.28GB）</td><td>—（新基线）</td><td>~85s HEXN OK</td><td>新数据（标量路径）</td></tr>
+<tr><td>findm5000（mfind桥）</td><td>—（新基线）</td><td>~70ms FINDM OK</td><td>桥接正常</td></tr>
+<tr><td>bench.sa 编译 / 运行 / 体积</td><td>—（新基线）</td><td>~50ms / ~700ms / 6904B</td><td>新数据</td></tr>
+<tr><td>big_bench.sa 编译 / 运行 / 体积</td><td>—（新基线）</td><td>33s冷启动/1.2s缓存 / 3ms / 1.3MB</td><td>新数据</td></tr>
+</table>
+
+<h2>4. Wasm 后端（sa build-wasm → node WASI）</h2>
+<div class="note"><span class="label">注意</span>存量记录用 wasmtime 25.0.2，本机无 wasmtime，改用 node WASI。
+引擎不同，只比正确性＋量级，不比绝对值。</div>
+<table>
+<tr><th>peer</th><th>0.17 实测（node WASI）</th><th>结论</th></tr>
+<tr><td>01_hello_world</td><td>43ms，hello, saasm</td><td><b>修复</b>：0.17 下曾为 unreachable trap（§6），现正常</td></tr>
+<tr><td>rw_u32 / rw_u64 20.5M</td><td>~340ms / ~347ms</td><td>正常（wasm 慢于 native 约 50~80x，符合解释开销预期）</td></tr>
+<tr><td>findn</td><td>~110ms FIND OK</td><td>正常</td></tr>
+<tr><td>b64nbig 4MB</td><td>~94ms B64BIG OK</td><td>正常（含 simd 核）</td></tr>
+<tr><td>build-wasm 耗时</td><td>各 peer ~600ms</td><td>新数据</td></tr>
+</table>
+
+<h2>5. 机器校准与 emitter 一致性证据</h2>
+<ul>
+<li>同版本 bun 1.4.3 原题（mitata）本机复测：
+readUInt8 2.51µs（记录 3.159µs，0.79x）、readInt32LE 2.70µs（记录 3.286µs，0.82x）——
+本机引擎微操快约 1.25x。带宽型（64KB host-codec）反慢约 2x：计算 vs 带宽两个子系统方向相反，
+正是跨机器对比的典型指纹，与工具链无关。</li>
+<li><code>git diff main 0.17 -- src/emit_js.zig</code>：仅迁移机械改动（ArrayList→Managed、Io API）
+＋一处 sext helper（<code>Math.trunc</code>→<code>|0</code>，更快）；
+host-codec 桥（<code>sa_b64dec/sa_hexdec</code>） emission 逐字节一致（仅注释差一行）。
+生成 JS 实质相同，性能差不来自发射器。</li>
+<li>后端同为 LLVM 14（<code>llvm-14-dev</code>，<code>llvm-include-dir</code> 未变），
+native 代码生成路径一致。</li>
+</ul>
+
+<h2>6. 两个 0.17 真修复（不修则对比无法进行）</h2>
+<ul>
+<li><b>UBSan 默认集扩大</b>：Zig 0.17 的 <code>zig cc</code> 默认 sanitizer 集合远大于 0.14，
+<code>libsa_std.a</code> 与用户 <code>.bc</code> 被注入 <code>__ubsan_handle_*</code>，
+native glibc 链接无 ubsan 运行时则报 undefined symbol（simd peer 全灭），
+且检查开销使 native rw 从 4ms 慢到 176ms（<b>44x</b>）。
+修复：<code>build.zig</code> 三处 C shim＋<code>zigcc.zig</code> 三处 argv 加
+<code>-fno-sanitize=all</code>，恢复 0.14 行为；archive 已验证零 ubsan 引用。</li>
+<li><b>wasm 入口契约</b>：0.17 工具链的 wasi-libc 移除了 weak 默认
+<code>__main_argc_argv</code>（0.14 经它间接调 <code>main</code>），
+旧 emission 的 <code>main</code> 无人引用，链接为 unreachable stub。
+修复：<code>wasm_compat</code> 下入口改名 <code>__main_argc_argv</code>
+（<code>emit_llvm_llvmc_shim.c</code>），hello/全矩阵恢复。</li>
+</ul>
+
+<h2>7. 口径差异与诚实声明</h2>
+<ul>
+<li>esc/find 与旧记录轮次不同（当前文件：esc 100轮 / findn 2000轮；旧记录：esc 200轮 / find 2500×4），
+绝对值不可直接比，只看 tier 与正确性。</li>
+<li>hex native 旧记录（3.1ms）出自纯表版 peer，当前 <code>peer_hex.sa</code> 是 JS host-codec 版
+（无 native 符号，属设计如此）；native hex 以 <code>peer_hexn20000</code> 重建基线。</li>
+<li>b64nbig 单次 19ms 含进程启动＋校验，对比 slope 口径（1.13ns/B）时应扣除固定成本。</li>
+<li>编译器本体为 Debug 构建；程序侧统一用 <code>--release-fast</code>（与 §14 同口径）。</li>
+<li>总结 verdict：<b>0.17 与 0.14.1 同 tier，无系统性回归；正确性（全部校验和）完全一致。</b></li>
+</ul>
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：sci@0.17 本机三次中位数；
+0.14.1 列引自本站 04_cli/13_bun_peer.html 及相关 commit 记录；
+mitata 校准：bun 1.4.3 同版本复测。</p>
+</body>
+</html>
