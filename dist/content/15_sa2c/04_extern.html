@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>extern 宿主绑定（staged 模拟）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:left}
+th{background:#f3f4f6}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">sa→C &gt; extern 宿主绑定（staged 模拟）</div>
+<h1>extern 宿主绑定（staged 模拟）</h1>
+
+<p>被调用的未知 extern 默认生成 trap stub（<code>sa_trap("extern …")</code>）。
+知名 extern 则生成 <strong>staged 宿主绑定</strong>：与解释器/JS 端相同的
+<strong>模拟语义</strong>（假 fd、echo signal、guest 内存上的字节级 npm 判定），
+<strong>不是</strong>真正的 libc 调用——输出确定、无宿主依赖，demo 断言的正是这些假值。</p>
+
+<h2>1. 已支持家族（两批）</h2>
+<table>
+<tr><th>家族</th><th>extern</th><th>语义</th></tr>
+<tr><td>fd</td><td><code>fd_open/close/read</code></td><td>fake fd 计数器（从 3 起）；close→0；read→3</td></tr>
+<tr><td>mmap</td><td><code>mmap/munmap</code></td><td><code>sa_alloc(len)</code> 零页（负长度在 OOM 检查里 trap）；munmap→0</td></tr>
+<tr><td>signal</td><td><code>signal</code></td><td>echo 信号号</td></tr>
+<tr><td>npm</td><td><code>npm_totalmem/parallelism/isabs/iseq</code>（含 <code>ns_</code> 别名）</td><td>前两者返回确定性常量（8GiB / 4）；后两者是真逻辑：越界 trap 的 guest 字节比较</td></tr>
+<tr><td>pthread</td><td><code>spawn/join/drop</code></td><td>经 dispatcher <strong>同步跑 entry</strong>（单线程 staged），发 joinable handle；join/drop→0</td></tr>
+<tr><td>dlopen</td><td><code>dlopen/dlsym/dlclose</code></td><td><code>sa_alloc(8)</code> 当 nonzero handle；close→0</td></tr>
+<tr><td>sqlite</td><td><code>prepare/step/finalize</code></td><td>0 / 100（SQLITE_ROW，走 row-present 分支）/ 0</td></tr>
+<tr><td>http client</td><td><code>sa_http_client_*</code>（12 个）</td><td>请求体被记录→send 以 status 200 回显；reader 带 offset 分块读；全状态码 0</td></tr>
+<tr><td>http server</td><td><code>sa_http_server_*</code>（13 个）</td><td>accept 发请求；path/header 取罐头值（"/stream"、"text/plain"，从 fresh guest 内存 serve）；stream 全 0</td></tr>
+</table>
+
+<h2>2. 状态与实现约束</h2>
+<ul>
+<li>http 状态是<strong>单张共享有界表</strong>（<code>sa_http_objs[16]</code>，handle 即唯一 alloc 偏移，
+天然无串扰、无 malloc），仅在有 <code>sa_http_*</code> binding 被渲染时发射；
+<code>find/slot/drop</code> 进 helper 目录走引用门控；每个 binding 体至少引用一个 helper，
+表不可能处于"已发射但无人用"状态。</li>
+<li>所有 out-param 经 <code>sa_store_u64</code> 写回（自带越界检查）；未知 handle 一律返回 1
+（<code>resp_status</code> 按 JS 返回 0）；罐头字符串用函数内 <code>static const</code> 字节数组。</li>
+<li>统一签名 <code>(sa_u64 a0, …)</code>，未用参数用 bitmask 精确 <code>(void)</code> 填充
+（mmap 用 <code>a1</code> 不用 <code>a0</code> 这类错位已覆盖）；每个 binding 内含
+<code>SA_GAS_CHECK(1)</code>；binding 引用到的 helper（<code>sa_alloc</code>、
+<code>sa_checked_addr</code> 等）在 preamble 之前预渲染扫描并入使用集，裁剪不受影响。</li>
+<li>注意：<code>#npm_bind</code> 仍是 JS-only；C 端 npm 系是原生 staged 实现，不要与 node 行为混淆
+（totalmem/parallelism 返回的是固定假值，只要满足 <code>&gt;0 / &gt;=1</code> 的断言）。</li>
+</ul>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa→C 总览与快速上手</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:left}
+th{background:#f3f4f6}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">sa→C &gt; 总览与快速上手</div>
+<h1>sa→C 总览与快速上手</h1>
+
+<p><code>sa build-c</code> 把 SA 程序编译成单文件、可审计的 C99 程序
+（实现：<code>sci/src/emit_c.zig</code>，Zig 0.17 构建）。
+设计目标是<strong>安全可审计的 C</strong>：确定性输出、无隐藏依赖、
+<code>gcc -Wall -Wextra</code> 零警告，配合 Gas 计量与线性内存越界检查，
+适合把 SA 程序嵌入 checkout 规则、审计流水线等对 C 代码有静态检查要求的场景。</p>
+
+<h2>1. 基本用法</h2>
+<pre>sa build-c demos/c/01_hello_world/main.sa -o sa_program.c --project-root .
+cc -Wall -Wextra -std=c99 -O2 sa_program.c -o sa_program
+./sa_program   # hello, saasm</pre>
+<ul>
+<li><code>--project-root</code> 用于包解析（<code>sa_std</code> 导入与 <code>.sa_cache</code>）。</li>
+<li>输出是单个 <code>.c</code> 文件：头部注释标明生成器，之后依次是
+includes/类型、线性内存、<code>sa_trap</code>、Gas、按需发射的运行时 helper、
+const 定义、函数前向声明、函数体、（可选）间接分发表、<code>main</code>。</li>
+<li><code>hello_world</code> 的完整输出约 43 行，仅含
+<code>sa_trap + sa_gas + sa_addr + sa_print_bytes</code> 四个运行时符号。</li>
+</ul>
+
+<h2>2. 本章结构</h2>
+<table>
+<tr><th>页</th><th>内容</th></tr>
+<tr><td><a href="02_runtime.html">运行时与 Gas</a></td><td>helper 按需发射、线性内存、<code>SA_GAS_CHECK</code> 插桩与 <code>SA_GAS_LIMIT</code> 覆盖</td></tr>
+<tr><td><a href="03_semantics.html">语义对齐</a></td><td>兼容别名（div/rem/gt/lt/shr）的 kind 选择、f32 domain、间接调用分发与修复史</td></tr>
+<tr><td><a href="04_extern.html">extern 宿主绑定</a></td><td>staged 模拟语义、已支持家族（fd/mmap/signal/npm/pthread/dlopen/sqlite/http）与未知 extern 回退</td></tr>
+<tr><td><a href="05_verify.html">验证矩阵</a></td><td>961 demos 全量结论、仓库套件、<code>-Wall -Wextra</code> 门禁与已知边界</td></tr>
+<tr><td><a href="06_perf.html">性能对比</a></td><td>C(-O2) vs JS vs 解释器、新旧编译产物大小、Gas 注记</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>sa→C 发射的是<strong>可执行程序</strong>
+（含 <code>int main</code>），不是库：未被调用的 export/test 函数会被裁掉；
+<code>#npm_bind</code> 仍是 JS-only，C 端对 npm 系 extern 用原生 staged 实现代替
+（见 <a href="04_extern.html">extern 章</a>）。</div>
+</body>
+</html>

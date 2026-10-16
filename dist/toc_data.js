@@ -687,5 +687,41 @@ var TOC = [
     "c": []
    }
   ]
+ },
+ {
+  "t": "sa→C 后端",
+  "f": null,
+  "c": [
+   {
+    "t": "sa→C 总览与快速上手",
+    "f": "content/15_sa2c/01_overview.html",
+    "c": []
+   },
+   {
+    "t": "运行时：按需 helper、内存与 Gas",
+    "f": "content/15_sa2c/02_runtime.html",
+    "c": []
+   },
+   {
+    "t": "语义对齐：别名、f32 与间接调用",
+    "f": "content/15_sa2c/03_semantics.html",
+    "c": []
+   },
+   {
+    "t": "extern 宿主绑定（staged 模拟）",
+    "f": "content/15_sa2c/04_extern.html",
+    "c": []
+   },
+   {
+    "t": "验证矩阵与已知边界",
+    "f": "content/15_sa2c/05_verify.html",
+    "c": []
+   },
+   {
+    "t": "sa2c 性能对比：C / JS / 解释器",
+    "f": "content/15_sa2c/06_perf.html",
+    "c": []
+   }
+  ]
  }
 ];
