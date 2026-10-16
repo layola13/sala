@@ -1117,6 +1117,14 @@
 <param name="Local" value="../dist/content/15_sa2c/05_verify.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sa2c 性能对比：C / JS / 解释器">
+<param name="Local" value="../dist/content/15_sa2c/06_perf.html">
+</OBJECT>
+</UL>
 </UL>
 </UL>
 </BODY>

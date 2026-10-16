@@ -716,6 +716,11 @@ var TOC = [
     "t": "验证矩阵与已知边界",
     "f": "content/15_sa2c/05_verify.html",
     "c": []
+   },
+   {
+    "t": "sa2c 性能对比：C / JS / 解释器",
+    "f": "content/15_sa2c/06_perf.html",
+    "c": []
    }
   ]
  }

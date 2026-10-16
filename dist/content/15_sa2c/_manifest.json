@@ -9,6 +9,8 @@
     {"id": "sa2c-extern", "title": "extern 宿主绑定（staged 模拟）", "file": "04_extern.html",
      "keywords": ["extern", "staged", "fd", "mmap", "pthread", "dlopen", "sqlite", "http", "npm", "trap stub"], "parent": null},
     {"id": "sa2c-verify", "title": "验证矩阵与已知边界", "file": "05_verify.html",
-     "keywords": ["验证", "demos", "c-matrix", "Wall", "已知问题", "边界"], "parent": null}
+     "keywords": ["验证", "demos", "c-matrix", "Wall", "已知问题", "边界"], "parent": null},
+    {"id": "sa2c-perf", "title": "sa2c 性能对比：C / JS / 解释器", "file": "06_perf.html",
+     "keywords": ["性能", "benchmark", "O2", "node", "bun", "解释器", "Gas", "fib"], "parent": null}
   ]
 }

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa2c 性能对比：C / JS / 解释器</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:right}
+th{background:#f3f4f6}td:first-child,th:first-child{text-align:left}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">sa→C &gt; 性能对比：C / JS / 解释器</div>
+<h1>sa2c 性能对比：C / JS / 解释器（2026-10-16）</h1>
+
+<p>问题：sa→C 生成的程序跑起来是什么水平？结论先行：<b>C(-O2) 比 JS 快约一个数量级
+（10~20x），比解释器快约三个数量级</b>；编译产物比旧后端小 70~90%；
+毫秒级小 demo 各后端同 tier（启动噪声主导）。方法沿本站惯例（中位数、tier  verdict）。</p>
+
+<h2>1. 方法与环境</h2>
+<ul>
+<li>机器：AMD EPYC 7B12 容器，8 核，51GB 内存；<code>cc</code> 为 GCC 13.3.0，
+C 侧统一 <code>-std=c99</code>，对比 <code>-O2 / -O0</code>；node v20.19.0，bun 1.4.3。</li>
+<li>workload：3 个自写 bench（附录 A，全文附后；非 repo 文件）——
+<code>bench_sum</code>（i64 累加 200 万次）、<code>bench_fadd</code>（f64 累加 200 万次）、
+<code>bench_fib</code>（递归 fib(25)=75025，调用密集）。三者皆自校验输出。</li>
+<li>C 用 <code>-DSA_GAS_LIMIT=50000000ULL</code>（默认 1 万单位跑 20 万次循环即
+<code>out of gas</code> trap，见 §4；bench 需放大限额）；JS 走 <code>sa build-js</code>
+默认格式；解释器为 <code>sa run</code>。</li>
+<li>C/JS 取 5 次运行中位数；解释器太慢只跑 1 次（启动成本已含在内，各后端同口径）。</li>
+</ul>
+
+<h2>2. 运行时间（毫秒）</h2>
+<table>
+<tr><th>bench</th><th>C -O2</th><th>C -O0</th><th>node</th><th>bun</th><th>解释器</th></tr>
+<tr><td>sum 200万次</td><td>4</td><td>19</td><td>68</td><td>45</td><td>≈4000（单次）</td></tr>
+<tr><td>fadd 200万次</td><td>4</td><td>40</td><td>64</td><td>38</td><td>≈4000（单次）</td></tr>
+<tr><td>fib(25) 递归</td><td>2</td><td>5</td><td>43</td><td>31</td><td>≈41000（单次）</td></tr>
+</table>
+<p>解读：<b>C(-O2) ≈ JS 的 10~20x</b>（循环与调用密集型一致）；
+<b>解释器慢约 1000x</b>（递归 fib 达 20000x，调用开销主导）。
+<code>-O0</code> 比 <code>-O2</code> 慢 2~10x，属 cc 常规优化效应，与发射器无关。
+毫秒级小 demo（如 fib(8)）各后端都在 1ms 量级，进程启动噪声主导，只看 tier。</p>
+
+<h2>3. 编译产物：新后端比旧后端小 70~90%</h2>
+<table>
+<tr><th>demo</th><th>旧行数 / statics / 字节</th><th>新行数 / statics / 字节</th></tr>
+<tr><td>01_hello_world</td><td>180 / 120 / 15065</td><td>43 / 8 / 1758</td></tr>
+<tr><td>466_callback_register_invoke</td><td>228 / 122 / 16269</td><td>135 / 27 / 5810</td></tr>
+<tr><td>302_http_server（含 13 binding＋状态表）</td><td>—（无旧对照）</td><td>240 / 52 / 14522</td></tr>
+</table>
+<p>缩小的都是死代码（未用 helper、未达函数、未调 extern stub），行为经 936-demo
+differential 全量确认零变化。运行时小 demo 新旧同 tier（噪声内）。</p>
+
+<h2>4. Gas 注记（实测）</h2>
+<ul>
+<li>默认 <code>SA_GAS_LIMIT=10000</code> 下，20 万次循环 demo 直接
+<code>[sa-trap] out of gas</code>（exit=1）：每个函数入口＋每个 label 各扣 1 单位，
+大循环必须 <code>-DSA_GAS_LIMIT=…</code> 放大。这是上线前必须定的参数（见 02_runtime）。</li>
+<li>check 本体约 2 条 ALU/访存，200 万次量级下不可与噪声分离，未单独量化；
+-O2 vs -O0 的差距全部来自 cc 优化，与 Gas 无关。</li>
+</ul>
+
+<h2>5. 诚实声明</h2>
+<ul>
+<li>C 侧数字含进程启动（毫秒级 bench 里占比显著）；跨 tier 结论（10x/1000x）不受影响，
+同 tier 内小数不具可比性。</li>
+<li>解释器为单次运行；bench 程序在 /tmp（非 repo 文件），全文见附录 A，
+用同命令可复现（<code>--project-root</code> 指向 sci 源码树以解析 <code>sa_std</code>）。</li>
+<li>旧后端产物取自仓库已跟踪的 <code>demos/c/*/main.c</code>（sa-c 分支合并前版本）。</li>
+</ul>
+
+<h2>附录 A：bench 程序全文</h2>
+<pre>@import "sa_std/io/print.sai"
+@const OUT = utf8:"ok\n"
+// bench_sum：sum 0..N-1，N=2000000 -&gt; 1999999000000
+@main() -&gt; i32:
+L_ENTRY:
+    n = 2000000 as i64
+    one = 1 as i64
+    i = 0 as i64
+    acc = 0 as i64
+    jmp L_LOOP
+L_LOOP:
+    c = slt i, n
+    br c -&gt; L_BODY, L_DONE
+L_BODY:
+    acc = add acc, i
+    i = add i, one
+    !c
+    jmp L_LOOP
+L_DONE:
+    !c
+    !n
+    !one
+    !i
+    expect = 1999999000000 as i64
+    ok = eq acc, expect
+    !acc
+    !expect
+    br ok -&gt; L_OK, L_ERR
+L_OK:
+    !ok
+    call @sa_print_bytes(&amp;OUT, 3)
+    return 0
+L_ERR:
+    !ok
+    return 1</pre>
+<pre>// bench_fadd：0.5 累加 2000000 次 == 1000000.0（fdiv/sitofp/fptrunc 建值）
+@main() -&gt; i32:
+L_ENTRY:
+    zero_i = 0 as i32
+    one_i = 1 as i32
+    two_i = 2 as i32
+    n = 2000000 as i64
+    one_64 = 1 as i64
+    zero_f = sitofp zero_i as f64
+    one_f = sitofp one_i as f64
+    two_f = sitofp two_i as f64
+    half = fdiv one_f, two_f
+    acc = sitofp zero_i as f64
+    i = 0 as i64
+    jmp L_LOOP
+L_LOOP:
+    c = slt i, n
+    br c -&gt; L_BODY, L_DONE
+L_BODY:
+    acc = fadd acc, half
+    i = add i, one_64
+    !c
+    jmp L_LOOP
+L_DONE:
+    !c
+    !n
+    !one_64
+    !i
+    !half
+    tmp = 1000000 as i64
+    exp2 = sitofp tmp as f64
+    ok = fcmp_eq acc, exp2
+    !tmp
+    !exp2
+    !acc
+    br ok -&gt; L_OK, L_ERR
+L_OK:
+    !ok
+    call @sa_print_bytes(&amp;OUT, 3)
+    return 0
+L_ERR:
+    !ok
+    return 1</pre>
+<pre>// bench_fib：fib(25) == 75025（递归，调用密集）
+@fib(n: i32) -&gt; i32:
+L_ENTRY:
+    base = sle n, 1
+    br base -&gt; L_BASE, L_REC
+L_BASE:
+    !base
+    return n
+L_REC:
+    !base
+    n1 = sub n, 1
+    n2 = sub n, 2
+    a = call @fib(n1)
+    b = call @fib(n2)
+    sum = add a, b
+    !n
+    !a
+    !b
+    return sum
+
+@main() -&gt; i32:
+L_ENTRY:
+    result = call @fib(25)
+    expect = 75025 as i32
+    ok = eq result, expect
+    !result
+    !expect
+    br ok -&gt; L_OK, L_ERR
+L_OK:
+    !ok
+    call @sa_print_bytes(&amp;OUT, 3)
+    return 0
+L_ERR:
+    !ok
+    return 1</pre>
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：AMD EPYC 7B12 容器，
+C -O2/-O0（GCC 13.3，GAS_LIMIT=50000000ULL）5 次中位数；
+node v20.19.0 / bun 1.4.3（build-js 默认格式）5 次中位数；
+解释器单次。旧产物：sci/sa-c 已跟踪 main.c。</p>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>
