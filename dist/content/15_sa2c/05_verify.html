@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>验证矩阵与已知边界</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:left}
+th{background:#f3f4f6}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">sa→C &gt; 验证矩阵与已知边界</div>
+<h1>验证矩阵与已知边界</h1>
+
+<h2>1. 全量结论（sa-c 分支，Zig 0.17 构建）</h2>
+<table>
+<tr><th>口径</th><th>结果</th></tr>
+<tr><td><code>demos/c</code> 961 个 differential（新旧后端输出逐字节比对）</td><td>936 通过</td></tr>
+<tr><td>无旧对照组单独验证（binding + float 修复组）</td><td>19 通过（9 extern + 5 float + 5 第二批 binding）</td></tr>
+<tr><td>编译期失败</td><td>6 个，全是负向测试（import cycle / DuplicateDef / CapabilityMismatch / crossdir reject），被拒绝即正确</td></tr>
+<tr><td>仓库自带套件（含 c-matrix 10/10）</td><td>18/18 通过</td></tr>
+</table>
+<p>通过标准：<code>build-c</code> 成功＋<code>cc -Wall -Wextra -std=c99</code>（含
+<code>-O2</code> 抽查）零警告＋运行 exit 0＋输出正确。
+<code>demos/rosetta</code> 与 <code>demos/js</code> 是其他后端地盘，不在本口径内。</p>
+
+<h2>2. 修过的代表性问题</h2>
+<ul>
+<li>间接分发空表恒 trap（<code>uint64_t idx &gt;= 0</code> 恒真），demo 466 回归。</li>
+<li>500+ 死 helper（<code>NOLINT</code> 压警告属作弊）：改按需发射＋可达性裁剪。</li>
+<li>u64 别名 <code>rem/gt</code> 误走 signed（demo 388/389）、i32 <code>lshr</code> 未窄化（347）、
+f32 链 domain 污染（452）、间接 f32 返回比较（472）。</li>
+<li><code>demos/c/219</code> 镜像缺 <code>bin/</code> 子树（另被 <code>demos/**/bin/</code>
+ignore 误伤，照 rosetta 原件 <code>git add -f</code> 补齐）。</li>
+</ul>
+
+<h2>3. 已知边界（非 bug，按设计）</h2>
+<ul>
+<li>未知 extern 仍是精确 trap（<code>sa_trap("extern …")</code>），调用前按需发射、无死代码。</li>
+<li><code>shr + unknown</code> 按 JS 走 <code>lshr</code>（与历史强制 signed 不同），全量 sweep 无 fallout。</li>
+<li>一元 <code>fneg</code> 只处理确证 f32（<code>fneg32</code>）；操作数 domain 未知且无第二操作数佐证时保持 f64，
+间接调用返回由 ftable 一致性播种覆盖。</li>
+<li><code>sa run</code> 在受限沙箱内 <code>InvalidAddress</code> 不可用，验证以 differential + oracle 为准。</li>
+<li>跟踪的 <code>demos/c/*/main.c</code> 镜像仍是旧后端产物，未随新后端重生成（有意为之，避免巨型 diff）。</li>
+</ul>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "topics": [
+    {"id": "sa2c-overview", "title": "sa→C 总览与快速上手", "file": "01_overview.html",
+     "keywords": ["sa2c", "build-c", "C后端", "快速上手", "hello_world", "审计"], "parent": null},
+    {"id": "sa2c-runtime", "title": "运行时：按需 helper、内存与 Gas", "file": "02_runtime.html",
+     "keywords": ["helper", "死代码", "NOLINT", "sa_mem", "sa_trap", "Gas", "SA_GAS_LIMIT", "SA_GAS_CHECK"], "parent": null},
+    {"id": "sa2c-semantics", "title": "语义对齐：别名、f32 与间接调用", "file": "03_semantics.html",
+     "keywords": ["别名", "div", "rem", "signed", "unsigned", "f32", "fcmp", "lshr", "ftable", "间接调用"], "parent": null},
+    {"id": "sa2c-extern", "title": "extern 宿主绑定（staged 模拟）", "file": "04_extern.html",
+     "keywords": ["extern", "staged", "fd", "mmap", "pthread", "dlopen", "sqlite", "http", "npm", "trap stub"], "parent": null},
+    {"id": "sa2c-verify", "title": "验证矩阵与已知边界", "file": "05_verify.html",
+     "keywords": ["验证", "demos", "c-matrix", "Wall", "已知问题", "边界"], "parent": null}
+  ]
+}
