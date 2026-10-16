@@ -73,6 +73,23 @@ differential 全量确认零变化。运行时小 demo 新旧同 tier（噪声�
 <li>旧后端产物取自仓库已跟踪的 <code>demos/c/*/main.c</code>（sa-c 分支合并前版本）。</li>
 </ul>
 
+<h2>6. sa-c vs 原生后端：同 workload 实测（2026-10-16 补）</h2>
+<p>上面的 C/JS/解释器是 sa-c 分支上的 bench。合并到 main 后（zig 0.17 树，
+<code>sa 0.1.6</code>），用附录 A 同一份 bench 补测原生 LLVM 后端（
+<code>sa build-exe</code> 默认优化，同机 AMD EPYC 7B12 容器，5 次中位数，毫秒）：</p>
+<table>
+<tr><th>bench</th><th>C -O2</th><th>原生 LLVM</th><th>C -O0</th><th>node</th><th>bun</th><th>解释器</th></tr>
+<tr><td>sum 200万次</td><td>4</td><td>6.9</td><td>19</td><td>68</td><td>45</td><td>≈4000（单次）</td></tr>
+<tr><td>fadd 200万次</td><td>4</td><td>10.9</td><td>40</td><td>64</td><td>38</td><td>≈4000（单次）</td></tr>
+<tr><td>fib(25) 递归</td><td>2</td><td>2.9</td><td>5</td><td>43</td><td>31</td><td>≈41000（单次）</td></tr>
+</table>
+<p>解读：<b>原生与 C(-O2) 同 tier</b>（循环密集型慢 1.2~2.7x，调用密集型打平）；
+<b>原生比 JS 快约 6~15x</b>，比解释器快 3~4 个数量级。也就是说 sa-c 在这次合并里
+没有 Regression 可言——它直接站上了原来只有原生后端才有的 tier，而 JS/解释器
+仍在各自原来的 tier（可对照本站 14_zig017_perf 的 peer 结论：b64 等 workload
+下原生与 wasm/JS 的 tier 差在合并前后保持一致）。毫秒级 bench 含启动噪声，
+只看 tier，不看小数。</p>
+
 <h2>附录 A：bench 程序全文</h2>
 <pre>@import "sa_std/io/print.sai"
 @const OUT = utf8:"ok\n"
