@@ -12,6 +12,12 @@
 <p>这一页给出 SA 插件体系的整体图景：插件如何声明、如何安装、本章收录了哪些插件。
 读完即可判断某个能力（网络、数据库、UI、运行时）应该由哪个插件提供，以及去哪一页看细节。</p>
 
+<div class="note"><span class="label">版本状态</span>截至 2026-10-19，本章收录的全部插件仓库
+（sax、react、mui、vite、tui、wgpu、3dengines、vm、sla、deno、node、bun、pkg、
+http-client、http-server、db、bc2sa）的 <code>0.17</code> 分支均已完成 <b>Zig 0.17</b> 迁移：
+使用 Zig 0.17 构建通过、Zig 单元测试通过，并已用 <code>sa plugin install --dev</code> 验证安装
+（<code>0.17</code> 分支；<code>sci</code> 对应 <code>main</code>）。旧的 0.14.1 分支保留不动。</div>
+
 <h2>什么是 SA 插件</h2>
 <p>SA 插件是一个带清单文件 <code>sap.json</code> 的动态库工程（Zig 构建，产物如 <code>libdb.so</code> / <code>tui.dll</code>），
 通过 C-ABI 与 <code>@extern</code>/<code>.sai</code> 契约向 SA 程序暴露 native 能力，
