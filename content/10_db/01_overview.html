@@ -8,6 +8,7 @@
 <body class="topic">
 <div class="topic-header">db 数据库插件 &gt; db 插件总览：定位与架构</div>
 <h1>db 插件总览：定位与架构</h1>
+<div class="note"><span class="label">Zig 0.17</span>本插件使用 <b>Zig 0.17</b> 编译：<code>0.17</code> 分支以 Zig 0.17 构建通过并通过 Zig 单元测试；旧的 0.14.1 分支保留不动。</div>
 
 <p>这一页回答三个问题：<code>sa_plugin_db</code> 到底是什么、它明确不承诺什么、以及它的数据落在磁盘上的哪些文件里。
 读完这一页你应该能判断自己的场景适不适合用它，并知道后续几页（CLI、API、宏）分别在讲哪一层。</p>
