@@ -10,7 +10,8 @@
 - Native 运行时：Rust release 几何平均快约 1.47×（不含 matmul；含 matmul 约 2.02×）。
 - WASM 运行时：Rust release 几何平均快约 1.44×（不含 matmul；含 matmul 约 1.94×）。
 - SLA 领先：native sort 1.35×、hashmap 1.14×；WASM mandelbrot 1.87×。
-- 编译：常规源码 Rust 冷编译约为 SLA 的 0.32×（native）/0.40×（WASM）用时；热编译约 30ms vs 130–1432ms。
+- 编译：常规源码 Rust 冷编译约为 SLA 的 0.32×（native）/0.40×（WASM）用时；热编译两边 touch 后实际重建，
+  SLA/Rust native 为 1.2–8.7×、WASM 为 0.77–7.4×（小 WASM 项目 SLA 略快）。
 - 体积最优：SLA `--release-fast` + strip vs Rust `profile=size` + strip + `wasm-opt -Oz`。
   native SLA 约 9.1MB vs Rust 274–278KB（约 32.8× 大）；WASM 典型负载（不含 hello/matmul）SLA 5.6–7.9KB vs Rust 32.7–34.3KB
   （约小 5.2×），matmul 例外（58.0KB vs 33.0KB，SLA 大约 1.76×）。

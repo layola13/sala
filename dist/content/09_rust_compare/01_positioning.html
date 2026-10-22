@@ -76,7 +76,7 @@ let b = ^a;           // ^ 前缀显式声明 move
 <li>LLM 自修复闭环（Trap 结构化 JSON 原生）；bc2sa 多语言生态桥；多前端架构</li>
 </ul>
 <div class="note"><span class="label">注意</span>2026-10-22 的实测修正了旧口径：Release 模式下 Rust 的
-native/WASM 运行时中位数分别快约 1.47×/1.44×（不含 matmul 异常点），常规源码的冷/热编译也是 Rust 更快；
+native/WASM 运行时中位数分别快约 1.47×/1.44×（不含 matmul 异常点），常规源码冷编译 Rust 更快；热编译在大型源码上 Rust 仍快，但小 WASM 项目差距消失甚至反转；
 但双方都取体积最优配置后，典型 SLA WASM 约为 Rust 的 1/5（matmul 例外，SLA 反而大约 1.76×）。
 详见<a href="09_performance.html">SLA vs Rust 性能实测</a>。</div>
 

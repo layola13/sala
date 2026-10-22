@@ -61,28 +61,28 @@
 
 | bench | target | SLA | Rust | Rust/SLA |
 |---|---|---:|---:|---:|
-| bytes | native | 564 | 28 | 0.050 |
-| bytes | wasm | 503 | 28 | 0.056 |
-| fib | native | 188 | 30 | 0.158 |
-| fib | wasm | 139 | 32 | 0.227 |
-| hashmap | native | 831 | 30 | 0.036 |
-| hashmap | wasm | 781 | 29 | 0.037 |
-| hello | native | 206 | 30 | 0.148 |
-| hello | wasm | 130 | 28 | 0.220 |
-| loopsum | native | 198 | 31 | 0.158 |
-| loopsum | wasm | 139 | 28 | 0.204 |
-| mandelbrot | native | 187 | 28 | 0.151 |
-| mandelbrot | wasm | 153 | 33 | 0.217 |
-| matmul | native | 208 | 31 | 0.148 |
-| matmul | wasm | 167 | 31 | 0.184 |
-| nbody | native | 199 | 28 | 0.143 |
-| nbody | wasm | 138 | 29 | 0.213 |
-| sieve | native | 956 | 29 | 0.031 |
-| sieve | wasm | 933 | 30 | 0.032 |
-| sort | native | 1432 | 27 | 0.019 |
-| sort | wasm | 1355 | 33 | 0.024 |
-| vecpush | native | 618 | 32 | 0.052 |
-| vecpush | wasm | 501 | 27 | 0.054 |
+| bytes | native | 546 | 132 | 0.241 |
+| bytes | wasm | 492 | 150 | 0.304 |
+| fib | native | 176 | 113 | 0.643 |
+| fib | wasm | 136 | 148 | 1.086 |
+| hashmap | native | 790 | 133 | 0.168 |
+| hashmap | wasm | 741 | 163 | 0.220 |
+| hello | native | 184 | 112 | 0.609 |
+| hello | wasm | 126 | 132 | 1.041 |
+| loopsum | native | 175 | 118 | 0.676 |
+| loopsum | wasm | 127 | 132 | 1.036 |
+| mandelbrot | native | 186 | 120 | 0.644 |
+| mandelbrot | wasm | 134 | 144 | 1.078 |
+| matmul | native | 191 | 128 | 0.671 |
+| matmul | wasm | 146 | 159 | 1.094 |
+| nbody | native | 179 | 151 | 0.843 |
+| nbody | wasm | 136 | 177 | 1.301 |
+| sieve | native | 944 | 141 | 0.149 |
+| sieve | wasm | 883 | 160 | 0.181 |
+| sort | native | 1328 | 153 | 0.115 |
+| sort | wasm | 1302 | 177 | 0.136 |
+| vecpush | native | 569 | 141 | 0.248 |
+| vecpush | wasm | 501 | 161 | 0.321 |
 
 ## Artifact size (bytes, cold build)
 

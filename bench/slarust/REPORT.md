@@ -14,8 +14,10 @@
 - **WASM 运行时**：排除 hello 与 matmul 后 Rust 几何平均快 **1.44×**；算上 matmul 则快
   **1.94×**。SLA 的 mandelbrot 反而快 **1.87×**，
   matmul Rust 快 28.3×。
-- **编译时间**：常规源码 Rust 冷编译更快（native SLA 是 Rust 的 3.09×，WASM 是 2.48×）；
-  热编译 Rust 约 30ms，SLA 130–1432ms。唯一例外是 **matmul native**：SLA `--release-fast` 冷编译
+- **编译时间**：常规源码 Rust 冷编译更快（native SLA 是 Rust 的 3.09×，WASM 是 2.48×）。
+  热编译在两边都 touch 源文件、实际重建后，差距远小于旧稿：native SLA 慢 1.2–8.7×
+  （几何 3.1×），WASM SLA/Rust 0.77–7.4×（几何 2.2×），
+  小 WASM 项目 SLA 甚至略快。唯一例外是 **matmul native**：SLA `--release-fast` 冷编译
   70.1s，Rust 0.19s，慢约 379×；
   同一份源码 WASM 目标只要 0.86s。
 - **体积最优对比**：双方各取最小配置（SLA `--release-fast`+strip；Rust `profile=size`
@@ -55,7 +57,7 @@
 - Rust native：`cargo build --release`（opt-level=3、lto=false、codegen-units=16、panic=abort）。
 - Rust WASM：`--target wasm32-wasip1`，release profile 同上。
 - 冷编译：删除 `.sa_cache` 并加 `--no-incremental`；Rust 使用全新 `CARGO_TARGET_DIR`。取 3 次中位数。
-- 热编译：保留缓存/目标目录，取 3 次中位数。
+- 热编译：保留缓存/目标目录，测量前 touch 两边源文件，确保 SLA 与 Rust 都实际重建（Rust 为整 crate 重编），取 3 次中位数。
 - 运行时：native 7 次、WASM 5 次，去掉 1 次预热，取中位数；用 `wait4` 读取子进程 `ru_maxrss`。
 - WASM 运行器：Wasmtime 25.0.2（WASI preview1），计时包含实例化与进程启动（hello 约 11–13ms）。
 
@@ -137,20 +139,22 @@ matmul native 是异常点：SLA 冷编译 70.1s，Rust 185ms；
 
 | bench | native SLA / Rust | wasm SLA / Rust |
 |---|---|---|
-| hello | 206 / 30 | 130 / 28 |
-| fib | 188 / 30 | 139 / 32 |
-| loopsum | 198 / 31 | 139 / 28 |
-| sieve | 956 / 29 | 933 / 30 |
-| matmul | 208 / 31 | 167 / 31 |
-| sort | 1432 / 27 | 1355 / 33 |
-| hashmap | 831 / 30 | 781 / 29 |
-| nbody | 199 / 28 | 138 / 29 |
-| mandelbrot | 187 / 28 | 153 / 33 |
-| vecpush | 618 / 32 | 501 / 27 |
-| bytes | 564 / 28 | 503 / 28 |
+| hello | 184 / 112 | 126 / 132 |
+| fib | 176 / 113 | 136 / 148 |
+| loopsum | 175 / 118 | 127 / 132 |
+| sieve | 944 / 141 | 883 / 160 |
+| matmul | 191 / 128 | 146 / 159 |
+| sort | 1328 / 153 | 1302 / 177 |
+| hashmap | 790 / 133 | 741 / 163 |
+| nbody | 179 / 151 | 136 / 177 |
+| mandelbrot | 186 / 120 | 134 / 144 |
+| vecpush | 569 / 141 | 501 / 161 |
+| bytes | 546 / 132 | 492 / 150 |
 
-Rust 热编译稳定在约 30ms（Cargo 无改动时只做新鲜度检查）；SLA 热编译 130–1432ms，源文件越大越慢，
-说明 SLA 的缓存只省掉了部分阶段，前端/校验仍在重复执行。
+热编译测量前会 touch 两边源文件，保留各自缓存/目标目录，因此两边都实际重建。Rust release 默认不开 incremental，
+是整 crate 重编；SLA 缓存则省掉部分阶段。修正后 native SLA 慢 1.2–8.7×
+（几何 3.1×），WASM SLA/Rust 0.77–7.4×（几何 2.2×）。
+旧稿的“Rust 约 30ms”是 Cargo 无改动时的 no-op，与 SLA 的实际重建不可比，已废弃。
 
 ## 5. 产物体积与内存
 
@@ -293,7 +297,7 @@ Native 与 WASM 的 RSS 表已在第 2、3 节列出。结论：
    可能与生成代码省略边界检查有关（未做汇编确认）。
 2. **WASM**：整体差距与 native 接近；SLA 的 mandelbrot 更快，说明 float 循环的 wasm 代码生成并不总是劣势。
    但 loopsum/筛法/字节流仍明显落后。
-3. **编译**：SLA 冷编译常规项目比 Rust 慢约 2.5–3×，热编译慢 4–50×；matmul native 的 60–70s 是必须修复的回归。
+3. **编译**：SLA 冷编译常规项目比 Rust 慢约 2.5–3×；热编译在大型源码上慢 4–9×，但小 WASM 项目已接近持平或略快（不再有“4–50×”的普遍结论）。matmul native 的 60–70s 是必须修复的回归。
    建议优先排查 `--release-fast` 在固定数组 + 嵌套循环上的 LLVM 优化爆炸，并让缓存覆盖前端/校验阶段。
 4. **体积**：体积最优配置下 native 仍是 SLA 明显更大（9.1MB vs Rust 约 0.27MB，约 33×）。
    WASM 旧口径基本成立：典型负载 SLA 约小 5.2×，但 matmul 反而大约 1.76×；报告体积时必须注明构建配置与是否 strip。

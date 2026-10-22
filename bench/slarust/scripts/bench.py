@@ -89,6 +89,11 @@ def clean_sla_cache():
             shutil.rmtree(d)
 
 
+def touch_warm_sources(bench):
+    os.utime(SLA_SRC / f"{bench}.sla", None)
+    os.utime(RUST_DIR / "src/bin" / f"{bench}.rs", None)
+
+
 def compile_sla(bench, target, cold):
     out_dir = ART / f"sla-{target}"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -159,6 +164,8 @@ def do_compile(runs, phase="both"):
                     compile_sla(bench, target, False)
                     compile_rust(bench, target, False)
                 for _ in range(runs):
+                    if not cold:
+                        touch_warm_sources(bench)
                     rows.append(compile_sla(bench, target, cold))
                     rows.append(compile_rust(bench, target, cold))
                     print(

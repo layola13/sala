@@ -19,7 +19,7 @@
     但语义层始终不同（可变性反向、<code>&amp;self</code> 当前涵盖读写、无 proc-macro）。
     对比文档明确把它列为常见误解：「Sla 兼容 Rust 语法」仅指表层（Phase 1 约 70%）。</li>
 <li><b>运行时性能不是卖点。</b>2026-10-22 实测：Rust release 的 native/WASM 运行时中位数分别快约
-    1.47×/1.44×（不含 matmul 异常点），常规源码的冷/热编译也是 Rust 更快；但双方都取体积最优配置后，典型 SLA WASM 负载约为 Rust 的 1/5（matmul 例外）。迁移理由不应建立在运行时或编译速度上，
+    1.47×/1.44×（不含 matmul 异常点），常规源码冷编译 Rust 更快；热编译在大型源码上 Rust 仍快，但小 WASM 项目差距消失甚至反转；但双方都取体积最优配置后，典型 SLA WASM 负载约为 Rust 的 1/5（matmul 例外）。迁移理由不应建立在运行时或编译速度上，
     详见<a href="09_performance.html">性能实测</a>。</li>
 <li><b>成熟度要看日期口径。</b>例如 no-fallback 主线收敛进度在 <code>roadmap_status_cn.md</code>
     （v0.1 / 2026-07-01）中记录为：No-fallback sweep <b>58/69（84%）</b>、Y/shared-lowering <b>72%</b>、
