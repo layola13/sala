@@ -113,6 +113,21 @@ def main():
                   f"{r['raw_bytes']} | {r['stripped_bytes']} | "
                   f"{s['stripped_bytes'] / r['stripped_bytes']:.2f} |")
 
+    opt_path = RESULTS / "optimal_sizes.json"
+    if opt_path.exists():
+        opt_rows = {r["bench"]: r for r in json.loads(opt_path.read_text())}
+        print("\n## Size-optimal comparison (bytes)\n")
+        print("SLA = release-fast + strip; Rust = profile.size + strip; wasm best = min(strip, strip+wasm-opt -Oz).\n")
+        print("| bench | SLA native | Rust native | SLA wasm best | Rust wasm best | wasm SLA/Rust |")
+        print("|---|---:|---:|---:|---:|---:|")
+        for b in benches:
+            r = opt_rows.get(b)
+            if not r:
+                continue
+            print(f"| {b} | {r['sla_native']} | {r['rust_native']} | "
+                  f"{r['sla_wasm_best']} | {r['rust_wasm_best']} | "
+                  f"{r['sla_wasm_best'] / r['rust_wasm_best']:.2f} |")
+
     print("\n## Native peak RSS (median KB)\n")
     print("| bench | SLA | Rust | Rust/SLA |")
     print("|---|---:|---:|---:|")

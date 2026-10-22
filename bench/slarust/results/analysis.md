@@ -135,6 +135,24 @@
 | sort | 671513 | 8862 | 65194 | 49936 | 0.18 |
 | vecpush | 670601 | 7947 | 63803 | 48578 | 0.16 |
 
+## Size-optimal comparison (bytes)
+
+SLA = release-fast + strip; Rust = profile.size + strip; wasm best = min(strip, strip+wasm-opt -Oz).
+
+| bench | SLA native | Rust native | SLA wasm best | Rust wasm best | wasm SLA/Rust |
+|---|---:|---:|---:|---:|---:|
+| bytes | 9301296 | 282864 | 6647 | 33742 | 0.20 |
+| fib | 9298544 | 282592 | 5747 | 33501 | 0.17 |
+| hashmap | 9300976 | 283704 | 6891 | 34882 | 0.20 |
+| hello | 9298320 | 281264 | 4526 | 32566 | 0.14 |
+| loopsum | 9299120 | 282544 | 5760 | 33509 | 0.17 |
+| mandelbrot | 9299184 | 282736 | 5957 | 33682 | 0.18 |
+| matmul | 9315120 | 282720 | 59378 | 33745 | 1.76 |
+| nbody | 9300208 | 283952 | 8114 | 35037 | 0.23 |
+| sieve | 9302704 | 283400 | 6835 | 34191 | 0.20 |
+| sort | 9301104 | 284112 | 7447 | 35150 | 0.21 |
+| vecpush | 9301104 | 282752 | 6621 | 34214 | 0.19 |
+
 ## Native peak RSS (median KB)
 
 | bench | SLA | Rust | Rust/SLA |

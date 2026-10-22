@@ -31,8 +31,9 @@ SLA 在 sort 上快 1.35×、hashmap 上快 1.14×。</li>
 SLA 的 mandelbrot 快 1.87×。</li>
 <li><b>编译</b>：常规源码 Rust 冷编译约为 SLA 的 0.32×（native）/0.40×（WASM）用时；
 matmul native 是异常点，SLA 需要 70.1s，Rust 0.19s。</li>
-<li><b>体积</b>：SLA native 9080KB vs Rust strip 后 328KB（约 27.7× 大）；
-SLA WASM strip 后 5.2KB vs Rust 46.5KB（典型负载 SLA 约小 6.2×，matmul 例外）。</li>
+<li><b>体积最优</b>：native SLA 9080KB vs Rust 275KB（约 32.8× 大）；
+WASM 典型 SLA 5.6–7.9KB vs Rust
+32.7–34.3KB（约小 5.2×；matmul 例外，SLA 大约 1.76×）。</li>
 <li><b>内存</b>：大数组场景 SLA RSS 高 2–19×（sieve 422MB vs 22MB，bytes 528MB vs 35MB）。</li>
 <li><b>默认优化</b>：SLA 默认构建大致是 Rust debug 量级（sieve/bytes 慢 3–9×），且 matmul/sort 默认构建段错误；必须使用 <code>--release-fast</code>。</li>
 </ul>
@@ -146,7 +147,8 @@ matmul native 是异常点：SLA 70.1s vs Rust
 <tr><td>bytes</td><td>9083 KB</td><td>434 KB</td><td>329 KB</td><td>27.6×</td></tr>
 </table>
 <p>SLA native 约 9,080–9,097KB（静态运行时占主导），本身已 stripped；Rust raw 约 433–436KB，
-strip 后约 328–330KB。可部署体积 SLA 约为 Rust 的 27.7×。</p>
+strip 后约 328–330KB。默认 release 口径下可部署体积 SLA 约为 Rust 的 27.7×；
+双方体积最优口径见下。</p>
 
 <h3>WASM 体积（raw vs 可部署）</h3>
 <table>
@@ -165,8 +167,33 @@ strip 后约 328–330KB。可部署体积 SLA 约为 Rust 的 27.7×。</p>
 </table>
 <p>SLA 原始 WASM 中大部分是 `.debug_*` 调试段（典型约 99%，matmul 约 92%）；直接比较 raw 会严重高估体积。剥离 `.debug*` 与 `name` 后，
 典型 SLA 负载 5.2–8.9KB，Rust 46.5–49.4KB，SLA 几何平均小 6.2×；matmul 例外（58.0KB vs 48.2KB）。
-旧口径“WASM 体积约 5× 小”在典型负载上基本成立，但必须注明 strip 后，且 matmul 不成立。大数组场景 SLA 的 RSS
+旧口径“WASM 体积约 5× 小”在默认 release 对比下基本成立，但必须注明 strip 后，且 matmul 不成立；双方体积最优的结果见下。大数组场景 SLA 的 RSS
 高 2–19×（见运行时表）。</p>
+
+<h3>体积最优对比（双方各自最小配置）</h3>
+<p>SLA 侧用 <code>--release-fast</code>（<code>--release-small</code> 产物与之相同）并移除 <code>.debug*</code>/<code>name</code>；
+Rust 侧用 <code>profile.size</code>（<code>opt-level="z"</code>、LTO、<code>codegen-units=1</code>、<code>panic="abort"</code>、<code>strip="symbols"</code>）
+再移除 WASM 调试段。两边都额外尝试 <code>wasm-opt 132 -Oz</code>，每项取 strip 与 strip+wasm-opt 的较小值。</p>
+<table>
+<tr><th>bench</th><th>SLA native</th><th>Rust native</th><th>SLA wasm best</th><th>Rust wasm best</th><th>wasm SLA/Rust</th></tr>
+<tr><td>hello</td><td>9080 KB</td><td>275 KB</td><td>4.4 KB</td><td>31.8 KB</td><td>0.14×</td></tr>
+<tr><td>fib</td><td>9081 KB</td><td>276 KB</td><td>5.6 KB</td><td>32.7 KB</td><td>0.17×</td></tr>
+<tr><td>loopsum</td><td>9081 KB</td><td>276 KB</td><td>5.6 KB</td><td>32.7 KB</td><td>0.17×</td></tr>
+<tr><td>sieve</td><td>9085 KB</td><td>277 KB</td><td>6.7 KB</td><td>33.4 KB</td><td>0.20×</td></tr>
+<tr><td>matmul</td><td>9097 KB</td><td>276 KB</td><td>58.0 KB</td><td>33.0 KB</td><td>1.76×</td></tr>
+<tr><td>sort</td><td>9083 KB</td><td>277 KB</td><td>7.3 KB</td><td>34.3 KB</td><td>0.21×</td></tr>
+<tr><td>hashmap</td><td>9083 KB</td><td>277 KB</td><td>6.7 KB</td><td>34.1 KB</td><td>0.20×</td></tr>
+<tr><td>nbody</td><td>9082 KB</td><td>277 KB</td><td>7.9 KB</td><td>34.2 KB</td><td>0.23×</td></tr>
+<tr><td>mandelbrot</td><td>9081 KB</td><td>276 KB</td><td>5.8 KB</td><td>32.9 KB</td><td>0.18×</td></tr>
+<tr><td>vecpush</td><td>9083 KB</td><td>276 KB</td><td>6.5 KB</td><td>33.4 KB</td><td>0.19×</td></tr>
+<tr><td>bytes</td><td>9083 KB</td><td>276 KB</td><td>6.5 KB</td><td>33.0 KB</td><td>0.20×</td></tr>
+</table>
+<ul>
+<li>Native：SLA 9,080–9,097KB vs Rust 274–278KB，几何平均 SLA 大约 32.8×。</li>
+<li>WASM 典型负载（不含 hello/matmul）：SLA 5.6–7.9KB vs Rust 32.7–34.3KB，SLA 小 5.2×。</li>
+<li>matmul 例外：SLA 58.0KB vs Rust 33.0KB，SLA 大 1.76×；<code>wasm-opt -Oz</code> 反而把 SLA matmul 从 58KB 膨胀到 121KB，因此该行取 strip 后的值。</li>
+<li>结论：双方都尽量压体积时，旧说法“WASM 约 5× 小”基本成立，但不能外推到 matmul，也不能用于 native。</li>
+</ul>
 
 <h2>优化等级与变体</h2>
 <table>
@@ -218,8 +245,8 @@ SLA 的优势集中在无序索引访问（sort）与哈希探测（hashmap）�
 <li><b>WASM</b>：整体差距与 native 接近；mandelbrot 是 SLA 的反例，说明 float 循环的 wasm 代码生成并不总是劣势。</li>
 <li><b>编译</b>：SLA 冷编译慢约 2.5–3×，热编译慢 4–50×；matmul native 的 60–70s 是必须修复的回归。
 应优先排查 <code>--release-fast</code> 在固定数组 + 嵌套循环上的 LLVM 优化爆炸，并让缓存覆盖前端/校验。</li>
-<li><b>体积</b>：native 仍是 SLA 明显更大（9.1MB vs Rust strip 后 0.34MB，约 28×）。WASM 在剥离 DWARF 后典型负载 SLA 约小 6.2×，
-但 matmul 反而大约 1.2×；报告体积时必须注明是否 strip。</li>
+<li><b>体积</b>：体积最优配置下 native 仍是 SLA 明显更大（9.1MB vs Rust 约 0.27MB，约 33×）。
+WASM 在双方最优配置下典型负载 SLA 约小 5.2×，但 matmul 反而大约 1.76×；报告体积时必须注明构建配置与是否 strip。</li>
 <li><b>内存</b>：修复 <code>Vec</code> 增长时旧块回收与容量策略；sieve/bytes 的 15–19× RSS 差距会限制边缘部署。</li>
 <li><b>默认构建</b>：默认优化等级大致是 Rust debug 量级（部分负载慢 3–9×），且 matmul/sort 会崩溃；文档应明确要求 <code>--release-fast</code>，
 并修复聚合类型的默认代码生成。</li>

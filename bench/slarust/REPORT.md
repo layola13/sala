@@ -18,10 +18,10 @@
   热编译 Rust 约 30ms，SLA 130–1432ms。唯一例外是 **matmul native**：SLA `--release-fast` 冷编译
   70.1s，Rust 0.19s，慢约 379×；
   同一份源码 WASM 目标只要 0.86s。
-- **产物体积**：native 仍是 SLA 明显更大（9.1MB vs Rust strip 后约 0.34MB，约 28×）。
-  WASM 必须区分原始产物与可部署产物：SLA 原始 650–705KB 中大部分是 DWARF 调试段（典型约 99%，matmul 约 92%）；剥离 `.debug*`/`name` 后
-  SLA 为 5.2–8.9KB（matmul 58.0KB），Rust 为 46.5–49.4KB。典型负载 SLA 约小 **6.2×**，
-  基本符合旧口径“约 5× 小”；matmul 是例外，SLA 反而大约 1.2×。
+- **体积最优对比**：双方各取最小配置（SLA `--release-fast`+strip；Rust `profile=size`
+  +strip+`wasm-opt -Oz`）。native 仍是 SLA 明显更大（9.1MB vs 274–278KB，约 **32.8×**）。
+  WASM 典型负载（不含 hello/matmul）SLA 5.6–7.9KB vs Rust 32.7–34.3KB，SLA 约小 **5.2×**，基本符合旧口径
+  “约 5× 小”；matmul 是例外（58.0KB vs 33.0KB，SLA 大约 1.76×）。默认 release 的 raw/strip 对比见 5.1–5.2。
 - **峰值内存**：SLA 的大数组场景 RSS 高 2×（vecpush）、19×（sieve）、15×（bytes），与增长/保留策略和分配器回收差异一致。
 - **默认优化等级**：SLA 默认构建大致是 Rust debug 量级（fib 2.5s vs 1.35s，loopsum 8.05s vs 7.95s；
   sieve/bytes 则慢 3–9×）；`--release-fast` 是必要选项，但会让 matmul 编译从 1.6s 膨胀到 60–70s。
@@ -171,8 +171,8 @@ Rust 热编译稳定在约 30ms（Cargo 无改动时只做新鲜度检查）；S
 | bytes | 9083 KB | 434 KB | 329 KB | 27.6× |
 
 SLA native 基本恒定在 9,080–9,097KB（静态运行时占主导），且本身已 stripped；
-Rust raw 约 433–436KB，strip 后约 328–330KB。可部署体积 SLA 约为 Rust 的 **27.7×**，
-native 侧“SLA 更小”不成立。
+Rust raw 约 433–436KB，strip 后约 328–330KB。默认 release 口径下可部署体积 SLA 约为 Rust 的 **27.7×**，
+native 侧“SLA 更小”不成立；双方体积最优口径见下。
 
 ### 5.2 WASM 体积（raw vs 可部署）
 
@@ -193,9 +193,36 @@ native 侧“SLA 更小”不成立。
 SLA 的 WASM 原始产物大部分是 `.debug_*` 自定义段（hello：667,795 字节中 659,470 字节是调试段；
 典型约 99%，matmul 约 92%），直接比较 raw 会严重高估体积。剥离 `.debug*` 和 `name` 后，典型 SLA 负载为 5.2–8.9KB，
 Rust 为 46.5–49.4KB，SLA 几何平均小 **6.2×**；matmul 例外（58.0KB vs 48.2KB，SLA 大约 1.2×）。
-因此旧口径“WASM 体积约 5× 小”在典型负载上基本成立，但必须说明是 strip 后，且 matmul 不成立。
+因此默认 release 对比下，旧口径“WASM 体积约 5× 小”在典型负载上基本成立，但必须说明是 strip 后，且 matmul 不成立；
+双方各取体积最优配置的结果见 5.3。
 
-### 5.3 峰值 RSS
+### 5.3 体积最优对比（双方各自最小配置）
+
+SLA 侧：`build-wasm --release-fast`（`--release-small` 产物与 fast 完全相同），移除 `.debug*`/`name`。
+Rust 侧：新增 `profile.size`（`opt-level="z"`、LTO、`codegen-units=1`、`panic="abort"`、`strip="symbols"`），
+再移除 WASM 自定义调试段。两边都额外尝试 `wasm-opt 132 -Oz`，每项取 strip 与 strip+wasm-opt 的较小值。
+
+| bench | SLA native | Rust native | SLA wasm best | Rust wasm best | wasm SLA/Rust |
+|---|---|---|---|---|---|
+| hello | 9080 KB | 275 KB | 4.4 KB | 31.8 KB | 0.14× |
+| fib | 9081 KB | 276 KB | 5.6 KB | 32.7 KB | 0.17× |
+| loopsum | 9081 KB | 276 KB | 5.6 KB | 32.7 KB | 0.17× |
+| sieve | 9085 KB | 277 KB | 6.7 KB | 33.4 KB | 0.20× |
+| matmul | 9097 KB | 276 KB | 58.0 KB | 33.0 KB | 1.76× |
+| sort | 9083 KB | 277 KB | 7.3 KB | 34.3 KB | 0.21× |
+| hashmap | 9083 KB | 277 KB | 6.7 KB | 34.1 KB | 0.20× |
+| nbody | 9082 KB | 277 KB | 7.9 KB | 34.2 KB | 0.23× |
+| mandelbrot | 9081 KB | 276 KB | 5.8 KB | 32.9 KB | 0.18× |
+| vecpush | 9083 KB | 276 KB | 6.5 KB | 33.4 KB | 0.19× |
+| bytes | 9083 KB | 276 KB | 6.5 KB | 33.0 KB | 0.20× |
+
+- Native：SLA 9,080–9,097KB vs Rust 274–278KB，几何平均 SLA 大约 **32.8×**。
+- WASM 典型负载（不含 hello/matmul）：SLA 5.6–7.9KB vs Rust 32.7–34.3KB，SLA 小 **5.2×**。
+- matmul 例外：SLA 58.0KB vs Rust 33.0KB，SLA 大 1.76×；`wasm-opt -Oz` 反而把 SLA matmul 从 58KB 膨胀到 121KB，
+  因此该行取 strip 后的值。
+- 结论：在“双方都尽量压体积”的口径下，旧说法“WASM 约 5× 小”基本成立，但不能外推到 matmul，也不能用于 native。
+
+### 5.4 峰值 RSS
 
 Native 与 WASM 的 RSS 表已在第 2、3 节列出。结论：
 
@@ -268,8 +295,8 @@ Native 与 WASM 的 RSS 表已在第 2、3 节列出。结论：
    但 loopsum/筛法/字节流仍明显落后。
 3. **编译**：SLA 冷编译常规项目比 Rust 慢约 2.5–3×，热编译慢 4–50×；matmul native 的 60–70s 是必须修复的回归。
    建议优先排查 `--release-fast` 在固定数组 + 嵌套循环上的 LLVM 优化爆炸，并让缓存覆盖前端/校验阶段。
-4. **体积**：native 仍是 SLA 明显更大（9.1MB vs Rust strip 后 0.34MB，约 28×）。WASM 则是旧口径基本成立：
-   剥离 DWARF 后典型负载 SLA 约小 6.2×，但 matmul 反而大约 1.2×；报告体积时必须注明是否 strip。
+4. **体积**：体积最优配置下 native 仍是 SLA 明显更大（9.1MB vs Rust 约 0.27MB，约 33×）。
+   WASM 旧口径基本成立：典型负载 SLA 约小 5.2×，但 matmul 反而大约 1.76×；报告体积时必须注明构建配置与是否 strip。
 5. **内存**：优先修复 `Vec` 增长时的旧块回收与容量策略；sieve/bytes 的 15–19× RSS 差距会限制边缘设备部署。
 6. **默认构建**：默认优化等级大致是 Rust debug 量级（部分负载慢 3–9×），且 matmul/sort 会崩溃；文档应明确要求 `--release-fast`，
    并修复默认后端的聚合类型代码生成。
