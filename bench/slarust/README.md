@@ -11,7 +11,8 @@
 - WASM 运行时：Rust release 几何平均快约 1.44×（不含 matmul；含 matmul 约 1.94×）。
 - SLA 领先：native sort 1.35×、hashmap 1.14×；WASM mandelbrot 1.87×。
 - 编译：常规源码 Rust 冷编译约为 SLA 的 0.32×（native）/0.40×（WASM）用时；热编译约 30ms vs 130–1432ms。
-- 体积：SLA native 约 9.1MB vs Rust 0.43MB；SLA WASM 约 650–705KB vs Rust 61–64KB。
+- 体积：native SLA 约 9.1MB vs Rust strip 后约 0.34MB（约 28× 大）；WASM 原始产物 SLA 更大，但剥离 DWARF/name 后
+  典型负载 SLA 5.2–8.9KB vs Rust 46.5–49.4KB（约小 6.2×），matmul 例外（SLA 大约 1.2×）。
 - 异常点：SLA `--release-fast` 编译 matmul native 需要约 70s；默认构建下 matmul/sort 段错误。
 
 ## 目录
@@ -22,6 +23,8 @@ benchmarks/rust/          Rust Cargo 项目（src/bin/ 下 11 个）
 benchmarks/micro/         固定数组初始化编译扩展性微基准
 scripts/bench.py          冷/热编译 + native/wasm 运行时测量
 scripts/analyze.py        生成 results/analysis.md
+scripts/measure_sizes.py  strip 后 native/WASM 体积（生成 results/*_stripped_sizes.json）
+scripts/strip_wasm.py     移除 WASM 的 .debug*/name 自定义段
 scripts/render_report.py  生成 REPORT.md（可选 --html 输出 sala 页面）
 scripts/wasm_runner.mjs   Node WASI runner（最终数据用 Wasmtime）
 results/                  原始 jsonl/json 与汇总
@@ -54,6 +57,7 @@ tar -xf /tmp/wasmtime.tar.xz -C /tmp
 
 python3 scripts/bench.py --mode all --runs 7
 python3 scripts/analyze.py > results/analysis.md
+python3 scripts/measure_sizes.py
 python3 scripts/render_report.py
 # 可选：重新生成 sala 章节 HTML
 python3 scripts/render_report.py --html <sala>/content/09_rust_compare/09_performance.html
@@ -68,6 +72,8 @@ python3 scripts/render_report.py --html <sala>/content/09_rust_compare/09_perfor
   （opt-level=3、lto=false、codegen-units=16、panic=abort）与 `wasm32-wasip1`。
 - 冷编译删除 `.sa_cache` 并加 `--no-incremental`；Rust 使用全新 `CARGO_TARGET_DIR`。
 - 运行时取 native 7 次、WASM 5 次中位数，去掉 1 次预热；RSS 取 `wait4` 的 `ru_maxrss`。
+- 体积必须区分 raw 与可部署：SLA WASM 默认带大量 DWARF（典型约 99%），Rust 带 name section；
+  报告使用 `strip_wasm.py` 对两边同时移除 `.debug*` 与 `name`，native 使用 `strip`。
 - 单线程；未覆盖 async、线程、FFI、网络与数据库。
 - SLA 当前 `Vec<f64>` push 后读到 0，因此 matmul 两边都使用固定 `[f64; 4096]` 数组。
 - SLA 没有导出 WASM 函数的语法，WASM 只能以 `_start` 命令方式运行。

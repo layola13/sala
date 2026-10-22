@@ -18,8 +18,10 @@
   热编译 Rust 约 30ms，SLA 130–1432ms。唯一例外是 **matmul native**：SLA `--release-fast` 冷编译
   70.1s，Rust 0.19s，慢约 379×；
   同一份源码 WASM 目标只要 0.86s。
-- **产物体积**：SLA native 约 9.1MB，Rust 约 0.44MB（约 21×）；SLA WASM 约 650–705KB，Rust 约 61–64KB（约 10.7×）。
-  这和“WASM 体积约 5× 小”的旧口径相反，旧口径需要按实测更新。
+- **产物体积**：native 仍是 SLA 明显更大（9.1MB vs Rust strip 后约 0.34MB，约 28×）。
+  WASM 必须区分原始产物与可部署产物：SLA 原始 650–705KB 中大部分是 DWARF 调试段（典型约 99%，matmul 约 92%）；剥离 `.debug*`/`name` 后
+  SLA 为 5.2–8.9KB（matmul 58.0KB），Rust 为 46.5–49.4KB。典型负载 SLA 约小 **6.2×**，
+  基本符合旧口径“约 5× 小”；matmul 是例外，SLA 反而大约 1.2×。
 - **峰值内存**：SLA 的大数组场景 RSS 高 2×（vecpush）、19×（sieve）、15×（bytes），与增长/保留策略和分配器回收差异一致。
 - **默认优化等级**：SLA 默认构建大致是 Rust debug 量级（fib 2.5s vs 1.35s，loopsum 8.05s vs 7.95s；
   sieve/bytes 则慢 3–9×）；`--release-fast` 是必要选项，但会让 matmul 编译从 1.6s 膨胀到 60–70s。
@@ -152,26 +154,48 @@ Rust 热编译稳定在约 30ms（Cargo 无改动时只做新鲜度检查）；S
 
 ## 5. 产物体积与内存
 
-### 5.1 体积（冷构建产物，含运行时）
+### 5.1 Native 体积（strip 后）
 
-| bench | SLA native | Rust native | SLA wasm | Rust wasm |
+| bench | SLA stripped | Rust raw | Rust stripped | SLA/Rust |
 |---|---|---|---|---|
-| hello | 9080 KB | 433 KB | 652 KB | 61 KB |
-| fib | 9081 KB | 433 KB | 654 KB | 62 KB |
-| loopsum | 9081 KB | 433 KB | 654 KB | 62 KB |
-| sieve | 9085 KB | 434 KB | 655 KB | 62 KB |
-| matmul | 9097 KB | 434 KB | 705 KB | 63 KB |
-| sort | 9083 KB | 436 KB | 656 KB | 64 KB |
-| hashmap | 9083 KB | 435 KB | 655 KB | 63 KB |
-| nbody | 9082 KB | 436 KB | 656 KB | 64 KB |
-| mandelbrot | 9081 KB | 434 KB | 654 KB | 62 KB |
-| vecpush | 9083 KB | 434 KB | 655 KB | 62 KB |
-| bytes | 9083 KB | 434 KB | 655 KB | 62 KB |
+| hello | 9080 KB | 433 KB | 328 KB | 27.7× |
+| fib | 9081 KB | 433 KB | 328 KB | 27.7× |
+| loopsum | 9081 KB | 433 KB | 328 KB | 27.7× |
+| sieve | 9085 KB | 434 KB | 329 KB | 27.6× |
+| matmul | 9097 KB | 434 KB | 329 KB | 27.7× |
+| sort | 9083 KB | 436 KB | 330 KB | 27.5× |
+| hashmap | 9083 KB | 435 KB | 329 KB | 27.6× |
+| nbody | 9082 KB | 436 KB | 330 KB | 27.5× |
+| mandelbrot | 9081 KB | 434 KB | 328 KB | 27.6× |
+| vecpush | 9083 KB | 434 KB | 329 KB | 27.6× |
+| bytes | 9083 KB | 434 KB | 329 KB | 27.6× |
 
-SLA native 基本恒定在 9,080–9,097KB（约 9.1MB，静态运行时占主导），Rust 约 433–436KB；
-SLA WASM 约 650–705KB，Rust 约 61–64KB。**WASM 体积约为 Rust 的 10.7×，而不是更小**。若部署场景对体积敏感，当前 SLA 0.1.4 不占优。
+SLA native 基本恒定在 9,080–9,097KB（静态运行时占主导），且本身已 stripped；
+Rust raw 约 433–436KB，strip 后约 328–330KB。可部署体积 SLA 约为 Rust 的 **27.7×**，
+native 侧“SLA 更小”不成立。
 
-### 5.2 峰值 RSS
+### 5.2 WASM 体积（raw vs 可部署）
+
+| bench | SLA raw | SLA stripped | Rust raw | Rust stripped | SLA/Rust |
+|---|---|---|---|---|---|
+| hello | 652 KB | 5.2 KB | 61 KB | 46.5 KB | 0.11× |
+| fib | 654 KB | 6.7 KB | 62 KB | 46.9 KB | 0.14× |
+| loopsum | 654 KB | 6.7 KB | 62 KB | 46.9 KB | 0.14× |
+| sieve | 655 KB | 8.0 KB | 62 KB | 47.8 KB | 0.17× |
+| matmul | 705 KB | 58.0 KB | 63 KB | 48.2 KB | 1.20× |
+| sort | 656 KB | 8.7 KB | 64 KB | 48.8 KB | 0.18× |
+| hashmap | 655 KB | 8.0 KB | 63 KB | 48.1 KB | 0.17× |
+| nbody | 656 KB | 8.9 KB | 64 KB | 49.4 KB | 0.18× |
+| mandelbrot | 654 KB | 6.9 KB | 62 KB | 47.1 KB | 0.15× |
+| vecpush | 655 KB | 7.8 KB | 62 KB | 47.4 KB | 0.16× |
+| bytes | 655 KB | 7.8 KB | 62 KB | 47.2 KB | 0.16× |
+
+SLA 的 WASM 原始产物大部分是 `.debug_*` 自定义段（hello：667,795 字节中 659,470 字节是调试段；
+典型约 99%，matmul 约 92%），直接比较 raw 会严重高估体积。剥离 `.debug*` 和 `name` 后，典型 SLA 负载为 5.2–8.9KB，
+Rust 为 46.5–49.4KB，SLA 几何平均小 **6.2×**；matmul 例外（58.0KB vs 48.2KB，SLA 大约 1.2×）。
+因此旧口径“WASM 体积约 5× 小”在典型负载上基本成立，但必须说明是 strip 后，且 matmul 不成立。
+
+### 5.3 峰值 RSS
 
 Native 与 WASM 的 RSS 表已在第 2、3 节列出。结论：
 
@@ -244,8 +268,8 @@ Native 与 WASM 的 RSS 表已在第 2、3 节列出。结论：
    但 loopsum/筛法/字节流仍明显落后。
 3. **编译**：SLA 冷编译常规项目比 Rust 慢约 2.5–3×，热编译慢 4–50×；matmul native 的 60–70s 是必须修复的回归。
    建议优先排查 `--release-fast` 在固定数组 + 嵌套循环上的 LLVM 优化爆炸，并让缓存覆盖前端/校验阶段。
-4. **体积**：9.1MB native / 650–705KB WASM 显著大于 Rust（0.44MB / 61–64KB）。如果 SLA 的卖点是“WASM 体积小”，
-   需要先做 DCE/运行时裁剪；当前数据不支持该结论。
+4. **体积**：native 仍是 SLA 明显更大（9.1MB vs Rust strip 后 0.34MB，约 28×）。WASM 则是旧口径基本成立：
+   剥离 DWARF 后典型负载 SLA 约小 6.2×，但 matmul 反而大约 1.2×；报告体积时必须注明是否 strip。
 5. **内存**：优先修复 `Vec` 增长时的旧块回收与容量策略；sieve/bytes 的 15–19× RSS 差距会限制边缘设备部署。
 6. **默认构建**：默认优化等级大致是 Rust debug 量级（部分负载慢 3–9×），且 matmul/sort 会崩溃；文档应明确要求 `--release-fast`，
    并修复默认后端的聚合类型代码生成。

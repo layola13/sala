@@ -94,6 +94,25 @@ def main():
             vals.append(median(xs) if xs else 0)
         print(f"| {b} | {vals[0]:.0f} | {vals[1]:.0f} | {vals[2]:.0f} | {vals[3]:.0f} |")
 
+    print("\n## Deployable size after strip (bytes)\n")
+    for fname, title in [("native_stripped_sizes.json", "native"),
+                         ("stripped_sizes.json", "wasm")]:
+        path = RESULTS / fname
+        if not path.exists():
+            continue
+        strip_rows = json.loads(path.read_text())
+        print(f"\n### {title}\n")
+        print("| bench | SLA raw | SLA stripped | Rust raw | Rust stripped | SLA/Rust |")
+        print("|---|---:|---:|---:|---:|---:|")
+        for b in benches:
+            s = next((r for r in strip_rows if r["bench"] == b and r["lang"] == "sla"), None)
+            r = next((r for r in strip_rows if r["bench"] == b and r["lang"] == "rust"), None)
+            if not s or not r:
+                continue
+            print(f"| {b} | {s['raw_bytes']} | {s['stripped_bytes']} | "
+                  f"{r['raw_bytes']} | {r['stripped_bytes']} | "
+                  f"{s['stripped_bytes'] / r['stripped_bytes']:.2f} |")
+
     print("\n## Native peak RSS (median KB)\n")
     print("| bench | SLA | Rust | Rust/SLA |")
     print("|---|---:|---:|---:|")

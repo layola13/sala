@@ -19,8 +19,9 @@
     但语义层始终不同（可变性反向、<code>&amp;self</code> 当前涵盖读写、无 proc-macro）。
     对比文档明确把它列为常见误解：「Sla 兼容 Rust 语法」仅指表层（Phase 1 约 70%）。</li>
 <li><b>运行时性能不是卖点。</b>2026-10-22 实测：Rust release 的 native/WASM 运行时中位数分别快约
-    1.47×/1.44×（不含 matmul 异常点）；常规源码的冷编译、热编译与产物体积也都是 Rust 更优。
-    不要把迁移理由建立在“更快/更小”上，详见<a href="09_performance.html">性能实测</a>。</li>
+    1.47×/1.44×（不含 matmul 异常点），常规源码的冷/热编译也是 Rust 更快；但 WASM 体积在剥离
+    DWARF/name 后典型 SLA 负载约为 Rust 的 1/6（matmul 例外）。迁移理由不应建立在运行时或编译速度上，
+    详见<a href="09_performance.html">性能实测</a>。</li>
 <li><b>成熟度要看日期口径。</b>例如 no-fallback 主线收敛进度在 <code>roadmap_status_cn.md</code>
     （v0.1 / 2026-07-01）中记录为：No-fallback sweep <b>58/69（84%）</b>、Y/shared-lowering <b>72%</b>、
     Direct SAB fallback-removal <b>88%</b>、加权总进度约 <b>80%</b>。
@@ -139,7 +140,7 @@ rosetta 树里的 <code>@test</code> 就是这么用的。但别忘了那棵树�
 <h3>用 SLA（不必上 Rust）</h3>
 <ul>
 <li>WASM 边缘计算（Cloudflare Workers / Vercel Edge 一类）与 WASM 游戏 / 浏览器互动</li>
-<li>嵌入式 WASM / IoT 显示（当前 SLA WASM 体积约为 Rust 的 10.7×，需先核对设备预算）</li>
+<li>嵌入式 WASM / IoT 显示（strip 后典型体积约为 Rust 的 1/6，但 matmul 例外且运行时较慢，需按负载核对）</li>
 <li>LLM 沙盒 / Agent 执行环境（错误信息简单且结构化，自修复闭环原生）</li>
 <li>安全 / 航空等需要验证器可证明性的领域</li>
 <li>教学、教育性 ECS / 游戏 jam（语法简单、上手成本低；编译速度并不占优）</li>
@@ -173,7 +174,7 @@ rosetta 树里的 <code>@test</code> 就是这么用的。但别忘了那棵树�
 <tr><th>维度（节选）</th><th>Rust</th><th>SLA 当前</th><th>SLA + bc2sa 长期</th></tr>
 <tr><td>语法表达力 / 类型系统</td><td>95 / 95</td><td>70 / 60</td><td>70 / 60</td></tr>
 <tr><td>内存安全</td><td>95</td><td>90</td><td>90</td></tr>
-<tr><td>编译速度 / WASM 产物体积</td><td>50 / 60</td><td><b>90 / 90</b>（旧评分，实测不符）</td><td>90 / 90</td></tr>
+<tr><td>编译速度 / WASM 产物体积</td><td>50 / 60</td><td><b>90 / 90</b>（编译项不符；体积项 strip 后基本成立）</td><td>90 / 90</td></tr>
 <tr><td>工具链</td><td>95</td><td>50（DCE / incremental / test 已有，缺 IDE）</td><td>60</td></tr>
 <tr><td>生态</td><td>95</td><td>45（含 bc2sa 30% 口径）</td><td>70–85</td></tr>
 <tr><td>包管理安全 / 形式化验证可行性</td><td>60 / 30</td><td><b>90 / 90</b></td><td><b>90 / 90</b></td></tr>
@@ -212,7 +213,7 @@ No-fallback sweep 58/69、Y/shared-lowering 72%、Direct SAB fallback-removal 88
     <a href="03_ownership.html">所有权与借用：Referee 对比 borrow checker</a>；
     宏迁移的取舍见<a href="04_macros.html">宏与元编程对比</a>。</li>
 <li>性能、编译时间与产物体积的实测数据：<a href="09_performance.html">SLA vs Rust 性能实测</a>。
-    该页同时更正了本页旧评分中“编译速度 / WASM 体积 90 / 90”的表述。</li>
+    该页说明旧评分中“编译速度”项不成立，“WASM 体积”项在剥离调试段后基本成立（matmul 例外）。</li>
 </ul>
 </body>
 </html>

@@ -1,0 +1,134 @@
+[
+  {
+    "bench": "hello",
+    "lang": "sla",
+    "raw_bytes": 9298328,
+    "stripped_bytes": 9298320
+  },
+  {
+    "bench": "hello",
+    "lang": "rust",
+    "raw_bytes": 443032,
+    "stripped_bytes": 335568
+  },
+  {
+    "bench": "fib",
+    "lang": "sla",
+    "raw_bytes": 9298552,
+    "stripped_bytes": 9298544
+  },
+  {
+    "bench": "fib",
+    "lang": "rust",
+    "raw_bytes": 443768,
+    "stripped_bytes": 336088
+  },
+  {
+    "bench": "loopsum",
+    "lang": "sla",
+    "raw_bytes": 9299128,
+    "stripped_bytes": 9299120
+  },
+  {
+    "bench": "loopsum",
+    "lang": "rust",
+    "raw_bytes": 443784,
+    "stripped_bytes": 336136
+  },
+  {
+    "bench": "sieve",
+    "lang": "sla",
+    "raw_bytes": 9302712,
+    "stripped_bytes": 9302704
+  },
+  {
+    "bench": "sieve",
+    "lang": "rust",
+    "raw_bytes": 444824,
+    "stripped_bytes": 336992
+  },
+  {
+    "bench": "matmul",
+    "lang": "sla",
+    "raw_bytes": 9315128,
+    "stripped_bytes": 9315120
+  },
+  {
+    "bench": "matmul",
+    "lang": "rust",
+    "raw_bytes": 444128,
+    "stripped_bytes": 336488
+  },
+  {
+    "bench": "sort",
+    "lang": "sla",
+    "raw_bytes": 9301112,
+    "stripped_bytes": 9301104
+  },
+  {
+    "bench": "sort",
+    "lang": "rust",
+    "raw_bytes": 446144,
+    "stripped_bytes": 338072
+  },
+  {
+    "bench": "hashmap",
+    "lang": "sla",
+    "raw_bytes": 9300984,
+    "stripped_bytes": 9300976
+  },
+  {
+    "bench": "hashmap",
+    "lang": "rust",
+    "raw_bytes": 445376,
+    "stripped_bytes": 337272
+  },
+  {
+    "bench": "nbody",
+    "lang": "sla",
+    "raw_bytes": 9300216,
+    "stripped_bytes": 9300208
+  },
+  {
+    "bench": "nbody",
+    "lang": "rust",
+    "raw_bytes": 446064,
+    "stripped_bytes": 338424
+  },
+  {
+    "bench": "mandelbrot",
+    "lang": "sla",
+    "raw_bytes": 9299192,
+    "stripped_bytes": 9299184
+  },
+  {
+    "bench": "mandelbrot",
+    "lang": "rust",
+    "raw_bytes": 444008,
+    "stripped_bytes": 336328
+  },
+  {
+    "bench": "vecpush",
+    "lang": "sla",
+    "raw_bytes": 9301112,
+    "stripped_bytes": 9301104
+  },
+  {
+    "bench": "vecpush",
+    "lang": "rust",
+    "raw_bytes": 444832,
+    "stripped_bytes": 336728
+  },
+  {
+    "bench": "bytes",
+    "lang": "sla",
+    "raw_bytes": 9301304,
+    "stripped_bytes": 9301296
+  },
+  {
+    "bench": "bytes",
+    "lang": "rust",
+    "raw_bytes": 444328,
+    "stripped_bytes": 336496
+  }
+]
