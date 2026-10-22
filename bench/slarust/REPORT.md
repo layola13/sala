@@ -58,6 +58,7 @@
 - Rust WASM：`--target wasm32-wasip1`，release profile 同上。
 - 冷编译：删除 `.sa_cache` 并加 `--no-incremental`；Rust 使用全新 `CARGO_TARGET_DIR`。取 3 次中位数。
 - 热编译：保留缓存/目标目录，测量前 touch 两边源文件，确保 SLA 与 Rust 都实际重建（Rust 为整 crate 重编），取 3 次中位数。
+  SLA 的 `.sla-cache` 缓存中间产物，但 `build-exe` 仍会重新生成输出，不是 Cargo 式目标 no-op。
 - 运行时：native 7 次、WASM 5 次，去掉 1 次预热，取中位数；用 `wait4` 读取子进程 `ru_maxrss`。
 - WASM 运行器：Wasmtime 25.0.2（WASI preview1），计时包含实例化与进程启动（hello 约 11–13ms）。
 
@@ -155,6 +156,8 @@ matmul native 是异常点：SLA 冷编译 70.1s，Rust 185ms；
 是整 crate 重编；SLA 缓存则省掉部分阶段。修正后 native SLA 慢 1.2–8.7×
 （几何 3.1×），WASM SLA/Rust 0.77–7.4×（几何 2.2×）。
 旧稿的“Rust 约 30ms”是 Cargo 无改动时的 no-op，与 SLA 的实际重建不可比，已废弃。
+补充：`.sla-cache` 中可见 `reachable/*.plan` 与 `sab/*.sab`，但即使输出已存在，`build-exe` 仍会重新写出可执行文件（实测 inode 改变）；
+SLA 没有 Cargo 那种“目标已最新则直接返回”的短路，缓存只省掉部分前端/中间产物阶段。
 
 ## 5. 产物体积与内存
 

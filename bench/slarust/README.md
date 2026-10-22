@@ -78,6 +78,8 @@ python3 scripts/render_report.py --html <sala>/content/09_rust_compare/09_perfor
 - SLA 运行时使用 `build-exe/build-wasm --release-fast`；Rust 运行时使用 `cargo build --release`
   （opt-level=3、lto=false、codegen-units=16、panic=abort）与 `wasm32-wasip1`。
 - SLA `--release-small` 与 `--release-fast` 产物相同（hello/fib 实测逐字节一致），SLA 没有独立的 size 模式。
+- SLA 的 `.sla-cache` 缓存中间产物（plan/SAB），不是 Cargo 式目标新鲜度检查：`build-exe` 即使输出已存在也会重新生成可执行文件。
+  热编译对比测的是实际重建，不是 no-op。
 - 体积最优对比使用 SLA fast + strip；Rust 新增 `profile.size`（opt-level="z"、LTO、codegen-units=1、
   panic=abort、strip=symbols）。两边 WASM 再尝试 `wasm-opt -Oz`，每项取更小结果。
 - 冷编译删除 `.sa_cache` 并加 `--no-incremental`；Rust 使用全新 `CARGO_TARGET_DIR`。

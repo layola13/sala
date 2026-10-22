@@ -128,7 +128,7 @@ matmul native 是异常点：SLA 70.1s vs Rust
 <tr><td>vecpush</td><td>569 / 141</td><td>501 / 161</td></tr>
 <tr><td>bytes</td><td>546 / 132</td><td>492 / 150</td></tr>
 </table>
-<p>测量前 touch 两边源文件，确保都实际重建。Rust release 默认不开 incremental，为整 crate 重编；SLA 缓存省掉部分阶段。修正后 native SLA 慢 1.2–8.7×（几何 3.1×），WASM SLA/Rust 0.77–7.4×（几何 2.2×）。旧稿的“Rust 约 30ms”是 Cargo no-op，不可比，已废弃。</p>
+<p>测量前 touch 两边源文件，确保都实际重建。Rust release 默认不开 incremental，为整 crate 重编；SLA 缓存省掉部分阶段。修正后 native SLA 慢 1.2–8.7×（几何 3.1×），WASM SLA/Rust 0.77–7.4×（几何 2.2×）。旧稿的“Rust 约 30ms”是 Cargo no-op，不可比，已废弃。补充：<code>.sla-cache</code> 中可见 <code>reachable/*.plan</code> 与 <code>sab/*.sab</code>，但即使输出已存在，<code>build-exe</code> 仍会重新写出可执行文件（实测 inode 改变）；SLA 没有 Cargo 式“目标已最新则直接返回”的短路，缓存只省掉部分前端/中间产物阶段。</p>
 
 <h2>产物体积与内存</h2>
 <h3>Native 体积（strip 后）</h3>
