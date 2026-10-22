@@ -171,6 +171,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Gas"><param name="Local" value="../dist/content/15_sa2c/06_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="GitHub Release"><param name="Local" value="../dist/content/13_build/06_release_npm.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="gltf"><param name="Local" value="../dist/content/05_plugins/08_3dengines.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Go"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="handler"><param name="Local" value="../dist/content/07_ui/02_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="HashMap"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="HashSet"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
@@ -179,6 +180,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="HelloScreen"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="helper"><param name="Local" value="../dist/content/15_sa2c/02_runtime.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="home"><param name="Local" value="../dist/content/06_stdlib/07_env.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="HTTP"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="http"><param name="Local" value="../dist/content/15_sa2c/04_extern.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="http-client"><param name="Local" value="../dist/content/05_plugins/14_http_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="http-server"><param name="Local" value="../dist/content/07_ui/06_toolchain.html"></OBJECT>
@@ -626,6 +628,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译时间"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译矩阵"><param name="Local" value="../dist/content/13_build/01_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译管线"><param name="Local" value="../dist/content/03_sa_asm/04_pipeline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="网络并发"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="能力掩码"><param name="Local" value="../dist/content/03_sa_asm/01_sa_model.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="自查清单"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="虚表"><param name="Local" value="../dist/content/12_vm/06_examples.html"></OBJECT>

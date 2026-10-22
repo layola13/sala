@@ -136,7 +136,7 @@ var TOC = [
     "c": []
    },
    {
-    "t": "SLA vs Rust 性能实测（native / WASM / 编译）",
+    "t": "SLA vs Rust vs Go 性能实测（native / WASM / 编译 / 网络）",
     "f": "content/09_rust_compare/09_performance.html",
     "c": []
    }

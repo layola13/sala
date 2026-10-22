@@ -1,0 +1,10 @@
+[MACRO] FN_CODE_PTR %out_ptr, %func
+    __fn_vt_%out_ptr = load %func+8 as ptr
+    %out_ptr = load __fn_vt_%out_ptr+0 as ptr
+    !__fn_vt_%out_ptr
+    !%func
+[END_MACRO]
+
+[MACRO] PTR_FROM_ADDR %out_ptr, %addr
+    %out_ptr = bitcast %addr as ptr
+[END_MACRO]

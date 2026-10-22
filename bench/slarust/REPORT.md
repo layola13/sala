@@ -1,7 +1,7 @@
-# SLA vs Rust 性能实测报告（native / WASM / 编译）
+# SLA vs Rust vs Go 性能实测报告（native / WASM / 编译 / 网络）
 
 日期：2026-10-22  
-项目：`slarust`（10 个核心负载 + hello 启动）  
+项目：`slarust`（10 个核心负载 + hello 启动 + HTTP 并发）  
 工具链：sla 0.1.4（SA 0.1.8）、Rust 1.99.1、Wasmtime 25.0.2  
 平台：Linux x86_64（8 vCPU，Intel Xeon 2.20GHz，KVM，52GB RAM）
 
@@ -29,6 +29,10 @@
   sieve/bytes 则慢 3–9×）；`--release-fast` 是必要选项，但会让 matmul 编译从 1.6s 膨胀到 60–70s。
 - **环境观察**：Node 20.19 的 WASI 在若干大内存模块退出时触发 V8 trap（SLA/Rust 都复现），
   本文 WASM 数据统一改用 Wasmtime 25.0.2。
+- **网络并发（HTTP/1.1 keep-alive）**：4 个独立进程、每进程 1 个监听器时，SLA 约
+  35.7–43.9k rps；Rust 222–249k（约 5.7–6.2×），Go 66–82k（约 1.6–2.0×）。
+  SLA 每请求约 56KB RSS 增长，20k 请求后 1.1–3.6GB；同一插件由 C 驱动无增长，
+  属 SLA 运行时/FFI 侧问题，长跑会拖慢吞吐。
 
 ## 1. 测试口径与环境
 
@@ -64,7 +68,8 @@
 
 ### 1.3 限制
 
-- 单线程；没有测试 async / 多线程 / FFI / 网络 / 数据库。
+- 数值/WASM 部分为单线程，未测试 async、FFI、数据库；网络部分只测 HTTP/1.1
+  keep-alive（第 8 节），不含 TLS、路由、日志与真实业务逻辑。
 - SLA 的 `Vec<f64>` 在当前版本 push 后读到 0，因此 matmul 使用固定长度 `[f64; 4096]` 数组；
   Rust 使用同样的固定数组，算法仍一致。
 - SLA 没有导出 WASM 函数的 `.sla` 语法，WASM 只能以 `_start` 命令方式运行；两边都用 WASI 进程计时。
@@ -293,7 +298,74 @@ Native 与 WASM 的 RSS 表已在第 2、3 节列出。结论：
 数组初始化本身随规模近似线性/轻微超线性增长（4,096 元素约 4.9s），但 matmul 完整程序要 60–70s，
 说明主要成本来自循环体优化/代码生成，而不是数组字面量。
 
-## 8. 结论与建议
+## 8. 网络并发（HTTP/1.1 keep-alive）
+
+### 8.1 口径
+
+- 响应统一为 `200 OK`、`Content-Type: text/plain`、body `ok`，HTTP/1.1 keep-alive。
+- SLA：`http-server` 插件，4 个独立进程（18092–18095），每进程 1 个监听器 + 1 个
+  SLA `accept` worker；accept 后设置 `TCP_NODELAY`。客户端按连接轮询 4 个端口。
+  未用 `sa_std/net` 直接实现（原因见 8.3）。
+- Rust：4 个进程，每进程 `TcpListener` + thread-per-connection，最小 HTTP 头解析。
+- Go：4 个进程，`net/http` 默认 `ServeMux`，无日志/中间件。
+- 客户端：Rust 阻塞式 keep-alive，每条连接先预热 200 次，再计时；并发 1/16/64/256，
+  每档 20,000 请求，2 次重复取中位数；每档重启服务器，避免上一档内存影响吞吐。
+- 指标：rps、P50/P95/P99、进程 `VmHWM` 之和、线程数。平台同第 1 节（8 vCPU KVM）。
+
+### 8.2 结果
+
+| 并发 | SLA rps | Rust rps | Go rps | SLA P50/P95/P99 ms | Rust P50/P95/P99 ms | Go P50/P95/P99 ms | SLA RSS MB | Rust RSS MB | Go RSS MB |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 9,691 | 22,456 | 6,613 | 0.08/0.27/0.40 | 0.04/0.10/0.24 | 0.11/0.38/0.63 | 1,119 | 9 | 34 |
+| 16 | 41,802 | 245,006 | 66,356 | 0.33/0.62/1.21 | 0.04/0.09/0.19 | 0.09/0.69/2.17 | 1,201 | 9 | 56 |
+| 64 | 43,890 | 248,965 | 81,997 | 1.32/2.00/2.48 | 0.19/0.45/0.81 | 0.16/3.09/8.46 | 1,688 | 10 | 57 |
+| 256 | 35,688 | 222,339 | 72,496 | 6.57/8.67/9.55 | 0.65/2.00/3.52 | 0.37/11.32/28.95 | 3,640 | 12 | 60 |
+
+- 相对 SLA：Rust 在 16/64/256 并发分别快 **5.9× / 5.7× / 6.2×**，
+  Go 分别快 **1.6× / 1.9× / 2.0×**。1 并发时 Rust 快 2.3×，Go 反而慢约 0.7×
+  （单连接下 Go `net/http` 的固定开销高于 SLA 的最小响应路径）。
+- SLA 在 16/64 并发达到 41.8–43.9k，256 并发回落到 35.7k，P50 从 0.08ms 升到 6.57ms。
+  Rust 随并发上升基本保持 222–249k，P50 仅 0.04–0.65ms；Go 在 64 并发约 82k，
+  256 并发回落到约 72k，P99 达 29ms。
+
+### 8.3 问题与阻塞
+
+1. **SLA 每请求约 56KB RSS 增长**。20k 请求后 c=1 已约 1.1GB，c=256 约 3.6GB；
+   同一 `http-server` 插件由 C 驱动执行 20k 请求，RSS 仅从约 2.0MB 增到 2.0MB。
+   因此泄漏在 SLA 运行时/FFI 侧，不在插件。旧拓扑长跑 80k 请求后吞吐会降到
+   3.7–7.5k；新拓扑未做长跑，但泄漏仍会限制持续服务时间。这是当前 SLA 网络
+   服务最大的阻塞项。
+2. **`serve_threaded` 从 SLA 调用会立即返回**。根因是 SA 主机导出了
+   `pthread_join(int32_t, uint8_t*)`，动态链接时覆盖了 libc 的 `pthread_join`，
+   插件里的 `std.Thread.join` 实际 join 了错误的句柄，`serve_threaded` 随即返回并
+   释放线程池。已把插件改为 `detach` + 原子完成计数等待；`zig build test` 通过。
+3. **函数指针不能直接传 SLA 闭包**。`PTR_BYTE_ADD(handle, 0)` 传的是闭包 vtable
+   地址；正确做法是从 `handle+8` 取 vtable，再取 vtable+0 的 code 指针
+   （见 `benchmarks/net/sla/fnptr2.sa`）。
+4. **部署拓扑决定吞吐，插件 accept 路径仍是上限**。同一 `http-server` 插件由 C
+   驱动、单监听器 + 1 个 accept worker 原本约 3.1k rps，accept 后补
+   `TCP_NODELAY` 提升到约 7.4k；4 线程 `serve_threaded` 约 4.1k，4 监听器 ×
+   4 线程反而降到 2.3–2.7k（recycled pool 锁争用）。把 4 个监听器放在同一
+   SLA 进程只有 8–12k，而 4 个独立进程、每进程 1 个监听器可达 35–44k。
+   因此最终口径改为 **1 进程 1 监听器**；剩余开销仍在每请求 poll/池扫描/
+   `std.http` head 解析/`setsockopt`，以及 SLA 侧每请求 ~56KB 增长。
+5. **为何不用 `sa_std/net` 直接写**：高层 `net` 的 bind/accept 可用，但 4KB 读缓冲
+   会触发 `MemoryLeak ... Composite`；在 `.sla` 里也无法直接声明 `malloc`/低层
+   `NET_TCP_STREAM_READ` 宏。按用户允许的方案改用 `http-server` 插件。
+
+### 8.4 编译与产物体积
+
+| 实现 | 构建 | 时间（中位数） | stripped 体积 |
+|---|---|---:|---:|
+| SLA | `sla build` + `sa build-exe --release-fast` | 1.51s/个（4 个进程） | 9.31MB |
+| Rust | `rustc -O` | 0.42s | 382KB |
+| Go | `go build -trimpath -ldflags '-s -w'` | 0.16s（冷构建 15.6s） | 5.88MB |
+
+SLA 的 native 体积仍由静态运行时主导（约 9.3MB），Rust 最小（约 0.38MB），
+Go 居中（约 5.9MB）。网络基准的 SLA 源码需两步构建，因为该程序使用线程闭包，
+`sla build-exe` 的 SAB 直降会报 `UnsupportedSabDirectFeature`。
+
+## 9. 结论与建议
 
 1. **运行时**：当前 SLA 0.1.4 在多数标量/内存密集型负载上比 Rust release 慢 1.5–2×；
    固定数组 + 浮点循环（matmul）差距可达 30×。SLA 在无序索引访问（sort）和哈希表探测（hashmap）上更快，
@@ -307,10 +379,14 @@ Native 与 WASM 的 RSS 表已在第 2、3 节列出。结论：
 5. **内存**：优先修复 `Vec` 增长时的旧块回收与容量策略；sieve/bytes 的 15–19× RSS 差距会限制边缘设备部署。
 6. **默认构建**：默认优化等级大致是 Rust debug 量级（部分负载慢 3–9×），且 matmul/sort 会崩溃；文档应明确要求 `--release-fast`，
    并修复默认后端的聚合类型代码生成。
-7. **公平性**：本报告只覆盖单线程数值/内存负载。SLA 的 async、线程、FFI、包管理等未纳入；
-   这些场景需要单独的基准与安全检查。
+7. **公平性**：数值/WASM 部分只覆盖单线程负载；网络部分只覆盖 HTTP/1.1 keep-alive。
+   SLA 的 async、FFI、包管理等未纳入，需要单独基准与安全检查。
+8. **网络结论**：SLA 用 4 个独立进程、每进程 1 个监听器时可达 35–44k rps，
+   P50 0.08ms（c=1）到 6.6ms（c=256），但与 Rust 的 222–249k、Go 的 66–82k
+   仍有 5.7–6.2× / 1.6–2.0× 差距。上线前应优先修复每请求约 56KB 的运行时泄漏；
+   当前不建议在同一进程内堆多个监听器或多 accept worker。
 
-## 9. 复现
+## 10. 复现
 
 ```sh
 # 依赖
@@ -326,6 +402,10 @@ cd slarust
 python3 scripts/bench.py --mode all --runs 7
 python3 scripts/analyze.py > results/analysis.md
 python3 scripts/render_report.py
+# 网络并发（需先安装 http-server 插件与 Zig 0.17）
+cd benchmarks/net
+python3 run_bench.py --servers sla,rust,go --concurrency 1,16,64,256 --requests 20000
+python3 summarize.py
 ```
 
 原始数据：`results/native.jsonl`、`results/wasm.jsonl`、`results/compile.jsonl`、

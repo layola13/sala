@@ -1,0 +1,40 @@
+@import "sa_std/ptr.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/thread.sa"
+@import "sa_std/time.sla"
+@import "http_server.sai"
+@import "fnptr2.sa"
+
+fn handle_one(req: ptr) {
+    let resp: ptr = PTR_NULL();
+    let ct = "text/plain";
+    let body = "ok";
+    if sa_http_server_resp_new(req, 200, &resp) == 0 {
+        sa_http_server_resp_set_content_type(resp, ct.as_ptr(), 10);
+        sa_http_server_resp_send(resp, body.as_ptr(), 2);
+        sa_http_server_resp_free(resp);
+    };
+    sa_http_server_req_free(req);
+}
+
+fn accept_worker(server_addr: u64) {
+    let server: ptr = PTR_FROM_ADDR(server_addr);
+    while true {
+        let req: ptr = PTR_NULL();
+        let st = sa_http_server_accept(server, &req);
+        if st == 0 { handle_one(req); };
+    }
+}
+
+fn main() -> i32 {
+    let s: ptr = PTR_NULL();
+    let host = "127.0.0.1";
+    let port: u16 = 18092;
+    if sa_http_server_new(&s) != 0 { return 1; };
+    if sa_http_server_start(s, host.as_ptr(), 9, port) != 0 { return 2; };
+    println("listen 18092");
+    let a = PTR_ADDR(s);
+    let h = thread::spawn(^|| accept_worker(a));
+    THREAD_SLEEP_MS(1000000000);
+    return 0;
+}

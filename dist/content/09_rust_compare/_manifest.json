@@ -16,7 +16,7 @@
      "keywords": ["rosetta", "demo 对照", "bc2sa", "LLVM bitcode", "phi", "StaticMemoryOverflow", "SA-CLI-019"], "parent": null},
     {"id": "migration", "title": "从 Rust 迁移到 SLA：改写清单与场景选择", "file": "08_migration.html",
      "keywords": ["迁移", "改写清单", "Cell 内部可变性", "impl Drop", "场景选择", "客观打分"], "parent": null},
-    {"id": "performance", "title": "SLA vs Rust 性能实测（native / WASM / 编译）", "file": "09_performance.html",
-     "keywords": ["性能实测", "benchmark", "native", "WASM", "编译时间", "产物体积", "RSS", "release-fast", "matmul"], "parent": null}
+    {"id": "performance", "title": "SLA vs Rust vs Go 性能实测（native / WASM / 编译 / 网络）", "file": "09_performance.html",
+     "keywords": ["性能实测", "benchmark", "native", "WASM", "编译时间", "产物体积", "RSS", "release-fast", "matmul", "HTTP", "网络并发", "Go"], "parent": null}
   ]
 }

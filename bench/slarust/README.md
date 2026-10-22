@@ -1,6 +1,7 @@
-# slarust：SLA vs Rust 性能基准
+# slarust：SLA vs Rust vs Go 性能基准
 
-2026-10-22 的 10 个工作负载对比，覆盖 native、WASM、冷/热编译、产物体积、峰值 RSS 与优化等级。
+2026-10-22 的 10 个工作负载 + HTTP 并发对比，覆盖 native、WASM、冷/热编译、
+产物体积、峰值 RSS、优化等级与 HTTP/1.1 keep-alive 吞吐。
 完整报告见 [REPORT.md](REPORT.md)；sala 章节版本是仓库中的
 `content/09_rust_compare/09_performance.html`（本基准项目也复制在 `bench/slarust/`）。
 
@@ -15,6 +16,10 @@
 - 体积最优：SLA `--release-fast` + strip vs Rust `profile=size` + strip + `wasm-opt -Oz`。
   native SLA 约 9.1MB vs Rust 274–278KB（约 32.8× 大）；WASM 典型负载（不含 hello/matmul）SLA 5.6–7.9KB vs Rust 32.7–34.3KB
   （约小 5.2×），matmul 例外（58.0KB vs 33.0KB，SLA 大约 1.76×）。
+- 网络（4 个独立进程，每进程 1 个监听器 + 1 个 accept worker）：SLA 约
+  35.7–43.9k rps；Rust 222–249k（约 5.7–6.2×），Go 66–82k（约 1.6–2.0×）。
+- 网络异常：SLA 每请求约 56KB RSS 增长（20k 请求后 1.1–3.6GB）；
+  同一插件由 C 驱动无增长，属 SLA 运行时/FFI 侧问题。
 - 异常点：SLA `--release-fast` 编译 matmul native 需要约 70s；默认构建下 matmul/sort 段错误。
 
 ## 目录
@@ -23,6 +28,7 @@
 benchmarks/sla/           SLA 源码（11 个，含 hello）
 benchmarks/rust/          Rust Cargo 项目（src/bin/ 下 11 个）
 benchmarks/micro/         固定数组初始化编译扩展性微基准
+benchmarks/net/           HTTP 并发基准（SLA/Rust/Go + Rust keep-alive 客户端）
 scripts/bench.py          冷/热编译 + native/wasm 运行时测量
 scripts/analyze.py        生成 results/analysis.md
 scripts/measure_sizes.py  strip 后 native/WASM 体积（生成 results/*_stripped_sizes.json）
@@ -38,7 +44,9 @@ results/                  原始 jsonl/json 与汇总
 - Linux x86_64，8 vCPU，Intel Xeon 2.20GHz，52GB RAM
 - `sla 0.1.4`（`SA 0.1.8`）
 - `rustc 1.99.1` / `cargo 1.99.1`
+- Go 1.27.3
 - Wasmtime 25.0.2
+- Zig 0.17.0（仅构建 `http-server` 插件）
 - binaryen 132（`wasm-opt -Oz`，用于体积最优对比）
 - Node 20.19（仅用于早期尝试；其 WASI 在大内存模块退出时会 trap，最终 WASM 数据全部用 Wasmtime）
 
@@ -65,6 +73,11 @@ python3 scripts/analyze.py > results/analysis.md
 python3 scripts/measure_sizes.py
 python3 scripts/measure_optimal_sizes.py
 python3 scripts/render_report.py
+# 网络并发（需先安装 http-server 插件与 Zig 0.17）
+cd benchmarks/net
+./build.sh
+python3 run_bench.py --servers sla,rust,go --concurrency 1,16,64,256 --requests 20000
+python3 summarize.py
 # 可选：重新生成 sala 章节 HTML
 python3 scripts/render_report.py --html <sala>/content/09_rust_compare/09_performance.html
 ```
@@ -86,7 +99,11 @@ python3 scripts/render_report.py --html <sala>/content/09_rust_compare/09_perfor
 - 运行时取 native 7 次、WASM 5 次中位数，去掉 1 次预热；RSS 取 `wait4` 的 `ru_maxrss`。
 - 体积必须区分 raw 与可部署：SLA WASM 默认带大量 DWARF（典型约 99%），Rust 带 name section；
   报告使用 `strip_wasm.py` 对两边同时移除 `.debug*` 与 `name`，native 使用 `strip`。
-- 单线程；未覆盖 async、线程、FFI、网络与数据库。
+- 数值/WASM 部分为单线程；网络部分只覆盖 HTTP/1.1 keep-alive，不含 TLS、路由、日志。
+- SLA 网络实现使用 `http-server` 插件（`sa_std/net` 的 4KB 读缓冲仍会触发
+  `MemoryLeak ... Composite`）；插件 `serve_threaded` 的 join 问题与 SLA 每请求
+  RSS 增长详见 `REPORT.md` 第 8 节。
+- 未覆盖 async、FFI、数据库。
 - SLA 当前 `Vec<f64>` push 后读到 0，因此 matmul 两边都使用固定 `[f64; 4096]` 数组。
 - SLA 没有导出 WASM 函数的语法，WASM 只能以 `_start` 命令方式运行。
 - `results/variants.json` 的 `release-small` 列与 `release-fast` 重复，不是独立构建模式，报告未使用该列。
