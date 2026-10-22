@@ -1,0 +1,37 @@
+@import "sa_std/io/print.sai"
+
+fn main() -> i32 {
+    let n: i64 = 64;
+    let elems: i64 = 4096;
+    let reps: i64 = 4000;
+    let a: [f64; 4096] = [1.5; 4096];
+    let b: [f64; 4096] = [2.0; 4096];
+    let c: [f64; 4096] = [0.0; 4096];
+    let total: f64 = 0.0;
+    let rep: i64 = 0;
+    while rep < reps {
+        let r: i64 = 0;
+        while r < n {
+            let col: i64 = 0;
+            while col < n {
+                let acc: f64 = 0.0;
+                let k: i64 = 0;
+                while k < n {
+                    acc = acc + a[r * n + k] * b[k * n + col];
+                    k = k + 1;
+                }
+                c[r * n + col] = acc;
+                col = col + 1;
+            }
+            r = r + 1;
+        }
+        let j: i64 = 0;
+        while j < elems {
+            total = total + c[j];
+            j = j + 1;
+        }
+        rep = rep + 1;
+    }
+    println("{}", total as i64);
+    return 0;
+}

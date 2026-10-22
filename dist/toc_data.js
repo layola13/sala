@@ -134,6 +134,11 @@ var TOC = [
     "t": "从 Rust 迁移到 SLA：改写清单与场景选择",
     "f": "content/09_rust_compare/08_migration.html",
     "c": []
+   },
+   {
+    "t": "SLA vs Rust 性能实测（native / WASM / 编译）",
+    "f": "content/09_rust_compare/09_performance.html",
+    "c": []
    }
   ]
  },

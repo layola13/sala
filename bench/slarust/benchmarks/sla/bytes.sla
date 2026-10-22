@@ -1,0 +1,20 @@
+@import "sa_std/io/print.sai"
+@import "sa_std/vec.sa"
+
+fn main() -> i32 {
+    let n: i64 = 33554432;
+    let data: Vec<u8> = Vec::new();
+    let i: i64 = 0;
+    while i < n {
+        data.push((i % 251) as u8);
+        i = i + 1;
+    }
+    let checksum: i64 = 0;
+    let j: i64 = 0;
+    while j < n {
+        checksum = (checksum * 31 + (data[j] as i64)) % 1000000007;
+        j = j + 64;
+    }
+    println("{}", checksum);
+    return 0;
+}

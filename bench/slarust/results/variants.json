@@ -1,0 +1,158 @@
+[
+  {
+    "bench": "fib",
+    "lang": "sla",
+    "variant": "default",
+    "compile_ms": 186.0378999999739,
+    "run_ms": 2532.0327750000615,
+    "bytes": 9397448,
+    "out": "102334155"
+  },
+  {
+    "bench": "fib",
+    "lang": "sla",
+    "variant": "release-small",
+    "compile_ms": 177.56642500035014,
+    "run_ms": 2612.2386709998864,
+    "bytes": 9397448,
+    "out": "102334155"
+  },
+  {
+    "bench": "fib",
+    "lang": "rust",
+    "variant": "debug",
+    "run_ms": 1350.6244609998248,
+    "bytes": 4550080,
+    "out": "102334155"
+  },
+  {
+    "bench": "loopsum",
+    "lang": "sla",
+    "variant": "default",
+    "compile_ms": 368.7753290000728,
+    "run_ms": 8052.042294999865,
+    "bytes": 9397704,
+    "out": "4499999927"
+  },
+  {
+    "bench": "loopsum",
+    "lang": "sla",
+    "variant": "release-small",
+    "compile_ms": 177.04033100017114,
+    "run_ms": 8140.93601400009,
+    "bytes": 9397704,
+    "out": "4499999927"
+  },
+  {
+    "bench": "loopsum",
+    "lang": "rust",
+    "variant": "debug",
+    "run_ms": 7949.88229799992,
+    "bytes": 4550560,
+    "out": "4499999927"
+  },
+  {
+    "bench": "sieve",
+    "lang": "sla",
+    "variant": "default",
+    "compile_ms": 1369.836024000051,
+    "run_ms": 5625.982370000202,
+    "bytes": 9402536,
+    "out": "1270607"
+  },
+  {
+    "bench": "sieve",
+    "lang": "sla",
+    "variant": "release-small",
+    "compile_ms": 1000.6478459999926,
+    "run_ms": 5530.563580000035,
+    "bytes": 9402536,
+    "out": "1270607"
+  },
+  {
+    "bench": "sieve",
+    "lang": "rust",
+    "variant": "debug",
+    "run_ms": 1220.365631000277,
+    "bytes": 4565184,
+    "out": "1270607"
+  },
+  {
+    "bench": "matmul",
+    "lang": "sla",
+    "variant": "default",
+    "compile_ms": 1738.8844580000296,
+    "run_ms": 409.1969490000338,
+    "bytes": 9584328,
+    "out": ""
+  },
+  {
+    "bench": "matmul",
+    "lang": "sla",
+    "variant": "release-small",
+    "compile_ms": 202.96395299965297,
+    "run_ms": 419.2351070000768,
+    "bytes": 9584328,
+    "out": ""
+  },
+  {
+    "bench": "matmul",
+    "lang": "rust",
+    "variant": "debug",
+    "run_ms": 7387.975152999843,
+    "bytes": 4553088,
+    "out": "3145728000"
+  },
+  {
+    "bench": "sort",
+    "lang": "sla",
+    "variant": "default",
+    "compile_ms": 1628.6479589998635,
+    "run_ms": 196.49240099988674,
+    "bytes": 9412136,
+    "out": ""
+  },
+  {
+    "bench": "sort",
+    "lang": "sla",
+    "variant": "release-small",
+    "compile_ms": 1405.7293400001072,
+    "run_ms": 198.9316270000927,
+    "bytes": 9412136,
+    "out": ""
+  },
+  {
+    "bench": "sort",
+    "lang": "rust",
+    "variant": "debug",
+    "run_ms": 3042.449926000245,
+    "bytes": 4590624,
+    "out": "852488716"
+  },
+  {
+    "bench": "bytes",
+    "lang": "sla",
+    "variant": "default",
+    "compile_ms": 707.9008180003257,
+    "run_ms": 3507.9418369996347,
+    "bytes": 9400712,
+    "out": "863801334"
+  },
+  {
+    "bench": "bytes",
+    "lang": "sla",
+    "variant": "release-small",
+    "compile_ms": 564.3617370001266,
+    "run_ms": 3550.9199699999954,
+    "bytes": 9400712,
+    "out": "863801334"
+  },
+  {
+    "bench": "bytes",
+    "lang": "rust",
+    "variant": "debug",
+    "run_ms": 404.18538899984924,
+    "bytes": 4562624,
+    "out": "863801334"
+  }
+]

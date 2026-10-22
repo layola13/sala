@@ -1,0 +1,41 @@
+@import "sa_std/io/print.sai"
+
+fn main() -> i32 {
+    let width: i64 = 1600;
+    let height: i64 = 1600;
+    let max_iter: i64 = 200;
+    let count: i64 = 0;
+    let py: i64 = 0;
+    while py < height {
+        let y0: f64 = (py as f64) * 2.0 / (height as f64) - 1.0;
+        let px: i64 = 0;
+        while px < width {
+            let x0: f64 = (px as f64) * 3.5 / (width as f64) - 2.5;
+            let x: f64 = 0.0;
+            let y: f64 = 0.0;
+            let it: i64 = 0;
+            let running: bool = true;
+            while running == true {
+                if it >= max_iter {
+                    running = false;
+                } else {
+                    let x2: f64 = x * x;
+                    let y2: f64 = y * y;
+                    if x2 + y2 > 4.0 {
+                        running = false;
+                    } else {
+                        let ny: f64 = 2.0 * x * y + y0;
+                        x = x2 - y2 + x0;
+                        y = ny;
+                        it = it + 1;
+                    }
+                }
+            }
+            count = count + it;
+            px = px + 1;
+        }
+        py = py + 1;
+    }
+    println("{}", count);
+    return 0;
+}

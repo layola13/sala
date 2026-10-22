@@ -221,6 +221,14 @@
 <param name="Local" value="../dist/content/09_rust_compare/08_migration.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA vs Rust 性能实测（native / WASM / 编译）">
+<param name="Local" value="../dist/content/09_rust_compare/09_performance.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

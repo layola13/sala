@@ -1,0 +1,57 @@
+@import "sa_std/io/print.sai"
+@import "sa_std/vec.sa"
+
+fn main() -> i32 {
+    let cap: i64 = 4194304;
+    let n: i64 = 3000000;
+    let keys: Vec<i64> = Vec::new();
+    let vals: Vec<i64> = Vec::new();
+    let i: i64 = 0;
+    while i < cap {
+        keys.push(-1);
+        vals.push(0);
+        i = i + 1;
+    }
+
+    let k: i64 = 0;
+    while k < n {
+        let idx: i64 = (k * 2654435761) % cap;
+        let placed: bool = false;
+        while placed == false {
+            if keys[idx] == -1 {
+                keys[idx] = k;
+                vals[idx] = k * 3 + 1;
+                placed = true;
+            } else {
+                if keys[idx] == k {
+                    placed = true;
+                } else {
+                    idx = (idx + 1) % cap;
+                }
+            }
+        }
+        k = k + 1;
+    }
+
+    let checksum: i64 = 0;
+    let q: i64 = 0;
+    while q < n {
+        let idx: i64 = (q * 2654435761) % cap;
+        let found: bool = false;
+        while found == false {
+            if keys[idx] == -1 {
+                found = true;
+            } else {
+                if keys[idx] == q {
+                    checksum = (checksum + vals[idx]) % 1000000007;
+                    found = true;
+                } else {
+                    idx = (idx + 1) % cap;
+                }
+            }
+        }
+        q = q + 1;
+    }
+    println("{}", checksum);
+    return 0;
+}

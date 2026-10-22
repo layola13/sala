@@ -68,23 +68,25 @@ let b = ^a;           // ^ 前缀显式声明 move
 </ul>
 <h3>Sla 独占</h3>
 <ul>
-<li>WASM 编译速度（目标 10-20×）与产物体积（目标约 5× 小）；借用检查 O(1)</li>
+<li>WASM 编译速度（早期目标 10-20×）与产物体积（早期目标约 5× 小）；2026-10-22 实测均未达成，见<a href="09_performance.html">性能实测</a>；借用检查 O(1)</li>
 <li>验证器可形式化证明 / FPGA 烧录（路线）；Gas metering 内建</li>
 <li>零信任包管理（<code>grants</code> 模块级账本）、审判台 + 染色 CI、气闸舱 FFI（函数级隔离）</li>
 <li>极简关键字集：无生命周期标注、无 Send/Sync、无 coherence 求解</li>
 <li>LLM 自修复闭环（Trap 结构化 JSON 原生）；bc2sa 多语言生态桥；多前端架构</li>
 </ul>
-<div class="note"><span class="label">注意</span>Release 模式下两者的<b>运行时</b>性能是等价的
-（同为 LLVM O3、无 GC）。Sla 占优的是<b>编译速度</b>和 <b>WASM 体积</b>，不是执行速度。</div>
+<div class="note"><span class="label">注意</span>2026-10-22 的实测推翻了旧口径：Release 模式下 Rust 的
+native/WASM 运行时中位数分别快约 1.47×/1.44×（不含 matmul 异常点）；常规源码的冷编译也是 Rust 更快，
+WASM 产物体积约为 Rust 的 10.7×。SLA 当前的卖点不是运行时、编译速度或体积，见
+<a href="09_performance.html">SLA vs Rust 性能实测</a>。</div>
 
 <h2>场景怎么选</h2>
 <table>
 <tr><th>场景</th><th>推荐</th></tr>
 <tr><td>桌面应用、重型 Web 后端、OS/驱动、大型多人协作项目、需要成熟 IDE</td><td>Rust</td></tr>
 <tr><td>需要 tokio / serde / bevy / wgpu 等生产级框架</td><td>Rust</td></tr>
-<tr><td>WASM 边缘计算、WASM 游戏、嵌入式 WASM/IoT 显示、体积敏感部署</td><td>Sla</td></tr>
+<tr><td>WASM 边缘计算、WASM 游戏、嵌入式 WASM/IoT 显示（需先核对设备 CPU/体积预算）</td><td>Sla</td></tr>
 <tr><td>LLM 沙盒 / Agent 执行环境、教学、教育性 ECS（sa3d）、安全/航空（Referee 可证明）</td><td>Sla</td></tr>
-<tr><td>想复用现有 Rust/C++ crate 但要求 WASM 部署且产物小</td><td>bc2sa 桥接 + Sla 调用</td></tr>
+<tr><td>想复用现有 Rust/C++ crate 并部署到 WASM（需实测体积是否可接受）</td><td>bc2sa 桥接 + Sla 调用</td></tr>
 </table>
 
 <h2>容易被误解的点</h2>
@@ -93,7 +95,7 @@ let b = ^a;           // ^ 前缀显式声明 move
 <tr><td>“Sla 是 Rust 的简化版”</td><td>不是。Sla 是 SA 的高级前端，与 Rust 处在不同抽象层</td></tr>
 <tr><td>“Sla 生态要从 0 开始攒好几年”</td><td>bc2sa 让 Sla 可以消费 Rust/C++ 生态；覆盖率提升路线见来源文档快照</td></tr>
 <tr><td>“Sla 兼容 Rust 语法”</td><td>仅表层（Phase 1 约 70%）。语义层始终不同：可变性反向、<code>&amp;self</code> 涵盖读写、无 proc-macro</td></tr>
-<tr><td>“Sla 比 Rust 快”</td><td>Release 运行时性能等价；快的是编译速度与 WASM 体积</td></tr>
+<tr><td>“Sla 比 Rust 快”</td><td>不成立。Rust release 在多数负载上更快；SLA 只在 sort/hashmap 等少数场景领先。见<a href="09_performance.html">性能实测</a></td></tr>
 <tr><td>“Sla 的 async 不能用”</td><td>async/await 已实测可跑（<code>tests/test_unit_async_await.sla</code>）；缺的是 tokio 等价的 runtime 生态</td></tr>
 <tr><td>“Sla 没有增量编译”</td><td>SA 增量编译已落地（<code>sci/src/cli.zig</code>）</td></tr>
 <tr><td>“Sla 没有 DCE”</td><td>SA 层 DCE 已落地（commit <code>146c7db</code>）</td></tr>
@@ -103,10 +105,11 @@ let b = ^a;           // ^ 前缀显式声明 move
 <ul>
 <li>SLA 与 Rust 是不同抽象层的两种东西：一个是 SA 平台高级前端，一个是通用系统语言。</li>
 <li>生态差距靠 bc2sa 桥接缩小，而不是靠重写。</li>
-<li>性能上只有编译速度与 WASM 体积占优，运行时等价。</li>
+<li>性能不是 SLA 的现有优势：运行时、冷/热编译、产物体积的实测都不如 Rust release；只有少数索引模式领先。</li>
 <li>下一页看具体语法差多少：<a href="02_syntax_matrix.html">语法对照实测矩阵</a>；
 内存安全的逐项对比见<a href="03_ownership.html">所有权与借用</a>；
-宏与元编程的差异见<a href="04_macros.html">宏与元编程对比</a>。</li>
+宏与元编程的差异见<a href="04_macros.html">宏与元编程对比</a>；
+完整基准数据见<a href="09_performance.html">性能实测</a>。</li>
 </ul>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>

@@ -1,0 +1,13 @@
+@import "sa_std/io/print.sai"
+
+fn main() -> i32 {
+    let n: i64 = 300000000;
+    let acc: i64 = 0;
+    let i: i64 = 0;
+    while i < n {
+        acc = acc + (i % 7) * (i % 11);
+        i = i + 1;
+    }
+    println("{}", acc);
+    return 0;
+}

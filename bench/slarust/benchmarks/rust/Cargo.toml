@@ -1,0 +1,54 @@
+[package]
+name = "slarust-bench-rust"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "fib"
+path = "src/bin/fib.rs"
+
+[[bin]]
+name = "loopsum"
+path = "src/bin/loopsum.rs"
+
+[[bin]]
+name = "sieve"
+path = "src/bin/sieve.rs"
+
+[[bin]]
+name = "matmul"
+path = "src/bin/matmul.rs"
+
+[[bin]]
+name = "sort"
+path = "src/bin/sort.rs"
+
+[[bin]]
+name = "hashmap"
+path = "src/bin/hashmap.rs"
+
+[[bin]]
+name = "nbody"
+path = "src/bin/nbody.rs"
+
+[[bin]]
+name = "mandelbrot"
+path = "src/bin/mandelbrot.rs"
+
+[[bin]]
+name = "vecpush"
+path = "src/bin/vecpush.rs"
+
+[[bin]]
+name = "bytes"
+path = "src/bin/bytes.rs"
+
+[[bin]]
+name = "hello"
+path = "src/bin/hello.rs"
+
+[profile.release]
+opt-level = 3
+lto = false
+codegen-units = 16
+panic = "abort"

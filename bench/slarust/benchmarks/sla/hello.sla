@@ -1,0 +1,6 @@
+@import "sa_std/io/print.sai"
+
+fn main() -> i32 {
+    println("hello, slarust");
+    return 0;
+}

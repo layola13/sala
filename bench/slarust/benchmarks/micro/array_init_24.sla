@@ -1,0 +1,7 @@
+@import "sa_std/io/print.sai"
+
+fn main() -> i32 {
+    let a: [f64; 576] = [1.5; 576];
+    println("{}", a[0] as i64);
+    return 0;
+}

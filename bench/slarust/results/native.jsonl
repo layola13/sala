@@ -1,0 +1,154 @@
+{"bench": "hello", "lang": "sla", "target": "native", "run": 1, "ms": 2.386564000062208, "maxrss_kb": 14208, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "native", "run": 2, "ms": 2.439665999645513, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "native", "run": 3, "ms": 2.2340610003084294, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "native", "run": 4, "ms": 1.9766929999605054, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "native", "run": 5, "ms": 1.7089289999603352, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "native", "run": 6, "ms": 1.7973590001929551, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "native", "run": 7, "ms": 1.6492610002387664, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "native", "run": 1, "ms": 1.5741950001029181, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "native", "run": 2, "ms": 2.582955999969272, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "native", "run": 3, "ms": 1.519423999980063, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "native", "run": 4, "ms": 1.9833470000776288, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "native", "run": 5, "ms": 1.885223000044789, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "native", "run": 6, "ms": 2.3698919999333157, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "native", "run": 7, "ms": 1.82904499979486, "maxrss_kb": 14336, "checksum": "hello, slarust"}
+{"bench": "fib", "lang": "sla", "target": "native", "run": 1, "ms": 463.4313399997154, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "native", "run": 2, "ms": 459.5272360002127, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "native", "run": 3, "ms": 468.79962699995303, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "native", "run": 4, "ms": 480.1244969999061, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "native", "run": 5, "ms": 460.53451700026926, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "native", "run": 6, "ms": 456.2162989996068, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "native", "run": 7, "ms": 453.51520800022627, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "native", "run": 1, "ms": 382.8382840001723, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "native", "run": 2, "ms": 382.50367099999494, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "native", "run": 3, "ms": 395.8335030001763, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "native", "run": 4, "ms": 391.6663080003673, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "native", "run": 5, "ms": 387.27236300019285, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "native", "run": 6, "ms": 381.57917599983193, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "native", "run": 7, "ms": 383.3974979997947, "maxrss_kb": 14336, "checksum": "102334155"}
+{"bench": "loopsum", "lang": "sla", "target": "native", "run": 1, "ms": 805.04784499999, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "native", "run": 2, "ms": 807.7183939999486, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "native", "run": 3, "ms": 798.3025260000431, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "native", "run": 4, "ms": 796.6030739999042, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "native", "run": 5, "ms": 789.8669859996517, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "native", "run": 6, "ms": 789.2844729999524, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "native", "run": 7, "ms": 814.0183049999905, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "native", "run": 1, "ms": 527.9604600000312, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "native", "run": 2, "ms": 524.1089140004078, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "native", "run": 3, "ms": 540.0827580001533, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "native", "run": 4, "ms": 539.250259000255, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "native", "run": 5, "ms": 534.8540340000909, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "native", "run": 6, "ms": 523.7273170000663, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "native", "run": 7, "ms": 531.0690169999361, "maxrss_kb": 14336, "checksum": "4499999927"}
+{"bench": "sieve", "lang": "sla", "target": "native", "run": 1, "ms": 954.8070040000312, "maxrss_kb": 422016, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "native", "run": 2, "ms": 939.6609030000036, "maxrss_kb": 422016, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "native", "run": 3, "ms": 983.7299759997222, "maxrss_kb": 422016, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "native", "run": 4, "ms": 907.2220570001264, "maxrss_kb": 422144, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "native", "run": 5, "ms": 890.441835999809, "maxrss_kb": 422144, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "native", "run": 6, "ms": 872.7486239999962, "maxrss_kb": 422144, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "native", "run": 7, "ms": 847.0450469999378, "maxrss_kb": 422144, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "native", "run": 1, "ms": 352.01624000001175, "maxrss_kb": 21632, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "native", "run": 2, "ms": 345.97011000005296, "maxrss_kb": 21632, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "native", "run": 3, "ms": 358.85819800023455, "maxrss_kb": 21632, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "native", "run": 4, "ms": 338.5735809997641, "maxrss_kb": 21632, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "native", "run": 5, "ms": 331.5542049999749, "maxrss_kb": 21632, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "native", "run": 6, "ms": 336.70558799985884, "maxrss_kb": 21632, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "native", "run": 7, "ms": 358.616787000301, "maxrss_kb": 21632, "checksum": "1270607"}
+{"bench": "matmul", "lang": "sla", "target": "native", "run": 1, "ms": 1038.2824890002667, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "native", "run": 2, "ms": 1030.2407520002816, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "native", "run": 3, "ms": 1017.7714380001817, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "native", "run": 4, "ms": 1065.3821400001107, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "native", "run": 5, "ms": 1051.8210640002508, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "native", "run": 6, "ms": 1042.208283999571, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "native", "run": 7, "ms": 1035.989337999581, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "native", "run": 1, "ms": 29.9003069999344, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "native", "run": 2, "ms": 29.5524610000939, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "native", "run": 3, "ms": 29.254283999762265, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "native", "run": 4, "ms": 30.365428000095562, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "native", "run": 5, "ms": 29.569420000370883, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "native", "run": 6, "ms": 30.15548099983789, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "native", "run": 7, "ms": 30.534246000115672, "maxrss_kb": 14336, "checksum": "3145728000"}
+{"bench": "sort", "lang": "sla", "target": "native", "run": 1, "ms": 427.51620900025955, "maxrss_kb": 19584, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "native", "run": 2, "ms": 371.51503800032515, "maxrss_kb": 19840, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "native", "run": 3, "ms": 362.775980999686, "maxrss_kb": 19712, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "native", "run": 4, "ms": 348.16119900006015, "maxrss_kb": 19712, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "native", "run": 5, "ms": 375.223993000418, "maxrss_kb": 19712, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "native", "run": 6, "ms": 372.8958310002781, "maxrss_kb": 19840, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "native", "run": 7, "ms": 361.31867599988254, "maxrss_kb": 19840, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "native", "run": 1, "ms": 510.92238199998974, "maxrss_kb": 14336, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "native", "run": 2, "ms": 502.3448799997823, "maxrss_kb": 14336, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "native", "run": 3, "ms": 476.4516340001137, "maxrss_kb": 14336, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "native", "run": 4, "ms": 463.2686069999181, "maxrss_kb": 14336, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "native", "run": 5, "ms": 578.5824129998218, "maxrss_kb": 14336, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "native", "run": 6, "ms": 564.2746379999153, "maxrss_kb": 14336, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "native", "run": 7, "ms": 458.86879099998623, "maxrss_kb": 14336, "checksum": "852488716"}
+{"bench": "hashmap", "lang": "sla", "target": "native", "run": 1, "ms": 391.9463009997344, "maxrss_kb": 134784, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "native", "run": 2, "ms": 358.6833139997907, "maxrss_kb": 134784, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "native", "run": 3, "ms": 398.0696749999879, "maxrss_kb": 134784, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "native", "run": 4, "ms": 406.02830699981496, "maxrss_kb": 134912, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "native", "run": 5, "ms": 369.6593070003473, "maxrss_kb": 134912, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "native", "run": 6, "ms": 433.3056699997542, "maxrss_kb": 134784, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "native", "run": 7, "ms": 366.5469379998285, "maxrss_kb": 134784, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "native", "run": 1, "ms": 422.97624499997255, "maxrss_kb": 67712, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "native", "run": 2, "ms": 464.5993089998228, "maxrss_kb": 67712, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "native", "run": 3, "ms": 471.87610399987534, "maxrss_kb": 67712, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "native", "run": 4, "ms": 524.9204840001767, "maxrss_kb": 67584, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "native", "run": 5, "ms": 437.95358999977907, "maxrss_kb": 67712, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "native", "run": 6, "ms": 446.64192700020067, "maxrss_kb": 67712, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "native", "run": 7, "ms": 431.25113299993245, "maxrss_kb": 67584, "checksum": "998405507"}
+{"bench": "nbody", "lang": "sla", "target": "native", "run": 1, "ms": 1090.2038419999371, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "native", "run": 2, "ms": 1070.0797039999088, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "native", "run": 3, "ms": 1070.9272590002001, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "native", "run": 4, "ms": 1074.7651309998218, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "native", "run": 5, "ms": 1064.5582699999068, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "native", "run": 6, "ms": 1068.9262330001839, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "native", "run": 7, "ms": 1121.6927599998598, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "native", "run": 1, "ms": 1025.5593759998192, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "native", "run": 2, "ms": 1005.7959390001088, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "native", "run": 3, "ms": 1012.8901630000655, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "native", "run": 4, "ms": 1013.5259059998134, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "native", "run": 5, "ms": 1011.0451880000255, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "native", "run": 6, "ms": 1029.972627999996, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "native", "run": 7, "ms": 1022.1328419997917, "maxrss_kb": 14336, "checksum": "2611733"}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "run": 1, "ms": 619.910167999933, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "run": 2, "ms": 616.6667050001706, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "run": 3, "ms": 616.5549370002736, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "run": 4, "ms": 634.8984530000052, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "run": 5, "ms": 614.9190490000365, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "run": 6, "ms": 610.7683589998487, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "run": 7, "ms": 621.4460209998833, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "run": 1, "ms": 604.9166339998919, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "run": 2, "ms": 608.820157000082, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "run": 3, "ms": 608.3862880000197, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "run": 4, "ms": 600.8058050001637, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "run": 5, "ms": 617.0059790001687, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "run": 6, "ms": 618.7685899999451, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "run": 7, "ms": 598.4511120000207, "maxrss_kb": 14336, "checksum": "123026899"}
+{"bench": "vecpush", "lang": "sla", "target": "native", "run": 1, "ms": 537.7438949999487, "maxrss_kb": 515968, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "native", "run": 2, "ms": 542.3517070003072, "maxrss_kb": 515840, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "native", "run": 3, "ms": 552.4119130000145, "maxrss_kb": 515840, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "native", "run": 4, "ms": 548.1856360001984, "maxrss_kb": 515968, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "native", "run": 5, "ms": 561.3066279997838, "maxrss_kb": 515968, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "native", "run": 6, "ms": 548.8371480000751, "maxrss_kb": 515968, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "native", "run": 7, "ms": 575.5099580001115, "maxrss_kb": 515968, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "native", "run": 1, "ms": 346.4545460001318, "maxrss_kb": 252160, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "native", "run": 2, "ms": 358.47877400010475, "maxrss_kb": 252160, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "native", "run": 3, "ms": 349.62234400018133, "maxrss_kb": 252032, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "native", "run": 4, "ms": 338.5909410003478, "maxrss_kb": 252160, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "native", "run": 5, "ms": 338.9543240000421, "maxrss_kb": 252160, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "native", "run": 6, "ms": 388.1060969997634, "maxrss_kb": 252160, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "native", "run": 7, "ms": 367.656062000151, "maxrss_kb": 252160, "checksum": "973248007"}
+{"bench": "bytes", "lang": "sla", "target": "native", "run": 1, "ms": 448.0106930000147, "maxrss_kb": 528000, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "native", "run": 2, "ms": 489.27100299988524, "maxrss_kb": 528128, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "native", "run": 3, "ms": 461.42777500017473, "maxrss_kb": 528128, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "native", "run": 4, "ms": 468.09003799990023, "maxrss_kb": 528000, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "native", "run": 5, "ms": 469.32571400020606, "maxrss_kb": 528000, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "native", "run": 6, "ms": 436.71675299992785, "maxrss_kb": 528000, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "native", "run": 7, "ms": 472.28509100023075, "maxrss_kb": 527744, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "native", "run": 1, "ms": 68.5279869999249, "maxrss_kb": 34688, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "native", "run": 2, "ms": 70.6781349999801, "maxrss_kb": 34944, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "native", "run": 3, "ms": 73.95355800008474, "maxrss_kb": 34816, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "native", "run": 4, "ms": 72.42858999961754, "maxrss_kb": 34944, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "native", "run": 5, "ms": 75.4012289999082, "maxrss_kb": 34944, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "native", "run": 6, "ms": 80.58500399965851, "maxrss_kb": 34816, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "native", "run": 7, "ms": 82.55207700040046, "maxrss_kb": 34944, "checksum": "863801334"}

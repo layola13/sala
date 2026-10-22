@@ -1,0 +1,72 @@
+@import "sa_std/io/print.sai"
+
+fn newton_sqrt(x: f64) -> f64 {
+    let g: f64 = x;
+    let i: i64 = 0;
+    while i < 20 {
+        g = 0.5 * (g + x / g);
+        i = i + 1;
+    }
+    return g;
+}
+
+fn main() -> i32 {
+    let bodies: i64 = 5;
+    let steps: i64 = 1000000;
+    let dt: f64 = 0.01;
+    let mass: [f64; 5] = [1.0, 0.9, 0.8, 0.7, 0.6];
+    let x: [f64; 5] = [0.0, 4.84, 8.34, 12.5, -3.0];
+    let y: [f64; 5] = [0.0, 2.0, -1.5, 3.0, 5.0];
+    let z: [f64; 5] = [0.0, 1.0, 2.0, -2.0, 0.5];
+    let vx: [f64; 5] = [0.0, -0.1, 0.2, -0.2, 0.1];
+    let vy: [f64; 5] = [0.0, 0.2, -0.1, 0.15, -0.05];
+    let vz: [f64; 5] = [0.0, 0.05, -0.1, 0.05, 0.02];
+
+    let step: i64 = 0;
+    while step < steps {
+        let i: i64 = 0;
+        while i < bodies {
+            let j: i64 = i + 1;
+            while j < bodies {
+                let dx: f64 = x[i] - x[j];
+                let dy: f64 = y[i] - y[j];
+                let dz: f64 = z[i] - z[j];
+                let r2: f64 = dx * dx + dy * dy + dz * dz;
+                let inv: f64 = dt / (newton_sqrt(r2) * r2);
+                vx[i] = vx[i] - dx * mass[j] * inv;
+                vy[i] = vy[i] - dy * mass[j] * inv;
+                vz[i] = vz[i] - dz * mass[j] * inv;
+                vx[j] = vx[j] + dx * mass[i] * inv;
+                vy[j] = vy[j] + dy * mass[i] * inv;
+                vz[j] = vz[j] + dz * mass[i] * inv;
+                j = j + 1;
+            }
+            i = i + 1;
+        }
+        let b: i64 = 0;
+        while b < bodies {
+            x[b] = x[b] + dt * vx[b];
+            y[b] = y[b] + dt * vy[b];
+            z[b] = z[b] + dt * vz[b];
+            b = b + 1;
+        }
+        step = step + 1;
+    }
+
+    let energy: f64 = 0.0;
+    let p: i64 = 0;
+    while p < bodies {
+        energy = energy + 0.5 * mass[p] * (vx[p] * vx[p] + vy[p] * vy[p] + vz[p] * vz[p]);
+        let q: i64 = p + 1;
+        while q < bodies {
+            let dx: f64 = x[p] - x[q];
+            let dy: f64 = y[p] - y[q];
+            let dz: f64 = z[p] - z[q];
+            energy = energy - mass[p] * mass[q] / newton_sqrt(dx * dx + dy * dy + dz * dz);
+            q = q + 1;
+        }
+        p = p + 1;
+    }
+    println("{}", (energy * 1000000.0) as i64);
+    return 0;
+}

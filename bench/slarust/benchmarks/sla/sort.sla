@@ -1,0 +1,88 @@
+@import "sa_std/io/print.sai"
+@import "sa_std/vec.sa"
+
+fn main() -> i32 {
+    let n: i64 = 1000000;
+    let v: Vec<i64> = Vec::new();
+    let seed: i64 = 12345;
+    let i: i64 = 0;
+    while i < n {
+        seed = (seed * 1103515245 + 12345) % 2147483648;
+        v.push(seed);
+        i = i + 1;
+    }
+
+    let start: i64 = n / 2 - 1;
+    while start >= 0 {
+        let root: i64 = start;
+        let done: bool = false;
+        while done == false {
+            let child: i64 = root * 2 + 1;
+            if child > n - 1 {
+                done = true;
+            } else {
+                let pick: i64 = root;
+                if v[pick] < v[child] {
+                    pick = child;
+                };
+                if child + 1 <= n - 1 {
+                    if v[pick] < v[child + 1] {
+                        pick = child + 1;
+                    };
+                };
+                if pick != root {
+                    let tmp: i64 = v[root];
+                    v[root] = v[pick];
+                    v[pick] = tmp;
+                    root = pick;
+                } else {
+                    done = true;
+                };
+            };
+        }
+        start = start - 1;
+    }
+
+    let end: i64 = n - 1;
+    while end > 0 {
+        let tmp0: i64 = v[0];
+        v[0] = v[end];
+        v[end] = tmp0;
+        let root: i64 = 0;
+        let done: bool = false;
+        while done == false {
+            let child: i64 = root * 2 + 1;
+            if child > end - 1 {
+                done = true;
+            } else {
+                let pick: i64 = root;
+                if v[pick] < v[child] {
+                    pick = child;
+                };
+                if child + 1 <= end - 1 {
+                    if v[pick] < v[child + 1] {
+                        pick = child + 1;
+                    };
+                };
+                if pick != root {
+                    let tmp: i64 = v[root];
+                    v[root] = v[pick];
+                    v[pick] = tmp;
+                    root = pick;
+                } else {
+                    done = true;
+                };
+            };
+        }
+        end = end - 1;
+    }
+
+    let checksum: i64 = 0;
+    let j: i64 = 0;
+    while j < n {
+        checksum = (checksum * 31 + v[j]) % 1000000007;
+        j = j + 1;
+    }
+    println("{}", checksum);
+    return 0;
+}

@@ -1,0 +1,264 @@
+{"bench": "hello", "lang": "sla", "target": "native", "cold": true, "ms": 354.02086399994914, "maxrss_kb": 65868, "bytes": 9298328}
+{"bench": "hello", "lang": "rust", "target": "native", "cold": true, "ms": 188.35840200017628, "maxrss_kb": 95460, "bytes": 443032, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "native", "cold": true, "ms": 305.6026540000403, "maxrss_kb": 65880, "bytes": 9298328}
+{"bench": "hello", "lang": "rust", "target": "native", "cold": true, "ms": 206.37763900003847, "maxrss_kb": 94948, "bytes": 443032, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "native", "cold": true, "ms": 301.47582899985537, "maxrss_kb": 65996, "bytes": 9298328}
+{"bench": "hello", "lang": "rust", "target": "native", "cold": true, "ms": 160.9516649998568, "maxrss_kb": 94208, "bytes": 443032, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "wasm", "cold": true, "ms": 372.04309399999147, "maxrss_kb": 54848, "bytes": 667795}
+{"bench": "hello", "lang": "rust", "target": "wasm", "cold": true, "ms": 238.28652299994246, "maxrss_kb": 94720, "bytes": 62448, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "wasm", "cold": true, "ms": 285.62868099993466, "maxrss_kb": 55552, "bytes": 667795}
+{"bench": "hello", "lang": "rust", "target": "wasm", "cold": true, "ms": 241.59475700002986, "maxrss_kb": 93596, "bytes": 62448, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "wasm", "cold": true, "ms": 326.09466700000667, "maxrss_kb": 56192, "bytes": 667795}
+{"bench": "hello", "lang": "rust", "target": "wasm", "cold": true, "ms": 199.2169699999522, "maxrss_kb": 94592, "bytes": 62448, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "native", "cold": true, "ms": 319.1948710000361, "maxrss_kb": 65884, "bytes": 9298552}
+{"bench": "fib", "lang": "rust", "target": "native", "cold": true, "ms": 156.60892799996873, "maxrss_kb": 102712, "bytes": 443768, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "native", "cold": true, "ms": 280.5539950002185, "maxrss_kb": 65876, "bytes": 9298552}
+{"bench": "fib", "lang": "rust", "target": "native", "cold": true, "ms": 171.8764929998997, "maxrss_kb": 101220, "bytes": 443768, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "native", "cold": true, "ms": 276.27869800016924, "maxrss_kb": 66132, "bytes": 9298552}
+{"bench": "fib", "lang": "rust", "target": "native", "cold": true, "ms": 166.43105900016053, "maxrss_kb": 100324, "bytes": 443768, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "wasm", "cold": true, "ms": 319.33672199988905, "maxrss_kb": 55936, "bytes": 669429}
+{"bench": "fib", "lang": "rust", "target": "wasm", "cold": true, "ms": 213.3873330001279, "maxrss_kb": 100864, "bytes": 62991, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "wasm", "cold": true, "ms": 273.98711099999673, "maxrss_kb": 56448, "bytes": 669429}
+{"bench": "fib", "lang": "rust", "target": "wasm", "cold": true, "ms": 200.0626999999895, "maxrss_kb": 101760, "bytes": 62991, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "wasm", "cold": true, "ms": 263.21010500009834, "maxrss_kb": 55552, "bytes": 669429}
+{"bench": "fib", "lang": "rust", "target": "wasm", "cold": true, "ms": 192.0848009999645, "maxrss_kb": 99072, "bytes": 62991, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "native", "cold": true, "ms": 334.95762000006835, "maxrss_kb": 66108, "bytes": 9299128}
+{"bench": "loopsum", "lang": "rust", "target": "native", "cold": true, "ms": 158.36403399998744, "maxrss_kb": 103908, "bytes": 443784, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "native", "cold": true, "ms": 272.98135099999854, "maxrss_kb": 65744, "bytes": 9299128}
+{"bench": "loopsum", "lang": "rust", "target": "native", "cold": true, "ms": 158.07783099990047, "maxrss_kb": 101860, "bytes": 443784, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "native", "cold": true, "ms": 274.31728600004135, "maxrss_kb": 66016, "bytes": 9299128}
+{"bench": "loopsum", "lang": "rust", "target": "native", "cold": true, "ms": 163.8723209998716, "maxrss_kb": 101604, "bytes": 443784, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "cold": true, "ms": 353.45778800001426, "maxrss_kb": 55040, "bytes": 669440}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "cold": true, "ms": 221.3721279999845, "maxrss_kb": 100352, "bytes": 62990, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "cold": true, "ms": 282.4169529999381, "maxrss_kb": 56192, "bytes": 669440}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "cold": true, "ms": 201.2800980000975, "maxrss_kb": 99456, "bytes": 62990, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "cold": true, "ms": 251.3287130000208, "maxrss_kb": 56064, "bytes": 669440}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "cold": true, "ms": 202.46271299993168, "maxrss_kb": 100224, "bytes": 62990, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "native", "cold": true, "ms": 1412.6499620001596, "maxrss_kb": 142504, "bytes": 9302712}
+{"bench": "sieve", "lang": "rust", "target": "native", "cold": true, "ms": 196.3518390000445, "maxrss_kb": 119968, "bytes": 444824, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "native", "cold": true, "ms": 1288.5865589998957, "maxrss_kb": 142760, "bytes": 9302712}
+{"bench": "sieve", "lang": "rust", "target": "native", "cold": true, "ms": 205.27413200011324, "maxrss_kb": 118244, "bytes": 444824, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "native", "cold": true, "ms": 1201.3548009997521, "maxrss_kb": 142540, "bytes": 9302712}
+{"bench": "sieve", "lang": "rust", "target": "native", "cold": true, "ms": 173.42705700002625, "maxrss_kb": 118196, "bytes": 444824, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "cold": true, "ms": 1206.943664999926, "maxrss_kb": 142340, "bytes": 670817}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "cold": true, "ms": 211.79689599966878, "maxrss_kb": 116992, "bytes": 63975, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "cold": true, "ms": 1096.1079919998156, "maxrss_kb": 142880, "bytes": 670817}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "cold": true, "ms": 241.47438499994678, "maxrss_kb": 117160, "bytes": 63975, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "cold": true, "ms": 1141.7804370003068, "maxrss_kb": 142672, "bytes": 670817}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "cold": true, "ms": 223.33440200009136, "maxrss_kb": 118280, "bytes": 63975, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "native", "cold": true, "ms": 70107.38876599999, "maxrss_kb": 187532, "bytes": 9315128}
+{"bench": "matmul", "lang": "rust", "target": "native", "cold": true, "ms": 194.8429489998489, "maxrss_kb": 104320, "bytes": 444128, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "native", "cold": true, "ms": 68539.28254699986, "maxrss_kb": 186964, "bytes": 9315128}
+{"bench": "matmul", "lang": "rust", "target": "native", "cold": true, "ms": 185.00417699988247, "maxrss_kb": 102912, "bytes": 444128, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "native", "cold": true, "ms": 78273.66726599984, "maxrss_kb": 187128, "bytes": 9315128}
+{"bench": "matmul", "lang": "rust", "target": "native", "cold": true, "ms": 177.26541399997586, "maxrss_kb": 105216, "bytes": 444128, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "cold": true, "ms": 3903.2036590001553, "maxrss_kb": 129796, "bytes": 721991}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "cold": true, "ms": 231.53103100003136, "maxrss_kb": 104064, "bytes": 64336, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "cold": true, "ms": 819.8829519997162, "maxrss_kb": 91164, "bytes": 721991}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "cold": true, "ms": 258.8727249999465, "maxrss_kb": 105344, "bytes": 64336, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "cold": true, "ms": 860.4380130000209, "maxrss_kb": 91588, "bytes": 721991}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "cold": true, "ms": 257.15103199991063, "maxrss_kb": 102656, "bytes": 64336, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "native", "cold": true, "ms": 1949.5499929998914, "maxrss_kb": 215268, "bytes": 9301112}
+{"bench": "sort", "lang": "rust", "target": "native", "cold": true, "ms": 232.72087299983468, "maxrss_kb": 122548, "bytes": 446144, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "native", "cold": true, "ms": 1800.6057090001377, "maxrss_kb": 215240, "bytes": 9301112}
+{"bench": "sort", "lang": "rust", "target": "native", "cold": true, "ms": 227.79308400004084, "maxrss_kb": 122376, "bytes": 446144, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "native", "cold": true, "ms": 1805.7709180002348, "maxrss_kb": 214868, "bytes": 9301112}
+{"bench": "sort", "lang": "rust", "target": "native", "cold": true, "ms": 220.6864689997019, "maxrss_kb": 120248, "bytes": 446144, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "wasm", "cold": true, "ms": 1917.7412429999094, "maxrss_kb": 214888, "bytes": 671513}
+{"bench": "sort", "lang": "rust", "target": "wasm", "cold": true, "ms": 266.68680900002073, "maxrss_kb": 122024, "bytes": 65194, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "wasm", "cold": true, "ms": 1610.0862379998944, "maxrss_kb": 215224, "bytes": 671513}
+{"bench": "sort", "lang": "rust", "target": "wasm", "cold": true, "ms": 231.89387599995825, "maxrss_kb": 120364, "bytes": 65194, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "wasm", "cold": true, "ms": 1712.81947999978, "maxrss_kb": 214872, "bytes": 671513}
+{"bench": "sort", "lang": "rust", "target": "wasm", "cold": true, "ms": 241.7374239998935, "maxrss_kb": 121132, "bytes": 65194, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "native", "cold": true, "ms": 1356.3620459999584, "maxrss_kb": 119148, "bytes": 9300984}
+{"bench": "hashmap", "lang": "rust", "target": "native", "cold": true, "ms": 228.97020299978976, "maxrss_kb": 121724, "bytes": 445376, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "native", "cold": true, "ms": 1180.2060889999666, "maxrss_kb": 118932, "bytes": 9300984}
+{"bench": "hashmap", "lang": "rust", "target": "native", "cold": true, "ms": 248.1047920000492, "maxrss_kb": 121268, "bytes": 445376, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "native", "cold": true, "ms": 1154.0783579998788, "maxrss_kb": 119056, "bytes": 9300984}
+{"bench": "hashmap", "lang": "rust", "target": "native", "cold": true, "ms": 212.02875600010884, "maxrss_kb": 121896, "bytes": 445376, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "cold": true, "ms": 1194.2172779999964, "maxrss_kb": 118940, "bytes": 670854}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "cold": true, "ms": 236.20655400009127, "maxrss_kb": 119976, "bytes": 64536, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "cold": true, "ms": 1080.2536209998834, "maxrss_kb": 119096, "bytes": 670854}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "cold": true, "ms": 267.79517099976147, "maxrss_kb": 120868, "bytes": 64536, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "cold": true, "ms": 1150.3170410001076, "maxrss_kb": 119084, "bytes": 670854}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "cold": true, "ms": 244.38714000007167, "maxrss_kb": 121132, "bytes": 64536, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "native", "cold": true, "ms": 524.7834030001286, "maxrss_kb": 66008, "bytes": 9300216}
+{"bench": "nbody", "lang": "rust", "target": "native", "cold": true, "ms": 243.03736599995318, "maxrss_kb": 105088, "bytes": 446064, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "native", "cold": true, "ms": 400.19325699995534, "maxrss_kb": 67000, "bytes": 9300216}
+{"bench": "nbody", "lang": "rust", "target": "native", "cold": true, "ms": 228.02855999998428, "maxrss_kb": 109184, "bytes": 446064, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "native", "cold": true, "ms": 357.06808900022224, "maxrss_kb": 66876, "bytes": 9300216}
+{"bench": "nbody", "lang": "rust", "target": "native", "cold": true, "ms": 222.9948509998394, "maxrss_kb": 108032, "bytes": 446064, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "cold": true, "ms": 415.9246270000949, "maxrss_kb": 57088, "bytes": 671763}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "cold": true, "ms": 245.95309000005727, "maxrss_kb": 107776, "bytes": 65553, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "cold": true, "ms": 306.3120120000349, "maxrss_kb": 57088, "bytes": 671763}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "cold": true, "ms": 246.44888200009518, "maxrss_kb": 109184, "bytes": 65553, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "cold": true, "ms": 294.1865779998807, "maxrss_kb": 56576, "bytes": 671763}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "cold": true, "ms": 237.31422599985308, "maxrss_kb": 105728, "bytes": 65553, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "cold": true, "ms": 321.2793249999777, "maxrss_kb": 65868, "bytes": 9299192}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "cold": true, "ms": 164.43641700016087, "maxrss_kb": 105216, "bytes": 444008, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "cold": true, "ms": 290.8438680001382, "maxrss_kb": 65616, "bytes": 9299192}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "cold": true, "ms": 173.29258900008426, "maxrss_kb": 104448, "bytes": 444008, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "cold": true, "ms": 294.1651979999733, "maxrss_kb": 65740, "bytes": 9299192}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "cold": true, "ms": 196.84951399995043, "maxrss_kb": 104448, "bytes": 444008, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "cold": true, "ms": 369.16352100024596, "maxrss_kb": 55168, "bytes": 669655}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "cold": true, "ms": 219.45368299975598, "maxrss_kb": 103168, "bytes": 63225, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "cold": true, "ms": 286.9915940000283, "maxrss_kb": 56216, "bytes": 669655}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "cold": true, "ms": 210.35130399968693, "maxrss_kb": 100736, "bytes": 63225, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "cold": true, "ms": 272.7155859997765, "maxrss_kb": 56192, "bytes": 669655}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "cold": true, "ms": 208.233989999826, "maxrss_kb": 99072, "bytes": 63225, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "native", "cold": true, "ms": 943.8737109999238, "maxrss_kb": 71056, "bytes": 9301112}
+{"bench": "vecpush", "lang": "rust", "target": "native", "cold": true, "ms": 182.52709999978833, "maxrss_kb": 120548, "bytes": 444832, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "native", "cold": true, "ms": 811.5000889997646, "maxrss_kb": 71048, "bytes": 9301112}
+{"bench": "vecpush", "lang": "rust", "target": "native", "cold": true, "ms": 182.11527400035266, "maxrss_kb": 120148, "bytes": 444832, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "native", "cold": true, "ms": 803.2771440002762, "maxrss_kb": 71100, "bytes": 9301112}
+{"bench": "vecpush", "lang": "rust", "target": "native", "cold": true, "ms": 185.66145700015113, "maxrss_kb": 121060, "bytes": 444832, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "cold": true, "ms": 895.3423790003399, "maxrss_kb": 71032, "bytes": 670601}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "cold": true, "ms": 248.20575000012468, "maxrss_kb": 120068, "bytes": 63803, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "cold": true, "ms": 752.3434900003849, "maxrss_kb": 71028, "bytes": 670601}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "cold": true, "ms": 211.51549499973044, "maxrss_kb": 118920, "bytes": 63803, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "cold": true, "ms": 724.482340999657, "maxrss_kb": 70860, "bytes": 670601}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "cold": true, "ms": 221.03742399986004, "maxrss_kb": 119084, "bytes": 63803, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "native", "cold": true, "ms": 869.1656529999818, "maxrss_kb": 71388, "bytes": 9301304}
+{"bench": "bytes", "lang": "rust", "target": "native", "cold": true, "ms": 184.2889270001251, "maxrss_kb": 120032, "bytes": 444328, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "native", "cold": true, "ms": 781.6012920002322, "maxrss_kb": 71016, "bytes": 9301304}
+{"bench": "bytes", "lang": "rust", "target": "native", "cold": true, "ms": 180.90539600007105, "maxrss_kb": 119524, "bytes": 444328, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "native", "cold": true, "ms": 839.5805320001273, "maxrss_kb": 70996, "bytes": 9301304}
+{"bench": "bytes", "lang": "rust", "target": "native", "cold": true, "ms": 180.71710499998517, "maxrss_kb": 119608, "bytes": 444328, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "cold": true, "ms": 911.3011099998403, "maxrss_kb": 71092, "bytes": 670623}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "cold": true, "ms": 221.62143000014112, "maxrss_kb": 118440, "bytes": 63322, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "cold": true, "ms": 747.7603389997967, "maxrss_kb": 70916, "bytes": 670623}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "cold": true, "ms": 213.3382730003177, "maxrss_kb": 119040, "bytes": 63322, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "cold": true, "ms": 759.9155390003034, "maxrss_kb": 71348, "bytes": 670623}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "cold": true, "ms": 241.6533470000104, "maxrss_kb": 118056, "bytes": 63322, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "native", "cold": false, "ms": 186.00696000021344, "maxrss_kb": 52608, "bytes": 9298328}
+{"bench": "hello", "lang": "rust", "target": "native", "cold": false, "ms": 30.34128099989175, "maxrss_kb": 17664, "bytes": 443032, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "native", "cold": false, "ms": 218.37232000007134, "maxrss_kb": 52480, "bytes": 9298328}
+{"bench": "hello", "lang": "rust", "target": "native", "cold": false, "ms": 33.378000000084285, "maxrss_kb": 17536, "bytes": 443032, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "native", "cold": false, "ms": 205.5084540002099, "maxrss_kb": 52864, "bytes": 9298328}
+{"bench": "hello", "lang": "rust", "target": "native", "cold": false, "ms": 26.777990000027785, "maxrss_kb": 17792, "bytes": 443032, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "wasm", "cold": false, "ms": 129.63814700015064, "maxrss_kb": 52480, "bytes": 667795}
+{"bench": "hello", "lang": "rust", "target": "wasm", "cold": false, "ms": 30.382660999748623, "maxrss_kb": 18304, "bytes": 62448, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "wasm", "cold": false, "ms": 140.67385199996352, "maxrss_kb": 52608, "bytes": 667795}
+{"bench": "hello", "lang": "rust", "target": "wasm", "cold": false, "ms": 28.486751999935223, "maxrss_kb": 18560, "bytes": 62448, "native_cpu": false}
+{"bench": "hello", "lang": "sla", "target": "wasm", "cold": false, "ms": 126.18440500000361, "maxrss_kb": 52480, "bytes": 667795}
+{"bench": "hello", "lang": "rust", "target": "wasm", "cold": false, "ms": 28.016425000259915, "maxrss_kb": 18432, "bytes": 62448, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "native", "cold": false, "ms": 178.49461000014344, "maxrss_kb": 51712, "bytes": 9298552}
+{"bench": "fib", "lang": "rust", "target": "native", "cold": false, "ms": 27.022233000025153, "maxrss_kb": 17792, "bytes": 443768, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "native", "cold": false, "ms": 196.6797720001523, "maxrss_kb": 52608, "bytes": 9298552}
+{"bench": "fib", "lang": "rust", "target": "native", "cold": false, "ms": 33.01696000016818, "maxrss_kb": 17792, "bytes": 443768, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "native", "cold": false, "ms": 187.71198299964453, "maxrss_kb": 52864, "bytes": 9298552}
+{"bench": "fib", "lang": "rust", "target": "native", "cold": false, "ms": 29.74286500011658, "maxrss_kb": 18048, "bytes": 443768, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "wasm", "cold": false, "ms": 151.05422500027998, "maxrss_kb": 52096, "bytes": 669429}
+{"bench": "fib", "lang": "rust", "target": "wasm", "cold": false, "ms": 31.651413999952638, "maxrss_kb": 18560, "bytes": 62991, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "wasm", "cold": false, "ms": 139.25029799975164, "maxrss_kb": 52608, "bytes": 669429}
+{"bench": "fib", "lang": "rust", "target": "wasm", "cold": false, "ms": 30.847725000057835, "maxrss_kb": 18560, "bytes": 62991, "native_cpu": false}
+{"bench": "fib", "lang": "sla", "target": "wasm", "cold": false, "ms": 139.09935499987114, "maxrss_kb": 52352, "bytes": 669429}
+{"bench": "fib", "lang": "rust", "target": "wasm", "cold": false, "ms": 33.47508899969398, "maxrss_kb": 18560, "bytes": 62991, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "native", "cold": false, "ms": 188.48449999995864, "maxrss_kb": 52480, "bytes": 9299128}
+{"bench": "loopsum", "lang": "rust", "target": "native", "cold": false, "ms": 31.21841800020775, "maxrss_kb": 17920, "bytes": 443784, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "native", "cold": false, "ms": 197.99937400011913, "maxrss_kb": 52608, "bytes": 9299128}
+{"bench": "loopsum", "lang": "rust", "target": "native", "cold": false, "ms": 31.580444000155694, "maxrss_kb": 17792, "bytes": 443784, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "native", "cold": false, "ms": 210.13800499986246, "maxrss_kb": 52480, "bytes": 9299128}
+{"bench": "loopsum", "lang": "rust", "target": "native", "cold": false, "ms": 26.83929500017257, "maxrss_kb": 17664, "bytes": 443784, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "cold": false, "ms": 138.62643799984653, "maxrss_kb": 52480, "bytes": 669440}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "cold": false, "ms": 27.047764000144525, "maxrss_kb": 18688, "bytes": 62990, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "cold": false, "ms": 138.2576619998872, "maxrss_kb": 52864, "bytes": 669440}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "cold": false, "ms": 28.288948999943386, "maxrss_kb": 18304, "bytes": 62990, "native_cpu": false}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "cold": false, "ms": 140.5930740002077, "maxrss_kb": 52352, "bytes": 669440}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "cold": false, "ms": 31.686125999840442, "maxrss_kb": 18560, "bytes": 62990, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "native", "cold": false, "ms": 980.9366160002355, "maxrss_kb": 141932, "bytes": 9302712}
+{"bench": "sieve", "lang": "rust", "target": "native", "cold": false, "ms": 29.732616000273993, "maxrss_kb": 17664, "bytes": 444824, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "native", "cold": false, "ms": 954.6814149998681, "maxrss_kb": 141932, "bytes": 9302712}
+{"bench": "sieve", "lang": "rust", "target": "native", "cold": false, "ms": 27.808140000161075, "maxrss_kb": 17536, "bytes": 444824, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "native", "cold": false, "ms": 956.149796000318, "maxrss_kb": 142020, "bytes": 9302712}
+{"bench": "sieve", "lang": "rust", "target": "native", "cold": false, "ms": 29.494255999907182, "maxrss_kb": 17408, "bytes": 444824, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "cold": false, "ms": 938.3479699999953, "maxrss_kb": 141672, "bytes": 670817}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "cold": false, "ms": 30.06893800011312, "maxrss_kb": 18304, "bytes": 63975, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "cold": false, "ms": 932.6095709998299, "maxrss_kb": 141804, "bytes": 670817}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "cold": false, "ms": 30.81874000008611, "maxrss_kb": 18304, "bytes": 63975, "native_cpu": false}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "cold": false, "ms": 928.6995309998929, "maxrss_kb": 141808, "bytes": 670817}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "cold": false, "ms": 27.24038499991366, "maxrss_kb": 18432, "bytes": 63975, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "native", "cold": false, "ms": 219.75892299997213, "maxrss_kb": 52024, "bytes": 9315128}
+{"bench": "matmul", "lang": "rust", "target": "native", "cold": false, "ms": 30.80051100005221, "maxrss_kb": 17664, "bytes": 444128, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "native", "cold": false, "ms": 208.24762599977475, "maxrss_kb": 52668, "bytes": 9315128}
+{"bench": "matmul", "lang": "rust", "target": "native", "cold": false, "ms": 28.471047000039107, "maxrss_kb": 17536, "bytes": 444128, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "native", "cold": false, "ms": 200.6985960001657, "maxrss_kb": 52668, "bytes": 9315128}
+{"bench": "matmul", "lang": "rust", "target": "native", "cold": false, "ms": 31.360778999896866, "maxrss_kb": 17664, "bytes": 444128, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "cold": false, "ms": 169.35143000000608, "maxrss_kb": 52156, "bytes": 721991}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "cold": false, "ms": 30.829711000023963, "maxrss_kb": 18304, "bytes": 64336, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "cold": false, "ms": 167.46678999970754, "maxrss_kb": 52664, "bytes": 721991}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "cold": false, "ms": 27.86396599958607, "maxrss_kb": 18048, "bytes": 64336, "native_cpu": false}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "cold": false, "ms": 161.01156600007016, "maxrss_kb": 52152, "bytes": 721991}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "cold": false, "ms": 35.010913999940385, "maxrss_kb": 18048, "bytes": 64336, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "native", "cold": false, "ms": 1431.8814029998066, "maxrss_kb": 214456, "bytes": 9301112}
+{"bench": "sort", "lang": "rust", "target": "native", "cold": false, "ms": 27.468502999909106, "maxrss_kb": 17920, "bytes": 446144, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "native", "cold": false, "ms": 1457.6740850002352, "maxrss_kb": 214584, "bytes": 9301112}
+{"bench": "sort", "lang": "rust", "target": "native", "cold": false, "ms": 27.02629999976125, "maxrss_kb": 17536, "bytes": 446144, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "native", "cold": false, "ms": 1393.6294730001464, "maxrss_kb": 214288, "bytes": 9301112}
+{"bench": "sort", "lang": "rust", "target": "native", "cold": false, "ms": 30.965569000272808, "maxrss_kb": 17536, "bytes": 446144, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "wasm", "cold": false, "ms": 1355.164522999985, "maxrss_kb": 214344, "bytes": 671513}
+{"bench": "sort", "lang": "rust", "target": "wasm", "cold": false, "ms": 37.989895999999135, "maxrss_kb": 18560, "bytes": 65194, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "wasm", "cold": false, "ms": 1370.6234100000074, "maxrss_kb": 214352, "bytes": 671513}
+{"bench": "sort", "lang": "rust", "target": "wasm", "cold": false, "ms": 32.91355300007126, "maxrss_kb": 18304, "bytes": 65194, "native_cpu": false}
+{"bench": "sort", "lang": "sla", "target": "wasm", "cold": false, "ms": 1347.3482030003652, "maxrss_kb": 214336, "bytes": 671513}
+{"bench": "sort", "lang": "rust", "target": "wasm", "cold": false, "ms": 29.44492699998591, "maxrss_kb": 18176, "bytes": 65194, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "native", "cold": false, "ms": 826.9640139997136, "maxrss_kb": 118308, "bytes": 9300984}
+{"bench": "hashmap", "lang": "rust", "target": "native", "cold": false, "ms": 29.944587999580108, "maxrss_kb": 17664, "bytes": 445376, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "native", "cold": false, "ms": 831.0221010001442, "maxrss_kb": 118528, "bytes": 9300984}
+{"bench": "hashmap", "lang": "rust", "target": "native", "cold": false, "ms": 25.71105200013335, "maxrss_kb": 17792, "bytes": 445376, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "native", "cold": false, "ms": 839.0085500000168, "maxrss_kb": 118320, "bytes": 9300984}
+{"bench": "hashmap", "lang": "rust", "target": "native", "cold": false, "ms": 31.78334199992605, "maxrss_kb": 17664, "bytes": 445376, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "cold": false, "ms": 752.3688159999438, "maxrss_kb": 118248, "bytes": 670854}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "cold": false, "ms": 28.516801000023406, "maxrss_kb": 18176, "bytes": 64536, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "cold": false, "ms": 781.2614259996735, "maxrss_kb": 118400, "bytes": 670854}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "cold": false, "ms": 28.862562000085745, "maxrss_kb": 18176, "bytes": 64536, "native_cpu": false}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "cold": false, "ms": 796.4749239999946, "maxrss_kb": 118300, "bytes": 670854}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "cold": false, "ms": 31.711870999970415, "maxrss_kb": 18176, "bytes": 64536, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "native", "cold": false, "ms": 198.90382599987788, "maxrss_kb": 52352, "bytes": 9300216}
+{"bench": "nbody", "lang": "rust", "target": "native", "cold": false, "ms": 28.468642000007094, "maxrss_kb": 17792, "bytes": 446064, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "native", "cold": false, "ms": 212.15755699995498, "maxrss_kb": 51968, "bytes": 9300216}
+{"bench": "nbody", "lang": "rust", "target": "native", "cold": false, "ms": 29.356217999975343, "maxrss_kb": 18048, "bytes": 446064, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "native", "cold": false, "ms": 198.61305199992785, "maxrss_kb": 52608, "bytes": 9300216}
+{"bench": "nbody", "lang": "rust", "target": "native", "cold": false, "ms": 28.12331799987078, "maxrss_kb": 18048, "bytes": 446064, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "cold": false, "ms": 132.80717599991476, "maxrss_kb": 52736, "bytes": 671763}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "cold": false, "ms": 29.883291999794892, "maxrss_kb": 18432, "bytes": 65553, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "cold": false, "ms": 137.71329100018193, "maxrss_kb": 52736, "bytes": 671763}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "cold": false, "ms": 26.983405000009952, "maxrss_kb": 18432, "bytes": 65553, "native_cpu": false}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "cold": false, "ms": 146.00994700003866, "maxrss_kb": 52992, "bytes": 671763}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "cold": false, "ms": 29.312363999906665, "maxrss_kb": 18560, "bytes": 65553, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "cold": false, "ms": 187.13819699996748, "maxrss_kb": 52864, "bytes": 9299192}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "cold": false, "ms": 28.265823999845452, "maxrss_kb": 17536, "bytes": 444008, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "cold": false, "ms": 188.30621899996913, "maxrss_kb": 51712, "bytes": 9299192}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "cold": false, "ms": 28.309892999914155, "maxrss_kb": 17920, "bytes": 444008, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "native", "cold": false, "ms": 186.78748599995743, "maxrss_kb": 52096, "bytes": 9299192}
+{"bench": "mandelbrot", "lang": "rust", "target": "native", "cold": false, "ms": 26.583683999888308, "maxrss_kb": 17664, "bytes": 444008, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "cold": false, "ms": 154.93099300010726, "maxrss_kb": 52352, "bytes": 669655}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "cold": false, "ms": 33.08918899983837, "maxrss_kb": 18432, "bytes": 63225, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "cold": false, "ms": 152.6214830000754, "maxrss_kb": 52864, "bytes": 669655}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "cold": false, "ms": 35.54599799963398, "maxrss_kb": 18432, "bytes": 63225, "native_cpu": false}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "cold": false, "ms": 141.8317420002495, "maxrss_kb": 52992, "bytes": 669655}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "cold": false, "ms": 29.626752999774908, "maxrss_kb": 17920, "bytes": 63225, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "native", "cold": false, "ms": 601.9966260000729, "maxrss_kb": 70248, "bytes": 9301112}
+{"bench": "vecpush", "lang": "rust", "target": "native", "cold": false, "ms": 32.321077000233345, "maxrss_kb": 17920, "bytes": 444832, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "native", "cold": false, "ms": 694.0338720000909, "maxrss_kb": 70072, "bytes": 9301112}
+{"bench": "vecpush", "lang": "rust", "target": "native", "cold": false, "ms": 27.636524000172358, "maxrss_kb": 18048, "bytes": 444832, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "native", "cold": false, "ms": 617.7049120001357, "maxrss_kb": 70792, "bytes": 9301112}
+{"bench": "vecpush", "lang": "rust", "target": "native", "cold": false, "ms": 43.99564100003772, "maxrss_kb": 18048, "bytes": 444832, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "cold": false, "ms": 500.8348869996553, "maxrss_kb": 70312, "bytes": 670601}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "cold": false, "ms": 25.085159999889584, "maxrss_kb": 18432, "bytes": 63803, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "cold": false, "ms": 525.5497119997017, "maxrss_kb": 70504, "bytes": 670601}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "cold": false, "ms": 26.956772999710665, "maxrss_kb": 18048, "bytes": 63803, "native_cpu": false}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "cold": false, "ms": 500.79566499971406, "maxrss_kb": 70624, "bytes": 670601}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "cold": false, "ms": 33.61058700011199, "maxrss_kb": 18432, "bytes": 63803, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "native", "cold": false, "ms": 569.0347360000487, "maxrss_kb": 70540, "bytes": 9301304}
+{"bench": "bytes", "lang": "rust", "target": "native", "cold": false, "ms": 25.189872999817453, "maxrss_kb": 17664, "bytes": 444328, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "native", "cold": false, "ms": 548.8335190002545, "maxrss_kb": 70364, "bytes": 9301304}
+{"bench": "bytes", "lang": "rust", "target": "native", "cold": false, "ms": 30.54721700027585, "maxrss_kb": 17664, "bytes": 444328, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "native", "cold": false, "ms": 564.0446269999302, "maxrss_kb": 70688, "bytes": 9301304}
+{"bench": "bytes", "lang": "rust", "target": "native", "cold": false, "ms": 28.044718999808538, "maxrss_kb": 17664, "bytes": 444328, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "cold": false, "ms": 498.6327579999852, "maxrss_kb": 70316, "bytes": 670623}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "cold": false, "ms": 28.158246999737457, "maxrss_kb": 18048, "bytes": 63322, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "cold": false, "ms": 515.7066870001472, "maxrss_kb": 70492, "bytes": 670623}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "cold": false, "ms": 33.805973999733396, "maxrss_kb": 18432, "bytes": 63322, "native_cpu": false}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "cold": false, "ms": 502.59866200030956, "maxrss_kb": 70396, "bytes": 670623}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "cold": false, "ms": 26.54288900021129, "maxrss_kb": 18048, "bytes": 63322, "native_cpu": false}

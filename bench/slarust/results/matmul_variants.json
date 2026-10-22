@@ -1,0 +1,23 @@
+[
+  {
+    "variant": "default",
+    "compile_ms": 1621.6862609999225,
+    "run_ms": 425.2262739996695,
+    "bytes": 9584328,
+    "out": ""
+  },
+  {
+    "variant": "release-small",
+    "compile_ms": 58223.332596000095,
+    "run_ms": 1045.478756999728,
+    "bytes": 9315128,
+    "out": "3145728000"
+  },
+  {
+    "variant": "release-fast",
+    "compile_ms": 62891.058080999755,
+    "run_ms": 1043.8890519999404,
+    "bytes": 9315128,
+    "out": "3145728000"
+  }
+]

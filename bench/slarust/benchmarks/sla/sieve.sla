@@ -1,0 +1,33 @@
+@import "sa_std/io/print.sai"
+@import "sa_std/vec.sa"
+
+fn main() -> i32 {
+    let n: i64 = 20000000;
+    let flags: Vec<u8> = Vec::new();
+    let i: i64 = 0;
+    while i < n {
+        flags.push(1);
+        i = i + 1;
+    }
+    flags[0] = 0;
+    flags[1] = 0;
+    let p: i64 = 2;
+    while p * p < n {
+        if flags[p] == 1 {
+            let j: i64 = p * p;
+            while j < n {
+                flags[j] = 0;
+                j = j + p;
+            }
+        };
+        p = p + 1;
+    }
+    let count: i64 = 0;
+    let k: i64 = 0;
+    while k < n {
+        count = count + (flags[k] as i64);
+        k = k + 1;
+    }
+    println("{}", count);
+    return 0;
+}

@@ -33,6 +33,7 @@ Default Font=微软雅黑,9,0
 ../dist/content/09_rust_compare/06_surface_compat.html
 ../dist/content/09_rust_compare/07_rosetta_bc2sa.html
 ../dist/content/09_rust_compare/08_migration.html
+../dist/content/09_rust_compare/09_performance.html
 ../dist/content/03_sa_asm/01_sa_model.html
 ../dist/content/03_sa_asm/02_sa_syntax.html
 ../dist/content/03_sa_asm/03_sab_format.html

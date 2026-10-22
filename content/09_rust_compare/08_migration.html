@@ -18,8 +18,9 @@
 <li><b>表层兼容 ≠ 语义兼容。</b>SLA 的目标是让大量 Rust 代码原样解析通过并在 lowering 期静默吸收冗余声明，
     但语义层始终不同（可变性反向、<code>&amp;self</code> 当前涵盖读写、无 proc-macro）。
     对比文档明确把它列为常见误解：「Sla 兼容 Rust 语法」仅指表层（Phase 1 约 70%）。</li>
-<li><b>运行时性能不是卖点。</b>Release 下两者运行时性能等价；SLA 的优势在<b>编译速度</b>与 <b>WASM 体积</b>。
-    「Sla 比 Rust 快」这句话只在编译期成立。</li>
+<li><b>运行时性能不是卖点。</b>2026-10-22 实测：Rust release 的 native/WASM 运行时中位数分别快约
+    1.47×/1.44×（不含 matmul 异常点）；常规源码的冷编译、热编译与产物体积也都是 Rust 更优。
+    不要把迁移理由建立在“更快/更小”上，详见<a href="09_performance.html">性能实测</a>。</li>
 <li><b>成熟度要看日期口径。</b>例如 no-fallback 主线收敛进度在 <code>roadmap_status_cn.md</code>
     （v0.1 / 2026-07-01）中记录为：No-fallback sweep <b>58/69（84%）</b>、Y/shared-lowering <b>72%</b>、
     Direct SAB fallback-removal <b>88%</b>、加权总进度约 <b>80%</b>。
@@ -138,17 +139,17 @@ rosetta 树里的 <code>@test</code> 就是这么用的。但别忘了那棵树�
 <h3>用 SLA（不必上 Rust）</h3>
 <ul>
 <li>WASM 边缘计算（Cloudflare Workers / Vercel Edge 一类）与 WASM 游戏 / 浏览器互动</li>
-<li>嵌入式 WASM / IoT 显示、WASM 体积敏感的场景</li>
+<li>嵌入式 WASM / IoT 显示（当前 SLA WASM 体积约为 Rust 的 10.7×，需先核对设备预算）</li>
 <li>LLM 沙盒 / Agent 执行环境（错误信息简单且结构化，自修复闭环原生）</li>
 <li>安全 / 航空等需要验证器可证明性的领域</li>
-<li>教学、教育性 ECS / 游戏 jam（编译快、上手成本低）</li>
+<li>教学、教育性 ECS / 游戏 jam（语法简单、上手成本低；编译速度并不占优）</li>
 </ul>
 
 <h3>用 bc2sa 桥接（独有路径）</h3>
 <ul>
 <li>有现成 Rust crate 不想重写，但要部署到 WASM 边缘</li>
 <li>想用 C/C++ 数学库又要 SA 验证</li>
-<li>想吃 serde / image / 算法库但要求产物小、编译快</li>
+<li>想吃 serde / image / 算法库，同时接受当前产物体积与编译时间</li>
 </ul>
 <div class="warning"><span class="label">警告</span>bc2sa 当前只能吃 O0 基线加整数运算子集
 （约 30% 真实代码，2026-06-15 评估口径），提交前必须强制 <code>-Copt-level=0</code> 或先做
@@ -172,7 +173,7 @@ rosetta 树里的 <code>@test</code> 就是这么用的。但别忘了那棵树�
 <tr><th>维度（节选）</th><th>Rust</th><th>SLA 当前</th><th>SLA + bc2sa 长期</th></tr>
 <tr><td>语法表达力 / 类型系统</td><td>95 / 95</td><td>70 / 60</td><td>70 / 60</td></tr>
 <tr><td>内存安全</td><td>95</td><td>90</td><td>90</td></tr>
-<tr><td>编译速度 / WASM 产物体积</td><td>50 / 60</td><td><b>90 / 90</b></td><td><b>90 / 90</b></td></tr>
+<tr><td>编译速度 / WASM 产物体积</td><td>50 / 60</td><td><b>90 / 90</b>（旧评分，实测不符）</td><td>90 / 90</td></tr>
 <tr><td>工具链</td><td>95</td><td>50（DCE / incremental / test 已有，缺 IDE）</td><td>60</td></tr>
 <tr><td>生态</td><td>95</td><td>45（含 bc2sa 30% 口径）</td><td>70–85</td></tr>
 <tr><td>包管理安全 / 形式化验证可行性</td><td>60 / 30</td><td><b>90 / 90</b></td><td><b>90 / 90</b></td></tr>
@@ -210,6 +211,8 @@ No-fallback sweep 58/69、Y/shared-lowering 72%、Direct SAB fallback-removal 88
 <li>背景阅读：为什么语义必然不同，见<a href="01_positioning.html">定位与设计哲学</a>与
     <a href="03_ownership.html">所有权与借用：Referee 对比 borrow checker</a>；
     宏迁移的取舍见<a href="04_macros.html">宏与元编程对比</a>。</li>
+<li>性能、编译时间与产物体积的实测数据：<a href="09_performance.html">SLA vs Rust 性能实测</a>。
+    该页同时更正了本页旧评分中“编译速度 / WASM 体积 90 / 90”的表述。</li>
 </ul>
 </body>
 </html>
