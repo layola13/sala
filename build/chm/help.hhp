@@ -95,6 +95,7 @@ Default Font=微软雅黑,9,0
 ../dist/content/13_build/03_cross_arm_mac.html
 ../dist/content/13_build/04_freebsd.html
 ../dist/content/13_build/05_verify_troubleshoot.html
+../dist/content/13_build/06_release_npm.html
 ../dist/content/06_stdlib/01_overview.html
 ../dist/content/06_stdlib/13_usage_guide.html
 ../dist/content/06_stdlib/14_recipes.html

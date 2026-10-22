@@ -773,6 +773,14 @@
 <param name="Local" value="../dist/content/13_build/05_verify_troubleshoot.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Release 与 npm 发布">
+<param name="Local" value="../dist/content/13_build/06_release_npm.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

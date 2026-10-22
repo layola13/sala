@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Release 与 npm 发布</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">多平台编译 &gt; Release 与 npm 发布</div>
+<h1>Release 与 npm 发布</h1>
+
+<p>本章把「本机构建成功」推进到「用户可直接安装」：先产出 6 平台二进制，
+再发 GitHub Release，最后按依赖顺序发布 npm 包。示例版本为
+<code>sa 0.1.8</code> / <code>sla 0.1.8</code>，命令中的
+<code>&lt;VER&gt;</code>、<code>&lt;SLAVER&gt;</code> 替换成当次版本号
+（裸版本号，不带 <code>v</code>）。两个仓库按同一版本线发布，但仍是独立
+npm 包：sla 用精确 pin 依赖同代 sa，版本号不能靠 <code>^</code> 漂移。</p>
+
+<h2>版本号一致性</h2>
+<p>发版前先把所有会写进产物的版本号对齐；漏一处就会出现
+「包是新的、二进制还是旧版」或 npm 依赖解析到旧平台包。</p>
+<table>
+<tr><th>仓库</th><th>必须同步的位置</th></tr>
+<tr><td><code>sci</code></td><td><code>build.zig.zon</code> 的 <code>.version</code>；
+<code>npm/packages/*/package.json</code>（7 个：6 个平台包 + meta 包）；
+git tag；Release 资产名</td></tr>
+<tr><td><code>sa_plugin_sla</code></td><td><code>build.zig</code> 的默认
+<code>sla_version</code>；<code>npm/packages/*/package.json</code>（7 个）；
+meta 包的 <code>optionalDependencies</code>；meta 包对
+<code>@salang/sa</code> 的精确依赖；<code>fetch-*-binaries</code> 的默认版本；
+<code>npm/README.md</code>；git tag；Release 资产名</td></tr>
+</table>
+
+<pre><code># 构建机预检：6 个平台二进制是否都已 stage（缺文件则非零退出）
+cd sci &amp;&amp; sh npm/tools/check-versions.sh
+cd sa_plugin_sla &amp;&amp; sh npm/tools/check-sla-versions.sh
+
+# 依赖关系必须精确 pin，不能出现 ^ 或跨版本
+node -p "require('./sci/npm/packages/sa/package.json').version"
+node -p "require('./sa_plugin_sla/npm/packages/sla/package.json').dependencies['@salang/sa']"</code></pre>
+
+<p><code>sla</code> 的 meta 包依赖 <code>@salang/sa</code> 的<strong>同一代</strong>
+编译器（例如 <code>0.1.8</code>），因为 <code>sla build-wasm</code> 需要
+<code>sa</code> 具备 LLVM-C；因此发布顺序永远是 <strong>sa 先、sla 后</strong>。</p>
+
+<h2>1. 构建 6 平台产物</h2>
+<p>Linux x86_64 原生构建默认启用 LLVM-C（需 <code>llvm-14-dev</code>），
+产物可完整支持 <code>build-wasm</code>；交叉目标用 <code>-Dllvm=false</code>
+走 bootstrap，体积小但 wasm 只能走 C 回退。显式传
+<code>-Dversion</code>，这样 tag 早晚都不影响二进制内嵌版本。</p>
+
+<pre><code>cd sci
+
+# Linux x86_64（LLVM 启用；放最后构建，避免 artifacts 被交叉构建覆盖）
+zig build -Dversion=&lt;VER&gt; -Doptimize=ReleaseSafe \
+  -p /tmp/sa-dist/linux-x86_64
+
+# 交叉目标（bootstrap）
+zig build -Dtarget=aarch64-linux-gnu -Dllvm=false -Dversion=&lt;VER&gt; \
+  -Doptimize=ReleaseSafe -p /tmp/sa-dist/arm-aarch64
+zig build -Dtarget=aarch64-macos -Dllvm=false -Dversion=&lt;VER&gt; \
+  -Doptimize=ReleaseSafe -p /tmp/sa-dist/mac-aarch64
+zig build -Dtarget=x86_64-macos -Dllvm=false -Dversion=&lt;VER&gt; \
+  -Doptimize=ReleaseSafe -p /tmp/sa-dist/mac-x86_64
+zig build -Dtarget=x86_64-windows-gnu -Dllvm=false -Dversion=&lt;VER&gt; \
+  -Doptimize=ReleaseSafe -p /tmp/sa-dist/windows-x86_64
+
+# FreeBSD（需要 sysroot，见 FreeBSD 章节）
+SA_VERSION=&lt;VER&gt; sh tools/build_freebsd.sh --prefix /tmp/sa-dist/freebsd-x86_64</code></pre>
+
+<p>sla 的每个平台构建都要指向同平台 sa 标准库目录；交叉构建漏了
+<code>-Dsa-std-dir</code> 会链接到宿主机库。</p>
+
+<pre><code>cd sa_plugin_sla
+for t in linux-x86_64 arm-aarch64 mac-aarch64 mac-x86_64 windows-x86_64 freebsd-x86_64; do
+  zig build -Dversion=&lt;SLAVER&gt; -Doptimize=ReleaseSafe \
+    -Dsa-std-dir=/tmp/sa-dist/$t/lib -p /tmp/sla-dist/$t
+done
+
+# 冒烟：只有 Linux / 当前主机产物能直接执行
+/tmp/sla-dist/linux-x86_64/bin/sla --version        # sla &lt;SLAVER&gt;
+/tmp/sa-dist/linux-x86_64/bin/sa --version          # sa &lt;VER&gt;
+file /tmp/sla-dist/windows-x86_64/bin/sla.exe       # PE32+
+file /tmp/sla-dist/mac-aarch64/bin/sla              # Mach-O arm64</code></pre>
+
+<h2>2. 打包 Release 附件</h2>
+<p>附件名是 <code>fetch-*-binaries</code> 的硬契约，不能改名：
+<code>sa-&lt;VER&gt;-&lt;target&gt;.zip</code> 与
+<code>sla-&lt;SLAVER&gt;-&lt;target&gt;.zip</code>。sa 的 zip 至少含
+<code>sa</code>/<code>sa.exe</code>，建议连 <code>hubproxy</code> 一起带；
+sla 的 zip 含 <code>bin/</code> 与 <code>lib/</code>（插件库和
+<code>sap.json</code>），拉取脚本会从任意路径里取 <code>sla</code>/<code>sla.exe</code>。</p>
+
+<pre><code>cd /tmp/sa-dist
+for d in linux-x86_64 arm-aarch64 mac-aarch64 mac-x86_64 \
+         windows-x86_64 freebsd-x86_64; do
+  (cd "$d/bin" &amp;&amp; zip -q "/tmp/sa-&lt;VER&gt;-$d.zip" sa* hubproxy*)
+done
+
+cd /tmp/sla-dist
+for d in linux-x86_64 arm-aarch64 mac-aarch64 mac-x86_64 \
+         windows-x86_64 freebsd-x86_64; do
+  (cd "$d" &amp;&amp; zip -qr "/tmp/sla-&lt;SLAVER&gt;-$d.zip" bin lib)
+done
+
+unzip -l /tmp/sa-&lt;VER&gt;-windows-x86_64.zip   | grep -E 'sa\.exe|hubproxy'
+unzip -l /tmp/sla-&lt;SLAVER&gt;-windows-x86_64.zip | grep -E 'sla\.exe|sla\.dll'</code></pre>
+
+<h2>3. 提交、打 tag、发 GitHub Release</h2>
+<pre><code>cd sci
+git add build.zig.zon npm/packages &lt;本次源码文件&gt;
+git commit -m "release: sa &lt;VER&gt;"
+git tag -a &lt;VER&gt; -m "SA &lt;VER&gt;"
+git push origin main &lt;VER&gt;          # 需要可写 token
+
+GH_TOKEN="$GIT_TOKEN" gh release create &lt;VER&gt; /tmp/sa-&lt;VER&gt;-*.zip \
+  --repo layola13/sci --title "SA &lt;VER&gt;" --notes "..."
+
+cd sa_plugin_sla
+git add build.zig npm sap.json src
+git commit -m "release: sla &lt;SLAVER&gt;"
+git tag -a &lt;SLAVER&gt; -m "SLA &lt;SLAVER&gt;"
+git push origin master &lt;SLAVER&gt;
+
+GH_TOKEN="$GIT_TOKEN" gh release create &lt;SLAVER&gt; /tmp/sla-&lt;SLAVER&gt;-*.zip \
+  --repo layola13/sa_plugin_sla --title "SLA &lt;SLAVER&gt;" --notes "..."</code></pre>
+
+<p>tag 推送后检查附件是否为 6 个 zip，并抽查一个 URL 返回 200；
+<code>fetch</code> 脚本直接拼这个 URL，缺附件会在发布机上 404。</p>
+
+<h2>4. npm 发布（Windows 11 实机流程）</h2>
+<p>Windows 发布机不需要重新编译，只从 Release 拉取已构建二进制。
+脚本门槛是 PowerShell 5.1（Win11 自带）或 7 均可；当前脚本已去掉 7.0
+硬性限制并显式启用 TLS 1.2。</p>
+
+<h3>4.1 登录与预检</h3>
+<pre><code>cd E:\projects\sla\sci
+git pull
+npm login
+npm whoami        # 必须是有 @salang / @slalang 发布权限的账号</code></pre>
+
+<h3>4.2 先发 @salang/sa（逐包发布）</h3>
+<pre><code>cd E:\projects\sla\sci\npm
+powershell -ExecutionPolicy Bypass -File tools\fetch-binaries.ps1
+# 默认 &lt;VER&gt;；版本不同则加 -Version &lt;VER&gt;
+# 输出 [ok] all platform binaries staged under npm/packages/*/bin
+
+cd packages
+cd sa-linux-x64;     npm publish --access public
+cd ..\sa-linux-arm64; npm publish --access public
+cd ..\sa-darwin-arm64; npm publish --access public
+cd ..\sa-darwin-x64;  npm publish --access public
+cd ..\sa-win32-x64;   npm publish --access public
+cd ..\sa-freebsd-x64; npm publish --access public
+cd ..\sa;             npm publish --access public</code></pre>
+
+<p>一次只发一个包，确有失败时能立刻停在上一个成功点。顺序固定为 6 个
+<code>@salang/sa-&lt;platform&gt;</code> 在前、<code>@salang/sa</code>
+meta 包在最后；每个 scope 包都要带 <code>--access public</code>。</p>
+
+<h3>4.3 再发 @slalang/sla（逐包发布）</h3>
+<pre><code>cd E:\projects\sla\sa_plugin_sla
+git pull
+cd npm
+powershell -ExecutionPolicy Bypass -File tools\fetch-sla-binaries.ps1
+# 默认 &lt;SLAVER&gt;；同时把 sla_std/ 拷进 meta 包
+
+cd packages
+cd sla-linux-x64;     npm publish --access public
+cd ..\sla-linux-arm64; npm publish --access public
+cd ..\sla-darwin-arm64; npm publish --access public
+cd ..\sla-darwin-x64;  npm publish --access public
+cd ..\sla-win32-x64;   npm publish --access public
+cd ..\sla-freebsd-x64; npm publish --access public
+cd ..\sla;             npm publish --access public</code></pre>
+
+<p>不要用循环/批量脚本一口气发：一旦某个平台包已存在同版本，npm 会返回
+403 并中断，后面的包状态难以判断。逐包执行时，失败后从下一个未发的包继续。</p>
+
+<h3>4.4 可选写法与 2FA</h3>
+<pre><code># 已安装 PowerShell 7：脚本命令把 powershell 换成 pwsh
+pwsh -File tools\fetch-binaries.ps1
+
+# 账号强制 2FA：给每条 npm publish 追加 OTP
+npm publish --access public --otp=123456</code></pre>
+
+<h2>5. 发布后验证</h2>
+<pre><code>npm view @salang/sa version
+npm view @salang/sa-linux-x64 version
+npm view @slalang/sla version
+npm view @slalang/sla-linux-x64 version
+
+# 干净目录安装，验证 launcher + 平台包 + sa 依赖链
+mkdir %TEMP%\sla-npm-test
+cd /d %TEMP%\sla-npm-test
+npm init -y
+npm i @slalang/sla
+npx sa --version
+npx sla --version
+npx sla help</code></pre>
+
+<p>再跑一次最小构建（Windows 上 <code>build-wasm</code> 会走 C 回退，
+<code>build-c</code> 与 <code>build-js</code> 正常）：</p>
+
+<pre><code>npx sla build-c demo.sla -o demo.c
+npx sla build-js demo.sla -o demo.js
+npx sla build-wasm demo.sla -o demo.wasm   # 仅 C 回退覆盖的语法</code></pre>
+
+<h2>6. 常见坑</h2>
+<table>
+<tr><th>现象</th><th>原因 / 处理</th></tr>
+<tr><td><code>script cannot be run because it contained a "#requires" statement for Windows PowerShell 7.0</code></td>
+<td>用了旧脚本或旧 checkout：<code>git pull</code> 后重跑；新脚本为
+<code>#Requires -Version 5.1</code>，也可改用 <code>pwsh</code></td></tr>
+<tr><td><code>The argument 'npm\tools\...' to the -File parameter does not exist</code></td>
+<td>当前目录已在 <code>npm</code> 里，路径别再带 <code>npm\</code>；
+从 <code>npm</code> 目录用 <code>tools\fetch-binaries.ps1</code></td></tr>
+<tr><td><code>Invoke-WebRequest</code> 连接被关闭</td>
+<td>PS 5.1 未启用 TLS 1.2；脚本已设置，仍失败则升级 PowerShell 7</td></tr>
+<tr><td><code>403 Forbidden</code> / <code>E404</code>（scope 包）</td>
+<td>账号不在 <code>@salang</code>/<code>@slalang</code> 组织，或首次发布漏了
+<code>--access public</code>（脚本已带）</td></tr>
+<tr><td><code>npm ERR! 403 ... You cannot publish over the previously published versions</code></td>
+<td>npm 版本不可覆盖。已发过 <code>&lt;VER&gt;</code> 就递增 patch 后重走全流程，
+不要只改 tag；也不要只给已发过的平台包换版本，7 个 sla 包必须同版</td></tr>
+<tr><td>安装后 <code>@slalang/sla</code> 报平台包缺失</td>
+<td>平台包没先发，或 meta 的 <code>optionalDependencies</code> 与本次版本不一致；
+先发 6 个平台包再发 meta</td></tr>
+<tr><td><code>libLLVM-14.so.1: cannot open shared object file</code>（Linux）</td>
+<td>0.1.8 Linux 资产动态链接 LLVM 14：用户装
+<code>llvm-14</code>/<code>libllvm14t64</code>，或把
+<code>libLLVM-14.so.1</code> 一起放进平台包 <code>bin/</code>；
+<code>check-versions.sh</code> 会对此告警</td></tr>
+<tr><td>macOS/Windows 上 <code>build-wasm</code> 报 LLVM-C 不可用</td>
+<td>这两个平台的官方资产是 <code>-Dllvm=false</code> bootstrap；需完整 wasm
+就在本机装 LLVM 14 后原生构建，或使用 C 回退支持的子集</td></tr>
+<tr><td>Windows 解压后 <code>bin/sla</code> 没有执行位</td>
+<td>launcher 在 <code>spawnSync</code> 前自动 <code>chmod 0755</code>；
+不要绕过 <code>sla</code> 命令直接执行二进制</td></tr>
+<tr><td><code>artifacts/sa_std/libsa_std.a</code> 出现在 diff 里</td>
+<td>构建副作用；仅验证时 <code>git checkout -- artifacts/sa_std/libsa_std.a</code> 还原，
+要随版本发布则显式提交并说明</td></tr>
+</table>
+
+<h2>7. 一条龙清单</h2>
+<ol>
+<li>对齐版本号 → <code>check-versions.sh</code> / <code>check-sla-versions.sh</code> 预检。</li>
+<li>构建 6 平台 sa（Linux 最后、LLVM 启用）→ 构建 6 平台 sla。</li>
+<li>打 6+6 个 zip，抽查 Windows/Linux 条目。</li>
+<li>提交、打 tag、推送；创建两个 GitHub Release 并确认 12 个附件。</li>
+<li>Win11：<code>git pull</code> → <code>npm login</code> → fetch sa → 逐包发 sa。</li>
+<li>Win11：fetch sla → 逐包发 sla（务必在 sa 之后）。</li>
+<li><code>npm view</code> + 干净目录安装 + <code>npx sla help</code> + 最小构建回归。</li>
+<li>文档同步：本章与 <code>sci/docs/release_process_cn.md</code> 的版本/命令保持一致。</li>
+</ol>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

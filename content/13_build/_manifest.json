@@ -77,6 +77,24 @@
         "排错"
       ],
       "parent": null
+    },
+    {
+      "id": "build-release-npm",
+      "title": "Release 与 npm 发布",
+      "file": "06_release_npm.html",
+      "keywords": [
+        "Release",
+        "npm",
+        "发布",
+        "发版",
+        "publish",
+        "PowerShell",
+        "Windows 11",
+        "fetch-binaries",
+        "GitHub Release",
+        "optionalDependencies"
+      ],
+      "parent": null
     }
   ]
 }

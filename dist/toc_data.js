@@ -494,6 +494,11 @@ var TOC = [
     "t": "构建验证与故障排查",
     "f": "content/13_build/05_verify_troubleshoot.html",
     "c": []
+   },
+   {
+    "t": "Release 与 npm 发布",
+    "f": "content/13_build/06_release_npm.html",
+    "c": []
    }
   ]
  },
