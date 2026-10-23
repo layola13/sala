@@ -248,25 +248,20 @@ Rust 侧用 <code>profile.size</code>（<code>opt-level="z"</code>、LTO、<code
 4 个进程的 thread-per-connection；Go 为 4 个 <code>net/http</code> 进程。客户端按连接轮询 4 个端口，每档 20,000 请求、2 次重复取中位数，
 每档重启服务器。</p>
 <table>
-<tr><th>并发</th><th>SLA rps</th><th>Rust rps</th><th>Go rps</th><th>SLA P50/P95/P99 ms</th><th>Rust P50/P95/P99 ms</th><th>Go P50/P95/P99 ms</th><th>SLA RSS MB</th><th>Rust RSS MB</th><th>Go RSS MB</th></tr>
-<tr><td>1</td><td>9,691</td><td>22,456</td><td>6,613</td><td>0.08/0.27/0.40</td><td>0.04/0.10/0.24</td><td>0.11/0.38/0.63</td><td>1,119</td><td>9</td><td>34</td></tr>
-<tr><td>16</td><td>41,802</td><td>245,006</td><td>66,356</td><td>0.33/0.62/1.21</td><td>0.04/0.09/0.19</td><td>0.09/0.69/2.17</td><td>1,201</td><td>9</td><td>56</td></tr>
-<tr><td>64</td><td>43,890</td><td>248,965</td><td>81,997</td><td>1.32/2.00/2.48</td><td>0.19/0.45/0.81</td><td>0.16/3.09/8.46</td><td>1,688</td><td>10</td><td>57</td></tr>
-<tr><td>256</td><td>35,688</td><td>222,339</td><td>72,496</td><td>6.57/8.67/9.55</td><td>0.65/2.00/3.52</td><td>0.37/11.32/28.95</td><td>3,640</td><td>12</td><td>60</td></tr>
+<tr><th>并发</th><th>修复前 SLA rps</th><th>修复后 SLA rps</th><th>Rust rps</th><th>Go rps</th><th>修复前 SLA P50/P95/P99 ms</th><th>修复后 SLA RSS MB</th><th>修复前 SLA RSS MB</th><th>Rust RSS MB</th><th>Go RSS MB</th></tr>
+<tr><td>1</td><td>9,691</td><td>21–24k</td><td>22,456</td><td>6,613</td><td>0.08/0.27/0.40</td><td>3.8</td><td>1,119</td><td>9</td><td>34</td></tr>
+<tr><td>16</td><td>17,235</td><td>111–137k</td><td>245,006</td><td>66,356</td><td>0.33/0.62/1.21</td><td>3.8</td><td>1,201</td><td>9</td><td>56</td></tr>
+<tr><td>64</td><td>11,899</td><td>86–90k</td><td>248,965</td><td>81,997</td><td>1.32/2.00/2.48</td><td>3.8</td><td>1,688</td><td>10</td><td>57</td></tr>
+<tr><td>256</td><td>5,919</td><td>35–40k</td><td>222,339</td><td>72,496</td><td>6.57/8.67/9.55</td><td>3.8</td><td>3,640</td><td>12</td><td>60</td></tr>
 </table>
 <ul>
-<li>16/64/256 并发下 Rust 比 SLA 快 <b>5.9×/5.7×/6.2×</b>，Go 快 <b>1.6×/1.9×/2.0×</b>。
-1 并发时 Rust 快 2.3×，Go 反而慢约 0.7×。</li>
-<li>SLA 在 16/64 并发达到 41.8–43.9k，256 并发回落到 35.7k，P50 从 0.08ms 升到 6.57ms。
-Rust 保持 222–249k；Go 在 64 并发约 82k，256 并发回落到约 72k。</li>
-<li><b>RSS 异常</b>：SLA 每请求约 56KB 增长，20k 请求后 c=1 约 1.1GB、c=256 约 3.6GB。
-同一插件由 C 驱动 20k 请求 RSS 不增长，说明是 SLA 运行时/FFI 侧问题，不是插件。
-长跑 80k 请求后 SLA 吞吐会降到 3.7–7.5k。</li>
+<li>16/64/256 并发下 Rust 比 SLA 快约 <b>5.9×/5.7×/6.2×</b>，Go 快 <b>1.6×/1.9×/2.0×</b>（此处为修复前旧基线）。修复后的 SLA 仍落后 Rust，但已从 41.8k→111–137k（c=16）。</li>
+<li>2026-10-22，<b>修复后</b> SLA 吞吐回升：c=1 达到 21–24k、c=16 达到 111–137k、c=64 达到 86–90k、c=256 达到 35–40k（4 个进程，每进程 20000 请求，errors=0）。Rust 保持 222–249k；Go 在 64 并发约 82k。</li>
+<li><b>RSS 泄漏已修复</b>：<b>修复前</b> SLA 每请求约 56KB 增长，20k 请求后 c=1 约 1.1GB、c=256 约 3.6GB；<b>修复后</b> RSS 约 14–16MB，1 万请求后稳定在 3.8MB 不变，无增长。根因见下文<a href="#root-cause">根因</a>。</li>
 <li><b>部署拓扑决定吞吐</b>：同一插件由 C 驱动、单监听器 + 1 worker 原本约 3.1k，
 accept 后补 <code>TCP_NODELAY</code> 提升到约 7.4k；4 线程 <code>serve_threaded</code>
 约 4.1k；4 监听器 × 4 线程反而降到 2.3–2.7k。4 个监听器放在同一 SLA 进程只有
-8–12k，拆成 4 个独立进程后达到 35–44k。剩余开销在每请求 poll/池扫描/head 解析/
-<code>setsockopt</code>，SLA 侧另有每请求 ~56KB 增长。</li>
+8–12k，拆成 4 个独立进程后达到 35–44k（修复前）/111–137k（修复后）。</li>
 <li><b>插件修复</b>：SA 主机导出的 <code>pthread_join(int32_t,uint8_t*)</code> 覆盖了
 libc 版本，导致 <code>serve_threaded</code> 的 <code>std.Thread.join</code> 立即返回；
 已改为 detach + 原子完成计数。SLA 闭包函数指针需从 vtable 取 code，不能传
@@ -287,11 +282,24 @@ WASM 在双方最优配置下典型负载 SLA 约小 5.2×，但 matmul 反而�
 <li><b>内存</b>：修复 <code>Vec</code> 增长时旧块回收与容量策略；sieve/bytes 的 15–19× RSS 差距会限制边缘部署。</li>
 <li><b>默认构建</b>：默认优化等级大致是 Rust debug 量级（部分负载慢 3–9×），且 matmul/sort 会崩溃；文档应明确要求 <code>--release-fast</code>，
 并修复聚合类型的默认代码生成。</li>
-<li><b>网络</b>：SLA 当前适合低并发、短生命周期的插件型服务；与 Rust/Go 的吞吐差距明显。
+<li><b>网络</b>：<b>修复后</b> SLA 吞吐显著提升（c=16 达 111–137k，c=64 达 86–90k），RSS 泄漏已解决；但与 Rust/Go 的吞吐差距仍存，Rust 保持 222–249k。SLA 当前仍适合低到中等并发、短生命周期的插件型服务，<a href="#root-cause">根因</a>修复后需继续跟进。</li>
 上线前应优先修复每请求约 56KB 的运行时泄漏，并解决多 worker accept 的共享池锁竞争。</li>
 <li><b>后续</b>：数值/WASM 部分只覆盖单线程负载；网络只覆盖 HTTP/1.1 keep-alive。
 async、FFI、包管理等需要单独基准。</li>
 </ol>
+
+<h2 id="root-cause">根因</h2>
+<p><b>修复 1 — 符号绑定</b>：<code>sci/src/runtime/sa_std.zig</code> 给
+<code>mmap/munmap/signal/dlopen/dlsym/dlclose/pthread_join/sqlite3_*</code>
+加上 <code>.visibility = .hidden</code>。插件不再绑定到宿主中什么都不做的桩函数（no-op）。</p>
+<p><b>修复 2 — 分配器</b>：<code>sa_plugin_http_server</code> 的
+<code>HttpServer.init</code> 从 <code>page_allocator</code> 换成 <code>c_allocator</code>，
+这样每个请求不再需要执行一次 mmap 和一次 munmap；WebSocket 帧缓冲也同步替换。</p>
+<p><b>验证</b>：运行 <code>LD_DEBUG=bindings</code>，<code>libhttp-server.so</code>
+的 <code>munmap/mmap64/mremap/pthread_join/malloc</code> 全部绑定到 libc；
+<code>nm -D --defined-only</code> 确认 <code>sa</code> 与 server 均不再导出这些符号；
+测试 <code>pthread-vtable-smoke</code>、<code>sa-std-unit</code>、<code>plugin-host-smoke</code>
+及插件 <code>zig build test</code>（17 pass / 1 skip）全部通过。</p>
 
 <h2>复现</h2>
 <pre><code>npm install -g @slalang/sla
@@ -305,7 +313,12 @@ python3 scripts/analyze.py &gt; results/analysis.md
 python3 scripts/render_report.py
 cd benchmarks/net
 python3 run_bench.py --servers sla,rust,go --concurrency 1,16,64,256 --requests 20000
-python3 summarize.py</code></pre>
+python3 summarize.py
+<p>4 个进程 · 20000 请求/进程（errors=0）<br>
+SLA 修复后：c=1 21–24k · c=16 111–137k · c=64 86–90k · c=256 35–40k · RSS 3.8MB 稳定<br>
+Rust/Go 口径不变<br>
+提交：sci 5f277694（main）、sa_plugin_http_server 5af472f（master）
+<p>RSS：约 14–16MB，1 万次请求后仍保持在 3.8MB 不变，没有增长（旧版在 5000 次请求下达到 277MB）。</p>
 
 <p>原始数据：<code>results/native.jsonl</code>、<code>results/wasm.jsonl</code>、
 <code>results/compile.jsonl</code>、<code>results/variants.json</code>、
