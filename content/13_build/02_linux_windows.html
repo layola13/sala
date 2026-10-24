@@ -9,17 +9,19 @@
 <div class="topic-header">多平台编译 &gt; Linux 与 Windows 本地构建</div>
 <h1>Linux 与 Windows 本地构建</h1>
 
-<h2>安装 Zig 0.14.1</h2>
-<p>版本号必须 ≥ <code>build.zig.zon</code> 中的 <code>minimum_zig_version = "0.14.1"</code>。
+<h2>安装 Zig 0.17.0</h2>
+<p>版本号必须 ≥ <code>build.zig.zon</code> 中的 <code>minimum_zig_version = "0.17.0"</code>。
+0.17.0 是开发快照，ziglang.org 下载页不提供该版本；CI 用 <code>mlugg/setup-zig</code>
+固定在 0.17.0，本机可从 machengine 镜像取同款快照包。
 注意官方包命名是 <code>zig-&lt;arch&gt;-&lt;os&gt;-&lt;版本&gt;</code>（arch 在前）：</p>
 <pre><code># Linux x86_64
 curl -sL -o /tmp/zig.tar.xz \
-  https://ziglang.org/download/0.14.1/zig-x86_64-linux-0.14.1.tar.xz
+  https://pkg.hexops.org/zig/0.17.0/zig-x86_64-linux-0.17.0.tar.xz
 mkdir -p /opt/zig &amp;&amp; tar -xf /tmp/zig.tar.xz -C /opt/zig --strip-components=1
 ln -sf /opt/zig/zig /usr/local/bin/zig
-zig version   # 应输出 0.14.1</code></pre>
-<p>Windows 用对应 <code>zig-x86_64-windows-0.14.1.zip</code>，macOS 用
-<code>zig-aarch64-macos-0.14.1.tar.xz</code>（Apple Silicon）。CI 固定使用 0.14.1
+zig version   # 应输出 0.17.0</code></pre>
+<p>Windows 用镜像中对应的 <code>zig-x86_64-windows-0.17.0.zip</code>，macOS 用
+<code>zig-aarch64-macos-0.17.0.tar.xz</code>（Apple Silicon）。CI 固定使用 0.17.0
 （<code>.github/workflows/ci.yml</code>），升级 Zig 前先确认全门禁通过。</p>
 
 <h2>Linux 原生构建（含 LLVM 后端）</h2>
@@ -45,7 +47,7 @@ zig build -Dllvm=true -Dllvm-include-dir="C:\Program Files\LLVM\include" ^
 zig build -Dtarget=x86_64-windows-gnu -Dllvm=false -p zig-out-windows</code></pre>
 <p>已知修补（main 已包含）：Unix-domain socket 相关代码
 （<code>daemon_client.zig</code> 的 <code>connectUnixSocket</code>、
-<code>cli.zig</code> 的 <code>daemonCommand</code>）在 Zig 0.14.1 下无法为
+<code>cli.zig</code> 的 <code>daemonCommand</code>）在 Zig 0.17.0 下无法为
 windows-gnu 编译，已用 <code>comptime</code> 分支隔离——Windows 上 daemon
 客户端直接返回 null、daemon 服务端报 unsupported。新增 Unix socket 逻辑时必须延续该模式，
 否则 Windows 交叉构建会失败。</p>

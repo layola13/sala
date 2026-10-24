@@ -38,6 +38,19 @@
 <li>同时解决了单元测试和增量编译卡死/终端超时的问题。</li>
 </ul>
 
+<h2>重复构建：零变更不再全量重编</h2>
+
+<p>早期版本有一个严重的增量构建缺陷：<b>源码零变更时，<code>sla build-exe</code> 每次都等于全量重新编译</b>。根因有两层。SA 侧 <code>build-exe</code> 的项目缓存（<code>.sa_cache</code>）只在串行发射路径写回；显式传 <code>--jobs</code> 且函数数 ≥ 100 时走的 CGU 并行路径从不写缓存，编完即弃。SLA 侧则无条件给委托的 SA 命令追加 <code>--jobs auto</code>，于是每一次 <code>sla</code> 驱动的构建都被推进那条不写缓存的路径。</p>
+
+<p>修复后的缓存分工：</p>
+<ul>
+<li><b>SA build-exe 缓存</b>：所有发射路径（含 CGU 并行）都会写回 <code>.sa_cache</code> 条目，命中时直接恢复产物，跳过原生编译；缓存键与 <code>--jobs</code> 无关，串行与并行构建互相命中同一条目。</li>
+<li><b>sla 不再强加 <code>--jobs auto</code></b>：委托的 SA 命令默认走串行 + 缓存路径；用户显式传入的 <code>--jobs</code> 仍原样透传。</li>
+<li><b>SLA 前端新鲜度门</b>：前端把每次编译的依赖闭包（根文件、全部导入模块、契约导入文件、同级 <code>sa.mod</code>）连同产物存入 <code>.sla-cache/fresh/</code>，逐文件记录内容哈希。之后闭包哈希全部一致就直接复用产物，解析、导入展开、单态化、类型检查、编码整条管线跳过；任一文件内容变化都会未命中并正常重编，不会发出过期产物。环境变量 <code>SLA_NO_FRESHNESS_CACHE=1</code> 可禁用该门。<code>sla check</code> 走独立的内联管线，目前未接入。</li>
+</ul>
+
+<p>量级参考（288 模块合成项目、共享主机，未标定）：零变更 <code>sla build-exe</code> 由约 0.70s 降到约 0.05s 量级（前端命中后只剩进程启动与 SA 缓存恢复）。只改注释时新鲜度门正确未命中、前端重跑，但生成的 SAB 字节不变，SA 缓存仍然命中；改函数体则产出新 SAB 与新可执行文件。</p>
+
 <h2>如何测量自己的管线</h2>
 
 <p>插件仓库自带 benchmark harness，输出 JSONL 计时（运行目录为插件仓库根）：</p>
@@ -53,7 +66,7 @@
 
 <h2>已知的结构性压力</h2>
 
-<p>SLA 前端在 <code>@import</code> 时目前采取「全展开合并」模式：多个模块会被合并进单个 <code>.sa</code>/<code>.sab</code>，真实项目里出现过展开后上万条 SA 指令的单文件，这给展平器、验证器和后端都带来压力。按模块拆分输出、复用 SA 原生 <code>@import</code> 链接的模块化编译方案在设计文档中有规划，尚未成为当前行为——不要假设现在就是按模块缓存编译的。</p>
+<p>SLA 前端在 <code>@import</code> 时目前采取「全展开合并」模式：多个模块会被合并进单个 <code>.sa</code>/<code>.sab</code>，真实项目里出现过展开后上万条 SA 指令的单文件，这给展平器、验证器和后端都带来压力。按模块拆分输出、复用 SA 原生 <code>@import</code> 链接的模块化编译方案在设计文档中有规划，尚未成为当前行为——不要假设现在就是按模块缓存编译的。上文的新鲜度门是整编译粒度：零变更时整段跳过，但闭包内任一文件变化仍是全展开重编，产物形态不变。</p>
 
 <p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/roadmap_status_cn.md §6、compilation_optimization_cn.md、benchmarking_cn.md、testing_and_verification_cn.md §6。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>

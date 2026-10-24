@@ -59,8 +59,9 @@ powershell tools\install_bundle_windows.ps1 -Bundle dist\SCI-windows-x64-full.zi
 
 <h2>前置条件</h2>
 <ul>
-<li><b>Zig 0.14.1</b>。本机已装入用户级全局 PATH：<code>D:\tools\zig-x86_64-windows-0.14.1\zig.exe</code>
-（部分脚本默认值写作 <code>D:\zig-x86_64-windows-0.14.1\zig.exe</code>，可用环境变量
+<li><b>Zig 0.17.0</b>（sci 的 <code>build.zig.zon</code> 声明
+<code>minimum_zig_version = "0.17.0"</code>，旧版本构建会失败）。本机已装入用户级全局 PATH：<code>D:\tools\zig-x86_64-windows-0.17.0\zig.exe</code>
+（部分脚本默认值写作 <code>D:\zig-x86_64-windows-0.17.0\zig.exe</code>，可用环境变量
 <code>ZIG</code> 覆盖）。新开的终端才能看到更新后的 PATH。</li>
 <li><b>LLVM 14</b>（构建带 LLVM 后端的 <code>sa.exe</code> 时需要）：<code>LLVM-C.dll</code>、
 <code>LLVM-C.lib</code>、<code>llvm-c/Core.h</code>。文档中出现的本机路径有

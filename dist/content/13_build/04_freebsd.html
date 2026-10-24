@@ -9,7 +9,7 @@
 <div class="topic-header">多平台编译 &gt; FreeBSD 交叉编译</div>
 <h1>FreeBSD 交叉编译</h1>
 
-<p>FreeBSD 是唯一需要“单独准备 sysroot”的目标，原因有三：Zig 0.14.1 官方不发布
+<p>FreeBSD 是唯一需要“单独准备 sysroot”的目标，原因有三：Zig 0.17.0 官方不发布
 FreeBSD 主机二进制；不捆绑 freebsd libc；<code>zig build</code> 没有
 <code>--sysroot</code> 参数。为此 <code>build.zig</code> 新增了通用选项：</p>
 <table>
@@ -43,7 +43,7 @@ file zig-out-freebsd/bin/sa
 Linux-specific 代码（io_uring/epoll 等），真机行为仍需逐项验证。</p>
 
 <h2>sa_std.zig 的 FreeBSD 兼容层</h2>
-<p>以下全是 Zig 0.14 标准库对 freebsd 的缺口，已在 <code>src/runtime/sa_std.zig</code>
+<p>以下全是 Zig 0.17 标准库对 freebsd 的缺口，已在 <code>src/runtime/sa_std.zig</code>
 内用 <code>comptime builtin.os.tag == .freebsd</code> 分支隔离，不影响其他平台：</p>
 <ul>
 <li><b>TCP_NODELAY</b>：<code>std.posix.TCP</code> 在 freebsd 上是 void，

@@ -50,7 +50,7 @@ Set-Content -Encoding UTF8 -Path out.md -Value $content</code></pre>
 
 <table>
 <tr><th>症状</th><th>原因与处理</th></tr>
-<tr><td>新终端里 <code>zig</code> 不可用</td><td>Zig 通过用户级全局 PATH 提供（如 <code>D:\tools\zig-x86_64-windows-0.14.1\zig.exe</code>）；已打开的旧终端窗口需要重开才会生效。</td></tr>
+<tr><td>新终端里 <code>zig</code> 不可用</td><td>Zig 通过用户级全局 PATH 提供（如 <code>D:\tools\zig-x86_64-windows-0.17.0\zig.exe</code>）；已打开的旧终端窗口需要重开才会生效。</td></tr>
 <tr><td>PowerShell 里 <code>Set-Location</code> 后子进程目录不对</td><td><code>Set-Location</code> 或 <code>[Environment]::CurrentDirectory</code> 都不会改变 pwsh 自身的 Win32 工作目录，子进程继承的是 pwsh 启动时的目录。需要指定目录时用批处理脚本显式 <code>cd /d %~dp0</code>，或调用 <code>Start-Process -WorkingDirectory</code>。</td></tr>
 <tr><td>批量编译后 demo 目录出现大量改动</td><td>demo 参考产物 <code>main.sa</code> 是 git 跟踪文件，批量编译不要把产物写在源目录旁；误覆盖用 <code>git checkout -- demos</code> 恢复。</td></tr>
 <tr><td>长测试卡住终端</td><td>测试/CLI 执行统一包一层超时，例如 <code>timeout 120s ...</code>；构建类命令（如 <code>zig build --summary all</code>)不需要。</td></tr>

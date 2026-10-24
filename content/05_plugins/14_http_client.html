@@ -259,7 +259,7 @@ usage: sa http-client stream [--ca-bundle &lt;path&gt;] [--header name:value] &l
 <tr><td><code>sa_http_client_req_send_async_v2</code> / <code>sa_http_client_async_poll_v2(op, timeout_ms, &amp;ready)</code> / <code>sa_http_client_async_take_response_v2</code> / <code>sa_http_client_async_cancel_v2(op)</code> / <code>sa_http_client_async_free_v2</code></td><td>条件化的异步轮询（带超时）、取消、响应移交。poll 对每种终态（超时、取消=closed、超限、I/O 失败）都返回 <code>ready=1</code>；响应只能取一次</td></tr>
 </table>
 <div class="note"><span class="label">注意</span>取消的实现方式是把已发布的 socket 关停以唤醒阻塞中的
-send/read。Zig 0.14.1 在 DNS 解析、TCP connect、TLS 初始化完成之前不暴露 socket，因此这三段无法被本 ABI
+send/read。Zig 0.17.0 在 DNS 解析、TCP connect、TLS 初始化完成之前不暴露 socket，因此这三段无法被本 ABI
 硬中断——取消会在其之后立刻被观察到，而 <code>async_free_v2</code> 可能等待操作系统完成 connect 收尾。
 不跟随重定向也让取消始终绑定在一个文件描述符上。</div>
 

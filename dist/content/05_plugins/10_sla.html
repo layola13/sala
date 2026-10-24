@@ -36,6 +36,8 @@ SLA 语言的语法、类型与所有权规则见「SLA 语言参考」章节，
 <tr><td><code>sa sla test &lt;file&gt;</code></td><td>编译测试文件并在 <code>sa test</code> 下运行，后端可选 <code>auto/sab/sa</code></td></tr>
 </table>
 
+<div class="note"><span class="label">重复构建</span>源码零变更时 <code>build</code> / <code>build-exe</code> / <code>test</code> 不再全量重编：前端新鲜度门按依赖闭包（根文件 + 全部导入模块 + 契约文件 + 同级 <code>sa.mod</code>）的内容哈希复用 <code>.sla-cache/fresh/</code> 中的产物，整条前端管线跳过；SA 侧 <code>build-exe</code> 缓存覆盖全部发射路径（含 <code>--jobs</code> 的 CGU 路径），且 <code>sla</code> 不再默认给 SA 命令追加 <code>--jobs auto</code>。<code>SLA_NO_FRESHNESS_CACHE=1</code> 可禁用前端门；原理与量级见 FAQ 的「性能与优化预期」。</div>
+
 <div class="note"><span class="label">注意</span>本插件的 <code>docs/</code> 目录有上百篇文档
 （架构、SAB 管线、路线图状态、基准测试、语言规范、教程系列等），全部以仓库为准。
 已知局限包括：<code>&amp;mut T</code> 尚未引入（当前由 <code>&amp;self</code> 覆盖读写、SA Referee 兜底）、
