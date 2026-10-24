@@ -9,44 +9,49 @@
 <div class="topic-header">与 Rust 对比 &gt; 性能实测</div>
 <h1>SLA vs Rust vs Go 性能实测（native / WASM / 编译 / 网络）</h1>
 
-<p>这一页是 2026-10-22 在 <code>slarust</code> 项目上跑出的完整对比：10 个核心负载 + hello、native 与 WASM 两条产物链、
+<p>这一页是 2026-10-24 在 <code>slarust</code> 项目上复测的完整对比（上一版快照为 2026-10-22）：10 个核心负载 + hello、native 与 WASM 两条产物链、
 冷/热编译、产物体积、峰值内存、优化等级与编译可扩展性。所有 SLA/Rust 程序输出逐项一致的校验和，
-因此下面的倍数是同一算法的实现差异，而不是负载差异。</p>
+因此下面的倍数是同一算法的实现差异，而不是负载差异。本轮复测包含 2026-10-24 合入的冷/热启动修复
+（SLA 插件内容哈希新鲜度门 + SA 并行 CGU 分支缓存回写），热编译结论已整体反转。</p>
 
 <div class="note"><span class="label">注意</span>本页是可复现的实测快照，不是永久结论。
-工具链为 sla 0.1.4 / SA 0.1.8、Rust 1.99.1、Go 1.27.3、Wasmtime 25.0.2，
-平台为 Linux x86_64（8 vCPU KVM）。</div>
+工具链为 sla 插件 master（2026-10-24，含冷/热启动修复）/ SA 0.1.8（sci <code>346f68b9</code>）、Rust 1.99.1、Go 1.27.3、Wasmtime 25.0.2，
+平台为 Linux x86_64（AMD EPYC 7B12，8 vCPU，50GB 内存）。“优化等级与变体”一节未在本轮重测，仍为 2026-10-22 数据，已在节内注明。</div>
 
 <h2>一句话结论</h2>
 <blockquote>在当前版本上，Rust release 的 native/WASM 运行时中位数分别比 SLA 快约
-1.47× / 1.44×（不含 matmul 异常点）；SLA 的编译更快这一旧结论也不成立：
-冷编译常规项目 Rust 快 3.09×（native）/2.48×（WASM）；热编译在大型源码上仍快，但小 WASM 项目 SLA 已接近持平或略快。
-SLA 的 WASM 产物体积在剥离 DWARF 后典型负载约为 Rust 的 1/6，但 matmul 反而大约 1.2×；native 体积仍约 28×。</blockquote>
+1.43× / 1.43×（不含 matmul 异常点）。编译结论本轮整体反转：冷编译常规项目 Rust 仍更快（用时为 SLA 的
+0.42×（native）/0.53×（WASM）），但热编译 SLA 已与 Rust 持平（native 几何平均 Rust/SLA ≈ 1.02），
+WASM 热编译 SLA 反而快约 2.24×——内容未变的重建现在被新鲜度门整体短路，不再全量重编。
+SLA 的 WASM 产物体积在剥离 DWARF 后典型负载约为 Rust 的 1/6、最优口径下仅约 1/10，但 matmul 反而大约 1.2×；native 体积仍约 28×。
+网络吞吐 SLA 已全面超过 Go，c=256 较上一版修复后快约 3.3×。</blockquote>
 
 <h2>摘要</h2>
 <ul>
 <li><b>正确性</b>：11 个程序（10 个核心负载 + hello）的 SLA/Rust 校验和全部一致。</li>
-<li><b>Native</b>：排除 hello/matmul，Rust 几何平均快 1.47×；含 matmul 快 2.02×。
-SLA 在 sort 上快 1.35×、hashmap 上快 1.14×。</li>
-<li><b>WASM</b>：排除 hello/matmul，Rust 快 1.44×；含 matmul 快 1.94×。
-SLA 的 mandelbrot 快 1.87×。</li>
-<li><b>编译</b>：常规源码 Rust 冷编译约为 SLA 的 0.32×（native）/0.40×（WASM）用时；
-matmul native 是异常点，SLA 需要 70.1s，Rust 0.19s。</li>
-<li><b>体积最优</b>：native SLA 9080KB vs Rust 275KB（约 32.8× 大）；
-WASM 典型 SLA 5.6–7.9KB vs Rust
-32.7–34.3KB（约小 5.2×；matmul 例外，SLA 大约 1.76×）。</li>
-<li><b>内存</b>：大数组场景 SLA RSS 高 2–19×（sieve 422MB vs 22MB，bytes 528MB vs 35MB）。</li>
-<li><b>默认优化</b>：SLA 默认构建大致是 Rust debug 量级（sieve/bytes 慢 3–9×），且 matmul/sort 默认构建段错误；必须使用 <code>--release-fast</code>。</li>
-<li><b>网络并发</b>：4 个独立进程、每进程 1 个监听器时，SLA 约 35.7–43.9k rps；
-Rust 222–249k（快 5.7–6.2×），Go 66–82k（快 1.6–2.0×）。SLA 每请求约 56KB RSS 增长，长跑会拖慢吞吐。</li>
+<li><b>Native</b>：排除 hello/matmul，Rust 几何平均快 1.43×；含 matmul 快 1.97×。
+SLA 在 sort 上仍快 1.35×；hashmap 本轮基本持平（Rust 略快，0.92×）。</li>
+<li><b>WASM</b>：排除 hello/matmul，Rust 快 1.43×；含 matmul 快 1.93×。
+上一版 SLA 的 mandelbrot 优势（1.87×）本轮消失，两边持平；loopsum 差距从 3.2× 收窄到 1.17×。</li>
+<li><b>编译</b>：常规源码 Rust 冷编译约为 SLA 的 0.42×（native）/0.53×（WASM）用时；
+热编译（touch 不改内容）SLA 与 Rust 持平（native），WASM 快约 2.24×。
+matmul native 冷编译是异常点，SLA 需要 13.5s（上一版 70.1s），Rust 0.13s。</li>
+<li><b>体积最优</b>：native SLA 约 8,910KB vs Rust 约 276KB（约 32× 大）；
+WASM 典型 SLA 1.8–4.8KB vs Rust
+31.8–34.3KB（约小 10×；matmul 例外，SLA 大约 1.65×）。</li>
+<li><b>内存</b>：大数组场景 SLA RSS 高 2–20×（sieve 422MB vs 21MB，bytes 528MB vs 35MB）。</li>
+<li><b>默认优化</b>（2026-10-22 数据，本轮未重测）：SLA 默认构建大致是 Rust debug 量级（sieve/bytes 慢 3–9×），且 matmul/sort 默认构建段错误；必须使用 <code>--release-fast</code>。</li>
+<li><b>网络并发</b>：4 个独立进程、每进程 1 个监听器时，SLA 31k–182k rps，已全面超过 Go（13.8k–113k）；
+Rust 36k–378k（快 1.2–2.7×）。SLA 的 RSS 全程稳定在约 19–21MB，无每请求增长。</li>
 </ul>
 
 <h2>测试口径</h2>
 <p>源码在 <code>benchmarks/sla/*.sla</code> 与 <code>benchmarks/rust/src/bin/*.rs</code>。
 SLA 用 <code>build-exe/build-wasm --release-fast</code>；Rust 用 <code>cargo build --release</code>
 （opt-level=3、lto=false、codegen-units=16、panic=abort）和 <code>wasm32-wasip1</code>。
-冷编译删除 SLA <code>.sa_cache</code> 并加 <code>--no-incremental</code>，Rust 使用全新
-<code>CARGO_TARGET_DIR</code>；热编译保留缓存，并 touch 两边源文件确保都实际重建。运行时取 7 次（native）/5 次（WASM）中位数，
+冷编译删除 SLA <code>.sa_cache</code>/<code>.sla-cache</code> 并加 <code>--no-incremental</code>，Rust 使用全新
+<code>CARGO_TARGET_DIR</code>；热编译保留缓存，并 touch 两边源文件（内容不变）后重建——该口径下 SLA 会命中
+内容哈希新鲜度门（见“热编译”节）。运行时取 7 次（native）/5 次（WASM）中位数，
 计时包含进程启动，WASM 使用 Wasmtime 25.0.2。</p>
 
 <p>关键限制：单线程；SLA 当前 <code>Vec&lt;f64&gt;</code> push 后读到 0，因此 matmul 两边都用固定
@@ -56,82 +61,90 @@ Node 20.19 的 WASI 在部分大内存模块退出时会让 SLA/Rust 同时触�
 <h2>Native 运行时</h2>
 <table>
 <tr><th>bench</th><th>SLA ms</th><th>Rust ms</th><th>Rust/SLA</th><th>SLA RSS KB</th><th>Rust RSS KB</th></tr>
-<tr><td>hello</td><td>2.0</td><td>1.9</td><td>0.95×</td><td>14336</td><td>14336</td></tr>
-<tr><td>fib</td><td>460.5</td><td>383.4</td><td>0.83×</td><td>14336</td><td>14336</td></tr>
-<tr><td>loopsum</td><td>798.3</td><td>531.1</td><td>0.67×</td><td>14336</td><td>14336</td></tr>
-<tr><td>sieve</td><td>907.2</td><td>346.0</td><td>0.38×</td><td>422144</td><td>21632</td></tr>
-<tr><td>matmul</td><td>1038.3</td><td>29.9</td><td>0.03×</td><td>14336</td><td>14336</td></tr>
-<tr><td>sort</td><td>371.5</td><td>502.3</td><td>1.35×</td><td>19712</td><td>14336</td></tr>
-<tr><td>hashmap</td><td>391.9</td><td>446.6</td><td>1.14×</td><td>134784</td><td>67712</td></tr>
-<tr><td>nbody</td><td>1070.9</td><td>1013.5</td><td>0.95×</td><td>14336</td><td>14336</td></tr>
-<tr><td>mandelbrot</td><td>616.7</td><td>608.4</td><td>0.99×</td><td>14336</td><td>14336</td></tr>
-<tr><td>vecpush</td><td>548.8</td><td>349.6</td><td>0.64×</td><td>515968</td><td>252160</td></tr>
-<tr><td>bytes</td><td>468.1</td><td>74.0</td><td>0.16×</td><td>528000</td><td>34944</td></tr>
+<tr><td>hello</td><td>1.1</td><td>1.0</td><td>0.96×</td><td>14464</td><td>14464</td></tr>
+<tr><td>fib</td><td>315.4</td><td>262.5</td><td>0.83×</td><td>14464</td><td>14464</td></tr>
+<tr><td>loopsum</td><td>552.0</td><td>470.4</td><td>0.85×</td><td>14464</td><td>14464</td></tr>
+<tr><td>sieve</td><td>397.8</td><td>117.3</td><td>0.29×</td><td>421888</td><td>21504</td></tr>
+<tr><td>matmul</td><td>678.4</td><td>19.0</td><td>0.03×</td><td>14464</td><td>14464</td></tr>
+<tr><td>sort</td><td>199.2</td><td>269.2</td><td>1.35×</td><td>19328</td><td>14464</td></tr>
+<tr><td>hashmap</td><td>184.3</td><td>168.8</td><td>0.92×</td><td>134400</td><td>67584</td></tr>
+<tr><td>nbody</td><td>738.5</td><td>690.6</td><td>0.94×</td><td>14464</td><td>14464</td></tr>
+<tr><td>mandelbrot</td><td>379.6</td><td>382.7</td><td>1.01×</td><td>14464</td><td>14464</td></tr>
+<tr><td>vecpush</td><td>343.2</td><td>229.7</td><td>0.67×</td><td>515456</td><td>252032</td></tr>
+<tr><td>bytes</td><td>251.8</td><td>61.9</td><td>0.25×</td><td>527616</td><td>34688</td></tr>
 </table>
 
-<p>Rust 几何平均（不含 hello/matmul）快 <b>1.47×</b>。SLA 在 sort 上快
-1.35×、hashmap 上快 1.14×；
-matmul 上 Rust 快 34.7×，是最大差距。</p>
+<p>Rust 几何平均（不含 hello/matmul）快 <b>1.43×</b>。SLA 在 sort 上仍快
+1.35×；上一版 hashmap 的 1.14× 优势本轮消失（0.92×，基本持平）；
+matmul 上 Rust 快 35.7×，仍是最大差距。本轮两边绝对耗时都低于上一版快照（平台负载差异），倍数才可比。</p>
 
 <h2>WASM 运行时</h2>
 <table>
 <tr><th>bench</th><th>SLA ms</th><th>Rust ms</th><th>Rust/SLA</th><th>SLA RSS KB</th><th>Rust RSS KB</th></tr>
-<tr><td>hello</td><td>13.0</td><td>11.5</td><td>0.88×</td><td>16584</td><td>17056</td></tr>
-<tr><td>fib</td><td>670.6</td><td>633.3</td><td>0.94×</td><td>16648</td><td>17056</td></tr>
-<tr><td>loopsum</td><td>5249.9</td><td>1623.7</td><td>0.31×</td><td>16516</td><td>17060</td></tr>
-<tr><td>sieve</td><td>994.8</td><td>395.7</td><td>0.40×</td><td>435004</td><td>69412</td></tr>
-<tr><td>matmul</td><td>1251.3</td><td>44.3</td><td>0.04×</td><td>17160</td><td>16932</td></tr>
-<tr><td>sort</td><td>656.7</td><td>610.7</td><td>0.93×</td><td>32752</td><td>33200</td></tr>
-<tr><td>hashmap</td><td>674.8</td><td>596.6</td><td>0.88×</td><td>147808</td><td>82852</td></tr>
-<tr><td>nbody</td><td>1107.7</td><td>1063.3</td><td>0.96×</td><td>16772</td><td>17200</td></tr>
-<tr><td>mandelbrot</td><td>654.4</td><td>1226.2</td><td>1.87×</td><td>16604</td><td>17056</td></tr>
-<tr><td>vecpush</td><td>1255.8</td><td>1119.2</td><td>0.89×</td><td>528644</td><td>529024</td></tr>
-<tr><td>bytes</td><td>990.0</td><td>247.3</td><td>0.25×</td><td>540892</td><td>82720</td></tr>
+<tr><td>hello</td><td>7.0</td><td>7.1</td><td>1.01×</td><td>16580</td><td>17052</td></tr>
+<tr><td>fib</td><td>418.2</td><td>419.5</td><td>1.00×</td><td>16584</td><td>17056</td></tr>
+<tr><td>loopsum</td><td>1321.9</td><td>1133.1</td><td>0.86×</td><td>16564</td><td>17052</td></tr>
+<tr><td>sieve</td><td>572.5</td><td>151.3</td><td>0.26×</td><td>434992</td><td>69284</td></tr>
+<tr><td>matmul</td><td>765.0</td><td>27.0</td><td>0.04×</td><td>17124</td><td>17056</td></tr>
+<tr><td>sort</td><td>268.5</td><td>340.6</td><td>1.27×</td><td>32612</td><td>33068</td></tr>
+<tr><td>hashmap</td><td>255.4</td><td>197.6</td><td>0.77×</td><td>147756</td><td>82720</td></tr>
+<tr><td>nbody</td><td>700.8</td><td>699.0</td><td>1.00×</td><td>16592</td><td>17068</td></tr>
+<tr><td>mandelbrot</td><td>386.9</td><td>388.4</td><td>1.00×</td><td>16568</td><td>17056</td></tr>
+<tr><td>vecpush</td><td>602.0</td><td>487.6</td><td>0.81×</td><td>528816</td><td>529060</td></tr>
+<tr><td>bytes</td><td>495.6</td><td>109.5</td><td>0.22×</td><td>540908</td><td>82464</td></tr>
 </table>
 
-<p>Rust 几何平均（不含 hello/matmul）快 <b>1.44×</b>。WASM 上 SLA 的 mandelbrot 快
-1.87×；loopsum Rust 快
-3.2×，matmul Rust 快
-28.3×。</p>
+<p>Rust 几何平均（不含 hello/matmul）快 <b>1.43×</b>。本轮变化：SLA 的 sort 在 WASM 上反超（1.27×）；
+loopsum 差距从 3.2× 收窄到 1.17×；fib/nbody/mandelbrot 三项基本持平；
+上一版 mandelbrot 的 1.87× 优势不再出现。matmul Rust 快 28.3×，仍是最大差距。</p>
 
 <h2>编译时间</h2>
 <p>每格为 <b>SLA / Rust</b>，单位 ms。</p>
 <h3>冷编译</h3>
 <table>
 <tr><th>bench</th><th>native SLA / Rust</th><th>wasm SLA / Rust</th></tr>
-<tr><td>hello</td><td>306 / 188</td><td>326 / 238</td></tr>
-<tr><td>fib</td><td>281 / 166</td><td>274 / 200</td></tr>
-<tr><td>loopsum</td><td>274 / 158</td><td>282 / 202</td></tr>
-<tr><td>sieve</td><td>1289 / 196</td><td>1142 / 223</td></tr>
-<tr><td>matmul</td><td>70107 / 185</td><td>860 / 257</td></tr>
-<tr><td>sort</td><td>1806 / 228</td><td>1713 / 242</td></tr>
-<tr><td>hashmap</td><td>1180 / 229</td><td>1150 / 244</td></tr>
-<tr><td>nbody</td><td>400 / 228</td><td>306 / 246</td></tr>
-<tr><td>mandelbrot</td><td>294 / 173</td><td>287 / 210</td></tr>
-<tr><td>vecpush</td><td>812 / 183</td><td>752 / 221</td></tr>
-<tr><td>bytes</td><td>840 / 181</td><td>760 / 222</td></tr>
+<tr><td>hello</td><td>144 / 112</td><td>141 / 135</td></tr>
+<tr><td>fib</td><td>158 / 115</td><td>149 / 143</td></tr>
+<tr><td>loopsum</td><td>160 / 124</td><td>152 / 145</td></tr>
+<tr><td>sieve</td><td>643 / 136</td><td>574 / 157</td></tr>
+<tr><td>matmul</td><td>13480 / 131</td><td>2361 / 162</td></tr>
+<tr><td>sort</td><td>834 / 148</td><td>801 / 170</td></tr>
+<tr><td>hashmap</td><td>549 / 136</td><td>516 / 161</td></tr>
+<tr><td>nbody</td><td>247 / 135</td><td>237 / 168</td></tr>
+<tr><td>mandelbrot</td><td>176 / 124</td><td>164 / 144</td></tr>
+<tr><td>vecpush</td><td>411 / 134</td><td>373 / 153</td></tr>
+<tr><td>bytes</td><td>431 / 129</td><td>373 / 149</td></tr>
 </table>
-<p>常规源码 Rust 冷编译更快：native 用时为 SLA 的 0.32×，WASM 为 0.40×。
-matmul native 是异常点：SLA 70.1s vs Rust
-185ms；同源码 SLA WASM 只要 860ms。
-这说明瓶颈在 native LLVM 优化，而不是 SLA 前端。</p>
+<p>常规源码 Rust 冷编译仍更快：native 用时为 SLA 的 0.42×，WASM 为 0.53×（上一版为 0.32×/0.40×，SLA 相对差距收窄）。
+matmul native 仍是异常点：SLA 13.5s vs Rust
+131ms，但已比上一版的 70.1s 快约 5.2×；同源码 SLA WASM 本轮为 2.36s（上一版 0.86s），是本轮唯一变差的冷编译项，待排查。
+瓶颈仍在 native LLVM 优化，而不是 SLA 前端。</p>
 
 <h3>热编译</h3>
 <table>
 <tr><th>bench</th><th>native SLA / Rust</th><th>wasm SLA / Rust</th></tr>
-<tr><td>hello</td><td>184 / 112</td><td>126 / 132</td></tr>
-<tr><td>fib</td><td>176 / 113</td><td>136 / 148</td></tr>
-<tr><td>loopsum</td><td>175 / 118</td><td>127 / 132</td></tr>
-<tr><td>sieve</td><td>944 / 141</td><td>883 / 160</td></tr>
-<tr><td>matmul</td><td>191 / 128</td><td>146 / 159</td></tr>
-<tr><td>sort</td><td>1328 / 153</td><td>1302 / 177</td></tr>
-<tr><td>hashmap</td><td>790 / 133</td><td>741 / 163</td></tr>
-<tr><td>nbody</td><td>179 / 151</td><td>136 / 177</td></tr>
-<tr><td>mandelbrot</td><td>186 / 120</td><td>134 / 144</td></tr>
-<tr><td>vecpush</td><td>569 / 141</td><td>501 / 161</td></tr>
-<tr><td>bytes</td><td>546 / 132</td><td>492 / 150</td></tr>
+<tr><td>hello</td><td>95 / 82</td><td>46 / 93</td></tr>
+<tr><td>fib</td><td>96 / 89</td><td>48 / 104</td></tr>
+<tr><td>loopsum</td><td>97 / 88</td><td>48 / 105</td></tr>
+<tr><td>sieve</td><td>97 / 107</td><td>47 / 112</td></tr>
+<tr><td>matmul</td><td>108 / 99</td><td>68 / 119</td></tr>
+<tr><td>sort</td><td>98 / 120</td><td>48 / 125</td></tr>
+<tr><td>hashmap</td><td>97 / 110</td><td>47 / 116</td></tr>
+<tr><td>nbody</td><td>97 / 114</td><td>48 / 120</td></tr>
+<tr><td>mandelbrot</td><td>94 / 88</td><td>46 / 101</td></tr>
+<tr><td>vecpush</td><td>96 / 104</td><td>48 / 112</td></tr>
+<tr><td>bytes</td><td>97 / 100</td><td>47 / 102</td></tr>
 </table>
-<p>测量前 touch 两边源文件，确保都实际重建。Rust release 默认不开 incremental，为整 crate 重编；SLA 缓存省掉部分阶段。修正后 native SLA 慢 1.2–8.7×（几何 3.1×），WASM SLA/Rust 0.77–7.4×（几何 2.2×）。旧稿的“Rust 约 30ms”是 Cargo no-op，不可比，已废弃。补充：<code>.sla-cache</code> 中可见 <code>reachable/*.plan</code> 与 <code>sab/*.sab</code>，但即使输出已存在，<code>build-exe</code> 仍会重新写出可执行文件（实测 inode 改变）；SLA 没有 Cargo 式“目标已最新则直接返回”的短路，缓存只省掉部分前端/中间产物阶段。</p>
+<p>测量前 touch 两边源文件（内容不变）。Rust release 默认不开 incremental，为整 crate 重编。本轮结论与上一版完全反转：
+native 两边几何平均基本持平（Rust/SLA ≈ 1.02，SLA 在 sort/hashmap/sieve 等较大源码上反而更快），
+WASM 侧 SLA 统一快约 2.24×，且所有负载的 SLA 热编译时间收敛到同一量级（native 约 94–108ms、WASM 约 46–68ms），
+与源码规模无关——这是命中缓存短路的特征。</p>
+<p><b>2026-10-24 修复：零变更不再全量重编。</b>上一版的实测结论“SLA 没有 Cargo 式短路、<code>build-exe</code> 仍会重新写出可执行文件”已被两项修复取代：
+（1）SLA 插件新增整编译新鲜度门——把依赖闭包逐文件做 Wyhash 清单存入 <code>.sla-cache/fresh/</code>，
+内容未变的重建直接跳过整个前端、复用既有产物（可用 <code>SLA_NO_FRESHNESS_CACHE=1</code> 关闭）；
+（2）SA 的并行 CGU 分支（显式 <code>--jobs</code> 且函数数 ≥100）此前从不回写 <code>.sa_cache</code>，
+且插件曾给委派的 SA 命令默认追加 <code>--jobs auto</code>，两处叠加使大项目缓存永远建不起来，现均已修复。
+另行实测：288 模块项目零变更 <code>sla build-exe</code> 由约 0.70s 降到约 0.05s；仅注释变更会重跑前端但 SA 缓存仍命中、产物逐字节不变。</p>
 
 <h2>产物体积与内存</h2>
 <h3>Native 体积（strip 后）</h3>
@@ -176,29 +189,30 @@ strip 后约 328–330KB。默认 release 口径下可部署体积 SLA 约为 Ru
 <h3>体积最优对比（双方各自最小配置）</h3>
 <p>SLA 侧用 <code>--release-fast</code>（<code>--release-small</code> 产物与之相同）并移除 <code>.debug*</code>/<code>name</code>；
 Rust 侧用 <code>profile.size</code>（<code>opt-level="z"</code>、LTO、<code>codegen-units=1</code>、<code>panic="abort"</code>、<code>strip="symbols"</code>）
-再移除 WASM 调试段。两边都额外尝试 <code>wasm-opt 132 -Oz</code>，每项取 strip 与 strip+wasm-opt 的较小值。</p>
+再移除 WASM 调试段。两边都额外尝试 <code>wasm-opt -Oz</code>，每项取 strip 与 strip+wasm-opt 的较小值。</p>
 <table>
 <tr><th>bench</th><th>SLA native</th><th>Rust native</th><th>SLA wasm best</th><th>Rust wasm best</th><th>wasm SLA/Rust</th></tr>
-<tr><td>hello</td><td>9080 KB</td><td>275 KB</td><td>4.4 KB</td><td>31.8 KB</td><td>0.14×</td></tr>
-<tr><td>fib</td><td>9081 KB</td><td>276 KB</td><td>5.6 KB</td><td>32.7 KB</td><td>0.17×</td></tr>
-<tr><td>loopsum</td><td>9081 KB</td><td>276 KB</td><td>5.6 KB</td><td>32.7 KB</td><td>0.17×</td></tr>
-<tr><td>sieve</td><td>9085 KB</td><td>277 KB</td><td>6.7 KB</td><td>33.4 KB</td><td>0.20×</td></tr>
-<tr><td>matmul</td><td>9097 KB</td><td>276 KB</td><td>58.0 KB</td><td>33.0 KB</td><td>1.76×</td></tr>
-<tr><td>sort</td><td>9083 KB</td><td>277 KB</td><td>7.3 KB</td><td>34.3 KB</td><td>0.21×</td></tr>
-<tr><td>hashmap</td><td>9083 KB</td><td>277 KB</td><td>6.7 KB</td><td>34.1 KB</td><td>0.20×</td></tr>
-<tr><td>nbody</td><td>9082 KB</td><td>277 KB</td><td>7.9 KB</td><td>34.2 KB</td><td>0.23×</td></tr>
-<tr><td>mandelbrot</td><td>9081 KB</td><td>276 KB</td><td>5.8 KB</td><td>32.9 KB</td><td>0.18×</td></tr>
-<tr><td>vecpush</td><td>9083 KB</td><td>276 KB</td><td>6.5 KB</td><td>33.4 KB</td><td>0.19×</td></tr>
-<tr><td>bytes</td><td>9083 KB</td><td>276 KB</td><td>6.5 KB</td><td>33.0 KB</td><td>0.20×</td></tr>
+<tr><td>hello</td><td>8908 KB</td><td>275 KB</td><td>1.8 KB</td><td>31.8 KB</td><td>0.06×</td></tr>
+<tr><td>fib</td><td>8908 KB</td><td>276 KB</td><td>2.5 KB</td><td>32.7 KB</td><td>0.08×</td></tr>
+<tr><td>loopsum</td><td>8908 KB</td><td>276 KB</td><td>2.5 KB</td><td>32.7 KB</td><td>0.08×</td></tr>
+<tr><td>sieve</td><td>8912 KB</td><td>277 KB</td><td>3.5 KB</td><td>33.4 KB</td><td>0.10×</td></tr>
+<tr><td>matmul</td><td>8925 KB</td><td>276 KB</td><td>54.5 KB</td><td>33.0 KB</td><td>1.65×</td></tr>
+<tr><td>sort</td><td>8909 KB</td><td>277 KB</td><td>4.0 KB</td><td>34.3 KB</td><td>0.12×</td></tr>
+<tr><td>hashmap</td><td>8909 KB</td><td>277 KB</td><td>3.6 KB</td><td>34.1 KB</td><td>0.11×</td></tr>
+<tr><td>nbody</td><td>8909 KB</td><td>277 KB</td><td>4.7 KB</td><td>34.2 KB</td><td>0.14×</td></tr>
+<tr><td>mandelbrot</td><td>8909 KB</td><td>276 KB</td><td>2.7 KB</td><td>32.9 KB</td><td>0.08×</td></tr>
+<tr><td>vecpush</td><td>8909 KB</td><td>276 KB</td><td>3.3 KB</td><td>33.4 KB</td><td>0.10×</td></tr>
+<tr><td>bytes</td><td>8909 KB</td><td>276 KB</td><td>3.4 KB</td><td>33.0 KB</td><td>0.10×</td></tr>
 </table>
 <ul>
-<li>Native：SLA 9,080–9,097KB vs Rust 274–278KB，几何平均 SLA 大约 32.8×。</li>
-<li>WASM 典型负载（不含 hello/matmul）：SLA 5.6–7.9KB vs Rust 32.7–34.3KB，SLA 小 5.2×。</li>
-<li>matmul 例外：SLA 58.0KB vs Rust 33.0KB，SLA 大 1.76×；<code>wasm-opt -Oz</code> 反而把 SLA matmul 从 58KB 膨胀到 121KB，因此该行取 strip 后的值。</li>
-<li>结论：双方都尽量压体积时，旧说法“WASM 约 5× 小”基本成立，但不能外推到 matmul，也不能用于 native。</li>
+<li>Native：SLA 8,908–8,925KB vs Rust 275–277KB，几何平均 SLA 大约 32×。</li>
+<li>WASM 典型负载（不含 hello/matmul）：SLA 2.5–4.7KB vs Rust 32.7–34.3KB，SLA 几何平均小约 10×（上一版为 5.2×——本轮 <code>wasm-opt -Oz</code> 对 SLA 产物的压缩效果明显更好，如 hello 由 strip 后 5.2KB 再降到 1.8KB）。</li>
+<li>matmul 例外：SLA 54.5KB vs Rust 33.0KB，SLA 大 1.65×。</li>
+<li>结论：双方都尽量压体积时，“WASM 约 5× 小”的旧说法已偏保守，本轮约为 10×；但不能外推到 matmul，也不能用于 native。</li>
 </ul>
 
 <h2>优化等级与变体</h2>
+<p><i>本节（含 matmul 变体与数组扩展性两小节）为 2026-10-22 数据，本轮未重测，数值口径与上文不同，仅作存档参考。</i></p>
 <table>
 <tr><th>bench</th><th>SLA default</th><th>SLA release-fast</th><th>Rust debug</th><th>Rust release</th></tr>
 <tr><td>fib</td><td>2532.0</td><td>460.5</td><td>1350.6</td><td>383.4</td></tr>
@@ -248,50 +262,61 @@ Rust 侧用 <code>profile.size</code>（<code>opt-level="z"</code>、LTO、<code
 4 个进程的 thread-per-connection；Go 为 4 个 <code>net/http</code> 进程。客户端按连接轮询 4 个端口，每档 20,000 请求、2 次重复取中位数，
 每档重启服务器。</p>
 <table>
-<tr><th>并发</th><th>SLA rps</th><th>Rust rps</th><th>Go rps</th><th>SLA P50/P95/P99 ms</th><th>Rust P50/P95/P99 ms</th><th>Go P50/P95/P99 ms</th><th>SLA RSS MB</th><th>Rust RSS MB</th><th>Go RSS MB</th></tr>
-<tr><td>1</td><td>9,691</td><td>22,456</td><td>6,613</td><td>0.08/0.27/0.40</td><td>0.04/0.10/0.24</td><td>0.11/0.38/0.63</td><td>1,119</td><td>9</td><td>34</td></tr>
-<tr><td>16</td><td>41,802</td><td>245,006</td><td>66,356</td><td>0.33/0.62/1.21</td><td>0.04/0.09/0.19</td><td>0.09/0.69/2.17</td><td>1,201</td><td>9</td><td>56</td></tr>
-<tr><td>64</td><td>43,890</td><td>248,965</td><td>81,997</td><td>1.32/2.00/2.48</td><td>0.19/0.45/0.81</td><td>0.16/3.09/8.46</td><td>1,688</td><td>10</td><td>57</td></tr>
-<tr><td>256</td><td>35,688</td><td>222,339</td><td>72,496</td><td>6.57/8.67/9.55</td><td>0.65/2.00/3.52</td><td>0.37/11.32/28.95</td><td>3,640</td><td>12</td><td>60</td></tr>
+<tr><th>并发</th><th>修复前 SLA rps（2026-10-22）</th><th>SLA rps（2026-10-24）</th><th>Rust rps</th><th>Go rps</th><th>SLA P50/P95/P99 ms</th><th>SLA RSS MB</th><th>Rust RSS MB</th><th>Go RSS MB</th></tr>
+<tr><td>1</td><td>9,691</td><td>31,058</td><td>36,017</td><td>13,785</td><td>0.03/0.04/0.06</td><td>19</td><td>9</td><td>35</td></tr>
+<tr><td>16</td><td>17,235</td><td>182,415</td><td>338,816</td><td>99,226</td><td>0.07/0.13/0.16</td><td>19</td><td>9</td><td>54</td></tr>
+<tr><td>64</td><td>11,899</td><td>167,657</td><td>377,740</td><td>113,230</td><td>0.35/0.49/0.81</td><td>20</td><td>10</td><td>56</td></tr>
+<tr><td>256</td><td>5,919</td><td>123,872</td><td>340,513</td><td>105,540</td><td>1.95/2.10/2.34</td><td>21</td><td>12</td><td>60</td></tr>
 </table>
 <ul>
-<li>16/64/256 并发下 Rust 比 SLA 快 <b>5.9×/5.7×/6.2×</b>，Go 快 <b>1.6×/1.9×/2.0×</b>。
-1 并发时 Rust 快 2.3×，Go 反而慢约 0.7×。</li>
-<li>SLA 在 16/64 并发达到 41.8–43.9k，256 并发回落到 35.7k，P50 从 0.08ms 升到 6.57ms。
-Rust 保持 222–249k；Go 在 64 并发约 82k，256 并发回落到约 72k。</li>
-<li><b>RSS 异常</b>：SLA 每请求约 56KB 增长，20k 请求后 c=1 约 1.1GB、c=256 约 3.6GB。
-同一插件由 C 驱动 20k 请求 RSS 不增长，说明是 SLA 运行时/FFI 侧问题，不是插件。
-长跑 80k 请求后 SLA 吞吐会降到 3.7–7.5k。</li>
-<li><b>部署拓扑决定吞吐</b>：同一插件由 C 驱动、单监听器 + 1 worker 原本约 3.1k，
+<li><b>2026-10-24 复测</b>：SLA 在全部并发档位超过 Go（Go/SLA 为 0.44×/0.54×/0.68×/0.85×）；与 Rust 的差距收窄到
+<b>1.2×/1.9×/2.3×/2.7×</b>（c=1/16/64/256）。对比 2026-10-22 修复后（21–24k / 111–137k / 86–90k / 35–40k），
+本轮 SLA 再提升约 1.4×/1.5×/1.9×/3.3×，高并发档改善最明显（4 个进程合计，每档 20,000 请求、2 次取中位数，errors=0）。</li>
+<li><b>RSS 泄漏保持修复状态</b>：修复前 SLA 每请求约 56KB 增长，20k 请求后 c=1 约 1.1GB、c=256 约 3.6GB；
+本轮 SLA RSS 全程约 19–21MB，无随请求数增长。根因见下文<a href="#root-cause">根因</a>。</li>
+<li><b>部署拓扑决定吞吐</b>（2026-10-22 结论，本轮沿用同一拓扑复测）：同一插件由 C 驱动、单监听器 + 1 worker 原本约 3.1k，
 accept 后补 <code>TCP_NODELAY</code> 提升到约 7.4k；4 线程 <code>serve_threaded</code>
 约 4.1k；4 监听器 × 4 线程反而降到 2.3–2.7k。4 个监听器放在同一 SLA 进程只有
-8–12k，拆成 4 个独立进程后达到 35–44k。剩余开销在每请求 poll/池扫描/head 解析/
-<code>setsockopt</code>，SLA 侧另有每请求 ~56KB 增长。</li>
-<li><b>插件修复</b>：SA 主机导出的 <code>pthread_join(int32_t,uint8_t*)</code> 覆盖了
+8–12k，必须拆成 4 个独立进程。</li>
+<li><b>插件修复</b>（2026-10-22）：SA 主机导出的 <code>pthread_join(int32_t,uint8_t*)</code> 覆盖了
 libc 版本，导致 <code>serve_threaded</code> 的 <code>std.Thread.join</code> 立即返回；
 已改为 detach + 原子完成计数。SLA 闭包函数指针需从 vtable 取 code，不能传
 <code>PTR_BYTE_ADD(handle,0)</code>。</li>
-<li>编译/体积：SLA 1.51s、9.31MB；Rust 0.42s、382KB；Go 0.16s（冷 15.6s）、5.88MB。
-SLA 该程序需 <code>sla build</code> + <code>sa build-exe</code> 两步。</li>
+<li>构建：SLA 该程序仍需 <code>sla build</code> + <code>sa build-exe</code> 两步（本轮四台服务器均一次构建成功，含新装的 <code>http-server</code> 插件）。</li>
 </ul>
 
 <h2>结论与建议</h2>
 <ol>
-<li><b>运行时</b>：SLA 0.1.4 在多数负载上比 Rust release 慢 1.5–2×；matmul 差距 30×。
-SLA 的优势集中在无序索引访问（sort）与哈希探测（hashmap），可能与生成代码省略边界检查有关（未做汇编确认）。</li>
-<li><b>WASM</b>：整体差距与 native 接近；mandelbrot 是 SLA 的反例，说明 float 循环的 wasm 代码生成并不总是劣势。</li>
-<li><b>编译</b>：SLA 冷编译慢约 2.5–3×；热编译在大型源码上慢 4–9×，小 WASM 项目已接近持平或略快。matmul native 的 60–70s 是必须修复的回归。
-应优先排查 <code>--release-fast</code> 在固定数组 + 嵌套循环上的 LLVM 优化爆炸，并让缓存覆盖前端/校验。</li>
-<li><b>体积</b>：体积最优配置下 native 仍是 SLA 明显更大（9.1MB vs Rust 约 0.27MB，约 33×）。
-WASM 在双方最优配置下典型负载 SLA 约小 5.2×，但 matmul 反而大约 1.76×；报告体积时必须注明构建配置与是否 strip。</li>
-<li><b>内存</b>：修复 <code>Vec</code> 增长时旧块回收与容量策略；sieve/bytes 的 15–19× RSS 差距会限制边缘部署。</li>
-<li><b>默认构建</b>：默认优化等级大致是 Rust debug 量级（部分负载慢 3–9×），且 matmul/sort 会崩溃；文档应明确要求 <code>--release-fast</code>，
+<li><b>运行时</b>：SLA 在多数负载上比 Rust release 慢约 1.4×（几何平均，native/WASM 一致）；matmul 差距 35.7×。
+SLA 的优势集中在无序索引访问（sort，native/WASM 均反超），可能与生成代码省略边界检查有关（未做汇编确认）；hashmap 本轮与 Rust 持平。</li>
+<li><b>WASM</b>：整体差距与 native 接近；fib/nbody/mandelbrot 与 Rust 持平，loopsum 差距大幅收窄。上一版 mandelbrot 的 SLA 优势本轮未复现，不再作为结论。</li>
+<li><b>编译</b>：冷编译 SLA 仍慢（Rust 用时为其 0.42×/0.53×）；热编译已反转——内容未变的重建由新鲜度门整体短路，
+native 与 Rust 持平、WASM 快约 2.24×，“零变更全量重编”问题已关闭。matmul native 冷编译 13.5s（上一版 70.1s）仍是首要修复目标，
+应继续排查 <code>--release-fast</code> 在固定数组 + 嵌套循环上的 LLVM 优化爆炸；matmul WASM 冷编译本轮回升到 2.36s，亦待排查。</li>
+<li><b>体积</b>：体积最优配置下 native 仍是 SLA 明显更大（约 8.9MB vs Rust 约 0.28MB，约 32×）。
+WASM 在双方最优配置下典型负载 SLA 约小 10×，但 matmul 反而大约 1.65×；报告体积时必须注明构建配置与是否 strip。</li>
+<li><b>内存</b>：修复 <code>Vec</code> 增长时旧块回收与容量策略；sieve/bytes 的 15–20× RSS 差距会限制边缘部署。</li>
+<li><b>默认构建</b>（2026-10-22 数据）：默认优化等级大致是 Rust debug 量级（部分负载慢 3–9×），且 matmul/sort 会崩溃；文档应明确要求 <code>--release-fast</code>，
 并修复聚合类型的默认代码生成。</li>
-<li><b>网络</b>：SLA 当前适合低并发、短生命周期的插件型服务；与 Rust/Go 的吞吐差距明显。
-上线前应优先修复每请求约 56KB 的运行时泄漏，并解决多 worker accept 的共享池锁竞争。</li>
+<li><b>网络</b>：SLA 吞吐本轮再上台阶（c=16 达 182k、c=64 达 168k、c=256 达 124k），已全面超过 Go，与 Rust 的差距收窄到 1.2–2.7×；
+每请求约 56KB 的 RSS 泄漏早已修复（见<a href="#root-cause">根因</a>），本轮 RSS 全程稳定。剩余差距主要在高并发下的延迟（c=256 SLA p50 1.95ms vs Rust 0.43ms），
+下一步应排查多 worker accept 的共享池锁竞争。</li>
 <li><b>后续</b>：数值/WASM 部分只覆盖单线程负载；网络只覆盖 HTTP/1.1 keep-alive。
 async、FFI、包管理等需要单独基准。</li>
 </ol>
+
+<h2 id="root-cause">根因</h2>
+<p><b>修复 1 — 符号绑定</b>：<code>sci/src/runtime/sa_std.zig</code> 给
+<code>mmap/munmap/signal/dlopen/dlsym/dlclose/pthread_join/sqlite3_*</code>
+加上 <code>.visibility = .hidden</code>。插件不再绑定到宿主中什么都不做的桩函数（no-op）。</p>
+<p><b>修复 2 — 分配器</b>：<code>sa_plugin_http_server</code> 的
+<code>HttpServer.init</code> 从 <code>page_allocator</code> 换成 <code>c_allocator</code>，
+这样每个请求不再需要执行一次 mmap 和一次 munmap；WebSocket 帧缓冲也同步替换。</p>
+<p><b>验证</b>：运行 <code>LD_DEBUG=bindings</code>，<code>libhttp-server.so</code>
+的 <code>munmap/mmap64/mremap/pthread_join/malloc</code> 全部绑定到 libc；
+<code>nm -D --defined-only</code> 确认 <code>sa</code> 与 server 均不再导出这些符号；
+测试 <code>pthread-vtable-smoke</code>、<code>sa-std-unit</code>、<code>plugin-host-smoke</code>
+及插件 <code>zig build test</code>（17 pass / 1 skip）全部通过。</p>
 
 <h2>复现</h2>
 <pre><code>npm install -g @slalang/sla
@@ -304,8 +329,14 @@ python3 scripts/bench.py --mode all --runs 7
 python3 scripts/analyze.py &gt; results/analysis.md
 python3 scripts/render_report.py
 cd benchmarks/net
+bash build.sh
 python3 run_bench.py --servers sla,rust,go --concurrency 1,16,64,256 --requests 20000
-python3 summarize.py</code></pre>
+python3 summarize.py
+<p>4 个进程 · 每档 20000 请求（errors=0）<br>
+SLA（2026-10-24）：c=1 31k · c=16 182k · c=64 168k · c=256 124k · RSS 约 19–21MB 稳定<br>
+（2026-10-22 修复后为 21–24k / 111–137k / 86–90k / 35–40k）<br>
+冷/热启动修复提交：sci <code>346f68b9</code>（main）、sa_plugin_sla <code>671b26a7</code> + <code>cc158771</code>（master）；网络根因修复：sci 5f277694、sa_plugin_http_server 5af472f
+<p>RSS：修复前每请求约 56KB 增长（旧版 5000 次请求即达 277MB）；现两轮复测均无增长。</p>
 
 <p>原始数据：<code>results/native.jsonl</code>、<code>results/wasm.jsonl</code>、
 <code>results/compile.jsonl</code>、<code>results/variants.json</code>、

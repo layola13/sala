@@ -2,8 +2,8 @@
   {
     "bench": "hello",
     "lang": "sla",
-    "raw_bytes": 667795,
-    "stripped_bytes": 5292
+    "raw_bytes": 1007586,
+    "stripped_bytes": 2337
   },
   {
     "bench": "hello",
@@ -14,8 +14,8 @@
   {
     "bench": "fib",
     "lang": "sla",
-    "raw_bytes": 669429,
-    "stripped_bytes": 6821
+    "raw_bytes": 1008589,
+    "stripped_bytes": 3261
   },
   {
     "bench": "fib",
@@ -26,8 +26,8 @@
   {
     "bench": "loopsum",
     "lang": "sla",
-    "raw_bytes": 669440,
-    "stripped_bytes": 6826
+    "raw_bytes": 1008616,
+    "stripped_bytes": 3282
   },
   {
     "bench": "loopsum",
@@ -38,8 +38,8 @@
   {
     "bench": "sieve",
     "lang": "sla",
-    "raw_bytes": 670817,
-    "stripped_bytes": 8165
+    "raw_bytes": 1009941,
+    "stripped_bytes": 4569
   },
   {
     "bench": "sieve",
@@ -50,8 +50,8 @@
   {
     "bench": "matmul",
     "lang": "sla",
-    "raw_bytes": 721991,
-    "stripped_bytes": 59378
+    "raw_bytes": 1061118,
+    "stripped_bytes": 55785
   },
   {
     "bench": "matmul",
@@ -62,8 +62,8 @@
   {
     "bench": "sort",
     "lang": "sla",
-    "raw_bytes": 671513,
-    "stripped_bytes": 8862
+    "raw_bytes": 1010518,
+    "stripped_bytes": 5147
   },
   {
     "bench": "sort",
@@ -74,8 +74,8 @@
   {
     "bench": "hashmap",
     "lang": "sla",
-    "raw_bytes": 670854,
-    "stripped_bytes": 8200
+    "raw_bytes": 1010008,
+    "stripped_bytes": 4634
   },
   {
     "bench": "hashmap",
@@ -86,8 +86,8 @@
   {
     "bench": "nbody",
     "lang": "sla",
-    "raw_bytes": 671763,
-    "stripped_bytes": 9151
+    "raw_bytes": 1010888,
+    "stripped_bytes": 5556
   },
   {
     "bench": "nbody",
@@ -98,8 +98,8 @@
   {
     "bench": "mandelbrot",
     "lang": "sla",
-    "raw_bytes": 669655,
-    "stripped_bytes": 7038
+    "raw_bytes": 1008840,
+    "stripped_bytes": 3503
   },
   {
     "bench": "mandelbrot",
@@ -110,8 +110,8 @@
   {
     "bench": "vecpush",
     "lang": "sla",
-    "raw_bytes": 670601,
-    "stripped_bytes": 7947
+    "raw_bytes": 1009772,
+    "stripped_bytes": 4398
   },
   {
     "bench": "vecpush",
@@ -122,8 +122,8 @@
   {
     "bench": "bytes",
     "lang": "sla",
-    "raw_bytes": 670623,
-    "stripped_bytes": 7971
+    "raw_bytes": 1009794,
+    "stripped_bytes": 4422
   },
   {
     "bench": "bytes",

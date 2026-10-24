@@ -1,66 +1,110 @@
-{"bench": "hello", "lang": "sla", "target": "wasm", "run": 1, "ms": 12.993888000437437, "maxrss_kb": 16624, "checksum": "hello, slarust"}
-{"bench": "hello", "lang": "sla", "target": "wasm", "run": 2, "ms": 13.017646999742283, "maxrss_kb": 16584, "checksum": "hello, slarust"}
-{"bench": "hello", "lang": "sla", "target": "wasm", "run": 3, "ms": 14.708571000028314, "maxrss_kb": 16520, "checksum": "hello, slarust"}
-{"bench": "hello", "lang": "rust", "target": "wasm", "run": 1, "ms": 11.464304000128323, "maxrss_kb": 17056, "checksum": "hello, slarust"}
-{"bench": "hello", "lang": "rust", "target": "wasm", "run": 2, "ms": 11.654235000150948, "maxrss_kb": 17024, "checksum": "hello, slarust"}
-{"bench": "hello", "lang": "rust", "target": "wasm", "run": 3, "ms": 10.815533999902982, "maxrss_kb": 17184, "checksum": "hello, slarust"}
-{"bench": "fib", "lang": "sla", "target": "wasm", "run": 1, "ms": 671.094278000055, "maxrss_kb": 16480, "checksum": "102334155"}
-{"bench": "fib", "lang": "sla", "target": "wasm", "run": 2, "ms": 670.6365810000534, "maxrss_kb": 16648, "checksum": "102334155"}
-{"bench": "fib", "lang": "sla", "target": "wasm", "run": 3, "ms": 663.7494899996454, "maxrss_kb": 16648, "checksum": "102334155"}
-{"bench": "fib", "lang": "rust", "target": "wasm", "run": 1, "ms": 631.7538250000325, "maxrss_kb": 17056, "checksum": "102334155"}
-{"bench": "fib", "lang": "rust", "target": "wasm", "run": 2, "ms": 641.8286609996358, "maxrss_kb": 16928, "checksum": "102334155"}
-{"bench": "fib", "lang": "rust", "target": "wasm", "run": 3, "ms": 633.3404819997668, "maxrss_kb": 17188, "checksum": "102334155"}
-{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 1, "ms": 5249.866077000206, "maxrss_kb": 16552, "checksum": "4499999927"}
-{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 2, "ms": 5309.563953000179, "maxrss_kb": 16480, "checksum": "4499999927"}
-{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 3, "ms": 5192.715879999923, "maxrss_kb": 16516, "checksum": "4499999927"}
-{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 1, "ms": 1637.0849449999696, "maxrss_kb": 17068, "checksum": "4499999927"}
-{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 2, "ms": 1623.6755129998528, "maxrss_kb": 16932, "checksum": "4499999927"}
-{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 3, "ms": 1608.254653000131, "maxrss_kb": 17060, "checksum": "4499999927"}
-{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 1, "ms": 1038.9445140003772, "maxrss_kb": 435004, "checksum": "1270607"}
-{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 2, "ms": 987.2580290002588, "maxrss_kb": 434924, "checksum": "1270607"}
-{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 3, "ms": 994.844877000105, "maxrss_kb": 435056, "checksum": "1270607"}
-{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 1, "ms": 395.6671630003257, "maxrss_kb": 69412, "checksum": "1270607"}
-{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 2, "ms": 388.10605199978454, "maxrss_kb": 69284, "checksum": "1270607"}
-{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 3, "ms": 395.9474420003062, "maxrss_kb": 69412, "checksum": "1270607"}
-{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 1, "ms": 1243.2828640003208, "maxrss_kb": 17176, "checksum": "3145728000"}
-{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 2, "ms": 1298.8506339997912, "maxrss_kb": 17160, "checksum": "3145728000"}
-{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 3, "ms": 1251.3145160000931, "maxrss_kb": 17136, "checksum": "3145728000"}
-{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 1, "ms": 46.22188300027119, "maxrss_kb": 16932, "checksum": "3145728000"}
-{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 2, "ms": 41.89239800007272, "maxrss_kb": 17188, "checksum": "3145728000"}
-{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 3, "ms": 44.287335999797506, "maxrss_kb": 16932, "checksum": "3145728000"}
-{"bench": "sort", "lang": "sla", "target": "wasm", "run": 1, "ms": 774.7485489999235, "maxrss_kb": 32732, "checksum": "852488716"}
-{"bench": "sort", "lang": "sla", "target": "wasm", "run": 2, "ms": 641.8670030002431, "maxrss_kb": 32752, "checksum": "852488716"}
-{"bench": "sort", "lang": "sla", "target": "wasm", "run": 3, "ms": 656.704475999959, "maxrss_kb": 32776, "checksum": "852488716"}
-{"bench": "sort", "lang": "rust", "target": "wasm", "run": 1, "ms": 597.0012560001123, "maxrss_kb": 33200, "checksum": "852488716"}
-{"bench": "sort", "lang": "rust", "target": "wasm", "run": 2, "ms": 610.724726999706, "maxrss_kb": 33200, "checksum": "852488716"}
-{"bench": "sort", "lang": "rust", "target": "wasm", "run": 3, "ms": 659.9960710000232, "maxrss_kb": 33072, "checksum": "852488716"}
-{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 1, "ms": 674.8382820001098, "maxrss_kb": 147716, "checksum": "998405507"}
-{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 2, "ms": 649.1419300000416, "maxrss_kb": 147808, "checksum": "998405507"}
-{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 3, "ms": 713.5249580001073, "maxrss_kb": 147808, "checksum": "998405507"}
-{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 1, "ms": 526.4455739998084, "maxrss_kb": 82852, "checksum": "998405507"}
-{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 2, "ms": 596.5592420002395, "maxrss_kb": 82852, "checksum": "998405507"}
-{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 3, "ms": 642.3923759998615, "maxrss_kb": 82852, "checksum": "998405507"}
-{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 1, "ms": 1107.7294439996876, "maxrss_kb": 16516, "checksum": "2611733"}
-{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 2, "ms": 1085.8456050000314, "maxrss_kb": 16772, "checksum": "2611733"}
-{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 3, "ms": 1114.9821750000228, "maxrss_kb": 16816, "checksum": "2611733"}
-{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 1, "ms": 1090.825711999969, "maxrss_kb": 17200, "checksum": "2611733"}
-{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 2, "ms": 1063.3163689999492, "maxrss_kb": 17072, "checksum": "2611733"}
-{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 3, "ms": 1059.1197950002424, "maxrss_kb": 17204, "checksum": "2611733"}
-{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 1, "ms": 654.3739720000303, "maxrss_kb": 16656, "checksum": "123026899"}
-{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 2, "ms": 655.4731209998863, "maxrss_kb": 16604, "checksum": "123026899"}
-{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 3, "ms": 653.5582540000178, "maxrss_kb": 16444, "checksum": "123026899"}
-{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 1, "ms": 1192.0498110002882, "maxrss_kb": 17056, "checksum": "123026899"}
-{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 2, "ms": 1226.2460580000152, "maxrss_kb": 17056, "checksum": "123026899"}
-{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 3, "ms": 1241.5505729995857, "maxrss_kb": 17060, "checksum": "123026899"}
-{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 1, "ms": 1197.4877470001957, "maxrss_kb": 528572, "checksum": "973248007"}
-{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 2, "ms": 1255.7949629999712, "maxrss_kb": 528904, "checksum": "973248007"}
-{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 3, "ms": 1341.5768760000901, "maxrss_kb": 528644, "checksum": "973248007"}
-{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 1, "ms": 1119.1782689998035, "maxrss_kb": 529024, "checksum": "973248007"}
-{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 2, "ms": 1157.987008999953, "maxrss_kb": 528932, "checksum": "973248007"}
-{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 3, "ms": 994.6117439999398, "maxrss_kb": 529188, "checksum": "973248007"}
-{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 1, "ms": 994.703004999792, "maxrss_kb": 540892, "checksum": "863801334"}
-{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 2, "ms": 990.041229000326, "maxrss_kb": 540976, "checksum": "863801334"}
-{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 3, "ms": 944.6960310001487, "maxrss_kb": 540804, "checksum": "863801334"}
-{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 1, "ms": 247.32526099978713, "maxrss_kb": 82720, "checksum": "863801334"}
-{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 2, "ms": 235.93883900002766, "maxrss_kb": 82720, "checksum": "863801334"}
-{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 3, "ms": 252.6102799997716, "maxrss_kb": 82592, "checksum": "863801334"}
+{"bench": "hello", "lang": "sla", "target": "wasm", "run": 1, "ms": 7.442740001351922, "maxrss_kb": 16580, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "wasm", "run": 2, "ms": 7.47590900027717, "maxrss_kb": 16524, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "wasm", "run": 3, "ms": 6.7816390001098625, "maxrss_kb": 16584, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "wasm", "run": 4, "ms": 6.620909000048414, "maxrss_kb": 16436, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "sla", "target": "wasm", "run": 5, "ms": 7.033440999293816, "maxrss_kb": 16624, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "wasm", "run": 1, "ms": 6.914539999343106, "maxrss_kb": 17052, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "wasm", "run": 2, "ms": 7.112440000128117, "maxrss_kb": 17056, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "wasm", "run": 3, "ms": 7.095060000210651, "maxrss_kb": 17052, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "wasm", "run": 4, "ms": 7.2842699992179405, "maxrss_kb": 17056, "checksum": "hello, slarust"}
+{"bench": "hello", "lang": "rust", "target": "wasm", "run": 5, "ms": 7.006820000242442, "maxrss_kb": 16928, "checksum": "hello, slarust"}
+{"bench": "fib", "lang": "sla", "target": "wasm", "run": 1, "ms": 416.0004069999559, "maxrss_kb": 16584, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "wasm", "run": 2, "ms": 420.19950699977926, "maxrss_kb": 16624, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "wasm", "run": 3, "ms": 419.65011799948115, "maxrss_kb": 16568, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "wasm", "run": 4, "ms": 416.5560080000432, "maxrss_kb": 16584, "checksum": "102334155"}
+{"bench": "fib", "lang": "sla", "target": "wasm", "run": 5, "ms": 418.2260559991846, "maxrss_kb": 16432, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "wasm", "run": 1, "ms": 419.4911670001602, "maxrss_kb": 17056, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "wasm", "run": 2, "ms": 419.2925469997135, "maxrss_kb": 17056, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "wasm", "run": 3, "ms": 417.5232870002219, "maxrss_kb": 16892, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "wasm", "run": 4, "ms": 426.39848700127914, "maxrss_kb": 17052, "checksum": "102334155"}
+{"bench": "fib", "lang": "rust", "target": "wasm", "run": 5, "ms": 420.47490699951595, "maxrss_kb": 17056, "checksum": "102334155"}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 1, "ms": 1323.7692909988255, "maxrss_kb": 16484, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 2, "ms": 1321.8521509988932, "maxrss_kb": 16564, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 3, "ms": 1321.116950999567, "maxrss_kb": 16564, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 4, "ms": 1322.795400999894, "maxrss_kb": 16584, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "sla", "target": "wasm", "run": 5, "ms": 1319.4100110013096, "maxrss_kb": 16472, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 1, "ms": 1140.012342000773, "maxrss_kb": 16928, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 2, "ms": 1133.0529820006632, "maxrss_kb": 17056, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 3, "ms": 1131.5457230011816, "maxrss_kb": 16924, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 4, "ms": 1138.0233720010438, "maxrss_kb": 17056, "checksum": "4499999927"}
+{"bench": "loopsum", "lang": "rust", "target": "wasm", "run": 5, "ms": 1131.3314119997813, "maxrss_kb": 17052, "checksum": "4499999927"}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 1, "ms": 559.1602360000252, "maxrss_kb": 435140, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 2, "ms": 574.3481669996982, "maxrss_kb": 434864, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 3, "ms": 574.663896999482, "maxrss_kb": 434992, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 4, "ms": 567.0357169983617, "maxrss_kb": 434992, "checksum": "1270607"}
+{"bench": "sieve", "lang": "sla", "target": "wasm", "run": 5, "ms": 572.4656570000661, "maxrss_kb": 435000, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 1, "ms": 162.10737899928063, "maxrss_kb": 69412, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 2, "ms": 151.34210900032485, "maxrss_kb": 69280, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 3, "ms": 141.58228900123504, "maxrss_kb": 69284, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 4, "ms": 151.37328899982094, "maxrss_kb": 69284, "checksum": "1270607"}
+{"bench": "sieve", "lang": "rust", "target": "wasm", "run": 5, "ms": 136.5624289992411, "maxrss_kb": 69284, "checksum": "1270607"}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 1, "ms": 765.0070750005398, "maxrss_kb": 16948, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 2, "ms": 765.4582239993033, "maxrss_kb": 17124, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 3, "ms": 764.6400249996077, "maxrss_kb": 16984, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 4, "ms": 762.3996849997638, "maxrss_kb": 17224, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "sla", "target": "wasm", "run": 5, "ms": 767.6883849999285, "maxrss_kb": 17200, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 1, "ms": 26.979419999406673, "maxrss_kb": 16928, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 2, "ms": 26.82603999892308, "maxrss_kb": 16928, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 3, "ms": 27.372509999622707, "maxrss_kb": 17060, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 4, "ms": 27.222480001000804, "maxrss_kb": 17056, "checksum": "3145728000"}
+{"bench": "matmul", "lang": "rust", "target": "wasm", "run": 5, "ms": 27.000860000043758, "maxrss_kb": 17056, "checksum": "3145728000"}
+{"bench": "sort", "lang": "sla", "target": "wasm", "run": 1, "ms": 348.46076799840375, "maxrss_kb": 32564, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "wasm", "run": 2, "ms": 338.3579879991885, "maxrss_kb": 32736, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "wasm", "run": 3, "ms": 264.664308000647, "maxrss_kb": 32708, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "wasm", "run": 4, "ms": 245.9602779999841, "maxrss_kb": 32484, "checksum": "852488716"}
+{"bench": "sort", "lang": "sla", "target": "wasm", "run": 5, "ms": 268.5172980000061, "maxrss_kb": 32612, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "wasm", "run": 1, "ms": 365.7157580000785, "maxrss_kb": 32944, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "wasm", "run": 2, "ms": 299.20395800036204, "maxrss_kb": 33072, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "wasm", "run": 3, "ms": 375.612686999375, "maxrss_kb": 33068, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "wasm", "run": 4, "ms": 276.569687999654, "maxrss_kb": 33072, "checksum": "852488716"}
+{"bench": "sort", "lang": "rust", "target": "wasm", "run": 5, "ms": 340.56071799932397, "maxrss_kb": 33068, "checksum": "852488716"}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 1, "ms": 253.9732080003887, "maxrss_kb": 147756, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 2, "ms": 255.36306899994088, "maxrss_kb": 147784, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 3, "ms": 253.4723180015135, "maxrss_kb": 147768, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 4, "ms": 257.16554800055746, "maxrss_kb": 147636, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "sla", "target": "wasm", "run": 5, "ms": 259.13247899916314, "maxrss_kb": 147720, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 1, "ms": 200.273078000464, "maxrss_kb": 82720, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 2, "ms": 197.64738900084922, "maxrss_kb": 82720, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 3, "ms": 195.6661490003171, "maxrss_kb": 82724, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 4, "ms": 192.31449899962172, "maxrss_kb": 82720, "checksum": "998405507"}
+{"bench": "hashmap", "lang": "rust", "target": "wasm", "run": 5, "ms": 198.99268799963465, "maxrss_kb": 82724, "checksum": "998405507"}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 1, "ms": 700.782916001117, "maxrss_kb": 16568, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 2, "ms": 702.1965349995298, "maxrss_kb": 16600, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 3, "ms": 700.3550350000296, "maxrss_kb": 16632, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 4, "ms": 697.8180650003196, "maxrss_kb": 16436, "checksum": "2611733"}
+{"bench": "nbody", "lang": "sla", "target": "wasm", "run": 5, "ms": 701.1458649994893, "maxrss_kb": 16592, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 1, "ms": 698.3949349996692, "maxrss_kb": 17072, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 2, "ms": 697.854856000049, "maxrss_kb": 17072, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 3, "ms": 700.2145450005628, "maxrss_kb": 16944, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 4, "ms": 701.4759149988095, "maxrss_kb": 17068, "checksum": "2611733"}
+{"bench": "nbody", "lang": "rust", "target": "wasm", "run": 5, "ms": 698.9662649993988, "maxrss_kb": 17068, "checksum": "2611733"}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 1, "ms": 387.29277800121054, "maxrss_kb": 16568, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 2, "ms": 386.15332700101135, "maxrss_kb": 16440, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 3, "ms": 388.3341079999809, "maxrss_kb": 16600, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 4, "ms": 386.9284169995808, "maxrss_kb": 16560, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "sla", "target": "wasm", "run": 5, "ms": 386.75430700095603, "maxrss_kb": 16584, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 1, "ms": 387.2638779994304, "maxrss_kb": 17052, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 2, "ms": 388.8351669993426, "maxrss_kb": 17056, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 3, "ms": 387.38883699988946, "maxrss_kb": 17056, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 4, "ms": 388.4394280012202, "maxrss_kb": 17056, "checksum": "123026899"}
+{"bench": "mandelbrot", "lang": "rust", "target": "wasm", "run": 5, "ms": 388.96596700033115, "maxrss_kb": 17052, "checksum": "123026899"}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 1, "ms": 602.4937860001955, "maxrss_kb": 528816, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 2, "ms": 606.1245759992744, "maxrss_kb": 528864, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 3, "ms": 599.408645000949, "maxrss_kb": 528692, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 4, "ms": 601.1975660003372, "maxrss_kb": 528696, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "sla", "target": "wasm", "run": 5, "ms": 602.0018460003485, "maxrss_kb": 528880, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 1, "ms": 487.60748599852377, "maxrss_kb": 529060, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 2, "ms": 492.58805600038613, "maxrss_kb": 529184, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 3, "ms": 492.7303460008261, "maxrss_kb": 529056, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 4, "ms": 486.9564260006882, "maxrss_kb": 529056, "checksum": "973248007"}
+{"bench": "vecpush", "lang": "rust", "target": "wasm", "run": 5, "ms": 487.3819069998717, "maxrss_kb": 529188, "checksum": "973248007"}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 1, "ms": 494.585966998784, "maxrss_kb": 540852, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 2, "ms": 497.2504369998205, "maxrss_kb": 540908, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 3, "ms": 490.2546470002562, "maxrss_kb": 540984, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 4, "ms": 495.6314470000507, "maxrss_kb": 540872, "checksum": "863801334"}
+{"bench": "bytes", "lang": "sla", "target": "wasm", "run": 5, "ms": 498.0203569994046, "maxrss_kb": 540976, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 1, "ms": 110.34756899971399, "maxrss_kb": 82596, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 2, "ms": 109.3471390013292, "maxrss_kb": 82588, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 3, "ms": 109.4816089989763, "maxrss_kb": 82460, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 4, "ms": 110.22309999862046, "maxrss_kb": 82464, "checksum": "863801334"}
+{"bench": "bytes", "lang": "rust", "target": "wasm", "run": 5, "ms": 108.20623899962811, "maxrss_kb": 82464, "checksum": "863801334"}
