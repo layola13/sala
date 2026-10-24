@@ -8,6 +8,12 @@
 <body class="topic">
 <div class="topic-header">插件参考 &gt; http-server — 内嵌 HTTP 服务端</div>
 <h1>http-server — 内嵌 HTTP 服务端</h1>
+<div class="note"><span class="label">状态（2026-10-24）</span>HTTP 服务端<b>内核已内置 sa_std</b>：
+实现位于 sci <code>src/runtime/sa_http_server.zig</code>（随 <code>libsa_std.a</code> 发布，
+46 个 <code>sa_http_server_*</code> 符号），声明位于 <code>sa_std/http_server.sai</code>。
+<b>不需要安装本插件即可使用全部服务端能力</b>；<code>sa_plugin_http_server</code>（v0.3.0 起）
+现只保留框架层封装。插件只是封装接口使用习惯，不代表要将内涵下放到插件
+（见<a href="01_overview.html">总览</a>的架构原则）。</div>
 <div class="note"><span class="label">Zig 0.17</span>本插件使用 <b>Zig 0.17</b> 编译：<code>0.17</code> 分支以 Zig 0.17 构建通过并通过 Zig 单元测试；旧的 0.14.1 分支保留不动。</div>
 
 <p>本页给出 <code>sa_plugin_http_server</code> 的完整参考：安装策略下的 localhost-only 权限边界、

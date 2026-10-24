@@ -10,13 +10,22 @@
 <h1>插件参考总览</h1>
 
 <p>这一页给出 SA 插件体系的整体图景：插件如何声明、如何安装、本章收录了哪些插件。
-读完即可判断某个能力（网络、数据库、UI、运行时）应该由哪个插件提供，以及去哪一页看细节。</p>
+读完即可判断某个能力（网络、数据库、UI、运行时）应该由哪个插件提供，以及去哪一页看细节。注意：网络等基础核心已内置 <code>sa_std</code>（见下方架构原则），并非插件提供。</p>
 
 <div class="note"><span class="label">版本状态</span>截至 2026-10-19，本章收录的全部插件仓库
 （sax、react、mui、vite、tui、wgpu、3dengines、vm、sla、deno、node、bun、pkg、
 http-client、http-server、db、bc2sa）的 <code>0.17</code> 分支均已完成 <b>Zig 0.17</b> 迁移：
 使用 Zig 0.17 构建通过、Zig 单元测试通过，并已用 <code>sa plugin install --dev</code> 验证安装
 （<code>0.17</code> 分支；<code>sci</code> 对应 <code>main</code>）。旧的 0.14.1 分支保留不动。</div>
+
+<div class="note"><span class="label">架构原则（2026-10-24）</span>
+<b>全部基础核心一律内置 sa_std。</b>插件只是封装接口使用习惯（API 熟悉度与人体工学），
+<b>不代表可以把内涵/能力下放到插件</b>。HTTP/1.1 客户端与服务端、HTTP/2、WebSocket、
+TCP/UDP、QUIC/HTTP3、TLS 指纹塑形、SSH（客户端与服务端）、multipart 解析与构建、
+gzip/deflate/brotli 等核心都在 <code>sa_std</code> 内（sci <code>src/runtime/</code>，
+声明在 <code>sa_std/*.sai</code>）：<b>不安装任何插件也能完成全部功能</b>，插件永远不是能力门槛。
+本章收录的插件是这些核心之上的框架层与生态门面（如 vite 编排、deno/node/bun 兼容层），
+其价值在易用性，不在能力本身。涉及核心能力的页面以 sa_std 声明为准。</div>
 
 <h2>什么是 SA 插件</h2>
 <p>SA 插件是一个带清单文件 <code>sap.json</code> 的动态库工程（Zig 构建，产物如 <code>libdb.so</code> / <code>tui.dll</code>），
