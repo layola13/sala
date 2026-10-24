@@ -355,6 +355,11 @@ var TOC = [
         "c": []
        }
       ]
+     },
+     {
+      "t": "插件系统改进：语言前端、dev 模式与确认层",
+      "f": "content/05_plugins/20_system_redesign.html",
+      "c": []
      }
     ]
    }

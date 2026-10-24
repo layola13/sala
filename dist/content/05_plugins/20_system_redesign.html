@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>插件系统改进：语言前端、dev 模式与确认层</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; 插件系统改进：语言前端、dev 模式与确认层</div>
+<h1>插件系统改进：语言前端、dev 模式与确认层</h1>
+
+<div class="note"><span class="label">状态</span>本页是<b>设计稿</b>（2026-10-24 讨论定案），描述插件系统的改进方向，<b>尚未实现</b>。与<a href="../16_policy/01_overview.html">运行时权限与审计</a>一页互为配套：那页定运行时检测层，本页定插件的分类、安装确认与开发模式。</div>
+
+<h2>问题：插件分类里缺了「语言前端」</h2>
+<p>插件系统设计之初只有一种插件形态——注册 CLI 子命令的工具（vm、db 等都是）。SLA 被塞进这个模型是分类错误：SLA 理论上是一门独立语言，它与宿主的关系不是「宿主多一条命令」，而是「宿主多一门源语言」。错位已经产生过真实成本：</p>
+<ul>
+<li><strong>语言前端要猜自己的标准库在哪。</strong>std surface 的发现曾靠 exe 相对路径多候选试探——宿主本应把 std 位置、目标列表、能力信息显式递给前端，试探是接口缺失的症状。</li>
+<li><strong>语言的用户体验被切成两段。</strong>检查 SLA 代码要敲 <code>sa sla check</code>（宿主命令 → 插件子命令 → 插件自己的子命令），<code>.sla</code> 因此是二等源文件，<code>.sa</code> 才是一等。</li>
+<li><strong>编译器级职责在插件里重造。</strong>freshness gate、缓存键这套编译管线基础设施长在 SLA 插件内部；将来有第二个前端还得再造一遍。</li>
+</ul>
+<p>解法不是给 SLA 开隐藏特例（<code>if name == "sla"</code> 是最差解），而是把插件分类补全。</p>
+
+<h2>改进一：插件分 kind，SLA 成为语言前端</h2>
+<table>
+<tr><th>kind</th><th>成员</th><th>与宿主的契约</th></tr>
+<tr><td><code>command</code></td><td>vm、db、框架包装类插件（现状，不动）</td><td>注册 CLI 子命令，动态命令分发 ABI</td></tr>
+<tr><td><code>language</code>（新增）</td><td>SLA（第一个，也是目前唯一一个）</td><td>编译服务协议，见下</td></tr>
+</table>
+<ul>
+<li><strong>manifest 前端声明</strong>：kind、拥有的扩展名（<code>.sla</code>）、语言版本、兼容的 SA 版本范围、编译入口。</li>
+<li><strong>宿主按扩展名分发</strong>：<code>sa check app.sla</code>、<code>sa build-exe app.sla</code>、<code>sa build-wasm app.sla</code> 一步直达——宿主认出扩展名属于某语言前端，先调它降级为 SA/SAB，再在同一次调用里走完剩余管线，诊断合并输出（现有 JSON 结构化格式）。<code>sa sla *</code> 双层命令过渡期保留并打弃用提示，最终删除；独立的 <code>sla</code> 命令保留为薄别名。</li>
+<li><strong>前端契约是编译服务，不是子命令</strong>：宿主显式递入源文件、目标三元组、std 目录、当前能力与策略上下文；前端返回 SA/SAB 产物 + 结构化诊断 + 缓存键信息。宿主知道的，前端不许再猜。</li>
+<li><strong>缓存上提</strong>：内容哈希 + 依赖图的新鲜度机制改造成宿主通用缓存服务，前端声明输入输出即可消费；SLA 的 freshness gate 是第一个用户。</li>
+<li><strong>版本与测试按语言规格对待</strong>：前端 ABI 变更算工具链事件（附迁移说明）；宿主的四后端矩阵把「经 SLA 前端」作为一等路径运行。分类按 SLA 的真实需求裁剪，不为想象中的第二个语言预留抽象。</li>
+</ul>
+
+<h2>改进二：dev 模式与正式模式——分工保留，顺序不动</h2>
+<p>先把现状说清（sci <code>plugins.zig</code> 的实际判定）：</p>
+<table>
+<tr><th></th><th>正式模式（默认）</th><th>dev 模式（<code>SA_PLUGIN_DEV=1</code>）</th></tr>
+<tr><td>安装</td><td>manifest 声明的权限经确认，渲染成 <code>permissions.lock</code> 锁存于安装目录</td><td><code>sa plugin install --dev &lt;目录&gt;</code> 从本地源码目录直装，lock 带 dev 标记</td></tr>
+<tr><td>运行</td><td>特权插件三条缺一不可：lock 存在、运行时沙箱/broker 执法激活、且不是 dev 装的（dev 装的在正式模式下被点名单独拒绝）</td><td>环境变量置位即视为可信开发环境，正式模式拦截整体豁免</td></tr>
+<tr><td>信任假设</td><td>插件是外来代码：先声明、经确认、上锁、运行时被执法</td><td>代码是你自己的：安全靠「你信它」而非执法</td></tr>
+</table>
+<p><strong>定案：两套权限不冲突，都保留。</strong>一度担心 <code>permissions.lock</code> 与<a href="../16_policy/01_overview.html">运行时权限系统</a>重叠要合并，这是误判——两者本义不同：</p>
+<ul>
+<li><code>permissions.lock</code> 是<strong>安装时确认层</strong>：类 APK 安装时向用户确认权限，定的是插件「最多能要什么」的上限。</li>
+<li>运行时权限系统是<strong>运行时检测层</strong>：这次运行实际放行什么，由策略、上下文与一次性令牌在效果发生时逐次检测。</li>
+<li>运行时实际放行 = 两层<strong>交集</strong>：运行时策略不能放大安装时未确认的权限；与「授权自上而下、只能收紧」是同一原则的两个实例。</li>
+</ul>
+<p><strong>dev 模式先保留。</strong>它与新权限系统的张力是真实的（一个关掉执法的环境变量 vs 「任何运行状态都要有出处明确的策略」），但处理顺序锁死、不许跳步：前端 kind 落地 → 运行时权限系统一期落地 → dev 的替代物（官方 <code>dev</code> 预置策略：一行启用、走同一套审计；以及<strong>工作区插件声明</strong>：项目配置里显式声明以某目录为某插件的工作区版本，入仓可 review）在我们自己的工作流里跑成熟 → 才有资格谈删 dev。保留期间一条纪律：<strong>新功能不许再建在 dev 模式之上</strong>，存量用法冻结，迁移面只减不增。</p>
+
+<h2>改进三：失败诊断要为大模型而写</h2>
+<p>开发过程中操作工具链的往往是 LLM：插件安装/运行为什么失败、失败后如何切 dev，必须由报错自己讲清。规范三段齐全：</p>
+<ol>
+<li><strong>原因</strong>：哪道门拦的、具体哪一项（lock 缺失 / dev 装的插件进了正式模式 / 沙箱未激活），带机器可读错误码，沿用现有结构化诊断格式。</li>
+<li><strong>开发路径补救</strong>：可直接执行的命令——<code>SA_PLUGIN_DEV=1 sa plugin install --dev &lt;目录&gt;</code>，连验证命令（<code>sa plugin list</code>）一起给，抄了就能走通。</li>
+<li><strong>正式路径补救</strong>：如何确认权限、如何正式重装，给全步骤。</li>
+</ol>
+<div class="warning"><span class="label">警告</span>报错文案是在训练操作者的行为。若每条失败都只推 dev 一条路，大模型会学成「凡失败先套 dev」，正式模式将被报错自己架空。因此补救必须分场景标注：dev 路径永远带「only for trusted development」的警告，正式路径给全步骤——操作者按上下文选，不按省事选。现状是做了一半：dev-installed 那条报错原因与补救俱全，permissions.lock missing 那条只有原因、没有下一步，需按此规范补齐。</div>
+
+<h2>改进四：确认层归宿主，与分发渠道解耦</h2>
+<p>插件目前尚未正式发布到任何包仓库，这里先把模型定对：<strong>权限确认是宿主（sa 运行时）的职责，不是分发渠道的职责</strong>。以 npm 为例——npm 的模型是「装即信任」：权限至多在 package.json 里自述，安装脚本自动执行，全程没有对话确认。若把确认绑在某个渠道的安装流程上，换渠道即破防。</p>
+<ul>
+<li><strong>确认时机改为宿主首次加载</strong>：插件无论从哪来（<code>sa plugin install</code>、npm、手动拷贝、git），到了宿主这里走同一道门——manifest 声明与已存 lock 一致则加载；无 lock 则触发确认并生成 lock。</li>
+<li><strong>声明变更必须重新确认</strong>：插件升级新增权限声明，旧 lock 覆盖不了新增部分。这是从 Android/Chrome「更新加权限重提示」学到的核心一条。</li>
+<li><strong>非交互环境没有对话可弹</strong>：走显式确认命令（如 <code>sa plugin confirm &lt;name&gt;</code>）+ 明确报错，由操作者主动执行。<strong>绝不静默通过</strong>——没有确认记录就是不加载。</li>
+<li><strong>将来走 npm 的铁律</strong>：包在 npm 安装期必须惰性——只落文件、不执行任何代码（postinstall 在确认之前运行且带用户全权，是洞）。代码第一次执行只能发生在宿主确认并加载插件时。</li>
+</ul>
+
+<h2>分期汇总</h2>
+<table>
+<tr><th>期</th><th>内容</th></tr>
+<tr><td>一期</td><td>插件 kind + 前端编译服务契约 + 宿主按扩展名分发（<code>sa check app.sla</code> 直达）；失败诊断按三段规范补齐</td></tr>
+<tr><td>二期</td><td>缓存服务上提；<code>sa sla *</code> 弃用并删除；确认时机迁移到首次加载，声明变更重确认</td></tr>
+<tr><td>三期</td><td>（随运行时权限系统一期之后）dev 预置策略 + 工作区插件声明上线并跑成熟，再议 dev 模式的去留</td></tr>
+</table>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

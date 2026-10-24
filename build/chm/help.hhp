@@ -73,6 +73,7 @@ Default Font=微软雅黑,9,0
 ../dist/content/05_plugins/16_db.html
 ../dist/content/05_plugins/17_bc2sa.html
 ../dist/content/05_plugins/18_ffi_vs_bc2sa.html
+../dist/content/05_plugins/20_system_redesign.html
 ../dist/content/10_db/01_overview.html
 ../dist/content/10_db/02_cli.html
 ../dist/content/10_db/03_api.html

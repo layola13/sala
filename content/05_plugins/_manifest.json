@@ -263,6 +263,32 @@
         "选型"
       ],
       "parent": "bc2sa"
+    },
+    {
+      "id": "system-redesign",
+      "title": "插件系统改进：语言前端、dev 模式与确认层",
+      "file": "20_system_redesign.html",
+      "keywords": [
+        "插件系统",
+        "语言前端",
+        "kind",
+        "language",
+        "SLA 前端",
+        "扩展名分发",
+        "sa sla check",
+        "dev 模式",
+        "SA_PLUGIN_DEV",
+        "正式模式",
+        "permissions.lock",
+        "安装时确认",
+        "运行时检测",
+        "诊断",
+        "大模型",
+        "npm",
+        "首次加载确认",
+        "工作区插件"
+      ],
+      "parent": "overview"
     }
   ]
 }
