@@ -9,7 +9,7 @@
 <div class="topic-header">插件参考 &gt; 插件系统改进：语言前端、dev 模式与确认层</div>
 <h1>插件系统改进：语言前端、dev 模式与确认层</h1>
 
-<div class="note"><span class="label">状态</span>本页是<b>设计稿</b>（2026-10-24 讨论定案），描述插件系统的改进方向，<b>尚未实现</b>。与<a href="../16_policy/01_overview.html">运行时权限与审计</a>一页互为配套：那页定运行时检测层，本页定插件的分类、安装确认与开发模式。</div>
+<div class="note"><span class="label">状态</span>本页是<b>设计稿</b>（2026-10-24 讨论定案）。<b>实现进度（2026-10-25）：</b>诊断规范已落地——正式模式三处拦截统一三段式（机器可读代码 SA-PLUGIN-PERMISSIONS-LOCK-MISSING / SA-PLUGIN-DEV-INSTALL-IN-FORMAL-MODE / SA-PLUGIN-SANDBOX-NOT-ENFORCED + 分场景补救），sci a4bab4b2；插件 kind 字段已落地——sap.json 可声明 <code>kind: language</code> 与 <code>extensions</code>，缺省 command，非法值拒绝（sci 79e7505d）。扩展名分发、编译服务契约、宿主缓存服务与首载确认仍未实现。与<a href="../16_policy/01_overview.html">运行时权限与审计</a>一页互为配套：那页定运行时检测层，本页定插件的分类、安装确认与开发模式。</div>
 
 <h2>问题：插件分类里缺了「语言前端」</h2>
 <p>插件系统设计之初只有一种插件形态——注册 CLI 子命令的工具（vm、db 等都是）。SLA 被塞进这个模型是分类错误：SLA 理论上是一门独立语言，它与宿主的关系不是「宿主多一条命令」，而是「宿主多一门源语言」。错位已经产生过真实成本：</p>
