@@ -41,6 +41,7 @@ SECTIONS = [
     {"dir": "08_faq",         "title": "FAQ 与故障排查"},
     {"dir": "14_zig017_perf", "title": "Zig 0.17 升级对比"},
     {"dir": "15_sa2c", "title": "sa→C 后端"},
+    {"dir": "16_policy", "title": "运行时权限与审计"},
 ]
 
 
