@@ -75,7 +75,7 @@
 <tr><td>D9</td><td>VM 工具面（find 类工具调用 + 策略门/一次性令牌）</td><td>16_policy、D7</td><td>D7</td><td>已落地 2026-10-25（09_vm_tools 三场景全绿：allow-list / deny 状态 10 / ask+一次性令牌且审计恰 2 条 token 放行；SA_POLICY_TOKENS_JSON 投递面 + sa_ts_node_byte_range 随之入 sci）</td></tr>
 <tr><td>D10</td><td>静态与产物服务（静态文件、缓存头）</td><td>http_server、fs</td><td>D2</td><td>已落地 2026-10-25（10_static_server 全绿：白名单静态服务 + 内容类型/缓存头分层 + 穿越 404，curl 六项核对）</td></tr>
 <tr><td>D11</td><td>free-key 服务（密钥池轮换、限流、健康检查）</td><td>http_server、http_client</td><td>D2</td><td>已落地 2026-10-25（11_freekey_server 全绿：轮换/失败标记/健康/429 限流/reset 十二步 curl 核对）</td></tr>
-<tr><td>D12</td><td>前端微缩（SAX 页面经 airlock 与 SLA 后端 WS 对话一轮 token 流）</td><td>SAX、ws</td><td>D2</td><td>待开工</td></tr>
+<tr><td>D12</td><td>前端微缩（SAX 页面经 airlock 与 SLA 后端 WS 对话一轮 token 流）</td><td>SAX、ws</td><td>D2</td><td>已落地 2026-10-25（12_frontend_mini：page.sax 真实构建出束 + SLA 后端 WS token 流 + 同协议客户端组装校验；airlock 无 WS 桥为已知缺口，见缺口表）</td></tr>
 </table>
 
 <h2>缺口记账表（滚动）</h2>
@@ -90,6 +90,7 @@
 <tr><td>2026-10-25</td><td>tree-sitter 未接入</td><td>sa_std</td><td>已关闭（P0-4 落地）</td></tr>
 <tr><td>2026-10-25</td><td>for-in / 枚举 match / @derive 未进 direct</td><td>SLA 编译器</td><td>P0-5</td></tr>
 <tr><td>2026-10-25</td><td>SLA capability 形参：用户函数不能收 &局部数组 作 ptr 形参（TypeMismatch），通行式 = 结构体包缓冲 + &Struct 引用形参</td><td>SLA</td><td>P0-5 评估</td></tr>
+<tr><td>2026-10-25</td><td>SAX airlock 无 WebSocket 桥：页面组件不能直连 WS，D12 以同协议 SLA 客户端替身验证流式往返</td><td>SAX</td><td>P3 前端课题</td></tr>
 <tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>已全部关闭（TOML 见 P0-6；bcrypt / keyring 见 sa_crypto，D8 已落地）</td></tr>
 <tr><td>2026-10-25</td><td>15 个插件 build.zig 以 ../sci 引宿主模块、重定位不通</td><td>插件生态</td><td>与本重构并行治理，逐仓自包含化</td></tr>
 <tr><td>2026-10-25</td><td>SLA 标准面缺 (ptr,len) 字节比较：extern 返回的路径/帧数据无法直接与字面量比较，演示须自带 byteseq.sa 指针出参宏（D2 撞点）</td><td>SLA / sa_std</td><td>后续项：sa_std 增补 SLA 可直接调用的 bytes_eq 类工具面</td></tr>
