@@ -63,7 +63,7 @@
 <p>「先写各种 demos，就是提炼 CXU 里面的各种模块，改进 SLA/SA。」——在全面迁移之前，先把 CXU 的每个模块提炼成一个可独立运行的 SLA/SA 演示程序：演示通过 = 该模块所需的 sa_std 与 SLA 能力被实证；演示撞墙 = 撞墙点即 SLA/SA 的改进项，先补地基再继续。演示放在 sa_plugin_sla 的 demos/cxu/ 下（SA 级演示随 sci demos 惯例），每个演示在下表记账：对应模块、用到的能力面、结果、催生的改进项。</p>
 <table>
 <tr><th>演示</th><th>提炼自 CXU 模块</th><th>能力面</th><th>前置</th><th>状态</th></tr>
-<tr><td>D1</td><td>双向 stdio 桥内核（各 CLI 桥的公共底座：spawn + 行分帧 JSON-RPC 一轮问答）</td><td>process bidi、io、JSON</td><td>P0-1</td><td>待开工</td></tr>
+<tr><td>D1</td><td>双向 stdio 桥内核（各 CLI 桥的公共底座：spawn + 行分帧 JSON-RPC 一轮问答）</td><td>process bidi、io、JSON</td><td>P0-1</td><td>已落地 2026-10-25（sa_plugin_sla 6b70f177，demos/cxu/01_bridge_stdio：编译运行输出 d1 bridge stdio ok、@test 绿）</td></tr>
 <tr><td>D2</td><td>HTTP/WS/SSE 服务面（路由、WS 广播、SSE 流）</td><td>http_server、ws、sse（均内置）</td><td>—</td><td>待开工</td></tr>
 <tr><td>D3</td><td>会话与持久化（SQLite 会话/历史存取 + JSON 往返）</td><td>db 插件、encoding/json</td><td>—</td><td>待开工</td></tr>
 <tr><td>D4</td><td>配置面（TOML 解析 + env 覆盖 + 校验）</td><td>TOML</td><td>P0-6</td><td>待开工</td></tr>
