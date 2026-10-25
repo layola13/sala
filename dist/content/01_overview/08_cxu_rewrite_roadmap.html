@@ -64,7 +64,7 @@
 <table>
 <tr><th>演示</th><th>提炼自 CXU 模块</th><th>能力面</th><th>前置</th><th>状态</th></tr>
 <tr><td>D1</td><td>双向 stdio 桥内核（各 CLI 桥的公共底座：spawn + 行分帧 JSON-RPC 一轮问答）</td><td>process bidi、io、JSON</td><td>P0-1</td><td>已落地 2026-10-25（sa_plugin_sla 6b70f177，demos/cxu/01_bridge_stdio：编译运行输出 d1 bridge stdio ok、@test 绿）</td></tr>
-<tr><td>D2</td><td>HTTP/WS/SSE 服务面（路由、WS 广播、SSE 流）</td><td>http_server、ws、sse（均内置）</td><td>—</td><td>待开工</td></tr>
+<tr><td>D2</td><td>HTTP/WS/SSE 服务面（路由、WS 广播、SSE 流）</td><td>http_server、ws、sse（均内置）</td><td>—</td><td>已落地 2026-10-25（sa_plugin_sla 0766758f，demos/cxu/02_http_ws_sse：hello JSON / SSE 三 tick / WS 回显，run.sh 全绿）</td></tr>
 <tr><td>D3</td><td>会话与持久化（SQLite 会话/历史存取 + JSON 往返）</td><td>db 插件、encoding/json</td><td>—</td><td>待开工</td></tr>
 <tr><td>D4</td><td>配置面（TOML 解析 + env 覆盖 + 校验）</td><td>TOML</td><td>P0-6</td><td>待开工</td></tr>
 <tr><td>D5</td><td>终端 PTY（shell 会话、resize、回显）</td><td>term/PTY</td><td>P0-2</td><td>待开工</td></tr>
@@ -87,6 +87,8 @@
 <tr><td>2026-10-25</td><td>for-in / 枚举 match / @derive 未进 direct</td><td>SLA 编译器</td><td>P0-5</td></tr>
 <tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>P0-6 / P2</td></tr>
 <tr><td>2026-10-25</td><td>15 个插件 build.zig 以 ../sci 引宿主模块、重定位不通</td><td>插件生态</td><td>与本重构并行治理，逐仓自包含化</td></tr>
+<tr><td>2026-10-25</td><td>SLA 标准面缺 (ptr,len) 字节比较：extern 返回的路径/帧数据无法直接与字面量比较，演示须自带 byteseq.sa 指针出参宏（D2 撞点）</td><td>SLA / sa_std</td><td>后续项：sa_std 增补 SLA 可直接调用的 bytes_eq 类工具面</td></tr>
+<tr><td>2026-10-25</td><td>http_server.sai 未注明 v2 WebSocket 的 poll 驱动契约（read 返回 would_block=1 须 poll 重试）与 upgrade 消费请求句柄的所有权（D2 撞点）</td><td>sci 文档</td><td>后续项：.sai 注释补契约说明</td></tr>
 </table>
 
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
