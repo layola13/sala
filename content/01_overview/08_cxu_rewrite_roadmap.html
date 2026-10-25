@@ -38,6 +38,7 @@
 <li><strong>形态</strong>：新 SLA workspace（布局效 scodex-mini 的 packages 分包）：config（TOML/env）、bridge-core（双向 spawn + JSON-RPC 分帧/多路复用）、http-ws-server（基于 sa_std 内置服务器的路由与会话层）、codex-bridge（对 codex app-server 的完整协议适配）、store（SQLite 经 node 插件 sqlite 门面的会话/历史持久化）。</li>
 <li><strong>验收</strong>：真实 codex CLI 经 SLA 后端跑通一轮完整对话（发起、流式事件、工具调用、打断、恢复）；现有 React 前端不改代码指向 SLA 后端可正常使用（API 面子集对齐）；与 TS 版同场景行为对照表逐项勾验。</li>
 <li><strong>产出</strong>：一份「撞墙清单」——试点期撞到的全部 Unsupported/缺失能力与绕行成本，回填 P0/P2 排期。</li>
+<li><strong>进展 2026-10-25</strong>：目标仓 layola13/slacxu 已建首提交（11b7128）：workspace 脚手架 + packages/cxu-bridge 纵切一号——CXU_AGENT_CMD 选子进程的双向 stdio 泵（源自 D1），cat 回显与 fake-agent 固定应答双轮冒烟全绿。下一刀：多行多轮泵送 + 真实 codex 接入（需在 Colab 侧备 codex CLI 与登录）。</li>
 </ul>
 
 <h2>P2 后端全面迁移</h2>
