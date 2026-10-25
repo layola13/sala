@@ -45,5 +45,15 @@
 <li>试点通过后再评估全面迁移的排期；前端维持 React 不动。</li>
 </ol>
 
+<h2>附：tree-sitter 的接入路径</h2>
+<p>CXU 的代码智能层（saVmTreeSitter.ts 约 2700 行 + saVmCodeGraph.ts 约 1300 行：文件大纲、定义查找、代码图谱）建立在 tree-sitter 上（当前用 web-tree-sitter + tree-sitter-wasms 的 WASM 构建）。SA 生态目前零 tree-sitter 痕迹。接入的关键事实：<b>tree-sitter 的核心是 C 库</b>（tree_sitter/api.h），Rust 的 tree_sitter crate 只是对同一 C ABI 的封装；每个语法（grammar）导出一个 C 符号 <code>tree_sitter_&lt;lang&gt;()</code>，其 parser.c 是生成的 C 代码。故不需要 Rust ABI（它也不稳定、不可直接链），按 SA 既有的第三方 C 库接入范式走即可——与 SSH（dlopen libssh2/libssh）、QUIC（dlopen ngtcp2/nghttp3）、brotli 完全同形。</p>
+<ul>
+<li><strong>落点（按「基础核心内置」方针）</strong>：sci 新增 runtime 模块 sa_tree_sitter.zig 进 sa_std，dlopen libtree-sitter 核心库，对外 <code>sa_ts_*</code> extern + 随 sci 发布 tree_sitter.sai 声明（与 ssh.sai 26 导出的形态一致）；库缺失时显式 UNSUPPORTED（同 SSH 在 js/c/wasm 的处理），不静默降级。</li>
+<li><strong>API 面</strong>：extern 层薄封装 C API——parser 构造/析构、set_language、parse（字符串与回调两种输入）、tree/root、节点导航（type/text/child/named_child/start_byte/行列点）、query 编译与 captures（大纲/定义查找靠它）；SLA 层再包成托管句柄（Tree 存活期管住 Node 读用，与 sa_http 流句柄同纪律）。增量解析（ts_tree_edit + 重解析）列二期，一期全量解析对齐 CXU 当前用法。</li>
+<li><strong>语法供应链</strong>：每个语言的 parser.c（+ 可选 scanner.c）编成 libtree-sitter-&lt;lang&gt;.so，宿主按需 dlopen 其入口符号；CXU 在用的 tree-sitter-wasms 是同一 parser.c 的 WASM 构建，原生侧不能复用、须走原生 .so 构建管线（语法仓都提交了生成的 parser.c，一次管线建成后逐语言只是加条目）。语法 ABI 版本（LANGUAGE_VERSION）与核心库支持区间不匹配必须显式报错（ts_language_version 可查）。核心内置、语法按文件加载：CXU 首批需要的语言随 std 出，更多语言放文件即可扩展，不必重编 std。</li>
+<li><strong>不选的路</strong>：把 tree-sitter CLI（Rust 二进制）当子进程调——今天就能用（process spawn 已齐），但每次解析起进程 + S 表达式文本回解析，只配做临时验证，不作正式接入。</li>
+<li><strong>工作量参照</strong>：与 SSH 接入同量级（一个 runtime 模块 + 数十 extern + 声明文件 + 回环测试），语法构建管线另计。</li>
+</ul>
+
 </body>
 </html>
