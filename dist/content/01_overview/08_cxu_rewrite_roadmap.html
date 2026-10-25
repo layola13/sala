@@ -28,7 +28,7 @@
 <tr><td>P0-1</td><td><strong>双向 spawn</strong>：sa_std 给 spawn 家族加 stdin 管道变体（SpawnResult 增 stdin 句柄 + write/close 语义），process.sai 声明同步，策略门（16_policy 的 run 类别）走同一漏斗。</td><td>sa-std-unit 新增往返用例：spawn cat、写 stdin、关闭、读回显一致；全套串行回归绿。</td><td>已完成（2026-10-25，sci 94c4f654：spawn_bidi/spawn_bidi_cwd + stdin owned_fd 句柄；C 驱动往返测试绿；Windows 侧登记为文档化缺口待补）</td></tr>
 <tr><td>P0-2</td><td><strong>PTY 内置</strong>：sa_std 基于 posix_openpt/grantpt/unlockpt（或 forkpty）提供 PTY 主端：open/spawn-in-pty/read/write/resize/close，term.sai 增声明。</td><td>单测：PTY 里跑 shell、回显与 resize 生效；对应 CXU terminalPty 的最小行为集。</td><td>已落地 2026-10-25（sci sa_pty.zig：openpty+fork+setsid/TIOCSCTTY+execvp，spawn 过 16_policy run 闸；sa-std-unit 136/136 含三组 PTY 用例；D5 已落地）</td></tr>
 <tr><td>P0-3</td><td><strong>fs watch</strong>：sa_std inotify 封装（watch add/remove + 事件读：create/modify/delete/move，含目录递归的 SLA 层封装）。</td><td>单测：临时目录内改文件能收到对应事件；CXU 18 处 fs.watch 用法逐一对上语义。</td><td>已落地 2026-10-25（sci sa_fs_watch.zig：inotify 非阻塞 + 内部缓冲逐事件递交，add 过 policy fs 读闸；sa-std-unit 138/138 含两组用例；D6 已落地。目录递归由 SLA 层封装，后续按需）</td></tr>
-<tr><td>P0-4</td><td><strong>tree-sitter 内置</strong>：sa_tree_sitter.zig dlopen 核心库（sa_ts_* + tree_sitter.sai），语法 .so 构建管线；首批语法以 CXU VM 工具实际映射的语言为准。</td><td>单测：解析一份源文件、节点遍历与 query captures 结果与 C 参考一致；大纲提取冒烟。</td><td>未开始（路径已审，见审核页附录）</td></tr>
+<tr><td>P0-4</td><td><strong>tree-sitter 内置</strong>：sa_tree_sitter.zig dlopen 核心库（sa_ts_* + tree_sitter.sai），语法 .so 构建管线；首批语法以 CXU VM 工具实际映射的语言为准。</td><td>单测：解析一份源文件、节点遍历与 query captures 结果与 C 参考一致；大纲提取冒烟。</td><td>已落地 2026-10-25（核心 v0.25.10 + typescript 语法 v0.23.2 构件入 sci/artifacts/tree_sitter，dlopen 加载、ABI 校验 13..15；sa-std-unit 140/140；增量解析与 query captures 为二期）</td></tr>
 <tr><td>P0-5</td><td><strong>SLA 编译器阻塞特性</strong>：for-in 集合迭代（原 Phase 6）、枚举 payload / match 提取与 @derive（原 Phase 5）进入 direct 路径。</td><td>sla 测试套件新增对应单元用例双后端一致；build-exe 313 分母的通过数显著上升并记录新快照。</td><td>未开始</td></tr>
 <tr><td>P0-6</td><td><strong>文本与小件</strong>：TOML 解析（codex config.toml 刚需，入 sa_std 文本层或 sla_std 库，二选一在开工时定）、bcrypt 口令哈希（SLA 纯实现）、keyring（FFI libsecret / 平台 API，排到 P2 认证真正需要时）。</td><td>TOML：以真实 config.toml 样本做往返解析测试；bcrypt：标准向量校验。</td><td>进行中：TOML 已落地 2026-10-25（sci sa_toml.zig，13 个 sa_toml_* extern + encoding/toml.sai；点分路径取值、日期时间保真、重复键硬错误；sa-std-unit 133/133 含三组 TOML 用例）；bcrypt / keyring 待后续</td></tr>
 </table>
@@ -70,7 +70,7 @@
 <tr><td>D4</td><td>配置面（TOML 解析 + env 覆盖 + 校验）</td><td>TOML（已内置 sa_std）</td><td>P0-6</td><td>已落地 2026-10-25（sa_plugin_sla demos/cxu/04_config：fs 读入 codex 风格 config.toml、sa_toml 点分路径断言、CXU_MODEL env 覆盖优先，run.sh + python tomllib 独立核对全绿）</td></tr>
 <tr><td>D5</td><td>终端 PTY（shell 会话、resize、回显）</td><td>term/PTY</td><td>P0-2</td><td>已落地 2026-10-25（sa_pty 内置 10 extern，05_terminal_pty 三场景全绿：回显、stty 尺寸、resize/回读/强杀 137）</td></tr>
 <tr><td>D6</td><td>文件监视（目录变更驱动重载）</td><td>fs watch</td><td>P0-3</td><td>已落地 2026-10-25（sa_fs_watch 内置 6 extern，06_fs_watch 全绿：create/close_write/delete 事件序列实测）</td></tr>
-<tr><td>D7</td><td>代码图谱（解析 → 大纲 + 定义查找）</td><td>tree-sitter</td><td>P0-4</td><td>待开工</td></tr>
+<tr><td>D7</td><td>代码图谱（解析 → 大纲 + 定义查找）</td><td>tree-sitter</td><td>P0-4</td><td>已落地 2026-10-25（sa_ts 内置 15 extern，07_code_graph 全绿：解析 TS、export 解包、函数名 add/greet 精确提取）</td></tr>
 <tr><td>D8</td><td>认证小件（bcrypt 校验 + keyring 存取）</td><td>bcrypt、keyring</td><td>P0-6</td><td>待开工</td></tr>
 <tr><td>D9</td><td>VM 工具面（find 类工具调用 + 策略门/一次性令牌）</td><td>16_policy、D7</td><td>D7</td><td>待开工</td></tr>
 <tr><td>D10</td><td>静态与产物服务（静态文件、缓存头）</td><td>http_server、fs</td><td>D2</td><td>待开工</td></tr>
@@ -87,7 +87,7 @@
 <tr><td>2026-10-25</td><td>node 插件 build.zig 的 http 桥指向瘦身时已删文件、长期不可编译；两 sci 核心共享文件相对导入触发一文件两模块冲突</td><td>插件生态 / sci</td><td>已关闭：桥改指 sci runtime 核心，共享文件改命名导入（sa_net_primitives / sa_ws_stream，沿 sio 先例）</td></tr>
 <tr><td>2026-10-25</td><td>PTY 缺失</td><td>sa_std</td><td>已关闭（P0-2 落地）</td></tr>
 <tr><td>2026-10-25</td><td>fs watch 缺失</td><td>sa_std</td><td>已关闭（P0-3 落地）</td></tr>
-<tr><td>2026-10-25</td><td>tree-sitter 未接入</td><td>sa_std</td><td>P0-4</td></tr>
+<tr><td>2026-10-25</td><td>tree-sitter 未接入</td><td>sa_std</td><td>已关闭（P0-4 落地）</td></tr>
 <tr><td>2026-10-25</td><td>for-in / 枚举 match / @derive 未进 direct</td><td>SLA 编译器</td><td>P0-5</td></tr>
 <tr><td>2026-10-25</td><td>SLA capability 形参：用户函数不能收 &局部数组 作 ptr 形参（TypeMismatch），通行式 = 结构体包缓冲 + &Struct 引用形参</td><td>SLA</td><td>P0-5 评估</td></tr>
 <tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>TOML 已关闭（sa_toml 内置，见 P0-6）；bcrypt / keyring 仍 P0-6 / P2</td></tr>
