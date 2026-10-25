@@ -30,7 +30,7 @@
 <tr><td>P0-3</td><td><strong>fs watch</strong>：sa_std inotify 封装（watch add/remove + 事件读：create/modify/delete/move，含目录递归的 SLA 层封装）。</td><td>单测：临时目录内改文件能收到对应事件；CXU 18 处 fs.watch 用法逐一对上语义。</td><td>已落地 2026-10-25（sci sa_fs_watch.zig：inotify 非阻塞 + 内部缓冲逐事件递交，add 过 policy fs 读闸；sa-std-unit 138/138 含两组用例；D6 已落地。目录递归由 SLA 层封装，后续按需）</td></tr>
 <tr><td>P0-4</td><td><strong>tree-sitter 内置</strong>：sa_tree_sitter.zig dlopen 核心库（sa_ts_* + tree_sitter.sai），语法 .so 构建管线；首批语法以 CXU VM 工具实际映射的语言为准。</td><td>单测：解析一份源文件、节点遍历与 query captures 结果与 C 参考一致；大纲提取冒烟。</td><td>已落地 2026-10-25（核心 v0.25.10 + typescript 语法 v0.23.2 构件入 sci/artifacts/tree_sitter，dlopen 加载、ABI 校验 13..15；sa-std-unit 140/140；增量解析与 query captures 为二期）</td></tr>
 <tr><td>P0-5</td><td><strong>SLA 编译器阻塞特性</strong>：for-in 集合迭代（原 Phase 6）、枚举 payload / match 提取与 @derive（原 Phase 5）进入 direct 路径。</td><td>sla 测试套件新增对应单元用例双后端一致；build-exe 313 分母的通过数显著上升并记录新快照。</td><td>未开始</td></tr>
-<tr><td>P0-6</td><td><strong>文本与小件</strong>：TOML 解析（codex config.toml 刚需，入 sa_std 文本层或 sla_std 库，二选一在开工时定）、bcrypt 口令哈希（SLA 纯实现）、keyring（FFI libsecret / 平台 API，排到 P2 认证真正需要时）。</td><td>TOML：以真实 config.toml 样本做往返解析测试；bcrypt：标准向量校验。</td><td>进行中：TOML 已落地 2026-10-25（sci sa_toml.zig，13 个 sa_toml_* extern + encoding/toml.sai；点分路径取值、日期时间保真、重复键硬错误；sa-std-unit 133/133 含三组 TOML 用例）；bcrypt / keyring 待后续</td></tr>
+<tr><td>P0-6</td><td><strong>文本与小件</strong>：TOML 解析（codex config.toml 刚需，入 sa_std 文本层或 sla_std 库，二选一在开工时定）、bcrypt 口令哈希（SLA 纯实现）、keyring（FFI libsecret / 平台 API，排到 P2 认证真正需要时）。</td><td>TOML：以真实 config.toml 样本做往返解析测试；bcrypt：标准向量校验。</td><td>进行中：TOML 已落地 2026-10-25（sci sa_toml.zig，13 个 sa_toml_* extern + encoding/toml.sai；点分路径取值、日期时间保真、重复键硬错误；sa-std-unit 133/133 含三组 TOML 用例）；bcrypt / keyring 已落地 2026-10-25（sci sa_crypto.zig：bcrypt 经 libcrypt $2b$、keyring 经 libsecret，6 个 sa_* extern + crypto.sai；sa-std-unit 142/142；P0-6 全部关闭）</td></tr>
 </table>
 
 <h2>P1 后端试点纵切（codex 桥）</h2>
@@ -90,7 +90,7 @@
 <tr><td>2026-10-25</td><td>tree-sitter 未接入</td><td>sa_std</td><td>已关闭（P0-4 落地）</td></tr>
 <tr><td>2026-10-25</td><td>for-in / 枚举 match / @derive 未进 direct</td><td>SLA 编译器</td><td>P0-5</td></tr>
 <tr><td>2026-10-25</td><td>SLA capability 形参：用户函数不能收 &局部数组 作 ptr 形参（TypeMismatch），通行式 = 结构体包缓冲 + &Struct 引用形参</td><td>SLA</td><td>P0-5 评估</td></tr>
-<tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>TOML 已关闭（sa_toml 内置，见 P0-6）；bcrypt / keyring 仍 P0-6 / P2</td></tr>
+<tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>已全部关闭（TOML 见 P0-6；bcrypt / keyring 见 sa_crypto，D8 已落地）</td></tr>
 <tr><td>2026-10-25</td><td>15 个插件 build.zig 以 ../sci 引宿主模块、重定位不通</td><td>插件生态</td><td>与本重构并行治理，逐仓自包含化</td></tr>
 <tr><td>2026-10-25</td><td>SLA 标准面缺 (ptr,len) 字节比较：extern 返回的路径/帧数据无法直接与字面量比较，演示须自带 byteseq.sa 指针出参宏（D2 撞点）</td><td>SLA / sa_std</td><td>后续项：sa_std 增补 SLA 可直接调用的 bytes_eq 类工具面</td></tr>
 <tr><td>2026-10-25</td><td>http_server.sai 未注明 v2 WebSocket 的 poll 驱动契约（read 返回 would_block=1 须 poll 重试）与 upgrade 消费请求句柄的所有权（D2 撞点）</td><td>sci 文档</td><td>后续项：.sai 注释补契约说明</td></tr>
