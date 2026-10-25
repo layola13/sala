@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>CXU 前后端 SLA 重构就绪度审核</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; CXU 前后端 SLA 重构就绪度审核</div>
+<h1>CXU 前后端 SLA 重构就绪度审核</h1>
+
+<div class="note"><span class="label">状态</span>审核稿（2026-10-25，源码实证）。问题：以当前 SLA / sa_std / 插件生态，能否重构 CXU（codex-react-ui：服务端约 5.9 万行 TS、Web 前端约 8.8 万行 TSX、各 CLI 桥约 6.5 万行 TS，另有 Electron 桌面壳）的前端与后端。结论分前后端两说：<b>后端地基基本齐，差三块硬缺口与一个成熟度前提；前端不具备。</b>网络层已在 2026-10-24 单独审计过（CXU 用到的 9 项协议依赖全部内置），本页审网络之外的面。</div>
+
+<h2>后端：已齐备的面</h2>
+<ul>
+<li><strong>进程管理（CXU 的核心动作）</strong>：process.sai 54 个导出——spawn 家族带 cwd / arg0 / 进程组 / setsid / pidfd / uid / gid / 补充组 / chroot 变体，wait / try_wait / kill / 进程组信号 / pidfd 全套，stdout/stderr 管道读取与 exec_capture。各 CLI 子进程的生命周期管理不缺原语。</li>
+<li><strong>数据与文本</strong>：JSON 独立模块 51 个导出；string 25、fmt 14、regex（text/regex）、集合齐全（hashmap/hashset、btree_map/set、vec、vec_deque、binary_heap、sort、iter）。</li>
+<li><strong>文件与环境</strong>：fs 120 个导出、env 22、time 19、path 模块独立。</li>
+<li><strong>并发</strong>：thread 9 个导出 + sync 全套（mutex / rwlock / mpsc / condvar / barrier / atomic / once）与 Arc/Rc/Cell/RefCell 核心库。多会话并发可走线程模型。</li>
+<li><strong>协议与存储</strong>：HTTP/1.1 服务器与客户端、WebSocket 双向、SSE、TLS 客户端（含 ClientHello 指纹整形，对应 CXU 的 fetch-impersonate）与 TLS 服务端、QUIC/HTTP3、SSH、compress、multipart、DNS 公开 API 均已内置（见 06_stdlib 与既往审计）；SQLite 有 db 插件与 plugin_sqlite 声明面。</li>
+<li><strong>存在性证据</strong>：scodex-mini 已用 SLA 写成单轮 agent CLI（HTTPS POST + 工具循环 + shell_exec 捕获输出），证明 agent 骨架类程序今天就能表达。</li>
+</ul>
+
+<h2>后端：硬缺口（按阻塞程度排序）</h2>
+<ul>
+<li><strong>① 子进程 stdin 不可写（头号阻塞）</strong>：std 的 spawn 实现只为子进程建 stdout/stderr 两条管道（spawnProcessConfiguredCwd 源码实证），SpawnResult 只有 process/stdout/stderr 三个句柄，<b>没有 stdin 管道</b>。而 CXU 桥的核心回路是双向 stdio：把 JSON-RPC 请求与提示写进 CLI 的 stdin、读它的 stdout。补法明确：给 std 加双向 spawn 变体（stdin 管 + 写/关句柄），属 sa_std 增量而非架构问题。</li>
+<li><strong>② PTY 缺失</strong>：term.sai 只有终端 raw 模式、窗口尺寸与 epoll 辅助，没有 openpty/forkpty。CXU 的 terminalPty（node-pty）功能无从落地。补法：基于 posix_openpt/grantpt 或 forkpty 在 std 内建 PTY 主从端 + resize + 读写。</li>
+<li><strong>③ fs watch 缺失</strong>：fs 面没有 inotify/目录监听封装（CXU 有 18 处 fs.watch 用法）。可先以轮询替代，正式补法是 inotify 封装进 std。</li>
+<li><strong>④ 小件缺失</strong>：TOML 解析（codex 的 config.toml 是刚需）、bcrypt 口令哈希、OS keyring——std 均无现成件。量级都不大：要么经 FFI 链系统库，要么在 std/SLA 层自写（TOML 解析器、bcrypt 均为有界工作量）。</li>
+</ul>
+
+<h2>后端：成熟度前提</h2>
+<p>编译器本身还在收敛（见 <a href="../02_sla_lang/10_maturity.html">特性成熟度总表</a>，撰写时快照）：<code>sa sla check</code> 306/313、<code>sa sla build-exe</code> 239/313（约 76%）。未进入 direct 路径的日常特性包括 for-in 集合迭代（Phase 6）、枚举 payload / match 提取与 @derive（Phase 5）；async/await 状态机只覆盖线性 await 序列，跨 async fn 边界的嵌套 await 双后端同挂（Phase 8 部分完成），executor 仍是轮询宏。含义：以后端十万行级的规模写 SLA，会在长尾特性上反复撞 UnsupportedSabDirectFeature（大声失败、不静默回退，这点是好的）；且并发设计应定死线程 + mpsc 模型，不要押注 async。另：SLA 尚无 &amp;mut（&amp;self 兼读写、SA Referee 兜底），大型工程的借用纪律与 Rust 不同，需要在试点里验证人体工学。</p>
+
+<h2>前端：不具备</h2>
+<p>SA 生态的前端故事是 SAX（见 <a href="../07_ui/01_overview.html">SAX 是什么与开发模型</a>）：.sax 编译为 app.wasm + airlock.js（WASM↔DOM 桥）+ index.html，react 插件给 React 风格写法、mui 插件给 Material 组件库。其官方定位是<b>纯界面工程</b>：静态占位数据、交互只做状态切换，样本 codex_ui 是把一个 React 界面用 SAX 重画界面皮，不含业务逻辑。而 CXU 前端是真应用：Monaco 代码编辑器、xterm 终端渲染、three.js、marked、git-diff 视图、虚拟化列表、53 处 WebSocket 流式状态机、localStorage 持久化、Web Worker、canvas——这些在 SAX/WASM 生态里没有对应物，airlock 桥在 token 流式高频更新下的表现也未经验证。前端重构的前提是先把 SAX 从「界面方言」长成「应用框架」（状态管理、路由、编辑器/终端级重组件、组件生态），那是独立于补 std 的另一个数量级工程。<b>裁决：前端不排期；SAX 只适合新界面实验。</b></p>
+
+<h2>桌面壳</h2>
+<p>CXU 的 Electron 桌面壳（打包、node-pty 原生重建、混淆、Windows 安装包）不在 SLA 射程内。若后端先行重构，桌面壳可暂时保留、只把页面产物换成后端新供的静态文件；纯 Web 形态则不需要壳。这一项不构成后端重构的阻塞，但要在立项时明确取舍。</p>
+
+<h2>建议路径（若将来立项后端重构）</h2>
+<ol>
+<li>先补 std 两块：双向 spawn（stdin 管）与 PTY，均按「基础核心内置 sa_std」的既有方针落地并配测试。</li>
+<li>拿一个真实 CLI 桥做试点纵切（建议 codex 桥）：双向 stdio JSON-RPC + HTTP/WS/SSE 转发 + 配置 TOML + 会话持久化，全程 SLA，量化撞 Unsupported 的次数与绕行成本。</li>
+<li>试点通过后再评估全面迁移的排期；前端维持 React 不动。</li>
+</ol>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

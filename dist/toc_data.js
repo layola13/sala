@@ -32,6 +32,11 @@ var TOC = [
     "t": "scodex-mini：SLA 写成的 Codex 最小单元",
     "f": "content/01_overview/06_scodex_mini.html",
     "c": []
+   },
+   {
+    "t": "CXU 前后端 SLA 重构就绪度审核",
+    "f": "content/01_overview/07_cxu_readiness.html",
+    "c": []
    }
   ]
  },

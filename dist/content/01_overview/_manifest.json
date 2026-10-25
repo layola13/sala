@@ -89,6 +89,23 @@
         "Chat Completions"
       ],
       "parent": null
+    },
+    {
+      "id": "cxu-rewrite-readiness",
+      "title": "CXU 前后端 SLA 重构就绪度审核",
+      "file": "07_cxu_readiness.html",
+      "keywords": [
+        "CXU",
+        "codex-react-ui",
+        "重构",
+        "就绪度",
+        "stdin",
+        "PTY",
+        "SAX",
+        "后端",
+        "前端"
+      ],
+      "parent": null
     }
   ]
 }
