@@ -19,6 +19,7 @@
 <li><strong>并发模型定死</strong>：后端并发走线程 + mpsc，不押注 async（跨 async fn 嵌套 await 尚未收敛，见成熟度总表）。</li>
 <li><strong>无静默回退</strong>：撞到 UnsupportedSabDirectFeature 或缺失能力，记账到本页缺口表并先补地基，不绕路糊过去。</li>
 <li><strong>节奏</strong>：串行推进（本机与 Colab 资源约束），每项完成即提交推送，Colab 侧 15 分钟检查点照旧。</li>
+<li><strong>目标仓库</strong>：demos（D1–D12）先在 sa_plugin_sla/demos/cxu/ 完善；进入真实项目构建后，代码提交到 <strong>layola13/slacxu</strong>（2026-10-25 用户定，当前为空仓）。</li>
 </ul>
 
 <h2>P0 地基期（最高优先级，全部阻塞后续）</h2>
@@ -34,7 +35,7 @@
 
 <h2>P1 后端试点纵切（codex 桥）</h2>
 <ul>
-<li><strong>形态</strong>：新 SLA workspace（布局效 scodex-mini 的 packages 分包）：config（TOML/env）、bridge-core（双向 spawn + JSON-RPC 分帧/多路复用）、http-ws-server（基于 sa_std 内置服务器的路由与会话层）、codex-bridge（对 codex app-server 的完整协议适配）、store（SQLite 经 db 插件的会话/历史持久化）。</li>
+<li><strong>形态</strong>：新 SLA workspace（布局效 scodex-mini 的 packages 分包）：config（TOML/env）、bridge-core（双向 spawn + JSON-RPC 分帧/多路复用）、http-ws-server（基于 sa_std 内置服务器的路由与会话层）、codex-bridge（对 codex app-server 的完整协议适配）、store（SQLite 经 node 插件 sqlite 门面的会话/历史持久化）。</li>
 <li><strong>验收</strong>：真实 codex CLI 经 SLA 后端跑通一轮完整对话（发起、流式事件、工具调用、打断、恢复）；现有 React 前端不改代码指向 SLA 后端可正常使用（API 面子集对齐）；与 TS 版同场景行为对照表逐项勾验。</li>
 <li><strong>产出</strong>：一份「撞墙清单」——试点期撞到的全部 Unsupported/缺失能力与绕行成本，回填 P0/P2 排期。</li>
 </ul>
@@ -65,7 +66,7 @@
 <tr><th>演示</th><th>提炼自 CXU 模块</th><th>能力面</th><th>前置</th><th>状态</th></tr>
 <tr><td>D1</td><td>双向 stdio 桥内核（各 CLI 桥的公共底座：spawn + 行分帧 JSON-RPC 一轮问答）</td><td>process bidi、io、JSON</td><td>P0-1</td><td>已落地 2026-10-25（sa_plugin_sla 6b70f177，demos/cxu/01_bridge_stdio：编译运行输出 d1 bridge stdio ok、@test 绿）</td></tr>
 <tr><td>D2</td><td>HTTP/WS/SSE 服务面（路由、WS 广播、SSE 流）</td><td>http_server、ws、sse（均内置）</td><td>—</td><td>已落地 2026-10-25（sa_plugin_sla 0766758f，demos/cxu/02_http_ws_sse：hello JSON / SSE 三 tick / WS 回显，run.sh 全绿）</td></tr>
-<tr><td>D3</td><td>会话与持久化（SQLite 会话/历史存取 + JSON 往返）</td><td>db 插件、encoding/json</td><td>—</td><td>待开工</td></tr>
+<tr><td>D3</td><td>会话与持久化（SQLite 会话/历史存取 + JSON 往返）</td><td>node 插件 sqlite 门面、encoding/json</td><td>—</td><td>已落地 2026-10-25（sa_plugin_sla demos/cxu/03_store_session：限定导入 plugin/node/node_extra.sai 开库/建表/增改查 + JSON 嵌套往返，run.sh + python sqlite3 独立核对全绿）</td></tr>
 <tr><td>D4</td><td>配置面（TOML 解析 + env 覆盖 + 校验）</td><td>TOML</td><td>P0-6</td><td>待开工</td></tr>
 <tr><td>D5</td><td>终端 PTY（shell 会话、resize、回显）</td><td>term/PTY</td><td>P0-2</td><td>待开工</td></tr>
 <tr><td>D6</td><td>文件监视（目录变更驱动重载）</td><td>fs watch</td><td>P0-3</td><td>待开工</td></tr>
@@ -80,7 +81,10 @@
 <h2>缺口记账表（滚动）</h2>
 <table>
 <tr><th>日期</th><th>缺口</th><th>归属</th><th>处置</th></tr>
-<tr><td>2026-10-25</td><td>子进程 stdin 不可写</td><td>sa_std</td><td>P0-1 进行中</td></tr>
+<tr><td>2026-10-25</td><td>子进程 stdin 不可写</td><td>sa_std</td><td>已关闭：P0-1 双向 spawn（sci 94c4f654）</td></tr>
+<tr><td>2026-10-25</td><td>SLA 前端不解析 plugin/&lt;name&gt;/ 限定导入：.sla 里写限定导入在前端展开阶段 FileNotFound，只能绕道本地 shim（D3 撞点）</td><td>SLA 前端</td><td>已关闭：plugin_imports.zig 补 SLA 侧解析（按已装插件 current/sa/ 定位，生成 .sa 保留限定拼写）</td></tr>
+<tr><td>2026-10-25</td><td>插件 sap.json 广告已内置 std 的核心 .sai 时符号冒烟必失败、插件及其依赖者永远装不上（http-client 撞点，连带 node 装不上）</td><td>插件生态 / sci 安装器</td><td>已关闭（仓侧）：http-client 去广告；后续项：安装器对 std 已提供符号给出明确诊断而非笼统冒烟失败</td></tr>
+<tr><td>2026-10-25</td><td>node 插件 build.zig 的 http 桥指向瘦身时已删文件、长期不可编译；两 sci 核心共享文件相对导入触发一文件两模块冲突</td><td>插件生态 / sci</td><td>已关闭：桥改指 sci runtime 核心，共享文件改命名导入（sa_net_primitives / sa_ws_stream，沿 sio 先例）</td></tr>
 <tr><td>2026-10-25</td><td>PTY 缺失</td><td>sa_std</td><td>P0-2</td></tr>
 <tr><td>2026-10-25</td><td>fs watch 缺失</td><td>sa_std</td><td>P0-3</td></tr>
 <tr><td>2026-10-25</td><td>tree-sitter 未接入</td><td>sa_std</td><td>P0-4</td></tr>

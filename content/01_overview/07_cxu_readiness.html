@@ -17,7 +17,7 @@
 <li><strong>数据与文本</strong>：JSON 独立模块 51 个导出；string 25、fmt 14、regex（text/regex）、集合齐全（hashmap/hashset、btree_map/set、vec、vec_deque、binary_heap、sort、iter）。</li>
 <li><strong>文件与环境</strong>：fs 120 个导出、env 22、time 19、path 模块独立。</li>
 <li><strong>并发</strong>：thread 9 个导出 + sync 全套（mutex / rwlock / mpsc / condvar / barrier / atomic / once）与 Arc/Rc/Cell/RefCell 核心库。多会话并发可走线程模型。</li>
-<li><strong>协议与存储</strong>：HTTP/1.1 服务器与客户端、WebSocket 双向、SSE、TLS 客户端（含 ClientHello 指纹整形，对应 CXU 的 fetch-impersonate）与 TLS 服务端、QUIC/HTTP3、SSH、compress、multipart、DNS 公开 API 均已内置（见 06_stdlib 与既往审计）；SQLite 有 db 插件与 plugin_sqlite 声明面。</li>
+<li><strong>协议与存储</strong>：HTTP/1.1 服务器与客户端、WebSocket 双向、SSE、TLS 客户端（含 ClientHello 指纹整形，对应 CXU 的 fetch-impersonate）与 TLS 服务端、QUIC/HTTP3、SSH、compress、multipart、DNS 公开 API 均已内置（见 06_stdlib 与既往审计）；SQLite 入口是 node 插件的 sqlite 门面（sa_node_plugin_sqlite_*，sci 的 plugin_sqlite.sa 宏包装；订正：sa_plugin_db 是自研列存引擎、并非 SQLite），D3 演示已实证（2026-10-25）。</li>
 <li><strong>存在性证据</strong>：scodex-mini 已用 SLA 写成单轮 agent CLI（HTTPS POST + 工具循环 + shell_exec 捕获输出），证明 agent 骨架类程序今天就能表达。</li>
 </ul>
 
