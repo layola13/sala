@@ -24,7 +24,7 @@
 <h2>P0 地基期（最高优先级，全部阻塞后续）</h2>
 <table>
 <tr><th>项</th><th>内容</th><th>验收</th><th>状态</th></tr>
-<tr><td>P0-1</td><td><strong>双向 spawn</strong>：sa_std 给 spawn 家族加 stdin 管道变体（SpawnResult 增 stdin 句柄 + write/close 语义），process.sai 声明同步，策略门（16_policy 的 run 类别）走同一漏斗。</td><td>sa-std-unit 新增往返用例：spawn cat、写 stdin、关闭、读回显一致；全套串行回归绿。</td><td>进行中（2026-10-25 开工）</td></tr>
+<tr><td>P0-1</td><td><strong>双向 spawn</strong>：sa_std 给 spawn 家族加 stdin 管道变体（SpawnResult 增 stdin 句柄 + write/close 语义），process.sai 声明同步，策略门（16_policy 的 run 类别）走同一漏斗。</td><td>sa-std-unit 新增往返用例：spawn cat、写 stdin、关闭、读回显一致；全套串行回归绿。</td><td>已完成（2026-10-25，sci 94c4f654：spawn_bidi/spawn_bidi_cwd + stdin owned_fd 句柄；C 驱动往返测试绿；Windows 侧登记为文档化缺口待补）</td></tr>
 <tr><td>P0-2</td><td><strong>PTY 内置</strong>：sa_std 基于 posix_openpt/grantpt/unlockpt（或 forkpty）提供 PTY 主端：open/spawn-in-pty/read/write/resize/close，term.sai 增声明。</td><td>单测：PTY 里跑 shell、回显与 resize 生效；对应 CXU terminalPty 的最小行为集。</td><td>未开始</td></tr>
 <tr><td>P0-3</td><td><strong>fs watch</strong>：sa_std inotify 封装（watch add/remove + 事件读：create/modify/delete/move，含目录递归的 SLA 层封装）。</td><td>单测：临时目录内改文件能收到对应事件；CXU 18 处 fs.watch 用法逐一对上语义。</td><td>未开始</td></tr>
 <tr><td>P0-4</td><td><strong>tree-sitter 内置</strong>：sa_tree_sitter.zig dlopen 核心库（sa_ts_* + tree_sitter.sai），语法 .so 构建管线；首批语法以 CXU VM 工具实际映射的语言为准。</td><td>单测：解析一份源文件、节点遍历与 query captures 结果与 C 参考一致；大纲提取冒烟。</td><td>未开始（路径已审，见审核页附录）</td></tr>
@@ -58,6 +58,24 @@
 <li>Electron 壳去留裁决：保留（只换页面产物）或以原生/Web 形态替代；Windows 打包、签名、PTY 原生件、混淆与安装包流程在此期对齐 TS 版现状。</li>
 <li>npm 分发与插件渠道沿用既有形态（后端产物即 sa 插件/独立二进制两种形态在开工时定）。</li>
 </ul>
+
+<h2>推进方法：演示驱动（2026-10-25 用户定调）</h2>
+<p>「先写各种 demos，就是提炼 CXU 里面的各种模块，改进 SLA/SA。」——在全面迁移之前，先把 CXU 的每个模块提炼成一个可独立运行的 SLA/SA 演示程序：演示通过 = 该模块所需的 sa_std 与 SLA 能力被实证；演示撞墙 = 撞墙点即 SLA/SA 的改进项，先补地基再继续。演示放在 sa_plugin_sla 的 demos/cxu/ 下（SA 级演示随 sci demos 惯例），每个演示在下表记账：对应模块、用到的能力面、结果、催生的改进项。</p>
+<table>
+<tr><th>演示</th><th>提炼自 CXU 模块</th><th>能力面</th><th>前置</th><th>状态</th></tr>
+<tr><td>D1</td><td>双向 stdio 桥内核（各 CLI 桥的公共底座：spawn + 行分帧 JSON-RPC 一轮问答）</td><td>process bidi、io、JSON</td><td>P0-1</td><td>待开工</td></tr>
+<tr><td>D2</td><td>HTTP/WS/SSE 服务面（路由、WS 广播、SSE 流）</td><td>http_server、ws、sse（均内置）</td><td>—</td><td>待开工</td></tr>
+<tr><td>D3</td><td>会话与持久化（SQLite 会话/历史存取 + JSON 往返）</td><td>db 插件、encoding/json</td><td>—</td><td>待开工</td></tr>
+<tr><td>D4</td><td>配置面（TOML 解析 + env 覆盖 + 校验）</td><td>TOML</td><td>P0-6</td><td>待开工</td></tr>
+<tr><td>D5</td><td>终端 PTY（shell 会话、resize、回显）</td><td>term/PTY</td><td>P0-2</td><td>待开工</td></tr>
+<tr><td>D6</td><td>文件监视（目录变更驱动重载）</td><td>fs watch</td><td>P0-3</td><td>待开工</td></tr>
+<tr><td>D7</td><td>代码图谱（解析 → 大纲 + 定义查找）</td><td>tree-sitter</td><td>P0-4</td><td>待开工</td></tr>
+<tr><td>D8</td><td>认证小件（bcrypt 校验 + keyring 存取）</td><td>bcrypt、keyring</td><td>P0-6</td><td>待开工</td></tr>
+<tr><td>D9</td><td>VM 工具面（find 类工具调用 + 策略门/一次性令牌）</td><td>16_policy、D7</td><td>D7</td><td>待开工</td></tr>
+<tr><td>D10</td><td>静态与产物服务（静态文件、缓存头）</td><td>http_server、fs</td><td>D2</td><td>待开工</td></tr>
+<tr><td>D11</td><td>free-key 服务（密钥池轮换、限流、健康检查）</td><td>http_server、http_client</td><td>D2</td><td>待开工</td></tr>
+<tr><td>D12</td><td>前端微缩（SAX 页面经 airlock 与 SLA 后端 WS 对话一轮 token 流）</td><td>SAX、ws</td><td>D2</td><td>待开工</td></tr>
+</table>
 
 <h2>缺口记账表（滚动）</h2>
 <table>
