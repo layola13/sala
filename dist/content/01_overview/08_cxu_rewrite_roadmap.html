@@ -73,7 +73,7 @@
 <tr><td>D7</td><td>代码图谱（解析 → 大纲 + 定义查找）</td><td>tree-sitter</td><td>P0-4</td><td>已落地 2026-10-25（sa_ts 内置 15 extern，07_code_graph 全绿：解析 TS、export 解包、函数名 add/greet 精确提取）</td></tr>
 <tr><td>D8</td><td>认证小件（bcrypt 校验 + keyring 存取）</td><td>bcrypt、keyring</td><td>P0-6</td><td>待开工</td></tr>
 <tr><td>D9</td><td>VM 工具面（find 类工具调用 + 策略门/一次性令牌）</td><td>16_policy、D7</td><td>D7</td><td>已落地 2026-10-25（09_vm_tools 三场景全绿：allow-list / deny 状态 10 / ask+一次性令牌且审计恰 2 条 token 放行；SA_POLICY_TOKENS_JSON 投递面 + sa_ts_node_byte_range 随之入 sci）</td></tr>
-<tr><td>D10</td><td>静态与产物服务（静态文件、缓存头）</td><td>http_server、fs</td><td>D2</td><td>待开工</td></tr>
+<tr><td>D10</td><td>静态与产物服务（静态文件、缓存头）</td><td>http_server、fs</td><td>D2</td><td>已落地 2026-10-25（10_static_server 全绿：白名单静态服务 + 内容类型/缓存头分层 + 穿越 404，curl 六项核对）</td></tr>
 <tr><td>D11</td><td>free-key 服务（密钥池轮换、限流、健康检查）</td><td>http_server、http_client</td><td>D2</td><td>待开工</td></tr>
 <tr><td>D12</td><td>前端微缩（SAX 页面经 airlock 与 SLA 后端 WS 对话一轮 token 流）</td><td>SAX、ws</td><td>D2</td><td>待开工</td></tr>
 </table>
