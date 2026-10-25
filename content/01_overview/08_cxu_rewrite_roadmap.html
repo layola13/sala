@@ -30,7 +30,7 @@
 <tr><td>P0-3</td><td><strong>fs watch</strong>：sa_std inotify 封装（watch add/remove + 事件读：create/modify/delete/move，含目录递归的 SLA 层封装）。</td><td>单测：临时目录内改文件能收到对应事件；CXU 18 处 fs.watch 用法逐一对上语义。</td><td>未开始</td></tr>
 <tr><td>P0-4</td><td><strong>tree-sitter 内置</strong>：sa_tree_sitter.zig dlopen 核心库（sa_ts_* + tree_sitter.sai），语法 .so 构建管线；首批语法以 CXU VM 工具实际映射的语言为准。</td><td>单测：解析一份源文件、节点遍历与 query captures 结果与 C 参考一致；大纲提取冒烟。</td><td>未开始（路径已审，见审核页附录）</td></tr>
 <tr><td>P0-5</td><td><strong>SLA 编译器阻塞特性</strong>：for-in 集合迭代（原 Phase 6）、枚举 payload / match 提取与 @derive（原 Phase 5）进入 direct 路径。</td><td>sla 测试套件新增对应单元用例双后端一致；build-exe 313 分母的通过数显著上升并记录新快照。</td><td>未开始</td></tr>
-<tr><td>P0-6</td><td><strong>文本与小件</strong>：TOML 解析（codex config.toml 刚需，入 sa_std 文本层或 sla_std 库，二选一在开工时定）、bcrypt 口令哈希（SLA 纯实现）、keyring（FFI libsecret / 平台 API，排到 P2 认证真正需要时）。</td><td>TOML：以真实 config.toml 样本做往返解析测试；bcrypt：标准向量校验。</td><td>未开始</td></tr>
+<tr><td>P0-6</td><td><strong>文本与小件</strong>：TOML 解析（codex config.toml 刚需，入 sa_std 文本层或 sla_std 库，二选一在开工时定）、bcrypt 口令哈希（SLA 纯实现）、keyring（FFI libsecret / 平台 API，排到 P2 认证真正需要时）。</td><td>TOML：以真实 config.toml 样本做往返解析测试；bcrypt：标准向量校验。</td><td>进行中：TOML 已落地 2026-10-25（sci sa_toml.zig，13 个 sa_toml_* extern + encoding/toml.sai；点分路径取值、日期时间保真、重复键硬错误；sa-std-unit 133/133 含三组 TOML 用例）；bcrypt / keyring 待后续</td></tr>
 </table>
 
 <h2>P1 后端试点纵切（codex 桥）</h2>
@@ -67,7 +67,7 @@
 <tr><td>D1</td><td>双向 stdio 桥内核（各 CLI 桥的公共底座：spawn + 行分帧 JSON-RPC 一轮问答）</td><td>process bidi、io、JSON</td><td>P0-1</td><td>已落地 2026-10-25（sa_plugin_sla 6b70f177，demos/cxu/01_bridge_stdio：编译运行输出 d1 bridge stdio ok、@test 绿）</td></tr>
 <tr><td>D2</td><td>HTTP/WS/SSE 服务面（路由、WS 广播、SSE 流）</td><td>http_server、ws、sse（均内置）</td><td>—</td><td>已落地 2026-10-25（sa_plugin_sla 0766758f，demos/cxu/02_http_ws_sse：hello JSON / SSE 三 tick / WS 回显，run.sh 全绿）</td></tr>
 <tr><td>D3</td><td>会话与持久化（SQLite 会话/历史存取 + JSON 往返）</td><td>node 插件 sqlite 门面、encoding/json</td><td>—</td><td>已落地 2026-10-25（sa_plugin_sla demos/cxu/03_store_session：限定导入 plugin/node/node_extra.sai 开库/建表/增改查 + JSON 嵌套往返，run.sh + python sqlite3 独立核对全绿）</td></tr>
-<tr><td>D4</td><td>配置面（TOML 解析 + env 覆盖 + 校验）</td><td>TOML</td><td>P0-6</td><td>待开工</td></tr>
+<tr><td>D4</td><td>配置面（TOML 解析 + env 覆盖 + 校验）</td><td>TOML（已内置 sa_std）</td><td>P0-6</td><td>已落地 2026-10-25（sa_plugin_sla demos/cxu/04_config：fs 读入 codex 风格 config.toml、sa_toml 点分路径断言、CXU_MODEL env 覆盖优先，run.sh + python tomllib 独立核对全绿）</td></tr>
 <tr><td>D5</td><td>终端 PTY（shell 会话、resize、回显）</td><td>term/PTY</td><td>P0-2</td><td>待开工</td></tr>
 <tr><td>D6</td><td>文件监视（目录变更驱动重载）</td><td>fs watch</td><td>P0-3</td><td>待开工</td></tr>
 <tr><td>D7</td><td>代码图谱（解析 → 大纲 + 定义查找）</td><td>tree-sitter</td><td>P0-4</td><td>待开工</td></tr>
@@ -89,7 +89,7 @@
 <tr><td>2026-10-25</td><td>fs watch 缺失</td><td>sa_std</td><td>P0-3</td></tr>
 <tr><td>2026-10-25</td><td>tree-sitter 未接入</td><td>sa_std</td><td>P0-4</td></tr>
 <tr><td>2026-10-25</td><td>for-in / 枚举 match / @derive 未进 direct</td><td>SLA 编译器</td><td>P0-5</td></tr>
-<tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>P0-6 / P2</td></tr>
+<tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>TOML 已关闭（sa_toml 内置，见 P0-6）；bcrypt / keyring 仍 P0-6 / P2</td></tr>
 <tr><td>2026-10-25</td><td>15 个插件 build.zig 以 ../sci 引宿主模块、重定位不通</td><td>插件生态</td><td>与本重构并行治理，逐仓自包含化</td></tr>
 <tr><td>2026-10-25</td><td>SLA 标准面缺 (ptr,len) 字节比较：extern 返回的路径/帧数据无法直接与字面量比较，演示须自带 byteseq.sa 指针出参宏（D2 撞点）</td><td>SLA / sa_std</td><td>后续项：sa_std 增补 SLA 可直接调用的 bytes_eq 类工具面</td></tr>
 <tr><td>2026-10-25</td><td>http_server.sai 未注明 v2 WebSocket 的 poll 驱动契约（read 返回 would_block=1 须 poll 重试）与 upgrade 消费请求句柄的所有权（D2 撞点）</td><td>sci 文档</td><td>后续项：.sai 注释补契约说明</td></tr>
