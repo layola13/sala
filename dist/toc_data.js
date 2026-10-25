@@ -37,6 +37,11 @@ var TOC = [
     "t": "CXU 前后端 SLA 重构就绪度审核",
     "f": "content/01_overview/07_cxu_readiness.html",
     "c": []
+   },
+   {
+    "t": "CXU 完整 SLA 重构路线图",
+    "f": "content/01_overview/08_cxu_rewrite_roadmap.html",
+    "c": []
    }
   ]
  },

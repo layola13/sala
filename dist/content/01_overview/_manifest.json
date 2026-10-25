@@ -106,6 +106,23 @@
         "前端"
       ],
       "parent": null
+    },
+    {
+      "id": "cxu-rewrite-roadmap",
+      "title": "CXU 完整 SLA 重构路线图",
+      "file": "08_cxu_rewrite_roadmap.html",
+      "keywords": [
+        "CXU",
+        "重构",
+        "路线图",
+        "P0",
+        "双向 spawn",
+        "PTY",
+        "tree-sitter",
+        "试点",
+        "SAX"
+      ],
+      "parent": null
     }
   ]
 }

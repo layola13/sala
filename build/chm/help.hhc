@@ -69,6 +69,14 @@
 <param name="Local" value="../dist/content/01_overview/07_cxu_readiness.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="CXU 完整 SLA 重构路线图">
+<param name="Local" value="../dist/content/01_overview/08_cxu_rewrite_roadmap.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

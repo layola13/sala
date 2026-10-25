@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>CXU 完整 SLA 重构路线图</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; CXU 完整 SLA 重构路线图</div>
+<h1>CXU 完整 SLA 重构路线图</h1>
+
+<div class="note"><span class="label">状态</span>已立项（2026-10-25 用户定调：详细规划 SLA/SA、完整重构 CXU、安排优先级、随即开工）。依据是同章的<a href="07_cxu_readiness.html">就绪度审核</a>。本页是执行计划的权威版本：分期、优先级、验收标准与状态都在这里滚动更新；每完成一项即勾状态并注明提交。</div>
+
+<h2>总目标与原则</h2>
+<ul>
+<li><strong>目标</strong>：CXU（codex-react-ui）的服务端（约 5.9 万行 TS）、各 CLI 桥（约 6.5 万行 TS）与 Web 前端（约 8.8 万行 TSX）全部以 SLA 重写，最终形态为 SLA 原生后端 + SAX/WASM 前端；Electron 桌面壳在 P4 单独裁决。</li>
+<li><strong>行为对齐</strong>：重构以现有 TS 版为行为基准（HTTP/WS API 面、桥协议、配置格式不变），前端在 P3 之前可原样指向新后端使用；差异必须显式记账，不做静默改动。</li>
+<li><strong>地基优先</strong>：先补 sa_std 与 SLA 编译器的阻塞项，再写业务；基础核心一律内置 sa_std，插件只做封装（既有方针）。</li>
+<li><strong>并发模型定死</strong>：后端并发走线程 + mpsc，不押注 async（跨 async fn 嵌套 await 尚未收敛，见成熟度总表）。</li>
+<li><strong>无静默回退</strong>：撞到 UnsupportedSabDirectFeature 或缺失能力，记账到本页缺口表并先补地基，不绕路糊过去。</li>
+<li><strong>节奏</strong>：串行推进（本机与 Colab 资源约束），每项完成即提交推送，Colab 侧 15 分钟检查点照旧。</li>
+</ul>
+
+<h2>P0 地基期（最高优先级，全部阻塞后续）</h2>
+<table>
+<tr><th>项</th><th>内容</th><th>验收</th><th>状态</th></tr>
+<tr><td>P0-1</td><td><strong>双向 spawn</strong>：sa_std 给 spawn 家族加 stdin 管道变体（SpawnResult 增 stdin 句柄 + write/close 语义），process.sai 声明同步，策略门（16_policy 的 run 类别）走同一漏斗。</td><td>sa-std-unit 新增往返用例：spawn cat、写 stdin、关闭、读回显一致；全套串行回归绿。</td><td>进行中（2026-10-25 开工）</td></tr>
+<tr><td>P0-2</td><td><strong>PTY 内置</strong>：sa_std 基于 posix_openpt/grantpt/unlockpt（或 forkpty）提供 PTY 主端：open/spawn-in-pty/read/write/resize/close，term.sai 增声明。</td><td>单测：PTY 里跑 shell、回显与 resize 生效；对应 CXU terminalPty 的最小行为集。</td><td>未开始</td></tr>
+<tr><td>P0-3</td><td><strong>fs watch</strong>：sa_std inotify 封装（watch add/remove + 事件读：create/modify/delete/move，含目录递归的 SLA 层封装）。</td><td>单测：临时目录内改文件能收到对应事件；CXU 18 处 fs.watch 用法逐一对上语义。</td><td>未开始</td></tr>
+<tr><td>P0-4</td><td><strong>tree-sitter 内置</strong>：sa_tree_sitter.zig dlopen 核心库（sa_ts_* + tree_sitter.sai），语法 .so 构建管线；首批语法以 CXU VM 工具实际映射的语言为准。</td><td>单测：解析一份源文件、节点遍历与 query captures 结果与 C 参考一致；大纲提取冒烟。</td><td>未开始（路径已审，见审核页附录）</td></tr>
+<tr><td>P0-5</td><td><strong>SLA 编译器阻塞特性</strong>：for-in 集合迭代（原 Phase 6）、枚举 payload / match 提取与 @derive（原 Phase 5）进入 direct 路径。</td><td>sla 测试套件新增对应单元用例双后端一致；build-exe 313 分母的通过数显著上升并记录新快照。</td><td>未开始</td></tr>
+<tr><td>P0-6</td><td><strong>文本与小件</strong>：TOML 解析（codex config.toml 刚需，入 sa_std 文本层或 sla_std 库，二选一在开工时定）、bcrypt 口令哈希（SLA 纯实现）、keyring（FFI libsecret / 平台 API，排到 P2 认证真正需要时）。</td><td>TOML：以真实 config.toml 样本做往返解析测试；bcrypt：标准向量校验。</td><td>未开始</td></tr>
+</table>
+
+<h2>P1 后端试点纵切（codex 桥）</h2>
+<ul>
+<li><strong>形态</strong>：新 SLA workspace（布局效 scodex-mini 的 packages 分包）：config（TOML/env）、bridge-core（双向 spawn + JSON-RPC 分帧/多路复用）、http-ws-server（基于 sa_std 内置服务器的路由与会话层）、codex-bridge（对 codex app-server 的完整协议适配）、store（SQLite 经 db 插件的会话/历史持久化）。</li>
+<li><strong>验收</strong>：真实 codex CLI 经 SLA 后端跑通一轮完整对话（发起、流式事件、工具调用、打断、恢复）；现有 React 前端不改代码指向 SLA 后端可正常使用（API 面子集对齐）；与 TS 版同场景行为对照表逐项勾验。</li>
+<li><strong>产出</strong>：一份「撞墙清单」——试点期撞到的全部 Unsupported/缺失能力与绕行成本，回填 P0/P2 排期。</li>
+</ul>
+
+<h2>P2 后端全面迁移</h2>
+<ul>
+<li>其余 CLI 桥逐个迁（claude、opencode 双后端、agy、auggie、cline、command-code、grok、pi、mini 等），复用 P1 的 bridge-core；每个桥沿用「只能经 SDK/标准面」的纪律（对应 SLA 侧即 sa_std + sla_std）。</li>
+<li>服务端其余面：free-key server、账户与认证（bcrypt/keyring 落地）、postgres（如实证在用）、静态文件与产物服务、隧道/公网入口形态对齐、配置 schema 同步工具。</li>
+<li><strong>验收</strong>：TS 版服务端下线前，全部桥与 API 面对照测试绿；双版本并行期以同一前端交叉验证。</li>
+</ul>
+
+<h2>P3 前端（SAX 应用框架化 → 逐屏迁移）</h2>
+<ul>
+<li><strong>先框架后界面</strong>：SAX 补应用级能力——状态管理与数据绑定（脱离静态占位模型）、路由、表单/快捷键体系、airlock 高频流更新的压测与优化（token 流场景）、虚拟化列表。</li>
+<li><strong>重组件逐个裁决</strong>：代码视图与 diff（可基于 tree-sitter 大纲/高亮自建）、终端（PTY 已在后端，前端渲染要 xterm 级能力，WASM 自建或 JS 岛共存二选一并记账）、Monaco 级编辑器是独立子课题（先以轻编辑 + JS 岛过渡，不假装等价）。</li>
+<li><strong>验收</strong>：按屏迁移，每屏与 React 版做功能对照表；全部主流程（对话、终端、文件、设置、任务）走通后才谈 React 下线。</li>
+</ul>
+
+<h2>P4 桌面壳与发布</h2>
+<ul>
+<li>Electron 壳去留裁决：保留（只换页面产物）或以原生/Web 形态替代；Windows 打包、签名、PTY 原生件、混淆与安装包流程在此期对齐 TS 版现状。</li>
+<li>npm 分发与插件渠道沿用既有形态（后端产物即 sa 插件/独立二进制两种形态在开工时定）。</li>
+</ul>
+
+<h2>缺口记账表（滚动）</h2>
+<table>
+<tr><th>日期</th><th>缺口</th><th>归属</th><th>处置</th></tr>
+<tr><td>2026-10-25</td><td>子进程 stdin 不可写</td><td>sa_std</td><td>P0-1 进行中</td></tr>
+<tr><td>2026-10-25</td><td>PTY 缺失</td><td>sa_std</td><td>P0-2</td></tr>
+<tr><td>2026-10-25</td><td>fs watch 缺失</td><td>sa_std</td><td>P0-3</td></tr>
+<tr><td>2026-10-25</td><td>tree-sitter 未接入</td><td>sa_std</td><td>P0-4</td></tr>
+<tr><td>2026-10-25</td><td>for-in / 枚举 match / @derive 未进 direct</td><td>SLA 编译器</td><td>P0-5</td></tr>
+<tr><td>2026-10-25</td><td>TOML / bcrypt / keyring 无现成件</td><td>sa_std / SLA</td><td>P0-6 / P2</td></tr>
+<tr><td>2026-10-25</td><td>15 个插件 build.zig 以 ../sci 引宿主模块、重定位不通</td><td>插件生态</td><td>与本重构并行治理，逐仓自包含化</td></tr>
+</table>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>
