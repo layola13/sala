@@ -79,6 +79,11 @@
 <tr><td>D12</td><td>前端微缩（SAX 页面经 airlock 与 SLA 后端 WS 对话一轮 token 流）</td><td>SAX、ws</td><td>D2</td><td>已落地 2026-10-25（12_frontend_mini：page.sax 真实构建出束 + SLA 后端 WS token 流 + 同协议客户端组装校验；airlock 无 WS 桥为已知缺口，见缺口表）</td></tr>
 </table>
 
+<h2>执行策略更新（2026-10-26）：批量转换 → tsgosa 探坑 → 回 SLA 主战场</h2>
+<p>批量转换已完成：CXU（codex-react-ui plugins 分支 f2cb649d）1287 个 TS/TSX 文件 1:1 镜像转换为 SLA/SAX，入 slacxu 的 bulk-convert 分支，缺陷只记不修（约 1.27 万条）。随后进入分阶段修复：先补编译器/标准库缺口（sa_json 键枚举与变更面、官方全局 cell、mkdir -p、独占创建与 ALREADY_EXISTS 状态码、base64/fetch 声明面），sdk-backend 26/26、sdk-frontend 8/8 已全通；server 主体 94/96（语法/写穿/借用三层完成，语义桩普查与 async 重译未做）、其余 apps 5/33 后，修复阶段暂停——见下「战场转移」。</p>
+<p><strong>ts2sla 划线（2026-10-26 定案）</strong>：不另写 SLA 全量发射后端。第三方库可先走包装：以 tsgosa 既有的 ts→sa 产物（.sai）加一层薄 SLA 包装（签名翻译与转发）；<strong>本项目自有 TS 一律真正转换为 SLA，禁止以包装替代</strong>。实测项目后端第三方表面仅约 15 个包，且大半已被 sa_std 现成面覆盖（SQLite、TOML 读侧、keyring、PTY、WebSocket、tree-sitter），真正需要编译加包装的纯 TS 库为个位数（zod、js-tiktoken、pngjs、qrcode 等）。</p>
+<p><strong>战场转移（2026-10-26 定案，目标不变）</strong>：探坑与施工分离——先以 tsgosa 全量编译 CXU 后端面（apps/server、sdk-*、packages、backends、mini-codex、duck2api、free-key-server；前端 TSX 仅情报性扫测，不作门禁），把拒绝与失败一次性探明，按 sci 编译器 / sa_std / tsgosa 发射器三分类，优先修地基；每条拒绝有归属与处置即收兵（原生插件如 node-pty、sharp 以声明边界表面处理），完整后回 SLA 主战场按既有修复地图续修。已知边界：tsgosa 绕过 SLA 层，探不到 SLA 层缺口（checker、所有权、导入展开、语法面）——该层已由修复阶段的 playbook 探明相当部分。全量 CXU 通过 SA 编译，同时构成 SA 工具链在大规模真实代码库上的旗舰验证。</p>
+
 <h2>缺口记账表（滚动）</h2>
 <table>
 <tr><th>日期</th><th>缺口</th><th>归属</th><th>处置</th></tr>
@@ -99,6 +104,7 @@
 <tr><td>2026-10-25</td><td>15 个插件 build.zig 以 ../sci 引宿主模块、重定位不通</td><td>插件生态</td><td>与本重构并行治理，逐仓自包含化</td></tr>
 <tr><td>2026-10-25</td><td>SLA 标准面缺 (ptr,len) 字节比较：extern 返回的路径/帧数据无法直接与字面量比较，演示须自带 byteseq.sa 指针出参宏（D2 撞点）</td><td>SLA / sa_std</td><td>后续项：sa_std 增补 SLA 可直接调用的 bytes_eq 类工具面</td></tr>
 <tr><td>2026-10-25</td><td>http_server.sai 未注明 v2 WebSocket 的 poll 驱动契约（read 返回 would_block=1 须 poll 重试）与 upgrade 消费请求句柄的所有权（D2 撞点）</td><td>sci 文档</td><td>后续项：.sai 注释补契约说明</td></tr>
+<tr><td>2026-10-26</td><td>sa_ts（tree-sitter）节点导航面未绑定：parent / position（row,col）/ is_named / is_missing / has_error 在 sci 侧无 extern（现 16 extern 仅解析与子节点导航）；CXU 代码图谱模块需要</td><td>sci / sa_std</td><td>待 tsgosa 探坑战役三分类后排期补绑</td></tr>
 </table>
 
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
