@@ -83,6 +83,13 @@
 <p>批量转换已完成：CXU（codex-react-ui plugins 分支 f2cb649d）1287 个 TS/TSX 文件 1:1 镜像转换为 SLA/SAX，入 slacxu 的 bulk-convert 分支，缺陷只记不修（约 1.27 万条）。随后进入分阶段修复：先补编译器/标准库缺口（sa_json 键枚举与变更面、官方全局 cell、mkdir -p、独占创建与 ALREADY_EXISTS 状态码、base64/fetch 声明面），sdk-backend 26/26、sdk-frontend 8/8 已全通；server 主体 94/96（语法/写穿/借用三层完成，语义桩普查与 async 重译未做）、其余 apps 5/33 后，修复阶段暂停——见下「战场转移」。</p>
 <p><strong>ts2sla 划线（2026-10-26 定案）</strong>：不另写 SLA 全量发射后端。第三方库可先走包装：以 tsgosa 既有的 ts→sa 产物（.sai）加一层薄 SLA 包装（签名翻译与转发）；<strong>本项目自有 TS 一律真正转换为 SLA，禁止以包装替代</strong>。实测项目后端第三方表面仅约 15 个包，且大半已被 sa_std 现成面覆盖（SQLite、TOML 读侧、keyring、PTY、WebSocket、tree-sitter），真正需要编译加包装的纯 TS 库为个位数（zod、js-tiktoken、pngjs、qrcode 等）。</p>
 <p><strong>战场转移（2026-10-26 定案，目标不变）</strong>：探坑与施工分离——先以 tsgosa 全量编译 CXU 后端面（apps/server、sdk-*、packages、backends、mini-codex、duck2api、free-key-server；前端 TSX 仅情报性扫测，不作门禁），把拒绝与失败一次性探明，按 sci 编译器 / sa_std / tsgosa 发射器三分类，优先修地基；每条拒绝有归属与处置即收兵（原生插件如 node-pty、sharp 以声明边界表面处理），完整后回 SLA 主战场按既有修复地图续修。已知边界：tsgosa 绕过 SLA 层，探不到 SLA 层缺口（checker、所有权、导入展开、语法面）——该层已由修复阶段的 playbook 探明相当部分。全量 CXU 通过 SA 编译，同时构成 SA 工具链在大规模真实代码库上的旗舰验证。</p>
+<p><strong>普查结论与回归（2026-10-26）</strong>：tsgosa 双普查完成——整程序模式回收量为 0（tsgosa 没有 checker 喂 lowering 的路径，标注子集是其 lowering 自身的输入方言，CXU 的普通 TS 大多在方言外）；sci 编译器双普查 0 确诊；sa_std 仅余投影小清单（node:crypto 等接入、若干具名映射、node.sai 宿主投影面）。用户裁决按 B 回 SLA 主战场：tsgosa 方言升级另行排期、不作门。修复阶段从检查点续行：server-rest 95/96（index.sla 经语义桩普查与重译收口、saVmCodeGraph 绑定真策略面收口；saVmTool 函数体为逐字 TS，定性整文件重译单元单独推进）、pkg-proto-shared 620/620 全通，其后依次 packages 其余、backends、mini-codex、frontends。</p>
+
+<h2>开发环境备忘：Colab 全局变量 GIT_TOKEN 的取用（2026-10-26）</h2>
+<p>SA/SLA 的开发、编译、测试与推送都在 Colab 运行时上进行（仓库位于 /content/sa_all/）。推送凭证是仓库所有者在 Colab 中设置的<strong>全局变量 GIT_TOKEN</strong>（经 google.colab.userdata 注入到笔记本与服务进程的环境中，同批还有 GIT_URL、BRANCH）。关键事实：<strong>SSH 登录 shell 不继承该环境</strong>，/root/.bashrc 中一般也没有此变量——只查 .bashrc 就报「无 token」是错误结论。</p>
+<p>取用法：在远端 shell 内遍历进程环境抽取（/proc/&lt;pid&gt;/environ 保存各进程启动时的环境，NUL 分隔）：</p>
+<pre>TOK=$(for p in /proc/[0-9]*/environ; do tr '\0' '\n' &lt; $p 2&gt;/dev/null | grep -m1 '^GIT_TOKEN='; done | head -1 | cut -d= -f2-)</pre>
+<p>扫描途中个别 pid 已退出会产生无害的 No such file 警告。取到后仅在该远端 shell 内拼入推送地址（https://layola13:${TOK}@github.com/…）使用，命令输出须先脱敏再查看，推送结果以 git ls-remote 核对。回退链：进程环境取不到时再查 /root/.bashrc（github_pat_ 或 GIT_TOKEN= 行），两个来源都为空才可判定无 token。安全纪律：<strong>token 值绝不打印、绝不写入任何文件、日志或文档</strong>；每个新 Colab 运行时由账号侧自动重新注入，故环境恢复（restore-colab）后推送一律走此法，无需向盒上写入凭证。此法适用于 Colab 上一切 git 推送：手工提交、15 分钟检查点与恢复后补推。</p>
 
 <h2>缺口记账表（滚动）</h2>
 <table>
@@ -104,7 +111,7 @@
 <tr><td>2026-10-25</td><td>15 个插件 build.zig 以 ../sci 引宿主模块、重定位不通</td><td>插件生态</td><td>与本重构并行治理，逐仓自包含化</td></tr>
 <tr><td>2026-10-25</td><td>SLA 标准面缺 (ptr,len) 字节比较：extern 返回的路径/帧数据无法直接与字面量比较，演示须自带 byteseq.sa 指针出参宏（D2 撞点）</td><td>SLA / sa_std</td><td>后续项：sa_std 增补 SLA 可直接调用的 bytes_eq 类工具面</td></tr>
 <tr><td>2026-10-25</td><td>http_server.sai 未注明 v2 WebSocket 的 poll 驱动契约（read 返回 would_block=1 须 poll 重试）与 upgrade 消费请求句柄的所有权（D2 撞点）</td><td>sci 文档</td><td>后续项：.sai 注释补契约说明</td></tr>
-<tr><td>2026-10-26</td><td>sa_ts（tree-sitter）节点导航面未绑定：parent / position（row,col）/ is_named / is_missing / has_error 在 sci 侧无 extern（现 16 extern 仅解析与子节点导航）；CXU 代码图谱模块需要</td><td>sci / sa_std</td><td>待 tsgosa 探坑战役三分类后排期补绑</td></tr>
+<tr><td>2026-10-26</td><td>sa_ts（tree-sitter）节点导航面未绑定：parent / position（row,col）/ is_named / is_missing / has_error 在 sci 侧无 extern（现 16 extern 仅解析与子节点导航）；CXU 代码图谱模块需要</td><td>sci / sa_std</td><td>已关闭（2026-10-26，sci 41b9f82d）：补绑 sa_ts_node_parent / is_named / is_missing / has_error / start_point / end_point 共 6 extern（钉版 C 库符号经 nm 与探针双验），sa-std-unit 160/160，宿主层绕行补偿已退役</td></tr>
 </table>
 
 </body>
