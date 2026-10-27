@@ -1,0 +1,37 @@
+subsystem	item	ue_evidence	sa_counterpart	classification	note
+sockets	TCP 流套接字全套（connect/listen/accept/send/recv/选项）	FSocket API 页 42 个签名候选（Connect/Listen/Accept/Send/Recv/SetNoDelay/SetLinger/...）	sa_std net.sai/net.sa：tcp 相关符号 125 个（sa_std_net_tcp_* + sa_net_tcp_*）	已有等价	SA 侧为句柄+状态码形态，UE 为 C++ 类形态，能力面对应
+sockets	UDP 数据报（bind/send_to/recv_from/广播/已连接 UDP）	FSocket SendTo/RecvFrom/SetBroadcast	sa_net_udp_* / sa_std_net_udp_* 全套（含 broadcast、connect_addr）	已有等价	含 vectored 变体（udp_recv_from_vectored 等）
+sockets	UDP 组播（join/leave/loopback/ttl/接口选择）	FSocket JoinMulticastGroup/LeaveMulticastGroup/SetMulticastInterface/SetMulticastLoopback/SetMulticastTtl	sa_net_udp_join_multicast_v4/v6、leave、set_multicast_loop、set_multicast_ttl、multicast_if	已有等价	v4/v6 双栈均覆盖
+sockets	就绪等待与连接状态查询（Wait/HasPendingData/GetConnectionState）	FSocket Wait/WaitForPendingConnection/HasPendingConnection/GetConnectionState	SA 非阻塞开关 + 读/写超时 + netx io_uring 反应器	已有等价	形态不同：SA 以超时与反应器代 poll 式等待，未提供同名轮询面
+sockets	地址值对象（FInternetAddr：克隆/比较/任意/广播/回环/平台端口序）	FInternetAddr API 页 22 个签名候选	owned NetAddr 句柄 + v4/v6 parse/format ascii + unix addr 对象	已有等价	差异：SA 地址是 owned 句柄而非可拷贝值；平台端口序助手无独立面（解析时内含）
+sockets	独立 DNS 解析面（同步/异步解析、结果对象、主机名缓存）	ISocketSubsystem GetAddressInfo/GetAddressInfoAsync/GetHostByName/CreateResolveInfoCached + FResolveInfo/FResolveInfoAsync/FResolveInfoCached（Sockets 索引）	仅 connect/listen 内嵌解析 + sa_std_net_addr_reverse_lookup + SA_NET_ERR_DNS 错误码；无独立解析 API	可直接对应	与 AT（Android）线普查的 dns 命中 0 结论互相印证；解析面与传输解耦是多家 std 共有面
+sockets	批量数据报接收 RecvMulti（单调用多包+多源地址）	ISocketSubsystem CreateRecvMulti/IsSocketRecvMultiSupported + FRecvMulti（索引）+ FSocket RecvMulti	SA 有 udp vectored（单包多缓冲）但无多包单调用接收	可直接对应	recvmmsg 式批量接收，高吞吐数据报场景
+sockets	每包信息 pktinfo（RecvFromWithPktInfo：目的地址/接口随包返回）	FSocket RecvFromWithPktInfo/SetIpPktInfo	sa recv_from 仅回源地址与数据	可直接对应	多宿主/多网卡服务端的包归属判定需要
+sockets	数据包时间戳（SetRetrieveTimestamp/TranslatePacketTimestamp）	FSocket SetRetrieveTimestamp + ISocketSubsystem TranslatePacketTimestamp	SA 网络面无时间戳符号	可直接对应	RTT/抖动测量与时间同步类协议需要
+sockets	本地适配器与多宿主枚举（GetLocalAdapterAddresses/GetMultihomeAddress）	ISocketSubsystem 签名	仅 sa_std_net_hostname + listener_local_addr	可直接对应	本机网络信息面（与 AT 线「本机网络信息+路由表」建议同向）
+sockets	平台套接字子系统抽象（ISocketSubsystem 可插拔后端：EOS/Steam 实现类）	ISocketSubsystem API 页 Derived Classes（FSocketSubsystemEOS/FSocketSubsystemSteam）	SA 直连 OS socket、无子系统注册层	模型不合	EOS/Steam 后端是平台联机服务，其注册层属 Online 平台层而非通用 std；SA 的平台差异由运行时内定
+sockets	网络文件系统 NFS（编辑器资产串流：FNetworkFileArchive/FServerTOC/FNFSMessageHeader）	Sockets 模块索引	无	模型不合	编辑器开发期工具面，非运行时标准库职责
+netdriver	连接层可靠通道（UNetConnection bunch 队列：分片/ack/重排/发送缓冲位管理）	UNetConnection API 页 199 个签名候选（WriteBitsToSendBuffer/GetMaxSingleBunchSizeBits/IsInternalAck/SendRawBunch/FlushNet...）	netx 是 io_uring 反应器（不管可靠性）；传输层无可靠数据报通道	需建模	UE 的 bunch 协议与 Actor 通道绑定；可移植的内核是「分片/重组+选择性 ack」机制层，需独立建模而非照搬
+netdriver	NetGUID 对象标识映射（FNetGUIDCache/PackageMap：对象与资产包 ↔ 网络 GUID）	FNetGUIDCache API 页 51 个签名候选（头文件 PackageMapClient.h）	无	需建模	前提是宿主对象模型与资产包概念；通用 std 无此前提，只登记模型
+netdriver	演示/回放 NetDriver（UDemoNetDriver：网络流录制与回放）	UDemoNetDriver API 页 146 个签名候选	无	模型不合	游戏回放系统的一部分，依赖关卡/Actor 序列化全栈
+netdriver	网络故障模拟（NetDriver 层 emulation 设置：丢包/延迟/抖动注入开关）	UNetDriver API 页含 bNeverApplyNetworkEmulationSettings；原始页载荷含 Pkt 族设置项	无	可直接对应	签名级不可核（设置项在页内 JSON 载荷、未进签名表），按文档/API 混合级证据登记；可落为测试用 impairment 垫片
+netdriver	具体 IP 驱动（UIpNetDriver/UIpConnection：NetDriver 的 UDP 实现类）	官方 API 参考索引三处候选路径全部 soft-404	—	不可核	类的存在由 NetDriver 文档体系确立，但签名面在官方 API 参考中不可核；按红线不补写，登记为不可核
+packet_handler	包处理组件链（PacketHandler + HandlerComponent：收发双向链式变换、Profile 配置）	PacketHandler API 页 40 个签名候选（AddHandler/Incoming/Outgoing/GetComponentByName/InitFaultRecovery...）+ 模块索引 13 类	无链式包变换层	需建模	是 UE 网络的扩展点架构（压缩/加密/校验以组件插入）；通用 std 若做应是独立的包管道模型
+packet_handler	加密组件槽（FEncryptionComponent：会话加密接入点）	PacketHandler 索引含 FEncryptionComponent；PacketHandler.GetEncryptionComponent 签名	SA 有 TLS 客户端/服务端与 DTLS（记录层整体加密），无「任意传输的会话加密组件」面	需建模	主要用途（连 TLS 化通道）已有等价；UE 槽位面向的是裸 UDP 上的 AES 会话加密，属另一模型
+packet_handler	状态化包压缩（Oodle Network：训练字典的 PacketHandler 压缩组件）	Epic 官方文档 oodle-network 页（PacketHandler 提及 9 次、Oodle 71 次）	compress.sai 通用压缩（无训练字典/会话状态压缩）	需建模	Oodle 的价值在训练字典+有状态流压缩，与通用无状态压缩不是一面
+packet_handler	DDoS 检测与无连接包处理（GetDDoS/IncomingConnectionless）	PacketHandler 签名（GetDDoS/IncomingConnectionless/GetQueuedConnectionlessPacket）	无	需建模	游戏服务器防护面；通用 std 可借鉴其「握手前限流/质询」模型，不直接对应
+replication	属性复制布局引擎（FRepLayout：属性增量 diff、shadow buffer、校验和、RepNotify 触发）	FRepLayout API 页 40 个签名候选（DiffProperties/CreateShadowBuffer/CallRepNotifies/GenerateChecksum/ValidateWithChecksum...）	无	需建模	前提：反射属性元数据 + 对象生命周期宿主模型；是 UE 复制的心脏，与 sa_std 的关系是「上层框架模型」而非缺失函数
+replication	RPC 三类与远程调用分发（Server/Client/NetMulticast；ProcessRemoteFunction）	官方 RPC 文档页（RPC 提及 124 次、Multicast 10 次、Reliability 4 次）+ UNetDriver InternalProcessRemoteFunction/ProcessRemoteFunction 签名	无	需建模	前提是 UObject 函数分发与类元数据；RPC 语义（可靠性标志、验证函数）已在文档面核实
+replication	RepNotify 变更通知（OnRep_ 回调族：属性到达客户端时触发）	属性复制文档页（RepNotify 提及 32 次、OnRep_ 45 次）+ AActor 签名含 OnRep_AttachmentReplication/OnRep_ReplicatedMovement 等	无	需建模	应用可见面：与属性复制引擎同前提；SA/SLA 侧将来若做复制框架须先有属性元数据层
+replication	复制条件与休眠（COND_* 条件族 + NetDormancy 状态机）	休眠文档页（Dormancy 提及 68 次）+ AActor SetNetDormancy/FlushNetDormancy/GetNetDormancy 签名	无	需建模	条件族（OwnerOnly/SimulatedOnly/InitialOnly 等）依赖所有权/模拟代理模型
+replication	相关性剔除与优先度（IsNetRelevantFor/NetCullDistanceSquared/NetPriority/更新频率）	AActor 复制相关签名子集（全类 610 个签名候选中筛得 103 个复制相关）	无	需建模	前提是世界/关卡空间模型与观察者概念；Replication Graph 是其扩展（单列）
+replication	Fast Array 复制（FFastArraySerializer：数组增量 add/remove delta 同步）	官方 API 参考索引 soft-404（不可核）；Iris 迁移文档提及 FastArray 2 次、Iris 术语表有 Fast Array Replication Fragment 条目	无	需建模	证据等级为文档级：类的存在与用途可核、签名面不可核；模型本身（数组增量协议）值得登记
+replication	子对象复制（Replicated SubObjects 注册/销毁/撕裂）	AActor 与 UActorComponent 签名子集（AddReplicatedSubObject/TearOffReplicatedSubObjectOnRemotePeers 等；组件侧复制相关 32 个）	无	需建模	前提是组件/子对象所有权树
+replication	Replication Graph（空间分区驱动的相关性计算图）	UReplicationGraph API 页 65 个签名候选 + 插件模块索引 54 类 + 官方 Replication Graph 文档页	无	需建模	把相关性从逐 Actor 判断改为预计算图；前提是世界分区与观察者集合
+iris	Iris 复制系统核心（UReplicationSystem：状态量化副本独立存储、Fragment 模型、数据流）	UReplicationSystem API 页 106 个签名候选 + Iris 组件文档（量化副本/去耦设计自述）+ IrisCore 模块索引 402 类	无	需建模	UE5 新复制架构：与经典复制同前提但更强（序列化注册表 + 状态所有权转移）；sa_std 层只登记模型与术语对照
+iris	Iris 桥接层（UReplicationBridge：游戏对象 ↔ NetObject 映射、过滤集）	UReplicationBridge API 页 43 个签名候选	无	需建模	桥接的过滤/优先级模型是 Iris 相对经典复制的主要应用面差异
+iris	Iris 序列化体系（FNetSerializer + NetSerialize 特征：类型注册的量化序列化器）	FNetSerializer API 页存在（头文件 Net/Iris/Public/Iris/Serialization/NetSerializer.h）但签名抽取为 0（方法级不可核）；迁移文档 NetSerialize 提及 6 次	无	需建模	其「每类型一个双向序列化器 + 量化变体」注册模型与位级打包地基相关；地基层已在 serialization 域单列
+serialization	位级打包流（bit writer/reader：非字节对齐的紧凑编码）	Iris 术语表 "Net Bit Stream Reader" 条目 + UNetConnection WriteBitsToSendBuffer/GetFreeSendBufferBits 签名	sa_std 网络/编码面无 bit 级读写符号（全表面检索 bit* 零命中于 net 域）	可直接对应	复制与游戏协议的地基件，也是通用协议编解码可复用件；小面、明确、应优先补
+serialization	NetQuantize 量化族（向量按精度量化：FVector_NetQuantize/10/100）	三页 API 参考（头文件 Engine/NetSerialization.h，每页抽得 Serialize 相关签名）	无量化编解码面	可直接对应	固定点/量化浮点编解码是通用编码件，不依赖游戏对象模型
+serialization	结构体 NetSerialize 自定义序列化特征（UScriptStruct 的 NetSerialize trait）	Iris 迁移文档 NetSerialize 提及 6 次（文档级证据）	无	需建模	前提是结构体反射/注册；与 Iris 序列化体系同族，单列因经典复制亦使用
+online	OnlineSubsystem 平台服务接口层（会话/身份/好友/成就/语音等）	插件模块索引 277 类 + IOnlineSubsystem 74 / IOnlineSession 128 个签名候选	无（sa_std 不含平台服务面）	模型不合	平台服务 SDK 的接口抽象层；按既有学说应由插件/桥接承接，不进 sa_std 核心。本线只登记边界，不深挖
