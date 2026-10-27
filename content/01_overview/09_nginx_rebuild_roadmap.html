@@ -2,14 +2,14 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>自研 Web 服务器（nginx 重构）规划</title>
+<title>sangx：自研 Web 服务器（nginx 重构）规划</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
 <div class="topic-header">入门指南 &gt; 自研 Web 服务器（nginx 重构）规划</div>
-<h1>自研 Web 服务器（nginx 重构）规划</h1>
+<h1>sangx：自研 Web 服务器（nginx 重构）规划</h1>
 
-<div class="note"><span class="label">状态</span>规划已成、未立项开工（2026-10-28 用户提出「做自己的 nginx」并完成可行性/配置/安全三场讨论，本页为讨论结论的权威记录）。提议名 <strong>sangx</strong>（sa + ngx，待用户最终定名；备选 sanginx / slanx）。前置条件：STD 补齐第二波收官 + 反向代理 handler 模型裁定。分期与待裁定项在本页滚动更新。</div>
+<div class="note"><span class="label">状态</span>规划已成、未立项开工（2026-10-28 用户提出「做自己的 nginx」并完成可行性/配置/安全三场讨论，本页为讨论结论的权威记录）。项目定名 <strong>sangx</strong>（sa + ngx，用户 2026-10-28 定）。前置条件：STD 补齐第二波收官 + 反向代理 handler 模型裁定。分期与待裁定项在本页滚动更新。</div>
 
 <h2>动机：为什么不用 nginx 本体</h2>
 <ul>
@@ -72,7 +72,7 @@
 
 <h2>待裁定清单</h2>
 <ul>
-<li>项目定名（提议 sangx；备选 sanginx / slanx）。</li>
+<li>项目定名：sangx（已定，2026-10-28）。</li>
 <li>反向代理 handler/钩子模型（按 nginx phase 模型拟案，与 CXU 共用裁定）。</li>
 <li>共享状态模型：补 std shmem 面 vs 单进程模型绕开。</li>
 <li>进程模型：多进程 SO_REUSEPORT（nginx 式）vs 单进程事件循环+线程池，M0/M1 压测后定。</li>
