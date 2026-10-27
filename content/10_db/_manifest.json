@@ -106,6 +106,21 @@
         "规划"
       ],
       "parent": null
+    },
+    {
+      "id": "mysql-sqlite-compare",
+      "title": "三角对比与漏洞统计：MySQL / SQLite / db 插件",
+      "file": "08_mysql_sqlite_compare.html",
+      "keywords": [
+        "MySQL",
+        "SQLite",
+        "对比",
+        "CVE",
+        "漏洞统计",
+        "选型",
+        "安全"
+      ],
+      "parent": null
     }
   ]
 }

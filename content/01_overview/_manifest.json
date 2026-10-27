@@ -158,6 +158,22 @@
         "对象存储"
       ],
       "parent": null
+    },
+    {
+      "id": "sardis-roadmap",
+      "title": "sardis（暂名）：Redis 重构规划",
+      "file": "11_sardis_roadmap.html",
+      "keywords": [
+        "sardis",
+        "Redis",
+        "KV",
+        "缓存",
+        "RESP",
+        "紧凑编码",
+        "复制",
+        "路线图"
+      ],
+      "parent": null
     }
   ]
 }
