@@ -326,6 +326,26 @@
         "缺口"
       ],
       "parent": "net"
+    },
+    {
+      "id": "unreal-net-census",
+      "title": "Unreal Engine 网络体系 × sa_std 网络面普查与缺口表",
+      "file": "23_unreal_net_census.html",
+      "keywords": [
+        "Unreal Engine",
+        "UE5",
+        "网络普查",
+        "Replication",
+        "Iris",
+        "NetDriver",
+        "Sockets",
+        "PacketHandler",
+        "NetQuantize",
+        "位级打包",
+        "sa_std",
+        "缺口表"
+      ],
+      "parent": null
     }
   ]
 }
