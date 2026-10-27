@@ -1,0 +1,25 @@
+{
+ "pages_visited": 1712,
+ "fetch_errors": 0,
+ "error_sample": [],
+ "symbols": 1711,
+ "by_kind": {
+  "struct": 69,
+  "protocol": 52,
+  "class": 47,
+  "enum": 51,
+  "macro": 4,
+  "var": 116,
+  "typealias": 83,
+  "func": 308,
+  "init": 166,
+  "property": 365,
+  "associatedtype": 8,
+  "method": 243,
+  "case": 194,
+  "subscript": 3,
+  "op": 2
+ },
+ "max_ios_introducedAt": "27.0",
+ "seconds": 25.9
+}

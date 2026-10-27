@@ -1,0 +1,455 @@
+framework	module	kind	owner	name	lang	ios_since	grade	ref
+Foundation-URLSession	FTPURLProtocol.swift	init		request	swift		oss-swift	Sources/FoundationNetworking/URLSession/FTP/FTPURLProtocol.swift
+Foundation-URLSession	FTPURLProtocol.swift	init		task	swift		oss-swift	Sources/FoundationNetworking/URLSession/FTP/FTPURLProtocol.swift
+Foundation-URLSession	HTTPCookie.swift	class		HTTPCookie	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	func	HTTPCookie	cookies	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	func	HTTPCookie	requestHeaderFields	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	init	HTTPCookie	init	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	init	HTTPCookiePropertyKey	_	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	init	HTTPCookiePropertyKey	rawValue	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	comment	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	commentURL	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	discard	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	domain	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	expires	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	maximumAge	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	name	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	originURL	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	path	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	port	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	secure	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	value	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	let	HTTPCookiePropertyKey	version	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	struct		HTTPCookiePropertyKey	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	comment	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	description	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	domain	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	isHTTPOnly	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	isSecure	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	isSessionOnly	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	name	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	path	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	portList	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	properties	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	value	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookie.swift	var	HTTPCookie	version	swift		oss-swift	Sources/FoundationNetworking/HTTPCookie.swift
+Foundation-URLSession	HTTPCookieStorage.swift	class		HTTPCookieStorage	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	enum	HTTPCookie	AcceptPolicy	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	func	HTTPCookieStorage	cookies	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	func	HTTPCookieStorage	deleteCookie	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	func	HTTPCookieStorage	removeCookies	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	func	HTTPCookieStorage	setCookie	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	func	HTTPCookieStorage	setCookies	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	func	HTTPCookieStorage	sharedCookieStorage	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	func	HTTPCookieStorage	sortedCookies	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	let	Notification	NSHTTPCookieManagerCookiesChanged	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	var	HTTPCookieStorage	cookieAcceptPolicy	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	var	HTTPCookieStorage	cookies	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	var	HTTPCookieStorage	description	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPCookieStorage.swift	var	HTTPCookieStorage	shared	swift		oss-swift	Sources/FoundationNetworking/HTTPCookieStorage.swift
+Foundation-URLSession	HTTPURLProtocol.swift	init		request	swift		oss-swift	Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+Foundation-URLSession	HTTPURLProtocol.swift	init		task	swift		oss-swift	Sources/FoundationNetworking/URLSession/HTTP/HTTPURLProtocol.swift
+Foundation-URLSession	NSURLRequest.swift	class	NSURLRequest	NSMutableURLRequest	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	class	NSURLRequest	NSURLRequest	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	enum	NSURLRequest	CachePolicy	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	enum	NSURLRequest	NetworkServiceType	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSMutableURLRequest	addValue	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSMutableURLRequest	copy	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSMutableURLRequest	setValue	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSURLRequest	_bridgeToSwift	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSURLRequest	copy	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSURLRequest	encode	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSURLRequest	isEqual	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSURLRequest	mutableCopy	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	func	NSURLRequest	value	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	init	NSMutableURLRequest	init	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	init	NSMutableURLRequest	url	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	init	NSURLRequest	init	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	init	NSURLRequest	url	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	typealias	NSURLRequest	_StructType	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	CachePolicy	reloadIgnoringCacheData	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	allHTTPHeaderFields	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	allowsCellularAccess	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	cachePolicy	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	httpBody	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	httpBodyStream	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	httpMethod	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	httpShouldHandleCookies	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	httpShouldUsePipelining	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	networkServiceType	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSMutableURLRequest	timeoutInterval	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSURLRequest	description	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSURLRequest	hash	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSURLRequest	httpBody	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSURLRequest	httpBodyStream	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NSURLRequest.swift	var	NSURLRequest	supportsSecureCoding	swift		oss-swift	Sources/FoundationNetworking/NSURLRequest.swift
+Foundation-URLSession	NativeProtocol.swift	init		request	swift		oss-swift	Sources/FoundationNetworking/URLSession/NativeProtocol.swift
+Foundation-URLSession	NativeProtocol.swift	init		task	swift		oss-swift	Sources/FoundationNetworking/URLSession/NativeProtocol.swift
+Foundation-URLSession	URL.swift	func	URL	_bridgeToObjectiveC	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	_conditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	_forceBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	_unconditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	checkResourceIsReachable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	removeAllCachedResourceValues	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	removeCachedResourceValue	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	resourceValues	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	setResourceValues	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	func	URL	setTemporaryResourceValue	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	init	URL	fileReferenceLiteralResourceName	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	init	URLResourceValues	init	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	struct	URLResourceValues	URLResourceValues	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	typealias	URL	ReferenceType	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	typealias	URLResourceValues	_FileReferenceLiteralType	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URL	parameterString	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URL	playgroundDescription	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URL	resourceSpecifier	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	addedToDirectoryDate	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	allValues	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	applicationIsScriptable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	attributeModificationDate	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	canonicalPath	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	contentAccessDate	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	contentModificationDate	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	creationDate	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	documentIdentifier	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	fileAllocatedSize	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	fileResourceIdentifier	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	fileResourceType	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	fileSize	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	generationIdentifier	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	hasHiddenExtension	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isAliasFile	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isApplication	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isDirectory	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isExcludedFromBackup	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isExecutable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isHidden	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isMountTrigger	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isPackage	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isReadable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isRegularFile	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isSymbolicLink	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isSystemImmutable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isUbiquitousItem	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isUserImmutable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isVolume	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	isWritable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	labelNumber	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	linkCount	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	localizedLabel	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	localizedName	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	localizedTypeDescription	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	name	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	parentDirectory	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	path	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	preferredIOBlockSize	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	quarantineProperties	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	tagNames	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	totalFileAllocatedSize	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	totalFileSize	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	typeIdentifier	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemContainerDisplayName	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemDownloadRequested	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemDownloadingError	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemHasUnresolvedConflicts	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemIsDownloading	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemIsUploaded	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemIsUploading	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	ubiquitousItemUploadingError	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volume	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeAvailableCapacity	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeCreationDate	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIdentifier	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsAutomounted	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsBrowsable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsEjectable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsEncrypted	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsInternal	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsJournaling	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsLocal	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsReadOnly	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsRemovable	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeIsRootFileSystem	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeLocalizedFormatDescription	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeLocalizedName	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeMaximumFileSize	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeName	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeResourceCount	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsAdvisoryFileLocking	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsCasePreservedNames	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsCaseSensitiveNames	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsCompression	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsExtendedSecurity	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsHardLinks	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsJournaling	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsPersistentIDs	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsRenaming	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsRootDirectoryDates	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsSparseFiles	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsSymbolicLinks	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsVolumeSizes	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeSupportsZeroRuns	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeTotalCapacity	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeURLForRemounting	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URL.swift	var	URLResourceValues	volumeUUIDString	swift		oss-swift	Sources/Foundation/URL.swift
+Foundation-URLSession	URLAuthenticationChallenge.swift	class		URLAuthenticationChallenge	swift		oss-swift	Sources/FoundationNetworking/URLAuthenticationChallenge.swift
+Foundation-URLSession	URLAuthenticationChallenge.swift	init	URLAuthenticationChallenge	authenticationChallenge	swift		oss-swift	Sources/FoundationNetworking/URLAuthenticationChallenge.swift
+Foundation-URLSession	URLAuthenticationChallenge.swift	init	URLAuthenticationChallenge	protectionSpace	swift		oss-swift	Sources/FoundationNetworking/URLAuthenticationChallenge.swift
+Foundation-URLSession	URLAuthenticationChallenge.swift	protocol		URLAuthenticationChallengeSender	swift		oss-swift	Sources/FoundationNetworking/URLAuthenticationChallenge.swift
+Foundation-URLSession	URLAuthenticationChallenge.swift	var	URLAuthenticationChallenge	previousFailureCount	swift		oss-swift	Sources/FoundationNetworking/URLAuthenticationChallenge.swift
+Foundation-URLSession	URLAuthenticationChallenge.swift	var	URLAuthenticationChallenge	sender	swift		oss-swift	Sources/FoundationNetworking/URLAuthenticationChallenge.swift
+Foundation-URLSession	URLCache.swift	class		CachedURLResponse	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	class		URLCache	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	enum	URLCache	StoragePolicy	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	CachedURLResponse	copy	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	CachedURLResponse	isEqual	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	URLCache	cachedResponse	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	URLCache	getCachedResponse	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	URLCache	removeAllCachedResponses	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	URLCache	removeCachedResponse	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	URLCache	removeCachedResponses	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	func	URLCache	storeCachedResponse	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	init	CachedURLResponse	response	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	init	URLCache	memoryCapacity	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	var	CachedURLResponse	hash	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	var	URLCache	currentDiskUsage	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	var	URLCache	currentMemoryUsage	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	var	URLCache	diskCapacity	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	var	URLCache	memoryCapacity	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLCache.swift	var	URLCache	shared	swift		oss-swift	Sources/FoundationNetworking/URLCache.swift
+Foundation-URLSession	URLComponents.swift	func	URLComponents	_bridgeToObjectiveC	swift		oss-swift	Sources/Foundation/URLComponents.swift
+Foundation-URLSession	URLComponents.swift	func	URLComponents	_conditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URLComponents.swift
+Foundation-URLSession	URLComponents.swift	func	URLComponents	_forceBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URLComponents.swift
+Foundation-URLSession	URLComponents.swift	func	URLComponents	_getObjectiveCType	swift		oss-swift	Sources/Foundation/URLComponents.swift
+Foundation-URLSession	URLComponents.swift	func	URLComponents	_unconditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URLComponents.swift
+Foundation-URLSession	URLComponents.swift	typealias	URLComponents	ReferenceType	swift		oss-swift	Sources/Foundation/URLComponents.swift
+Foundation-URLSession	URLComponents.swift	typealias	URLComponents	_ObjectType	swift		oss-swift	Sources/Foundation/URLComponents.swift
+Foundation-URLSession	URLCredential.swift	class		URLCredential	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	enum	URLCredential	Persistence	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	func	URLCredential	copy	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	func	URLCredential	encode	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	func	URLCredential	isEqual	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	init	URLCredential	init	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	init	URLCredential	user	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	var	URLCredential	hasPassword	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	var	URLCredential	password	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	var	URLCredential	persistence	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredential.swift	var	URLCredential	user	swift		oss-swift	Sources/FoundationNetworking/URLCredential.swift
+Foundation-URLSession	URLCredentialStorage.swift	class		URLCredentialStorage	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	func	URLCredentialStorage	credentials	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	func	URLCredentialStorage	defaultCredential	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	func	URLCredentialStorage	getCredentials	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	func	URLCredentialStorage	getDefaultCredential	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	func	URLCredentialStorage	remove	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	func	URLCredentialStorage	set	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	func	URLCredentialStorage	setDefaultCredential	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	init	URLCredentialStorage	init	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	let		NSURLCredentialStorageRemoveSynchronizableCredentials	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	let	Notification	NSURLCredentialStorageChanged	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	var	URLCredentialStorage	allCredentials	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLCredentialStorage.swift	var	URLCredentialStorage	shared	swift		oss-swift	Sources/FoundationNetworking/URLCredentialStorage.swift
+Foundation-URLSession	URLProtectionSpace.swift	class		URLProtectionSpace	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	func	URLProtectionSpace	copy	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	func	URLProtectionSpace	isProxy	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	init	URLProtectionSpace	host	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	init	URLProtectionSpace	proxyHost	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodClientCertificate	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodDefault	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodHTMLForm	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodHTTPBasic	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodHTTPDigest	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodNTLM	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodNegotiate	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLAuthenticationMethodServerTrust	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLProtectionSpaceFTP	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLProtectionSpaceFTPProxy	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLProtectionSpaceHTTP	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLProtectionSpaceHTTPProxy	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLProtectionSpaceHTTPS	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLProtectionSpaceHTTPSProxy	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	let		NSURLProtectionSpaceSOCKSProxy	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	authenticationMethod	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	description	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	distinguishedNames	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	host	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	port	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	proxyType	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	realm	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	receivesCredentialSecurely	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	serverTrust	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtectionSpace.swift	var	URLProtectionSpace	var	swift		oss-swift	Sources/FoundationNetworking/URLProtectionSpace.swift
+Foundation-URLSession	URLProtocol.swift	class	URLProtocol	URLProtocol	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	canInit	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	canonicalRequest	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	property	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	registerClass	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	removeProperty	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	requestIsCacheEquivalent	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	setProperty	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	startLoading	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	stopLoading	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	func	URLProtocol	unregisterClass	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	init	URLProtocol	request	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	init	URLProtocol	task	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	protocol		URLProtocolClient	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLProtocol.swift	var	URLProtocol	client	swift		oss-swift	Sources/FoundationNetworking/URLProtocol.swift
+Foundation-URLSession	URLQueryItem.swift	func	URLQueryItem	_bridgeToObjectiveC	swift		oss-swift	Sources/Foundation/URLQueryItem.swift
+Foundation-URLSession	URLQueryItem.swift	func	URLQueryItem	_conditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URLQueryItem.swift
+Foundation-URLSession	URLQueryItem.swift	func	URLQueryItem	_forceBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URLQueryItem.swift
+Foundation-URLSession	URLQueryItem.swift	func	URLQueryItem	_getObjectiveCType	swift		oss-swift	Sources/Foundation/URLQueryItem.swift
+Foundation-URLSession	URLQueryItem.swift	func	URLQueryItem	_unconditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/Foundation/URLQueryItem.swift
+Foundation-URLSession	URLQueryItem.swift	typealias	URLQueryItem	_ObjectType	swift		oss-swift	Sources/Foundation/URLQueryItem.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	_bridgeToObjectiveC	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	_conditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	_forceBridgeFromObjectiveC	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	_getObjectiveCType	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	_unconditionallyBridgeFromObjectiveC	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	addValue	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	func	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	hash	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	setValue	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	func	URLRequest	value	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	init	URLRequest	url	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	struct		URLRequest	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	typealias	URLRequest	CachePolicy	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	typealias	URLRequest	NetworkServiceType	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	typealias	URLRequest	ReferenceType	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	allHTTPHeaderFields	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	allowsCellularAccess	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	cachePolicy	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	customMirror	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	debugDescription	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	description	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	httpBody	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	httpBodyStream	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	httpMethod	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	httpShouldHandleCookies	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	httpShouldUsePipelining	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	mainDocumentURL	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	networkServiceType	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	timeoutInterval	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLRequest.swift	var	URLRequest	url	swift		oss-swift	Sources/FoundationNetworking/URLRequest.swift
+Foundation-URLSession	URLResponse.swift	class		HTTPURLResponse	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	class		URLResponse	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	func	HTTPURLResponse	encode	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	func	HTTPURLResponse	localizedString	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	func	HTTPURLResponse	value	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	func	URLResponse	copy	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	func	URLResponse	encode	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	func	URLResponse	isEqual	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	init	HTTPURLResponse	init	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	init	URLResponse	init	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	init	URLResponse	url	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	let	HTTPURLResponse	statusCode	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	var	HTTPURLResponse	allHeaderFields	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLResponse.swift	var	URLResponse	hash	swift		oss-swift	Sources/FoundationNetworking/URLResponse.swift
+Foundation-URLSession	URLSession.swift	class		URLSession	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	enum	URLSession	DelayedRequestDisposition	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	data	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	dataTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	download	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	downloadTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	finishTasksAndInvalidate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	flush	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	getAllTasks	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	getTasksWithCompletionHandler	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	invalidateAndCancel	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	reset	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	streamTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	upload	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	uploadTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	func	URLSession	webSocketTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	let		NSURLSessionTransferSizeUnknown	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	var	URLSession	sessionDescription	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSession.swift	var	URLSession	shared	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSession.swift
+Foundation-URLSession	URLSessionConfiguration.swift	class		URLSessionConfiguration	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	enum	URLSessionConfiguration	MultipathServiceType	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	func	URLSessionConfiguration	background	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	func	URLSessionConfiguration	copy	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	init	URLSessionConfiguration	init	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	TLSMaximumSupportedProtocol	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	TLSMinimumSupportedProtocol	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	allowsCellularAccess	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	connectionProxyDictionary	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	ephemeral	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	httpAdditionalHeaders	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	httpCookieAcceptPolicy	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	httpCookieStorage	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	httpMaximumConnectionsPerHost	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	httpShouldSetCookies	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	httpShouldUsePipelining	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	identifier	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	isDiscretionary	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	multipathServiceType	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	networkServiceType	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	protocolClasses	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	requestCachePolicy	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	sharedContainerIdentifier	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	shouldUseExtendedBackgroundIdleMode	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	timeoutIntervalForRequest	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	timeoutIntervalForResource	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	urlCache	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	urlCredentialStorage	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	usesClassicLoadingMode	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	var	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionConfiguration.swift	var	URLSessionConfiguration	waitsForConnectivity	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionConfiguration.swift
+Foundation-URLSession	URLSessionDelegate.swift	enum	URLSession	AuthChallengeDisposition	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	enum	URLSession	ResponseDisposition	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	func	URLSessionDataDelegate	urlSession	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	func	URLSessionDelegate	urlSession	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	func	URLSessionDownloadDelegate	urlSession	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	func	URLSessionStreamDelegate	urlSession	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	func	URLSessionTaskDelegate	urlSession	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	protocol		URLSessionDataDelegate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	protocol		URLSessionDelegate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	protocol		URLSessionDownloadDelegate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	protocol		URLSessionStreamDelegate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionDelegate.swift	protocol		URLSessionTaskDelegate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionDelegate.swift
+Foundation-URLSession	URLSessionTask.swift	class		URLSessionTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	class	URLSessionTask	URLSessionDataTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	class	URLSessionTask	URLSessionDownloadTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	class	URLSessionTask	URLSessionStreamTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	class	URLSessionTask	URLSessionUploadTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	class	URLSessionTask	URLSessionWebSocketTask	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	enum	URLSessionTask	State	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	enum	URLSessionWebSocketTask	CloseCode	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	enum	URLSessionWebSocketTask	Message	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionDownloadTask	cancel	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionStreamTask	captureStreams	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionStreamTask	closeRead	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionStreamTask	closeWrite	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionStreamTask	readData	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionStreamTask	startSecureConnection	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionStreamTask	stopSecureConnection	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionStreamTask	write	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionTask	cancel	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionTask	copy	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionTask	resume	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionTask	suspend	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionWebSocketTask	cancel	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionWebSocketTask	receive	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionWebSocketTask	send	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	func	URLSessionWebSocketTask	sendPing	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	init	URLSessionTask	init	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	let	URLSessionTask	URLSessionDownloadTaskResumeData	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	let	URLSessionTask	defaultPriority	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	let	URLSessionTask	highPriority	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	let	URLSessionTask	lowPriority	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	protocol	URLSessionTask	URLSessionWebSocketDelegate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionTask	countOfBytesClientExpectsToReceive	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionTask	countOfBytesClientExpectsToSend	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionTask	delegate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionTask	earliestBeginDate	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionTask	priority	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionTask	taskDescription	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionWebSocketTask	error	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTask.swift	var	URLSessionWebSocketTask	maximumMessageSize	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTask.swift
+Foundation-URLSession	URLSessionTaskMetrics.swift	class		URLSessionTaskMetrics	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTaskMetrics.swift
+Foundation-URLSession	URLSessionTaskMetrics.swift	class		URLSessionTaskTransactionMetrics	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTaskMetrics.swift
+Foundation-URLSession	URLSessionTaskMetrics.swift	enum		tls_ciphersuite_t	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTaskMetrics.swift
+Foundation-URLSession	URLSessionTaskMetrics.swift	enum		tls_protocol_version_t	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTaskMetrics.swift
+Foundation-URLSession	URLSessionTaskMetrics.swift	enum	URLSessionTaskMetrics	DomainResolutionProtocol	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTaskMetrics.swift
+Foundation-URLSession	URLSessionTaskMetrics.swift	enum	URLSessionTaskMetrics	ResourceFetchType	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTaskMetrics.swift
+Foundation-URLSession	URLSessionTaskMetrics.swift	let	URLSessionTaskTransactionMetrics	request	swift		oss-swift	Sources/FoundationNetworking/URLSession/URLSessionTaskMetrics.swift
+Foundation-URLSession	WebSocketURLProtocol.swift	init		request	swift		oss-swift	Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
+Foundation-URLSession	WebSocketURLProtocol.swift	init		task	swift		oss-swift	Sources/FoundationNetworking/URLSession/WebSocket/WebSocketURLProtocol.swift
