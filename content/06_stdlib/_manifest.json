@@ -292,6 +292,24 @@
         "普查"
       ],
       "parent": null
+    },
+    {
+        "id": "java-net-census",
+        "title": "跨语言 std 普查：Java（OpenJDK）net × sa_std",
+        "file": "21_java_net_census.html",
+        "keywords": [
+            "java",
+            "openjdk",
+            "jdk",
+            "普查",
+            "net",
+            "nio",
+            "httpclient",
+            "ssl",
+            "缺口",
+            "census"
+        ],
+        "parent": "net"
     }
   ]
 }

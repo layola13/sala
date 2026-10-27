@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>跨语言 std 普查：Java（OpenJDK）net × sa_std</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; 跨语言 std 普查：Java（OpenJDK）net × sa_std</div>
+<h1>跨语言 std 普查：Java（OpenJDK）net × sa_std</h1>
+
+<p>本页是跨语言 std 普查批的 Java 分册：以 OpenJDK 最新 GA 源码的网络面为参照系，
+机械抽取双边清单后逐项比对 sa_std 的网络面，给出缺口四分类与优先补齐短名单。
+同批分册：Rust 全 std（见 09_rust_compare 的 std 普查页）、Go net、Python net、
+.NET net、Android net、iOS net、Unreal 网络体系。
+结论只来自实际抽取的清单（脚本与数据在 <code>tools/java_net_census/</code>），不凭印象判有无。</p>
+
+<h2>结论摘要</h2>
+<p>Java 侧（六个源根、222 个文件）抽得 284 个类型，其中 <strong>233 个为 API 类型</strong>
+（public，或接口的隐含 public 成员类型；其余 51 个为包私有/私有实现类型），
+其上成员 1754 项（方法 1382、构造器 229、常量 88、枚举常量 30、字段 25，含接口隐含
+public 成员的修正口径，见「覆盖边界」）。SA 侧自 sa_std 网络声明面
+（net/netx/http_client/http_server/http2/ws_client/tls_client/tls_server/dtls/quic/ssh
+的 .sai/.sal/.sla/.sa）与 sa_std.h 抽得 1408 行、<strong>1200 个唯一符号</strong>。</p>
+<p>233 个 API 类型的分类：<strong>已有等价 85、可直接对应 12、需建模 92、模型不合 44</strong>。
+即 sa_std 已覆盖 Java 网络面的基本盘（套接字/UDP 组播/TCP 选项/HTTP 客户端与服务端/
+WebSocket/TLS 流/QUIC/HTTP3 的能力都在），真正的缺口（可直接对应 + 需建模）为 104 个类型，
+集中在五处：<strong>Cookie 面、TLS 配置面（SSLParameters/信任与密钥管理）、
+HttpClient 的聚合配置（重定向/认证/代理）、URI 与编码纯函数簇、网卡枚举</strong>；
+另有 NIO 的 Selector/AIO 一簇属「模型选择」——SA 的对应物是 netx 完成式反应器，不是缺口直补。</p>
+
+<h2>来源与方法</h2>
+<table>
+<tr><th>项</th><th>取值</th></tr>
+<tr><td>Java 源码</td><td>github.com/openjdk/jdk，最新 GA tag <code>jdk-27-ga</code>
+（commit 8e131aca971734599e9f609dfa0601fba3703f25），稀疏检出六个源根：
+java.base 的 java/net、javax/net、java/nio/channels，java.net.http 的 java/net/http，
+jdk.httpserver 的 com/sun/net/httpserver，jdk.net 的 jdk/net</td></tr>
+<tr><td>SA 基线</td><td>sci main <code>8a943911</code> 的 sa_std（与同批各分册统一）</td></tr>
+<tr><td>抽取</td><td><code>tools/java_net_census/extract_java_surface.py</code>（启发式源码解析，
+剥离注释/字面量后按括号深度定位类型与成员）、<code>extract_sa_surface.py</code>
+（@extern/fn/#def/@标签 + 头文件原型）</td></tr>
+<tr><td>分类</td><td><code>classify_gap.py</code> 对 233 个 API 类型逐个显式裁定并断言全覆盖；
+产物 <code>gap_table.tsv</code>（逐项分类与 SA 对应说明）、
+<code>java_types.tsv</code>/<code>java_members.tsv</code>/<code>sa_surface.tsv</code></td></tr>
+<tr><td>复跑</td><td>克隆后依次运行三脚本（路径见脚本头部），汇总口径见
+<code>summarize_census.py</code> 与 <code>list_api_types.py</code></td></tr>
+</table>
+
+<h2>覆盖边界（如实登记）</h2>
+<ul>
+<li>Java 抽取为启发式解析而非 javac 语义分析：只见声明本体，<strong>不展开继承成员</strong>
+（如 Socket 的父类 Object 方法、接口继承的方法不在清单内）；记录访问器、枚举的合成成员
+（values/valueOf）等编译器生成成员不在源码中，不计。</li>
+<li>接口中未写修饰符的成员在 Java 里隐含 public，第一轮抽取曾系统性漏计，
+已按「接口上下文隐含 public」修正（WebSocket 11 项、SSLSession 21 项为修正后地标值）；
+嵌套类型的 API 判定按「显式 public，或接口的非 private 成员类型」，包私有嵌套辅助类
+（如 InetAddressHolder、CookieComparator，源码实查为 <code>static class</code>）计内部。</li>
+<li>SA 侧以 .sai ABI 声明面 + sa_std.h 为权威来源；plugin_http_* 的 .sa 门面符号
+未被标签启发式完整捕获（plugin_http_server.sla 本体仅为 2 行 import 转发），
+不影响以 .sai 为准的计数。</li>
+<li>范围外登记：jdk.sctp 模块（com.sun.nio.sctp）不在本分册范围；
+java.nio.channels 的文件通道簇（FileChannel/FileLock 等 6 个类型）在缺口表中登记为
+「模型不合（范围外·文件域）」，计入包计数但不计入网络缺口（104 的口径已剔除其影响：
+该 6 项属模型不合类，不在可直接对应+需建模之和内）。</li>
+<li>DTLS：Java 侧无独立 DTLS API（经 SSLEngine 使用），SA 侧 dtls 面为服务端形态；
+双方形态不同源，不单列缺口。</li>
+</ul>
+
+<h2>按包汇总</h2>
+<table>
+<tr><th>包</th><th>API 类型</th><th>已有等价</th><th>可直接对应</th><th>需建模</th><th>模型不合</th></tr>
+<tr><td>java.net（套接字/地址/URL 栈）</td><td>66</td><td>28</td><td>8</td><td>17</td><td>13</td></tr><tr><td>java.net.spi（解析器/处理器 provider）</td><td>5</td><td>0</td><td>0</td><td>2</td><td>3</td></tr><tr><td>javax.net（套接字工厂）</td><td>2</td><td>0</td><td>0</td><td>2</td><td>0</td></tr><tr><td>javax.net.ssl（TLS）</td><td>43</td><td>9</td><td>0</td><td>30</td><td>4</td></tr><tr><td>java.net.http（HttpClient）</td><td>28</td><td>13</td><td>1</td><td>14</td><td>0</td></tr><tr><td>com.sun.net.httpserver（内置 HTTP 服务器）</td><td>22</td><td>2</td><td>2</td><td>18</td><td>0</td></tr><tr><td>com.sun.net.httpserver.spi</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td></tr><tr><td>java.nio.channels（NIO 通道，单列）</td><td>56</td><td>31</td><td>0</td><td>9</td><td>16</td></tr><tr><td>java.nio.channels.spi</td><td>6</td><td>0</td><td>0</td><td>0</td><td>6</td></tr><tr><td>jdk.net（扩展套接字选项）</td><td>4</td><td>2</td><td>1</td><td>0</td><td>1</td></tr><tr><td><strong>合计</strong></td><td><strong>233</strong></td><td><strong>85</strong></td><td><strong>12</strong></td><td><strong>92</strong></td><td><strong>44</strong></td></tr></table>
+<h2>优先补齐短名单</h2>
+<p>按「一切基础核心内置 sa_std」学说与真实使用面排序（分类口径同上）：</p>
+<ol>
+<li><strong>Cookie 面（需建模）</strong>：CookieManager/CookieStore/CookiePolicy + 与
+sa_http_client 的集成（HttpCookie 值类型本身为可直接对应）。HTTP 客户端真实使用面的
+最大整块缺失——SA 侧 cookie 符号为零。</li>
+<li><strong>URI/编码纯函数簇（可直接对应）</strong>：URI 的 resolve/relativize/normalize
+与引号编解码、URLEncoder/URLDecoder、IDN（punycode）。纯函数、无建模风险，
+是 sa_std_url_parse 之外整片空白，补齐成本最低。</li>
+<li><strong>网卡枚举（可直接对应）</strong>：NetworkInterface/InterfaceAddress 的
+getifaddrs 类系统面（地址/广播/前缀/MTU/硬件地址/up/回环），绑定与代理场景的基础设施。</li>
+<li><strong>HttpClient 三缺口（需建模/可直接对应）</strong>：重定向跟随（Redirect）、
+通用认证回调（Authenticator/PasswordAuthentication）、代理支持（Proxy/ProxySelector）。
+决定 sa_http_client 能否顶替 java.net.http 日常使用的三项。</li>
+<li><strong>TLS 配置面（需建模）</strong>：SSLParameters（密码套件/协议版本/ALPN/SNI）
++ HostnameVerifier 回调。与已有 shaped 指纹客户端互补，是 TLS 从「能连」到「可配置」的分界。</li>
+<li><strong>SSLEngine（需建模）</strong>：wrap/unwrap 的非阻塞 TLS 引擎形态——把 TLS
+嵌入 netx 反应器的唯一形态，高并发服务端的关键拼图。</li>
+<li><strong>流式请求体（需建模）</strong>：BodyPublishers 的文件/流发布者；
+现 req_set_body 为整缓冲模型，大请求体不可用。</li>
+<li><strong>DNS 解析策略钩子（需建模）</strong>：InetAddressResolver（+ InetAddress.isReachable
+小面）。为自定义解析/Private DNS 留口；与 AJ 普查登记的 net 地址族双定义陷阱同域处理。</li>
+<li><strong>unix 对端凭据（可直接对应）</strong>：UnixDomainPrincipal（SO_PEERCRED），
+本地 IPC 认证的小面。</li>
+</ol>
+<p>不进短名单的两类：jdk.httpserver 的 HttpContext/HttpExchange/Filter/服务器认证簇属
+<strong>框架层</strong>（按学说归 plugin 门面，不进 std 本体）；
+NIO 的 Selector/AsynchronousChannel 簇是<strong>模型选择</strong>——SA 的对应物是 netx
+io_uring 完成式反应器，若将来要 Selector 就绪形态需单独立项裁定。</p>
+
+<h2>SA 侧独有面（Java 无对应，登记备查）</h2>
+<p>比对中同时确认 sa_std 已有而 Java 网络面没有的：SSH 客户端/服务端核心
+（sa_std_ssh_*，26 符号）、QUIC 传输层（端点/连接/流，sa_std_quic_*）与 HTTP/3 会话面、
+TLS 指纹整形客户端（tls_shaped：JA3/JA4 hello 整形 + negotiated 内省）、
+DTLS 服务端、netx io_uring 反应器（票据模型）、SSE 客户端面（sa_http_client_sse_*）。
+这些是 SA 的领先面，普查不计为任何一侧的缺口。</p>
+<h2>分包明细</h2><h3>java.net（套接字/地址/URL 栈）</h3><p>共 66 个 API 类型：可直接对应 8、需建模 17、模型不合 13、已有等价 28。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>java.net.FileNameMap</code></td><td>可直接对应</td><td>扩展名→MIME 类型表（小型纯函数面），std 无符号</td></tr>
+<tr><td><code>java.net.HttpCookie</code></td><td>可直接对应</td><td>单个 cookie 的解析/序列化/域路径匹配（纯函数）；jar 与存储见 CookieStore 簇</td></tr>
+<tr><td><code>java.net.IDN</code></td><td>可直接对应</td><td>punycode/IDNA 双向转换：std 全域无符号（纯函数，可直接落 sa_std）</td></tr>
+<tr><td><code>java.net.InterfaceAddress</code></td><td>可直接对应</td><td>网卡枚举面（getifaddrs 类）：地址/广播/前缀长度/MTU/硬件地址/up/回环标志；std 仅有主机名与单地址解析，无枚举符号</td></tr>
+<tr><td><code>java.net.NetworkInterface</code></td><td>可直接对应</td><td>网卡枚举面（getifaddrs 类）：地址/广播/前缀长度/MTU/硬件地址/up/回环标志；std 仅有主机名与单地址解析，无枚举符号</td></tr>
+<tr><td><code>java.net.URI</code></td><td>可直接对应</td><td>URI 语法操作：仅 sa_std_url_parse（scheme/host/port/path）存在；resolve/relativize/normalize/引号编解码等纯语法面未覆盖</td></tr>
+<tr><td><code>java.net.URLDecoder</code></td><td>可直接对应</td><td>application/x-www-form-urlencoded 百分号编解码：std 无符号（纯函数）</td></tr>
+<tr><td><code>java.net.URLEncoder</code></td><td>可直接对应</td><td>application/x-www-form-urlencoded 百分号编解码：std 无符号（纯函数）</td></tr>
+<tr><td><code>java.net.Authenticator</code></td><td>需建模</td><td>HTTP 凭据回调（Authenticator 模型）；sa_http_client 仅有 req_add_openai_auth 硬编码面，无通用凭据回调</td></tr>
+<tr><td><code>java.net.Authenticator.RequestorType</code></td><td>需建模</td><td>HTTP 凭据回调（Authenticator 模型）；sa_http_client 仅有 req_add_openai_auth 硬编码面，无通用凭据回调</td></tr>
+<tr><td><code>java.net.CacheRequest</code></td><td>需建模</td><td>HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面</td></tr>
+<tr><td><code>java.net.CacheResponse</code></td><td>需建模</td><td>HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面</td></tr>
+<tr><td><code>java.net.CookieHandler</code></td><td>需建模</td><td>HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零</td></tr>
+<tr><td><code>java.net.CookieManager</code></td><td>需建模</td><td>HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零</td></tr>
+<tr><td><code>java.net.CookiePolicy</code></td><td>需建模</td><td>HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零</td></tr>
+<tr><td><code>java.net.CookieStore</code></td><td>需建模</td><td>HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零</td></tr>
+<tr><td><code>java.net.HttpURLConnection</code></td><td>需建模</td><td>URLConnection 对象模型（legacy 客户端）；能力大部由 sa_http_client_* 覆盖，缺重定向/认证/缓存集成与流式请求体</td></tr>
+<tr><td><code>java.net.PasswordAuthentication</code></td><td>需建模</td><td>HTTP 凭据回调（Authenticator 模型）；sa_http_client 仅有 req_add_openai_auth 硬编码面，无通用凭据回调</td></tr>
+<tr><td><code>java.net.Proxy</code></td><td>需建模</td><td>代理配置与选择（HTTP/SOCKS）；std 代理符号为零，客户端与套接字均无代理参数面</td></tr>
+<tr><td><code>java.net.Proxy.Type</code></td><td>需建模</td><td>代理配置与选择（HTTP/SOCKS）；std 代理符号为零，客户端与套接字均无代理参数面</td></tr>
+<tr><td><code>java.net.ProxySelector</code></td><td>需建模</td><td>代理配置与选择（HTTP/SOCKS）；std 代理符号为零，客户端与套接字均无代理参数面</td></tr>
+<tr><td><code>java.net.ResponseCache</code></td><td>需建模</td><td>HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面</td></tr>
+<tr><td><code>java.net.SecureCacheResponse</code></td><td>需建模</td><td>HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面</td></tr>
+<tr><td><code>java.net.URL</code></td><td>需建模</td><td>URL 值对象绑定 openStream/openConnection（URLConnection 栈）；解析部分由 sa_std_url_parse 覆盖</td></tr>
+<tr><td><code>java.net.URLConnection</code></td><td>需建模</td><td>URLConnection 对象模型（legacy 客户端）；能力大部由 sa_http_client_* 覆盖，缺重定向/认证/缓存集成与流式请求体</td></tr>
+<tr><td><code>java.net.ContentHandler</code></td><td>模型不合</td><td>URLConnection 内容处理器可插拔架构，随 URLConnection 模型不迁移</td></tr>
+<tr><td><code>java.net.ContentHandlerFactory</code></td><td>模型不合</td><td>URLConnection 内容处理器可插拔架构，随 URLConnection 模型不迁移</td></tr>
+<tr><td><code>java.net.DatagramSocketImpl</code></td><td>模型不合</td><td>SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面</td></tr>
+<tr><td><code>java.net.DatagramSocketImplFactory</code></td><td>模型不合</td><td>SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面</td></tr>
+<tr><td><code>java.net.JarURLConnection</code></td><td>模型不合</td><td>jar: 协议 URL 语义（Java 归档协议），SA 无对应协议栈</td></tr>
+<tr><td><code>java.net.NetPermission</code></td><td>模型不合</td><td>Java 权限/SecurityManager 模型；SA 侧由 policy 体系（sala 16_policy）承担，不迁移权限类</td></tr>
+<tr><td><code>java.net.SocketImpl</code></td><td>模型不合</td><td>SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面</td></tr>
+<tr><td><code>java.net.SocketImplFactory</code></td><td>模型不合</td><td>SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面</td></tr>
+<tr><td><code>java.net.SocketPermission</code></td><td>模型不合</td><td>Java 权限/SecurityManager 模型；SA 侧由 policy 体系（sala 16_policy）承担，不迁移权限类</td></tr>
+<tr><td><code>java.net.URLClassLoader</code></td><td>模型不合</td><td>网络类加载（JVM 类加载体系），非网络能力面</td></tr>
+<tr><td><code>java.net.URLPermission</code></td><td>模型不合</td><td>Java 权限/SecurityManager 模型；SA 侧由 policy 体系（sala 16_policy）承担，不迁移权限类</td></tr>
+<tr><td><code>java.net.URLStreamHandler</code></td><td>模型不合</td><td>协议处理器可插拔架构（URLStreamHandler 族）</td></tr>
+<tr><td><code>java.net.URLStreamHandlerFactory</code></td><td>模型不合</td><td>协议处理器可插拔架构（URLStreamHandler 族）</td></tr>
+</table>
+<p>已有等价（28）：<code>BindException</code>、<code>ConnectException</code>、<code>DatagramPacket</code>、<code>DatagramSocket</code>、<code>HttpRetryException</code>、<code>Inet4Address</code>、<code>Inet6Address</code>、<code>InetAddress</code>、<code>InetSocketAddress</code>、<code>MalformedURLException</code>、<code>MulticastSocket</code>、<code>NoRouteToHostException</code>、<code>PortUnreachableException</code>、<code>ProtocolException</code>、<code>ProtocolFamily</code>、<code>ServerSocket</code>、<code>Socket</code>、<code>SocketAddress</code>、<code>SocketException</code>、<code>SocketOption</code>、<code>SocketOptions</code>、<code>SocketTimeoutException</code>、<code>StandardProtocolFamily</code>、<code>StandardSocketOptions</code>、<code>URISyntaxException</code>、<code>UnixDomainSocketAddress</code>、<code>UnknownHostException</code>、<code>UnknownServiceException</code>。对应面见 gap_table.tsv 中的逐项说明。</p><h3>java.net.spi（解析器/处理器 provider）</h3><p>共 5 个 API 类型：需建模 2、模型不合 3。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>java.net.spi.InetAddressResolver</code></td><td>需建模</td><td>可插拔 DNS 解析器钩子（InetAddress 解析策略点）；std 解析为内置实现、无策略注入面</td></tr>
+<tr><td><code>java.net.spi.InetAddressResolver.LookupPolicy</code></td><td>需建模</td><td>可插拔 DNS 解析器钩子（InetAddress 解析策略点）；std 解析为内置实现、无策略注入面</td></tr>
+<tr><td><code>java.net.spi.InetAddressResolverProvider</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>java.net.spi.InetAddressResolverProvider.Configuration</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>java.net.spi.URLStreamHandlerProvider</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+</table><h3>javax.net（套接字工厂）</h3><p>共 2 个 API 类型：需建模 2。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>javax.net.ServerSocketFactory</code></td><td>需建模</td><td>工厂间接层；底层 connect/listen 能力已有（sa_std_net_tcp_*），SA 惯例为直达函数，工厂层属建模选择</td></tr>
+<tr><td><code>javax.net.SocketFactory</code></td><td>需建模</td><td>工厂间接层；底层 connect/listen 能力已有（sa_std_net_tcp_*），SA 惯例为直达函数，工厂层属建模选择</td></tr>
+</table><h3>javax.net.ssl（TLS）</h3><p>共 43 个 API 类型：需建模 30、模型不合 4、已有等价 9。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>javax.net.ssl.CertPathTrustManagerParameters</code></td><td>需建模</td><td>信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调</td></tr>
+<tr><td><code>javax.net.ssl.ExtendedSSLSession</code></td><td>需建模</td><td>TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面</td></tr>
+<tr><td><code>javax.net.ssl.HandshakeCompletedEvent</code></td><td>需建模</td><td>握手完成事件/回调（SSLSocket/SSLEngine 事件面）</td></tr>
+<tr><td><code>javax.net.ssl.HandshakeCompletedListener</code></td><td>需建模</td><td>握手完成事件/回调（SSLSocket/SSLEngine 事件面）</td></tr>
+<tr><td><code>javax.net.ssl.HostnameVerifier</code></td><td>需建模</td><td>主机名校验回调；SA 客户端校验策略未在符号面暴露</td></tr>
+<tr><td><code>javax.net.ssl.HttpsURLConnection</code></td><td>需建模</td><td>URLConnection×TLS 复合类；底层能力由 http_client(use_tls)+tls 覆盖，对象模型见 URLConnection 簇</td></tr>
+<tr><td><code>javax.net.ssl.KeyManager</code></td><td>需建模</td><td>密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）</td></tr>
+<tr><td><code>javax.net.ssl.KeyManagerFactory</code></td><td>需建模</td><td>密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）</td></tr>
+<tr><td><code>javax.net.ssl.KeyStoreBuilderParameters</code></td><td>需建模</td><td>密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）</td></tr>
+<tr><td><code>javax.net.ssl.ManagerFactoryParameters</code></td><td>需建模</td><td>信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调</td></tr>
+<tr><td><code>javax.net.ssl.SNIHostName</code></td><td>需建模</td><td>SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面</td></tr>
+<tr><td><code>javax.net.ssl.SNIMatcher</code></td><td>需建模</td><td>SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面</td></tr>
+<tr><td><code>javax.net.ssl.SNIServerName</code></td><td>需建模</td><td>SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面</td></tr>
+<tr><td><code>javax.net.ssl.SSLContext</code></td><td>需建模</td><td>TLS 上下文聚合（key/trust/session/参数）；SA 仅 tls_server ctx（证书路径）与客户端直连，无统一上下文对象</td></tr>
+<tr><td><code>javax.net.ssl.SSLEngine</code></td><td>需建模</td><td>非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态</td></tr>
+<tr><td><code>javax.net.ssl.SSLEngineResult</code></td><td>需建模</td><td>非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态</td></tr>
+<tr><td><code>javax.net.ssl.SSLEngineResult.HandshakeStatus</code></td><td>需建模</td><td>非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态</td></tr>
+<tr><td><code>javax.net.ssl.SSLEngineResult.Status</code></td><td>需建模</td><td>非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态</td></tr>
+<tr><td><code>javax.net.ssl.SSLParameters</code></td><td>需建模</td><td>TLS 配置面：密码套件/协议版本/ALPN/SNI 匹配/端点识别/客户端认证模式；SA 符号面无对应（shaped 客户端的指纹整形是另一条轴）</td></tr>
+<tr><td><code>javax.net.ssl.SSLSession</code></td><td>需建模</td><td>TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面</td></tr>
+<tr><td><code>javax.net.ssl.SSLSessionBindingEvent</code></td><td>需建模</td><td>TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面</td></tr>
+<tr><td><code>javax.net.ssl.SSLSessionBindingListener</code></td><td>需建模</td><td>TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面</td></tr>
+<tr><td><code>javax.net.ssl.SSLSessionContext</code></td><td>需建模</td><td>TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面</td></tr>
+<tr><td><code>javax.net.ssl.StandardConstants</code></td><td>需建模</td><td>SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面</td></tr>
+<tr><td><code>javax.net.ssl.TrustManager</code></td><td>需建模</td><td>信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调</td></tr>
+<tr><td><code>javax.net.ssl.TrustManagerFactory</code></td><td>需建模</td><td>信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调</td></tr>
+<tr><td><code>javax.net.ssl.X509ExtendedKeyManager</code></td><td>需建模</td><td>密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）</td></tr>
+<tr><td><code>javax.net.ssl.X509ExtendedTrustManager</code></td><td>需建模</td><td>信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调</td></tr>
+<tr><td><code>javax.net.ssl.X509KeyManager</code></td><td>需建模</td><td>密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）</td></tr>
+<tr><td><code>javax.net.ssl.X509TrustManager</code></td><td>需建模</td><td>信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调</td></tr>
+<tr><td><code>javax.net.ssl.KeyManagerFactorySpi</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>javax.net.ssl.SSLContextSpi</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>javax.net.ssl.SSLPermission</code></td><td>模型不合</td><td>Java 权限模型（见 NetPermission 行）</td></tr>
+<tr><td><code>javax.net.ssl.TrustManagerFactorySpi</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+</table>
+<p>已有等价（9）：<code>SSLException</code>、<code>SSLHandshakeException</code>、<code>SSLKeyException</code>、<code>SSLPeerUnverifiedException</code>、<code>SSLProtocolException</code>、<code>SSLServerSocket</code>、<code>SSLServerSocketFactory</code>、<code>SSLSocket</code>、<code>SSLSocketFactory</code>。对应面见 gap_table.tsv 中的逐项说明。</p><h3>java.net.http（HttpClient）</h3><p>共 28 个 API 类型：可直接对应 1、需建模 14、已有等价 13。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>java.net.http.HttpClient.Redirect</code></td><td>可直接对应</td><td>重定向跟随策略与客户端重定向循环：SA 客户端符号面未见重定向处理（小面策略 + 既有 send 循环）</td></tr>
+<tr><td><code>java.net.http.HttpClient</code></td><td>需建模</td><td>客户端聚合配置（版本偏好/重定向/cookie/proxy/auth/连接超时/executor）；SA 为分立函数面，多项子面缺失（见各簇）</td></tr>
+<tr><td><code>java.net.http.HttpClient.Builder</code></td><td>需建模</td><td>客户端聚合配置（版本偏好/重定向/cookie/proxy/auth/连接超时/executor）；SA 为分立函数面，多项子面缺失（见各簇）</td></tr>
+<tr><td><code>java.net.http.HttpClient.Version</code></td><td>需建模</td><td>协议版本偏好；SA 以 http_client / http2 client_request / http3 session 三个显式入口分立</td></tr>
+<tr><td><code>java.net.http.HttpOption</code></td><td>需建模</td><td>HttpClient 的 HTTP/3 发现模式配置（Alt-Svc/HTTPS RR 发现与回退）；SA http3 为显式 session API，无发现语义</td></tr>
+<tr><td><code>java.net.http.HttpOption.Http3DiscoveryMode</code></td><td>需建模</td><td>HttpClient 的 HTTP/3 发现模式配置（Alt-Svc/HTTPS RR 发现与回退）；SA http3 为显式 session API，无发现语义</td></tr>
+<tr><td><code>java.net.http.HttpRequest.BodyPublisher</code></td><td>需建模</td><td>请求体发布者：字符串/字节 ≈ req_set_body；文件/输入流/迭代器发布者无对应（请求体为整缓冲模型）</td></tr>
+<tr><td><code>java.net.http.HttpRequest.BodyPublishers</code></td><td>需建模</td><td>请求体发布者：字符串/字节 ≈ req_set_body；文件/输入流/迭代器发布者无对应（请求体为整缓冲模型）</td></tr>
+<tr><td><code>java.net.http.HttpResponse.BodyHandler</code></td><td>需建模</td><td>响应体处理器：ofString/ofBytes ≈ 体缓冲；ofFile/ofLines 流式 ≈ body_reader/read_chunk 部分对应，处理器注册模型无</td></tr>
+<tr><td><code>java.net.http.HttpResponse.BodyHandlers</code></td><td>需建模</td><td>响应体处理器：ofString/ofBytes ≈ 体缓冲；ofFile/ofLines 流式 ≈ body_reader/read_chunk 部分对应，处理器注册模型无</td></tr>
+<tr><td><code>java.net.http.HttpResponse.BodySubscriber</code></td><td>需建模</td><td>响应式流订阅模型（Flow.Subscription 背压）；SA 为拉取式 body_reader，模型不同</td></tr>
+<tr><td><code>java.net.http.HttpResponse.BodySubscribers</code></td><td>需建模</td><td>响应式流订阅模型（Flow.Subscription 背压）；SA 为拉取式 body_reader，模型不同</td></tr>
+<tr><td><code>java.net.http.HttpResponse.PushPromiseHandler</code></td><td>需建模</td><td>h2/h3 服务器推送处理；SA http2 有 HTTP2_SETTINGS_ENABLE_PUSH、http3 有 session，无推送承诺处理面</td></tr>
+<tr><td><code>java.net.http.HttpResponse.PushPromiseHandler.PushId</code></td><td>需建模</td><td>h2/h3 服务器推送处理；SA http2 有 HTTP2_SETTINGS_ENABLE_PUSH、http3 有 session，无推送承诺处理面</td></tr>
+<tr><td><code>java.net.http.HttpResponse.PushPromiseHandler.PushId.Http3PushId</code></td><td>需建模</td><td>h2/h3 服务器推送处理；SA http2 有 HTTP2_SETTINGS_ENABLE_PUSH、http3 有 session，无推送承诺处理面</td></tr>
+</table>
+<p>已有等价（13）：<code>HttpConnectTimeoutException</code>、<code>HttpHeaders</code>、<code>HttpRequest</code>、<code>Builder</code>、<code>HttpResponse</code>、<code>ResponseInfo</code>、<code>HttpTimeoutException</code>、<code>StreamLimitException</code>、<code>UnsupportedProtocolVersionException</code>、<code>WebSocket</code>、<code>Builder</code>、<code>Listener</code>、<code>WebSocketHandshakeException</code>。对应面见 gap_table.tsv 中的逐项说明。</p><h3>com.sun.net.httpserver（内置 HTTP 服务器）</h3><p>共 22 个 API 类型：可直接对应 2、需建模 18、已有等价 2。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>com.sun.net.httpserver.SimpleFileServer</code></td><td>可直接对应</td><td>静态文件服务助手（http_server 之上的小型固化实现）；std 无现成符号</td></tr>
+<tr><td><code>com.sun.net.httpserver.SimpleFileServer.OutputLevel</code></td><td>可直接对应</td><td>静态文件服务助手（http_server 之上的小型固化实现）；std 无现成符号</td></tr>
+<tr><td><code>com.sun.net.httpserver.Authenticator</code></td><td>需建模</td><td>服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面</td></tr>
+<tr><td><code>com.sun.net.httpserver.Authenticator.Failure</code></td><td>需建模</td><td>服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面</td></tr>
+<tr><td><code>com.sun.net.httpserver.Authenticator.Result</code></td><td>需建模</td><td>服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面</td></tr>
+<tr><td><code>com.sun.net.httpserver.Authenticator.Retry</code></td><td>需建模</td><td>服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面</td></tr>
+<tr><td><code>com.sun.net.httpserver.Authenticator.Success</code></td><td>需建模</td><td>服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面</td></tr>
+<tr><td><code>com.sun.net.httpserver.BasicAuthenticator</code></td><td>需建模</td><td>服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面</td></tr>
+<tr><td><code>com.sun.net.httpserver.Filter</code></td><td>需建模</td><td>中间件过滤链（框架层）</td></tr>
+<tr><td><code>com.sun.net.httpserver.Filter.Chain</code></td><td>需建模</td><td>中间件过滤链（框架层）</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpContext</code></td><td>需建模</td><td>路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpExchange</code></td><td>需建模</td><td>单次交换对象（请求/响应流 + 属性表）；能力由 accept_v2 的 req/resp 句柄覆盖，对象模型属框架层</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpHandler</code></td><td>需建模</td><td>路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpHandlers</code></td><td>需建模</td><td>路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpPrincipal</code></td><td>需建模</td><td>服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpsConfigurator</code></td><td>需建模</td><td>HTTP×TLS 组合服务器 + 服务器 TLS 参数；SA 有 tls_server 分立面，无组合 https server 与参数面</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpsExchange</code></td><td>需建模</td><td>单次交换对象（请求/响应流 + 属性表）；能力由 accept_v2 的 req/resp 句柄覆盖，对象模型属框架层</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpsParameters</code></td><td>需建模</td><td>HTTP×TLS 组合服务器 + 服务器 TLS 参数；SA 有 tls_server 分立面，无组合 https server 与参数面</td></tr>
+<tr><td><code>com.sun.net.httpserver.HttpsServer</code></td><td>需建模</td><td>HTTP×TLS 组合服务器 + 服务器 TLS 参数；SA 有 tls_server 分立面，无组合 https server 与参数面</td></tr>
+<tr><td><code>com.sun.net.httpserver.Request</code></td><td>需建模</td><td>路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层</td></tr>
+</table>
+<p>已有等价（2）：<code>Headers</code>、<code>HttpServer</code>。对应面见 gap_table.tsv 中的逐项说明。</p><h3>com.sun.net.httpserver.spi</h3><p>共 1 个 API 类型：模型不合 1。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>com.sun.net.httpserver.spi.HttpServerProvider</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+</table><h3>java.nio.channels（NIO 通道，单列）</h3><p>共 56 个 API 类型：需建模 9、模型不合 16、已有等价 31。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>java.nio.channels.AsynchronousByteChannel</code></td><td>需建模</td><td>完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）</td></tr>
+<tr><td><code>java.nio.channels.AsynchronousChannel</code></td><td>需建模</td><td>完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）</td></tr>
+<tr><td><code>java.nio.channels.AsynchronousServerSocketChannel</code></td><td>需建模</td><td>完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）</td></tr>
+<tr><td><code>java.nio.channels.AsynchronousSocketChannel</code></td><td>需建模</td><td>完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）</td></tr>
+<tr><td><code>java.nio.channels.CompletionHandler</code></td><td>需建模</td><td>完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）</td></tr>
+<tr><td><code>java.nio.channels.NetworkChannel</code></td><td>需建模</td><td>就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态</td></tr>
+<tr><td><code>java.nio.channels.SelectableChannel</code></td><td>需建模</td><td>就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态</td></tr>
+<tr><td><code>java.nio.channels.SelectionKey</code></td><td>需建模</td><td>就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态</td></tr>
+<tr><td><code>java.nio.channels.Selector</code></td><td>需建模</td><td>就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态</td></tr>
+<tr><td><code>java.nio.channels.AsynchronousChannelGroup</code></td><td>模型不合</td><td>通道组 = JVM 线程池/运行时架构（AIO 线程池生命周期）</td></tr>
+<tr><td><code>java.nio.channels.AsynchronousFileChannel</code></td><td>模型不合</td><td>范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口</td></tr>
+<tr><td><code>java.nio.channels.ByteChannel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+<tr><td><code>java.nio.channels.Channel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+<tr><td><code>java.nio.channels.Channels</code></td><td>模型不合</td><td>java.io 流 ↔ 通道适配（建立在 Java IO 类型体系上）</td></tr>
+<tr><td><code>java.nio.channels.FileChannel</code></td><td>模型不合</td><td>范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口</td></tr>
+<tr><td><code>java.nio.channels.FileChannel.MapMode</code></td><td>模型不合</td><td>范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口</td></tr>
+<tr><td><code>java.nio.channels.FileLock</code></td><td>模型不合</td><td>范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口</td></tr>
+<tr><td><code>java.nio.channels.FileLockInterruptionException</code></td><td>模型不合</td><td>范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口</td></tr>
+<tr><td><code>java.nio.channels.GatheringByteChannel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+<tr><td><code>java.nio.channels.InterruptibleChannel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+<tr><td><code>java.nio.channels.OverlappingFileLockException</code></td><td>模型不合</td><td>范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口</td></tr>
+<tr><td><code>java.nio.channels.ReadableByteChannel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+<tr><td><code>java.nio.channels.ScatteringByteChannel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+<tr><td><code>java.nio.channels.SeekableByteChannel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+<tr><td><code>java.nio.channels.WritableByteChannel</code></td><td>模型不合</td><td>通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级</td></tr>
+</table>
+<p>已有等价（31）：<code>AcceptPendingException</code>、<code>AlreadyBoundException</code>、<code>AlreadyConnectedException</code>、<code>AsynchronousCloseException</code>、<code>CancelledKeyException</code>、<code>ClosedByInterruptException</code>、<code>ClosedChannelException</code>、<code>ClosedSelectorException</code>、<code>ConnectionPendingException</code>、<code>DatagramChannel</code>、<code>IllegalBlockingModeException</code>、<code>IllegalChannelGroupException</code>、<code>IllegalSelectorException</code>、<code>InterruptedByTimeoutException</code>、<code>MembershipKey</code>、<code>MulticastChannel</code>、<code>NoConnectionPendingException</code>、<code>NonReadableChannelException</code>、<code>NonWritableChannelException</code>、<code>NotYetBoundException</code>、<code>NotYetConnectedException</code>、<code>Pipe</code>、<code>SinkChannel</code>、<code>SourceChannel</code>、<code>ReadPendingException</code>、<code>ServerSocketChannel</code>、<code>ShutdownChannelGroupException</code>、<code>SocketChannel</code>、<code>UnresolvedAddressException</code>、<code>UnsupportedAddressTypeException</code>、<code>WritePendingException</code>。对应面见 gap_table.tsv 中的逐项说明。</p><h3>java.nio.channels.spi</h3><p>共 6 个 API 类型：模型不合 6。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>java.nio.channels.spi.AbstractInterruptibleChannel</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>java.nio.channels.spi.AbstractSelectableChannel</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>java.nio.channels.spi.AbstractSelectionKey</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>java.nio.channels.spi.AbstractSelector</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>java.nio.channels.spi.AsynchronousChannelProvider</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+<tr><td><code>java.nio.channels.spi.SelectorProvider</code></td><td>模型不合</td><td>Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移</td></tr>
+</table><h3>jdk.net（扩展套接字选项）</h3><p>共 4 个 API 类型：可直接对应 1、模型不合 1、已有等价 2。</p>
+<table>
+<tr><th>类型</th><th>分类</th><th>SA 对应 / 说明</th></tr>
+<tr><td><code>jdk.net.UnixDomainPrincipal</code></td><td>可直接对应</td><td>unix 套接字对端凭据（SO_PEERCRED 面）；SA unix addr 族有 kind/path/abstract，无 peer-cred 符号（小面）</td></tr>
+<tr><td><code>jdk.net.NetworkPermission</code></td><td>模型不合</td><td>Java 权限模型（见 NetPermission 行）</td></tr>
+</table>
+<p>已有等价（2）：<code>ExtendedSocketOptions</code>、<code>Sockets</code>。对应面见 gap_table.tsv 中的逐项说明。</p>
+<p>数据与脚本：<code>tools/java_net_census/</code>（抽取脚本 ×2、分类脚本、
+汇总脚本 ×2、双边清单与缺口表 TSV ×4）。本页表格由 gap_table.tsv 机械生成，
+分类理由逐项在 TSV 中可查。</p>
+</body>
+</html>
