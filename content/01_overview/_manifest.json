@@ -123,6 +123,23 @@
         "SAX"
       ],
       "parent": null
+    },
+    {
+      "id": "nginx-rebuild-roadmap",
+      "title": "自研 Web 服务器（nginx 重构）规划",
+      "file": "09_nginx_rebuild_roadmap.html",
+      "keywords": [
+        "nginx",
+        "sangx",
+        "Web 服务器",
+        "重构",
+        "反向代理",
+        "VM 插件",
+        "配置即代码",
+        "phase",
+        "路线图"
+      ],
+      "parent": null
     }
   ]
 }
