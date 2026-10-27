@@ -138,6 +138,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="disasm"><param name="Local" value="../dist/content/04_cli/06_sab.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="div"><param name="Local" value="../dist/content/15_sa2c/03_semantics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dlopen"><param name="Local" value="../dist/content/15_sa2c/04_extern.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="dns"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="drop"><param name="Local" value="../dist/content/02_sla_lang/06_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dumpbin"><param name="Local" value="../dist/content/08_faq/03_runtime_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Duration"><param name="Local" value="../dist/content/06_stdlib/08_time.html"></OBJECT>
@@ -177,6 +178,8 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="GitHub Release"><param name="Local" value="../dist/content/13_build/06_release_npm.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="gltf"><param name="Local" value="../dist/content/05_plugins/08_3dengines.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Go"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="go"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="golang"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="handler"><param name="Local" value="../dist/content/07_ui/02_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="HashMap"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="HashSet"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
@@ -250,7 +253,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="mui"><param name="Local" value="../dist/content/05_plugins/04_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="MUI"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="native"><param name="Local" value="../dist/content/14_zig017_perf/01_zig017_vs_014.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="net"><param name="Local" value="../dist/content/06_stdlib/10_net.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="net"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="newtype"><param name="Local" value="../dist/content/02_sla_lang/05_structs_enums.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="no-fallback"><param name="Local" value="../dist/content/08_faq/05_limitations_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="node"><param name="Local" value="../dist/content/15_sa2c/06_perf.html"></OBJECT>
@@ -424,6 +427,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="thread"><param name="Local" value="../dist/content/06_stdlib/12_term_fd_thread.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="time"><param name="Local" value="../dist/content/06_stdlib/08_time.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="TLS"><param name="Local" value="../dist/content/06_stdlib/19_tls_client.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="tls"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="tls_client"><param name="Local" value="../dist/content/06_stdlib/19_tls_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="trait"><param name="Local" value="../dist/content/02_sla_lang/05_structs_enums.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="trap"><param name="Local" value="../dist/content/03_sa_asm/05_diagnostics.html"></OBJECT>
@@ -600,6 +604,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="新建工程"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="新建项目"><param name="Local" value="../dist/content/04_cli/02_init.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="显式 move"><param name="Local" value="../dist/content/09_rust_compare/03_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="普查"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="最佳实践"><param name="Local" value="../dist/content/10_db/06_limits_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="最小示例"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="未标定"><param name="Local" value="../dist/content/10_db/06_limits_perf.html"></OBJECT>
@@ -655,6 +660,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译时间"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译矩阵"><param name="Local" value="../dist/content/13_build/01_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译管线"><param name="Local" value="../dist/content/03_sa_asm/04_pipeline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="缺口"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="网络并发"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="能力掩码"><param name="Local" value="../dist/content/16_policy/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="自查清单"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>

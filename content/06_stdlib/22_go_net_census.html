@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Go net 标准库 × sa_std 缺口普查</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; Go net 标准库 × sa_std 缺口普查</div>
+<h1>Go net 标准库 × sa_std 缺口普查（go1.27.3）</h1>
+
+<p>本页是「跨语言 std 普查」批次中 Go 的一册：以 Go 官方源码最新 stable
+（<code>go1.27.3</code>）的 net 家族为参照系，机械抽取其导出表面，与
+<code>sa_std</code> 的网络契约面逐条比对，产出四分类缺口表与优先补齐短名单。
+同批另有 <a href="../09_rust_compare/10_std_census.html">Rust 全 std 普查</a>，
+口径一致、互为参照。</p>
+
+<h2>方法与覆盖边界</h2>
+<table>
+<tr><th>项</th><th>口径</th></tr>
+<tr><td>Go 侧来源</td><td>golang/go tag <code>go1.27.3</code>（commit <code>2aae1000ea1d</code>，2026-10-19），浅克隆 + sparse checkout 只取 <code>src/net</code> 与 <code>src/crypto/tls</code>（13 MB）</td></tr>
+<tr><td>Go 侧范围</td><td><code>net</code>、<code>net/netip</code>、<code>net/url</code>、<code>net/http</code>（含 <code>httputil</code>/<code>httptest</code>/<code>cookiejar</code>）、<code>crypto/tls</code>、<code>net/smtp</code>、<code>net/mail</code>、<code>net/rpc</code>（含 <code>jsonrpc</code>）、<code>net/textproto</code>。排除：<code>net/http/fcgi</code>、<code>cgi</code>、<code>pprof</code>（遗留网关/剖析端点）、<code>mime/multipart</code>（属 mime 域，http 的表单方法按依赖登记）</td></tr>
+<tr><td>Go 侧抽取</td><td>导出 func/method/type/const/var + 结构体导出字段 + 接口方法集，共 1,408 条；Go 1.27 同名 const/var（密码套件 ID）去重 30 条后 1,378 条进入分类。未导出接收者上的方法不计（按名不可达）；嵌入提升的方法不重复声明、不另计；平台变体取并集</td></tr>
+<tr><td>SA 侧基线</td><td>sci main <code>8a943911</code>。契约层符号 1,384 个：.sai <code>@extern</code> 456、.sal <code>#def</code> 156、.sa <code>[MACRO]</code> 565、sa_std.h 原型 207。SA 文本层内部函数不做定义/调用区分，不入清单——消费者可绑定的就是契约层</td></tr>
+<tr><td>分类</td><td>规则逐簇作者化（<code>tools/go_net_census/rules.py</code>）；规则中引用的每个 SA 符号都由脚本校验真实存在于清单，杜绝把「有」写成「缺」或笔误冒充。全量 1,378 条零未分类</td></tr>
+</table>
+
+<h2>总览</h2>
+<table>
+<tr><th>包</th><th>条目</th><th>已有等价</th><th>可直接对应</th><th>需建模</th><th>模型不合</th></tr>
+<tr><td><code>net</code></td><td>324</td><td>177</td><td>82</td><td>57</td><td>8</td></tr>
+<tr><td><code>net/netip</code></td><td>80</td><td>19</td><td>61</td><td>0</td><td>0</td></tr>
+<tr><td><code>net/url</code></td><td>62</td><td>10</td><td>30</td><td>21</td><td>1</td></tr>
+<tr><td><code>net/http</code></td><td>409</td><td>144</td><td>46</td><td>207</td><td>11</td></tr>
+<tr><td><code>net/http/httputil</code></td><td>44</td><td>7</td><td>5</td><td>32</td><td>0</td></tr>
+<tr><td><code>net/http/httptest</code></td><td>31</td><td>0</td><td>0</td><td>31</td><td>0</td></tr>
+<tr><td><code>net/http/cookiejar</code></td><td>9</td><td>0</td><td>0</td><td>9</td><td>0</td></tr>
+<tr><td><code>crypto/tls</code></td><td>265</td><td>100</td><td>29</td><td>125</td><td>11</td></tr>
+<tr><td><code>net/smtp</code></td><td>27</td><td>0</td><td>27</td><td>0</td><td>0</td></tr>
+<tr><td><code>net/mail</code></td><td>20</td><td>1</td><td>19</td><td>0</td><td>0</td></tr>
+<tr><td><code>net/rpc</code></td><td>55</td><td>2</td><td>0</td><td>53</td><td>0</td></tr>
+<tr><td><code>net/rpc/jsonrpc</code></td><td>5</td><td>0</td><td>0</td><td>5</td><td>0</td></tr>
+<tr><td><code>net/textproto</code></td><td>47</td><td>2</td><td>34</td><td>11</td><td>0</td></tr>
+<tr><th>合计</th><th>1,378</th><th>462（33.5%）</th><th>333（24.2%）</th><th>551（40.0%）</th><th>32（2.3%）</th></tr>
+</table>
+<p>读法：底层 socket 面（TCP/UDP/Unix/组播/向量 IO/fd 收编）与 HTTP 收发主干
+已大面积等价——这是 sa_std「基础核心内置」学说的实证面。缺口的主体不是
+「能力不存在」，而是两类：<strong>对象模型未建</strong>（需建模 40%：Go 的
+Client/Transport/Server/Config/ServeMux 等配置与回调对象，在 SA 里是托管
+运行时 + 句柄函数族，逐项配置无承载）与<strong>纯函数没做</strong>
+（可直接对应 24%：语义可直接落 sa_std，只是尚未实现）。模型不合仅 2.3%，
+且集中在 context 传播、channel 信号、panic 控制流与错误链——属模型结论，
+不是缺陷。</p>
+
+<h2>按包要点</h2>
+<table>
+<tr><th>包</th><th>结论</th></tr>
+<tr><td><code>net</code></td><td>套接字面齐全度最高：connect/listen/accept/读写/peek/向量化/超时/保活/linger/TTL/缓冲/组播/only-v6/reuseport/try_clone/from_raw_fd 一应俱全。缺口在外围：DNS 记录型查询（见专节）、IP 值语义、网卡枚举、原始 IP 套接字、MPTCP、监听器期限与 SyscallConn 回调面</td></tr>
+<tr><td><code>net/netip</code></td><td>parse/format 与 socket 地址 ascii 互转已有等价；其余 61 条几乎全是纯函数——地址谓词（IsPrivate/IsLoopback…）、值运算（Next/Prev/Compare/Unmap/Zone）、Prefix 全家——是全普查性价比最高的一块</td></tr>
+<tr><td><code>net/url</code></td><td><code>sa_std_url_parse</code> 只是一次性分量出参；URL 值对象、Values 查询映射、百分号编解码、userinfo、相对引用解析全缺——每个 HTTP 消费者都会撞到</td></tr>
+<tr><td><code>net/http</code></td><td>收发主干等价（客户端 req/resp 句柄 + SSE + WebSocket、服务端 req/resp/流式/升级）。结构性差异在对象层：Client/Transport 连接池与策略、Server 配置对象、ServeMux 路由（Go 1.22 方法模式）、Handler 回调模型。点状真缺口：Cookie 全面、代理面、CSRF（CrossOriginProtection，Go 1.25+）、线格式序列化、静态文件服务</td></tr>
+<tr><td><code>crypto/tls</code></td><td>连接面等价（client/server/shaped 指纹面）；Config 配置对象（125 条需建模的主体）与会话恢复、套件元数据、ECH、OCSP 读取、密钥材料导出是缺口。Go 的 <code>tls.QUIC*</code> 是「仅握手提供者」，SA 是完整 QUIC 栈 + HTTP/3 会话面（<code>sa_std_http3_*</code> 在 quic.sai），形态不同、按映射建模登记</td></tr>
+<tr><td><code>net/http/httputil</code></td><td>ReverseProxy 是 CXU 的核心场景，目前无现成物：需以 client+server 句柄拼装并裁定钩子模型。Dump 转储与 chunked 独立编解码器是小的 direct 缺口</td></tr>
+<tr><td><code>net/smtp</code> / <code>net/mail</code></td><td>整包缺失且整包 direct：SMTP 客户端（27 条）依赖的 TCP/行协议/TLS 升级都已有；mail（19 条）是纯 RFC 5322 解析器。自包含、无设计风险</td></tr>
+<tr><td><code>net/rpc</code> + <code>jsonrpc</code></td><td>框架性缺口（58 条需建模）：服务注册表 + codec 接口 + gob 线格式。JSON-RPC 的线格式可由现有 JSON 面承载，卡点在 rpc 框架本身</td></tr>
+<tr><td><code>net/textproto</code></td><td>行协议工具整体缺失（Reader/Writer/Conn 34 条 direct）；MIME 多值头与 http.Header 是同一缺口。Pipeline 定序需建模（11 条）</td></tr>
+<tr><td><code>cookiejar</code> / <code>httptest</code></td><td>jar 是状态对象 + 公共后缀数据表，随 Cookie 面一并规划；httptest 是测试工具面（31 条），非运行时缺口，移植 Go 测试时才需要</td></tr>
+</table>
+
+<h2>DNS 专节</h2>
+<p><code>net</code> 包内与 DNS 相关的 48 条单独成节：已有等价 11
+（<code>LookupHost/LookupIP</code> 经 <code>sa_std_net_to_socket_addr_list</code>、
+<code>LookupAddr</code> 经 <code>sa_std_net_addr_reverse_lookup</code>）、
+可直接对应 22、需建模 14、模型不合 1。结论分三层：</p>
+<ul>
+<li><strong>主机解析已通</strong>：A/AAAA 正向与 PTR 反向都在；地址列表以句柄迭代呈现。</li>
+<li><strong>记录型查询整块缺失（22 条 direct 的主体）</strong>：<code>LookupCNAME/MX/NS/SRV/TXT</code>
+（含 Resolver 同名方法）与 MX/NS/SRV 记录类型、<code>LookupPort</code> 的 services 表查询。
+sa_std 没有 DNS wire 编解码与查询客户端——这是 net 域里最大的一块完整缺口，
+落地形态明确（UDP/TCP 查询 + 报文编解码 + 系统解析器配置读取）。</li>
+<li><strong>解析器对象不建</strong>（14 条需建模）：<code>Resolver</code> 的可插拔
+<code>Dial</code>、<code>PreferGo</code>、<code>StrictErrors</code> 与结构化
+<code>DNSError</code> 字段——SA 的解析是 std 内建 + 状态码模型，属有意的模型差异。</li>
+</ul>
+<h2>优先补齐短名单</h2>
+<p>排序原则：真实使用面优先（CXU 的代理/HTTP 服务与客户端、会话流），
+其次是「纯函数、零设计风险、可批量落」的整块。</p>
+<table>
+<tr><th>#</th><th>项</th><th>规模</th><th>理由</th></tr>
+<tr><td>1</td><td>Cookie 面：解析/序列化/SameSite/属性 + 请求响应读写</td><td>16 direct（+ cookiejar 9 需建模）</td><td>会话与登录流的核心面，目前全层零符号（实查）</td></tr>
+<tr><td>2</td><td>HTTP 代理面：Transport.Proxy / ProxyFromEnvironment / ProxyURL / CONNECT 头</td><td>约 6 条 direct</td><td>面极小、杠杆极大：CXU 自身是代理生态，客户端不出代理是硬伤</td></tr>
+<tr><td>3</td><td>DNS 记录型查询客户端（CNAME/MX/NS/SRV/TXT + 记录类型）</td><td>22 条 direct 主体</td><td>net 域最大整块缺口；邮件校验、服务发现都依赖</td></tr>
+<tr><td>4</td><td>IP/CIDR 值层：netip 谓词与值运算 + Prefix + net 的 IP/IPNet/IPMask</td><td>约 100 条 direct</td><td>纯函数批量落；同时是 slars/bc2sa 的 Rust net 类型映射地基</td></tr>
+<tr><td>5</td><td>URL 补全：Values 查询映射、百分号编解码、userinfo、相对引用解析</td><td>约 30 条 direct</td><td>每个 HTTP 消费者的日常面；url_parse 的自然延伸</td></tr>
+<tr><td>6</td><td>MIME 多值头 + textproto 行协议工具</td><td>约 40 条 direct</td><td>一并解锁 http.Header 保真与 smtp 类行协议客户端</td></tr>
+<tr><td>7</td><td>反向代理（httputil.ReverseProxy 的 SA 形态）</td><td>32 条需建模</td><td>建模类第一位：CXU 核心场景；前置是 handler/钩子模型的一次裁定</td></tr>
+<tr><td>8</td><td>SMTP 客户端整包</td><td>27 条 direct</td><td>自包含协议客户端，依赖面（TCP/行协议/TLS）都已就绪</td></tr>
+<tr><td>9</td><td>网卡枚举（Interfaces/InterfaceAddrs/Flags/MAC/MTU）</td><td>17 条 direct</td><td>小而完整；本地地址选择、局域网服务发现的前置</td></tr>
+<tr><td>10</td><td>TLS 元数据小面：套件清单查询、OCSPResponse、VerifyHostname、ExportKeyingMaterial</td><td>约 11 条 direct</td><td>证书运维与调试面；与 Config 对象建模解耦、可先行</td></tr>
+</table>
+<p>未入名单的大头如实登记：http 对象模型（约 200 条需建模）与 rpc 框架
+（58 条）是「要不要引入对象层」的架构裁定，不属补齐批次；
+httptest（31 条）是测试工具面，随测试移植需求再议。</p>
+
+<h2>模型不合清单（32 条，结论性登记）</h2>
+<p>构成：context.Context 传播/取消（DialContext、Request.Context、
+HandshakeContext、BaseContext/ConnContext 工厂、context 键等约 12 条）、
+channel 信号（Dialer.Cancel、Request.Cancel、CloseNotifier）、panic 控制流
+（ErrAbortHandler）、错误链 Unwrap（各错误类型）、重定向控制流信号
+（ErrUseLastResponse）、拨号/监听的 Control 回调钩子。这些依赖 Go 运行时
+语义，SA 不采纳——登记为模型结论，不是待修缺陷。</p>
+
+<h2>复跑</h2>
+<p>全部脚本与基线产物在 <code>tools/go_net_census/</code>：抽取器
+（<code>extract_go_net.py</code> / <code>extract_sa_net.py</code>）、分类器
+（<code>compare_go_net.py</code> + 逐簇规则 <code>rules.py</code>）、双边清单
+（<code>go_net_api.json</code> / <code>sa_net_api.json</code>）与全量分类表
+（<code>gap_table.tsv</code>，1,378 行逐条可查）。同版输入复跑与入库产物
+byte-identical（已实证）。</p>
+
+</body>
+</html>

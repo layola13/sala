@@ -1,0 +1,1379 @@
+pkg	kind	name	receiver	cat	sa_counterpart	note	file
+crypto/tls	const	CurveP256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	CurveP384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	CurveP521		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	ECDSAWithP256AndSHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	ECDSAWithP384AndSHA384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	ECDSAWithP521AndSHA512		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	ECDSAWithSHA1		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	Ed25519		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	MLDSA44		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	MLDSA65		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	MLDSA87		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	MLKEM1024		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	NoClientCert		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	PKCS1WithSHA1		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	PKCS1WithSHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	PKCS1WithSHA384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	PKCS1WithSHA512		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	PSSWithSHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	PSSWithSHA384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	PSSWithSHA512		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	QUICEncryptionLevelApplication		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICEncryptionLevelEarly		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICEncryptionLevelHandshake		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICEncryptionLevelInitial		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICErrorEvent		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICHandshakeDone		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICNoEvent		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICRejectedEarlyData		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICResumeSession		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICSetReadSecret		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICSetWriteSecret		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICStoreSession		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICTransportParameters		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICTransportParametersRequired		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	QUICWriteData		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	quic.go
+crypto/tls	const	RenegotiateFreelyAsClient		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	RenegotiateNever		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	RenegotiateOnceAsClient		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	RequestClientCert		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	RequireAndVerifyClientCert		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	RequireAnyClientCert		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	SecP256r1MLKEM768		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	SecP384r1MLKEM1024		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	TLS_AES_128_GCM_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_AES_256_GCM_SHA384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_CHACHA20_POLY1305_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_ECDSA_WITH_RC4_128_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_ECDHE_RSA_WITH_RC4_128_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_FALLBACK_SCSV		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_RSA_WITH_3DES_EDE_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_RSA_WITH_AES_128_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_RSA_WITH_AES_128_CBC_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_RSA_WITH_AES_128_GCM_SHA256		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_RSA_WITH_AES_256_CBC_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_RSA_WITH_AES_256_GCM_SHA384		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	TLS_RSA_WITH_RC4_128_SHA		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	cipher_suites.go
+crypto/tls	const	VerifyClientCertIfGiven		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	VersionSSL30		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	VersionTLS10		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	VersionTLS11		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	VersionTLS12		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	VersionTLS13		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	X25519		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	const	X25519MLKEM768		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	common.go
+crypto/tls	field	Certificate	Certificate	model		证书材料对象（DER 链 + 私钥对象 + 装订数据）；SA 以文件路径加载证书	common.go
+crypto/tls	field	Leaf	Certificate	model		证书材料对象（DER 链 + 私钥对象 + 装订数据）；SA 以文件路径加载证书	common.go
+crypto/tls	field	OCSPStaple	Certificate	model		证书材料对象（DER 链 + 私钥对象 + 装订数据）；SA 以文件路径加载证书	common.go
+crypto/tls	field	PrivateKey	Certificate	model		证书材料对象（DER 链 + 私钥对象 + 装订数据）；SA 以文件路径加载证书	common.go
+crypto/tls	field	SignedCertificateTimestamps	Certificate	model		证书材料对象（DER 链 + 私钥对象 + 装订数据）；SA 以文件路径加载证书	common.go
+crypto/tls	field	SupportedSignatureAlgorithms	Certificate	model		证书材料对象（DER 链 + 私钥对象 + 装订数据）；SA 以文件路径加载证书	common.go
+crypto/tls	field	AcceptableCAs	CertificateRequestInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	SignatureSchemes	CertificateRequestInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	Version	CertificateRequestInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	Err	CertificateVerificationError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	common.go
+crypto/tls	field	UnverifiedCertificates	CertificateVerificationError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	common.go
+crypto/tls	field	ID	CipherSuite	direct		密码套件元数据清单（ID/名称/版本/IETF 推荐）缺失；SA TLS 栈内建套件、不枚举	cipher_suites.go
+crypto/tls	field	Insecure	CipherSuite	direct		密码套件元数据清单（ID/名称/版本/IETF 推荐）缺失；SA TLS 栈内建套件、不枚举	cipher_suites.go
+crypto/tls	field	Name	CipherSuite	direct		密码套件元数据清单（ID/名称/版本/IETF 推荐）缺失；SA TLS 栈内建套件、不枚举	cipher_suites.go
+crypto/tls	field	SupportedVersions	CipherSuite	direct		密码套件元数据清单（ID/名称/版本/IETF 推荐）缺失；SA TLS 栈内建套件、不枚举	cipher_suites.go
+crypto/tls	field	CipherSuites	ClientHelloInfo	direct		密码套件/版本名称查询（元数据清单）缺失	common.go
+crypto/tls	field	Conn	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	Extensions	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	HelloRetryRequest	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	ServerName	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	SignatureSchemes	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	SupportedCurves	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	SupportedPoints	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	SupportedProtos	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	SupportedVersions	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	field	Certificates	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	CipherSuites	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	ClientAuth	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	ClientCAs	Config	model	sa_std_tls_client_add_ca_file	CA 池对象；SA 只有文件级 CA 加载	common.go
+crypto/tls	field	ClientSessionCache	Config	model		会话缓存配置，随会话面一并建模	common.go
+crypto/tls	field	CurvePreferences	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	DynamicRecordSizingDisabled	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	EncryptedClientHelloConfigList	Config	direct		ECH（加密 ClientHello）配置面缺失	common.go
+crypto/tls	field	EncryptedClientHelloKeys	Config	direct		ECH（加密 ClientHello）配置面缺失	common.go
+crypto/tls	field	EncryptedClientHelloRejectionVerify	Config	direct		ECH（加密 ClientHello）配置面缺失	common.go
+crypto/tls	field	GetCertificate	Config	mismatch		握手期回调函数值（选证书/验证/选配置）函数值回调钩子，SA 无此回调面	common.go
+crypto/tls	field	GetClientCertificate	Config	mismatch		握手期回调函数值（选证书/验证/选配置）函数值回调钩子，SA 无此回调面	common.go
+crypto/tls	field	GetConfigForClient	Config	mismatch		握手期回调函数值（选证书/验证/选配置）函数值回调钩子，SA 无此回调面	common.go
+crypto/tls	field	GetEncryptedClientHelloKeys	Config	mismatch		握手期回调函数值（选证书/验证/选配置）函数值回调钩子，SA 无此回调面	common.go
+crypto/tls	field	InsecureSkipVerify	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	KeyLogWriter	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	MaxVersion	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	MinVersion	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	NameToCertificate	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	NextProtos	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	PreferServerCipherSuites	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	Rand	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	Renegotiation	Config	direct		TLS 重协商策略面缺失（SA TLS 栈未暴露）	common.go
+crypto/tls	field	RootCAs	Config	model	sa_std_tls_client_add_ca_file	CA 池对象；SA 只有文件级 CA 加载	common.go
+crypto/tls	field	ServerName	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	SessionTicketKey	Config	model		会话票据面（密钥/开关/加解密钩子）随会话恢复一并建模	common.go
+crypto/tls	field	SessionTicketsDisabled	Config	model		会话票据面（密钥/开关/加解密钩子）随会话恢复一并建模	common.go
+crypto/tls	field	Time	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	field	UnwrapSession	Config	model		会话票据面（密钥/开关/加解密钩子）随会话恢复一并建模	common.go
+crypto/tls	field	VerifyConnection	Config	mismatch		握手期回调函数值（选证书/验证/选配置）函数值回调钩子，SA 无此回调面	common.go
+crypto/tls	field	VerifyPeerCertificate	Config	mismatch		握手期回调函数值（选证书/验证/选配置）函数值回调钩子，SA 无此回调面	common.go
+crypto/tls	field	WrapSession	Config	model		会话票据面（密钥/开关/加解密钩子）随会话恢复一并建模	common.go
+crypto/tls	field	CipherSuite	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	CurveID	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	DidResume	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	ECHAccepted	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	HandshakeComplete	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	HelloRetryRequest	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	LocalCertificate	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	NegotiatedProtocol	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	NegotiatedProtocolIsMutual	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	OCSPResponse	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	PeerCertificates	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	ServerName	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	SignedCertificateTimestamps	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	TLSUnique	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	VerifiedChains	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	Version	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	field	Config	Dialer	model		TLS 拨号器对象（内嵌 net.Dialer + Config）	tls.go
+crypto/tls	field	NetDialer	Dialer	model		TLS 拨号器对象（内嵌 net.Dialer + Config）	tls.go
+crypto/tls	field	RetryConfigList	ECHRejectionError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	ech.go
+crypto/tls	field	Config	EncryptedClientHelloKey	direct		ECH 密钥材料对象缺失	common.go
+crypto/tls	field	PrivateKey	EncryptedClientHelloKey	direct		ECH 密钥材料对象缺失	common.go
+crypto/tls	field	SendAsRetry	EncryptedClientHelloKey	direct		ECH 密钥材料对象缺失	common.go
+crypto/tls	field	ClientHelloInfoConn	QUICConfig	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	EnableSessionEvents	QUICConfig	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	TLSConfig	QUICConfig	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	Data	QUICEvent	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	Err	QUICEvent	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	Kind	QUICEvent	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	Level	QUICEvent	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	SessionState	QUICEvent	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	Suite	QUICEvent	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	EarlyData	QUICSessionTicketOptions	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	Extra	QUICSessionTicketOptions	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	field	Conn	RecordHeaderError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	conn.go
+crypto/tls	field	Msg	RecordHeaderError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	conn.go
+crypto/tls	field	RecordHeader	RecordHeaderError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	conn.go
+crypto/tls	field	EarlyData	SessionState	model		会话票据/恢复状态对象；SA TLS 面无会话恢复	ticket.go
+crypto/tls	field	Extra	SessionState	model		会话票据/恢复状态对象；SA TLS 面无会话恢复	ticket.go
+crypto/tls	func	CipherSuiteName		direct		密码套件/版本名称查询（元数据清单）缺失	cipher_suites.go
+crypto/tls	func	CipherSuites		direct		密码套件/版本名称查询（元数据清单）缺失	cipher_suites.go
+crypto/tls	func	Client		equiv	sa_std_tls_client_connect	TLS 客户端连接（在已有连接上叠加）	tls.go
+crypto/tls	func	Dial		equiv	sa_std_tls_client_connect	TLS 拨号	tls.go
+crypto/tls	func	DialWithDialer		equiv	sa_std_tls_client_connect	TLS 拨号	tls.go
+crypto/tls	func	InsecureCipherSuites		direct		密码套件/版本名称查询（元数据清单）缺失	cipher_suites.go
+crypto/tls	func	Listen		equiv	sa_std_tls_server_ctx_create / sa_std_tls_server_accept	TLS 监听（ctx + accept 组合）	tls.go
+crypto/tls	func	LoadX509KeyPair		direct		PEM 证书对解析/构造（内存形态）缺失；SA 为文件路径式加载	tls.go
+crypto/tls	func	NewLRUClientSessionCache		model		LRU 会话缓存实现，随会话面一并建模	common.go
+crypto/tls	func	NewListener		equiv	sa_std_tls_server_ctx_create / sa_std_tls_server_accept	TLS 监听（ctx + accept 组合）	tls.go
+crypto/tls	func	NewResumptionState		model		会话恢复状态的序列化/构造，随会话面一并建模	ticket.go
+crypto/tls	func	ParseSessionState		model		会话恢复状态的序列化/构造，随会话面一并建模	ticket.go
+crypto/tls	func	QUICClient		model	sa_std_quic_*	QUIC 握手提供者入口；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	func	QUICServer		model	sa_std_quic_*	QUIC 握手提供者入口；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	func	Server		equiv	sa_std_tls_server_accept	TLS 服务端连接	tls.go
+crypto/tls	func	VersionName		direct		密码套件/版本名称查询（元数据清单）缺失	common.go
+crypto/tls	func	X509KeyPair		direct		PEM 证书对解析/构造（内存形态）缺失；SA 为文件路径式加载	tls.go
+crypto/tls	interface-method	Get	ClientSessionCache	model		客户端会话缓存接口（Get/Put）；SA 无会话缓存面	common.go
+crypto/tls	interface-method	Put	ClientSessionCache	model		客户端会话缓存接口（Get/Put）；SA 无会话缓存面	common.go
+crypto/tls	method	Error	AlertError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	alert.go
+crypto/tls	method	Context	CertificateRequestInfo	mismatch		依赖 context.Context 传播/取消语义	common.go
+crypto/tls	method	SupportsCertificate	CertificateRequestInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	method	Error	CertificateVerificationError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	common.go
+crypto/tls	method	Unwrap	CertificateVerificationError	mismatch		错误链展开依赖 Go 的 errors.Is/As 链模型	common.go
+crypto/tls	method	String	ClientAuthType	direct		客户端证书策略枚举的字符串化	common_string.go
+crypto/tls	method	Context	ClientHelloInfo	mismatch		依赖 context.Context 传播/取消语义	common.go
+crypto/tls	method	SupportsCertificate	ClientHelloInfo	model		服务端 ClientHello 检视面（回调上下文：套件/曲线/ALPN/SNI/证书选择）；SA shaped hello 是客户端指纹方向，服务端无此面	common.go
+crypto/tls	method	ResumptionState	ClientSessionState	model		会话票据/恢复状态对象；SA TLS 面无会话恢复	ticket.go
+crypto/tls	method	BuildNameToCertificate	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	method	Clone	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	method	DecryptTicket	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	ticket.go
+crypto/tls	method	EncryptTicket	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	ticket.go
+crypto/tls	method	SetSessionTicketKeys	Config	model		TLS 配置项（版本/套件/曲线/ALPN/SNI 等）；SA connect 参数只覆盖子集，无逐项配置对象承载	common.go
+crypto/tls	method	Close	Conn	equiv	sa_std_tls_client_close / sa_std_tls_server_close	TLS 关闭	conn.go
+crypto/tls	method	CloseWrite	Conn	equiv	sa_std_tls_client_close	写方向关闭（close_notify）由关闭面承载	conn.go
+crypto/tls	method	ConnectionState	Conn	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态以状态 JSON 呈现，非字段级对象	conn.go
+crypto/tls	method	Handshake	Conn	equiv	sa_std_tls_client_connect	显式握手；SA 在 connect 内完成握手	conn.go
+crypto/tls	method	HandshakeContext	Conn	mismatch		带 context 的握手依赖 context.Context 传播/取消语义	conn.go
+crypto/tls	method	LocalAddr	Conn	equiv	sa_std_net_tcp_stream_local_addr	底层连接本地地址	conn.go
+crypto/tls	method	NetConn	Conn	model		底层 net.Conn 还原面；SA TLS 句柄不暴露底层连接	conn.go
+crypto/tls	method	OCSPResponse	Conn	direct		OCSP 装订响应读取面缺失	conn.go
+crypto/tls	method	Read	Conn	equiv	sa_std_tls_client_read / sa_std_tls_server_read	TLS 读	conn.go
+crypto/tls	method	RemoteAddr	Conn	equiv	sa_std_net_tcp_stream_peer_addr	底层连接对端地址	conn.go
+crypto/tls	method	SetDeadline	Conn	equiv	sa_std_net_tcp_stream_set_read_timeout / sa_std_net_tcp_stream_set_write_timeout	期限设在底层连接上；Go 为绝对期限、SA 为相对超时	conn.go
+crypto/tls	method	SetReadDeadline	Conn	equiv	sa_std_net_tcp_stream_set_read_timeout / sa_std_net_tcp_stream_set_write_timeout	期限设在底层连接上；Go 为绝对期限、SA 为相对超时	conn.go
+crypto/tls	method	SetWriteDeadline	Conn	equiv	sa_std_net_tcp_stream_set_read_timeout / sa_std_net_tcp_stream_set_write_timeout	期限设在底层连接上；Go 为绝对期限、SA 为相对超时	conn.go
+crypto/tls	method	VerifyHostname	Conn	direct		已连接证书的主机名再校验函数缺失	conn.go
+crypto/tls	method	Write	Conn	equiv	sa_std_tls_client_write / sa_std_tls_server_write	TLS 写	conn.go
+crypto/tls	method	ExportKeyingMaterial	ConnectionState	model	sa_std_tls_client_status_json / sa_std_tls_server_status_json	连接状态快照以状态 JSON 呈现，字段级对象需建模	common.go
+crypto/tls	method	String	CurveID	direct		曲线/签名方案枚举的元数据面（String 化）缺失	common_string.go
+crypto/tls	method	Dial	Dialer	model		TLS 拨号器对象（内嵌 net.Dialer + Config）	tls.go
+crypto/tls	method	DialContext	Dialer	mismatch		依赖 context.Context 传播/取消语义	tls.go
+crypto/tls	method	Error	ECHRejectionError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	ech.go
+crypto/tls	method	Close	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	ConnectionState	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	HandleData	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	NextEvent	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	SendSessionTicket	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	SetTransportParameters	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	Start	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	StoreSession	QUICConn	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	String	QUICEncryptionLevel	model	sa_std_quic_*	Go 的 tls.QUIC* 是给外部 QUIC 实现的仅握手提供者；SA 是完整 QUIC 栈 + HTTP/3 会话面，形态不同，需映射建模而非逐项对应	quic.go
+crypto/tls	method	Error	RecordHeaderError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	conn.go
+crypto/tls	method	Bytes	SessionState	model		会话票据/恢复状态对象；SA TLS 面无会话恢复	ticket.go
+crypto/tls	method	String	SignatureScheme	direct		曲线/签名方案枚举的元数据面（String 化）缺失	common_string.go
+crypto/tls	type	AlertError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	alert.go
+crypto/tls	type	Certificate		model		证书材料对象；SA 以文件路径加载	common.go
+crypto/tls	type	CertificateRequestInfo		model		ClientHello 检视面，随握手回调一并建模	common.go
+crypto/tls	type	CertificateVerificationError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	common.go
+crypto/tls	type	CipherSuite		direct		密码套件元数据清单缺失	cipher_suites.go
+crypto/tls	type	ClientAuthType		direct		客户端证书策略枚举（NoClientCert..VerifyClientCertIfGiven 的类型面；数值常量另行已有）	common.go
+crypto/tls	type	ClientHelloInfo		model		ClientHello 检视面，随握手回调一并建模	common.go
+crypto/tls	type	ClientSessionCache		model		会话缓存接口类型，随会话面一并建模	common.go
+crypto/tls	type	ClientSessionState		model		会话状态类型，随会话恢复一并建模	ticket.go
+crypto/tls	type	Config		model		TLS 配置对象；SA 以 connect 参数 / server ctx / status_json 分散呈现，无配置对象	common.go
+crypto/tls	type	Conn		equiv	sa_std_tls_client_* / sa_std_tls_server_*	TLS 连接即连接句柄	conn.go
+crypto/tls	type	ConnectionState		model	sa_std_tls_client_status_json	连接状态快照类型	common.go
+crypto/tls	type	CurveID		direct		曲线/签名方案枚举类型面缺失	common.go
+crypto/tls	type	Dialer		model		TLS 拨号器对象	tls.go
+crypto/tls	type	ECHRejectionError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	ech.go
+crypto/tls	type	EncryptedClientHelloKey		direct		ECH 密钥材料对象缺失	common.go
+crypto/tls	type	QUICConfig		model	sa_std_quic_*	QUIC 握手提供者相关类型；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	type	QUICConn		model	sa_std_quic_*	QUIC 握手提供者相关类型；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	type	QUICEncryptionLevel		model	sa_std_quic_*	QUIC 握手提供者相关类型；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	type	QUICEvent		model	sa_std_quic_*	QUIC 握手提供者相关类型；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	type	QUICEventKind		model	sa_std_quic_*	QUIC 握手提供者相关类型；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	type	QUICSessionTicketOptions		model	sa_std_quic_*	QUIC 握手提供者相关类型；SA 为完整 QUIC 栈，形态不同	quic.go
+crypto/tls	type	RecordHeaderError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	conn.go
+crypto/tls	type	RenegotiationSupport		direct		重协商策略枚举类型	common.go
+crypto/tls	type	SessionState		model		会话状态类型，随会话恢复一并建模	ticket.go
+crypto/tls	type	SignatureScheme		direct		曲线/签名方案枚举类型面缺失	common.go
+net	const	FlagBroadcast		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	interface.go
+net	const	FlagLoopback		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	interface.go
+net	const	FlagMulticast		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	interface.go
+net	const	FlagPointToPoint		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	interface.go
+net	const	FlagRunning		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	interface.go
+net	const	FlagUp		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	interface.go
+net	const	IPv4len		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	ip.go
+net	const	IPv6len		equiv		常量值（枚举/标识/上限），SA 侧以字面量或命名常量呈现	ip.go
+net	field	Addr	AddrError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Err	AddrError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Err	DNSConfigError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Err	DNSError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	IsNotFound	DNSError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	IsTemporary	DNSError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	IsTimeout	DNSError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Name	DNSError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Server	DNSError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	UnwrapErr	DNSError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Cancel	Dialer	mismatch		channel 取消信号字段	dial.go
+net	field	Control	Dialer	mismatch		拨号前回调钩子（Control/RawConn）函数值回调钩子，SA 无此回调面	dial.go
+net	field	ControlContext	Dialer	mismatch		拨号前回调钩子（Control/RawConn）函数值回调钩子，SA 无此回调面	dial.go
+net	field	Deadline	Dialer	equiv	sa_std_net_tcp_connect_timeout	Go 为绝对期限、SA 为相对超时，调用方换算	dial.go
+net	field	DualStack	Dialer	equiv	sa_std_net_tcp_connect_timeout_all	多地址依次尝试（Happy Eyeballs 近似）	dial.go
+net	field	FallbackDelay	Dialer	equiv	sa_std_net_tcp_connect_timeout_all	多地址依次尝试（Happy Eyeballs 近似）	dial.go
+net	field	KeepAlive	Dialer	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数在连接建立后于流上设置	dial.go
+net	field	KeepAliveConfig	Dialer	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数在连接建立后于流上设置	dial.go
+net	field	LocalAddr	Dialer	direct		绑定本地地址拨号缺失：connect 面只有远端地址	dial.go
+net	field	Resolver	Dialer	model		拨号器内嵌解析器对象	dial.go
+net	field	Timeout	Dialer	equiv	sa_std_net_tcp_connect_timeout	拨号超时参数	dial.go
+net	field	IP	IPAddr	model		原始 IP 地址类型，随原始套接字一并建模	iprawsock.go
+net	field	Zone	IPAddr	model		原始 IP 地址类型，随原始套接字一并建模	iprawsock.go
+net	field	IP	IPNet	direct		CIDR/掩码值层缺失（与 netip.Prefix 同一缺口）	ip.go
+net	field	Mask	IPNet	direct		CIDR/掩码值层缺失（与 netip.Prefix 同一缺口）	ip.go
+net	field	Flags	Interface	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	field	HardwareAddr	Interface	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	field	Index	Interface	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	field	MTU	Interface	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	field	Name	Interface	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	field	Count	KeepAliveConfig	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数结构	tcpsock.go
+net	field	Enable	KeepAliveConfig	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数结构	tcpsock.go
+net	field	Idle	KeepAliveConfig	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数结构	tcpsock.go
+net	field	Interval	KeepAliveConfig	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数结构	tcpsock.go
+net	field	Control	ListenConfig	mismatch		监听前回调钩子（Control/RawConn）函数值回调钩子，SA 无此回调面	dial.go
+net	field	KeepAlive	ListenConfig	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活在 accept 得到的流上设置	dial.go
+net	field	KeepAliveConfig	ListenConfig	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活在 accept 得到的流上设置	dial.go
+net	field	Host	MX	direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	field	Pref	MX	direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	field	Host	NS	direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	field	Addr	OpError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Err	OpError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Net	OpError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Op	OpError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Source	OpError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Text	ParseError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Type	ParseError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	field	Dial	Resolver	model		解析器对象（可插拔 Dial、PreferGo、StrictErrors）；SA 解析为 std 内建、无解析器对象	lookup.go
+net	field	PreferGo	Resolver	model		解析器对象（可插拔 Dial、PreferGo、StrictErrors）；SA 解析为 std 内建、无解析器对象	lookup.go
+net	field	StrictErrors	Resolver	model		解析器对象（可插拔 Dial、PreferGo、StrictErrors）；SA 解析为 std 内建、无解析器对象	lookup.go
+net	field	Port	SRV	direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	field	Priority	SRV	direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	field	Target	SRV	direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	field	Weight	SRV	direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	field	IP	TCPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	tcpsock.go
+net	field	Port	TCPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	tcpsock.go
+net	field	Zone	TCPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	tcpsock.go
+net	field	IP	UDPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	udpsock.go
+net	field	Port	UDPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	udpsock.go
+net	field	Zone	UDPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	udpsock.go
+net	field	Name	UnixAddr	equiv	sa_net_unix_addr_* / sa_std_net_unix_addr_from_pathname	unix 地址（路径/抽象名）	unixsock.go
+net	field	Net	UnixAddr	equiv	sa_net_unix_addr_* / sa_std_net_unix_addr_from_pathname	unix 地址（路径/抽象名）	unixsock.go
+net	func	CIDRMask		direct		CIDR/掩码值层缺失	ip.go
+net	func	Dial		equiv	sa_std_net_tcp_connect_timeout_all	拨号（含超时、多地址尝试）	dial.go
+net	func	DialIP		model		原始 IP 套接字需建模	iprawsock.go
+net	func	DialTCP		equiv	sa_std_net_tcp_connect_timeout	TCP 拨号	tcpsock.go
+net	func	DialTimeout		equiv	sa_std_net_tcp_connect_timeout_all	拨号（含超时、多地址尝试）	dial.go
+net	func	DialUDP		equiv	sa_std_net_udp_connect	UDP 拨号	udpsock.go
+net	func	DialUnix		equiv	sa_std_net_unix_connect	unix 拨号	unixsock.go
+net	func	FileConn		equiv	sa_std_net_tcp_stream_from_raw_fd / sa_std_net_tcp_listener_from_raw_fd / sa_std_net_udp_from_raw_fd	fd 收编方向齐全（Go 为 os.File 构造、SA 为 raw fd 构造）	file.go
+net	func	FileListener		equiv	sa_std_net_tcp_stream_from_raw_fd / sa_std_net_tcp_listener_from_raw_fd / sa_std_net_udp_from_raw_fd	fd 收编方向齐全（Go 为 os.File 构造、SA 为 raw fd 构造）	file.go
+net	func	FilePacketConn		equiv	sa_std_net_tcp_stream_from_raw_fd / sa_std_net_tcp_listener_from_raw_fd / sa_std_net_udp_from_raw_fd	fd 收编方向齐全（Go 为 os.File 构造、SA 为 raw fd 构造）	file.go
+net	func	IPv4		equiv	sa_net_ipv4_parse_ascii	四字节构造与点分文本解析等价覆盖	ip.go
+net	func	IPv4Mask		direct		CIDR/掩码值层缺失	ip.go
+net	func	InterfaceAddrs		direct		网卡枚举面整体缺失	interface.go
+net	func	InterfaceByIndex		direct		网卡枚举面整体缺失	interface.go
+net	func	InterfaceByName		direct		网卡枚举面整体缺失	interface.go
+net	func	Interfaces		direct		网卡枚举面整体缺失	interface.go
+net	func	JoinHostPort		direct		host:port 拼拆纯函数缺失（url_parse 只面向完整 URL）	ipsock.go
+net	func	Listen		equiv	sa_std_net_tcp_listen	TCP 监听	dial.go
+net	func	ListenIP		model		原始 IP 套接字需建模	iprawsock.go
+net	func	ListenMulticastUDP		equiv	sa_std_net_udp_join_multicast_v4 / sa_std_net_udp_join_multicast_v6	组播监听（绑定 + 加入组）	udpsock.go
+net	func	ListenPacket		equiv	sa_std_net_udp_bind	UDP 绑定/监听	dial.go
+net	func	ListenTCP		equiv	sa_std_net_tcp_listen	TCP 监听	tcpsock.go
+net	func	ListenUDP		equiv	sa_std_net_udp_bind	UDP 绑定/监听	udpsock.go
+net	func	ListenUnix		equiv	sa_std_net_unix_listen	unix 监听	unixsock.go
+net	func	ListenUnixgram		equiv	sa_std_net_unix_datagram_bind	unix 报文绑定	unixsock.go
+net	func	LookupAddr		equiv	sa_std_net_addr_reverse_lookup	PTR 反向解析	lookup.go
+net	func	LookupCNAME		direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	func	LookupHost		equiv	sa_std_net_to_socket_addr_list	主机名 A/AAAA 解析；结果以地址列表句柄迭代（sa_std_net_addr_list_*）	lookup.go
+net	func	LookupIP		equiv	sa_std_net_to_socket_addr_list	主机名 A/AAAA 解析；结果以地址列表句柄迭代（sa_std_net_addr_list_*）	lookup.go
+net	func	LookupMX		direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	func	LookupNS		direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	func	LookupPort		direct		服务名到端口的查询（services 表）缺失	lookup.go
+net	func	LookupSRV		direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	func	LookupTXT		direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	func	ParseCIDR		direct		CIDR/掩码值层缺失	ip.go
+net	func	ParseIP		equiv	sa_net_ipv4_parse_ascii / sa_net_ipv6_parse_ascii	IP 文本解析	ip.go
+net	func	ParseMAC		direct		网卡枚举面整体缺失	mac.go
+net	func	Pipe		equiv	sa_std_net_unix_pair	匿名成对连接	pipe.go
+net	func	ResolveIPAddr		model		原始 IP 套接字需建模	iprawsock.go
+net	func	ResolveTCPAddr		equiv	sa_std_net_to_socket_addr_first	名称解析取首个地址	tcpsock.go
+net	func	ResolveUDPAddr		equiv	sa_std_net_to_socket_addr_first	名称解析取首个地址	udpsock.go
+net	func	ResolveUnixAddr		equiv	sa_std_net_unix_addr_from_pathname	unix 地址构造	unixsock.go
+net	func	SplitHostPort		direct		host:port 拼拆纯函数缺失（url_parse 只面向完整 URL）	ipsock.go
+net	func	TCPAddrFromAddrPort		equiv	sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	netip.AddrPort 与 socket 地址 ascii 互转	tcpsock.go
+net	func	UDPAddrFromAddrPort		equiv	sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	netip.AddrPort 与 socket 地址 ascii 互转	udpsock.go
+net	interface-method	Network	Addr	equiv	sa_std_net_addr_format / sa_net_addr_family	地址的网络名与文本形态	net.go
+net	interface-method	String	Addr	equiv	sa_std_net_addr_format / sa_net_addr_family	地址的网络名与文本形态	net.go
+net	interface-method	Close	Conn	equiv	sa_net_tcp_stream_close	连接关闭	net.go
+net	interface-method	LocalAddr	Conn	equiv	sa_std_net_tcp_stream_local_addr	本地地址	net.go
+net	interface-method	Read	Conn	equiv	sa_std_net_tcp_stream_read	连接读	net.go
+net	interface-method	RemoteAddr	Conn	equiv	sa_std_net_tcp_stream_peer_addr	对端地址	net.go
+net	interface-method	SetDeadline	Conn	equiv	sa_std_net_tcp_stream_set_read_timeout / sa_std_net_tcp_stream_set_write_timeout	Go 为绝对期限、SA 为相对超时，调用方换算	net.go
+net	interface-method	SetReadDeadline	Conn	equiv	sa_std_net_tcp_stream_set_read_timeout / sa_std_net_tcp_stream_set_write_timeout	Go 为绝对期限、SA 为相对超时，调用方换算	net.go
+net	interface-method	SetWriteDeadline	Conn	equiv	sa_std_net_tcp_stream_set_read_timeout / sa_std_net_tcp_stream_set_write_timeout	Go 为绝对期限、SA 为相对超时，调用方换算	net.go
+net	interface-method	Write	Conn	equiv	sa_std_net_tcp_stream_write	连接写	net.go
+net	interface-method	Temporary	Error	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	interface-method	Timeout	Error	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	interface-method	Accept	Listener	equiv	sa_std_net_tcp_accept	接受连接	net.go
+net	interface-method	Addr	Listener	equiv	sa_std_net_tcp_listener_local_addr	监听本地地址	net.go
+net	interface-method	Close	Listener	equiv	sa_net_tcp_listener_close	监听关闭	net.go
+net	interface-method	Close	PacketConn	equiv	sa_net_udp_close	报文套接字关闭	net.go
+net	interface-method	LocalAddr	PacketConn	equiv	sa_std_net_udp_local_addr	本地地址	net.go
+net	interface-method	ReadFrom	PacketConn	equiv	sa_std_net_udp_recv_from	报文读（带来源地址）	net.go
+net	interface-method	SetDeadline	PacketConn	equiv	sa_std_net_udp_set_read_timeout / sa_std_net_udp_set_write_timeout	Go 为绝对期限、SA 为相对超时	net.go
+net	interface-method	SetReadDeadline	PacketConn	equiv	sa_std_net_udp_set_read_timeout / sa_std_net_udp_set_write_timeout	Go 为绝对期限、SA 为相对超时	net.go
+net	interface-method	SetWriteDeadline	PacketConn	equiv	sa_std_net_udp_set_read_timeout / sa_std_net_udp_set_write_timeout	Go 为绝对期限、SA 为相对超时	net.go
+net	interface-method	WriteTo	PacketConn	equiv	sa_std_net_udp_send_to	报文写（带目标地址）	net.go
+net	method	Error	AddrError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	net.go
+net	method	Temporary	AddrError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Timeout	AddrError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Read	Buffers	equiv	sa_std_net_tcp_stream_write_vectored	多缓冲聚写（iovec）	net.go
+net	method	WriteTo	Buffers	equiv	sa_std_net_tcp_stream_write_vectored	多缓冲聚写（iovec）	net.go
+net	method	Error	DNSConfigError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	net.go
+net	method	Temporary	DNSConfigError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Timeout	DNSConfigError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Unwrap	DNSConfigError	mismatch		错误链展开依赖 Go 的 errors.Is/As 链模型	net.go
+net	method	Error	DNSError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	net.go
+net	method	Temporary	DNSError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Timeout	DNSError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Unwrap	DNSError	mismatch		错误链展开依赖 Go 的 errors.Is/As 链模型	net.go
+net	method	Dial	Dialer	equiv	sa_std_net_tcp_connect_timeout_all / sa_std_net_udp_connect / sa_std_net_unix_connect	带配置拨号由 connect 函数族承载	dial.go
+net	method	DialContext	Dialer	mismatch		依赖 context.Context 传播/取消语义；SA connect 只有相对超时	dial.go
+net	method	DialIP	Dialer	model		原始 IP 套接字需建模	dial.go
+net	method	DialTCP	Dialer	equiv	sa_std_net_tcp_connect_timeout_all / sa_std_net_udp_connect / sa_std_net_unix_connect	带配置拨号由 connect 函数族承载	dial.go
+net	method	DialUDP	Dialer	equiv	sa_std_net_tcp_connect_timeout_all / sa_std_net_udp_connect / sa_std_net_unix_connect	带配置拨号由 connect 函数族承载	dial.go
+net	method	DialUnix	Dialer	equiv	sa_std_net_tcp_connect_timeout_all / sa_std_net_udp_connect / sa_std_net_unix_connect	带配置拨号由 connect 函数族承载	dial.go
+net	method	MultipathTCP	Dialer	direct		MPTCP（多路径 TCP）面整体缺失，sa_std 无 multipath 符号（实查）	dial.go
+net	method	SetMultipathTCP	Dialer	direct		MPTCP（多路径 TCP）面整体缺失，sa_std 无 multipath 符号（实查）	dial.go
+net	method	String	Flags	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	method	String	HardwareAddr	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	mac.go
+net	method	AppendText	IP	equiv	sa_net_ipv4_format_ascii / sa_net_ipv4_parse_ascii / sa_net_ipv6_format_ascii / sa_net_ipv6_parse_ascii	IP 文本编解码	ip.go
+net	method	DefaultMask	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	Equal	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsGlobalUnicast	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsInterfaceLocalMulticast	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsLinkLocalMulticast	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsLinkLocalUnicast	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsLoopback	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsMulticast	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsPrivate	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	IsUnspecified	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	MarshalText	IP	equiv	sa_net_ipv4_format_ascii / sa_net_ipv4_parse_ascii / sa_net_ipv6_format_ascii / sa_net_ipv6_parse_ascii	IP 文本编解码	ip.go
+net	method	Mask	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	String	IP	equiv	sa_net_ipv4_format_ascii / sa_net_ipv4_parse_ascii / sa_net_ipv6_format_ascii / sa_net_ipv6_parse_ascii	IP 文本编解码	ip.go
+net	method	To16	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	To4	IP	direct		IP 值语义层（分类谓词/归一/掩码运算）纯函数缺失；parse/format 之外无 IP 值层	ip.go
+net	method	UnmarshalText	IP	equiv	sa_net_ipv4_format_ascii / sa_net_ipv4_parse_ascii / sa_net_ipv6_format_ascii / sa_net_ipv6_parse_ascii	IP 文本编解码	ip.go
+net	method	Network	IPAddr	model		原始 IP 地址类型，随原始套接字一并建模	iprawsock.go
+net	method	String	IPAddr	model		原始 IP 地址类型，随原始套接字一并建模	iprawsock.go
+net	method	ReadFrom	IPConn	model		原始 IP 套接字（协议号级收发）需建模；SA 网络面止于 TCP/UDP/Unix/QUIC	iprawsock.go
+net	method	ReadFromIP	IPConn	model		原始 IP 套接字（协议号级收发）需建模；SA 网络面止于 TCP/UDP/Unix/QUIC	iprawsock.go
+net	method	ReadMsgIP	IPConn	model		原始 IP 套接字（协议号级收发）需建模；SA 网络面止于 TCP/UDP/Unix/QUIC	iprawsock.go
+net	method	SyscallConn	IPConn	model		RawConn 回调面（SyscallConn）缺失；SA 只有 from_raw_fd 的 fd 收编方向	iprawsock.go
+net	method	WriteMsgIP	IPConn	model		原始 IP 套接字（协议号级收发）需建模；SA 网络面止于 TCP/UDP/Unix/QUIC	iprawsock.go
+net	method	WriteTo	IPConn	model		原始 IP 套接字（协议号级收发）需建模；SA 网络面止于 TCP/UDP/Unix/QUIC	iprawsock.go
+net	method	WriteToIP	IPConn	model		原始 IP 套接字（协议号级收发）需建模；SA 网络面止于 TCP/UDP/Unix/QUIC	iprawsock.go
+net	method	Size	IPMask	direct		CIDR/掩码值层缺失（与 netip.Prefix 同一缺口）	ip.go
+net	method	String	IPMask	direct		CIDR/掩码值层缺失（与 netip.Prefix 同一缺口）	ip.go
+net	method	Contains	IPNet	direct		CIDR/掩码值层缺失（与 netip.Prefix 同一缺口）	ip.go
+net	method	Network	IPNet	direct		CIDR/掩码值层缺失（与 netip.Prefix 同一缺口）	ip.go
+net	method	String	IPNet	direct		CIDR/掩码值层缺失（与 netip.Prefix 同一缺口）	ip.go
+net	method	Addrs	Interface	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	method	MulticastAddrs	Interface	direct		网卡枚举面整体缺失（NIC 列表、地址、标志、MTU、MAC）	interface.go
+net	method	Error	InvalidAddrError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	net.go
+net	method	Temporary	InvalidAddrError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Timeout	InvalidAddrError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Listen	ListenConfig	equiv	sa_std_net_tcp_listen / sa_std_net_udp_bind / sa_std_net_unix_listen	带配置监听由 listen 函数族承载	dial.go
+net	method	ListenPacket	ListenConfig	equiv	sa_std_net_tcp_listen / sa_std_net_udp_bind / sa_std_net_unix_listen	带配置监听由 listen 函数族承载	dial.go
+net	method	MultipathTCP	ListenConfig	direct		MPTCP（多路径 TCP）面整体缺失，sa_std 无 multipath 符号（实查）	dial.go
+net	method	SetMultipathTCP	ListenConfig	direct		MPTCP（多路径 TCP）面整体缺失，sa_std 无 multipath 符号（实查）	dial.go
+net	method	Error	OpError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	net.go
+net	method	Temporary	OpError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Timeout	OpError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Unwrap	OpError	mismatch		错误链展开依赖 Go 的 errors.Is/As 链模型	net.go
+net	method	Error	ParseError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	net.go
+net	method	Temporary	ParseError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Timeout	ParseError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	LookupAddr	Resolver	equiv	sa_std_net_addr_reverse_lookup	PTR 反向解析	lookup.go
+net	method	LookupCNAME	Resolver	direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	method	LookupHost	Resolver	equiv	sa_std_net_to_socket_addr_list	主机名 A/AAAA 解析；结果以地址列表句柄迭代（sa_std_net_addr_list_*）	lookup.go
+net	method	LookupIP	Resolver	equiv	sa_std_net_to_socket_addr_list	主机名 A/AAAA 解析；结果以地址列表句柄迭代（sa_std_net_addr_list_*）	lookup.go
+net	method	LookupIPAddr	Resolver	equiv	sa_std_net_to_socket_addr_list	主机名 A/AAAA 解析；结果以地址列表句柄迭代（sa_std_net_addr_list_*）	lookup.go
+net	method	LookupMX	Resolver	direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	method	LookupNS	Resolver	direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	method	LookupNetIP	Resolver	equiv	sa_std_net_to_socket_addr_list	主机名 A/AAAA 解析；结果以地址列表句柄迭代（sa_std_net_addr_list_*）	lookup.go
+net	method	LookupPort	Resolver	direct		服务名到端口的查询（services 表）缺失	lookup.go
+net	method	LookupSRV	Resolver	direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	method	LookupTXT	Resolver	direct		DNS 记录型查询整体缺失：sa_std 只有 A/AAAA 解析与 PTR 反查，无 DNS wire 查询客户端	lookup.go
+net	method	AddrPort	TCPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	tcpsock.go
+net	method	Network	TCPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	tcpsock.go
+net	method	String	TCPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	tcpsock.go
+net	method	CloseRead	TCPConn	equiv	sa_net_tcp_stream_shutdown	半关闭（读/写方向）	tcpsock.go
+net	method	CloseWrite	TCPConn	equiv	sa_net_tcp_stream_shutdown	半关闭（读/写方向）	tcpsock.go
+net	method	MultipathTCP	TCPConn	direct		MPTCP（多路径 TCP）面整体缺失，sa_std 无 multipath 符号（实查）	tcpsock.go
+net	method	ReadFrom	TCPConn	equiv	sa_std_net_tcp_stream_read_vectored	聚读；sendfile 类优化在运行时内部	tcpsock.go
+net	method	SetKeepAlive	TCPConn	equiv	sa_std_net_tcp_stream_set_keepalive	保活开关	tcpsock.go
+net	method	SetKeepAliveConfig	TCPConn	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数（周期/配置）	tcpsock_solaris.go
+net	method	SetKeepAlivePeriod	TCPConn	equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数（周期/配置）	tcpsock.go
+net	method	SetLinger	TCPConn	equiv	sa_std_net_tcp_stream_set_linger	linger 设置	tcpsock.go
+net	method	SetNoDelay	TCPConn	equiv	sa_std_net_tcp_stream_set_nodelay	TCP_NODELAY	tcpsock.go
+net	method	SyscallConn	TCPConn	model		RawConn 回调面（SyscallConn）缺失；SA 只有 from_raw_fd 的 fd 收编方向	tcpsock.go
+net	method	WriteTo	TCPConn	equiv	sa_std_net_tcp_stream_write_vectored	聚写	tcpsock.go
+net	method	Accept	TCPListener	equiv	sa_std_net_tcp_accept	接受 TCP 连接	tcpsock.go
+net	method	AcceptTCP	TCPListener	equiv	sa_std_net_tcp_accept	接受 TCP 连接	tcpsock.go
+net	method	Addr	TCPListener	equiv	sa_std_net_tcp_listener_local_addr	监听地址	tcpsock.go
+net	method	Close	TCPListener	equiv	sa_net_tcp_listener_close	监听关闭	tcpsock.go
+net	method	File	TCPListener	model		句柄到 os.File 的 dup 方向缺失（反方向 from_raw_fd 已有）	tcpsock.go
+net	method	SetDeadline	TCPListener	direct	sa_std_net_tcp_listener_set_nonblocking	监听器 accept 期限面缺失，只有非阻塞开关	tcpsock.go
+net	method	SyscallConn	TCPListener	model		RawConn 回调面（SyscallConn）缺失；SA 只有 from_raw_fd 的 fd 收编方向	tcpsock.go
+net	method	AddrPort	UDPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	udpsock.go
+net	method	Network	UDPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	udpsock.go
+net	method	String	UDPAddr	equiv	sa_std_net_addr_format / sa_net_addr_host / sa_net_addr_port / sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	地址以句柄 + ascii 文本双形态呈现；AddrPort() 经 socket 地址 ascii 互转	udpsock.go
+net	method	ReadFrom	UDPConn	equiv	sa_std_net_udp_recv_from	报文读；AddrPort 形态经地址句柄呈现	udpsock.go
+net	method	ReadFromUDP	UDPConn	equiv	sa_std_net_udp_recv_from	报文读；AddrPort 形态经地址句柄呈现	udpsock.go
+net	method	ReadFromUDPAddrPort	UDPConn	equiv	sa_std_net_udp_recv_from	报文读；AddrPort 形态经地址句柄呈现	udpsock.go
+net	method	ReadMsgUDP	UDPConn	direct		带外数据消息（recvmsg/sendmsg + oob）面缺失；普通报文收发已有	udpsock.go
+net	method	ReadMsgUDPAddrPort	UDPConn	direct		带外数据消息（recvmsg/sendmsg + oob）面缺失；普通报文收发已有	udpsock.go
+net	method	SyscallConn	UDPConn	model		RawConn 回调面（SyscallConn）缺失；SA 只有 from_raw_fd 的 fd 收编方向	udpsock.go
+net	method	WriteMsgUDP	UDPConn	direct		带外数据消息（recvmsg/sendmsg + oob）面缺失；普通报文收发已有	udpsock.go
+net	method	WriteMsgUDPAddrPort	UDPConn	direct		带外数据消息（recvmsg/sendmsg + oob）面缺失；普通报文收发已有	udpsock.go
+net	method	WriteTo	UDPConn	equiv	sa_std_net_udp_send_to	报文写	udpsock.go
+net	method	WriteToUDP	UDPConn	equiv	sa_std_net_udp_send_to	报文写	udpsock.go
+net	method	WriteToUDPAddrPort	UDPConn	equiv	sa_std_net_udp_send_to	报文写	udpsock.go
+net	method	Network	UnixAddr	equiv	sa_net_unix_addr_* / sa_std_net_unix_addr_from_pathname	unix 地址（路径/抽象名）	unixsock.go
+net	method	String	UnixAddr	equiv	sa_net_unix_addr_* / sa_std_net_unix_addr_from_pathname	unix 地址（路径/抽象名）	unixsock.go
+net	method	CloseRead	UnixConn	equiv	sa_net_tcp_stream_shutdown	半关闭；unix 流句柄与 TCP 共用句柄种类	unixsock.go
+net	method	CloseWrite	UnixConn	equiv	sa_net_tcp_stream_shutdown	半关闭；unix 流句柄与 TCP 共用句柄种类	unixsock.go
+net	method	ReadFrom	UnixConn	equiv	sa_std_net_tcp_stream_read / sa_std_net_unix_stream_peer_addr	流读 + 对端地址	unixsock.go
+net	method	ReadFromUnix	UnixConn	equiv	sa_std_net_tcp_stream_read / sa_std_net_unix_stream_peer_addr	流读 + 对端地址	unixsock.go
+net	method	ReadMsgUnix	UnixConn	direct	sa_std_net_unix_stream_set_passcred	unix 消息收发（含 SCM_RIGHTS fd 传递）面缺失；凭据传递开关已有	unixsock.go
+net	method	SyscallConn	UnixConn	model		RawConn 回调面（SyscallConn）缺失；SA 只有 from_raw_fd 的 fd 收编方向	unixsock.go
+net	method	WriteMsgUnix	UnixConn	direct	sa_std_net_unix_stream_set_passcred	unix 消息收发（含 SCM_RIGHTS fd 传递）面缺失；凭据传递开关已有	unixsock.go
+net	method	WriteTo	UnixConn	equiv	sa_std_net_tcp_stream_write	流写	unixsock.go
+net	method	WriteToUnix	UnixConn	equiv	sa_std_net_tcp_stream_write	流写	unixsock.go
+net	method	Accept	UnixListener	equiv	sa_std_net_unix_accept	接受 unix 连接	unixsock.go
+net	method	AcceptUnix	UnixListener	equiv	sa_std_net_unix_accept	接受 unix 连接	unixsock.go
+net	method	Addr	UnixListener	equiv	sa_std_net_unix_listener_local_addr	监听地址	unixsock.go
+net	method	Close	UnixListener	equiv	sa_net_tcp_listener_close	监听关闭（与 TCP 共用句柄种类）	unixsock.go
+net	method	File	UnixListener	model		句柄到 os.File 的 dup 方向缺失（反方向 from_raw_fd 已有）	unixsock.go
+net	method	SetDeadline	UnixListener	direct	sa_std_net_tcp_listener_set_nonblocking	监听器 accept 期限面缺失，只有非阻塞开关	unixsock.go
+net	method	SetUnlinkOnClose	UnixListener	direct		监听路径退出清理（unlink on close）策略小面缺失	unixsock_posix.go
+net	method	SyscallConn	UnixListener	model		RawConn 回调面（SyscallConn）缺失；SA 只有 from_raw_fd 的 fd 收编方向	unixsock.go
+net	method	Error	UnknownNetworkError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	net.go
+net	method	Temporary	UnknownNetworkError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	method	Timeout	UnknownNetworkError	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	net.go
+net	type	Addr		equiv	sa_std_net_addr_*	地址即地址句柄	net.go
+net	type	AddrError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	type	Buffers		equiv	sa_std_net_tcp_stream_write_vectored	多缓冲聚写类型	net.go
+net	type	Conn		equiv	sa_net_tcp_stream_*	连接即流句柄	net.go
+net	type	DNSConfigError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	type	DNSError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	type	Dialer		model		拨号器配置对象；SA 为 connect 函数族 + 逐项参数，无拨号器对象	dial.go
+net	type	Error		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	type	Flags		direct		网卡枚举面整体缺失	interface.go
+net	type	HardwareAddr		direct		网卡枚举面整体缺失	mac.go
+net	type	IP		direct		IP 值类型的值语义层缺失（见 IP 方法行）	ip.go
+net	type	IPAddr		model		原始 IP 地址类型，随原始套接字一并建模	iprawsock.go
+net	type	IPConn		model		原始 IP 套接字需建模；SA 网络面止于 TCP/UDP/Unix/QUIC	iprawsock.go
+net	type	IPMask		direct		CIDR/掩码值层缺失	ip.go
+net	type	IPNet		direct		CIDR/掩码值层缺失	ip.go
+net	type	Interface		direct		网卡枚举面整体缺失	interface.go
+net	type	InvalidAddrError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	type	KeepAliveConfig		equiv	sa_std_net_tcp_stream_set_keepalive_params	保活参数结构	tcpsock.go
+net	type	ListenConfig		model		监听配置对象；SA 为 listen 函数族	dial.go
+net	type	Listener		equiv	sa_std_net_tcp_listener_*	监听即监听句柄	net.go
+net	type	MX		direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	type	NS		direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	type	OpError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	type	PacketConn		equiv	sa_std_net_udp_*	报文套接字即 UDP 句柄	net.go
+net	type	ParseError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	type	Resolver		model		解析器对象；SA 解析为 std 内建、无解析器对象	lookup.go
+net	type	SRV		direct		DNS 记录数据类型，随记录型查询一并缺失	dnsclient.go
+net	type	TCPAddr		equiv	sa_std_net_addr_format / sa_net_socket_addr_v4_parse_ascii	TCP/UDP 地址值	tcpsock.go
+net	type	TCPConn		equiv	sa_std_net_tcp_stream_*	TCP 连接即流句柄	tcpsock.go
+net	type	TCPListener		equiv	sa_std_net_tcp_listener_*	TCP 监听句柄	tcpsock.go
+net	type	UDPAddr		equiv	sa_std_net_addr_format / sa_net_socket_addr_v4_parse_ascii	TCP/UDP 地址值	udpsock.go
+net	type	UDPConn		equiv	sa_std_net_udp_*	UDP 连接即 UDP 句柄	udpsock.go
+net	type	UnixAddr		equiv	sa_net_unix_addr_*	unix 地址值	unixsock.go
+net	type	UnixConn		equiv	sa_std_net_unix_*	unix 连接句柄	unixsock.go
+net	type	UnixListener		equiv	sa_std_net_unix_listener_*	unix 监听句柄	unixsock.go
+net	type	UnknownNetworkError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	net.go
+net	var	DefaultResolver		model		全局默认解析器对象	lookup.go
+net	var	ErrClosed		equiv	SA_NET_ERR_CLOSED	已关闭哨兵错误以状态码呈现	net.go
+net	var	ErrWriteToConnected		equiv	SA_NET_ERROR_CODE_*	哨兵错误以错误码呈现	net.go
+net	var	IPv4allrouter		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv4allsys		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv4bcast		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv4zero		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv6interfacelocalallnodes		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv6linklocalallnodes		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv6linklocalallrouters		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv6loopback		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv6unspecified		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net	var	IPv6zero		equiv		众所周知地址常量值（组播/环回/广播）	ip.go
+net/http	const	DefaultMaxHeaderBytes		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	DefaultMaxHeaderValueCount		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	DefaultMaxIdleConnsPerHost		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	transport.go
+net/http	const	MethodConnect		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodDelete		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodGet		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodHead		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodOptions		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodPatch		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodPost		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodPut		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	MethodTrace		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	method.go
+net/http	const	SameSiteDefaultMode		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	cookie.go
+net/http	const	SameSiteLaxMode		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	cookie.go
+net/http	const	SameSiteNoneMode		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	cookie.go
+net/http	const	SameSiteStrictMode		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	cookie.go
+net/http	const	StateActive		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	StateClosed		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	StateHijacked		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	StateIdle		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	StateNew		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	StatusAccepted		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusAlreadyReported		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusBadGateway		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusBadRequest		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusConflict		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusContinue		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusCreated		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusEarlyHints		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusExpectationFailed		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusFailedDependency		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusForbidden		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusFound		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusGatewayTimeout		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusGone		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusHTTPVersionNotSupported		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusIMUsed		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusInsufficientStorage		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusInternalServerError		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusLengthRequired		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusLocked		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusLoopDetected		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusMethodNotAllowed		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusMisdirectedRequest		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusMovedPermanently		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusMultiStatus		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusMultipleChoices		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNetworkAuthenticationRequired		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNoContent		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNonAuthoritativeInfo		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNotAcceptable		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNotExtended		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNotFound		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNotImplemented		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusNotModified		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusOK		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusPartialContent		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusPaymentRequired		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusPermanentRedirect		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusPreconditionFailed		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusPreconditionRequired		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusProcessing		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusProxyAuthRequired		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusRequestEntityTooLarge		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusRequestHeaderFieldsTooLarge		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusRequestTimeout		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusRequestURITooLong		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusRequestedRangeNotSatisfiable		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusResetContent		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusSeeOther		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusServiceUnavailable		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusSwitchingProtocols		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusTeapot		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusTemporaryRedirect		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusTooEarly		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusTooManyRequests		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusUnauthorized		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusUnavailableForLegalReasons		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusUnprocessableEntity		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusUnsupportedMediaType		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusUpgradeRequired		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusUseProxy		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	StatusVariantAlsoNegotiates		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	status.go
+net/http	const	TimeFormat		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	const	TrailerPrefix		equiv		常量值（状态码/方法/SameSite/连接状态/默认上限）	server.go
+net/http	field	CheckRedirect	Client	model		客户端字段随 Client 对象一并建模（Jar 见 cookiejar、CheckRedirect 为策略回调）	client.go
+net/http	field	Jar	Client	model		客户端字段随 Client 对象一并建模（Jar 见 cookiejar、CheckRedirect 为策略回调）	client.go
+net/http	field	Timeout	Client	equiv	sa_http_client_req_set_timeout_v2	客户端整体超时在请求上设置	client.go
+net/http	field	Transport	Client	model		客户端字段随 Client 对象一并建模（Jar 见 cookiejar、CheckRedirect 为策略回调）	client.go
+net/http	field	Domain	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Expires	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	HttpOnly	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	MaxAge	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Name	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Partitioned	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Path	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Quoted	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Raw	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	RawExpires	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	SameSite	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Secure	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Unparsed	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	Value	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	field	CountError	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	MaxConcurrentStreams	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	MaxDecoderHeaderTableSize	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	MaxEncoderHeaderTableSize	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	MaxReadFrameSize	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	MaxReceiveBufferPerConnection	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	MaxReceiveBufferPerStream	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	PermitProhibitedCipherSuites	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	PingTimeout	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	SendPingTimeout	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	StrictMaxConcurrentRequests	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	WriteByteTimeout	HTTP2Config	model	sa_std_http2_get_packed_settings	HTTP/2 配置对象；SA 的 http2 设置以打包 SETTINGS/JSON 面呈现	http.go
+net/http	field	Limit	MaxBytesError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	request.go
+net/http	field	ErrorString	ProtocolError	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	request.go
+net/http	field	Header	PushOptions	model		推送选项随 Pusher 一并建模	http.go
+net/http	field	Method	PushOptions	model		推送选项随 Pusher 一并建模	http.go
+net/http	field	Body	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Cancel	Request	mismatch		请求的通道型取消字段（已弃用，channel 语义）	request.go
+net/http	field	Close	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	ContentLength	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Form	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	GetBody	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Header	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Host	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Method	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	MultipartForm	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Pattern	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	PostForm	Request	equiv	sa_http_client_req_new / sa_http_client_req_send	默认客户端的快捷请求	request.go
+net/http	field	Proto	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	ProtoMajor	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	ProtoMinor	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	RemoteAddr	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	RequestURI	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Response	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	TLS	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Trailer	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	TransferEncoding	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	URL	Request	model		请求对象字段随请求对象一并建模（SA 以句柄 getter/setter 逐项呈现）	request.go
+net/http	field	Body	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Close	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	ContentLength	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Header	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Proto	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	ProtoMajor	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	ProtoMinor	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Request	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Status	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	StatusCode	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	TLS	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Trailer	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	TransferEncoding	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Uncompressed	Response	model		响应对象字段随响应对象一并建模	response.go
+net/http	field	Addr	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	BaseContext	Server	mismatch		context 工厂回调（BaseContext/ConnContext）依赖 context.Context 传播/取消语义	server.go
+net/http	field	ConnContext	Server	mismatch		context 工厂回调（BaseContext/ConnContext）依赖 context.Context 传播/取消语义	server.go
+net/http	field	ConnState	Server	model		连接状态回调随服务器对象一并建模	server.go
+net/http	field	DisableClientPriority	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	DisableGeneralOptionsHandler	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	ErrorLog	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	HTTP2	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	Handler	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	IdleTimeout	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	MaxHeaderBytes	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	MaxHeaderValueCount	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	Protocols	Server	model	sa_std_http3_*	协议集配置（含 Go 1.27 的 HTTP/3 开关）；SA 有独立 QUIC/HTTP3 会话面、未与 http_server 句柄集成	server.go
+net/http	field	ReadHeaderTimeout	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	ReadTimeout	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	TLSConfig	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	TLSNextProto	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	WriteTimeout	Server	model		服务器字段随配置对象一并建模（超时/上限在 SA 为运行时默认与零星开关）	server.go
+net/http	field	Dial	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	DialContext	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	DialTLS	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	DialTLSContext	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	DisableCompression	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	DisableKeepAlives	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	ExpectContinueTimeout	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	ForceAttemptHTTP2	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	GetProxyConnectHeader	Transport	direct		HTTP 代理面缺失（Transport.Proxy 等）	transport.go
+net/http	field	HTTP2	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	IdleConnTimeout	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	MaxConnsPerHost	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	MaxIdleConns	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	MaxIdleConnsPerHost	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	MaxResponseHeaderBytes	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	OnProxyConnectResponse	Transport	direct		HTTP 代理面缺失（Transport.Proxy 等）	transport.go
+net/http	field	Protocols	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	Proxy	Transport	direct		HTTP 代理面缺失（Transport.Proxy 等）	transport.go
+net/http	field	ProxyConnectHeader	Transport	direct		HTTP 代理面缺失（Transport.Proxy 等）	transport.go
+net/http	field	ReadBufferSize	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	ResponseHeaderTimeout	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	TLSClientConfig	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	TLSHandshakeTimeout	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	TLSNextProto	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	field	WriteBufferSize	Transport	model		Transport 字段随连接池对象一并建模	transport.go
+net/http	func	AllowQuerySemicolons		model		查询串分号策略开关随 ServeMux 行为一并建模	server.go
+net/http	func	CanonicalHeaderKey		direct		HTTP 纯函数小面（版本解析/时间解析/状态文本/头键规范化）缺失	header.go
+net/http	func	DetectContentType		direct		内容类型嗅探（MIME sniffing 算法）纯函数缺失	sniff.go
+net/http	func	Error		equiv	sa_http_server_resp_send	写错误响应（平凡组合）	server.go
+net/http	func	FS		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	fs.go
+net/http	func	FileServer		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	fs.go
+net/http	func	FileServerFS		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	fs.go
+net/http	func	Get		equiv	sa_http_client_req_new / sa_http_client_req_send	默认客户端的快捷请求	client.go
+net/http	func	Handle		model		默认复用器上的路由注册随 ServeMux 一并建模	server.go
+net/http	func	HandleFunc		model		默认复用器上的路由注册随 ServeMux 一并建模	server.go
+net/http	func	Head		equiv	sa_http_client_req_new / sa_http_client_req_send	默认客户端的快捷请求	client.go
+net/http	func	ListenAndServe		equiv	sa_http_server_new / sa_http_server_start	顶层监听并服务入口	server.go
+net/http	func	ListenAndServeTLS		equiv	sa_http_server_new / sa_http_server_start	顶层监听并服务入口	server.go
+net/http	func	MaxBytesHandler		model		handler 包装族（StripPrefix/Timeout/MaxBytes）随 Handler 模型一并建模	server.go
+net/http	func	MaxBytesReader		model	sa_http_server_set_max_body_bytes	请求体限长包装/错误；限额本身在服务端有等价面，包装类型需建模	request.go
+net/http	func	NewCrossOriginProtection		model		跨源请求防护构造	csrf.go
+net/http	func	NewFileTransport		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	filetransport.go
+net/http	func	NewFileTransportFS		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	filetransport.go
+net/http	func	NewRequest		equiv	sa_http_client_req_new	客户端请求构造	request.go
+net/http	func	NewRequestWithContext		mismatch		带 context 的请求构造依赖 context.Context 传播/取消语义	request.go
+net/http	func	NewResponseController		model		能力穿透包装器构造	responsecontroller.go
+net/http	func	NewServeMux		model		默认复用器上的路由注册随 ServeMux 一并建模	server.go
+net/http	func	NotFound		equiv	sa_http_server_resp_new / sa_http_server_resp_send	写 404 响应（平凡组合）	server.go
+net/http	func	NotFoundHandler		equiv	sa_http_server_resp_new / sa_http_server_resp_send	写 404 响应（平凡组合）	server.go
+net/http	func	ParseCookie		direct		Cookie 解析/写出函数整体缺失	cookie.go
+net/http	func	ParseHTTPVersion		direct		HTTP 纯函数小面（版本解析/时间解析/状态文本/头键规范化）缺失	request.go
+net/http	func	ParseSetCookie		direct		Cookie 解析/写出函数整体缺失	cookie.go
+net/http	func	ParseTime		direct		HTTP 纯函数小面（版本解析/时间解析/状态文本/头键规范化）缺失	header.go
+net/http	func	Post		equiv	sa_http_client_req_new / sa_http_client_req_send	默认客户端的快捷请求	client.go
+net/http	func	PostForm		equiv	sa_http_client_req_new / sa_http_client_req_send	默认客户端的快捷请求	client.go
+net/http	func	ProxyFromEnvironment		direct		HTTP 代理面缺失：环境代理/显式代理 URL/ProxyConnect 头定制（CXU 代理生态核心面）	transport.go
+net/http	func	ProxyURL		direct		HTTP 代理面缺失：环境代理/显式代理 URL/ProxyConnect 头定制（CXU 代理生态核心面）	transport.go
+net/http	func	ReadRequest		direct		请求线格式解析（服务端内部用）缺失	request.go
+net/http	func	ReadResponse		direct		响应线格式解析（从字节流读 Response）缺失；SA 客户端内部完成	response.go
+net/http	func	Redirect		equiv	sa_http_server_resp_add_header_v2 / sa_http_server_resp_send	写重定向响应（Location + 状态码的平凡组合）	server.go
+net/http	func	RedirectHandler		model		handler 包装族（StripPrefix/Timeout/MaxBytes）随 Handler 模型一并建模	server.go
+net/http	func	Serve		equiv	sa_http_server_new / sa_http_server_start	顶层监听并服务入口	server.go
+net/http	func	ServeContent		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	fs.go
+net/http	func	ServeFile		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	fs.go
+net/http	func	ServeFileFS		model		静态文件服务 handler 族（Range/条件请求/目录/内容协商）需建模；SA http 服务器无内置文件服务	fs.go
+net/http	func	ServeTLS		equiv	sa_http_server_new / sa_http_server_start	顶层监听并服务入口	server.go
+net/http	func	SetCookie		direct		Cookie 解析/写出函数整体缺失	cookie.go
+net/http	func	StatusText		direct		HTTP 纯函数小面（版本解析/时间解析/状态文本/头键规范化）缺失	status.go
+net/http	func	StripPrefix		model		handler 包装族（StripPrefix/Timeout/MaxBytes）随 Handler 模型一并建模	server.go
+net/http	func	TimeoutHandler		model		handler 包装族（StripPrefix/Timeout/MaxBytes）随 Handler 模型一并建模	server.go
+net/http	interface-embed	Closer	File	model		文件系统抽象（http.FileSystem/File）随文件服务一并建模	fs.go
+net/http	interface-embed	Reader	File	model		文件系统抽象（http.FileSystem/File）随文件服务一并建模	fs.go
+net/http	interface-embed	Seeker	File	model		文件系统抽象（http.FileSystem/File）随文件服务一并建模	fs.go
+net/http	interface-method	CloseNotify	CloseNotifier	mismatch		channel 断开通知（CloseNotifier，已弃用）	server.go
+net/http	interface-method	Cookies	CookieJar	model		cookie jar 接口依赖 Cookie 面与 jar 状态对象	jar.go
+net/http	interface-method	SetCookies	CookieJar	model		cookie jar 接口依赖 Cookie 面与 jar 状态对象	jar.go
+net/http	interface-method	Readdir	File	model		文件系统抽象（http.FileSystem/File）随文件服务一并建模	fs.go
+net/http	interface-method	Stat	File	model		文件系统抽象（http.FileSystem/File）随文件服务一并建模	fs.go
+net/http	interface-method	Open	FileSystem	model		文件系统抽象（http.FileSystem/File）随文件服务一并建模	fs.go
+net/http	interface-method	Flush	Flusher	equiv	sa_http_server_resp_stream_flush	流式响应刷出	server.go
+net/http	interface-method	ServeHTTP	Handler	model		Handler 回调接口；SA 无回调注册模型（accept + req/resp 句柄轮询）	server.go
+net/http	interface-method	Hijack	Hijacker	model	sa_http_server_websocket_upgrade	任意协议劫持面；WebSocket 升级有专用面，通用劫持无	server.go
+net/http	interface-method	Push	Pusher	model	sa_std_http2_*	HTTP/2 服务器推送；SA http2 面为客户端请求 + 握手/设置工具，无 server push	http.go
+net/http	interface-method	Header	ResponseWriter	equiv	sa_http_server_resp_add_header_v2	响应头写出（逐条）	server.go
+net/http	interface-method	Write	ResponseWriter	equiv	sa_http_server_resp_new / sa_http_server_resp_send	响应写出（状态 + body）	server.go
+net/http	interface-method	WriteHeader	ResponseWriter	equiv	sa_http_server_resp_new / sa_http_server_resp_send	响应写出（状态 + body）	server.go
+net/http	interface-method	RoundTrip	RoundTripper	model		RoundTripper 回调接口；SA 客户端无可插拔传输接口	client.go
+net/http	method	CloseIdleConnections	Client	model		关闭空闲连接依赖连接池对象	client.go
+net/http	method	Do	Client	equiv	sa_http_client_req_new / sa_http_client_req_send / sa_http_client_resp_*	一次性请求/响应句柄流程等价承载	client.go
+net/http	method	Get	Client	equiv	sa_http_client_req_new / sa_http_client_req_send / sa_http_client_resp_*	一次性请求/响应句柄流程等价承载	client.go
+net/http	method	Head	Client	equiv	sa_http_client_req_new / sa_http_client_req_send / sa_http_client_resp_*	一次性请求/响应句柄流程等价承载	client.go
+net/http	method	Post	Client	equiv	sa_http_client_req_new / sa_http_client_req_send / sa_http_client_resp_*	一次性请求/响应句柄流程等价承载	client.go
+net/http	method	PostForm	Client	equiv	sa_http_client_req_new / sa_http_client_req_send / sa_http_client_resp_*	一次性请求/响应句柄流程等价承载	client.go
+net/http	method	Available	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	Close	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	Err	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	InFlight	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	Release	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	Reserve	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	RoundTrip	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	SetStateHook	ClientConn	model		HTTP/1 持久客户端连接对象（Go 1.27 的 Transport.NewClientConn 面）；SA 客户端无连接级句柄	clientconn.go
+net/http	method	String	ConnState	equiv		连接状态枚举的字符串化（平凡）	server.go
+net/http	method	String	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	method	Valid	Cookie	direct		Cookie 面整体缺失：解析/序列化/SameSite/过期属性（Set-Cookie 与 Cookie 头）	cookie.go
+net/http	method	AddInsecureBypassPattern	CrossOriginProtection	model		跨源请求防护（Go 1.25+，基于 Sec-Fetch-Site 的 CSRF 防护）需建模；SA 无 CSRF 面	csrf.go
+net/http	method	AddTrustedOrigin	CrossOriginProtection	model		跨源请求防护（Go 1.25+，基于 Sec-Fetch-Site 的 CSRF 防护）需建模；SA 无 CSRF 面	csrf.go
+net/http	method	Check	CrossOriginProtection	model		跨源请求防护（Go 1.25+，基于 Sec-Fetch-Site 的 CSRF 防护）需建模；SA 无 CSRF 面	csrf.go
+net/http	method	Handler	CrossOriginProtection	model		跨源请求防护（Go 1.25+，基于 Sec-Fetch-Site 的 CSRF 防护）需建模；SA 无 CSRF 面	csrf.go
+net/http	method	SetDenyHandler	CrossOriginProtection	model		跨源请求防护（Go 1.25+，基于 Sec-Fetch-Site 的 CSRF 防护）需建模；SA 无 CSRF 面	csrf.go
+net/http	method	Open	Dir	model		文件系统抽象（http.FileSystem/File）随文件服务一并建模	fs.go
+net/http	method	ServeHTTP	HandlerFunc	model		Handler 回调接口；SA 无回调注册模型（accept + req/resp 句柄轮询）	server.go
+net/http	method	Add	Header	model		多值 MIME 头映射类型；SA 为逐条 add/get，无映射对象	header.go
+net/http	method	Clone	Header	model		多值 MIME 头映射类型；SA 为逐条 add/get，无映射对象	header.go
+net/http	method	Del	Header	model		多值 MIME 头映射类型；SA 为逐条 add/get，无映射对象	header.go
+net/http	method	Get	Header	equiv	sa_http_client_req_new / sa_http_client_req_send	默认客户端的快捷请求	header.go
+net/http	method	Set	Header	model		多值 MIME 头映射类型；SA 为逐条 add/get，无映射对象	header.go
+net/http	method	Values	Header	model		多值 MIME 头映射类型；SA 为逐条 add/get，无映射对象	header.go
+net/http	method	Write	Header	model		多值 MIME 头映射类型；SA 为逐条 add/get，无映射对象	header.go
+net/http	method	WriteSubset	Header	model		多值 MIME 头映射类型；SA 为逐条 add/get，无映射对象	header.go
+net/http	method	Error	MaxBytesError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	request.go
+net/http	method	Error	ProtocolError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	request.go
+net/http	method	Is	ProtocolError	model		协议错误的对象同一性判定（Is），随结构化错误一并建模	request.go
+net/http	method	HTTP1	Protocols	model	sa_std_http2_*	协议协商集对象（HTTP/1、HTTP/2、未加密 H2、HTTP/3）；SA 为分立入口	http.go
+net/http	method	HTTP2	Protocols	model	sa_std_http2_*	协议协商集对象（HTTP/1、HTTP/2、未加密 H2、HTTP/3）；SA 为分立入口	http.go
+net/http	method	SetHTTP1	Protocols	model	sa_std_http2_*	协议协商集对象（HTTP/1、HTTP/2、未加密 H2、HTTP/3）；SA 为分立入口	http.go
+net/http	method	SetHTTP2	Protocols	model	sa_std_http2_*	协议协商集对象（HTTP/1、HTTP/2、未加密 H2、HTTP/3）；SA 为分立入口	http.go
+net/http	method	SetUnencryptedHTTP2	Protocols	model	sa_std_http2_*	协议协商集对象（HTTP/1、HTTP/2、未加密 H2、HTTP/3）；SA 为分立入口	http.go
+net/http	method	String	Protocols	model	sa_std_http2_*	协议协商集对象（HTTP/1、HTTP/2、未加密 H2、HTTP/3）；SA 为分立入口	http.go
+net/http	method	UnencryptedHTTP2	Protocols	model	sa_std_http2_*	协议协商集对象（HTTP/1、HTTP/2、未加密 H2、HTTP/3）；SA 为分立入口	http.go
+net/http	method	AddCookie	Request	direct		请求的 Cookie 读写依赖 Cookie 面	request.go
+net/http	method	BasicAuth	Request	direct	sa_http_client_req_add_header	Basic 认证头的构造/解析小面缺失（只有 add_openai_auth 的专用形态）	request.go
+net/http	method	Clone	Request	model		请求深拷贝（对象图克隆）随请求对象一并建模	request.go
+net/http	method	Context	Request	mismatch		依赖 context.Context 传播/取消语义	request.go
+net/http	method	Cookie	Request	direct		请求的 Cookie 读写依赖 Cookie 面	request.go
+net/http	method	Cookies	Request	direct		请求的 Cookie 读写依赖 Cookie 面	request.go
+net/http	method	CookiesNamed	Request	direct		请求的 Cookie 读写依赖 Cookie 面	request.go
+net/http	method	FormFile	Request	model		表单/multipart 解析建模（依赖 mime/multipart，不在本普查范围）	request.go
+net/http	method	FormValue	Request	model		表单/multipart 解析建模（依赖 mime/multipart，不在本普查范围）	request.go
+net/http	method	MultipartReader	Request	model		表单/multipart 解析建模（依赖 mime/multipart，不在本普查范围）	request.go
+net/http	method	ParseForm	Request	model		表单/multipart 解析建模（依赖 mime/multipart，不在本普查范围）	request.go
+net/http	method	ParseMultipartForm	Request	model		表单/multipart 解析建模（依赖 mime/multipart，不在本普查范围）	request.go
+net/http	method	PathValue	Request	model		路由模式的路径参数（ServeMux 模式值）随路由一并建模	request.go
+net/http	method	PostFormValue	Request	model		表单/multipart 解析建模（依赖 mime/multipart，不在本普查范围）	request.go
+net/http	method	ProtoAtLeast	Request	equiv		协议版本比较谓词（经版本分量平凡实现）	request.go
+net/http	method	Referer	Request	equiv	sa_http_client_req_add_header / sa_http_server_req_get_header	经通用 header 面读写	request.go
+net/http	method	SetBasicAuth	Request	direct	sa_http_client_req_add_header	Basic 认证头的构造/解析小面缺失（只有 add_openai_auth 的专用形态）	request.go
+net/http	method	SetPathValue	Request	model		路由模式的路径参数（ServeMux 模式值）随路由一并建模	request.go
+net/http	method	UserAgent	Request	equiv	sa_http_client_req_add_header / sa_http_server_req_get_header	经通用 header 面读写	request.go
+net/http	method	WithContext	Request	mismatch		依赖 context.Context 传播/取消语义	request.go
+net/http	method	Write	Request	direct		请求线格式（wire）序列化缺失：SA 客户端内部完成、不暴露 Write 面	request.go
+net/http	method	WriteProxy	Request	direct		请求线格式（wire）序列化缺失：SA 客户端内部完成、不暴露 Write 面	request.go
+net/http	method	Cookies	Response	direct		响应的 Cookie 读取依赖 Cookie 面	response.go
+net/http	method	Location	Response	direct		响应 Location 解析（依赖 URL 值与重定向语义）缺失	response.go
+net/http	method	ProtoAtLeast	Response	equiv		协议版本比较谓词	response.go
+net/http	method	Write	Response	direct		响应线格式序列化缺失	response.go
+net/http	method	EnableFullDuplex	ResponseController	model		能力穿透包装器（经 ResponseWriter 接口断言取 Flush/Hijack/期限能力）需建模	responsecontroller.go
+net/http	method	Flush	ResponseController	model		能力穿透包装器（经 ResponseWriter 接口断言取 Flush/Hijack/期限能力）需建模	responsecontroller.go
+net/http	method	Hijack	ResponseController	model		能力穿透包装器（经 ResponseWriter 接口断言取 Flush/Hijack/期限能力）需建模	responsecontroller.go
+net/http	method	SetReadDeadline	ResponseController	model		能力穿透包装器（经 ResponseWriter 接口断言取 Flush/Hijack/期限能力）需建模	responsecontroller.go
+net/http	method	SetWriteDeadline	ResponseController	model		能力穿透包装器（经 ResponseWriter 接口断言取 Flush/Hijack/期限能力）需建模	responsecontroller.go
+net/http	method	Handle	ServeMux	model		路由复用器（Go 1.22 起的方法 + 路径模式）；SA 服务器为 accept 轮询、路由在宿主代码	server.go
+net/http	method	HandleFunc	ServeMux	model		路由复用器（Go 1.22 起的方法 + 路径模式）；SA 服务器为 accept 轮询、路由在宿主代码	server.go
+net/http	method	Handler	ServeMux	model		路由复用器（Go 1.22 起的方法 + 路径模式）；SA 服务器为 accept 轮询、路由在宿主代码	server.go
+net/http	method	ServeHTTP	ServeMux	model		路由复用器（Go 1.22 起的方法 + 路径模式）；SA 服务器为 accept 轮询、路由在宿主代码	server.go
+net/http	method	Close	Server	model	sa_http_server_stop_serving	关停语义（立即关闭/优雅排空）需建模；现有停止面只有 stop_serving	server.go
+net/http	method	ListenAndServe	Server	equiv	sa_http_server_new / sa_http_server_start / sa_http_server_serve_threaded	监听并服务	server.go
+net/http	method	ListenAndServeTLS	Server	equiv	sa_http_server_new / sa_http_server_start / sa_http_server_serve_threaded	监听并服务	server.go
+net/http	method	RegisterOnShutdown	Server	model		关停回调注册随服务器对象一并建模	server.go
+net/http	method	Serve	Server	equiv	sa_http_server_new / sa_http_server_start / sa_http_server_serve_threaded	监听并服务	server.go
+net/http	method	ServeTLS	Server	equiv	sa_http_server_new / sa_http_server_start / sa_http_server_serve_threaded	监听并服务	server.go
+net/http	method	SetKeepAlivesEnabled	Server	direct		长连接（keep-alive）开关面缺失（托管运行时内建）	server.go
+net/http	method	Shutdown	Server	model	sa_http_server_stop_serving	关停语义（立即关闭/优雅排空）需建模；现有停止面只有 stop_serving	server.go
+net/http	method	CancelRequest	Transport	model		Transport 方法随连接池对象一并建模	transport.go
+net/http	method	Clone	Transport	model		Transport 方法随连接池对象一并建模	transport.go
+net/http	method	CloseIdleConnections	Transport	model		Transport 方法随连接池对象一并建模	transport.go
+net/http	method	NewClientConn	Transport	model		Transport 方法随连接池对象一并建模	clientconn.go
+net/http	method	RegisterProtocol	Transport	model		Transport 方法随连接池对象一并建模	transport.go
+net/http	method	RoundTrip	Transport	model		Transport 方法随连接池对象一并建模	roundtrip.go
+net/http	type	Client		model		客户端策略对象（Transport/Jar/重定向/超时）；SA 为一次性 req/resp 句柄流程，无 Client 对象	client.go
+net/http	type	ClientConn		model		HTTP/1 持久客户端连接对象	clientconn.go
+net/http	type	CloseNotifier		mismatch		channel 断开通知接口（已弃用）	server.go
+net/http	type	ConnState		model		连接状态枚举的类型面（回调见 Server.ConnState）	server.go
+net/http	type	Cookie		direct		Cookie 类型整体缺失	cookie.go
+net/http	type	CookieJar		model		cookie jar 接口	jar.go
+net/http	type	CrossOriginProtection		model		跨源请求防护对象	csrf.go
+net/http	type	Dir		model		文件系统抽象随文件服务一并建模	fs.go
+net/http	type	File		model		文件系统抽象随文件服务一并建模	fs.go
+net/http	type	FileSystem		model		文件系统抽象随文件服务一并建模	fs.go
+net/http	type	Flusher		equiv	sa_http_server_resp_stream_flush	流式响应刷出接口	server.go
+net/http	type	HTTP2Config		model	sa_std_http2_get_packed_settings	HTTP/2 配置对象	http.go
+net/http	type	Handler		model		Handler 回调接口	server.go
+net/http	type	HandlerFunc		model		Handler 回调接口	server.go
+net/http	type	Header		model		多值 MIME 头映射类型	header.go
+net/http	type	Hijacker		model		连接劫持接口	server.go
+net/http	type	MaxBytesError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	request.go
+net/http	type	ProtocolError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	request.go
+net/http	type	Protocols		model	sa_std_http2_*	协议协商集对象	http.go
+net/http	type	PushOptions		model		推送选项	http.go
+net/http	type	Pusher		model		HTTP/2 推送接口	http.go
+net/http	type	Request		model		请求值对象；SA 服务端以 req 句柄 getter、客户端以 req 句柄 setter 分离呈现	request.go
+net/http	type	Response		model		响应值对象；SA 以 resp 句柄（状态/body/header）呈现	response.go
+net/http	type	ResponseController		model		能力穿透包装器	responsecontroller.go
+net/http	type	ResponseWriter		equiv	sa_http_server_resp_*	响应写入即 resp 句柄	server.go
+net/http	type	RoundTripper		model		RoundTripper 接口	client.go
+net/http	type	SameSite		direct		SameSite 枚举类型随 Cookie 面一并缺失	cookie.go
+net/http	type	ServeMux		model		路由复用器	server.go
+net/http	type	Server		model		服务器配置对象；SA 为 server 句柄 + start/serve 函数族，无逐项配置对象	server.go
+net/http	type	Transport		model		传输/连接池对象（拨号/TLS/保活池/超时矩阵）；SA 客户端由运行时托管连接，无可配 Transport	transport.go
+net/http	var	DefaultClient		model		全局默认对象（DefaultClient/DefaultTransport/DefaultServeMux）；SA 无全局默认对象模型	client.go
+net/http	var	DefaultServeMux		model		全局默认对象（DefaultClient/DefaultTransport/DefaultServeMux）；SA 无全局默认对象模型	server.go
+net/http	var	DefaultTransport		model		全局默认对象（DefaultClient/DefaultTransport/DefaultServeMux）；SA 无全局默认对象模型	transport.go
+net/http	var	ErrAbortHandler		mismatch		以 panic 中止 handler 的控制流哨兵，依赖 panic 语义	server.go
+net/http	var	ErrBodyNotAllowed		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	server.go
+net/http	var	ErrBodyReadAfterClose		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	transfer.go
+net/http	var	ErrContentLength		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	server.go
+net/http	var	ErrHandlerTimeout		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	server.go
+net/http	var	ErrHeaderTooLong		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrHijacked		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	server.go
+net/http	var	ErrLineTooLong		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	transfer.go
+net/http	var	ErrMissingBoundary		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrMissingContentLength		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrMissingFile		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrNoCookie		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrNoLocation		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	response.go
+net/http	var	ErrNotMultipart		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrNotSupported		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrSchemeMismatch		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	client.go
+net/http	var	ErrServerClosed		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	server.go
+net/http	var	ErrShortBody		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrSkipAltProtocol		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	transport.go
+net/http	var	ErrUnexpectedTrailer		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	request.go
+net/http	var	ErrUseLastResponse		mismatch		控制流信号：CheckRedirect 返回此哨兵表示沿用上一响应，依赖重定向回调模型	client.go
+net/http	var	ErrWriteAfterFlush		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	server.go
+net/http	var	LocalAddrContextKey		mismatch		context.Context 的键值注入键（服务端请求上下文）	server.go
+net/http	var	NoBody		equiv		空 body 哨兵以 len=0 的 body 表达	http.go
+net/http	var	ServerContextKey		mismatch		context.Context 的键值注入键（服务端请求上下文）	server.go
+net/http/cookiejar	field	PublicSuffixList	Options	model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	func	New		model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	interface-method	PublicSuffix	PublicSuffixList	model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	interface-method	String	PublicSuffixList	model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	method	Cookies	Jar	model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	method	SetCookies	Jar	model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	type	Jar		model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	type	Options		model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/cookiejar	type	PublicSuffixList		model		cookie jar 状态对象（按域/路径/过期存取）+ 公共后缀数据表依赖；SA 无 cookie 面	jar.go
+net/http/httptest	const	DefaultRemoteAddr		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	field	Body	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	field	Code	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	field	Flushed	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	field	HeaderMap	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	field	Config	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	field	EnableHTTP2	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	field	Listener	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	field	TLS	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	field	URL	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	func	NewRecorder		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	func	NewRequest		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	httptest.go
+net/http/httptest	func	NewRequestWithContext		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	httptest.go
+net/http/httptest	func	NewServer		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	func	NewTLSServer		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	func	NewTestServer		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	func	NewUnstartedServer		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	method	Flush	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	method	Header	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	method	Result	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	method	Write	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	method	WriteHeader	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	method	WriteString	ResponseRecorder	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	method	Certificate	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	method	Client	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	method	Close	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	method	CloseClientConnections	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	method	Start	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	method	StartTLS	Server	model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httptest	type	ResponseRecorder		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	recorder.go
+net/http/httptest	type	Server		model		测试工具面（进程内测试服务器/响应记录器）：非运行时缺口，移植 Go 测试时才需要	server.go
+net/http/httputil	field	In	ProxyRequest	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	Out	ProxyRequest	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	BufferPool	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	Director	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	ErrorHandler	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	ErrorLog	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	FlushInterval	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	ModifyResponse	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	Rewrite	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	field	Transport	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	func	DumpRequest		direct		请求/响应的线格式转储（调试面）纯函数缺失	dump.go
+net/http/httputil	func	DumpRequestOut		direct		请求/响应的线格式转储（调试面）纯函数缺失	dump.go
+net/http/httputil	func	DumpResponse		direct		请求/响应的线格式转储（调试面）纯函数缺失	dump.go
+net/http/httputil	func	NewChunkedReader		direct		独立 chunked 编解码器面缺失（SA 的 http 运行时内建处理、不单独暴露）	httputil.go
+net/http/httputil	func	NewChunkedWriter		direct		独立 chunked 编解码器面缺失（SA 的 http 运行时内建处理、不单独暴露）	httputil.go
+net/http/httputil	func	NewClientConn		model		有状态持久连接构造	persist.go
+net/http/httputil	func	NewProxyClientConn		model		有状态持久连接构造	persist.go
+net/http/httputil	func	NewServerConn		model		有状态持久连接构造	persist.go
+net/http/httputil	func	NewSingleHostReverseProxy		model		单主机反向代理构造随 ReverseProxy 一并建模	reverseproxy.go
+net/http/httputil	interface-method	Get	BufferPool	equiv		缓冲池以 sa_std 通用缓冲句柄面（data/len/free 三件套）承载	reverseproxy.go
+net/http/httputil	interface-method	Put	BufferPool	equiv		缓冲池以 sa_std 通用缓冲句柄面（data/len/free 三件套）承载	reverseproxy.go
+net/http/httputil	method	Close	ClientConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Do	ClientConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Hijack	ClientConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Pending	ClientConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Read	ClientConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Write	ClientConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	SetURL	ProxyRequest	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	method	SetXForwarded	ProxyRequest	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	method	ServeHTTP	ReverseProxy	model		反向代理对象（Director/Rewrite/ModifyResponse/ErrorHandler 钩子 + FlushInterval/BufferPool）；SA 需以 client+server 句柄拼装，无现成反向代理（CXU 核心场景）	reverseproxy.go
+net/http/httputil	method	Close	ServerConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Hijack	ServerConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Pending	ServerConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Read	ServerConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	method	Write	ServerConn	model		有状态持久 HTTP/1 连接对象（httputil 版 ClientConn/ServerConn）	persist.go
+net/http/httputil	type	BufferPool		equiv		缓冲池接口	reverseproxy.go
+net/http/httputil	type	ClientConn		model		有状态持久连接对象	persist.go
+net/http/httputil	type	ProxyRequest		model		反向代理对象	reverseproxy.go
+net/http/httputil	type	ReverseProxy		model		反向代理对象	reverseproxy.go
+net/http/httputil	type	ServerConn		model		有状态持久连接对象	persist.go
+net/http/httputil	var	ErrClosed		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	persist.go
+net/http/httputil	var	ErrLineTooLong		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	httputil.go
+net/http/httputil	var	ErrPersistEOF		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	persist.go
+net/http/httputil	var	ErrPipeline		equiv	sa_std_net_error_code_name	哨兵错误以状态码呈现	persist.go
+net/mail	field	Address	Address	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	field	Name	Address	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	field	WordDecoder	AddressParser	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	field	Body	Message	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	field	Header	Message	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	func	ParseAddress		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	func	ParseAddressList		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	func	ParseDate		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	func	ReadMessage		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	method	String	Address	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	method	Parse	AddressParser	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	method	ParseList	AddressParser	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	method	AddressList	Header	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	method	Date	Header	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	method	Get	Header	direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	type	Address		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	type	AddressParser		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	type	Header		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	type	Message		direct		RFC 5322 邮件/地址/日期解析面整体缺失（纯解析器；WordDecoder 依赖 MIME 单词解码）	message.go
+net/mail	var	ErrHeaderNotPresent		equiv	sa_std_net_error_code_name	缺头哨兵以错误码呈现	message.go
+net/netip	func	AddrFrom16		direct		地址构造（From4/From16/FromSlice）随值型 IP 一并缺失	netip.go
+net/netip	func	AddrFrom4		direct		地址构造（From4/From16/FromSlice）随值型 IP 一并缺失	netip.go
+net/netip	func	AddrFromSlice		direct		地址构造（From4/From16/FromSlice）随值型 IP 一并缺失	netip.go
+net/netip	func	AddrPortFrom		direct		地址构造（From4/From16/FromSlice）随值型 IP 一并缺失	netip.go
+net/netip	func	IPv4Unspecified		equiv		众所周知地址常量值（未指定/环回/组播）	netip.go
+net/netip	func	IPv6LinkLocalAllNodes		equiv		众所周知地址常量值（未指定/环回/组播）	netip.go
+net/netip	func	IPv6LinkLocalAllRouters		equiv		众所周知地址常量值（未指定/环回/组播）	netip.go
+net/netip	func	IPv6Loopback		equiv		众所周知地址常量值（未指定/环回/组播）	netip.go
+net/netip	func	IPv6Unspecified		equiv		众所周知地址常量值（未指定/环回/组播）	netip.go
+net/netip	func	MustParseAddr		equiv	sa_net_ipv4_parse_ascii / sa_net_ipv6_parse_ascii	IP 地址文本解析	netip.go
+net/netip	func	MustParseAddrPort		equiv	sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	IP:端口文本解析	netip.go
+net/netip	func	MustParsePrefix		direct		CIDR 前缀值类型整体缺失	netip.go
+net/netip	func	ParseAddr		equiv	sa_net_ipv4_parse_ascii / sa_net_ipv6_parse_ascii	IP 地址文本解析	netip.go
+net/netip	func	ParseAddrPort		equiv	sa_net_socket_addr_v4_parse_ascii / sa_net_socket_addr_v6_parse_ascii	IP:端口文本解析	netip.go
+net/netip	func	ParsePrefix		direct		CIDR 前缀值类型整体缺失	netip.go
+net/netip	func	PrefixFrom		direct		CIDR 前缀值类型整体缺失	netip.go
+net/netip	method	AppendBinary	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	AppendText	Addr	equiv	sa_net_ipv4_format_ascii / sa_net_ipv6_format_ascii	IP 地址文本格式化	netip.go
+net/netip	method	AppendTo	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	As16	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	As4	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	AsSlice	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	BitLen	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	Compare	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	Is4	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	Is4In6	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	Is6	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsGlobalUnicast	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsInterfaceLocalMulticast	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsLinkLocalMulticast	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsLinkLocalUnicast	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsLoopback	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsMulticast	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsPrivate	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsUnspecified	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	IsValid	Addr	direct		地址分类谓词（IsLoopback/IsPrivate/Is4 等）纯函数缺失	netip.go
+net/netip	method	Less	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	MarshalBinary	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	MarshalText	Addr	equiv	sa_net_ipv4_format_ascii / sa_net_ipv6_format_ascii	IP 地址文本格式化	netip.go
+net/netip	method	Next	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	Prefix	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	Prev	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	String	Addr	equiv	sa_net_ipv4_format_ascii / sa_net_ipv6_format_ascii	IP 地址文本格式化	netip.go
+net/netip	method	StringExpanded	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	Unmap	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	UnmarshalBinary	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	UnmarshalText	Addr	equiv	sa_net_ipv4_format_ascii / sa_net_ipv6_format_ascii	IP 地址文本格式化	netip.go
+net/netip	method	WithZone	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	Zone	Addr	direct		地址值运算（二进制编解码、Next/Prev/Compare、Unmap、Zone）层缺失	netip.go
+net/netip	method	Addr	AddrPort	equiv	sa_net_addr_host / sa_net_addr_port	地址/端口分量读取	netip.go
+net/netip	method	AppendBinary	AddrPort	direct		AddrPort 值运算（Compare/二进制编解码）层缺失	netip.go
+net/netip	method	AppendText	AddrPort	equiv	sa_net_socket_addr_v4_format_ascii / sa_net_socket_addr_v6_format_ascii	IP:端口文本格式化	netip.go
+net/netip	method	AppendTo	AddrPort	direct		AddrPort 值运算（Compare/二进制编解码）层缺失	netip.go
+net/netip	method	Compare	AddrPort	direct		AddrPort 值运算（Compare/二进制编解码）层缺失	netip.go
+net/netip	method	IsValid	AddrPort	direct		AddrPort 值运算（Compare/二进制编解码）层缺失	netip.go
+net/netip	method	MarshalBinary	AddrPort	direct		AddrPort 值运算（Compare/二进制编解码）层缺失	netip.go
+net/netip	method	MarshalText	AddrPort	equiv	sa_net_socket_addr_v4_format_ascii / sa_net_socket_addr_v6_format_ascii	IP:端口文本格式化	netip.go
+net/netip	method	Port	AddrPort	equiv	sa_net_addr_host / sa_net_addr_port	地址/端口分量读取	netip.go
+net/netip	method	String	AddrPort	equiv	sa_net_socket_addr_v4_format_ascii / sa_net_socket_addr_v6_format_ascii	IP:端口文本格式化	netip.go
+net/netip	method	UnmarshalBinary	AddrPort	direct		AddrPort 值运算（Compare/二进制编解码）层缺失	netip.go
+net/netip	method	UnmarshalText	AddrPort	equiv	sa_net_socket_addr_v4_format_ascii / sa_net_socket_addr_v6_format_ascii	IP:端口文本格式化	netip.go
+net/netip	method	Addr	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	AppendBinary	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	AppendText	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	AppendTo	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	Bits	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	Compare	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	Contains	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	IsSingleIP	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	IsValid	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	MarshalBinary	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	MarshalText	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	Masked	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	Overlaps	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	String	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	UnmarshalBinary	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	method	UnmarshalText	Prefix	direct		CIDR 前缀值类型整体缺失（解析/掩码/包含/重叠纯函数）	netip.go
+net/netip	type	Addr		direct		值型 IP 地址类型缺失：SA 为地址句柄 + ascii 文本形态，无可比较的值型 IP	netip.go
+net/netip	type	AddrPort		direct		值型 IP:端口类型缺失（分量读写已有等价，见 Addr/Port 行）	netip.go
+net/netip	type	Prefix		direct		CIDR 前缀值类型整体缺失	netip.go
+net/rpc	const	DefaultDebugPath		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	const	DefaultRPCPath		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	field	Args	Call	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	field	Done	Call	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	field	Error	Call	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	field	Reply	Call	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	field	ServiceMethod	Call	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	field	Seq	Request	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	field	ServiceMethod	Request	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	field	Error	Response	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	field	Seq	Response	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	field	ServiceMethod	Response	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	Accept		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	Dial		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	func	DialHTTP		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	func	DialHTTPPath		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	func	HandleHTTP		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	NewClient		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	func	NewClientWithCodec		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	func	NewServer		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	Register		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	RegisterName		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	ServeCodec		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	ServeConn		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	func	ServeRequest		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	interface-method	Close	ClientCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	interface-method	ReadResponseBody	ClientCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	interface-method	ReadResponseHeader	ClientCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	interface-method	WriteRequest	ClientCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	interface-method	Close	ServerCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	interface-method	ReadRequestBody	ServerCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	interface-method	ReadRequestHeader	ServerCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	interface-method	WriteResponse	ServerCodec	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	Call	Client	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	method	Close	Client	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	method	Go	Client	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	method	Accept	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	HandleHTTP	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	Register	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	RegisterName	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	ServeCodec	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	ServeConn	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	ServeHTTP	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	ServeRequest	Server	model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	method	Error	ServerError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	client.go
+net/rpc	type	Call		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	type	Client		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	type	ClientCodec		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	client.go
+net/rpc	type	Request		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	type	Response		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	type	Server		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	type	ServerCodec		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	type	ServerError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	client.go
+net/rpc	var	DefaultServer		model		RPC 框架（服务注册表 + 编解码接口 + gob 线格式）需建模；SA 无 RPC 框架与 gob 面	server.go
+net/rpc	var	ErrShutdown		equiv	sa_std_net_error_code_name	关停哨兵以状态码呈现	client.go
+net/rpc/jsonrpc	func	Dial		model		JSON-RPC 1.0 编解码依赖 rpc codec 框架；线格式可用 sa_std 的 JSON 编解码面承载	client.go
+net/rpc/jsonrpc	func	NewClient		model		JSON-RPC 1.0 编解码依赖 rpc codec 框架；线格式可用 sa_std 的 JSON 编解码面承载	client.go
+net/rpc/jsonrpc	func	NewClientCodec		model		JSON-RPC 1.0 编解码依赖 rpc codec 框架；线格式可用 sa_std 的 JSON 编解码面承载	client.go
+net/rpc/jsonrpc	func	NewServerCodec		model		JSON-RPC 1.0 编解码依赖 rpc codec 框架；线格式可用 sa_std 的 JSON 编解码面承载	server.go
+net/rpc/jsonrpc	func	ServeConn		model		JSON-RPC 1.0 编解码依赖 rpc codec 框架；线格式可用 sa_std 的 JSON 编解码面承载	server.go
+net/smtp	field	Text	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	field	Auth	ServerInfo	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	field	Name	ServerInfo	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	field	TLS	ServerInfo	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	func	CRAMMD5Auth		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	func	Dial		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	func	NewClient		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	func	PlainAuth		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	func	SendMail		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	interface-method	Next	Auth	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	interface-method	Start	Auth	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	method	Auth	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Close	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Data	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Extension	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Hello	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Mail	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Noop	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Quit	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Rcpt	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Reset	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	StartTLS	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	TLSConnectionState	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	method	Verify	Client	direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	type	Auth		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/smtp	type	Client		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	smtp.go
+net/smtp	type	ServerInfo		direct		SMTP 客户端整体缺失：命令/响应协议可直接落 sa_std（TCP + 行协议 + STARTTLS 升级，依赖 tls 面已有）	auth.go
+net/textproto	field	Pipeline	Conn	model		Conn 内的 Pipeline 定序对象，随 Pipeline 一并建模	textproto.go
+net/textproto	field	Reader	Conn	direct		文本协议连接（Reader+Writer+Pipeline 组合）整体缺失	textproto.go
+net/textproto	field	Writer	Conn	direct		文本协议连接（Reader+Writer+Pipeline 组合）整体缺失	textproto.go
+net/textproto	field	Code	Error	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	textproto.go
+net/textproto	field	Msg	Error	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	textproto.go
+net/textproto	field	R	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	field	W	Writer	direct		行协议写入器（PrintfLine/DotWriter）整体缺失	writer.go
+net/textproto	func	CanonicalMIMEHeaderKey		direct		MIME 头键规范化纯函数缺失	reader.go
+net/textproto	func	Dial		direct		文本协议工具整体缺失	textproto.go
+net/textproto	func	NewConn		direct		文本协议工具整体缺失	textproto.go
+net/textproto	func	NewReader		direct		文本协议工具整体缺失	reader.go
+net/textproto	func	NewWriter		direct		文本协议工具整体缺失	writer.go
+net/textproto	func	TrimBytes		direct		文本协议工具整体缺失	textproto.go
+net/textproto	func	TrimString		direct		文本协议工具整体缺失	textproto.go
+net/textproto	method	Close	Conn	direct		文本协议连接（Reader+Writer+Pipeline 组合）整体缺失	textproto.go
+net/textproto	method	Cmd	Conn	direct		文本协议连接（Reader+Writer+Pipeline 组合）整体缺失	textproto.go
+net/textproto	method	Error	Error	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	textproto.go
+net/textproto	method	Add	MIMEHeader	direct		MIME 多值头映射缺失（与 http.Header 同一缺口）	header.go
+net/textproto	method	Del	MIMEHeader	direct		MIME 多值头映射缺失（与 http.Header 同一缺口）	header.go
+net/textproto	method	Get	MIMEHeader	direct		MIME 多值头映射缺失（与 http.Header 同一缺口）	header.go
+net/textproto	method	Set	MIMEHeader	direct		MIME 多值头映射缺失（与 http.Header 同一缺口）	header.go
+net/textproto	method	Values	MIMEHeader	direct		MIME 多值头映射缺失（与 http.Header 同一缺口）	header.go
+net/textproto	method	EndRequest	Pipeline	model		流水线 id 定序（StartRequest/EndResponse 序号机，面向并发完成）需建模	pipeline.go
+net/textproto	method	EndResponse	Pipeline	model		流水线 id 定序（StartRequest/EndResponse 序号机，面向并发完成）需建模	pipeline.go
+net/textproto	method	Next	Pipeline	model		流水线 id 定序（StartRequest/EndResponse 序号机，面向并发完成）需建模	pipeline.go
+net/textproto	method	StartRequest	Pipeline	model		流水线 id 定序（StartRequest/EndResponse 序号机，面向并发完成）需建模	pipeline.go
+net/textproto	method	StartResponse	Pipeline	model		流水线 id 定序（StartRequest/EndResponse 序号机，面向并发完成）需建模	pipeline.go
+net/textproto	method	Error	ProtocolError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	textproto.go
+net/textproto	method	DotReader	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadCodeLine	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadContinuedLine	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadContinuedLineBytes	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadDotBytes	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadDotLines	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadLine	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadLineBytes	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadMIMEHeader	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	ReadResponse	Reader	direct		行协议读取器（行/续行/dot 块/MIME 头/响应码行）工具整体缺失	reader.go
+net/textproto	method	DotWriter	Writer	direct		行协议写入器（PrintfLine/DotWriter）整体缺失	writer.go
+net/textproto	method	PrintfLine	Writer	direct		行协议写入器（PrintfLine/DotWriter）整体缺失	writer.go
+net/textproto	type	Conn		direct		文本协议连接整体缺失	textproto.go
+net/textproto	type	Error		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	textproto.go
+net/textproto	type	MIMEHeader		direct		MIME 多值头映射缺失	header.go
+net/textproto	type	Pipeline		model		流水线定序状态对象	pipeline.go
+net/textproto	type	ProtocolError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	textproto.go
+net/textproto	type	Reader		direct		行协议读取器整体缺失	reader.go
+net/textproto	type	Writer		direct		行协议写入器整体缺失	writer.go
+net/url	field	Err	Error	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	url.go
+net/url	field	Op	Error	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	url.go
+net/url	field	URL	Error	model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	url.go
+net/url	field	ForceQuery	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	Fragment	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	Host	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	OmitHost	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	Opaque	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	Path	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	RawFragment	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	RawPath	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	RawQuery	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	Scheme	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	field	User	URL	model		URL 值对象字段，随 URL 值一并建模	url.go
+net/url	func	JoinPath		direct		URL 路径拼接纯函数缺失	url.go
+net/url	func	Parse		equiv	sa_std_url_parse	一次性解析出 scheme/host/port/path 分量	url.go
+net/url	func	ParseQuery		direct		查询参数多值映射整体缺失	url.go
+net/url	func	ParseRequestURI		equiv	sa_std_url_parse	一次性解析出 scheme/host/port/path 分量	url.go
+net/url	func	PathEscape		direct		百分号编解码纯函数缺失（sa_std 全层实查无 escape/percent 面）	url.go
+net/url	func	PathUnescape		direct		百分号编解码纯函数缺失（sa_std 全层实查无 escape/percent 面）	url.go
+net/url	func	QueryEscape		direct		百分号编解码纯函数缺失（sa_std 全层实查无 escape/percent 面）	url.go
+net/url	func	QueryUnescape		direct		百分号编解码纯函数缺失（sa_std 全层实查无 escape/percent 面）	url.go
+net/url	func	User		direct		userinfo 构造缺失	url.go
+net/url	func	UserPassword		direct		userinfo 构造缺失	url.go
+net/url	method	Error	Error	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	url.go
+net/url	method	Temporary	Error	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	url.go
+net/url	method	Timeout	Error	equiv	SA_NET_ERROR_CODE_*	错误分类（超时/临时）以错误码枚举表达	url.go
+net/url	method	Unwrap	Error	mismatch		错误链展开依赖 Go 的 errors.Is/As 链模型	url.go
+net/url	method	Error	EscapeError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	url.go
+net/url	method	Error	InvalidHostError	equiv	sa_std_net_error_code_name	错误消息以状态码 + 名称呈现	url.go
+net/url	method	AppendBinary	URL	direct		URL 二进制编解码缺失	url.go
+net/url	method	Clone	URL	model		URL 深拷贝依赖值对象	url.go
+net/url	method	EscapedFragment	URL	direct		URL 分量派生（转义路径/片段、脱敏串、绝对性判断）纯函数缺失	url.go
+net/url	method	EscapedPath	URL	direct		URL 分量派生（转义路径/片段、脱敏串、绝对性判断）纯函数缺失	url.go
+net/url	method	Hostname	URL	equiv	sa_std_url_parse	分量读取经 parse 出参	url.go
+net/url	method	IsAbs	URL	direct		URL 分量派生（转义路径/片段、脱敏串、绝对性判断）纯函数缺失	url.go
+net/url	method	JoinPath	URL	direct		相对引用解析（RFC 3986 resolve / join）算法缺失	url.go
+net/url	method	MarshalBinary	URL	direct		URL 二进制编解码缺失	url.go
+net/url	method	Parse	URL	equiv	sa_std_url_parse	一次性解析出 scheme/host/port/path 分量	url.go
+net/url	method	Port	URL	equiv	sa_std_url_parse	分量读取经 parse 出参	url.go
+net/url	method	Query	URL	direct		查询串解析为多值映射缺失（见 Values 行）	url.go
+net/url	method	Redacted	URL	direct		URL 分量派生（转义路径/片段、脱敏串、绝对性判断）纯函数缺失	url.go
+net/url	method	RequestURI	URL	model		URL 重组（String/RequestURI）依赖 URL 值对象	url.go
+net/url	method	ResolveReference	URL	direct		相对引用解析（RFC 3986 resolve / join）算法缺失	url.go
+net/url	method	String	URL	model		URL 重组（String/RequestURI）依赖 URL 值对象	url.go
+net/url	method	UnmarshalBinary	URL	direct		URL 二进制编解码缺失	url.go
+net/url	method	Password	Userinfo	direct		userinfo 分量（用户/密码）缺失：url_parse 不出 userinfo	url.go
+net/url	method	String	Userinfo	direct		userinfo 分量（用户/密码）缺失：url_parse 不出 userinfo	url.go
+net/url	method	Username	Userinfo	direct		userinfo 分量（用户/密码）缺失：url_parse 不出 userinfo	url.go
+net/url	method	Add	Values	direct		查询参数多值映射（Values）整体缺失	url.go
+net/url	method	Clone	Values	direct		查询参数多值映射（Values）整体缺失	url.go
+net/url	method	Del	Values	direct		查询参数多值映射（Values）整体缺失	url.go
+net/url	method	Encode	Values	direct		查询参数多值映射（Values）整体缺失	url.go
+net/url	method	Get	Values	direct		查询参数多值映射（Values）整体缺失	url.go
+net/url	method	Has	Values	direct		查询参数多值映射（Values）整体缺失	url.go
+net/url	method	Set	Values	direct		查询参数多值映射（Values）整体缺失	url.go
+net/url	type	Error		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	url.go
+net/url	type	EscapeError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	url.go
+net/url	type	InvalidHostError		model		错误以 i32 状态码 + 名称呈现，无字段级错误对象	url.go
+net/url	type	URL		model		URL 值对象（字段可读写、可重组 String）；SA 只有一次性 parse 出参，无 URL 值	url.go
+net/url	type	Userinfo		direct		userinfo 分量缺失	url.go
+net/url	type	Values		direct		查询参数多值映射整体缺失	url.go

@@ -277,6 +277,22 @@
         "pong"
       ],
       "parent": null
+    },
+    {
+      "id": "go-net-census",
+      "title": "Go net 标准库 × sa_std 缺口普查",
+      "file": "22_go_net_census.html",
+      "keywords": [
+        "go",
+        "golang",
+        "net",
+        "http",
+        "tls",
+        "dns",
+        "普查",
+        "缺口"
+      ],
+      "parent": "net"
     }
   ]
 }

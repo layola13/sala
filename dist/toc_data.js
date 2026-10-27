@@ -583,7 +583,13 @@ var TOC = [
      {
       "t": "net：TCP / UDP / Unix 套接字与 HTTP/2",
       "f": "content/06_stdlib/10_net.html",
-      "c": []
+      "c": [
+       {
+        "t": "Go net 标准库 × sa_std 缺口普查",
+        "f": "content/06_stdlib/22_go_net_census.html",
+        "c": []
+       }
+      ]
      },
      {
       "t": "encoding 与 text：JSON 与正则",

@@ -1,0 +1,6922 @@
+[
+ {
+  "symbol": "sa_http_client_resp_body_slice",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_addr_family",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_addr_free",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_addr_host",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_addr_host_len",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_addr_port",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_addr_scope_id",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_ipv4_format_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_ipv4_parse_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_ipv6_format_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_ipv6_parse_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v4_format_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v4_parse_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v6_format_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v6_parse_ascii",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_peek",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_read_exact",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_nodelay",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_nonblocking",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_read_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_write_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_close",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_connect",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_join_multicast_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_join_multicast_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_leave_multicast_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_leave_multicast_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_recv",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_send",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_set_broadcast",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_set_multicast_loop_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_set_multicast_ttl_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_set_nonblocking",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_set_read_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_set_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_udp_set_write_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_unix_addr_abstract_len",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_unix_addr_abstract_ptr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_unix_addr_free",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_unix_addr_is_unnamed",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_unix_addr_kind",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_unix_addr_path_len",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_net_unix_addr_path_ptr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_buffer_data",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_buffer_free",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_buffer_len",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_client_request",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_constants_json",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_get_default_settings_json",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_get_packed_settings",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_get_unpacked_settings_json",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_nghttp2_version_json",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_perform_server_handshake",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_sensitive_headers",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_status_json",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_http2_supported",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_addr_format",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_free",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_next",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_remaining",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_reset",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_native_error",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_posix_errno",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_status",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_wsa_error",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_error_code_name",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_error_platform",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_hostname",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_accept",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_accept_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect_timeout_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect_timeout_all",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listen",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_from_raw_fd",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_local_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_only_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_nonblocking",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_only_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_reuseaddr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_reuseport",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_take_error",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_try_clone",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_deferaccept",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_from_raw_fd",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_keepalive",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_linger",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_local_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_nodelay",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_peek",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_peer_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_quickack",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_read",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_read_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_read_vectored",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_recv_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_send_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_deferaccept",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_keepalive",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_keepalive_params",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_linger",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_nodelay",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_nonblocking",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_quickack",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_read_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_recv_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_send_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_write_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_take_error",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_try_clone",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_write",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_write_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_write_vectored",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_to_socket_addr_first",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_to_socket_addr_list",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_bind",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_broadcast",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_connect",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_connect_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_from_raw_fd",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_join_multicast_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_join_multicast_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_leave_multicast_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_leave_multicast_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_local_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_hops_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_if_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_if_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_loop_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_loop_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_ttl_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_only_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_peek",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_peek_from",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_peer_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_read_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv_from",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv_from_vectored",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_send",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_to",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_to_vectored",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_vectored",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_broadcast",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_hops_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_if_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_if_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_loop_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_loop_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_ttl_v4",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_nonblocking",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_only_v6",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_read_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_recv_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_send_buffer_size",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_write_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_take_error",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_try_clone",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_ttl",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_udp_write_timeout",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_accept",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_accept_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_addr_from_abstract_name",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_addr_from_pathname",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_connect",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_connect_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_bind",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_bind_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_connect",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_connect_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_from_raw_fd",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_local_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_pair",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_passcred",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_peek_from",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_peer_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_recv_from",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_send_to",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_send_to_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_set_mark",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_set_passcred",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_shutdown",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_try_clone",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_unbound",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_listen",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_listen_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_listener_from_raw_fd",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_listener_local_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_listener_try_clone",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_pair",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_from_raw_fd",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_local_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_passcred",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_peer_addr",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_peer_cred",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_set_mark",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_set_passcred",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_try_clone",
+  "layer": "h",
+  "file": "sa_std.h"
+ },
+ {
+  "symbol": "DTLS_BUFFER_DATA",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_BUFFER_FREE",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_BUFFER_LEN",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_SERVER_ACCEPT",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_SERVER_CLOSE",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_SERVER_CTX_CREATE",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_SERVER_CTX_FREE",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_SERVER_READ",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_SERVER_WRITE",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_STATUS_JSON",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "DTLS_SUPPORTED",
+  "layer": "macro",
+  "file": "dtls.sa"
+ },
+ {
+  "symbol": "HTTP2_BUFFER_DATA",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_BUFFER_FREE",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_BUFFER_LEN",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_CLIENT_REQUEST",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_CONSTANTS_JSON",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_DEFAULT_SETTINGS_JSON",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_GET",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_GET_PACKED_SETTINGS",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_GET_UNPACKED_SETTINGS_JSON",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_PERFORM_SERVER_HANDSHAKE",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_POST",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_SENSITIVE_HEADERS_JSON",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_STATUS_JSON",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_SUPPORTED",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP2_VERSION_JSON",
+  "layer": "macro",
+  "file": "http2.sa"
+ },
+ {
+  "symbol": "HTTP3_CONSTANTS_JSON",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_REQUEST_FIELD",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_RESPONSE_STATUS",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_SERVER_NEXT_REQUEST",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_SESSION_BIND",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_SESSION_CREATE",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_SESSION_DESTROY",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_STREAM_READ",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_SUBMIT_REQUEST",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_SUBMIT_RESPONSE",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "HTTP3_SUPPORTED",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "NETX_BROADCAST",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_CLOSE_SLOT",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_INIT",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_LISTEN",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_PUSH_OUTBOUND",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_RECV_TICKET",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_SHUTDOWN",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_FLAGS",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_HEADER",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_IS_OP",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_OP_CODE",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_PAYLOAD",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_PAYLOAD_LEN",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_PROTO",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NETX_TICKET_SLOT_ID",
+  "layer": "macro",
+  "file": "netx.sa"
+ },
+ {
+  "symbol": "NET_ADDR_FAMILY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_FORMAT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_FREE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_HOST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_HOST_LEN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_IS_IPV4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_IS_IPV6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_LIST_FREE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_LIST_NEXT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_LIST_REMAINING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_LIST_RESET",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_REVERSE_LOOKUP",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ADDR_SCOPE_ID",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_CODE_FROM_NATIVE_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_CODE_FROM_POSIX_ERRNO",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_CODE_FROM_STATUS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_CODE_FROM_WSA_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_CODE_NAME",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_FROM_NATIVE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_FROM_STATUS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_IS_OK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_KIND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_KIND_FROM_STATUS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_PLATFORM",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_PLATFORM_OF",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_RAW_OS_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_ERROR_STATUS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_HOSTNAME",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_AS_OCTETS_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_BITS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_BROADCAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_COPY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_DEFAULT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_EQ",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_FORMAT_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_FROM_BITS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_FROM_OCTETS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_HASH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_BENCHMARKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_BROADCAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_DOCUMENTATION",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_GLOBAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_LINK_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_LOOPBACK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_MULTICAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_PRIVATE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_RESERVED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_SHARED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_IS_UNSPECIFIED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_LOCALHOST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_OCTETS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_TO_BITS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_TO_IPV6_COMPATIBLE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_TO_IPV6_MAPPED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_TRY_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_TRY_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_UNSPECIFIED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV4_WRITE_OCTETS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_AS_OCTETS_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_BITS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_COPY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_DEFAULT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_EQ",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_FORMAT_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_FROM_BITS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_FROM_BITS64",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_FROM_OCTETS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_FROM_SEGMENTS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_HASH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_BENCHMARKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_DOCUMENTATION",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_GLOBAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_IPV4_MAPPED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_LOOPBACK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_MULTICAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_UNICAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_UNICAST_GLOBAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_UNICAST_LINK_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_UNIQUE_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_IS_UNSPECIFIED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_LOCALHOST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_ADMIN_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_GLOBAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_INTERFACE_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_LINK_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_ORGANIZATION_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_REALM_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_RESERVED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_SITE_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_IS_UNASSIGNED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_OCTETS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_SEGMENTS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_TO_BITS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_TO_BITS64",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_TO_CANONICAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_TO_IPV4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_TO_IPV4_MAPPED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_TRY_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_TRY_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_UNSPECIFIED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IPV6_WRITE_OCTETS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_AS_OCTETS_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_COPY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_DEFAULT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_EQ",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_FAMILY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_FORMAT_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_HASH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_BENCHMARKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_DOCUMENTATION",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_GLOBAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_IPV4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_IPV4_MAPPED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_IPV6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_LINK_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_LOOPBACK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_MULTICAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_PRIVATE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_RESERVED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_SHARED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_UNICAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_UNICAST_GLOBAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_UNICAST_LINK_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_UNIQUE_LOCAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_IS_UNSPECIFIED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_MULTICAST_SCOPE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_OCTET_LEN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_PAYLOAD_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_TO_CANONICAL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_TO_IPV4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_TO_IPV6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_TRY_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_TRY_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V4_BROADCAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V4_LOCALHOST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V4_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V4_UNSPECIFIED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V6_LOCALHOST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V6_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V6_UNSPECIFIED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_IP_ADDR_WRITE_OCTETS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_JA3_HASH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_JA4_HASH12",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_LAST_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_DEFAULT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_EQ",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_FAMILY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_FLOWINFO",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_FORMAT_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_FROM_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_FROM_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_HASH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_IP",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_IS_IPV4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_IS_IPV6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_PAYLOAD_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_SCOPE_ID",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_SET_FLOWINFO",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_SET_IP",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_SET_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_SET_SCOPE_ID",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_TRY_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_TRY_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_AS_OCTETS_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_DEFAULT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_EQ",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_FORMAT_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_HASH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_IP",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_IP_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_SET_IP",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_SET_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_TRY_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V4_TRY_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_AS_OCTETS_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_DEFAULT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_EQ",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_FLOWINFO",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_FORMAT_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_HASH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_IP",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_IP_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_SCOPE_ID",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_SET_FLOWINFO",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_SET_IP",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_SET_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_SET_SCOPE_ID",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_TRY_PARSE_ASCII",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_SOCKET_ADDR_V6_TRY_PARSE_ASCII_DETAIL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_CONNECT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_CONNECT_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_CONNECT_TIMEOUT_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_CONNECT_TIMEOUT_ALL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_INCOMING_LISTENER",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_INCOMING_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_INCOMING_NEXT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_ACCEPT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_ACCEPT_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_AS_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_AS_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_BIND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_BIND_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_CLOSE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_FROM_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_FROM_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_INCOMING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_INTO_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_INTO_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_LOCAL_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_ONLY_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_SET_NONBLOCKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_SET_ONLY_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_SET_REUSEADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_SET_REUSEPORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_SET_REUSE_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_SET_REUSE_PORT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_SET_TTL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_TAKE_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_TRY_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_LISTENER_TTL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_AS_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_AS_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_CLOSE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_DEFERACCEPT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_DEFER_ACCEPT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_FLUSH",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_FROM_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_FROM_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_INTO_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_INTO_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_KEEPALIVE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_LINGER",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_LOCAL_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_NODELAY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_PEEK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_PEEK_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_PEER_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_QUICKACK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_QUICK_ACK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_READ",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_READ_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_READ_EXACT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_READ_VECTORED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_RECV_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SEND_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_DEFERACCEPT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_DEFER_ACCEPT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_KEEPALIVE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_KEEPALIVE_PARAMS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_KEEP_ALIVE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_KEEP_ALIVE_PARAMS",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_LINGER",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_NODELAY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_NONBLOCKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_QUICKACK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_QUICK_ACK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_RECV_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_SEND_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_TTL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SET_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_SHUTDOWN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_TAKE_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_TRY_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_TTL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_WRITE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_WRITE_ALL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_WRITE_ALL_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_WRITE_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TCP_STREAM_WRITE_VECTORED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TO_SOCKET_ADDR_FIRST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_TO_SOCKET_ADDR_LIST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_AS_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_AS_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_BIND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_BROADCAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_CLOSE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_CONNECT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_CONNECT_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_FROM_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_FROM_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_INTO_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_INTO_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_JOIN_MULTICAST_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_JOIN_MULTICAST_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_LEAVE_MULTICAST_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_LEAVE_MULTICAST_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_LOCAL_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_MULTICAST_HOPS_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_MULTICAST_IF_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_MULTICAST_IF_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_MULTICAST_LOOP_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_MULTICAST_LOOP_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_MULTICAST_TTL_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_ONLY_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_PEEK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_PEEK_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_PEEK_FROM",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_PEEK_FROM_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_PEER_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_RECV",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_RECV_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_RECV_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_RECV_FROM",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_RECV_FROM_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_RECV_FROM_VECTORED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SEND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SEND_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SEND_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SEND_TO",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SEND_TO_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SEND_TO_VECTORED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SEND_VECTORED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_BROADCAST",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_MULTICAST_HOPS_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_MULTICAST_IF_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_MULTICAST_IF_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_MULTICAST_LOOP_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_MULTICAST_LOOP_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_MULTICAST_TTL_V4",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_NONBLOCKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_ONLY_V6",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_RECV_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_SEND_BUFFER_SIZE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_TTL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_SET_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_TAKE_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_TRY_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_TTL",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UDP_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ACCEPT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ACCEPT_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_ABSTRACT_LEN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_ABSTRACT_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_AS_ABSTRACT_NAME_LEN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_AS_ABSTRACT_NAME_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_AS_PATHNAME_LEN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_AS_PATHNAME_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_FREE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_FROM_ABSTRACT_NAME",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_FROM_PATHNAME",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_IS_UNNAMED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_KIND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_PATH_LEN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_ADDR_PATH_PTR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_CONNECT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_CONNECT_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_AS_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_AS_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_BIND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_BIND_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_CLOSE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_CONNECT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_CONNECT_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_FROM_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_FROM_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_INTO_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_INTO_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_LOCAL_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_PAIR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_PASSCRED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_PEEK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_PEEK_FROM",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_PEER_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_RECV",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_RECV_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_RECV_FROM",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SEND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SEND_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SEND_TO",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SEND_TO_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SET_MARK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SET_NONBLOCKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SET_PASSCRED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SET_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SET_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_SHUTDOWN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_TAKE_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_TRY_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_UNBOUND",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_DATAGRAM_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_INCOMING_LISTENER",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_INCOMING_NEW",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_INCOMING_NEXT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTEN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_AS_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_AS_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_FROM_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_FROM_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_INCOMING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_INTO_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_INTO_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_LOCAL_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_SET_NONBLOCKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_TAKE_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTENER_TRY_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_LISTEN_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_PAIR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_AS_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_AS_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_FROM_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_FROM_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_INTO_OWNED_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_INTO_RAW_FD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_LOCAL_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_PASSCRED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_PEEK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_PEEK_BYTES",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_PEER_ADDR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_PEER_CRED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_SET_MARK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_SET_NONBLOCKING",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_SET_PASSCRED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_SET_READ_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_SET_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_SHUTDOWN",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_TAKE_ERROR",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_TRY_CLONE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_UNIX_STREAM_WRITE_TIMEOUT",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_URL_PARSE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_WS_ACCEPT_KEY",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_WS_FRAME_BUILD",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_WS_FRAME_BUILD_UNMASKED",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_WS_FRAME_PARSE",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "NET_WS_UNMASK",
+  "layer": "macro",
+  "file": "net.sa"
+ },
+ {
+  "symbol": "QUIC_BUFFER_DATA",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_BUFFER_FREE",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_BUFFER_LEN",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_CAPABILITIES_JSON",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_CLIENT_CONNECT",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_CONN_CLOSE",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_CONN_HANDSHAKE_COMPLETED",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_CONN_POLL",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_CONSTANTS_JSON",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_ENDPOINT_CREATE",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_ENDPOINT_DESTROY",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_SERVER_ACCEPT",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_SERVER_LISTEN",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_SERVER_POLL",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_STREAM_OPEN",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_STREAM_READ",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_STREAM_WRITE",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "QUIC_SUPPORTED",
+  "layer": "macro",
+  "file": "quic.sa"
+ },
+ {
+  "symbol": "SA_HTTP_ASYNC_CANCEL_V2",
+  "layer": "macro",
+  "file": "plugin_http_async.sa"
+ },
+ {
+  "symbol": "SA_HTTP_ASYNC_FREE_V2",
+  "layer": "macro",
+  "file": "plugin_http_async.sa"
+ },
+ {
+  "symbol": "SA_HTTP_ASYNC_POLL_V2",
+  "layer": "macro",
+  "file": "plugin_http_async.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_ACCEPT_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_FREE_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_REQ_FREE_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_RESP_FREE_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_RESP_SEND_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_STREAM_END_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_STREAM_FREE_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "SA_HTTP_SERVER_STREAM_WRITE_V2",
+  "layer": "macro",
+  "file": "plugin_http_server.sa"
+ },
+ {
+  "symbol": "TLS_CLIENT_BUFFER_DATA",
+  "layer": "macro",
+  "file": "tls_client.sa"
+ },
+ {
+  "symbol": "TLS_CLIENT_BUFFER_FREE",
+  "layer": "macro",
+  "file": "tls_client.sa"
+ },
+ {
+  "symbol": "TLS_CLIENT_BUFFER_LEN",
+  "layer": "macro",
+  "file": "tls_client.sa"
+ },
+ {
+  "symbol": "TLS_CLIENT_CLOSE",
+  "layer": "macro",
+  "file": "tls_client.sa"
+ },
+ {
+  "symbol": "TLS_CLIENT_CONNECT",
+  "layer": "macro",
+  "file": "tls_client.sa"
+ },
+ {
+  "symbol": "TLS_CLIENT_STATUS_JSON",
+  "layer": "macro",
+  "file": "tls_client.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_ACCEPT",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_BUFFER_DATA",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_BUFFER_FREE",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_BUFFER_LEN",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_CLOSE",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_CTX_CREATE",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_CTX_FREE",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_READ",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_STATUS_JSON",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_SUPPORTED",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "TLS_SERVER_WRITE",
+  "layer": "macro",
+  "file": "tls_server.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_BUFFER_DATA",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_BUFFER_FREE",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_BUFFER_LEN",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_CLOSE",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_CONNECT",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_RECV",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_SEND_BINARY",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_SEND_TEXT",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "WS_CLIENT_STATUS_JSON",
+  "layer": "macro",
+  "file": "ws_client.sa"
+ },
+ {
+  "symbol": "sa_http_client_async_cancel_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_async_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_async_free_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_async_poll",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_async_poll_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_async_take_response",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_async_take_response_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_body_reader_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_new",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_new_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_add_header",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_add_header_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_add_openai_auth",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_new",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_new_joined",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_new_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_send",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_send_async",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_send_async_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_send_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_set_body",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_set_body_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_set_max_response_bytes_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_set_timeout_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_websocket_connect_unix_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_req_websocket_connect_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_body_len",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_body_ptr",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_body_reader",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_body_slice",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_get_header",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_read_chunk",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_resp_status",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_poll",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_post",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_read",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_status",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_turn",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_turn_ex",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_turn_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_sse_turn_free_all",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_websocket_connect",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_websocket_connect_unix_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_client_websocket_connect_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_fetch_bytes",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_server_accept",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_accept_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_free",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_free_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_new",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_new_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_req_free",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_req_free_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_req_get_body",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_req_get_header",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_req_get_method",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_req_get_path",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_add_header_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_free",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_free_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_new",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_new_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_send",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_send_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_set_content_type",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_add_header_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_end",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_end_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_flush",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_flush_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_free",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_free_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_new",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_new_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_write",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_resp_stream_write_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_serve_threaded",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_set_max_body_bytes",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_start",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_start_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_stop_serving",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_close_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_free",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_free_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_poll_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_read",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_read_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_upgrade",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_upgrade_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_write",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_server_websocket_write_v2",
+  "layer": "sai",
+  "file": "http_server.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_close_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_free",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_free_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_poll_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_read",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_read_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_write",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_http_websocket_write_v2",
+  "layer": "sai",
+  "file": "http_client.sai"
+ },
+ {
+  "symbol": "sa_net_addr_family",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_addr_free",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_addr_host",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_addr_host_len",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_addr_port",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_addr_scope_id",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_ipv4_format_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_ipv4_parse_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_ipv6_format_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_ipv6_parse_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v4_format_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v4_parse_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v6_format_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_socket_addr_v6_parse_ascii",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_connect",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_listener_accept",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_listener_bind",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_listener_close",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_listener_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_close",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_flush",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_peek",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_peer_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_read",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_read_exact",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_nodelay",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_nonblocking",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_read_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_set_write_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_shutdown",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_write",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_tcp_stream_write_all",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_bind",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_close",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_connect",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_join_multicast_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_join_multicast_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_leave_multicast_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_leave_multicast_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_peek",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_peek_from",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_recv",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_recv_from",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_send",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_send_to",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_set_broadcast",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_set_multicast_loop_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_set_multicast_ttl_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_set_nonblocking",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_set_read_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_set_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_udp_set_write_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_unix_addr_abstract_len",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_unix_addr_abstract_ptr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_unix_addr_free",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_unix_addr_is_unnamed",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_unix_addr_kind",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_unix_addr_path_len",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_net_unix_addr_path_ptr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_netx_broadcast",
+  "layer": "sai",
+  "file": "netx.sai"
+ },
+ {
+  "symbol": "sa_netx_close_slot",
+  "layer": "sai",
+  "file": "netx.sai"
+ },
+ {
+  "symbol": "sa_netx_init",
+  "layer": "sai",
+  "file": "netx.sai"
+ },
+ {
+  "symbol": "sa_netx_listen",
+  "layer": "sai",
+  "file": "netx.sai"
+ },
+ {
+  "symbol": "sa_netx_push_outbound",
+  "layer": "sai",
+  "file": "netx.sai"
+ },
+ {
+  "symbol": "sa_netx_recv_ticket",
+  "layer": "sai",
+  "file": "netx.sai"
+ },
+ {
+  "symbol": "sa_netx_shutdown",
+  "layer": "sai",
+  "file": "netx.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_buffer_data",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_buffer_free",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_buffer_len",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_server_accept",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_server_close",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_server_ctx_create",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_server_ctx_free",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_server_read",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_server_write",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_status_json",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_dtls_supported",
+  "layer": "sai",
+  "file": "dtls.sai"
+ },
+ {
+  "symbol": "sa_std_http2_buffer_data",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_buffer_free",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_buffer_len",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_client_request",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_client_request_with_settings",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_constants_json",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_get_default_settings_json",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_get_packed_settings",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_get_unpacked_settings_json",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_nghttp2_version_json",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_perform_server_handshake",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_sensitive_headers",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_status_json",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http2_supported",
+  "layer": "sai",
+  "file": "http2.sai"
+ },
+ {
+  "symbol": "sa_std_http3_constants_json",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_request_field",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_response_status",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_server_next_request",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_session_bind",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_session_create",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_session_destroy",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_stream_read",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_submit_request",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_submit_response",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_http3_supported",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_net_addr_format",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_free",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_next",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_remaining",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_addr_list_reset",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_addr_reverse_lookup",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_native_error",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_posix_errno",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_status",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_error_code_from_wsa_error",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_error_code_name",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_error_platform",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_hostname",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_ja3_hash",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_ja4_hash12",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_sha256_hex",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_accept",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_accept_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect_timeout_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_connect_timeout_all",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listen",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_from_raw_fd",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_only_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_nonblocking",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_only_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_reuseaddr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_reuseport",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_set_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_take_error",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_try_clone",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_listener_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_deferaccept",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_from_raw_fd",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_keepalive",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_linger",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_nodelay",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_peek",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_peer_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_quickack",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_read",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_read_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_read_vectored",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_recv_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_send_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_deferaccept",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_keepalive",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_keepalive_params",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_linger",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_nodelay",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_nonblocking",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_quickack",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_read_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_recv_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_send_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_set_write_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_take_error",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_try_clone",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_write",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_write_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_tcp_stream_write_vectored",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_to_socket_addr_first",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_to_socket_addr_list",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_bind",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_broadcast",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_connect",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_connect_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_from_raw_fd",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_join_multicast_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_join_multicast_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_leave_multicast_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_leave_multicast_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_hops_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_if_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_if_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_loop_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_loop_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_multicast_ttl_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_only_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_peek",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_peek_from",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_peer_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_read_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv_from",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_recv_from_vectored",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_send",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_to",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_to_vectored",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_send_vectored",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_broadcast",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_hops_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_if_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_if_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_loop_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_loop_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_multicast_ttl_v4",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_nonblocking",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_only_v6",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_read_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_recv_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_send_buffer_size",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_set_write_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_take_error",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_try_clone",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_ttl",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_udp_write_timeout",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_accept",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_accept_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_addr_from_abstract_name",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_addr_from_pathname",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_connect",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_connect_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_bind",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_bind_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_connect",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_connect_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_from_raw_fd",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_pair",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_passcred",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_peek_from",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_peer_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_recv_from",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_send_to",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_send_to_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_set_mark",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_set_passcred",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_shutdown",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_try_clone",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_datagram_unbound",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_listen",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_listen_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_listener_from_raw_fd",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_listener_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_listener_try_clone",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_pair",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_from_raw_fd",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_local_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_passcred",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_peer_addr",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_peer_cred",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_set_mark",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_set_passcred",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_net_unix_stream_try_clone",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_quic_buffer_data",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_buffer_free",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_buffer_len",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_capabilities_json",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_client_connect",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_conn_close",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_conn_handshake_completed",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_conn_poll",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_constants_json",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_endpoint_create",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_endpoint_destroy",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_server_accept",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_server_listen",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_server_poll",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_stream_open",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_stream_read",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_stream_write",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_quic_supported",
+  "layer": "sai",
+  "file": "quic.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_auth_keyfile",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_auth_password",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_buffer_data",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_buffer_free",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_buffer_len",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_channel_close",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_channel_read",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_channel_send_exit",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_channel_write",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_client_connect",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_exec",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_hostkey_fingerprint",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_accept",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_auth_accept",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_auth_deny",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_auth_next",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_bind_close",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_channel_accept",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_channel_exec",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_listen",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_server_session_close",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_session_close",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_sftp_read",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_sftp_stat",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_sftp_write",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_ssh_supported",
+  "layer": "sai",
+  "file": "ssh.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_add_ca_file",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_buffer_data",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_buffer_free",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_buffer_len",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_close",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_connect",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_read",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_status_json",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_supported",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_client_write",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_accept",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_buffer_data",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_buffer_free",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_buffer_len",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_close",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_ctx_create",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_ctx_free",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_read",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_status_json",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_supported",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_server_write",
+  "layer": "sai",
+  "file": "tls_server.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_buffer_data",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_buffer_free",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_buffer_len",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_close",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_connect",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_hello_ja3",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_hello_ja3_string",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_hello_ja4",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_negotiated_json",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_read",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_supported",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_tls_shaped_write",
+  "layer": "sai",
+  "file": "tls_client.sai"
+ },
+ {
+  "symbol": "sa_std_url_parse",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_ws_accept_key",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_add_ca_file",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_buffer_data",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_buffer_free",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_buffer_len",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_close",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_connect",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_ping",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_recv",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_send_binary",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_send_text",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_status_json",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_client_supported",
+  "layer": "sai",
+  "file": "ws_client.sai"
+ },
+ {
+  "symbol": "sa_std_ws_frame_build",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_ws_frame_build_unmasked",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_ws_frame_parse",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "sa_std_ws_unmask",
+  "layer": "sai",
+  "file": "net.sai"
+ },
+ {
+  "symbol": "HTTP2_DATA_FLAG_EOF",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FLAG_ACK",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FLAG_END_HEADERS",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FLAG_END_STREAM",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FLAG_NONE",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_DATA",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_GOAWAY",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_HEADERS",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_PING",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_PRIORITY",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_RST_STREAM",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_SETTINGS",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_FRAME_WINDOW_UPDATE",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_SETTINGS_ENABLE_CONNECT_PROTOCOL",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_SETTINGS_ENABLE_PUSH",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_SETTINGS_HEADER_TABLE_SIZE",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_SETTINGS_INITIAL_WINDOW_SIZE",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_SETTINGS_MAX_FRAME_SIZE",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "HTTP3_QPACK_RFC",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "HTTP3_RFC",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "NETX_FLAG_EOF",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_FLAG_FIN_CONTINUATION",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_FLAG_MASKED",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_FLAG_TRUNCATED",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_FLAG_UPGRADE",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_FLAG_ZC",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_ACCEPT",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_ERR",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_HTTP_REQUEST",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_PEER_CLOSE",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_RAW_BYTES",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_SEND_DONE",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_WEBSOCKET_UPGRADE",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NETX_OP_WS_FRAME",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NET_IPV4_BITS_VALUE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_BITS_VALUE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_ADMIN_LOCAL",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_GLOBAL",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_INTERFACE_LOCAL",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_LINK_LOCAL",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_ORGANIZATION_LOCAL",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_REALM_LOCAL",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_RESERVED_F",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_RESERVED_ZERO",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_SITE_LOCAL",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_UNASSIGNED6",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_UNASSIGNED7",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_UNASSIGNED9",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_A",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_B",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_C",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_D",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V4",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NET_IP_ADDR_V6",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "NetxProto_HTTP",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "NetxProto_WS",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "QUIC_ALPN_H3",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "QUIC_STREAM_BIDIRECTIONAL",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "QUIC_STREAM_UNIDIRECTIONAL",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "SA_DTLS_ERR_INVALID_ARGUMENT",
+  "layer": "sal",
+  "file": "dtls.sal"
+ },
+ {
+  "symbol": "SA_DTLS_ERR_NO_MEMORY",
+  "layer": "sal",
+  "file": "dtls.sal"
+ },
+ {
+  "symbol": "SA_DTLS_ERR_UNSUPPORTED",
+  "layer": "sal",
+  "file": "dtls.sal"
+ },
+ {
+  "symbol": "SA_DTLS_OK",
+  "layer": "sal",
+  "file": "dtls.sal"
+ },
+ {
+  "symbol": "SA_H2_ERR_CONNECT",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "SA_H2_ERR_INVALID_ARGUMENT",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "SA_H2_ERR_NO_MEMORY",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "SA_H2_ERR_PROTOCOL",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "SA_H2_ERR_UNSUPPORTED",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "SA_H2_OK",
+  "layer": "sal",
+  "file": "http2.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_ACCESS",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_INVALID_ARGUMENT",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_INVALID_HANDLE",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_IO",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_NET",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_NOT_FOUND",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_NO_MEMORY",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_TRUNCATED",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_ERR_UNSUPPORTED",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NETX_OK",
+  "layer": "sal",
+  "file": "netx.sal"
+ },
+ {
+  "symbol": "SA_NET_AF_INET",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_AF_INET6",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_AF_IPV4",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_AF_IPV6",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_AF_UNSPEC",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_ACCESS_DENIED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_ADDR_IN_USE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_ADDR_NOT_AVAILABLE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_ALREADY_EXISTS",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_BROKEN_PIPE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_CONNECTION_ABORTED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_CONNECTION_CLOSED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_CONNECTION_REFUSED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_CONNECTION_RESET",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_DNS",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_HOST_UNREACHABLE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_INTERRUPTED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_INVALID_ADDRESS",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_INVALID_ARGUMENT",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_INVALID_DATA",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_INVALID_HANDLE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_IO",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_NETWORK_DOWN",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_NETWORK_UNREACHABLE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_NOT_CONNECTED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_NOT_FOUND",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_NO_MEMORY",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_OK",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_TIMED_OUT",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_UNEXPECTED_EOF",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_UNKNOWN",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_UNSUPPORTED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_WOULD_BLOCK",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_CODE_WRITE_ZERO",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_PLATFORM_NONE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_PLATFORM_POSIX",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERROR_PLATFORM_WINDOWS",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_ACCESS",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_CLOSED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_DNS",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_INVALID_ADDR",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_REFUSED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_TIMEOUT",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_UNKNOWN",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_UNSUPPORTED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_ERR_WOULD_BLOCK",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_IOV_MAX",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_OK",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_SHUTDOWN_BOTH",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_SHUTDOWN_READ",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_SHUTDOWN_WRITE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_SOCKET_OPTION_DISABLE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_SOCKET_OPTION_ENABLE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_ACCESS",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_INVALID_ARGUMENT",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_INVALID_HANDLE",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_IO",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_NET",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_NOT_FOUND",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_NO_MEMORY",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_OK",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_TRUNCATED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_UNKNOWN",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_STATUS_UNSUPPORTED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_UNIX_ADDR_ABSTRACT",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_UNIX_ADDR_PATHNAME",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_NET_UNIX_ADDR_UNNAMED",
+  "layer": "sal",
+  "file": "net.sal"
+ },
+ {
+  "symbol": "SA_QUIC_ERR_INVALID_ARGUMENT",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "SA_QUIC_ERR_NO_MEMORY",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "SA_QUIC_ERR_UNSUPPORTED",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "SA_QUIC_OK",
+  "layer": "sal",
+  "file": "quic.sal"
+ },
+ {
+  "symbol": "SA_TLS_SERVER_ERR_INVALID_ARGUMENT",
+  "layer": "sal",
+  "file": "tls_server.sal"
+ },
+ {
+  "symbol": "SA_TLS_SERVER_ERR_NO_MEMORY",
+  "layer": "sal",
+  "file": "tls_server.sal"
+ },
+ {
+  "symbol": "SA_TLS_SERVER_ERR_UNSUPPORTED",
+  "layer": "sal",
+  "file": "tls_server.sal"
+ },
+ {
+  "symbol": "SA_TLS_SERVER_OK",
+  "layer": "sal",
+  "file": "tls_server.sal"
+ }
+]

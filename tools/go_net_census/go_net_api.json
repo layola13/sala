@@ -1,0 +1,9858 @@
+[
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "CurveP256",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "CurveP384",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "CurveP521",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "ECDSAWithP256AndSHA256",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "ECDSAWithP384AndSHA384",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "ECDSAWithP521AndSHA512",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "ECDSAWithSHA1",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "Ed25519",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "MLDSA44",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "MLDSA65",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "MLDSA87",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "MLKEM1024",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "NoClientCert",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "PKCS1WithSHA1",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "PKCS1WithSHA256",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "PKCS1WithSHA384",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "PKCS1WithSHA512",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "PSSWithSHA256",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "PSSWithSHA384",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "PSSWithSHA512",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICEncryptionLevelApplication",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICEncryptionLevelEarly",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICEncryptionLevelHandshake",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICEncryptionLevelInitial",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICErrorEvent",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICHandshakeDone",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICNoEvent",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICRejectedEarlyData",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICResumeSession",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICSetReadSecret",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICSetWriteSecret",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICStoreSession",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICTransportParameters",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICTransportParametersRequired",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "QUICWriteData",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "RenegotiateFreelyAsClient",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "RenegotiateNever",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "RenegotiateOnceAsClient",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "RequestClientCert",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "RequireAndVerifyClientCert",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "RequireAnyClientCert",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "SecP256r1MLKEM768",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "SecP384r1MLKEM1024",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_AES_128_GCM_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_AES_256_GCM_SHA384",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_CHACHA20_POLY1305_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_ECDHE_RSA_WITH_RC4_128_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_FALLBACK_SCSV",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_RSA_WITH_AES_128_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_RSA_WITH_AES_128_CBC_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_RSA_WITH_AES_128_GCM_SHA256",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_RSA_WITH_AES_256_CBC_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_RSA_WITH_AES_256_GCM_SHA384",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "TLS_RSA_WITH_RC4_128_SHA",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "VerifyClientCertIfGiven",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "VersionSSL30",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "VersionTLS10",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "VersionTLS11",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "VersionTLS12",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "VersionTLS13",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "X25519",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "const",
+  "name": "X25519MLKEM768",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Certificate",
+  "receiver": "Certificate",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Leaf",
+  "receiver": "Certificate",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "OCSPStaple",
+  "receiver": "Certificate",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "PrivateKey",
+  "receiver": "Certificate",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SignedCertificateTimestamps",
+  "receiver": "Certificate",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SupportedSignatureAlgorithms",
+  "receiver": "Certificate",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "AcceptableCAs",
+  "receiver": "CertificateRequestInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SignatureSchemes",
+  "receiver": "CertificateRequestInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Version",
+  "receiver": "CertificateRequestInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Err",
+  "receiver": "CertificateVerificationError",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "UnverifiedCertificates",
+  "receiver": "CertificateVerificationError",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ID",
+  "receiver": "CipherSuite",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Insecure",
+  "receiver": "CipherSuite",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Name",
+  "receiver": "CipherSuite",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SupportedVersions",
+  "receiver": "CipherSuite",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "CipherSuites",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Conn",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Extensions",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "HelloRetryRequest",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ServerName",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SignatureSchemes",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SupportedCurves",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SupportedPoints",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SupportedProtos",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SupportedVersions",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Certificates",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "CipherSuites",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ClientAuth",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ClientCAs",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ClientSessionCache",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "CurvePreferences",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "DynamicRecordSizingDisabled",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "EncryptedClientHelloConfigList",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "EncryptedClientHelloKeys",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "EncryptedClientHelloRejectionVerify",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "GetCertificate",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "GetClientCertificate",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "GetConfigForClient",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "GetEncryptedClientHelloKeys",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "InsecureSkipVerify",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "KeyLogWriter",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "MaxVersion",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "MinVersion",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "NameToCertificate",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "NextProtos",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "PreferServerCipherSuites",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Rand",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Renegotiation",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "RootCAs",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ServerName",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SessionTicketKey",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SessionTicketsDisabled",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Time",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "UnwrapSession",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "VerifyConnection",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "VerifyPeerCertificate",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "WrapSession",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "CipherSuite",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "CurveID",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "DidResume",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ECHAccepted",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "HandshakeComplete",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "HelloRetryRequest",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "LocalCertificate",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "NegotiatedProtocol",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "NegotiatedProtocolIsMutual",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "OCSPResponse",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "PeerCertificates",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ServerName",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SignedCertificateTimestamps",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "TLSUnique",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "VerifiedChains",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Version",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Config",
+  "receiver": "Dialer",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "NetDialer",
+  "receiver": "Dialer",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "RetryConfigList",
+  "receiver": "ECHRejectionError",
+  "file": "ech.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Config",
+  "receiver": "EncryptedClientHelloKey",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "PrivateKey",
+  "receiver": "EncryptedClientHelloKey",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SendAsRetry",
+  "receiver": "EncryptedClientHelloKey",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "ClientHelloInfoConn",
+  "receiver": "QUICConfig",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "EnableSessionEvents",
+  "receiver": "QUICConfig",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "TLSConfig",
+  "receiver": "QUICConfig",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Data",
+  "receiver": "QUICEvent",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Err",
+  "receiver": "QUICEvent",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Kind",
+  "receiver": "QUICEvent",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Level",
+  "receiver": "QUICEvent",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "SessionState",
+  "receiver": "QUICEvent",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Suite",
+  "receiver": "QUICEvent",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "EarlyData",
+  "receiver": "QUICSessionTicketOptions",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Extra",
+  "receiver": "QUICSessionTicketOptions",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Conn",
+  "receiver": "RecordHeaderError",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Msg",
+  "receiver": "RecordHeaderError",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "RecordHeader",
+  "receiver": "RecordHeaderError",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "EarlyData",
+  "receiver": "SessionState",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "field",
+  "name": "Extra",
+  "receiver": "SessionState",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "CipherSuiteName",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "CipherSuites",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "Client",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "Dial",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "DialWithDialer",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "InsecureCipherSuites",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "Listen",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "LoadX509KeyPair",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "NewLRUClientSessionCache",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "NewListener",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "NewResumptionState",
+  "receiver": "",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "ParseSessionState",
+  "receiver": "",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "QUICClient",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "QUICServer",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "Server",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "VersionName",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "func",
+  "name": "X509KeyPair",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "interface-method",
+  "name": "Get",
+  "receiver": "ClientSessionCache",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "interface-method",
+  "name": "Put",
+  "receiver": "ClientSessionCache",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "AlertError",
+  "file": "alert.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Context",
+  "receiver": "CertificateRequestInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SupportsCertificate",
+  "receiver": "CertificateRequestInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "CertificateVerificationError",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Unwrap",
+  "receiver": "CertificateVerificationError",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "String",
+  "receiver": "ClientAuthType",
+  "file": "common_string.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Context",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SupportsCertificate",
+  "receiver": "ClientHelloInfo",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "ResumptionState",
+  "receiver": "ClientSessionState",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "BuildNameToCertificate",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Clone",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "DecryptTicket",
+  "receiver": "Config",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "EncryptTicket",
+  "receiver": "Config",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SetSessionTicketKeys",
+  "receiver": "Config",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "CloseWrite",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "ConnectionState",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Handshake",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "HandshakeContext",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "LocalAddr",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "NetConn",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "OCSPResponse",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Read",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "RemoteAddr",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SetDeadline",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SetReadDeadline",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SetWriteDeadline",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "VerifyHostname",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Write",
+  "receiver": "Conn",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "ExportKeyingMaterial",
+  "receiver": "ConnectionState",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "String",
+  "receiver": "CurveID",
+  "file": "common_string.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Dial",
+  "receiver": "Dialer",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "DialContext",
+  "receiver": "Dialer",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "ECHRejectionError",
+  "file": "ech.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "ConnectionState",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "HandleData",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "NextEvent",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SendSessionTicket",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "SetTransportParameters",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Start",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "StoreSession",
+  "receiver": "QUICConn",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "String",
+  "receiver": "QUICEncryptionLevel",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "RecordHeaderError",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "Bytes",
+  "receiver": "SessionState",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "method",
+  "name": "String",
+  "receiver": "SignatureScheme",
+  "file": "common_string.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "AlertError",
+  "receiver": "",
+  "file": "alert.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "Certificate",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "CertificateRequestInfo",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "CertificateVerificationError",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "CipherSuite",
+  "receiver": "",
+  "file": "cipher_suites.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "ClientAuthType",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "ClientHelloInfo",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "ClientSessionCache",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "ClientSessionState",
+  "receiver": "",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "Config",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "Conn",
+  "receiver": "",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "ConnectionState",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "CurveID",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "Dialer",
+  "receiver": "",
+  "file": "tls.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "ECHRejectionError",
+  "receiver": "",
+  "file": "ech.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "EncryptedClientHelloKey",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "QUICConfig",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "QUICConn",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "QUICEncryptionLevel",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "QUICEvent",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "QUICEventKind",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "QUICSessionTicketOptions",
+  "receiver": "",
+  "file": "quic.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "RecordHeaderError",
+  "receiver": "",
+  "file": "conn.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "RenegotiationSupport",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "SessionState",
+  "receiver": "",
+  "file": "ticket.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "type",
+  "name": "SignatureScheme",
+  "receiver": "",
+  "file": "common.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "CurveP256",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "CurveP384",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "CurveP521",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "ECDSAWithP256AndSHA256",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "ECDSAWithP384AndSHA384",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "ECDSAWithP521AndSHA512",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "Ed25519",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "MLDSA44",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "MLDSA65",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "MLDSA87",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "MLKEM1024",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "PKCS1WithSHA256",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "PKCS1WithSHA384",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "PKCS1WithSHA512",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "PSSWithSHA256",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "PSSWithSHA384",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "PSSWithSHA512",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "SecP256r1MLKEM768",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "SecP384r1MLKEM1024",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_AES_128_GCM_SHA256",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_AES_256_GCM_SHA384",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "VersionTLS12",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "VersionTLS13",
+  "receiver": "",
+  "file": "defaults_boring.go"
+ },
+ {
+  "pkg": "crypto/tls",
+  "kind": "var",
+  "name": "X25519MLKEM768",
+  "receiver": "",
+  "file": "defaults_fips140.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "FlagBroadcast",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "FlagLoopback",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "FlagMulticast",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "FlagPointToPoint",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "FlagRunning",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "FlagUp",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "IPv4len",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "const",
+  "name": "IPv6len",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Addr",
+  "receiver": "AddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Err",
+  "receiver": "AddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Err",
+  "receiver": "DNSConfigError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Err",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "IsNotFound",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "IsTemporary",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "IsTimeout",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Name",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Server",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "UnwrapErr",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Cancel",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Control",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "ControlContext",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Deadline",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "DualStack",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "FallbackDelay",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "KeepAlive",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "KeepAliveConfig",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "LocalAddr",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Resolver",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Timeout",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "IP",
+  "receiver": "IPAddr",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Zone",
+  "receiver": "IPAddr",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "IP",
+  "receiver": "IPNet",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Mask",
+  "receiver": "IPNet",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Flags",
+  "receiver": "Interface",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "HardwareAddr",
+  "receiver": "Interface",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Index",
+  "receiver": "Interface",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "MTU",
+  "receiver": "Interface",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Name",
+  "receiver": "Interface",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Count",
+  "receiver": "KeepAliveConfig",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Enable",
+  "receiver": "KeepAliveConfig",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Idle",
+  "receiver": "KeepAliveConfig",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Interval",
+  "receiver": "KeepAliveConfig",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Control",
+  "receiver": "ListenConfig",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "KeepAlive",
+  "receiver": "ListenConfig",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "KeepAliveConfig",
+  "receiver": "ListenConfig",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Host",
+  "receiver": "MX",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Pref",
+  "receiver": "MX",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Host",
+  "receiver": "NS",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Addr",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Err",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Net",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Op",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Source",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Text",
+  "receiver": "ParseError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Type",
+  "receiver": "ParseError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Dial",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "PreferGo",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "StrictErrors",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Port",
+  "receiver": "SRV",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Priority",
+  "receiver": "SRV",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Target",
+  "receiver": "SRV",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Weight",
+  "receiver": "SRV",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "IP",
+  "receiver": "TCPAddr",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Port",
+  "receiver": "TCPAddr",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Zone",
+  "receiver": "TCPAddr",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "IP",
+  "receiver": "UDPAddr",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Port",
+  "receiver": "UDPAddr",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Zone",
+  "receiver": "UDPAddr",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Name",
+  "receiver": "UnixAddr",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "field",
+  "name": "Net",
+  "receiver": "UnixAddr",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "CIDRMask",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "Dial",
+  "receiver": "",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "DialIP",
+  "receiver": "",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "DialTCP",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "DialTimeout",
+  "receiver": "",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "DialUDP",
+  "receiver": "",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "DialUnix",
+  "receiver": "",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "FileConn",
+  "receiver": "",
+  "file": "file.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "FileListener",
+  "receiver": "",
+  "file": "file.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "FilePacketConn",
+  "receiver": "",
+  "file": "file.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "IPv4",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "IPv4Mask",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "InterfaceAddrs",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "InterfaceByIndex",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "InterfaceByName",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "Interfaces",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "JoinHostPort",
+  "receiver": "",
+  "file": "ipsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "Listen",
+  "receiver": "",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ListenIP",
+  "receiver": "",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ListenMulticastUDP",
+  "receiver": "",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ListenPacket",
+  "receiver": "",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ListenTCP",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ListenUDP",
+  "receiver": "",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ListenUnix",
+  "receiver": "",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ListenUnixgram",
+  "receiver": "",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupAddr",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupCNAME",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupHost",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupIP",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupMX",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupNS",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupPort",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupSRV",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "LookupTXT",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ParseCIDR",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ParseIP",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ParseMAC",
+  "receiver": "",
+  "file": "mac.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "Pipe",
+  "receiver": "",
+  "file": "pipe.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ResolveIPAddr",
+  "receiver": "",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ResolveTCPAddr",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ResolveUDPAddr",
+  "receiver": "",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "ResolveUnixAddr",
+  "receiver": "",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "SplitHostPort",
+  "receiver": "",
+  "file": "ipsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "TCPAddrFromAddrPort",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "func",
+  "name": "UDPAddrFromAddrPort",
+  "receiver": "",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Network",
+  "receiver": "Addr",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "String",
+  "receiver": "Addr",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Close",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "LocalAddr",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Read",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "RemoteAddr",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "SetDeadline",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "SetReadDeadline",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "SetWriteDeadline",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Write",
+  "receiver": "Conn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Temporary",
+  "receiver": "Error",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Timeout",
+  "receiver": "Error",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Accept",
+  "receiver": "Listener",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Addr",
+  "receiver": "Listener",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Close",
+  "receiver": "Listener",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "Close",
+  "receiver": "PacketConn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "LocalAddr",
+  "receiver": "PacketConn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "ReadFrom",
+  "receiver": "PacketConn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "SetDeadline",
+  "receiver": "PacketConn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "SetReadDeadline",
+  "receiver": "PacketConn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "SetWriteDeadline",
+  "receiver": "PacketConn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "interface-method",
+  "name": "WriteTo",
+  "receiver": "PacketConn",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "AddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "AddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "AddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Read",
+  "receiver": "Buffers",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteTo",
+  "receiver": "Buffers",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "DNSConfigError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "DNSConfigError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "DNSConfigError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Unwrap",
+  "receiver": "DNSConfigError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Unwrap",
+  "receiver": "DNSError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Dial",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "DialContext",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "DialIP",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "DialTCP",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "DialUDP",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "DialUnix",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "MultipathTCP",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetMultipathTCP",
+  "receiver": "Dialer",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "Flags",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "HardwareAddr",
+  "file": "mac.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "AppendText",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "DefaultMask",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Equal",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsGlobalUnicast",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsInterfaceLocalMulticast",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsLinkLocalMulticast",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsLinkLocalUnicast",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsLoopback",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsMulticast",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsPrivate",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "IsUnspecified",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "MarshalText",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Mask",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "To16",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "To4",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "UnmarshalText",
+  "receiver": "IP",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Network",
+  "receiver": "IPAddr",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "IPAddr",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFrom",
+  "receiver": "IPConn",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFromIP",
+  "receiver": "IPConn",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadMsgIP",
+  "receiver": "IPConn",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SyscallConn",
+  "receiver": "IPConn",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteMsgIP",
+  "receiver": "IPConn",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteTo",
+  "receiver": "IPConn",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteToIP",
+  "receiver": "IPConn",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Size",
+  "receiver": "IPMask",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "IPMask",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Contains",
+  "receiver": "IPNet",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Network",
+  "receiver": "IPNet",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "IPNet",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Addrs",
+  "receiver": "Interface",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "MulticastAddrs",
+  "receiver": "Interface",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "InvalidAddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "InvalidAddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "InvalidAddrError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Listen",
+  "receiver": "ListenConfig",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ListenPacket",
+  "receiver": "ListenConfig",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "MultipathTCP",
+  "receiver": "ListenConfig",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetMultipathTCP",
+  "receiver": "ListenConfig",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Unwrap",
+  "receiver": "OpError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "ParseError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "ParseError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "ParseError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupAddr",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupCNAME",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupHost",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupIP",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupIPAddr",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupMX",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupNS",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupNetIP",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupPort",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupSRV",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "LookupTXT",
+  "receiver": "Resolver",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "AddrPort",
+  "receiver": "TCPAddr",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Network",
+  "receiver": "TCPAddr",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "TCPAddr",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "CloseRead",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "CloseWrite",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "MultipathTCP",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFrom",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetKeepAlive",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetKeepAliveConfig",
+  "receiver": "TCPConn",
+  "file": "tcpsock_solaris.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetKeepAlivePeriod",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetLinger",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetNoDelay",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SyscallConn",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteTo",
+  "receiver": "TCPConn",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Accept",
+  "receiver": "TCPListener",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "AcceptTCP",
+  "receiver": "TCPListener",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Addr",
+  "receiver": "TCPListener",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "TCPListener",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "File",
+  "receiver": "TCPListener",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetDeadline",
+  "receiver": "TCPListener",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SyscallConn",
+  "receiver": "TCPListener",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "AddrPort",
+  "receiver": "UDPAddr",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Network",
+  "receiver": "UDPAddr",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "UDPAddr",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFrom",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFromUDP",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFromUDPAddrPort",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadMsgUDP",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadMsgUDPAddrPort",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SyscallConn",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteMsgUDP",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteMsgUDPAddrPort",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteTo",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteToUDP",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteToUDPAddrPort",
+  "receiver": "UDPConn",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Network",
+  "receiver": "UnixAddr",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "String",
+  "receiver": "UnixAddr",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "CloseRead",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "CloseWrite",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFrom",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadFromUnix",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "ReadMsgUnix",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SyscallConn",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteMsgUnix",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteTo",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "WriteToUnix",
+  "receiver": "UnixConn",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Accept",
+  "receiver": "UnixListener",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "AcceptUnix",
+  "receiver": "UnixListener",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Addr",
+  "receiver": "UnixListener",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "UnixListener",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "File",
+  "receiver": "UnixListener",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetDeadline",
+  "receiver": "UnixListener",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SetUnlinkOnClose",
+  "receiver": "UnixListener",
+  "file": "unixsock_posix.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "SyscallConn",
+  "receiver": "UnixListener",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "UnknownNetworkError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "UnknownNetworkError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "UnknownNetworkError",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Addr",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "AddrError",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Buffers",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Conn",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "DNSConfigError",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "DNSError",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Dialer",
+  "receiver": "",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Error",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Flags",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "HardwareAddr",
+  "receiver": "",
+  "file": "mac.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "IP",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "IPAddr",
+  "receiver": "",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "IPConn",
+  "receiver": "",
+  "file": "iprawsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "IPMask",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "IPNet",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Interface",
+  "receiver": "",
+  "file": "interface.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "InvalidAddrError",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "KeepAliveConfig",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "ListenConfig",
+  "receiver": "",
+  "file": "dial.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Listener",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "MX",
+  "receiver": "",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "NS",
+  "receiver": "",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "OpError",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "PacketConn",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "ParseError",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "Resolver",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "SRV",
+  "receiver": "",
+  "file": "dnsclient.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "TCPAddr",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "TCPConn",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "TCPListener",
+  "receiver": "",
+  "file": "tcpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "UDPAddr",
+  "receiver": "",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "UDPConn",
+  "receiver": "",
+  "file": "udpsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "UnixAddr",
+  "receiver": "",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "UnixConn",
+  "receiver": "",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "UnixListener",
+  "receiver": "",
+  "file": "unixsock.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "type",
+  "name": "UnknownNetworkError",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "DefaultResolver",
+  "receiver": "",
+  "file": "lookup.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "ErrClosed",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "ErrWriteToConnected",
+  "receiver": "",
+  "file": "net.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv4allrouter",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv4allsys",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv4bcast",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv4zero",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv6interfacelocalallnodes",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv6linklocalallnodes",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv6linklocalallrouters",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv6loopback",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv6unspecified",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net",
+  "kind": "var",
+  "name": "IPv6zero",
+  "receiver": "",
+  "file": "ip.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "DefaultMaxHeaderBytes",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "DefaultMaxHeaderValueCount",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "DefaultMaxIdleConnsPerHost",
+  "receiver": "",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodConnect",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodDelete",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodGet",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodHead",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodOptions",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodPatch",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodPost",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodPut",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "MethodTrace",
+  "receiver": "",
+  "file": "method.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "SameSiteDefaultMode",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "SameSiteLaxMode",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "SameSiteNoneMode",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "SameSiteStrictMode",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StateActive",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StateClosed",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StateHijacked",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StateIdle",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StateNew",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusAccepted",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusAlreadyReported",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusBadGateway",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusBadRequest",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusConflict",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusContinue",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusCreated",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusEarlyHints",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusExpectationFailed",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusFailedDependency",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusForbidden",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusFound",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusGatewayTimeout",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusGone",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusHTTPVersionNotSupported",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusIMUsed",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusInsufficientStorage",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusInternalServerError",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusLengthRequired",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusLocked",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusLoopDetected",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusMethodNotAllowed",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusMisdirectedRequest",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusMovedPermanently",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusMultiStatus",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusMultipleChoices",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNetworkAuthenticationRequired",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNoContent",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNonAuthoritativeInfo",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNotAcceptable",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNotExtended",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNotFound",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNotImplemented",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusNotModified",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusOK",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusPartialContent",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusPaymentRequired",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusPermanentRedirect",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusPreconditionFailed",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusPreconditionRequired",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusProcessing",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusProxyAuthRequired",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusRequestEntityTooLarge",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusRequestHeaderFieldsTooLarge",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusRequestTimeout",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusRequestURITooLong",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusRequestedRangeNotSatisfiable",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusResetContent",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusSeeOther",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusServiceUnavailable",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusSwitchingProtocols",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusTeapot",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusTemporaryRedirect",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusTooEarly",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusTooManyRequests",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusUnauthorized",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusUnavailableForLegalReasons",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusUnprocessableEntity",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusUnsupportedMediaType",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusUpgradeRequired",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusUseProxy",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "StatusVariantAlsoNegotiates",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "TimeFormat",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "const",
+  "name": "TrailerPrefix",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "CheckRedirect",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Jar",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Timeout",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Transport",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Domain",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Expires",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "HttpOnly",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxAge",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Name",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Partitioned",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Path",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Quoted",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Raw",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "RawExpires",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "SameSite",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Secure",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Unparsed",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Value",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "CountError",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxConcurrentStreams",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxDecoderHeaderTableSize",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxEncoderHeaderTableSize",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxReadFrameSize",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxReceiveBufferPerConnection",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxReceiveBufferPerStream",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "PermitProhibitedCipherSuites",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "PingTimeout",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "SendPingTimeout",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "StrictMaxConcurrentRequests",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "WriteByteTimeout",
+  "receiver": "HTTP2Config",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Limit",
+  "receiver": "MaxBytesError",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ErrorString",
+  "receiver": "ProtocolError",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Header",
+  "receiver": "PushOptions",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Method",
+  "receiver": "PushOptions",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Body",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Cancel",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Close",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ContentLength",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Form",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "GetBody",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Header",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Host",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Method",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MultipartForm",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Pattern",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "PostForm",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Proto",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ProtoMajor",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ProtoMinor",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "RemoteAddr",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "RequestURI",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Response",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TLS",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Trailer",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TransferEncoding",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "URL",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Body",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Close",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ContentLength",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Header",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Proto",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ProtoMajor",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ProtoMinor",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Request",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Status",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "StatusCode",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TLS",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Trailer",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TransferEncoding",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Uncompressed",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Addr",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "BaseContext",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ConnContext",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ConnState",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "DisableClientPriority",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "DisableGeneralOptionsHandler",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ErrorLog",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "HTTP2",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Handler",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "IdleTimeout",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxHeaderBytes",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxHeaderValueCount",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Protocols",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ReadHeaderTimeout",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ReadTimeout",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TLSConfig",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TLSNextProto",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "WriteTimeout",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Dial",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "DialContext",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "DialTLS",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "DialTLSContext",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "DisableCompression",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "DisableKeepAlives",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ExpectContinueTimeout",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ForceAttemptHTTP2",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "GetProxyConnectHeader",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "HTTP2",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "IdleConnTimeout",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxConnsPerHost",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxIdleConns",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxIdleConnsPerHost",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "MaxResponseHeaderBytes",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "OnProxyConnectResponse",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Protocols",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "Proxy",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ProxyConnectHeader",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ReadBufferSize",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "ResponseHeaderTimeout",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TLSClientConfig",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TLSHandshakeTimeout",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "TLSNextProto",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "field",
+  "name": "WriteBufferSize",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "AllowQuerySemicolons",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "CanonicalHeaderKey",
+  "receiver": "",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "DetectContentType",
+  "receiver": "",
+  "file": "sniff.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "Error",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "FS",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "FileServer",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "FileServerFS",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "Get",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "Handle",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "HandleFunc",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "Head",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ListenAndServe",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ListenAndServeTLS",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "MaxBytesHandler",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "MaxBytesReader",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NewCrossOriginProtection",
+  "receiver": "",
+  "file": "csrf.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NewFileTransport",
+  "receiver": "",
+  "file": "filetransport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NewFileTransportFS",
+  "receiver": "",
+  "file": "filetransport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NewRequest",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NewRequestWithContext",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NewResponseController",
+  "receiver": "",
+  "file": "responsecontroller.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NewServeMux",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NotFound",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "NotFoundHandler",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ParseCookie",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ParseHTTPVersion",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ParseSetCookie",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ParseTime",
+  "receiver": "",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "Post",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "PostForm",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ProxyFromEnvironment",
+  "receiver": "",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ProxyURL",
+  "receiver": "",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ReadRequest",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ReadResponse",
+  "receiver": "",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "Redirect",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "RedirectHandler",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "Serve",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ServeContent",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ServeFile",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ServeFileFS",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "ServeTLS",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "SetCookie",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "StatusText",
+  "receiver": "",
+  "file": "status.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "StripPrefix",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "func",
+  "name": "TimeoutHandler",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-embed",
+  "name": "Closer",
+  "receiver": "File",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-embed",
+  "name": "Reader",
+  "receiver": "File",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-embed",
+  "name": "Seeker",
+  "receiver": "File",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "CloseNotify",
+  "receiver": "CloseNotifier",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Cookies",
+  "receiver": "CookieJar",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "SetCookies",
+  "receiver": "CookieJar",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Readdir",
+  "receiver": "File",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Stat",
+  "receiver": "File",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Open",
+  "receiver": "FileSystem",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Flush",
+  "receiver": "Flusher",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "ServeHTTP",
+  "receiver": "Handler",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Hijack",
+  "receiver": "Hijacker",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Push",
+  "receiver": "Pusher",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Header",
+  "receiver": "ResponseWriter",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "Write",
+  "receiver": "ResponseWriter",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "WriteHeader",
+  "receiver": "ResponseWriter",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "interface-method",
+  "name": "RoundTrip",
+  "receiver": "RoundTripper",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "CloseIdleConnections",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Do",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Get",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Head",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Post",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "PostForm",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Available",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Err",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "InFlight",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Release",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Reserve",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "RoundTrip",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetStateHook",
+  "receiver": "ClientConn",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "String",
+  "receiver": "ConnState",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "String",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Valid",
+  "receiver": "Cookie",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "AddInsecureBypassPattern",
+  "receiver": "CrossOriginProtection",
+  "file": "csrf.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "AddTrustedOrigin",
+  "receiver": "CrossOriginProtection",
+  "file": "csrf.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Check",
+  "receiver": "CrossOriginProtection",
+  "file": "csrf.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Handler",
+  "receiver": "CrossOriginProtection",
+  "file": "csrf.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetDenyHandler",
+  "receiver": "CrossOriginProtection",
+  "file": "csrf.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Open",
+  "receiver": "Dir",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ServeHTTP",
+  "receiver": "HandlerFunc",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Add",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Clone",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Del",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Get",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Set",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Values",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Write",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "WriteSubset",
+  "receiver": "Header",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "MaxBytesError",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "ProtocolError",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Is",
+  "receiver": "ProtocolError",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "HTTP1",
+  "receiver": "Protocols",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "HTTP2",
+  "receiver": "Protocols",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetHTTP1",
+  "receiver": "Protocols",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetHTTP2",
+  "receiver": "Protocols",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetUnencryptedHTTP2",
+  "receiver": "Protocols",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "String",
+  "receiver": "Protocols",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "UnencryptedHTTP2",
+  "receiver": "Protocols",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "AddCookie",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "BasicAuth",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Clone",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Context",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Cookie",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Cookies",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "CookiesNamed",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "FormFile",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "FormValue",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "MultipartReader",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ParseForm",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ParseMultipartForm",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "PathValue",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "PostFormValue",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ProtoAtLeast",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Referer",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetBasicAuth",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetPathValue",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "UserAgent",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "WithContext",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Write",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "WriteProxy",
+  "receiver": "Request",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Cookies",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Location",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ProtoAtLeast",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Write",
+  "receiver": "Response",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "EnableFullDuplex",
+  "receiver": "ResponseController",
+  "file": "responsecontroller.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Flush",
+  "receiver": "ResponseController",
+  "file": "responsecontroller.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Hijack",
+  "receiver": "ResponseController",
+  "file": "responsecontroller.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetReadDeadline",
+  "receiver": "ResponseController",
+  "file": "responsecontroller.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetWriteDeadline",
+  "receiver": "ResponseController",
+  "file": "responsecontroller.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Handle",
+  "receiver": "ServeMux",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "HandleFunc",
+  "receiver": "ServeMux",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Handler",
+  "receiver": "ServeMux",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ServeHTTP",
+  "receiver": "ServeMux",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ListenAndServe",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ListenAndServeTLS",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "RegisterOnShutdown",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Serve",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "ServeTLS",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "SetKeepAlivesEnabled",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Shutdown",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "CancelRequest",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "Clone",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "CloseIdleConnections",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "NewClientConn",
+  "receiver": "Transport",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "RegisterProtocol",
+  "receiver": "Transport",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "method",
+  "name": "RoundTrip",
+  "receiver": "Transport",
+  "file": "roundtrip.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Client",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "ClientConn",
+  "receiver": "",
+  "file": "clientconn.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "CloseNotifier",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "ConnState",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Cookie",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "CookieJar",
+  "receiver": "",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "CrossOriginProtection",
+  "receiver": "",
+  "file": "csrf.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Dir",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "File",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "FileSystem",
+  "receiver": "",
+  "file": "fs.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Flusher",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "HTTP2Config",
+  "receiver": "",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Handler",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "HandlerFunc",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Header",
+  "receiver": "",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Hijacker",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "MaxBytesError",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "ProtocolError",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Protocols",
+  "receiver": "",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "PushOptions",
+  "receiver": "",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Pusher",
+  "receiver": "",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Request",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Response",
+  "receiver": "",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "ResponseController",
+  "receiver": "",
+  "file": "responsecontroller.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "ResponseWriter",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "RoundTripper",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "SameSite",
+  "receiver": "",
+  "file": "cookie.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "ServeMux",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Server",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "type",
+  "name": "Transport",
+  "receiver": "",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "DefaultClient",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "DefaultServeMux",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "DefaultTransport",
+  "receiver": "",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrAbortHandler",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrBodyNotAllowed",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrBodyReadAfterClose",
+  "receiver": "",
+  "file": "transfer.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrContentLength",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrHandlerTimeout",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrHeaderTooLong",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrHijacked",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrLineTooLong",
+  "receiver": "",
+  "file": "transfer.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrMissingBoundary",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrMissingContentLength",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrMissingFile",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrNoCookie",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrNoLocation",
+  "receiver": "",
+  "file": "response.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrNotMultipart",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrNotSupported",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrSchemeMismatch",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrServerClosed",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrShortBody",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrSkipAltProtocol",
+  "receiver": "",
+  "file": "transport.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrUnexpectedTrailer",
+  "receiver": "",
+  "file": "request.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrUseLastResponse",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ErrWriteAfterFlush",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "LocalAddrContextKey",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "NoBody",
+  "receiver": "",
+  "file": "http.go"
+ },
+ {
+  "pkg": "net/http",
+  "kind": "var",
+  "name": "ServerContextKey",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "field",
+  "name": "PublicSuffixList",
+  "receiver": "Options",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "func",
+  "name": "New",
+  "receiver": "",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "interface-method",
+  "name": "PublicSuffix",
+  "receiver": "PublicSuffixList",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "interface-method",
+  "name": "String",
+  "receiver": "PublicSuffixList",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "method",
+  "name": "Cookies",
+  "receiver": "Jar",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "method",
+  "name": "SetCookies",
+  "receiver": "Jar",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "type",
+  "name": "Jar",
+  "receiver": "",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "type",
+  "name": "Options",
+  "receiver": "",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/cookiejar",
+  "kind": "type",
+  "name": "PublicSuffixList",
+  "receiver": "",
+  "file": "jar.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "const",
+  "name": "DefaultRemoteAddr",
+  "receiver": "",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "Body",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "Code",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "Flushed",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "HeaderMap",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "Config",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "EnableHTTP2",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "Listener",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "TLS",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "field",
+  "name": "URL",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "func",
+  "name": "NewRecorder",
+  "receiver": "",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "func",
+  "name": "NewRequest",
+  "receiver": "",
+  "file": "httptest.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "func",
+  "name": "NewRequestWithContext",
+  "receiver": "",
+  "file": "httptest.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "func",
+  "name": "NewServer",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "func",
+  "name": "NewTLSServer",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "func",
+  "name": "NewTestServer",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "func",
+  "name": "NewUnstartedServer",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Flush",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Header",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Result",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Write",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "WriteHeader",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "WriteString",
+  "receiver": "ResponseRecorder",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Certificate",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Client",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "CloseClientConnections",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "Start",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "method",
+  "name": "StartTLS",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "type",
+  "name": "ResponseRecorder",
+  "receiver": "",
+  "file": "recorder.go"
+ },
+ {
+  "pkg": "net/http/httptest",
+  "kind": "type",
+  "name": "Server",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "In",
+  "receiver": "ProxyRequest",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "Out",
+  "receiver": "ProxyRequest",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "BufferPool",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "Director",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "ErrorHandler",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "ErrorLog",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "FlushInterval",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "ModifyResponse",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "Rewrite",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "field",
+  "name": "Transport",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "DumpRequest",
+  "receiver": "",
+  "file": "dump.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "DumpRequestOut",
+  "receiver": "",
+  "file": "dump.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "DumpResponse",
+  "receiver": "",
+  "file": "dump.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "NewChunkedReader",
+  "receiver": "",
+  "file": "httputil.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "NewChunkedWriter",
+  "receiver": "",
+  "file": "httputil.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "NewClientConn",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "NewProxyClientConn",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "NewServerConn",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "func",
+  "name": "NewSingleHostReverseProxy",
+  "receiver": "",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "interface-method",
+  "name": "Get",
+  "receiver": "BufferPool",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "interface-method",
+  "name": "Put",
+  "receiver": "BufferPool",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "ClientConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Do",
+  "receiver": "ClientConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Hijack",
+  "receiver": "ClientConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Pending",
+  "receiver": "ClientConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Read",
+  "receiver": "ClientConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Write",
+  "receiver": "ClientConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "SetURL",
+  "receiver": "ProxyRequest",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "SetXForwarded",
+  "receiver": "ProxyRequest",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "ServeHTTP",
+  "receiver": "ReverseProxy",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "ServerConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Hijack",
+  "receiver": "ServerConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Pending",
+  "receiver": "ServerConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Read",
+  "receiver": "ServerConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "method",
+  "name": "Write",
+  "receiver": "ServerConn",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "type",
+  "name": "BufferPool",
+  "receiver": "",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "type",
+  "name": "ClientConn",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "type",
+  "name": "ProxyRequest",
+  "receiver": "",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "type",
+  "name": "ReverseProxy",
+  "receiver": "",
+  "file": "reverseproxy.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "type",
+  "name": "ServerConn",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "var",
+  "name": "ErrClosed",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "var",
+  "name": "ErrLineTooLong",
+  "receiver": "",
+  "file": "httputil.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "var",
+  "name": "ErrPersistEOF",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/http/httputil",
+  "kind": "var",
+  "name": "ErrPipeline",
+  "receiver": "",
+  "file": "persist.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "field",
+  "name": "Address",
+  "receiver": "Address",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "field",
+  "name": "Name",
+  "receiver": "Address",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "field",
+  "name": "WordDecoder",
+  "receiver": "AddressParser",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "field",
+  "name": "Body",
+  "receiver": "Message",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "field",
+  "name": "Header",
+  "receiver": "Message",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "func",
+  "name": "ParseAddress",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "func",
+  "name": "ParseAddressList",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "func",
+  "name": "ParseDate",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "func",
+  "name": "ReadMessage",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "method",
+  "name": "String",
+  "receiver": "Address",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "method",
+  "name": "Parse",
+  "receiver": "AddressParser",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "method",
+  "name": "ParseList",
+  "receiver": "AddressParser",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "method",
+  "name": "AddressList",
+  "receiver": "Header",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "method",
+  "name": "Date",
+  "receiver": "Header",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "method",
+  "name": "Get",
+  "receiver": "Header",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "type",
+  "name": "Address",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "type",
+  "name": "AddressParser",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "type",
+  "name": "Header",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "type",
+  "name": "Message",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/mail",
+  "kind": "var",
+  "name": "ErrHeaderNotPresent",
+  "receiver": "",
+  "file": "message.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "AddrFrom16",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "AddrFrom4",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "AddrFromSlice",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "AddrPortFrom",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "IPv4Unspecified",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "IPv6LinkLocalAllNodes",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "IPv6LinkLocalAllRouters",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "IPv6Loopback",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "IPv6Unspecified",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "MustParseAddr",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "MustParseAddrPort",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "MustParsePrefix",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "ParseAddr",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "ParseAddrPort",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "ParsePrefix",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "func",
+  "name": "PrefixFrom",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendBinary",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendText",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendTo",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "As16",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "As4",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AsSlice",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "BitLen",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Compare",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Is4",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Is4In6",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Is6",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsGlobalUnicast",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsInterfaceLocalMulticast",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsLinkLocalMulticast",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsLinkLocalUnicast",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsLoopback",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsMulticast",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsPrivate",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsUnspecified",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsValid",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Less",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "MarshalBinary",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "MarshalText",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Next",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Prefix",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Prev",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "String",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "StringExpanded",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Unmap",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "UnmarshalBinary",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "UnmarshalText",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "WithZone",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Zone",
+  "receiver": "Addr",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Addr",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendBinary",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendText",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendTo",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Compare",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsValid",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "MarshalBinary",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "MarshalText",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Port",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "String",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "UnmarshalBinary",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "UnmarshalText",
+  "receiver": "AddrPort",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Addr",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendBinary",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendText",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "AppendTo",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Bits",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Compare",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Contains",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsSingleIP",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "IsValid",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "MarshalBinary",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "MarshalText",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Masked",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "Overlaps",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "String",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "UnmarshalBinary",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "method",
+  "name": "UnmarshalText",
+  "receiver": "Prefix",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "type",
+  "name": "Addr",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "type",
+  "name": "AddrPort",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/netip",
+  "kind": "type",
+  "name": "Prefix",
+  "receiver": "",
+  "file": "netip.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "const",
+  "name": "DefaultDebugPath",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "const",
+  "name": "DefaultRPCPath",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "Args",
+  "receiver": "Call",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "Done",
+  "receiver": "Call",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "Error",
+  "receiver": "Call",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "Reply",
+  "receiver": "Call",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "ServiceMethod",
+  "receiver": "Call",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "Seq",
+  "receiver": "Request",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "ServiceMethod",
+  "receiver": "Request",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "Error",
+  "receiver": "Response",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "Seq",
+  "receiver": "Response",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "field",
+  "name": "ServiceMethod",
+  "receiver": "Response",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "Accept",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "Dial",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "DialHTTP",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "DialHTTPPath",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "HandleHTTP",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "NewClient",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "NewClientWithCodec",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "NewServer",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "Register",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "RegisterName",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "ServeCodec",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "ServeConn",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "func",
+  "name": "ServeRequest",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "Close",
+  "receiver": "ClientCodec",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "ReadResponseBody",
+  "receiver": "ClientCodec",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "ReadResponseHeader",
+  "receiver": "ClientCodec",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "WriteRequest",
+  "receiver": "ClientCodec",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "Close",
+  "receiver": "ServerCodec",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "ReadRequestBody",
+  "receiver": "ServerCodec",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "ReadRequestHeader",
+  "receiver": "ServerCodec",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "interface-method",
+  "name": "WriteResponse",
+  "receiver": "ServerCodec",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "Call",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "Go",
+  "receiver": "Client",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "Accept",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "HandleHTTP",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "Register",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "RegisterName",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "ServeCodec",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "ServeConn",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "ServeHTTP",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "ServeRequest",
+  "receiver": "Server",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "ServerError",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "Call",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "Client",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "ClientCodec",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "Request",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "Response",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "Server",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "ServerCodec",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "type",
+  "name": "ServerError",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "var",
+  "name": "DefaultServer",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc",
+  "kind": "var",
+  "name": "ErrShutdown",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc/jsonrpc",
+  "kind": "func",
+  "name": "Dial",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc/jsonrpc",
+  "kind": "func",
+  "name": "NewClient",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc/jsonrpc",
+  "kind": "func",
+  "name": "NewClientCodec",
+  "receiver": "",
+  "file": "client.go"
+ },
+ {
+  "pkg": "net/rpc/jsonrpc",
+  "kind": "func",
+  "name": "NewServerCodec",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/rpc/jsonrpc",
+  "kind": "func",
+  "name": "ServeConn",
+  "receiver": "",
+  "file": "server.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "field",
+  "name": "Text",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "field",
+  "name": "Auth",
+  "receiver": "ServerInfo",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "field",
+  "name": "Name",
+  "receiver": "ServerInfo",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "field",
+  "name": "TLS",
+  "receiver": "ServerInfo",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "func",
+  "name": "CRAMMD5Auth",
+  "receiver": "",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "func",
+  "name": "Dial",
+  "receiver": "",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "func",
+  "name": "NewClient",
+  "receiver": "",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "func",
+  "name": "PlainAuth",
+  "receiver": "",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "func",
+  "name": "SendMail",
+  "receiver": "",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "interface-method",
+  "name": "Next",
+  "receiver": "Auth",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "interface-method",
+  "name": "Start",
+  "receiver": "Auth",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Auth",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Data",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Extension",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Hello",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Mail",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Noop",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Quit",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Rcpt",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Reset",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "StartTLS",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "TLSConnectionState",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "method",
+  "name": "Verify",
+  "receiver": "Client",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "type",
+  "name": "Auth",
+  "receiver": "",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "type",
+  "name": "Client",
+  "receiver": "",
+  "file": "smtp.go"
+ },
+ {
+  "pkg": "net/smtp",
+  "kind": "type",
+  "name": "ServerInfo",
+  "receiver": "",
+  "file": "auth.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "field",
+  "name": "Pipeline",
+  "receiver": "Conn",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "field",
+  "name": "Reader",
+  "receiver": "Conn",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "field",
+  "name": "Writer",
+  "receiver": "Conn",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "field",
+  "name": "Code",
+  "receiver": "Error",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "field",
+  "name": "Msg",
+  "receiver": "Error",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "field",
+  "name": "R",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "field",
+  "name": "W",
+  "receiver": "Writer",
+  "file": "writer.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "func",
+  "name": "CanonicalMIMEHeaderKey",
+  "receiver": "",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "func",
+  "name": "Dial",
+  "receiver": "",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "func",
+  "name": "NewConn",
+  "receiver": "",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "func",
+  "name": "NewReader",
+  "receiver": "",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "func",
+  "name": "NewWriter",
+  "receiver": "",
+  "file": "writer.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "func",
+  "name": "TrimBytes",
+  "receiver": "",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "func",
+  "name": "TrimString",
+  "receiver": "",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Close",
+  "receiver": "Conn",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Cmd",
+  "receiver": "Conn",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "Error",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Add",
+  "receiver": "MIMEHeader",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Del",
+  "receiver": "MIMEHeader",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Get",
+  "receiver": "MIMEHeader",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Set",
+  "receiver": "MIMEHeader",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Values",
+  "receiver": "MIMEHeader",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "EndRequest",
+  "receiver": "Pipeline",
+  "file": "pipeline.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "EndResponse",
+  "receiver": "Pipeline",
+  "file": "pipeline.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Next",
+  "receiver": "Pipeline",
+  "file": "pipeline.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "StartRequest",
+  "receiver": "Pipeline",
+  "file": "pipeline.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "StartResponse",
+  "receiver": "Pipeline",
+  "file": "pipeline.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "ProtocolError",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "DotReader",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadCodeLine",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadContinuedLine",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadContinuedLineBytes",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadDotBytes",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadDotLines",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadLine",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadLineBytes",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadMIMEHeader",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "ReadResponse",
+  "receiver": "Reader",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "DotWriter",
+  "receiver": "Writer",
+  "file": "writer.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "method",
+  "name": "PrintfLine",
+  "receiver": "Writer",
+  "file": "writer.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "type",
+  "name": "Conn",
+  "receiver": "",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "type",
+  "name": "Error",
+  "receiver": "",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "type",
+  "name": "MIMEHeader",
+  "receiver": "",
+  "file": "header.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "type",
+  "name": "Pipeline",
+  "receiver": "",
+  "file": "pipeline.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "type",
+  "name": "ProtocolError",
+  "receiver": "",
+  "file": "textproto.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "type",
+  "name": "Reader",
+  "receiver": "",
+  "file": "reader.go"
+ },
+ {
+  "pkg": "net/textproto",
+  "kind": "type",
+  "name": "Writer",
+  "receiver": "",
+  "file": "writer.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "Err",
+  "receiver": "Error",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "Op",
+  "receiver": "Error",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "URL",
+  "receiver": "Error",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "ForceQuery",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "Fragment",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "Host",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "OmitHost",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "Opaque",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "Path",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "RawFragment",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "RawPath",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "RawQuery",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "Scheme",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "field",
+  "name": "User",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "JoinPath",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "Parse",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "ParseQuery",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "ParseRequestURI",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "PathEscape",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "PathUnescape",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "QueryEscape",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "QueryUnescape",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "User",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "func",
+  "name": "UserPassword",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "Error",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Temporary",
+  "receiver": "Error",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Timeout",
+  "receiver": "Error",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Unwrap",
+  "receiver": "Error",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "EscapeError",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Error",
+  "receiver": "InvalidHostError",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "AppendBinary",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Clone",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "EscapedFragment",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "EscapedPath",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Hostname",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "IsAbs",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "JoinPath",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "MarshalBinary",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Parse",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Port",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Query",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Redacted",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "RequestURI",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "ResolveReference",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "String",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "UnmarshalBinary",
+  "receiver": "URL",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Password",
+  "receiver": "Userinfo",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "String",
+  "receiver": "Userinfo",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Username",
+  "receiver": "Userinfo",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Add",
+  "receiver": "Values",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Clone",
+  "receiver": "Values",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Del",
+  "receiver": "Values",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Encode",
+  "receiver": "Values",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Get",
+  "receiver": "Values",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Has",
+  "receiver": "Values",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "method",
+  "name": "Set",
+  "receiver": "Values",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "type",
+  "name": "Error",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "type",
+  "name": "EscapeError",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "type",
+  "name": "InvalidHostError",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "type",
+  "name": "URL",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "type",
+  "name": "Userinfo",
+  "receiver": "",
+  "file": "url.go"
+ },
+ {
+  "pkg": "net/url",
+  "kind": "type",
+  "name": "Values",
+  "receiver": "",
+  "file": "url.go"
+ }
+]

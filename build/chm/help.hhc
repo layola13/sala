@@ -915,6 +915,14 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="net：TCP / UDP / Unix 套接字与 HTTP/2">
 <param name="Local" value="../dist/content/06_stdlib/10_net.html">
 </OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Go net 标准库 × sa_std 缺口普查">
+<param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

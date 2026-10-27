@@ -120,6 +120,7 @@ Default Font=微软雅黑,9,0
 ../dist/content/06_stdlib/18_api_layout.html
 ../dist/content/06_stdlib/19_tls_client.html
 ../dist/content/06_stdlib/20_ws_client.html
+../dist/content/06_stdlib/22_go_net_census.html
 ../dist/content/07_ui/01_overview.html
 ../dist/content/07_ui/02_syntax.html
 ../dist/content/07_ui/03_project_structure.html
