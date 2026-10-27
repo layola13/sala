@@ -91,6 +91,10 @@
 <pre>TOK=$(for p in /proc/[0-9]*/environ; do tr '\0' '\n' &lt; $p 2&gt;/dev/null | grep -m1 '^GIT_TOKEN='; done | head -1 | cut -d= -f2-)</pre>
 <p>扫描途中个别 pid 已退出会产生无害的 No such file 警告。取到后仅在该远端 shell 内拼入推送地址（https://layola13:${TOK}@github.com/…）使用，命令输出须先脱敏再查看，推送结果以 git ls-remote 核对。回退链：进程环境取不到时再查 /root/.bashrc（github_pat_ 或 GIT_TOKEN= 行），两个来源都为空才可判定无 token。安全纪律：<strong>token 值绝不打印、绝不写入任何文件、日志或文档</strong>；每个新 Colab 运行时由账号侧自动重新注入，故环境恢复（restore-colab）后推送一律走此法，无需向盒上写入凭证。此法适用于 Colab 上一切 git 推送：手工提交、15 分钟检查点与恢复后补推。</p>
 
+<h2>开发环境备忘：新运行时一键恢复工具链（restore-colab.sh，2026-10-27）</h2>
+<p>Colab 运行时到期后，新运行时只会自动拉取仓库，工具链（编译器、插件、CLI 等）不会保留。恢复入口是随 sala 仓版本管理的 <strong>tools/restore-colab.sh</strong>：新运行时 SSH 可达后执行一次即可幂等重装——apt 依赖（LLVM 14/20、libssh、libsecret、QUIC）、Zig 0.17.0、wasmtime 25.0.2、串行构建 sci 与 sla/http/node/sax 插件并 dev 安装确认、codex/opencode CLI、Kilo 配置与冒烟。<strong>脚本不含仓库克隆</strong>（仓库由 Colab 启动流程自动拉取）。</p>
+<p>用法：正式恢复直接执行 <code>tools/restore-colab.sh</code>（长耗时，宜 detached 后台跑并看日志）；<code>tools/restore-colab.sh --verify</code> 为只读核查（17 项：zig、llvm、wasmtime、sa 二进制、libsa_std.a、各插件已装状态、node、codex cli 等），不做任何安装。2026-10-27 新运行时 c8bbff8ecc89 已实测跑通：detached 执行约 16 分钟，--verify 17/17 OK。注意：旧运行时 /content 下的未入仓工作（bulk 工作树、语料 TSV 等）随运行时丢失、不在脚本恢复范围内，重要进度只能靠检查点提交推送保全。</p>
+
 <h2>缺口记账表（滚动）</h2>
 <table>
 <tr><th>日期</th><th>缺口</th><th>归属</th><th>处置</th></tr>
