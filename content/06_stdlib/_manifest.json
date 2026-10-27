@@ -378,6 +378,21 @@
         "普查"
       ],
       "parent": null
+    },
+    {
+      "id": "dotnet-net-census",
+      "title": ".NET net 表面 × sa_std 缺口普查",
+      "file": "26_dotnet_net_census.html",
+      "keywords": [
+        ".NET",
+        "System.Net",
+        "HttpClient",
+        "Sockets",
+        "QUIC",
+        "普查",
+        "缺口"
+      ],
+      "parent": null
     }
   ]
 }

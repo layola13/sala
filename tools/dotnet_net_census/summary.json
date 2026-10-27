@@ -1,0 +1,24 @@
+{
+  "dotnet": {
+    "repo": "dotnet/runtime",
+    "tag": "v10.0.14",
+    "commit": "6aa72daa24f66c01c3d7b6a32519e9d21396deec",
+    "assemblies": 19,
+    "type_records": 337,
+    "distinct_types": 334,
+    "members": 4194,
+    "obsolete_types": 12,
+    "obsolete_members": 84
+  },
+  "sa_std": {
+    "sci_commit": "8a943911",
+    "surface_rows": 1491,
+    "extern_sai": 475
+  },
+  "classification_types": {
+    "模型不合": 100,
+    "可直接对应": 140,
+    "需建模": 62,
+    "已有等价": 32
+  }
+}
