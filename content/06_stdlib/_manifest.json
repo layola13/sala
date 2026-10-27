@@ -277,6 +277,21 @@
         "pong"
       ],
       "parent": null
+    },
+    {
+      "id": "android-net-census",
+      "title": "Android net 表面 × sa_std 缺口普查",
+      "file": "21_android_net_census.html",
+      "keywords": [
+        "Android",
+        "android.net",
+        "API 36",
+        "DnsResolver",
+        "NetworkCapabilities",
+        "libcore",
+        "普查"
+      ],
+      "parent": null
     }
   ]
 }

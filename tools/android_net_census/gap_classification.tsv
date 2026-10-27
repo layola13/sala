@@ -1,0 +1,23 @@
+域	Android 表面（包/代表类/规模）	sa_std 对应（符号/文件）	分类	说明
+TCP 套接字	java.net Socket/ServerSocket/SocketOptions（java.net 64 类内）	net.sai：tcp_connect/listen/accept/read/write/peek/vectored + 选项（nodelay/keepalive/TTL/缓冲/linger/超时/非阻塞）	已有等价	句柄模型不同（u64 不透明句柄 vs 类），能力面对齐
+UDP 与组播	java.net DatagramSocket/MulticastSocket/DatagramPacket	net.sai：udp bind/send/recv/send_to/recv_from/peek_from + 组播选项（符号表 multicast 命中 53）	已有等价	
+Unix domain 套接字	android.net LocalSocket/LocalServerSocket/LocalSocketAddress/Credentials	net.sai：unix listen/connect/pair/datagram + abstract 命名空间地址	已有等价	子缺口：对端凭据（Credentials / SO_PEERCRED）无符号，见补齐名单第 6 项
+地址与 IP 工具	java.net InetAddress/Inet4Address/Inet6Address/InetSocketAddress；android.net InetAddresses/IpPrefix/LinkAddress/MacAddress	sa_net_ipv4_parse_ascii、sa_net_socket_addr_v4_parse_ascii、sa_std_net_addr_format、sa_net_addr_host/port/family/scope_id	已有等价	子缺口：IpPrefix 前缀运算、MacAddress 类型未覆盖（纯函数，可直接对应），见补齐名单第 6 项
+基础名字解析	java.net InetAddress.getByName/getAllByName	sa_std_net_to_socket_addr_first/list（地址列表迭代）+ sa_std_net_addr_reverse_lookup	已有等价	经系统解析器，无记录类型区分
+DnsResolver	android.net DnsResolver（query/rawQuery、TYPE_A/AAAA 等记录类型、FLAG_NO_CACHE_*、按 Network 异步回调）	无（sa_std 网络全表面 dns 关键词 0 命中）	需建模	需 DNS 线格式查询引擎 + 记录类型结果模型 + 异步回调；协议可移植，补齐名单第 1 项
+URI/URL 工具	android.net Uri（37 方法）/Uri.Builder、UrlQuerySanitizer（31 方法）、MailTo；java.net URI/URL/URLEncoder/URLDecoder	仅 sa_std_url_parse（单函数解析）	可直接对应	构造/拼接、query 解析与生成、percent 编解码、sanitizer 均为纯函数面而 sa_std 未覆盖，补齐名单第 2 项
+HTTP 客户端基础面	java.net HttpURLConnection/HttpsURLConnection、URL.openConnection	http_client.sai 57 extern（请求构建、同步/异步发送、响应头与体）+ http2.sai 14	已有等价	
+Cookie 与响应缓存	java.net CookieManager/CookieHandler/CookieStore/HttpCookie、ResponseCache；android.net.http HttpResponseCache（12 方法）	无（cookie 关键词 0 命中）	需建模	jar 的 domain/path/expiry 匹配与缓存失效模型，补齐名单第 4 项
+平台 HTTP 引擎	android.net.http HttpEngine/UrlRequest/BidirectionalStream 等 32 类 175 方法（QuicOptions/DnsOptions/ConnectionMigrationOptions）	零件散在 http_client.sai / http2.sai / quic.sai（29 extern），无统一引擎	需建模	双向流、连接迁移、引擎级 DNS/QUIC 选项是引擎模型特性；其中 bindToNetwork 部分属平台连接模型
+TLS 连接面	javax.net.ssl SSLSocketFactory/SSLSocket、HttpsURLConnection；android.net.ssl SSLSockets/SSLEngines	tls_client.sai 22（connect/add_ca_file + JA3/JA4 指纹 shaped 变体）、tls_server.sai 11、dtls.sai 11	已有等价	sa_std 另有指纹伪装面，为 Android 所无
+TLS 配置面	javax.net.ssl SSLParameters/SSLContext/SSLEngine（37 方法）/SNIServerName/SNIMatcher/HostnameVerifier；android.net.http X509TrustManagerExtensions	无配置面符号（alpn 关键词 0 命中；tls_client 仅 add_ca_file 一项配置入口）	需建模	ALPN 选择、协议/套件集、endpoint identification、会话缓存等配置对象模型，补齐名单第 3 项
+IPSec / IKEv2 / VCN	android.net.ipsec.ike 41 类 + exceptions 10 类、IpSecManager/IpSecTransform、Ikev2VpnProfile、android.net.vcn 11 类	无	模型不合	操作内核 IPsec SA 与系统 VPN 服务，非通用用户态协议面
+NSD（mDNS/DNS-SD）	android.net.nsd 10 类 67 方法（NsdManager/NsdServiceInfo）	无（dns 0 命中）	需建模	协议本身可移植（组播 DNS + DNS-SD），需发现/宣告/解析事件模型，补齐名单第 7 项
+RTP / SIP	android.net.rtp 4 类、android.net.sip 11 类（两包整体 @Deprecated）	无	模型不合	框架类已整体废弃且绑定系统媒体/电话服务；RTP 包级协议若需要属另行立项
+WiFi 家族	android.net.wifi + aware/p2p/rtt/hotspot2 合计 131 类（仅登记）	无	模型不合	硬件与系统服务（WifiManager 等），仅登记不深挖
+Telephony 网络侧	android.telephony 及子包 181 类（仅登记）	无	模型不合	基带/运营商系统服务，仅登记不深挖
+EAP	android.net.eap 13 类（EapSessionConfig 等）	无	模型不合	绑定 supplicant 与运营商认证流程
+平台连接模型	ConnectivityManager（44 方法）/Network/NetworkCapabilities（30 方法、49 字段常量）/NetworkRequest/LinkProperties（24 方法）/RouteInfo/ProxyInfo/DhcpInfo/TrafficStats（39 方法）/SocketKeepalive/TetheringManager	无对应概念（route 关键词 0 命中；无网络句柄与能力查询面）	模型不合	系统 ConnectivityService 的能力/计费/多网络/进程默认网络模型，桌面 std 无此层；如实归类、非 sa_std 缺陷。其数据子集见下一行
+本机网络信息查询	java.net NetworkInterface/InterfaceAddress；LinkProperties 数据子集（接口地址/路由/DNS 服务器）	无（interface 仅 1 个组播常量命中）	可直接对应	getifaddrs / 路由表读取属可移植 syscall 面，补齐名单第 5 项
+代理	java.net Proxy/ProxySelector；android.net ProxyInfo/Proxy	无（proxy 关键词 0 命中）	需建模	值类型部分平凡；ProxySelector 动态选择/PAC 属模型；静态配置子集可先行，补齐名单第 8 项
+平台安全策略	android.security.NetworkSecurityPolicy（isCleartextTrafficPermitted 等）+ NetworkSecurityConfig + Private DNS（LinkProperties.isPrivateDnsActive/getPrivateDnsServerName）	无	模型不合	OS 强制执行的策略层，应用 API 只是查询面；其客户端配置子集已并入 TLS 配置面一行

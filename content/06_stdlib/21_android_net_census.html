@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Android net 表面 × sa_std 缺口普查</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; Android net 表面 × sa_std 缺口普查</div>
+<h1>Android net 表面 × sa_std 缺口普查</h1>
+
+<p>本页是跨语言 std 普查批的一份（同批：Rust 全 std、Go net、Python net、Java net、.NET net、iOS net）。
+Android 的「net std」与桌面平台不同构：除 libcore 带来的 <code>java.net</code>/<code>javax.net.ssl</code> 外，
+还有一整层桌面 std 不存在的平台连接模型（能力、计费、多网络、系统策略）。
+本页把两者分开清点：可移植的协议/工具面按四分类与 sa_std 比对，平台模型单列登记、不混入缺口计数。</p>
+
+<h2>来源与版本</h2>
+<table>
+<tr><th>侧</th><th>来源</th></tr>
+<tr><td>Android 公共 API 签名面</td><td>AOSP <code>platform/prebuilts/sdk</code>，分支 <code>android16-release</code>
+（HEAD <code>3b7daadc</code>，2025-04-18），文件 <code>36/public/api/android.txt</code>（签名格式 2.0）——
+即 <strong>Android 16 / API level 36</strong> 的 SDK 公共 API 精确签名清单。新版 AOSP 的 frameworks/base 已不内嵌
+current.txt，签名面以 prebuilts/sdk 的 per-level android.txt 为权威来源；frameworks/base 同分支
+（HEAD <code>99b01a65</code>）的 <code>core/java/android/net</code> 源码作辅证。</td></tr>
+<tr><td>libcore 差异基线</td><td>桌面 OpenJDK 源码树 java.base 的 <code>java/net</code>、<code>javax/net</code>、
+<code>javax/net/ssl</code> 三包公共顶层类型（107 个）。</td></tr>
+<tr><td>SA 侧基线</td><td>sci main <code>8a943911</code> 的 <code>sa_std</code> 网络面：
+11 个 .sai 契约共 <strong>457</strong> 个 extern（net 222、http_client 57、http_server 46、quic 29、
+ssh 26、tls_client 22、http2 14、ws_client 12、tls_server 11、dtls 11、netx 7），
+另 .sa 层 487 个 fn/宏（简化面 <code>sa_net_*</code> 与宏包装，只作注记、不逐项计入比对）。</td></tr>
+</table>
+<p>NDK/bionic 的 socket 层是 POSIX、非 Android 特有，作边界注明、不展开。</p>
+
+<h2>方法与清单规模</h2>
+<p>双边机械抽取（脚本与产物在 <code>tools/android_net_census/</code>，可复跑）：
+Android 侧解析签名文件的 package/class/ctor/method/field 声明；SA 侧解析 .sai 的
+<code>@extern</code> 声明。全量分类范围共 <strong>323 类 / 1,902 方法 / 544 字段</strong>（13 个包）；
+WiFi 与 Telephony 家族仅登记（312 类 / 2,069 方法），不逐项分类。
+缺口四分类口径与同批一致：<code>可直接对应</code> / <code>需建模</code> / <code>模型不合</code> / <code>已有等价</code>。</p>
+
+<h2>按包计数</h2>
+<table>
+<tr><th>包</th><th>类</th><th>方法</th><th>字段</th><th>处置</th></tr>
+<tr><td><code>android.net</code></td><td>80</td><td>583</td><td>258</td><td>全量分类</td></tr>
+<tr><td><code>java.net</code>（libcore）</td><td>64</td><td>472</td><td>90</td><td>全量分类</td></tr>
+<tr><td><code>javax.net.ssl</code>（libcore）</td><td>43</td><td>238</td><td>2</td><td>全量分类</td></tr>
+<tr><td><code>javax.net</code>（libcore）</td><td>2</td><td>11</td><td>0</td><td>全量分类</td></tr>
+<tr><td><code>android.net.http</code></td><td>32</td><td>175</td><td>54</td><td>全量分类（平台 HTTP 引擎）</td></tr>
+<tr><td><code>android.net.ipsec.ike</code> + <code>.exceptions</code></td><td>51</td><td>122</td><td>65</td><td>模型不合登记</td></tr>
+<tr><td><code>android.net.nsd</code></td><td>10</td><td>67</td><td>14</td><td>全量分类</td></tr>
+<tr><td><code>android.net.sip</code></td><td>11</td><td>105</td><td>28</td><td>整体 @Deprecated，登记</td></tr>
+<tr><td><code>android.net.vcn</code></td><td>11</td><td>67</td><td>13</td><td>模型不合登记</td></tr>
+<tr><td><code>android.net.eap</code></td><td>13</td><td>33</td><td>5</td><td>模型不合登记</td></tr>
+<tr><td><code>android.net.rtp</code></td><td>4</td><td>23</td><td>15</td><td>整体 @Deprecated，登记</td></tr>
+<tr><td><code>android.net.ssl</code></td><td>2</td><td>6</td><td>0</td><td>并入 TLS 面</td></tr>
+<tr><td><code>android.net.wifi</code> 家族</td><td>131</td><td>—</td><td>—</td><td>仅登记</td></tr>
+<tr><td><code>android.telephony</code> 家族</td><td>181</td><td>—</td><td>—</td><td>仅登记</td></tr>
+</table>
+
+<h2>libcore 差异：Android 的 java.net 与桌面 OpenJDK</h2>
+<p>顶层类粒度比对（桌面 107 个公共类型）：Android 仅缺两类，无 Android 独有新增——</p>
+<table>
+<tr><th>桌面有、Android 无</th><th>性质</th></tr>
+<tr><td><code>java.net.UnixDomainSocketAddress</code></td><td>Android 不经 java.net 暴露 Unix domain 套接字地址；
+其等价物是平台包的 <code>android.net.LocalSocket/LocalSocketAddress</code>（含 abstract 命名空间，
+sa_std 的 unix 面已覆盖该形态，含 abstract 地址构造）。</td></tr>
+<tr><td><code>java.net.URLPermission</code></td><td>SecurityManager 时代的权限类，Android 无安全管理器模型，属预期缺席。</td></tr>
+</table>
+<p>覆盖边界：方法级增减未逐项比对；与桌面 java.net 的逐项对应以 Java 普查页为准，本页不双计。</p>
+
+<h2>缺口分类表</h2>
+<table>
+<tr><th>域</th><th>Android 表面</th><th>sa_std 对应</th><th>分类</th><th>说明</th></tr>
+<tr><td>TCP 套接字</td><td>java.net Socket/ServerSocket/SocketOptions</td><td>net.sai tcp 全套 + 选项（nodelay/keepalive/TTL/缓冲/linger/超时/非阻塞）</td><td>已有等价</td><td>句柄模型不同（u64 不透明句柄 vs 类），能力面对齐</td></tr>
+<tr><td>UDP 与组播</td><td>DatagramSocket/MulticastSocket/DatagramPacket</td><td>net.sai udp bind/send/recv/send_to/recv_from/peek_from + 组播选项（符号表 multicast 命中 53）</td><td>已有等价</td><td>—</td></tr>
+<tr><td>Unix domain 套接字</td><td>android.net LocalSocket/LocalServerSocket/LocalSocketAddress/Credentials</td><td>net.sai unix listen/connect/pair/datagram + abstract 地址</td><td>已有等价</td><td>子缺口：对端凭据（Credentials / SO_PEERCRED）无符号，见补齐名单第 6 项</td></tr>
+<tr><td>地址与 IP 工具</td><td>InetAddress/Inet4/6Address/InetSocketAddress；android.net InetAddresses/IpPrefix/LinkAddress/MacAddress</td><td><code>sa_net_ipv4_parse_ascii</code>、<code>sa_net_socket_addr_v4_parse_ascii</code>、<code>sa_std_net_addr_format</code>、<code>sa_net_addr_host/port/family/scope_id</code></td><td>已有等价</td><td>子缺口：IpPrefix 前缀运算、MacAddress 类型（纯函数），见补齐名单第 6 项</td></tr>
+<tr><td>基础名字解析</td><td>InetAddress.getByName/getAllByName</td><td><code>sa_std_net_to_socket_addr_first/list</code> 地址列表迭代 + <code>sa_std_net_addr_reverse_lookup</code></td><td>已有等价</td><td>经系统解析器，无记录类型区分</td></tr>
+<tr><td>DnsResolver</td><td>android.net DnsResolver（query/rawQuery、TYPE_A/AAAA 等记录类型、FLAG_NO_CACHE_*、按 Network 异步回调）</td><td>无（网络全表面 dns 关键词 0 命中）</td><td>需建模</td><td>需 DNS 线格式查询引擎 + 记录类型结果模型 + 异步回调；协议可移植，补齐名单第 1 项</td></tr>
+<tr><td>URI/URL 工具</td><td>android.net Uri（37 方法）/Uri.Builder、UrlQuerySanitizer（31 方法）、MailTo；java.net URI/URL/URLEncoder/URLDecoder</td><td>仅 <code>sa_std_url_parse</code> 单函数解析</td><td>可直接对应</td><td>构造/拼接、query 解析与生成、percent 编解码、sanitizer 均为纯函数面而 sa_std 未覆盖，补齐名单第 2 项</td></tr>
+<tr><td>HTTP 客户端基础面</td><td>HttpURLConnection/HttpsURLConnection、URL.openConnection</td><td>http_client.sai 57 extern + http2.sai 14</td><td>已有等价</td><td>—</td></tr>
+<tr><td>Cookie 与响应缓存</td><td>CookieManager/CookieHandler/CookieStore/HttpCookie、ResponseCache；android.net.http HttpResponseCache</td><td>无（cookie 关键词 0 命中）</td><td>需建模</td><td>jar 的 domain/path/expiry 匹配与缓存失效模型，补齐名单第 4 项</td></tr>
+<tr><td>平台 HTTP 引擎</td><td>android.net.http HttpEngine/UrlRequest/BidirectionalStream + QuicOptions/DnsOptions/ConnectionMigrationOptions</td><td>零件散在 http_client/http2/quic 三个契约，无统一引擎</td><td>需建模</td><td>双向流、连接迁移、引擎级 DNS/QUIC 选项是引擎模型特性；bindToNetwork 部分属平台连接模型</td></tr>
+<tr><td>TLS 连接面</td><td>javax.net.ssl SSLSocketFactory/SSLSocket、HttpsURLConnection；android.net.ssl SSLSockets/SSLEngines</td><td>tls_client.sai 22（connect/add_ca_file + JA3/JA4 指纹 shaped 变体）、tls_server.sai 11、dtls.sai 11</td><td>已有等价</td><td>sa_std 另有 TLS 指纹伪装面，为 Android 所无</td></tr>
+<tr><td>TLS 配置面</td><td>javax.net.ssl SSLParameters/SSLContext/SSLEngine（37 方法）/SNIServerName/SNIMatcher/HostnameVerifier；X509TrustManagerExtensions</td><td>无配置面符号（alpn 关键词 0 命中；tls_client 仅 add_ca_file 一项配置入口）</td><td>需建模</td><td>ALPN 选择、协议/套件集、endpoint identification、会话缓存等配置对象模型，补齐名单第 3 项</td></tr>
+<tr><td>IPSec / IKEv2 / VCN</td><td>android.net.ipsec.ike 51 类、IpSecManager/IpSecTransform、Ikev2VpnProfile、android.net.vcn 11 类</td><td>无</td><td>模型不合</td><td>操作内核 IPsec SA 与系统 VPN 服务，非通用用户态协议面</td></tr>
+<tr><td>NSD（mDNS/DNS-SD）</td><td>android.net.nsd 10 类 67 方法</td><td>无（dns 0 命中）</td><td>需建模</td><td>协议本身可移植（组播 DNS + DNS-SD），需发现/宣告/解析事件模型，补齐名单第 7 项</td></tr>
+<tr><td>RTP / SIP</td><td>android.net.rtp 4 类、android.net.sip 11 类（两包整体 @Deprecated）</td><td>无</td><td>模型不合</td><td>框架类已整体废弃且绑定系统媒体/电话服务；RTP 包级协议若需要属另行立项</td></tr>
+<tr><td>WiFi 家族</td><td>wifi/aware/p2p/rtt/hotspot2 合计 131 类</td><td>无</td><td>模型不合</td><td>硬件与系统服务，仅登记</td></tr>
+<tr><td>Telephony 网络侧</td><td>android.telephony 及子包 199 类</td><td>无</td><td>模型不合</td><td>基带/运营商系统服务，仅登记</td></tr>
+<tr><td>EAP</td><td>android.net.eap 13 类</td><td>无</td><td>模型不合</td><td>绑定 supplicant 与运营商认证流程</td></tr>
+<tr><td>平台连接模型</td><td>ConnectivityManager（44 方法）/Network/NetworkCapabilities（30 方法、49 字段常量）/NetworkRequest/LinkProperties（24 方法）/RouteInfo/ProxyInfo/DhcpInfo/TrafficStats（39 方法）/SocketKeepalive/TetheringManager</td><td>无对应概念（route 关键词 0 命中；无网络句柄与能力查询面）</td><td>模型不合</td><td>系统 ConnectivityService 的能力/计费/多网络/进程默认网络模型，桌面 std 无此层；如实归类、非 sa_std 缺陷。其数据子集见下一行</td></tr>
+<tr><td>本机网络信息查询</td><td>java.net NetworkInterface/InterfaceAddress；LinkProperties 数据子集（接口地址/路由/DNS 服务器）</td><td>无（interface 仅 1 个组播常量命中）</td><td>可直接对应</td><td>getifaddrs / 路由表读取属可移植 syscall 面，补齐名单第 5 项</td></tr>
+<tr><td>代理</td><td>java.net Proxy/ProxySelector；android.net ProxyInfo/Proxy</td><td>无（proxy 关键词 0 命中）</td><td>需建模</td><td>值类型部分平凡；动态选择/PAC 属模型；静态配置子集可先行，补齐名单第 8 项</td></tr>
+<tr><td>平台安全策略</td><td>android.security.NetworkSecurityPolicy（isCleartextTrafficPermitted 等）+ NetworkSecurityConfig + Private DNS</td><td>无</td><td>模型不合</td><td>OS 强制执行的策略层，应用 API 只是查询面；其客户端配置子集已并入 TLS 配置面一行</td></tr>
+</table>
+<p>分类汇总（按域行计）：已有等价 7、可直接对应 2、需建模 6、模型不合 7。</p>
+
+<h2>平台特有模型（桌面 std 没有的层）</h2>
+<h3>网络能力模型</h3>
+<p><code>NetworkCapabilities</code>（30 方法、49 个字段常量）把连接「质量」做成一等公民：
+能力位（<code>NET_CAPABILITY_INTERNET / VALIDATED / CAPTIVE_PORTAL / NOT_METERED</code> 等，经
+<code>hasCapability</code> 查询）、transport 类型（<code>hasTransport</code>：蜂窝/WiFi/以太/VPN/蓝牙）、
+上下行带宽估计、信号强度、订阅 ID 集合。<code>NetworkRequest.Builder</code> 以同一套能力位声明需求，
+系统据此选路并以 <code>ConnectivityManager.NetworkCallback</code> 回调可用/丢失/能力变化。
+桌面 std 的连接是「能不能连」的二值世界，没有这一层。</p>
+<h3>计费与多网络绑定</h3>
+<p>计费是选路输入：<code>NET_CAPABILITY_NOT_METERED</code>、<code>ConnectivityManager.getMultipathPreference</code>、
+<code>getRestrictBackgroundStatus</code> 决定后台与多路径行为。多网络是句柄化的：
+<code>Network</code> 对象（12 方法）可 <code>bindSocket(Socket/DatagramSocket/FileDescriptor)</code>
+把单个套接字钉到指定网络，<code>getAllByName</code> 在该网络上解析，
+<code>bindProcessToNetwork / getProcessDefaultNetwork</code> 设置进程默认网络；
+<code>TrafficStats</code>（39 方法）按 UID 做流量归因计量。sa_std 的连接是全局单栈，
+此模型整体属平台服务、不进补齐名单。</p>
+<h3>平台强制策略</h3>
+<p>三项策略由 OS 强制、应用只能查询或顺应：<strong>cleartext 策略</strong>
+（<code>android.security.NetworkSecurityPolicy.isCleartextTrafficPermitted()</code> 与
+NetworkSecurityConfig 的 per-domain 配置决定明文 HTTP 是否放行）；
+<strong>Private DNS</strong>（系统级 DoT：<code>LinkProperties.isPrivateDnsActive() /
+getPrivateDnsServerName()</code> 暴露状态与服务器名，系统解析路径自带机会性 DoT，
+<code>DnsResolver</code> 的查询亦走该路径）；<strong>强制门户与验证</strong>
+（<code>CaptivePortal</code>、VALIDATED 能力位影响应用可见的「已联网」语义）。
+与 iOS 的 NWPath/ATS 是同一类平台层，可对照阅读。</p>
+
+<h2>优先补齐短名单（仅可移植面）</h2>
+<table>
+<tr><th>#</th><th>条目</th><th>分类</th><th>依据</th></tr>
+<tr><td>1</td><td>DNS 记录型查询：A/AAAA/PTR/TXT/SRV + 原始查询 + 指定服务器/DoT 配置（DnsResolver 的可移植核心）</td><td>需建模</td><td>sa_std 只有地址列表式解析，任何 DNS 工具性用法都撞墙</td></tr>
+<tr><td>2</td><td>URI/URL 操作面：构造与拼接、query 解析/生成、percent 编解码、UrlQuerySanitizer 式净化</td><td>可直接对应</td><td>纯函数面；现状仅 <code>sa_std_url_parse</code> 一个解析函数</td></tr>
+<tr><td>3</td><td>TLS 配置面（SSLParameters 可移植子集）：ALPN 选择、协议/套件集、SNI 与主机名校验、会话缓存</td><td>需建模</td><td>现状配置入口只有 add_ca_file；alpn 符号 0 命中</td></tr>
+<tr><td>4</td><td>Cookie 面：Set-Cookie/Cookie 解析序列化 + jar（domain/path/expiry 语义）</td><td>需建模</td><td>HTTP 客户端完整性缺口，cookie 符号 0 命中</td></tr>
+<tr><td>5</td><td>本机网络信息：接口地址枚举 + 路由表读取</td><td>可直接对应</td><td>syscall 级可移植查询；route 符号 0 命中</td></tr>
+<tr><td>6</td><td>IP 前缀工具（IpPrefix 运算/CIDR 判定）+ Unix 对端凭据查询</td><td>可直接对应</td><td>纯函数与单个 getsockopt 级补点</td></tr>
+<tr><td>7</td><td>mDNS/DNS-SD（NSD 协议面：发现/宣告/解析）</td><td>需建模</td><td>协议可移植，中优先</td></tr>
+<tr><td>8</td><td>静态代理配置：Proxy 值模型 + http/https/socks 静态选择 + bypass 列表</td><td>需建模</td><td>proxy 符号 0 命中；动态 PAC 部分不进名单</td></tr>
+</table>
+
+<h2>覆盖边界</h2>
+<ul>
+<li>成员级清单以签名文件为准；抽取器初版漏掉类头带注解（<code>@Deprecated public class</code>）的声明，
+已修正并复跑（595 → 635 类 / 7,805 成员），rtp/sip 两包即此情形。</li>
+<li>libcore 差异为顶层类粒度；方法级增减未逐项比对。</li>
+<li>WiFi / Telephony 仅登记计数，未逐项分类。</li>
+<li><code>android.security</code> 不在抽取包范围内，策略一节的存在性由签名文件直接查证。</li>
+<li>结论只来自实际抽取的清单（<code>tools/android_net_census/out/</code> 随页入库），无凭印象判定。</li>
+</ul>
+
+</body>
+</html>
