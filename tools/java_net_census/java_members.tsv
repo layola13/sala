@@ -1,0 +1,1966 @@
+fqn	member_kind	signature
+java.net.Authenticator	ctor	public Authenticator()
+java.net.Authenticator.RequestorType	enum_const	PROXY
+java.net.Authenticator.RequestorType	enum_const	SERVER
+java.net.Authenticator	method	public static synchronized void setDefault(Authenticator a)
+java.net.Authenticator	method	public static Authenticator getDefault()
+java.net.Authenticator	method	public static PasswordAuthentication requestPasswordAuthentication( InetAddress addr, int port, String protocol, String prompt, String scheme)
+java.net.Authenticator	method	public static PasswordAuthentication requestPasswordAuthentication( String host, InetAddress addr, int port, String protocol, String prompt, String scheme)
+java.net.Authenticator	method	public static PasswordAuthentication requestPasswordAuthentication( String host, InetAddress addr, int port, String protocol, String prompt, String scheme, URL url, RequestorType reqType)
+java.net.Authenticator	method	public static PasswordAuthentication requestPasswordAuthentication( Authenticator authenticator, String host, InetAddress addr, int port, String protocol, String prompt, String scheme, URL url, RequestorType reqType)
+java.net.Authenticator	method	public PasswordAuthentication requestPasswordAuthenticationInstance(String host, InetAddress addr, int port, String protocol, String prompt, String scheme, URL url, RequestorType reqType)
+java.net.Authenticator	method	protected final String getRequestingHost()
+java.net.Authenticator	method	protected final InetAddress getRequestingSite()
+java.net.Authenticator	method	protected final int getRequestingPort()
+java.net.Authenticator	method	protected final String getRequestingProtocol()
+java.net.Authenticator	method	protected final String getRequestingPrompt()
+java.net.Authenticator	method	protected final String getRequestingScheme()
+java.net.Authenticator	method	protected PasswordAuthentication getPasswordAuthentication()
+java.net.Authenticator	method	protected URL getRequestingURL ()
+java.net.Authenticator	method	protected RequestorType getRequestorType ()
+java.net.BindException	ctor	public BindException(String msg)
+java.net.BindException	ctor	public BindException()
+java.net.CacheRequest	ctor	public CacheRequest()
+java.net.CacheRequest	method	public abstract OutputStream getBody() throws IOException
+java.net.CacheRequest	method	public abstract void abort()
+java.net.CacheResponse	ctor	public CacheResponse()
+java.net.CacheResponse	method	public abstract Map<String, List<String>> getHeaders() throws IOException
+java.net.CacheResponse	method	public abstract InputStream getBody() throws IOException
+java.net.ConnectException	ctor	public ConnectException(String msg)
+java.net.ConnectException	ctor	public ConnectException()
+java.net.ContentHandler	ctor	public ContentHandler()
+java.net.ContentHandler	method	public abstract Object getContent(URLConnection urlc) throws IOException
+java.net.ContentHandler	method	public Object getContent(URLConnection urlc, Class[] classes) throws IOException
+java.net.ContentHandlerFactory	method	ContentHandler createContentHandler(String mimetype)
+java.net.CookieHandler	ctor	public CookieHandler()
+java.net.CookieHandler	method	public static synchronized CookieHandler getDefault()
+java.net.CookieHandler	method	public static synchronized void setDefault(CookieHandler cHandler)
+java.net.CookieHandler	method	public abstract Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) throws IOException
+java.net.CookieHandler	method	public abstract void put(URI uri, Map<String, List<String>> responseHeaders) throws IOException
+java.net.CookieManager	ctor	public CookieManager()
+java.net.CookieManager	ctor	public CookieManager(CookieStore store, CookiePolicy cookiePolicy)
+java.net.CookieManager	method	public void setCookiePolicy(CookiePolicy cookiePolicy)
+java.net.CookieManager	method	public CookieStore getCookieStore()
+java.net.CookieManager	method	public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) throws IOException
+java.net.CookieManager	method	public void put(URI uri, Map<String, List<String>> responseHeaders) throws IOException
+java.net.CookieManager.CookieComparator	method	public int compare(HttpCookie c1, HttpCookie c2)
+java.net.CookiePolicy	method	public boolean shouldAccept(URI uri, HttpCookie cookie)
+java.net.CookieStore	method	public void add(URI uri, HttpCookie cookie)
+java.net.CookieStore	method	public List<HttpCookie> get(URI uri)
+java.net.CookieStore	method	public List<HttpCookie> getCookies()
+java.net.CookieStore	method	public List<URI> getURIs()
+java.net.CookieStore	method	public boolean remove(URI uri, HttpCookie cookie)
+java.net.CookieStore	method	public boolean removeAll()
+java.net.DatagramPacket	ctor	public DatagramPacket(byte[] buf, int offset, int length)
+java.net.DatagramPacket	ctor	public DatagramPacket(byte[] buf, int length)
+java.net.DatagramPacket	ctor	public DatagramPacket(byte[] buf, int offset, int length, InetAddress address, int port)
+java.net.DatagramPacket	ctor	public DatagramPacket(byte[] buf, int offset, int length, SocketAddress address)
+java.net.DatagramPacket	ctor	public DatagramPacket(byte[] buf, int length, InetAddress address, int port)
+java.net.DatagramPacket	ctor	public DatagramPacket(byte[] buf, int length, SocketAddress address)
+java.net.DatagramPacket	method	public synchronized InetAddress getAddress()
+java.net.DatagramPacket	method	public synchronized int getPort()
+java.net.DatagramPacket	method	public synchronized byte[] getData()
+java.net.DatagramPacket	method	public synchronized int getOffset()
+java.net.DatagramPacket	method	public synchronized int getLength()
+java.net.DatagramPacket	method	public synchronized void setData(byte[] buf, int offset, int length)
+java.net.DatagramPacket	method	public synchronized void setAddress(InetAddress iaddr)
+java.net.DatagramPacket	method	public synchronized void setPort(int iport)
+java.net.DatagramPacket	method	public synchronized void setSocketAddress(SocketAddress address)
+java.net.DatagramPacket	method	public synchronized SocketAddress getSocketAddress()
+java.net.DatagramPacket	method	public synchronized void setData(byte[] buf)
+java.net.DatagramPacket	method	public synchronized void setLength(int length)
+java.net.DatagramSocket	ctor	public DatagramSocket() throws SocketException
+java.net.DatagramSocket	ctor	protected DatagramSocket(DatagramSocketImpl impl)
+java.net.DatagramSocket	ctor	public DatagramSocket(SocketAddress bindaddr) throws SocketException
+java.net.DatagramSocket	ctor	public DatagramSocket(int port) throws SocketException
+java.net.DatagramSocket	ctor	public DatagramSocket(int port, InetAddress laddr) throws SocketException
+java.net.DatagramSocket	method	public void bind(SocketAddress addr) throws SocketException
+java.net.DatagramSocket	method	public void connect(InetAddress address, int port)
+java.net.DatagramSocket	method	public void connect(SocketAddress addr) throws SocketException
+java.net.DatagramSocket	method	public void disconnect()
+java.net.DatagramSocket	method	public boolean isBound()
+java.net.DatagramSocket	method	public boolean isConnected()
+java.net.DatagramSocket	method	public InetAddress getInetAddress()
+java.net.DatagramSocket	method	public int getPort()
+java.net.DatagramSocket	method	public SocketAddress getRemoteSocketAddress()
+java.net.DatagramSocket	method	public SocketAddress getLocalSocketAddress()
+java.net.DatagramSocket	method	public void send(DatagramPacket p) throws IOException
+java.net.DatagramSocket	method	public void receive(DatagramPacket p) throws IOException
+java.net.DatagramSocket	method	public InetAddress getLocalAddress()
+java.net.DatagramSocket	method	public int getLocalPort()
+java.net.DatagramSocket	method	public void setSoTimeout(int timeout) throws SocketException
+java.net.DatagramSocket	method	public int getSoTimeout() throws SocketException
+java.net.DatagramSocket	method	public void setSendBufferSize(int size) throws SocketException
+java.net.DatagramSocket	method	public int getSendBufferSize() throws SocketException
+java.net.DatagramSocket	method	public void setReceiveBufferSize(int size) throws SocketException
+java.net.DatagramSocket	method	public int getReceiveBufferSize() throws SocketException
+java.net.DatagramSocket	method	public void setReuseAddress(boolean on) throws SocketException
+java.net.DatagramSocket	method	public boolean getReuseAddress() throws SocketException
+java.net.DatagramSocket	method	public void setBroadcast(boolean on) throws SocketException
+java.net.DatagramSocket	method	public boolean getBroadcast() throws SocketException
+java.net.DatagramSocket	method	public void setTrafficClass(int tc) throws SocketException
+java.net.DatagramSocket	method	public int getTrafficClass() throws SocketException
+java.net.DatagramSocket	method	public void close()
+java.net.DatagramSocket	method	public boolean isClosed()
+java.net.DatagramSocket	method	public DatagramChannel getChannel()
+java.net.DatagramSocket	method	public static synchronized void setDatagramSocketImplFactory(DatagramSocketImplFactory fac) throws IOException
+java.net.DatagramSocket	method	public <T> DatagramSocket setOption(SocketOption<T> name, T value) throws IOException
+java.net.DatagramSocket	method	public <T> T getOption(SocketOption<T> name) throws IOException
+java.net.DatagramSocket	method	public Set<SocketOption<?>> supportedOptions()
+java.net.DatagramSocket	method	public void joinGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.DatagramSocket	method	public void leaveGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.DatagramSocketImpl	ctor	public DatagramSocketImpl()
+java.net.DatagramSocketImpl	field	protected int localPort
+java.net.DatagramSocketImpl	field	protected FileDescriptor fd
+java.net.DatagramSocketImpl	method	protected abstract void create() throws SocketException
+java.net.DatagramSocketImpl	method	protected abstract void bind(int lport, InetAddress laddr) throws SocketException
+java.net.DatagramSocketImpl	method	protected abstract void send(DatagramPacket p) throws IOException
+java.net.DatagramSocketImpl	method	protected void connect(InetAddress address, int port) throws SocketException
+java.net.DatagramSocketImpl	method	protected void disconnect()
+java.net.DatagramSocketImpl	method	protected abstract int peek(InetAddress i) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract int peekData(DatagramPacket p) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract void receive(DatagramPacket p) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract void setTimeToLive(int ttl) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract int getTimeToLive() throws IOException
+java.net.DatagramSocketImpl	method	protected abstract void join(InetAddress inetaddr) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract void leave(InetAddress inetaddr) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract void joinGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract void leaveGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.DatagramSocketImpl	method	protected abstract void close()
+java.net.DatagramSocketImpl	method	protected int getLocalPort()
+java.net.DatagramSocketImpl	method	protected FileDescriptor getFileDescriptor()
+java.net.DatagramSocketImpl	method	protected <T> void setOption(SocketOption<T> name, T value) throws IOException
+java.net.DatagramSocketImpl	method	protected <T> T getOption(SocketOption<T> name) throws IOException
+java.net.DatagramSocketImpl	method	protected Set<SocketOption<?>> supportedOptions()
+java.net.DatagramSocketImplFactory	method	DatagramSocketImpl createDatagramSocketImpl()
+java.net.DelegatingSocketImpl	field	protected final SocketImpl delegate
+java.net.DelegatingSocketImpl	method	protected FileDescriptor getFileDescriptor()
+java.net.DelegatingSocketImpl	method	protected InetAddress getInetAddress()
+java.net.DelegatingSocketImpl	method	protected int getPort()
+java.net.DelegatingSocketImpl	method	protected int getLocalPort()
+java.net.DelegatingSocketImpl	method	protected void create(boolean stream) throws IOException
+java.net.DelegatingSocketImpl	method	protected void connect(String host, int port) throws IOException
+java.net.DelegatingSocketImpl	method	protected void connect(InetAddress address, int port) throws IOException
+java.net.DelegatingSocketImpl	method	protected void connect(SocketAddress address, int timeout) throws IOException
+java.net.DelegatingSocketImpl	method	protected void bind(InetAddress host, int port) throws IOException
+java.net.DelegatingSocketImpl	method	protected void listen(int backlog) throws IOException
+java.net.DelegatingSocketImpl	method	protected void accept(SocketImpl s) throws IOException
+java.net.DelegatingSocketImpl	method	protected InputStream getInputStream() throws IOException
+java.net.DelegatingSocketImpl	method	protected OutputStream getOutputStream() throws IOException
+java.net.DelegatingSocketImpl	method	protected int available() throws IOException
+java.net.DelegatingSocketImpl	method	protected void close() throws IOException
+java.net.DelegatingSocketImpl	method	protected boolean supportsUrgentData()
+java.net.DelegatingSocketImpl	method	protected void sendUrgentData(int data) throws IOException
+java.net.DelegatingSocketImpl	method	protected Set<SocketOption<?>> supportedOptions()
+java.net.DelegatingSocketImpl	method	protected <T> void setOption(SocketOption<T> opt, T value) throws IOException
+java.net.DelegatingSocketImpl	method	protected <T> T getOption(SocketOption<T> opt) throws IOException
+java.net.DelegatingSocketImpl	method	public void setOption(int optID, Object value) throws SocketException
+java.net.DelegatingSocketImpl	method	public Object getOption(int optID) throws SocketException
+java.net.DelegatingSocketImpl	method	protected void shutdownInput() throws IOException
+java.net.DelegatingSocketImpl	method	protected void shutdownOutput() throws IOException
+java.net.FileNameMap	method	public String getContentTypeFor(String fileName)
+java.net.HostPortrange	method	public int hashCode()
+java.net.HostPortrange	method	public boolean literal()
+java.net.HostPortrange	method	public boolean ipv4Literal()
+java.net.HostPortrange	method	public boolean ipv6Literal()
+java.net.HostPortrange	method	public String hostname()
+java.net.HostPortrange	method	public int[] portrange()
+java.net.HostPortrange	method	public boolean wildcard()
+java.net.HttpConnectSocketImpl	method	protected void connect(String host, int port) throws IOException
+java.net.HttpConnectSocketImpl	method	protected void connect(InetAddress address, int port) throws IOException
+java.net.HttpConnectSocketImpl	method	protected void connect(SocketAddress endpoint, int timeout) throws IOException
+java.net.HttpConnectSocketImpl	method	protected void listen(int backlog)
+java.net.HttpConnectSocketImpl	method	protected void accept(SocketImpl s)
+java.net.HttpConnectSocketImpl	method	public void setOption(int opt, Object val) throws SocketException
+java.net.HttpConnectSocketImpl	method	protected InetAddress getInetAddress()
+java.net.HttpConnectSocketImpl	method	protected int getPort()
+java.net.HttpCookie	ctor	public HttpCookie(String name, String value)
+java.net.HttpCookie	method	public static List<HttpCookie> parse(String header)
+java.net.HttpCookie	method	public boolean hasExpired()
+java.net.HttpCookie	method	public void setComment(String purpose)
+java.net.HttpCookie	method	public String getComment()
+java.net.HttpCookie	method	public void setCommentURL(String purpose)
+java.net.HttpCookie	method	public String getCommentURL()
+java.net.HttpCookie	method	public void setDiscard(boolean discard)
+java.net.HttpCookie	method	public boolean getDiscard()
+java.net.HttpCookie	method	public void setPortlist(String ports)
+java.net.HttpCookie	method	public String getPortlist()
+java.net.HttpCookie	method	public void setDomain(String pattern)
+java.net.HttpCookie	method	public String getDomain()
+java.net.HttpCookie	method	public void setMaxAge(long expiry)
+java.net.HttpCookie	method	public long getMaxAge()
+java.net.HttpCookie	method	public void setPath(String uri)
+java.net.HttpCookie	method	public String getPath()
+java.net.HttpCookie	method	public void setSecure(boolean flag)
+java.net.HttpCookie	method	public boolean getSecure()
+java.net.HttpCookie	method	public String getName()
+java.net.HttpCookie	method	public void setValue(String newValue)
+java.net.HttpCookie	method	public String getValue()
+java.net.HttpCookie	method	public int getVersion()
+java.net.HttpCookie	method	public void setVersion(int v)
+java.net.HttpCookie	method	public boolean isHttpOnly()
+java.net.HttpCookie	method	public void setHttpOnly(boolean httpOnly)
+java.net.HttpCookie	method	public static boolean domainMatches(String domain, String host)
+java.net.HttpCookie	method	public String toString()
+java.net.HttpCookie	method	public boolean equals(Object obj)
+java.net.HttpCookie	method	public int hashCode()
+java.net.HttpCookie	method	public Object clone()
+java.net.HttpCookie.CookieAttributeAssignor	method	public void assign(HttpCookie cookie, String attrName, String attrValue)
+java.net.HttpRetryException	ctor	public HttpRetryException(String detail, int code)
+java.net.HttpRetryException	ctor	public HttpRetryException(String detail, int code, String location)
+java.net.HttpRetryException	method	public int responseCode()
+java.net.HttpRetryException	method	public String getReason()
+java.net.HttpRetryException	method	public String getLocation()
+java.net.HttpURLConnection	field	protected String method = ""
+java.net.HttpURLConnection	field	protected int chunkLength = -1
+java.net.HttpURLConnection	field	protected int fixedContentLength = -1
+java.net.HttpURLConnection	field	protected long fixedContentLengthLong = -1
+java.net.HttpURLConnection	method	public void setAuthenticator(Authenticator auth)
+java.net.HttpURLConnection	method	public String getHeaderFieldKey (int n)
+java.net.HttpURLConnection	method	public void setFixedLengthStreamingMode (int contentLength)
+java.net.HttpURLConnection	method	public void setFixedLengthStreamingMode(long contentLength)
+java.net.HttpURLConnection	method	public void setChunkedStreamingMode (int chunklen)
+java.net.HttpURLConnection	method	public String getHeaderField(int n)
+java.net.HttpURLConnection	field	protected int responseCode = -1
+java.net.HttpURLConnection	field	protected String responseMessage = null
+java.net.HttpURLConnection	field	protected boolean instanceFollowRedirects = followRedirects
+java.net.HttpURLConnection	ctor	protected HttpURLConnection (URL u)
+java.net.HttpURLConnection	method	public static void setFollowRedirects(boolean set)
+java.net.HttpURLConnection	method	public static boolean getFollowRedirects()
+java.net.HttpURLConnection	method	public void setInstanceFollowRedirects(boolean followRedirects)
+java.net.HttpURLConnection	method	public boolean getInstanceFollowRedirects()
+java.net.HttpURLConnection	method	public void setRequestMethod(String method) throws ProtocolException
+java.net.HttpURLConnection	method	public String getRequestMethod()
+java.net.HttpURLConnection	method	public int getResponseCode() throws IOException
+java.net.HttpURLConnection	method	public String getResponseMessage() throws IOException
+java.net.HttpURLConnection	method	public long getHeaderFieldDate(String name, long defaultValue)
+java.net.HttpURLConnection	method	public abstract void disconnect()
+java.net.HttpURLConnection	method	public abstract boolean usingProxy()
+java.net.HttpURLConnection	method	public Permission getPermission() throws IOException
+java.net.HttpURLConnection	method	public InputStream getErrorStream()
+java.net.HttpURLConnection	const	public static final int HTTP_OK = 200
+java.net.HttpURLConnection	const	public static final int HTTP_CREATED = 201
+java.net.HttpURLConnection	const	public static final int HTTP_ACCEPTED = 202
+java.net.HttpURLConnection	const	public static final int HTTP_NOT_AUTHORITATIVE = 203
+java.net.HttpURLConnection	const	public static final int HTTP_NO_CONTENT = 204
+java.net.HttpURLConnection	const	public static final int HTTP_RESET = 205
+java.net.HttpURLConnection	const	public static final int HTTP_PARTIAL = 206
+java.net.HttpURLConnection	const	public static final int HTTP_MULT_CHOICE = 300
+java.net.HttpURLConnection	const	public static final int HTTP_MOVED_PERM = 301
+java.net.HttpURLConnection	const	public static final int HTTP_MOVED_TEMP = 302
+java.net.HttpURLConnection	const	public static final int HTTP_SEE_OTHER = 303
+java.net.HttpURLConnection	const	public static final int HTTP_NOT_MODIFIED = 304
+java.net.HttpURLConnection	const	public static final int HTTP_USE_PROXY = 305
+java.net.HttpURLConnection	const	public static final int HTTP_BAD_REQUEST = 400
+java.net.HttpURLConnection	const	public static final int HTTP_UNAUTHORIZED = 401
+java.net.HttpURLConnection	const	public static final int HTTP_PAYMENT_REQUIRED = 402
+java.net.HttpURLConnection	const	public static final int HTTP_FORBIDDEN = 403
+java.net.HttpURLConnection	const	public static final int HTTP_NOT_FOUND = 404
+java.net.HttpURLConnection	const	public static final int HTTP_BAD_METHOD = 405
+java.net.HttpURLConnection	const	public static final int HTTP_NOT_ACCEPTABLE = 406
+java.net.HttpURLConnection	const	public static final int HTTP_PROXY_AUTH = 407
+java.net.HttpURLConnection	const	public static final int HTTP_CLIENT_TIMEOUT = 408
+java.net.HttpURLConnection	const	public static final int HTTP_CONFLICT = 409
+java.net.HttpURLConnection	const	public static final int HTTP_GONE = 410
+java.net.HttpURLConnection	const	public static final int HTTP_LENGTH_REQUIRED = 411
+java.net.HttpURLConnection	const	public static final int HTTP_PRECON_FAILED = 412
+java.net.HttpURLConnection	const	public static final int HTTP_ENTITY_TOO_LARGE = 413
+java.net.HttpURLConnection	const	public static final int HTTP_REQ_TOO_LONG = 414
+java.net.HttpURLConnection	const	public static final int HTTP_UNSUPPORTED_TYPE = 415
+java.net.HttpURLConnection	const	public static final int HTTP_SERVER_ERROR = 500
+java.net.HttpURLConnection	const	public static final int HTTP_INTERNAL_ERROR = 500
+java.net.HttpURLConnection	const	public static final int HTTP_NOT_IMPLEMENTED = 501
+java.net.HttpURLConnection	const	public static final int HTTP_BAD_GATEWAY = 502
+java.net.HttpURLConnection	const	public static final int HTTP_UNAVAILABLE = 503
+java.net.HttpURLConnection	const	public static final int HTTP_GATEWAY_TIMEOUT = 504
+java.net.HttpURLConnection	const	public static final int HTTP_VERSION = 505
+java.net.IDN	const	public static final int ALLOW_UNASSIGNED = 0x01
+java.net.IDN	const	public static final int USE_STD3_ASCII_RULES = 0x02
+java.net.IDN	method	public static String toASCII(String input, int flag)
+java.net.IDN	method	public static String toASCII(String input)
+java.net.IDN	method	public static String toUnicode(String input, int flag)
+java.net.IDN	method	public static String toUnicode(String input)
+java.net.InMemoryCookieStore	ctor	public InMemoryCookieStore()
+java.net.InMemoryCookieStore	method	public void add(URI uri, HttpCookie cookie)
+java.net.InMemoryCookieStore	method	public List<HttpCookie> get(URI uri)
+java.net.InMemoryCookieStore	method	public List<HttpCookie> getCookies()
+java.net.InMemoryCookieStore	method	public List<URI> getURIs()
+java.net.InMemoryCookieStore	method	public boolean remove(URI uri, HttpCookie ck)
+java.net.InMemoryCookieStore	method	public boolean removeAll()
+java.net.Inet4Address	method	public static Inet4Address ofLiteral(String ipv4AddressLiteral)
+java.net.Inet4Address	method	public static Inet4Address ofPosixLiteral(String posixIPAddressLiteral)
+java.net.Inet4Address	method	public boolean isMulticastAddress()
+java.net.Inet4Address	method	public boolean isAnyLocalAddress()
+java.net.Inet4Address	method	public boolean isLoopbackAddress()
+java.net.Inet4Address	method	public boolean isLinkLocalAddress()
+java.net.Inet4Address	method	public boolean isSiteLocalAddress()
+java.net.Inet4Address	method	public boolean isMCGlobal()
+java.net.Inet4Address	method	public boolean isMCNodeLocal()
+java.net.Inet4Address	method	public boolean isMCLinkLocal()
+java.net.Inet4Address	method	public boolean isMCSiteLocal()
+java.net.Inet4Address	method	public boolean isMCOrgLocal()
+java.net.Inet4Address	method	public byte[] getAddress()
+java.net.Inet4Address	method	public String getHostAddress()
+java.net.Inet4Address	method	public int hashCode()
+java.net.Inet4Address	method	public boolean equals(Object obj)
+java.net.Inet4AddressImpl	method	public native String getLocalHostName() throws UnknownHostException
+java.net.Inet4AddressImpl	method	public InetAddress[] lookupAllHostAddr(String hostname, LookupPolicy lookupPolicy) throws UnknownHostException
+java.net.Inet4AddressImpl	method	public native String getHostByAddr(byte[] addr) throws UnknownHostException
+java.net.Inet4AddressImpl	method	public synchronized InetAddress anyLocalAddress()
+java.net.Inet4AddressImpl	method	public synchronized InetAddress loopbackAddress()
+java.net.Inet4AddressImpl	method	public boolean isReachable(InetAddress addr, int timeout, NetworkInterface netif, int ttl) throws IOException
+java.net.Inet6Address.Inet6AddressHolder	method	public boolean equals(Object o)
+java.net.Inet6Address.Inet6AddressHolder	method	public int hashCode()
+java.net.Inet6Address	method	public static Inet6Address getByAddress(String host, byte[] addr, NetworkInterface nif) throws UnknownHostException
+java.net.Inet6Address	method	public static Inet6Address getByAddress(String host, byte[] addr, int scope_id) throws UnknownHostException
+java.net.Inet6Address	method	public static InetAddress ofLiteral(String ipv6AddressLiteral)
+java.net.Inet6Address	method	public boolean isMulticastAddress()
+java.net.Inet6Address	method	public boolean isAnyLocalAddress()
+java.net.Inet6Address	method	public boolean isLoopbackAddress()
+java.net.Inet6Address	method	public boolean isLinkLocalAddress()
+java.net.Inet6Address	method	public boolean isSiteLocalAddress()
+java.net.Inet6Address	method	public boolean isMCGlobal()
+java.net.Inet6Address	method	public boolean isMCNodeLocal()
+java.net.Inet6Address	method	public boolean isMCLinkLocal()
+java.net.Inet6Address	method	public boolean isMCSiteLocal()
+java.net.Inet6Address	method	public boolean isMCOrgLocal()
+java.net.Inet6Address	method	public byte[] getAddress()
+java.net.Inet6Address	method	public int getScopeId()
+java.net.Inet6Address	method	public NetworkInterface getScopedInterface()
+java.net.Inet6Address	method	public String getHostAddress()
+java.net.Inet6Address	method	public int hashCode()
+java.net.Inet6Address	method	public boolean equals(Object obj)
+java.net.Inet6Address	method	public boolean isIPv4CompatibleAddress()
+java.net.Inet6AddressImpl	method	public native String getLocalHostName() throws UnknownHostException
+java.net.Inet6AddressImpl	method	public InetAddress[] lookupAllHostAddr(String hostname, LookupPolicy lookupPolicy) throws UnknownHostException
+java.net.Inet6AddressImpl	method	public native String getHostByAddr(byte[] addr) throws UnknownHostException
+java.net.Inet6AddressImpl	method	public boolean isReachable(InetAddress addr, int timeout, NetworkInterface netif, int ttl) throws IOException
+java.net.Inet6AddressImpl	method	public synchronized InetAddress anyLocalAddress()
+java.net.Inet6AddressImpl	method	public synchronized InetAddress loopbackAddress()
+java.net.InetAddress	method	public boolean isMulticastAddress()
+java.net.InetAddress	method	public boolean isAnyLocalAddress()
+java.net.InetAddress	method	public boolean isLoopbackAddress()
+java.net.InetAddress	method	public boolean isLinkLocalAddress()
+java.net.InetAddress	method	public boolean isSiteLocalAddress()
+java.net.InetAddress	method	public boolean isMCGlobal()
+java.net.InetAddress	method	public boolean isMCNodeLocal()
+java.net.InetAddress	method	public boolean isMCLinkLocal()
+java.net.InetAddress	method	public boolean isMCSiteLocal()
+java.net.InetAddress	method	public boolean isMCOrgLocal()
+java.net.InetAddress	method	public boolean isReachable(int timeout) throws IOException
+java.net.InetAddress	method	public boolean isReachable(NetworkInterface netif, int ttl, int timeout) throws IOException
+java.net.InetAddress	method	public String getHostName()
+java.net.InetAddress	method	public String getCanonicalHostName()
+java.net.InetAddress	method	public byte[] getAddress()
+java.net.InetAddress	method	public String getHostAddress()
+java.net.InetAddress	method	public int hashCode()
+java.net.InetAddress	method	public boolean equals(Object obj)
+java.net.InetAddress	method	public String toString()
+java.net.InetAddress.Addresses	method	InetAddress[] get() throws UnknownHostException
+java.net.InetAddress.CachedLookup	method	public InetAddress[] get() throws UnknownHostException
+java.net.InetAddress.CachedLookup	method	public int compareTo(CachedLookup other)
+java.net.InetAddress.CachedLookup	method	public boolean tryRemoveExpiredAddress(long now)
+java.net.InetAddress.ValidCachedLookup	method	public InetAddress[] get()
+java.net.InetAddress.ValidCachedLookup	method	public boolean tryRemoveExpiredAddress(long now)
+java.net.InetAddress.NameServiceAddresses	method	public InetAddress[] get() throws UnknownHostException
+java.net.InetAddress.PlatformResolver	method	public Stream<InetAddress> lookupByName(String host, LookupPolicy policy) throws UnknownHostException
+java.net.InetAddress.PlatformResolver	method	public String lookupByAddress(byte[] addr) throws UnknownHostException
+java.net.InetAddress.HostsFileResolver	ctor	public HostsFileResolver(String hostsFileName)
+java.net.InetAddress.HostsFileResolver	method	public String lookupByAddress(byte[] addr) throws UnknownHostException
+java.net.InetAddress.HostsFileResolver	method	public Stream<InetAddress> lookupByName(String host, LookupPolicy lookupPolicy) throws UnknownHostException
+java.net.InetAddress	method	public static InetAddress getByAddress(String host, byte[] addr) throws UnknownHostException
+java.net.InetAddress	method	public static InetAddress getByName(String host) throws UnknownHostException
+java.net.InetAddress	method	public static InetAddress[] getAllByName(String host) throws UnknownHostException
+java.net.InetAddress	method	public static InetAddress getLoopbackAddress()
+java.net.InetAddress	method	public static InetAddress ofLiteral(String ipAddressLiteral)
+java.net.InetAddress	method	public static InetAddress getByAddress(byte[] addr) throws UnknownHostException
+java.net.InetAddress	method	public static InetAddress getLocalHost() throws UnknownHostException
+java.net.InetAddressImpl	method	String getLocalHostName() throws UnknownHostException
+java.net.InetAddressImpl	method	InetAddress[] lookupAllHostAddr(String hostname, LookupPolicy lookupPolicy) throws UnknownHostException
+java.net.InetAddressImpl	method	String getHostByAddr(byte[] addr) throws UnknownHostException
+java.net.InetAddressImpl	method	InetAddress anyLocalAddress()
+java.net.InetAddressImpl	method	InetAddress loopbackAddress()
+java.net.InetAddressImpl	method	boolean isReachable(InetAddress addr, int timeout, NetworkInterface netif, int ttl) throws IOException
+java.net.InetSocketAddress.InetSocketAddressHolder	method	public String toString()
+java.net.InetSocketAddress.InetSocketAddressHolder	method	public final boolean equals(Object obj)
+java.net.InetSocketAddress.InetSocketAddressHolder	method	public final int hashCode()
+java.net.InetSocketAddress	ctor	public InetSocketAddress(int port)
+java.net.InetSocketAddress	ctor	public InetSocketAddress(InetAddress addr, int port)
+java.net.InetSocketAddress	ctor	public InetSocketAddress(String hostname, int port)
+java.net.InetSocketAddress	method	public static InetSocketAddress createUnresolved(String host, int port)
+java.net.InetSocketAddress	method	public final int getPort()
+java.net.InetSocketAddress	method	public final InetAddress getAddress()
+java.net.InetSocketAddress	method	public final String getHostName()
+java.net.InetSocketAddress	method	public final String getHostString()
+java.net.InetSocketAddress	method	public final boolean isUnresolved()
+java.net.InetSocketAddress	method	public String toString()
+java.net.InetSocketAddress	method	public final boolean equals(Object obj)
+java.net.InetSocketAddress	method	public final int hashCode()
+java.net.InterfaceAddress	method	public InetAddress getAddress()
+java.net.InterfaceAddress	method	public InetAddress getBroadcast()
+java.net.InterfaceAddress	method	public short getNetworkPrefixLength()
+java.net.InterfaceAddress	method	public boolean equals(Object obj)
+java.net.InterfaceAddress	method	public int hashCode()
+java.net.InterfaceAddress	method	public String toString()
+java.net.JarURLConnection	field	protected URLConnection jarFileURLConnection
+java.net.JarURLConnection	ctor	protected JarURLConnection(URL url) throws MalformedURLException
+java.net.JarURLConnection	method	public URL getJarFileURL()
+java.net.JarURLConnection	method	public String getEntryName()
+java.net.JarURLConnection	method	public abstract JarFile getJarFile() throws IOException
+java.net.JarURLConnection	method	public Manifest getManifest() throws IOException
+java.net.JarURLConnection	method	public JarEntry getJarEntry() throws IOException
+java.net.JarURLConnection	method	public Attributes getAttributes() throws IOException
+java.net.JarURLConnection	method	public Attributes getMainAttributes() throws IOException
+java.net.JarURLConnection	method	public java.security.cert.Certificate[] getCertificates() throws IOException
+java.net.MalformedURLException	ctor	public MalformedURLException()
+java.net.MalformedURLException	ctor	public MalformedURLException(String msg)
+java.net.MulticastSocket	ctor	public MulticastSocket() throws IOException
+java.net.MulticastSocket	ctor	public MulticastSocket(int port) throws IOException
+java.net.MulticastSocket	ctor	public MulticastSocket(SocketAddress bindaddr) throws IOException
+java.net.MulticastSocket	method	public void setTimeToLive(int ttl) throws IOException
+java.net.MulticastSocket	method	public int getTimeToLive() throws IOException
+java.net.MulticastSocket	method	public void joinGroup(InetAddress mcastaddr) throws IOException
+java.net.MulticastSocket	method	public void leaveGroup(InetAddress mcastaddr) throws IOException
+java.net.MulticastSocket	method	public void joinGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.MulticastSocket	method	public void leaveGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.MulticastSocket	method	public void setInterface(InetAddress inf) throws SocketException
+java.net.MulticastSocket	method	public InetAddress getInterface() throws SocketException
+java.net.MulticastSocket	method	public void setNetworkInterface(NetworkInterface netIf) throws SocketException
+java.net.MulticastSocket	method	public NetworkInterface getNetworkInterface() throws SocketException
+java.net.MulticastSocket	method	public void setLoopbackMode(boolean disable) throws SocketException
+java.net.MulticastSocket	method	public boolean getLoopbackMode() throws SocketException
+java.net.NetMulticastSocket	method	public synchronized void bind(SocketAddress addr) throws SocketException
+java.net.NetMulticastSocket	method	public void connect(InetAddress address, int port)
+java.net.NetMulticastSocket	method	public void connect(SocketAddress addr) throws SocketException
+java.net.NetMulticastSocket	method	public void disconnect()
+java.net.NetMulticastSocket	method	public boolean isBound()
+java.net.NetMulticastSocket	method	public boolean isConnected()
+java.net.NetMulticastSocket	method	public InetAddress getInetAddress()
+java.net.NetMulticastSocket	method	public int getPort()
+java.net.NetMulticastSocket	method	public SocketAddress getRemoteSocketAddress()
+java.net.NetMulticastSocket	method	public SocketAddress getLocalSocketAddress()
+java.net.NetMulticastSocket	method	public void send(DatagramPacket p) throws IOException
+java.net.NetMulticastSocket	method	public synchronized void receive(DatagramPacket p) throws IOException
+java.net.NetMulticastSocket	method	public InetAddress getLocalAddress()
+java.net.NetMulticastSocket	method	public int getLocalPort()
+java.net.NetMulticastSocket	method	public synchronized void setSoTimeout(int timeout) throws SocketException
+java.net.NetMulticastSocket	method	public synchronized int getSoTimeout() throws SocketException
+java.net.NetMulticastSocket	method	public synchronized void setSendBufferSize(int size) throws SocketException
+java.net.NetMulticastSocket	method	public synchronized int getSendBufferSize() throws SocketException
+java.net.NetMulticastSocket	method	public synchronized void setReceiveBufferSize(int size) throws SocketException
+java.net.NetMulticastSocket	method	public synchronized int getReceiveBufferSize() throws SocketException
+java.net.NetMulticastSocket	method	public synchronized void setReuseAddress(boolean on) throws SocketException
+java.net.NetMulticastSocket	method	public synchronized boolean getReuseAddress() throws SocketException
+java.net.NetMulticastSocket	method	public synchronized void setBroadcast(boolean on) throws SocketException
+java.net.NetMulticastSocket	method	public synchronized boolean getBroadcast() throws SocketException
+java.net.NetMulticastSocket	method	public synchronized void setTrafficClass(int tc) throws SocketException
+java.net.NetMulticastSocket	method	public synchronized int getTrafficClass() throws SocketException
+java.net.NetMulticastSocket	method	public void close()
+java.net.NetMulticastSocket	method	public boolean isClosed()
+java.net.NetMulticastSocket	method	public <T> DatagramSocket setOption(SocketOption<T> name, T value) throws IOException
+java.net.NetMulticastSocket	method	public <T> T getOption(SocketOption<T> name) throws IOException
+java.net.NetMulticastSocket	method	public Set<SocketOption<?>> supportedOptions()
+java.net.NetMulticastSocket	method	public void setTimeToLive(int ttl) throws IOException
+java.net.NetMulticastSocket	method	public int getTimeToLive() throws IOException
+java.net.NetMulticastSocket	method	public void joinGroup(InetAddress mcastaddr) throws IOException
+java.net.NetMulticastSocket	method	public void leaveGroup(InetAddress mcastaddr) throws IOException
+java.net.NetMulticastSocket	method	public void joinGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.NetMulticastSocket	method	public void leaveGroup(SocketAddress mcastaddr, NetworkInterface netIf) throws IOException
+java.net.NetMulticastSocket	method	public void setInterface(InetAddress inf) throws SocketException
+java.net.NetMulticastSocket	method	public InetAddress getInterface() throws SocketException
+java.net.NetMulticastSocket	method	public void setNetworkInterface(NetworkInterface netIf) throws SocketException
+java.net.NetMulticastSocket	method	public NetworkInterface getNetworkInterface() throws SocketException
+java.net.NetMulticastSocket	method	public void setLoopbackMode(boolean disable) throws SocketException
+java.net.NetMulticastSocket	method	public boolean getLoopbackMode() throws SocketException
+java.net.NetPermission	ctor	public NetPermission(String name)
+java.net.NetPermission	ctor	public NetPermission(String name, String actions)
+java.net.NetworkInterface	method	public String getName()
+java.net.NetworkInterface	method	public Enumeration<InetAddress> getInetAddresses()
+java.net.NetworkInterface	method	public Stream<InetAddress> inetAddresses()
+java.net.NetworkInterface	method	public List<InterfaceAddress> getInterfaceAddresses()
+java.net.NetworkInterface	method	public Enumeration<NetworkInterface> getSubInterfaces()
+java.net.NetworkInterface	method	public Stream<NetworkInterface> subInterfaces()
+java.net.NetworkInterface	method	public NetworkInterface getParent()
+java.net.NetworkInterface	method	public int getIndex()
+java.net.NetworkInterface	method	public String getDisplayName()
+java.net.NetworkInterface	method	public static NetworkInterface getByName(String name) throws SocketException
+java.net.NetworkInterface	method	public static NetworkInterface getByIndex(int index) throws SocketException
+java.net.NetworkInterface	method	public static NetworkInterface getByInetAddress(InetAddress addr) throws SocketException
+java.net.NetworkInterface	method	public static Enumeration<NetworkInterface> getNetworkInterfaces() throws SocketException
+java.net.NetworkInterface	method	public static Stream<NetworkInterface> networkInterfaces() throws SocketException
+java.net.NetworkInterface	method	public boolean isUp() throws SocketException
+java.net.NetworkInterface	method	public boolean isLoopback() throws SocketException
+java.net.NetworkInterface	method	public boolean isPointToPoint() throws SocketException
+java.net.NetworkInterface	method	public boolean supportsMulticast() throws SocketException
+java.net.NetworkInterface	method	public byte[] getHardwareAddress() throws SocketException
+java.net.NetworkInterface	method	public int getMTU() throws SocketException
+java.net.NetworkInterface	method	public boolean isVirtual()
+java.net.NetworkInterface	method	public boolean equals(Object obj)
+java.net.NetworkInterface	method	public int hashCode()
+java.net.NetworkInterface	method	public String toString()
+java.net.NoRouteToHostException	ctor	public NoRouteToHostException(String msg)
+java.net.NoRouteToHostException	ctor	public NoRouteToHostException()
+java.net.PasswordAuthentication	ctor	public PasswordAuthentication(String userName, char[] password)
+java.net.PasswordAuthentication	method	public String getUserName()
+java.net.PasswordAuthentication	method	public char[] getPassword()
+java.net.PortUnreachableException	ctor	public PortUnreachableException(String msg)
+java.net.PortUnreachableException	ctor	public PortUnreachableException()
+java.net.ProtocolException	ctor	public ProtocolException(String message)
+java.net.ProtocolException	ctor	public ProtocolException()
+java.net.ProtocolFamily	method	String name()
+java.net.Proxy.Type	enum_const	DIRECT
+java.net.Proxy.Type	enum_const	HTTP
+java.net.Proxy.Type	enum_const	SOCKS
+java.net.Proxy	const	public static final Proxy NO_PROXY = new Proxy()
+java.net.Proxy	ctor	public Proxy(Type type, SocketAddress sa)
+java.net.Proxy	method	public Type type()
+java.net.Proxy	method	public SocketAddress address()
+java.net.Proxy	method	public String toString()
+java.net.Proxy	method	public final boolean equals(Object obj)
+java.net.Proxy	method	public final int hashCode()
+java.net.ProxySelector	ctor	public ProxySelector()
+java.net.ProxySelector	method	public static ProxySelector getDefault()
+java.net.ProxySelector	method	public static void setDefault(ProxySelector ps)
+java.net.ProxySelector	method	public abstract List<Proxy> select(URI uri)
+java.net.ProxySelector	method	public abstract void connectFailed(URI uri, SocketAddress sa, IOException ioe)
+java.net.ProxySelector	method	public static ProxySelector of(InetSocketAddress proxyAddress)
+java.net.ProxySelector.StaticProxySelector	method	public void connectFailed(URI uri, SocketAddress sa, IOException e)
+java.net.ProxySelector.StaticProxySelector	method	public List<Proxy> select(URI uri)
+java.net.ResponseCache	ctor	public ResponseCache()
+java.net.ResponseCache	method	public static synchronized ResponseCache getDefault()
+java.net.ResponseCache	method	public static synchronized void setDefault(ResponseCache responseCache)
+java.net.ResponseCache	method	public abstract CacheResponse get(URI uri, String rqstMethod, Map<String, List<String>> rqstHeaders) throws IOException
+java.net.ResponseCache	method	public abstract CacheRequest put(URI uri, URLConnection conn) throws IOException
+java.net.SecureCacheResponse	ctor	public SecureCacheResponse()
+java.net.SecureCacheResponse	method	public abstract String getCipherSuite()
+java.net.SecureCacheResponse	method	public abstract List<Certificate> getLocalCertificateChain()
+java.net.SecureCacheResponse	method	public abstract List<Certificate> getServerCertificateChain() throws SSLPeerUnverifiedException
+java.net.SecureCacheResponse	method	public abstract Principal getPeerPrincipal() throws SSLPeerUnverifiedException
+java.net.SecureCacheResponse	method	public abstract Principal getLocalPrincipal()
+java.net.SecureCacheResponse	method	public Optional<SSLSession> getSSLSession()
+java.net.ServerSocket	ctor	protected ServerSocket(SocketImpl impl)
+java.net.ServerSocket	ctor	public ServerSocket() throws IOException
+java.net.ServerSocket	ctor	public ServerSocket(int port) throws IOException
+java.net.ServerSocket	ctor	public ServerSocket(int port, int backlog) throws IOException
+java.net.ServerSocket	ctor	public ServerSocket(int port, int backlog, InetAddress bindAddr) throws IOException
+java.net.ServerSocket	method	public void bind(SocketAddress endpoint) throws IOException
+java.net.ServerSocket	method	public void bind(SocketAddress endpoint, int backlog) throws IOException
+java.net.ServerSocket	method	public InetAddress getInetAddress()
+java.net.ServerSocket	method	public int getLocalPort()
+java.net.ServerSocket	method	public SocketAddress getLocalSocketAddress()
+java.net.ServerSocket	method	public Socket accept() throws IOException
+java.net.ServerSocket	method	protected final void implAccept(Socket s) throws IOException
+java.net.ServerSocket	method	public void close() throws IOException
+java.net.ServerSocket	method	public ServerSocketChannel getChannel()
+java.net.ServerSocket	method	public boolean isBound()
+java.net.ServerSocket	method	public boolean isClosed()
+java.net.ServerSocket	method	public void setSoTimeout(int timeout) throws SocketException
+java.net.ServerSocket	method	public int getSoTimeout() throws IOException
+java.net.ServerSocket	method	public void setReuseAddress(boolean on) throws SocketException
+java.net.ServerSocket	method	public boolean getReuseAddress() throws SocketException
+java.net.ServerSocket	method	public String toString()
+java.net.ServerSocket	method	public static synchronized void setSocketFactory(SocketImplFactory fac) throws IOException
+java.net.ServerSocket	method	public void setReceiveBufferSize(int size) throws SocketException
+java.net.ServerSocket	method	public int getReceiveBufferSize() throws SocketException
+java.net.ServerSocket	method	public void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
+java.net.ServerSocket	method	public <T> ServerSocket setOption(SocketOption<T> name, T value) throws IOException
+java.net.ServerSocket	method	public <T> T getOption(SocketOption<T> name) throws IOException
+java.net.ServerSocket	method	public Set<SocketOption<?>> supportedOptions()
+java.net.Socket	ctor	public Socket()
+java.net.Socket	ctor	public Socket(Proxy proxy)
+java.net.Socket	ctor	protected Socket(SocketImpl impl) throws SocketException
+java.net.Socket	ctor	public Socket(String host, int port) throws UnknownHostException, IOException
+java.net.Socket	ctor	public Socket(InetAddress address, int port) throws IOException
+java.net.Socket	ctor	public Socket(String host, int port, InetAddress localAddr, int localPort) throws IOException
+java.net.Socket	ctor	public Socket(InetAddress address, int port, InetAddress localAddr, int localPort) throws IOException
+java.net.Socket	ctor	public Socket(String host, int port, boolean stream) throws IOException
+java.net.Socket	ctor	public Socket(InetAddress host, int port, boolean stream) throws IOException
+java.net.Socket	method	public void connect(SocketAddress endpoint) throws IOException
+java.net.Socket	method	public void connect(SocketAddress endpoint, int timeout) throws IOException
+java.net.Socket	method	public void bind(SocketAddress bindpoint) throws IOException
+java.net.Socket	method	public InetAddress getInetAddress()
+java.net.Socket	method	public InetAddress getLocalAddress()
+java.net.Socket	method	public int getPort()
+java.net.Socket	method	public int getLocalPort()
+java.net.Socket	method	public SocketAddress getRemoteSocketAddress()
+java.net.Socket	method	public SocketAddress getLocalSocketAddress()
+java.net.Socket	method	public SocketChannel getChannel()
+java.net.Socket	method	public InputStream getInputStream() throws IOException
+java.net.Socket.SocketInputStream	method	public int read() throws IOException
+java.net.Socket.SocketInputStream	method	public int read(byte[] b, int off, int len) throws IOException
+java.net.Socket.SocketInputStream	method	public int available() throws IOException
+java.net.Socket.SocketInputStream	method	public void close() throws IOException
+java.net.Socket	method	public OutputStream getOutputStream() throws IOException
+java.net.Socket.SocketOutputStream	method	public void write(int b) throws IOException
+java.net.Socket.SocketOutputStream	method	public void write(byte[] b, int off, int len) throws IOException
+java.net.Socket.SocketOutputStream	method	public void close() throws IOException
+java.net.Socket	method	public void setTcpNoDelay(boolean on) throws SocketException
+java.net.Socket	method	public boolean getTcpNoDelay() throws SocketException
+java.net.Socket	method	public void setSoLinger(boolean on, int linger) throws SocketException
+java.net.Socket	method	public int getSoLinger() throws SocketException
+java.net.Socket	method	public void sendUrgentData(int data) throws IOException
+java.net.Socket	method	public void setOOBInline(boolean on) throws SocketException
+java.net.Socket	method	public boolean getOOBInline() throws SocketException
+java.net.Socket	method	public void setSoTimeout(int timeout) throws SocketException
+java.net.Socket	method	public int getSoTimeout() throws SocketException
+java.net.Socket	method	public void setSendBufferSize(int size) throws SocketException
+java.net.Socket	method	public int getSendBufferSize() throws SocketException
+java.net.Socket	method	public void setReceiveBufferSize(int size) throws SocketException
+java.net.Socket	method	public int getReceiveBufferSize() throws SocketException
+java.net.Socket	method	public void setKeepAlive(boolean on) throws SocketException
+java.net.Socket	method	public boolean getKeepAlive() throws SocketException
+java.net.Socket	method	public void setTrafficClass(int tc) throws SocketException
+java.net.Socket	method	public int getTrafficClass() throws SocketException
+java.net.Socket	method	public void setReuseAddress(boolean on) throws SocketException
+java.net.Socket	method	public boolean getReuseAddress() throws SocketException
+java.net.Socket	method	public void close() throws IOException
+java.net.Socket	method	public void shutdownInput() throws IOException
+java.net.Socket	method	public void shutdownOutput() throws IOException
+java.net.Socket	method	public String toString()
+java.net.Socket	method	public boolean isConnected()
+java.net.Socket	method	public boolean isBound()
+java.net.Socket	method	public boolean isClosed()
+java.net.Socket	method	public boolean isInputShutdown()
+java.net.Socket	method	public boolean isOutputShutdown()
+java.net.Socket	method	public static synchronized void setSocketImplFactory(SocketImplFactory fac) throws IOException
+java.net.Socket	method	public void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
+java.net.Socket	method	public <T> Socket setOption(SocketOption<T> name, T value) throws IOException
+java.net.Socket	method	public <T> T getOption(SocketOption<T> name) throws IOException
+java.net.Socket	method	public Set<SocketOption<?>> supportedOptions()
+java.net.SocketAddress	ctor	public SocketAddress()
+java.net.SocketException	ctor	public SocketException(String msg)
+java.net.SocketException	ctor	public SocketException()
+java.net.SocketException	ctor	public SocketException(String msg, Throwable cause)
+java.net.SocketException	ctor	public SocketException(Throwable cause)
+java.net.SocketImpl	field	protected FileDescriptor fd
+java.net.SocketImpl	field	protected InetAddress address
+java.net.SocketImpl	field	protected int port
+java.net.SocketImpl	field	protected int localport
+java.net.SocketImpl	ctor	public SocketImpl()
+java.net.SocketImpl	method	protected abstract void create(boolean stream) throws IOException
+java.net.SocketImpl	method	protected abstract void connect(String host, int port) throws IOException
+java.net.SocketImpl	method	protected abstract void connect(InetAddress address, int port) throws IOException
+java.net.SocketImpl	method	protected abstract void connect(SocketAddress address, int timeout) throws IOException
+java.net.SocketImpl	method	protected abstract void bind(InetAddress host, int port) throws IOException
+java.net.SocketImpl	method	protected abstract void listen(int backlog) throws IOException
+java.net.SocketImpl	method	protected abstract void accept(SocketImpl s) throws IOException
+java.net.SocketImpl	method	protected abstract InputStream getInputStream() throws IOException
+java.net.SocketImpl	method	protected abstract OutputStream getOutputStream() throws IOException
+java.net.SocketImpl	method	protected abstract int available() throws IOException
+java.net.SocketImpl	method	protected abstract void close() throws IOException
+java.net.SocketImpl	method	protected void shutdownInput() throws IOException
+java.net.SocketImpl	method	protected void shutdownOutput() throws IOException
+java.net.SocketImpl	method	protected FileDescriptor getFileDescriptor()
+java.net.SocketImpl	method	protected InetAddress getInetAddress()
+java.net.SocketImpl	method	protected int getPort()
+java.net.SocketImpl	method	protected boolean supportsUrgentData ()
+java.net.SocketImpl	method	protected abstract void sendUrgentData (int data) throws IOException
+java.net.SocketImpl	method	protected int getLocalPort()
+java.net.SocketImpl	method	public String toString()
+java.net.SocketImpl	method	protected void setPerformancePreferences(int connectionTime, int latency, int bandwidth)
+java.net.SocketImpl	method	protected <T> void setOption(SocketOption<T> name, T value) throws IOException
+java.net.SocketImpl	method	protected <T> T getOption(SocketOption<T> name) throws IOException
+java.net.SocketImpl	method	protected Set<SocketOption<?>> supportedOptions()
+java.net.SocketImplFactory	method	SocketImpl createSocketImpl()
+java.net.SocketOption	method	String name()
+java.net.SocketOption	method	Class<T> type()
+java.net.SocketOptions	method	public void setOption(int optID, Object value) throws SocketException
+java.net.SocketOptions	method	public Object getOption(int optID) throws SocketException
+java.net.SocketOptions	const	public static final int TCP_NODELAY = 0x0001
+java.net.SocketOptions	const	public static final int SO_BINDADDR = 0x000F
+java.net.SocketOptions	const	public static final int SO_REUSEADDR = 0x04
+java.net.SocketOptions	const	public static final int SO_REUSEPORT = 0x0E
+java.net.SocketOptions	const	public static final int SO_BROADCAST = 0x0020
+java.net.SocketOptions	const	public static final int IP_MULTICAST_IF = 0x10
+java.net.SocketOptions	const	public static final int IP_MULTICAST_IF2 = 0x1f
+java.net.SocketOptions	const	public static final int IP_MULTICAST_LOOP = 0x12
+java.net.SocketOptions	const	public static final int IP_TOS = 0x3
+java.net.SocketOptions	const	public static final int SO_LINGER = 0x0080
+java.net.SocketOptions	const	public static final int SO_TIMEOUT = 0x1006
+java.net.SocketOptions	const	public static final int SO_SNDBUF = 0x1001
+java.net.SocketOptions	const	public static final int SO_RCVBUF = 0x1002
+java.net.SocketOptions	const	public static final int SO_KEEPALIVE = 0x0008
+java.net.SocketOptions	const	public static final int SO_OOBINLINE = 0x1003
+java.net.SocketPermission	ctor	public SocketPermission(String host, String action)
+java.net.SocketPermission	method	public boolean implies(Permission p)
+java.net.SocketPermission	method	public boolean equals(Object obj)
+java.net.SocketPermission	method	public int hashCode()
+java.net.SocketPermission	method	public String getActions()
+java.net.SocketPermission	method	public PermissionCollection newPermissionCollection()
+java.net.SocketPermissionCollection	ctor	public SocketPermissionCollection()
+java.net.SocketPermissionCollection	method	public void add(Permission permission)
+java.net.SocketPermissionCollection	method	public boolean implies(Permission permission)
+java.net.SocketPermissionCollection	method	public Enumeration<Permission> elements()
+java.net.SocketTimeoutException	ctor	public SocketTimeoutException(String msg)
+java.net.SocketTimeoutException	ctor	public SocketTimeoutException()
+java.net.SocksConsts	const	static final int PROTO_VERS4 = 4
+java.net.SocksConsts	const	static final int PROTO_VERS = 5
+java.net.SocksConsts	const	static final int DEFAULT_PORT = 1080
+java.net.SocksConsts	const	static final int NO_AUTH = 0
+java.net.SocksConsts	const	static final int GSSAPI = 1
+java.net.SocksConsts	const	static final int USER_PASSW = 2
+java.net.SocksConsts	const	static final int NO_METHODS = -1
+java.net.SocksConsts	const	static final int CONNECT = 1
+java.net.SocksConsts	const	static final int BIND = 2
+java.net.SocksConsts	const	static final int UDP_ASSOC = 3
+java.net.SocksConsts	const	static final int IPV4 = 1
+java.net.SocksConsts	const	static final int DOMAIN_NAME = 3
+java.net.SocksConsts	const	static final int IPV6 = 4
+java.net.SocksConsts	const	static final int REQUEST_OK = 0
+java.net.SocksConsts	const	static final int GENERAL_FAILURE = 1
+java.net.SocksConsts	const	static final int NOT_ALLOWED = 2
+java.net.SocksConsts	const	static final int NET_UNREACHABLE = 3
+java.net.SocksConsts	const	static final int HOST_UNREACHABLE = 4
+java.net.SocksConsts	const	static final int CONN_REFUSED = 5
+java.net.SocksConsts	const	static final int TTL_EXPIRED = 6
+java.net.SocksConsts	const	static final int CMD_NOT_SUPPORTED = 7
+java.net.SocksConsts	const	static final int ADDR_TYPE_NOT_SUP = 8
+java.net.SocksSocketImpl	method	protected void connect(String host, int port) throws IOException
+java.net.SocksSocketImpl	method	protected void connect(InetAddress address, int port) throws IOException
+java.net.SocksSocketImpl	method	protected void connect(SocketAddress endpoint, int timeout) throws IOException
+java.net.SocksSocketImpl	method	protected void listen(int backlog)
+java.net.SocksSocketImpl	method	protected void accept(SocketImpl s)
+java.net.SocksSocketImpl	method	protected InetAddress getInetAddress()
+java.net.SocksSocketImpl	method	protected int getPort()
+java.net.SocksSocketImpl	method	protected void close() throws IOException
+java.net.StandardProtocolFamily	enum_const	INET
+java.net.StandardProtocolFamily	enum_const	INET6
+java.net.StandardProtocolFamily	enum_const	UNIX
+java.net.StandardSocketOptions	const	public static final SocketOption<Boolean> SO_BROADCAST = new StdSocketOption<Boolean>("", Boolean.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Boolean> SO_KEEPALIVE = new StdSocketOption<Boolean>("", Boolean.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Integer> SO_SNDBUF = new StdSocketOption<Integer>("", Integer.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Integer> SO_RCVBUF = new StdSocketOption<Integer>("", Integer.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Boolean> SO_REUSEADDR = new StdSocketOption<Boolean>("", Boolean.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Boolean> SO_REUSEPORT = new StdSocketOption<Boolean>("", Boolean.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Integer> SO_LINGER = new StdSocketOption<Integer>("", Integer.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Integer> IP_TOS = new StdSocketOption<Integer>("", Integer.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<NetworkInterface> IP_MULTICAST_IF = new StdSocketOption<NetworkInterface>("", NetworkInterface.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Integer> IP_MULTICAST_TTL = new StdSocketOption<Integer>("", Integer.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Boolean> IP_MULTICAST_LOOP = new StdSocketOption<Boolean>("", Boolean.class)
+java.net.StandardSocketOptions	const	public static final SocketOption<Boolean> TCP_NODELAY = new StdSocketOption<Boolean>("", Boolean.class)
+java.net.StandardSocketOptions.StdSocketOption	method	public String name()
+java.net.StandardSocketOptions.StdSocketOption	method	public Class<T> type()
+java.net.StandardSocketOptions.StdSocketOption	method	public String toString()
+java.net.URI	ctor	public URI(String str) throws URISyntaxException
+java.net.URI	ctor	public URI(String scheme, String userInfo, String host, int port, String path, String query, String fragment) throws URISyntaxException
+java.net.URI	ctor	public URI(String scheme, String authority, String path, String query, String fragment) throws URISyntaxException
+java.net.URI	ctor	public URI(String scheme, String host, String path, String fragment) throws URISyntaxException
+java.net.URI	ctor	public URI(String scheme, String ssp, String fragment) throws URISyntaxException
+java.net.URI	method	public static URI create(String str)
+java.net.URI	method	public URI parseServerAuthority() throws URISyntaxException
+java.net.URI	method	public URI normalize()
+java.net.URI	method	public URI resolve(URI uri)
+java.net.URI	method	public URI resolve(String str)
+java.net.URI	method	public URI relativize(URI uri)
+java.net.URI	method	public URL toURL() throws MalformedURLException
+java.net.URI	method	public String getScheme()
+java.net.URI	method	public boolean isAbsolute()
+java.net.URI	method	public boolean isOpaque()
+java.net.URI	method	public String getRawSchemeSpecificPart()
+java.net.URI	method	public String getSchemeSpecificPart()
+java.net.URI	method	public String getRawAuthority()
+java.net.URI	method	public String getAuthority()
+java.net.URI	method	public String getRawUserInfo()
+java.net.URI	method	public String getUserInfo()
+java.net.URI	method	public String getHost()
+java.net.URI	method	public int getPort()
+java.net.URI	method	public String getRawPath()
+java.net.URI	method	public String getPath()
+java.net.URI	method	public String getRawQuery()
+java.net.URI	method	public String getQuery()
+java.net.URI	method	public String getRawFragment()
+java.net.URI	method	public String getFragment()
+java.net.URI	method	public boolean equals(Object ob)
+java.net.URI	method	public int hashCode()
+java.net.URI	method	public int compareTo(URI that)
+java.net.URI	method	public String toString()
+java.net.URI	method	public String toASCIIString()
+java.net.URISyntaxException	ctor	public URISyntaxException(String input, String reason, int index)
+java.net.URISyntaxException	ctor	public URISyntaxException(String input, String reason)
+java.net.URISyntaxException	method	public String getInput()
+java.net.URISyntaxException	method	public String getReason()
+java.net.URISyntaxException	method	public int getIndex()
+java.net.URISyntaxException	method	public String getMessage()
+java.net.URL	ctor	public URL(String protocol, String host, int port, String file) throws MalformedURLException
+java.net.URL	ctor	public URL(String protocol, String host, String file) throws MalformedURLException
+java.net.URL	ctor	public URL(String protocol, String host, int port, String file, URLStreamHandler handler) throws MalformedURLException
+java.net.URL	ctor	public URL(String spec) throws MalformedURLException
+java.net.URL	ctor	public URL(URL context, String spec) throws MalformedURLException
+java.net.URL	ctor	public URL(URL context, String spec, URLStreamHandler handler) throws MalformedURLException
+java.net.URL	method	public static URL of(URI uri, URLStreamHandler handler) throws MalformedURLException
+java.net.URL	method	public String getQuery()
+java.net.URL	method	public String getPath()
+java.net.URL	method	public String getUserInfo()
+java.net.URL	method	public String getAuthority()
+java.net.URL	method	public int getPort()
+java.net.URL	method	public int getDefaultPort()
+java.net.URL	method	public String getProtocol()
+java.net.URL	method	public String getHost()
+java.net.URL	method	public String getFile()
+java.net.URL	method	public String getRef()
+java.net.URL	method	public boolean equals(Object obj)
+java.net.URL	method	public synchronized int hashCode()
+java.net.URL	method	public boolean sameFile(URL other)
+java.net.URL	method	public String toString()
+java.net.URL	method	public String toExternalForm()
+java.net.URL	method	public URI toURI() throws URISyntaxException
+java.net.URL	method	public URLConnection openConnection() throws java.io.IOException
+java.net.URL	method	public URLConnection openConnection(Proxy proxy) throws java.io.IOException
+java.net.URL	method	public final InputStream openStream() throws java.io.IOException
+java.net.URL	method	public final Object getContent() throws java.io.IOException
+java.net.URL	method	public final Object getContent(Class<?>[] classes) throws java.io.IOException
+java.net.URL	method	public static void setURLStreamHandlerFactory(URLStreamHandlerFactory fac)
+java.net.URL.DefaultFactory	method	public URLStreamHandler createURLStreamHandler(String protocol)
+java.net.UrlDeserializedState	ctor	public UrlDeserializedState(String protocol, String host, int port, String authority, String file, String ref, int hashCode)
+java.net.URLClassLoader	ctor	public URLClassLoader(URL[] urls, ClassLoader parent)
+java.net.URLClassLoader	ctor	public URLClassLoader(URL[] urls)
+java.net.URLClassLoader	ctor	public URLClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
+java.net.URLClassLoader	ctor	public URLClassLoader(String name, URL[] urls, ClassLoader parent)
+java.net.URLClassLoader	ctor	public URLClassLoader(String name, URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory)
+java.net.URLClassLoader	method	public InputStream getResourceAsStream(String name)
+java.net.URLClassLoader	method	public void close() throws IOException
+java.net.URLClassLoader	method	protected void addURL(URL url)
+java.net.URLClassLoader	method	public URL[] getURLs()
+java.net.URLClassLoader	method	protected Class<?> findClass(final String name) throws ClassNotFoundException
+java.net.URLClassLoader	method	protected Package definePackage(String name, Manifest man, URL url)
+java.net.URLClassLoader	method	public URL findResource(final String name)
+java.net.URLClassLoader	method	public Enumeration<URL> findResources(final String name) throws IOException
+java.net.URLClassLoader	method	protected PermissionCollection getPermissions(CodeSource codesource)
+java.net.URLClassLoader	method	public static URLClassLoader newInstance(final URL[] urls, final ClassLoader parent)
+java.net.URLClassLoader	method	public static URLClassLoader newInstance(final URL[] urls)
+java.net.URLConnection	field	protected URL url
+java.net.URLConnection	field	protected boolean doInput = true
+java.net.URLConnection	field	protected boolean doOutput = false
+java.net.URLConnection	field	protected boolean allowUserInteraction = defaultAllowUserInteraction
+java.net.URLConnection	field	protected boolean useCaches
+java.net.URLConnection	field	protected long ifModifiedSince = 0
+java.net.URLConnection	field	protected boolean connected = false
+java.net.URLConnection	method	public static FileNameMap getFileNameMap()
+java.net.URLConnection	method	public static void setFileNameMap(FileNameMap map)
+java.net.URLConnection	method	public abstract void connect() throws IOException
+java.net.URLConnection	method	public void setConnectTimeout(int timeout)
+java.net.URLConnection	method	public int getConnectTimeout()
+java.net.URLConnection	method	public void setReadTimeout(int timeout)
+java.net.URLConnection	method	public int getReadTimeout()
+java.net.URLConnection	ctor	protected URLConnection(URL url)
+java.net.URLConnection	method	public URL getURL()
+java.net.URLConnection	method	public int getContentLength()
+java.net.URLConnection	method	public long getContentLengthLong()
+java.net.URLConnection	method	public String getContentType()
+java.net.URLConnection	method	public String getContentEncoding()
+java.net.URLConnection	method	public long getExpiration()
+java.net.URLConnection	method	public long getDate()
+java.net.URLConnection	method	public long getLastModified()
+java.net.URLConnection	method	public String getHeaderField(String name)
+java.net.URLConnection	method	public Map<String,List<String>> getHeaderFields()
+java.net.URLConnection	method	public int getHeaderFieldInt(String name, int defaultValue)
+java.net.URLConnection	method	public long getHeaderFieldLong(String name, long defaultValue)
+java.net.URLConnection	method	public long getHeaderFieldDate(String name, long defaultValue)
+java.net.URLConnection	method	public String getHeaderFieldKey(int n)
+java.net.URLConnection	method	public String getHeaderField(int n)
+java.net.URLConnection	method	public Object getContent() throws IOException
+java.net.URLConnection	method	public Object getContent(Class<?>[] classes) throws IOException
+java.net.URLConnection	method	public Permission getPermission() throws IOException
+java.net.URLConnection	method	public InputStream getInputStream() throws IOException
+java.net.URLConnection	method	public OutputStream getOutputStream() throws IOException
+java.net.URLConnection	method	public String toString()
+java.net.URLConnection	method	public void setDoInput(boolean doinput)
+java.net.URLConnection	method	public boolean getDoInput()
+java.net.URLConnection	method	public void setDoOutput(boolean dooutput)
+java.net.URLConnection	method	public boolean getDoOutput()
+java.net.URLConnection	method	public void setAllowUserInteraction(boolean allowuserinteraction)
+java.net.URLConnection	method	public boolean getAllowUserInteraction()
+java.net.URLConnection	method	public static void setDefaultAllowUserInteraction(boolean defaultallowuserinteraction)
+java.net.URLConnection	method	public static boolean getDefaultAllowUserInteraction()
+java.net.URLConnection	method	public void setUseCaches(boolean usecaches)
+java.net.URLConnection	method	public boolean getUseCaches()
+java.net.URLConnection	method	public void setIfModifiedSince(long ifmodifiedsince)
+java.net.URLConnection	method	public long getIfModifiedSince()
+java.net.URLConnection	method	public boolean getDefaultUseCaches()
+java.net.URLConnection	method	public void setDefaultUseCaches(boolean defaultusecaches)
+java.net.URLConnection	method	public static void setDefaultUseCaches(String protocol, boolean defaultVal)
+java.net.URLConnection	method	public static boolean getDefaultUseCaches(String protocol)
+java.net.URLConnection	method	public void setRequestProperty(String key, String value)
+java.net.URLConnection	method	public void addRequestProperty(String key, String value)
+java.net.URLConnection	method	public String getRequestProperty(String key)
+java.net.URLConnection	method	public Map<String,List<String>> getRequestProperties()
+java.net.URLConnection	method	public static void setDefaultRequestProperty(String key, String value)
+java.net.URLConnection	method	public static String getDefaultRequestProperty(String key)
+java.net.URLConnection	method	public static synchronized void setContentHandlerFactory(ContentHandlerFactory fac)
+java.net.URLConnection	method	public static String guessContentTypeFromName(String fname)
+java.net.URLConnection	method	public static String guessContentTypeFromStream(InputStream is) throws IOException
+java.net.UnknownContentHandler	method	public Object getContent(URLConnection uc) throws IOException
+java.net.URLDecoder	method	public static String decode(String s)
+java.net.URLDecoder	method	public static String decode(String s, String enc) throws UnsupportedEncodingException
+java.net.URLDecoder	method	public static String decode(String s, Charset charset)
+java.net.URLEncoder	method	public static String encode(String s)
+java.net.URLEncoder	method	public static String encode(String s, String enc) throws UnsupportedEncodingException
+java.net.URLEncoder	method	public static String encode(String s, Charset charset)
+java.net.URLPermission	ctor	public URLPermission(String url, String actions)
+java.net.URLPermission	ctor	public URLPermission(String url)
+java.net.URLPermission	method	public String getActions()
+java.net.URLPermission	method	public boolean implies(Permission p)
+java.net.URLPermission	method	public boolean equals(Object p)
+java.net.URLPermission	method	public int hashCode()
+java.net.URLPermission.Authority	method	public int hashCode()
+java.net.URLStreamHandler	ctor	public URLStreamHandler()
+java.net.URLStreamHandler	method	protected abstract URLConnection openConnection(URL u) throws IOException
+java.net.URLStreamHandler	method	protected URLConnection openConnection(URL u, Proxy p) throws IOException
+java.net.URLStreamHandler	method	protected void parseURL(URL u, String spec, int start, int limit)
+java.net.URLStreamHandler	method	protected int getDefaultPort()
+java.net.URLStreamHandler	method	protected boolean equals(URL u1, URL u2)
+java.net.URLStreamHandler	method	protected int hashCode(URL u)
+java.net.URLStreamHandler	method	protected boolean sameFile(URL u1, URL u2)
+java.net.URLStreamHandler	method	protected InetAddress getHostAddress(URL u)
+java.net.URLStreamHandler	method	protected boolean hostsEqual(URL u1, URL u2)
+java.net.URLStreamHandler	method	protected String toExternalForm(URL u)
+java.net.URLStreamHandler	method	protected void setURL(URL u, String protocol, String host, int port, String authority, String userInfo, String path, String query, String ref)
+java.net.URLStreamHandler	method	protected void setURL(URL u, String protocol, String host, int port, String file, String ref)
+java.net.URLStreamHandlerFactory	method	URLStreamHandler createURLStreamHandler(String protocol)
+java.net.UnixDomainSocketAddress	method	public static UnixDomainSocketAddress of(String pathname)
+java.net.UnixDomainSocketAddress	method	public static UnixDomainSocketAddress of(Path path)
+java.net.UnixDomainSocketAddress	method	public Path getPath()
+java.net.UnixDomainSocketAddress	method	public int hashCode()
+java.net.UnixDomainSocketAddress	method	public boolean equals(Object o)
+java.net.UnixDomainSocketAddress	method	public String toString()
+java.net.UnknownHostException	ctor	public UnknownHostException(String message)
+java.net.UnknownHostException	ctor	public UnknownHostException()
+java.net.UnknownServiceException	ctor	public UnknownServiceException()
+java.net.UnknownServiceException	ctor	public UnknownServiceException(String msg)
+java.net.spi.InetAddressResolver	method	Stream<InetAddress> lookupByName(String host, LookupPolicy lookupPolicy) throws UnknownHostException
+java.net.spi.InetAddressResolver	method	String lookupByAddress(byte[] addr) throws UnknownHostException
+java.net.spi.InetAddressResolver.LookupPolicy	const	public static final int IPV4 = 1 << 0
+java.net.spi.InetAddressResolver.LookupPolicy	const	public static final int IPV6 = 1 << 1
+java.net.spi.InetAddressResolver.LookupPolicy	const	public static final int IPV4_FIRST = 1 << 2
+java.net.spi.InetAddressResolver.LookupPolicy	const	public static final int IPV6_FIRST = 1 << 3
+java.net.spi.InetAddressResolver.LookupPolicy	method	public static LookupPolicy of(int characteristics)
+java.net.spi.InetAddressResolver.LookupPolicy	method	public int characteristics()
+java.net.spi.InetAddressResolverProvider	method	public abstract InetAddressResolver get(Configuration configuration)
+java.net.spi.InetAddressResolverProvider	method	public abstract String name()
+java.net.spi.InetAddressResolverProvider	ctor	protected InetAddressResolverProvider()
+java.net.spi.InetAddressResolverProvider.Configuration	method	InetAddressResolver builtinResolver()
+java.net.spi.InetAddressResolverProvider.Configuration	method	String lookupLocalHostName()
+java.net.spi.URLStreamHandlerProvider	ctor	protected URLStreamHandlerProvider()
+javax.net.ServerSocketFactory	ctor	protected ServerSocketFactory()
+javax.net.ServerSocketFactory	method	public static ServerSocketFactory getDefault()
+javax.net.ServerSocketFactory	method	public ServerSocket createServerSocket() throws IOException
+javax.net.ServerSocketFactory	method	public abstract ServerSocket createServerSocket(int port) throws IOException
+javax.net.ServerSocketFactory	method	public abstract ServerSocket createServerSocket(int port, int backlog) throws IOException
+javax.net.ServerSocketFactory	method	public abstract ServerSocket createServerSocket(int port, int backlog, InetAddress ifAddress) throws IOException
+javax.net.DefaultServerSocketFactory	method	public ServerSocket createServerSocket() throws IOException
+javax.net.DefaultServerSocketFactory	method	public ServerSocket createServerSocket(int port) throws IOException
+javax.net.DefaultServerSocketFactory	method	public ServerSocket createServerSocket(int port, int backlog) throws IOException
+javax.net.DefaultServerSocketFactory	method	public ServerSocket createServerSocket(int port, int backlog, InetAddress ifAddress) throws IOException
+javax.net.SocketFactory	ctor	protected SocketFactory()
+javax.net.SocketFactory	method	public static SocketFactory getDefault()
+javax.net.SocketFactory	method	public Socket createSocket() throws IOException
+javax.net.SocketFactory	method	public abstract Socket createSocket(String host, int port) throws IOException, UnknownHostException
+javax.net.SocketFactory	method	public abstract Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException
+javax.net.SocketFactory	method	public abstract Socket createSocket(InetAddress host, int port) throws IOException
+javax.net.SocketFactory	method	public abstract Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException
+javax.net.DefaultSocketFactory	method	public Socket createSocket()
+javax.net.DefaultSocketFactory	method	public Socket createSocket(String host, int port) throws IOException, UnknownHostException
+javax.net.DefaultSocketFactory	method	public Socket createSocket(InetAddress address, int port) throws IOException
+javax.net.DefaultSocketFactory	method	public Socket createSocket(String host, int port, InetAddress clientAddress, int clientPort) throws IOException, UnknownHostException
+javax.net.DefaultSocketFactory	method	public Socket createSocket(InetAddress address, int port, InetAddress clientAddress, int clientPort) throws IOException
+javax.net.ssl.CertPathTrustManagerParameters	ctor	public CertPathTrustManagerParameters(CertPathParameters parameters)
+javax.net.ssl.CertPathTrustManagerParameters	method	public CertPathParameters getParameters()
+javax.net.ssl.ExtendedSSLSession	ctor	public ExtendedSSLSession()
+javax.net.ssl.ExtendedSSLSession	method	public abstract String[] getLocalSupportedSignatureAlgorithms()
+javax.net.ssl.ExtendedSSLSession	method	public abstract String[] getPeerSupportedSignatureAlgorithms()
+javax.net.ssl.ExtendedSSLSession	method	public List<SNIServerName> getRequestedServerNames()
+javax.net.ssl.ExtendedSSLSession	method	public List<byte[]> getStatusResponses()
+javax.net.ssl.ExtendedSSLSession	method	public SecretKey exportKeyingMaterialKey(String keyAlg, String label, byte[] context, int length) throws SSLKeyException
+javax.net.ssl.ExtendedSSLSession	method	public byte[] exportKeyingMaterialData( String label, byte[] context, int length) throws SSLKeyException
+javax.net.ssl.HandshakeCompletedEvent	ctor	public HandshakeCompletedEvent(SSLSocket sock, SSLSession s)
+javax.net.ssl.HandshakeCompletedEvent	method	public SSLSession getSession()
+javax.net.ssl.HandshakeCompletedEvent	method	public String getCipherSuite()
+javax.net.ssl.HandshakeCompletedEvent	method	public java.security.cert.Certificate [] getLocalCertificates()
+javax.net.ssl.HandshakeCompletedEvent	method	public java.security.cert.Certificate [] getPeerCertificates() throws SSLPeerUnverifiedException
+javax.net.ssl.HandshakeCompletedEvent	method	public javax.security.cert.X509Certificate [] getPeerCertificateChain() throws SSLPeerUnverifiedException
+javax.net.ssl.HandshakeCompletedEvent	method	public Principal getPeerPrincipal() throws SSLPeerUnverifiedException
+javax.net.ssl.HandshakeCompletedEvent	method	public Principal getLocalPrincipal()
+javax.net.ssl.HandshakeCompletedEvent	method	public SSLSocket getSocket()
+javax.net.ssl.HandshakeCompletedListener	method	void handshakeCompleted(HandshakeCompletedEvent event)
+javax.net.ssl.HostnameVerifier	method	boolean verify(String hostname, SSLSession session)
+javax.net.ssl.HttpsURLConnection	ctor	protected HttpsURLConnection(URL url)
+javax.net.ssl.HttpsURLConnection	method	public abstract String getCipherSuite()
+javax.net.ssl.HttpsURLConnection	method	public abstract java.security.cert.Certificate [] getLocalCertificates()
+javax.net.ssl.HttpsURLConnection	method	public abstract java.security.cert.Certificate [] getServerCertificates() throws SSLPeerUnverifiedException
+javax.net.ssl.HttpsURLConnection	method	public Principal getPeerPrincipal() throws SSLPeerUnverifiedException
+javax.net.ssl.HttpsURLConnection	method	public Principal getLocalPrincipal()
+javax.net.ssl.HttpsURLConnection.DefaultHostnameVerifier	method	public boolean verify(String hostname, SSLSession session)
+javax.net.ssl.HttpsURLConnection	field	protected HostnameVerifier hostnameVerifier = defaultHostnameVerifier
+javax.net.ssl.HttpsURLConnection	method	public static void setDefaultHostnameVerifier(HostnameVerifier v)
+javax.net.ssl.HttpsURLConnection	method	public static HostnameVerifier getDefaultHostnameVerifier()
+javax.net.ssl.HttpsURLConnection	method	public void setHostnameVerifier(HostnameVerifier v)
+javax.net.ssl.HttpsURLConnection	method	public HostnameVerifier getHostnameVerifier()
+javax.net.ssl.HttpsURLConnection	method	public static void setDefaultSSLSocketFactory(SSLSocketFactory sf)
+javax.net.ssl.HttpsURLConnection	method	public static SSLSocketFactory getDefaultSSLSocketFactory()
+javax.net.ssl.HttpsURLConnection	method	public void setSSLSocketFactory(SSLSocketFactory sf)
+javax.net.ssl.HttpsURLConnection	method	public SSLSocketFactory getSSLSocketFactory()
+javax.net.ssl.HttpsURLConnection	method	public Optional<SSLSession> getSSLSession()
+javax.net.ssl.KeyManagerFactory	method	public static final String getDefaultAlgorithm()
+javax.net.ssl.KeyManagerFactory	ctor	protected KeyManagerFactory(KeyManagerFactorySpi factorySpi, Provider provider, String algorithm)
+javax.net.ssl.KeyManagerFactory	method	public final String getAlgorithm()
+javax.net.ssl.KeyManagerFactory	method	public static final KeyManagerFactory getInstance(String algorithm) throws NoSuchAlgorithmException
+javax.net.ssl.KeyManagerFactory	method	public static final KeyManagerFactory getInstance(String algorithm, String provider) throws NoSuchAlgorithmException, NoSuchProviderException
+javax.net.ssl.KeyManagerFactory	method	public static final KeyManagerFactory getInstance(String algorithm, Provider provider) throws NoSuchAlgorithmException
+javax.net.ssl.KeyManagerFactory	method	public final Provider getProvider()
+javax.net.ssl.KeyManagerFactory	method	public final void init(KeyStore ks, char[] password) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException
+javax.net.ssl.KeyManagerFactory	method	public final void init(ManagerFactoryParameters spec) throws InvalidAlgorithmParameterException
+javax.net.ssl.KeyManagerFactory	method	public final KeyManager[] getKeyManagers()
+javax.net.ssl.KeyManagerFactorySpi	ctor	public KeyManagerFactorySpi()
+javax.net.ssl.KeyManagerFactorySpi	method	protected abstract void engineInit(KeyStore ks, char[] password) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException
+javax.net.ssl.KeyManagerFactorySpi	method	protected abstract void engineInit(ManagerFactoryParameters spec) throws InvalidAlgorithmParameterException
+javax.net.ssl.KeyManagerFactorySpi	method	protected abstract KeyManager[] engineGetKeyManagers()
+javax.net.ssl.KeyStoreBuilderParameters	ctor	public KeyStoreBuilderParameters(Builder builder)
+javax.net.ssl.KeyStoreBuilderParameters	ctor	public KeyStoreBuilderParameters(List<Builder> parameters)
+javax.net.ssl.KeyStoreBuilderParameters	method	public List<Builder> getParameters()
+javax.net.ssl.SNIHostName	ctor	public SNIHostName(String hostname)
+javax.net.ssl.SNIHostName	ctor	public SNIHostName(byte[] encoded)
+javax.net.ssl.SNIHostName	method	public String getAsciiName()
+javax.net.ssl.SNIHostName	method	public boolean equals(Object other)
+javax.net.ssl.SNIHostName	method	public int hashCode()
+javax.net.ssl.SNIHostName	method	public String toString()
+javax.net.ssl.SNIHostName	method	public static SNIMatcher createSNIMatcher(String regex)
+javax.net.ssl.SNIHostName.SNIHostNameMatcher	method	public boolean matches(SNIServerName serverName)
+javax.net.ssl.SNIMatcher	ctor	protected SNIMatcher(int type)
+javax.net.ssl.SNIMatcher	method	public final int getType()
+javax.net.ssl.SNIMatcher	method	public abstract boolean matches(SNIServerName serverName)
+javax.net.ssl.SNIServerName	ctor	protected SNIServerName(int type, byte[] encoded)
+javax.net.ssl.SNIServerName	method	public final int getType()
+javax.net.ssl.SNIServerName	method	public final byte[] getEncoded()
+javax.net.ssl.SNIServerName	method	public boolean equals(Object other)
+javax.net.ssl.SNIServerName	method	public int hashCode()
+javax.net.ssl.SNIServerName	method	public String toString()
+javax.net.ssl.SSLContext	ctor	protected SSLContext(SSLContextSpi contextSpi, Provider provider, String protocol)
+javax.net.ssl.SSLContext	method	public static SSLContext getDefault() throws NoSuchAlgorithmException
+javax.net.ssl.SSLContext	method	public static void setDefault(SSLContext context)
+javax.net.ssl.SSLContext	method	public static SSLContext getInstance(String protocol) throws NoSuchAlgorithmException
+javax.net.ssl.SSLContext	method	public static SSLContext getInstance(String protocol, String provider) throws NoSuchAlgorithmException, NoSuchProviderException
+javax.net.ssl.SSLContext	method	public static SSLContext getInstance(String protocol, Provider provider) throws NoSuchAlgorithmException
+javax.net.ssl.SSLContext	method	public final String getProtocol()
+javax.net.ssl.SSLContext	method	public final Provider getProvider()
+javax.net.ssl.SSLContext	method	public final void init(KeyManager[] km, TrustManager[] tm, SecureRandom random) throws KeyManagementException
+javax.net.ssl.SSLContext	method	public final SSLSocketFactory getSocketFactory()
+javax.net.ssl.SSLContext	method	public final SSLServerSocketFactory getServerSocketFactory()
+javax.net.ssl.SSLContext	method	public final SSLEngine createSSLEngine()
+javax.net.ssl.SSLContext	method	public final SSLEngine createSSLEngine(String peerHost, int peerPort)
+javax.net.ssl.SSLContext	method	public final SSLSessionContext getServerSessionContext()
+javax.net.ssl.SSLContext	method	public final SSLSessionContext getClientSessionContext()
+javax.net.ssl.SSLContext	method	public final SSLParameters getDefaultSSLParameters()
+javax.net.ssl.SSLContext	method	public final SSLParameters getSupportedSSLParameters()
+javax.net.ssl.SSLContextSpi	ctor	public SSLContextSpi()
+javax.net.ssl.SSLContextSpi	method	protected abstract void engineInit(KeyManager[] km, TrustManager[] tm, SecureRandom sr) throws KeyManagementException
+javax.net.ssl.SSLContextSpi	method	protected abstract SSLSocketFactory engineGetSocketFactory()
+javax.net.ssl.SSLContextSpi	method	protected abstract SSLServerSocketFactory engineGetServerSocketFactory()
+javax.net.ssl.SSLContextSpi	method	protected abstract SSLEngine engineCreateSSLEngine()
+javax.net.ssl.SSLContextSpi	method	protected abstract SSLEngine engineCreateSSLEngine(String host, int port)
+javax.net.ssl.SSLContextSpi	method	protected abstract SSLSessionContext engineGetServerSessionContext()
+javax.net.ssl.SSLContextSpi	method	protected abstract SSLSessionContext engineGetClientSessionContext()
+javax.net.ssl.SSLContextSpi	method	protected SSLParameters engineGetDefaultSSLParameters()
+javax.net.ssl.SSLContextSpi	method	protected SSLParameters engineGetSupportedSSLParameters()
+javax.net.ssl.SSLEngine	ctor	protected SSLEngine()
+javax.net.ssl.SSLEngine	ctor	protected SSLEngine(String peerHost, int peerPort)
+javax.net.ssl.SSLEngine	method	public String getPeerHost()
+javax.net.ssl.SSLEngine	method	public int getPeerPort()
+javax.net.ssl.SSLEngine	method	public SSLEngineResult wrap(ByteBuffer src, ByteBuffer dst) throws SSLException
+javax.net.ssl.SSLEngine	method	public SSLEngineResult wrap(ByteBuffer [] srcs, ByteBuffer dst) throws SSLException
+javax.net.ssl.SSLEngine	method	public abstract SSLEngineResult wrap(ByteBuffer [] srcs, int offset, int length, ByteBuffer dst) throws SSLException
+javax.net.ssl.SSLEngine	method	public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer dst) throws SSLException
+javax.net.ssl.SSLEngine	method	public SSLEngineResult unwrap(ByteBuffer src, ByteBuffer [] dsts) throws SSLException
+javax.net.ssl.SSLEngine	method	public abstract SSLEngineResult unwrap(ByteBuffer src, ByteBuffer [] dsts, int offset, int length) throws SSLException
+javax.net.ssl.SSLEngine	method	public abstract Runnable getDelegatedTask()
+javax.net.ssl.SSLEngine	method	public abstract void closeInbound() throws SSLException
+javax.net.ssl.SSLEngine	method	public abstract boolean isInboundDone()
+javax.net.ssl.SSLEngine	method	public abstract void closeOutbound()
+javax.net.ssl.SSLEngine	method	public abstract boolean isOutboundDone()
+javax.net.ssl.SSLEngine	method	public abstract String [] getSupportedCipherSuites()
+javax.net.ssl.SSLEngine	method	public abstract String [] getEnabledCipherSuites()
+javax.net.ssl.SSLEngine	method	public abstract void setEnabledCipherSuites(String[] suites)
+javax.net.ssl.SSLEngine	method	public abstract String [] getSupportedProtocols()
+javax.net.ssl.SSLEngine	method	public abstract String [] getEnabledProtocols()
+javax.net.ssl.SSLEngine	method	public abstract void setEnabledProtocols(String[] protocols)
+javax.net.ssl.SSLEngine	method	public abstract SSLSession getSession()
+javax.net.ssl.SSLEngine	method	public SSLSession getHandshakeSession()
+javax.net.ssl.SSLEngine	method	public abstract void beginHandshake() throws SSLException
+javax.net.ssl.SSLEngine	method	public abstract SSLEngineResult.HandshakeStatus getHandshakeStatus()
+javax.net.ssl.SSLEngine	method	public abstract void setUseClientMode(boolean mode)
+javax.net.ssl.SSLEngine	method	public abstract boolean getUseClientMode()
+javax.net.ssl.SSLEngine	method	public abstract void setNeedClientAuth(boolean need)
+javax.net.ssl.SSLEngine	method	public abstract boolean getNeedClientAuth()
+javax.net.ssl.SSLEngine	method	public abstract void setWantClientAuth(boolean want)
+javax.net.ssl.SSLEngine	method	public abstract boolean getWantClientAuth()
+javax.net.ssl.SSLEngine	method	public abstract void setEnableSessionCreation(boolean flag)
+javax.net.ssl.SSLEngine	method	public abstract boolean getEnableSessionCreation()
+javax.net.ssl.SSLEngine	method	public SSLParameters getSSLParameters()
+javax.net.ssl.SSLEngine	method	public void setSSLParameters(SSLParameters params)
+javax.net.ssl.SSLEngine	method	public String getApplicationProtocol()
+javax.net.ssl.SSLEngine	method	public String getHandshakeApplicationProtocol()
+javax.net.ssl.SSLEngine	method	public void setHandshakeApplicationProtocolSelector( BiFunction<SSLEngine, List<String>, String> selector)
+javax.net.ssl.SSLEngine	method	public BiFunction<SSLEngine, List<String>, String> getHandshakeApplicationProtocolSelector()
+javax.net.ssl.SSLEngineResult.Status	enum_const	BUFFER_UNDERFLOW
+javax.net.ssl.SSLEngineResult.Status	enum_const	BUFFER_OVERFLOW
+javax.net.ssl.SSLEngineResult.Status	enum_const	OK
+javax.net.ssl.SSLEngineResult.Status	enum_const	CLOSED
+javax.net.ssl.SSLEngineResult.HandshakeStatus	enum_const	NOT_HANDSHAKING
+javax.net.ssl.SSLEngineResult.HandshakeStatus	enum_const	FINISHED
+javax.net.ssl.SSLEngineResult.HandshakeStatus	enum_const	NEED_TASK
+javax.net.ssl.SSLEngineResult.HandshakeStatus	enum_const	NEED_WRAP
+javax.net.ssl.SSLEngineResult.HandshakeStatus	enum_const	NEED_UNWRAP
+javax.net.ssl.SSLEngineResult.HandshakeStatus	enum_const	NEED_UNWRAP_AGAIN
+javax.net.ssl.SSLEngineResult	ctor	public SSLEngineResult(Status status, HandshakeStatus handshakeStatus, int bytesConsumed, int bytesProduced)
+javax.net.ssl.SSLEngineResult	ctor	public SSLEngineResult(Status status, HandshakeStatus handshakeStatus, int bytesConsumed, int bytesProduced, long sequenceNumber)
+javax.net.ssl.SSLEngineResult	method	public final Status getStatus()
+javax.net.ssl.SSLEngineResult	method	public final HandshakeStatus getHandshakeStatus()
+javax.net.ssl.SSLEngineResult	method	public final int bytesConsumed()
+javax.net.ssl.SSLEngineResult	method	public final int bytesProduced()
+javax.net.ssl.SSLEngineResult	method	public final long sequenceNumber()
+javax.net.ssl.SSLEngineResult	method	public String toString()
+javax.net.ssl.SSLException	ctor	public SSLException(String reason)
+javax.net.ssl.SSLException	ctor	public SSLException(String message, Throwable cause)
+javax.net.ssl.SSLException	ctor	public SSLException(Throwable cause)
+javax.net.ssl.SSLHandshakeException	ctor	public SSLHandshakeException(String reason)
+javax.net.ssl.SSLHandshakeException	ctor	public SSLHandshakeException(String message, Throwable cause)
+javax.net.ssl.SSLKeyException	ctor	public SSLKeyException(String reason)
+javax.net.ssl.SSLKeyException	ctor	public SSLKeyException(String message, Throwable cause)
+javax.net.ssl.SSLParameters	ctor	public SSLParameters()
+javax.net.ssl.SSLParameters	ctor	public SSLParameters(String[] cipherSuites)
+javax.net.ssl.SSLParameters	ctor	public SSLParameters(String[] cipherSuites, String[] protocols)
+javax.net.ssl.SSLParameters	method	public String[] getCipherSuites()
+javax.net.ssl.SSLParameters	method	public void setCipherSuites(String[] cipherSuites)
+javax.net.ssl.SSLParameters	method	public String[] getProtocols()
+javax.net.ssl.SSLParameters	method	public void setProtocols(String[] protocols)
+javax.net.ssl.SSLParameters	method	public boolean getWantClientAuth()
+javax.net.ssl.SSLParameters	method	public void setWantClientAuth(boolean wantClientAuth)
+javax.net.ssl.SSLParameters	method	public boolean getNeedClientAuth()
+javax.net.ssl.SSLParameters	method	public void setNeedClientAuth(boolean needClientAuth)
+javax.net.ssl.SSLParameters	method	public AlgorithmConstraints getAlgorithmConstraints()
+javax.net.ssl.SSLParameters	method	public void setAlgorithmConstraints(AlgorithmConstraints constraints)
+javax.net.ssl.SSLParameters	method	public String getEndpointIdentificationAlgorithm()
+javax.net.ssl.SSLParameters	method	public void setEndpointIdentificationAlgorithm(String algorithm)
+javax.net.ssl.SSLParameters	method	public final void setServerNames(List<SNIServerName> serverNames)
+javax.net.ssl.SSLParameters	method	public final List<SNIServerName> getServerNames()
+javax.net.ssl.SSLParameters	method	public final void setSNIMatchers(Collection<SNIMatcher> matchers)
+javax.net.ssl.SSLParameters	method	public final Collection<SNIMatcher> getSNIMatchers()
+javax.net.ssl.SSLParameters	method	public final void setUseCipherSuitesOrder(boolean honorOrder)
+javax.net.ssl.SSLParameters	method	public final boolean getUseCipherSuitesOrder()
+javax.net.ssl.SSLParameters	method	public void setEnableRetransmissions(boolean enableRetransmissions)
+javax.net.ssl.SSLParameters	method	public boolean getEnableRetransmissions()
+javax.net.ssl.SSLParameters	method	public void setMaximumPacketSize(int maximumPacketSize)
+javax.net.ssl.SSLParameters	method	public int getMaximumPacketSize()
+javax.net.ssl.SSLParameters	method	public String[] getApplicationProtocols()
+javax.net.ssl.SSLParameters	method	public void setApplicationProtocols(String[] protocols)
+javax.net.ssl.SSLParameters	method	public String[] getSignatureSchemes()
+javax.net.ssl.SSLParameters	method	public void setSignatureSchemes(String[] signatureSchemes)
+javax.net.ssl.SSLParameters	method	public String[] getNamedGroups()
+javax.net.ssl.SSLParameters	method	public void setNamedGroups(String[] namedGroups)
+javax.net.ssl.SSLPeerUnverifiedException	ctor	public SSLPeerUnverifiedException(String reason)
+javax.net.ssl.SSLPeerUnverifiedException	ctor	public SSLPeerUnverifiedException(String message, Throwable cause)
+javax.net.ssl.SSLPermission	ctor	public SSLPermission(String name)
+javax.net.ssl.SSLPermission	ctor	public SSLPermission(String name, String actions)
+javax.net.ssl.SSLProtocolException	ctor	public SSLProtocolException(String reason)
+javax.net.ssl.SSLProtocolException	ctor	public SSLProtocolException(String message, Throwable cause)
+javax.net.ssl.SSLServerSocket	ctor	protected SSLServerSocket() throws IOException
+javax.net.ssl.SSLServerSocket	ctor	protected SSLServerSocket(int port) throws IOException
+javax.net.ssl.SSLServerSocket	ctor	protected SSLServerSocket(int port, int backlog) throws IOException
+javax.net.ssl.SSLServerSocket	ctor	protected SSLServerSocket(int port, int backlog, InetAddress address) throws IOException
+javax.net.ssl.SSLServerSocket	method	public abstract String [] getEnabledCipherSuites()
+javax.net.ssl.SSLServerSocket	method	public abstract void setEnabledCipherSuites(String[] suites)
+javax.net.ssl.SSLServerSocket	method	public abstract String [] getSupportedCipherSuites()
+javax.net.ssl.SSLServerSocket	method	public abstract String [] getSupportedProtocols()
+javax.net.ssl.SSLServerSocket	method	public abstract String [] getEnabledProtocols()
+javax.net.ssl.SSLServerSocket	method	public abstract void setEnabledProtocols(String[] protocols)
+javax.net.ssl.SSLServerSocket	method	public abstract void setNeedClientAuth(boolean need)
+javax.net.ssl.SSLServerSocket	method	public abstract boolean getNeedClientAuth()
+javax.net.ssl.SSLServerSocket	method	public abstract void setWantClientAuth(boolean want)
+javax.net.ssl.SSLServerSocket	method	public abstract boolean getWantClientAuth()
+javax.net.ssl.SSLServerSocket	method	public abstract void setUseClientMode(boolean mode)
+javax.net.ssl.SSLServerSocket	method	public abstract boolean getUseClientMode()
+javax.net.ssl.SSLServerSocket	method	public abstract void setEnableSessionCreation(boolean flag)
+javax.net.ssl.SSLServerSocket	method	public abstract boolean getEnableSessionCreation()
+javax.net.ssl.SSLServerSocket	method	public SSLParameters getSSLParameters()
+javax.net.ssl.SSLServerSocket	method	public void setSSLParameters(SSLParameters params)
+javax.net.ssl.SSLServerSocketFactory	ctor	protected SSLServerSocketFactory()
+javax.net.ssl.SSLServerSocketFactory	method	public static ServerSocketFactory getDefault()
+javax.net.ssl.SSLServerSocketFactory	method	public abstract String [] getDefaultCipherSuites()
+javax.net.ssl.SSLServerSocketFactory	method	public abstract String [] getSupportedCipherSuites()
+javax.net.ssl.DefaultSSLServerSocketFactory	method	public ServerSocket createServerSocket() throws IOException
+javax.net.ssl.DefaultSSLServerSocketFactory	method	public ServerSocket createServerSocket(int port) throws IOException
+javax.net.ssl.DefaultSSLServerSocketFactory	method	public ServerSocket createServerSocket(int port, int backlog) throws IOException
+javax.net.ssl.DefaultSSLServerSocketFactory	method	public ServerSocket createServerSocket(int port, int backlog, InetAddress ifAddress) throws IOException
+javax.net.ssl.DefaultSSLServerSocketFactory	method	public String [] getDefaultCipherSuites()
+javax.net.ssl.DefaultSSLServerSocketFactory	method	public String [] getSupportedCipherSuites()
+javax.net.ssl.SSLSession	method	byte[] getId()
+javax.net.ssl.SSLSession	method	SSLSessionContext getSessionContext()
+javax.net.ssl.SSLSession	method	long getCreationTime()
+javax.net.ssl.SSLSession	method	long getLastAccessedTime()
+javax.net.ssl.SSLSession	method	void invalidate()
+javax.net.ssl.SSLSession	method	boolean isValid()
+javax.net.ssl.SSLSession	method	void putValue(String name, Object value)
+javax.net.ssl.SSLSession	method	Object getValue(String name)
+javax.net.ssl.SSLSession	method	void removeValue(String name)
+javax.net.ssl.SSLSession	method	String [] getValueNames()
+javax.net.ssl.SSLSession	method	java.security.cert.Certificate [] getPeerCertificates() throws SSLPeerUnverifiedException
+javax.net.ssl.SSLSession	method	java.security.cert.Certificate [] getLocalCertificates()
+javax.net.ssl.SSLSession	method	default javax.security.cert.X509Certificate[] getPeerCertificateChain() throws SSLPeerUnverifiedException
+javax.net.ssl.SSLSession	method	Principal getPeerPrincipal() throws SSLPeerUnverifiedException
+javax.net.ssl.SSLSession	method	Principal getLocalPrincipal()
+javax.net.ssl.SSLSession	method	String getCipherSuite()
+javax.net.ssl.SSLSession	method	String getProtocol()
+javax.net.ssl.SSLSession	method	String getPeerHost()
+javax.net.ssl.SSLSession	method	int getPeerPort()
+javax.net.ssl.SSLSession	method	int getPacketBufferSize()
+javax.net.ssl.SSLSession	method	int getApplicationBufferSize()
+javax.net.ssl.SSLSessionBindingEvent	ctor	public SSLSessionBindingEvent(SSLSession session, String name)
+javax.net.ssl.SSLSessionBindingEvent	method	public String getName()
+javax.net.ssl.SSLSessionBindingEvent	method	public SSLSession getSession()
+javax.net.ssl.SSLSessionBindingListener	method	void valueBound(SSLSessionBindingEvent event)
+javax.net.ssl.SSLSessionBindingListener	method	void valueUnbound(SSLSessionBindingEvent event)
+javax.net.ssl.SSLSessionContext	method	SSLSession getSession(byte[] sessionId)
+javax.net.ssl.SSLSessionContext	method	Enumeration<byte[]> getIds()
+javax.net.ssl.SSLSessionContext	method	void setSessionTimeout(int seconds)
+javax.net.ssl.SSLSessionContext	method	int getSessionTimeout()
+javax.net.ssl.SSLSessionContext	method	void setSessionCacheSize(int size)
+javax.net.ssl.SSLSessionContext	method	int getSessionCacheSize()
+javax.net.ssl.SSLSocket	ctor	protected SSLSocket()
+javax.net.ssl.SSLSocket	ctor	protected SSLSocket(String host, int port) throws IOException, UnknownHostException
+javax.net.ssl.SSLSocket	ctor	protected SSLSocket(InetAddress address, int port) throws IOException
+javax.net.ssl.SSLSocket	ctor	protected SSLSocket(String host, int port, InetAddress clientAddress, int clientPort) throws IOException, UnknownHostException
+javax.net.ssl.SSLSocket	ctor	protected SSLSocket(InetAddress address, int port, InetAddress clientAddress, int clientPort) throws IOException
+javax.net.ssl.SSLSocket	method	public abstract String [] getSupportedCipherSuites()
+javax.net.ssl.SSLSocket	method	public abstract String [] getEnabledCipherSuites()
+javax.net.ssl.SSLSocket	method	public abstract void setEnabledCipherSuites(String[] suites)
+javax.net.ssl.SSLSocket	method	public abstract String [] getSupportedProtocols()
+javax.net.ssl.SSLSocket	method	public abstract String [] getEnabledProtocols()
+javax.net.ssl.SSLSocket	method	public abstract void setEnabledProtocols(String[] protocols)
+javax.net.ssl.SSLSocket	method	public abstract SSLSession getSession()
+javax.net.ssl.SSLSocket	method	public SSLSession getHandshakeSession()
+javax.net.ssl.SSLSocket	method	public abstract void addHandshakeCompletedListener( HandshakeCompletedListener listener)
+javax.net.ssl.SSLSocket	method	public abstract void removeHandshakeCompletedListener( HandshakeCompletedListener listener)
+javax.net.ssl.SSLSocket	method	public abstract void startHandshake() throws IOException
+javax.net.ssl.SSLSocket	method	public abstract void setUseClientMode(boolean mode)
+javax.net.ssl.SSLSocket	method	public abstract boolean getUseClientMode()
+javax.net.ssl.SSLSocket	method	public abstract void setNeedClientAuth(boolean need)
+javax.net.ssl.SSLSocket	method	public abstract boolean getNeedClientAuth()
+javax.net.ssl.SSLSocket	method	public abstract void setWantClientAuth(boolean want)
+javax.net.ssl.SSLSocket	method	public abstract boolean getWantClientAuth()
+javax.net.ssl.SSLSocket	method	public abstract void setEnableSessionCreation(boolean flag)
+javax.net.ssl.SSLSocket	method	public abstract boolean getEnableSessionCreation()
+javax.net.ssl.SSLSocket	method	public SSLParameters getSSLParameters()
+javax.net.ssl.SSLSocket	method	public void setSSLParameters(SSLParameters params)
+javax.net.ssl.SSLSocket	method	public String getApplicationProtocol()
+javax.net.ssl.SSLSocket	method	public String getHandshakeApplicationProtocol()
+javax.net.ssl.SSLSocket	method	public void setHandshakeApplicationProtocolSelector( BiFunction<SSLSocket, List<String>, String> selector)
+javax.net.ssl.SSLSocket	method	public BiFunction<SSLSocket, List<String>, String> getHandshakeApplicationProtocolSelector()
+javax.net.ssl.SSLSocketFactory	ctor	public SSLSocketFactory()
+javax.net.ssl.SSLSocketFactory	method	public static SocketFactory getDefault()
+javax.net.ssl.SSLSocketFactory	method	public abstract String [] getDefaultCipherSuites()
+javax.net.ssl.SSLSocketFactory	method	public abstract String [] getSupportedCipherSuites()
+javax.net.ssl.SSLSocketFactory	method	public abstract Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException
+javax.net.ssl.SSLSocketFactory	method	public Socket createSocket(Socket s, InputStream consumed, boolean autoClose) throws IOException
+javax.net.ssl.DefaultSSLSocketFactory	method	public Socket createSocket() throws IOException
+javax.net.ssl.DefaultSSLSocketFactory	method	public Socket createSocket(String host, int port) throws IOException
+javax.net.ssl.DefaultSSLSocketFactory	method	public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException
+javax.net.ssl.DefaultSSLSocketFactory	method	public Socket createSocket(InetAddress address, int port) throws IOException
+javax.net.ssl.DefaultSSLSocketFactory	method	public Socket createSocket(String host, int port, InetAddress clientAddress, int clientPort) throws IOException
+javax.net.ssl.DefaultSSLSocketFactory	method	public Socket createSocket(InetAddress address, int port, InetAddress clientAddress, int clientPort) throws IOException
+javax.net.ssl.DefaultSSLSocketFactory	method	public String [] getDefaultCipherSuites()
+javax.net.ssl.DefaultSSLSocketFactory	method	public String [] getSupportedCipherSuites()
+javax.net.ssl.StandardConstants	const	public static final int SNI_HOST_NAME = 0x00
+javax.net.ssl.TrustManagerFactory	method	public static final String getDefaultAlgorithm()
+javax.net.ssl.TrustManagerFactory	ctor	protected TrustManagerFactory(TrustManagerFactorySpi factorySpi, Provider provider, String algorithm)
+javax.net.ssl.TrustManagerFactory	method	public final String getAlgorithm()
+javax.net.ssl.TrustManagerFactory	method	public static final TrustManagerFactory getInstance(String algorithm) throws NoSuchAlgorithmException
+javax.net.ssl.TrustManagerFactory	method	public static final TrustManagerFactory getInstance(String algorithm, String provider) throws NoSuchAlgorithmException, NoSuchProviderException
+javax.net.ssl.TrustManagerFactory	method	public static final TrustManagerFactory getInstance(String algorithm, Provider provider) throws NoSuchAlgorithmException
+javax.net.ssl.TrustManagerFactory	method	public final Provider getProvider()
+javax.net.ssl.TrustManagerFactory	method	public final void init(KeyStore ks) throws KeyStoreException
+javax.net.ssl.TrustManagerFactory	method	public final void init(ManagerFactoryParameters spec) throws InvalidAlgorithmParameterException
+javax.net.ssl.TrustManagerFactory	method	public final TrustManager[] getTrustManagers()
+javax.net.ssl.TrustManagerFactorySpi	ctor	public TrustManagerFactorySpi()
+javax.net.ssl.TrustManagerFactorySpi	method	protected abstract void engineInit(KeyStore ks) throws KeyStoreException
+javax.net.ssl.TrustManagerFactorySpi	method	protected abstract void engineInit(ManagerFactoryParameters spec) throws InvalidAlgorithmParameterException
+javax.net.ssl.TrustManagerFactorySpi	method	protected abstract TrustManager[] engineGetTrustManagers()
+javax.net.ssl.X509ExtendedKeyManager	ctor	protected X509ExtendedKeyManager()
+javax.net.ssl.X509ExtendedKeyManager	method	public String chooseEngineClientAlias(String[] keyType, Principal[] issuers, SSLEngine engine)
+javax.net.ssl.X509ExtendedKeyManager	method	public String chooseEngineServerAlias(String keyType, Principal[] issuers, SSLEngine engine)
+javax.net.ssl.X509ExtendedTrustManager	ctor	public X509ExtendedTrustManager()
+javax.net.ssl.X509ExtendedTrustManager	method	public abstract void checkClientTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException
+javax.net.ssl.X509ExtendedTrustManager	method	public abstract void checkServerTrusted(X509Certificate[] chain, String authType, Socket socket) throws CertificateException
+javax.net.ssl.X509ExtendedTrustManager	method	public abstract void checkClientTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException
+javax.net.ssl.X509ExtendedTrustManager	method	public abstract void checkServerTrusted(X509Certificate[] chain, String authType, SSLEngine engine) throws CertificateException
+javax.net.ssl.X509KeyManager	method	String[] getClientAliases(String keyType, Principal[] issuers)
+javax.net.ssl.X509KeyManager	method	String chooseClientAlias(String[] keyType, Principal[] issuers, Socket socket)
+javax.net.ssl.X509KeyManager	method	String[] getServerAliases(String keyType, Principal[] issuers)
+javax.net.ssl.X509KeyManager	method	String chooseServerAlias(String keyType, Principal[] issuers, Socket socket)
+javax.net.ssl.X509KeyManager	method	X509Certificate[] getCertificateChain(String alias)
+javax.net.ssl.X509KeyManager	method	PrivateKey getPrivateKey(String alias)
+javax.net.ssl.X509TrustManager	method	void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException
+javax.net.ssl.X509TrustManager	method	void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException
+javax.net.ssl.X509TrustManager	method	X509Certificate[] getAcceptedIssuers()
+java.nio.channels.AcceptPendingException	ctor	public AcceptPendingException()
+java.nio.channels.AlreadyBoundException	ctor	public AlreadyBoundException()
+java.nio.channels.AlreadyConnectedException	ctor	public AlreadyConnectedException()
+java.nio.channels.AsynchronousByteChannel	method	<A> void read(ByteBuffer dst, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousByteChannel	method	Future<Integer> read(ByteBuffer dst)
+java.nio.channels.AsynchronousByteChannel	method	<A> void write(ByteBuffer src, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousByteChannel	method	Future<Integer> write(ByteBuffer src)
+java.nio.channels.AsynchronousChannel	method	void close() throws IOException
+java.nio.channels.AsynchronousChannelGroup	ctor	protected AsynchronousChannelGroup(AsynchronousChannelProvider provider)
+java.nio.channels.AsynchronousChannelGroup	method	public final AsynchronousChannelProvider provider()
+java.nio.channels.AsynchronousChannelGroup	method	public static AsynchronousChannelGroup withFixedThreadPool(int nThreads, ThreadFactory threadFactory) throws IOException
+java.nio.channels.AsynchronousChannelGroup	method	public static AsynchronousChannelGroup withCachedThreadPool(ExecutorService executor, int initialSize) throws IOException
+java.nio.channels.AsynchronousChannelGroup	method	public static AsynchronousChannelGroup withThreadPool(ExecutorService executor) throws IOException
+java.nio.channels.AsynchronousChannelGroup	method	public abstract boolean isShutdown()
+java.nio.channels.AsynchronousChannelGroup	method	public abstract boolean isTerminated()
+java.nio.channels.AsynchronousChannelGroup	method	public abstract void shutdown()
+java.nio.channels.AsynchronousChannelGroup	method	public abstract void shutdownNow() throws IOException
+java.nio.channels.AsynchronousChannelGroup	method	public abstract boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException
+java.nio.channels.AsynchronousCloseException	ctor	public AsynchronousCloseException()
+java.nio.channels.AsynchronousFileChannel	ctor	protected AsynchronousFileChannel()
+java.nio.channels.AsynchronousFileChannel	method	public static AsynchronousFileChannel open(Path file, Set<? extends OpenOption> options, ExecutorService executor, FileAttribute<?>... attrs) throws IOException
+java.nio.channels.AsynchronousFileChannel	method	public static AsynchronousFileChannel open(Path file, OpenOption... options) throws IOException
+java.nio.channels.AsynchronousFileChannel	method	public abstract long size() throws IOException
+java.nio.channels.AsynchronousFileChannel	method	public abstract AsynchronousFileChannel truncate(long size) throws IOException
+java.nio.channels.AsynchronousFileChannel	method	public abstract void force(boolean metaData) throws IOException
+java.nio.channels.AsynchronousFileChannel	method	public abstract <A> void lock(long position, long size, boolean shared, A attachment, CompletionHandler<FileLock,? super A> handler)
+java.nio.channels.AsynchronousFileChannel	method	public final <A> void lock(A attachment, CompletionHandler<FileLock,? super A> handler)
+java.nio.channels.AsynchronousFileChannel	method	public abstract Future<FileLock> lock(long position, long size, boolean shared)
+java.nio.channels.AsynchronousFileChannel	method	public final Future<FileLock> lock()
+java.nio.channels.AsynchronousFileChannel	method	public abstract FileLock tryLock(long position, long size, boolean shared) throws IOException
+java.nio.channels.AsynchronousFileChannel	method	public final FileLock tryLock() throws IOException
+java.nio.channels.AsynchronousFileChannel	method	public abstract <A> void read(ByteBuffer dst, long position, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousFileChannel	method	public abstract Future<Integer> read(ByteBuffer dst, long position)
+java.nio.channels.AsynchronousFileChannel	method	public abstract <A> void write(ByteBuffer src, long position, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousFileChannel	method	public abstract Future<Integer> write(ByteBuffer src, long position)
+java.nio.channels.AsynchronousServerSocketChannel	ctor	protected AsynchronousServerSocketChannel(AsynchronousChannelProvider provider)
+java.nio.channels.AsynchronousServerSocketChannel	method	public final AsynchronousChannelProvider provider()
+java.nio.channels.AsynchronousServerSocketChannel	method	public static AsynchronousServerSocketChannel open(AsynchronousChannelGroup group) throws IOException
+java.nio.channels.AsynchronousServerSocketChannel	method	public static AsynchronousServerSocketChannel open() throws IOException
+java.nio.channels.AsynchronousServerSocketChannel	method	public final AsynchronousServerSocketChannel bind(SocketAddress local) throws IOException
+java.nio.channels.AsynchronousServerSocketChannel	method	public abstract AsynchronousServerSocketChannel bind(SocketAddress local, int backlog) throws IOException
+java.nio.channels.AsynchronousServerSocketChannel	method	public abstract <T> AsynchronousServerSocketChannel setOption(SocketOption<T> name, T value) throws IOException
+java.nio.channels.AsynchronousServerSocketChannel	method	public abstract <A> void accept(A attachment, CompletionHandler<AsynchronousSocketChannel,? super A> handler)
+java.nio.channels.AsynchronousServerSocketChannel	method	public abstract Future<AsynchronousSocketChannel> accept()
+java.nio.channels.AsynchronousServerSocketChannel	method	public abstract SocketAddress getLocalAddress() throws IOException
+java.nio.channels.AsynchronousSocketChannel	ctor	protected AsynchronousSocketChannel(AsynchronousChannelProvider provider)
+java.nio.channels.AsynchronousSocketChannel	method	public final AsynchronousChannelProvider provider()
+java.nio.channels.AsynchronousSocketChannel	method	public static AsynchronousSocketChannel open(AsynchronousChannelGroup group) throws IOException
+java.nio.channels.AsynchronousSocketChannel	method	public static AsynchronousSocketChannel open() throws IOException
+java.nio.channels.AsynchronousSocketChannel	method	public abstract AsynchronousSocketChannel bind(SocketAddress local) throws IOException
+java.nio.channels.AsynchronousSocketChannel	method	public abstract <T> AsynchronousSocketChannel setOption(SocketOption<T> name, T value) throws IOException
+java.nio.channels.AsynchronousSocketChannel	method	public abstract AsynchronousSocketChannel shutdownInput() throws IOException
+java.nio.channels.AsynchronousSocketChannel	method	public abstract AsynchronousSocketChannel shutdownOutput() throws IOException
+java.nio.channels.AsynchronousSocketChannel	method	public abstract SocketAddress getRemoteAddress() throws IOException
+java.nio.channels.AsynchronousSocketChannel	method	public abstract <A> void connect(SocketAddress remote, A attachment, CompletionHandler<Void,? super A> handler)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract Future<Void> connect(SocketAddress remote)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract <A> void read(ByteBuffer dst, long timeout, TimeUnit unit, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousSocketChannel	method	public final <A> void read(ByteBuffer dst, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract Future<Integer> read(ByteBuffer dst)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract <A> void read(ByteBuffer[] dsts, int offset, int length, long timeout, TimeUnit unit, A attachment, CompletionHandler<Long,? super A> handler)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract <A> void write(ByteBuffer src, long timeout, TimeUnit unit, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousSocketChannel	method	public final <A> void write(ByteBuffer src, A attachment, CompletionHandler<Integer,? super A> handler)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract Future<Integer> write(ByteBuffer src)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract <A> void write(ByteBuffer[] srcs, int offset, int length, long timeout, TimeUnit unit, A attachment, CompletionHandler<Long,? super A> handler)
+java.nio.channels.AsynchronousSocketChannel	method	public abstract SocketAddress getLocalAddress() throws IOException
+java.nio.channels.CancelledKeyException	ctor	public CancelledKeyException()
+java.nio.channels.Channel	method	public boolean isOpen()
+java.nio.channels.Channel	method	public void close() throws IOException
+java.nio.channels.Channels	method	public static InputStream newInputStream(ReadableByteChannel ch)
+java.nio.channels.Channels	method	public static OutputStream newOutputStream(WritableByteChannel ch)
+java.nio.channels.Channels	method	public static InputStream newInputStream(AsynchronousByteChannel ch)
+java.nio.channels.Channels	method	public static OutputStream newOutputStream(AsynchronousByteChannel ch)
+java.nio.channels.Channels	method	public static ReadableByteChannel newChannel(InputStream in)
+java.nio.channels.Channels.ReadableByteChannelImpl	method	public int read(ByteBuffer dst) throws IOException
+java.nio.channels.Channels.ReadableByteChannelImpl	method	protected void implCloseChannel() throws IOException
+java.nio.channels.Channels	method	public static WritableByteChannel newChannel(OutputStream out)
+java.nio.channels.Channels.WritableByteChannelImpl	method	public int write(ByteBuffer src) throws IOException
+java.nio.channels.Channels.WritableByteChannelImpl	method	protected void implCloseChannel() throws IOException
+java.nio.channels.Channels	method	public static Reader newReader(ReadableByteChannel ch, CharsetDecoder dec, int minBufferCap)
+java.nio.channels.Channels	method	public static Reader newReader(ReadableByteChannel ch, String csName)
+java.nio.channels.Channels	method	public static Reader newReader(ReadableByteChannel ch, Charset charset)
+java.nio.channels.Channels	method	public static Writer newWriter(WritableByteChannel ch, CharsetEncoder enc, int minBufferCap)
+java.nio.channels.Channels	method	public static Writer newWriter(WritableByteChannel ch, String csName)
+java.nio.channels.Channels	method	public static Writer newWriter(WritableByteChannel ch, Charset charset)
+java.nio.channels.ClosedByInterruptException	ctor	public ClosedByInterruptException()
+java.nio.channels.ClosedChannelException	ctor	public ClosedChannelException()
+java.nio.channels.ClosedSelectorException	ctor	public ClosedSelectorException()
+java.nio.channels.CompletionHandler	method	void completed(V result, A attachment)
+java.nio.channels.CompletionHandler	method	void failed(Throwable exc, A attachment)
+java.nio.channels.ConnectionPendingException	ctor	public ConnectionPendingException()
+java.nio.channels.DatagramChannel	ctor	protected DatagramChannel(SelectorProvider provider)
+java.nio.channels.DatagramChannel	method	public static DatagramChannel open() throws IOException
+java.nio.channels.DatagramChannel	method	public static DatagramChannel open(ProtocolFamily family) throws IOException
+java.nio.channels.DatagramChannel	method	public final int validOps()
+java.nio.channels.DatagramChannel	method	public abstract DatagramChannel bind(SocketAddress local) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract <T> DatagramChannel setOption(SocketOption<T> name, T value) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract DatagramSocket socket()
+java.nio.channels.DatagramChannel	method	public abstract boolean isConnected()
+java.nio.channels.DatagramChannel	method	public abstract DatagramChannel connect(SocketAddress remote) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract DatagramChannel disconnect() throws IOException
+java.nio.channels.DatagramChannel	method	public abstract SocketAddress getRemoteAddress() throws IOException
+java.nio.channels.DatagramChannel	method	public abstract SocketAddress receive(ByteBuffer dst) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract int send(ByteBuffer src, SocketAddress target) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract int read(ByteBuffer dst) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract long read(ByteBuffer[] dsts, int offset, int length) throws IOException
+java.nio.channels.DatagramChannel	method	public final long read(ByteBuffer[] dsts) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract int write(ByteBuffer src) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract long write(ByteBuffer[] srcs, int offset, int length) throws IOException
+java.nio.channels.DatagramChannel	method	public final long write(ByteBuffer[] srcs) throws IOException
+java.nio.channels.DatagramChannel	method	public abstract SocketAddress getLocalAddress() throws IOException
+java.nio.channels.FileChannel	ctor	protected FileChannel()
+java.nio.channels.FileChannel	method	public static FileChannel open(Path path, Set<? extends OpenOption> options, FileAttribute<?>... attrs) throws IOException
+java.nio.channels.FileChannel	method	public static FileChannel open(Path path, OpenOption... options) throws IOException
+java.nio.channels.FileChannel	method	public abstract int read(ByteBuffer dst) throws IOException
+java.nio.channels.FileChannel	method	public abstract long read(ByteBuffer[] dsts, int offset, int length) throws IOException
+java.nio.channels.FileChannel	method	public final long read(ByteBuffer[] dsts) throws IOException
+java.nio.channels.FileChannel	method	public abstract int write(ByteBuffer src) throws IOException
+java.nio.channels.FileChannel	method	public abstract long write(ByteBuffer[] srcs, int offset, int length) throws IOException
+java.nio.channels.FileChannel	method	public final long write(ByteBuffer[] srcs) throws IOException
+java.nio.channels.FileChannel	method	public abstract long position() throws IOException
+java.nio.channels.FileChannel	method	public abstract FileChannel position(long newPosition) throws IOException
+java.nio.channels.FileChannel	method	public abstract long size() throws IOException
+java.nio.channels.FileChannel	method	public abstract FileChannel truncate(long size) throws IOException
+java.nio.channels.FileChannel	method	public abstract void force(boolean metaData) throws IOException
+java.nio.channels.FileChannel	method	public abstract long transferTo(long position, long count, WritableByteChannel target) throws IOException
+java.nio.channels.FileChannel	method	public abstract long transferFrom(ReadableByteChannel src, long position, long count) throws IOException
+java.nio.channels.FileChannel	method	public abstract int read(ByteBuffer dst, long position) throws IOException
+java.nio.channels.FileChannel	method	public abstract int write(ByteBuffer src, long position) throws IOException
+java.nio.channels.FileChannel.MapMode	const	public static final MapMode READ_ONLY = new MapMode("")
+java.nio.channels.FileChannel.MapMode	const	public static final MapMode READ_WRITE = new MapMode("")
+java.nio.channels.FileChannel.MapMode	const	public static final MapMode PRIVATE = new MapMode("")
+java.nio.channels.FileChannel.MapMode	method	public String toString()
+java.nio.channels.FileChannel	method	public abstract MappedByteBuffer map(MapMode mode, long position, long size) throws IOException
+java.nio.channels.FileChannel	method	public MemorySegment map(MapMode mode, long offset, long size, Arena arena) throws IOException
+java.nio.channels.FileChannel	method	public abstract FileLock lock(long position, long size, boolean shared) throws IOException
+java.nio.channels.FileChannel	method	public final FileLock lock() throws IOException
+java.nio.channels.FileChannel	method	public abstract FileLock tryLock(long position, long size, boolean shared) throws IOException
+java.nio.channels.FileChannel	method	public final FileLock tryLock() throws IOException
+java.nio.channels.FileLock	ctor	protected FileLock(FileChannel channel, long position, long size, boolean shared)
+java.nio.channels.FileLock	ctor	protected FileLock(AsynchronousFileChannel channel, long position, long size, boolean shared)
+java.nio.channels.FileLock	method	public final FileChannel channel()
+java.nio.channels.FileLock	method	public Channel acquiredBy()
+java.nio.channels.FileLock	method	public final long position()
+java.nio.channels.FileLock	method	public final long size()
+java.nio.channels.FileLock	method	public final boolean isShared()
+java.nio.channels.FileLock	method	public final boolean overlaps(long position, long size)
+java.nio.channels.FileLock	method	public abstract boolean isValid()
+java.nio.channels.FileLock	method	public abstract void release() throws IOException
+java.nio.channels.FileLock	method	public final void close() throws IOException
+java.nio.channels.FileLock	method	public final String toString()
+java.nio.channels.FileLockInterruptionException	ctor	public FileLockInterruptionException()
+java.nio.channels.GatheringByteChannel	method	public long write(ByteBuffer[] srcs, int offset, int length) throws IOException
+java.nio.channels.GatheringByteChannel	method	public long write(ByteBuffer[] srcs) throws IOException
+java.nio.channels.IllegalBlockingModeException	ctor	public IllegalBlockingModeException()
+java.nio.channels.IllegalChannelGroupException	ctor	public IllegalChannelGroupException()
+java.nio.channels.IllegalSelectorException	ctor	public IllegalSelectorException()
+java.nio.channels.InterruptedByTimeoutException	ctor	public InterruptedByTimeoutException()
+java.nio.channels.InterruptibleChannel	method	public void close() throws IOException
+java.nio.channels.MembershipKey	ctor	protected MembershipKey()
+java.nio.channels.MembershipKey	method	public abstract boolean isValid()
+java.nio.channels.MembershipKey	method	public abstract void drop()
+java.nio.channels.MembershipKey	method	public abstract MembershipKey block(InetAddress source) throws IOException
+java.nio.channels.MembershipKey	method	public abstract MembershipKey unblock(InetAddress source)
+java.nio.channels.MembershipKey	method	public abstract MulticastChannel channel()
+java.nio.channels.MembershipKey	method	public abstract InetAddress group()
+java.nio.channels.MembershipKey	method	public abstract NetworkInterface networkInterface()
+java.nio.channels.MembershipKey	method	public abstract InetAddress sourceAddress()
+java.nio.channels.MulticastChannel	method	void close() throws IOException
+java.nio.channels.MulticastChannel	method	MembershipKey join(InetAddress group, NetworkInterface interf) throws IOException
+java.nio.channels.MulticastChannel	method	MembershipKey join(InetAddress group, NetworkInterface interf, InetAddress source) throws IOException
+java.nio.channels.NetworkChannel	method	NetworkChannel bind(SocketAddress local) throws IOException
+java.nio.channels.NetworkChannel	method	SocketAddress getLocalAddress() throws IOException
+java.nio.channels.NetworkChannel	method	<T> NetworkChannel setOption(SocketOption<T> name, T value) throws IOException
+java.nio.channels.NetworkChannel	method	<T> T getOption(SocketOption<T> name) throws IOException
+java.nio.channels.NetworkChannel	method	Set<SocketOption<?>> supportedOptions()
+java.nio.channels.NoConnectionPendingException	ctor	public NoConnectionPendingException()
+java.nio.channels.NonReadableChannelException	ctor	public NonReadableChannelException()
+java.nio.channels.NonWritableChannelException	ctor	public NonWritableChannelException()
+java.nio.channels.NotYetBoundException	ctor	public NotYetBoundException()
+java.nio.channels.NotYetConnectedException	ctor	public NotYetConnectedException()
+java.nio.channels.OverlappingFileLockException	ctor	public OverlappingFileLockException()
+java.nio.channels.Pipe.SourceChannel	ctor	protected SourceChannel(SelectorProvider provider)
+java.nio.channels.Pipe.SourceChannel	method	public final int validOps()
+java.nio.channels.Pipe.SinkChannel	ctor	protected SinkChannel(SelectorProvider provider)
+java.nio.channels.Pipe.SinkChannel	method	public final int validOps()
+java.nio.channels.Pipe	ctor	protected Pipe()
+java.nio.channels.Pipe	method	public abstract SourceChannel source()
+java.nio.channels.Pipe	method	public abstract SinkChannel sink()
+java.nio.channels.Pipe	method	public static Pipe open() throws IOException
+java.nio.channels.ReadPendingException	ctor	public ReadPendingException()
+java.nio.channels.ReadableByteChannel	method	public int read(ByteBuffer dst) throws IOException
+java.nio.channels.ScatteringByteChannel	method	public long read(ByteBuffer[] dsts, int offset, int length) throws IOException
+java.nio.channels.ScatteringByteChannel	method	public long read(ByteBuffer[] dsts) throws IOException
+java.nio.channels.SeekableByteChannel	method	int read(ByteBuffer dst) throws IOException
+java.nio.channels.SeekableByteChannel	method	int write(ByteBuffer src) throws IOException
+java.nio.channels.SeekableByteChannel	method	long position() throws IOException
+java.nio.channels.SeekableByteChannel	method	SeekableByteChannel position(long newPosition) throws IOException
+java.nio.channels.SeekableByteChannel	method	long size() throws IOException
+java.nio.channels.SeekableByteChannel	method	SeekableByteChannel truncate(long size) throws IOException
+java.nio.channels.SelectableChannel	ctor	protected SelectableChannel()
+java.nio.channels.SelectableChannel	method	public abstract SelectorProvider provider()
+java.nio.channels.SelectableChannel	method	public abstract int validOps()
+java.nio.channels.SelectableChannel	method	public abstract boolean isRegistered()
+java.nio.channels.SelectableChannel	method	public abstract SelectionKey keyFor(Selector sel)
+java.nio.channels.SelectableChannel	method	public abstract SelectionKey register(Selector sel, int ops, Object att) throws ClosedChannelException
+java.nio.channels.SelectableChannel	method	public final SelectionKey register(Selector sel, int ops) throws ClosedChannelException
+java.nio.channels.SelectableChannel	method	public abstract SelectableChannel configureBlocking(boolean block) throws IOException
+java.nio.channels.SelectableChannel	method	public abstract boolean isBlocking()
+java.nio.channels.SelectableChannel	method	public abstract Object blockingLock()
+java.nio.channels.SelectionKey	ctor	protected SelectionKey()
+java.nio.channels.SelectionKey	method	public abstract SelectableChannel channel()
+java.nio.channels.SelectionKey	method	public abstract Selector selector()
+java.nio.channels.SelectionKey	method	public abstract boolean isValid()
+java.nio.channels.SelectionKey	method	public abstract void cancel()
+java.nio.channels.SelectionKey	method	public abstract int interestOps()
+java.nio.channels.SelectionKey	method	public abstract SelectionKey interestOps(int ops)
+java.nio.channels.SelectionKey	method	public int interestOpsOr(int ops)
+java.nio.channels.SelectionKey	method	public int interestOpsAnd(int ops)
+java.nio.channels.SelectionKey	method	public abstract int readyOps()
+java.nio.channels.SelectionKey	const	public static final int OP_READ = 1 << 0
+java.nio.channels.SelectionKey	const	public static final int OP_WRITE = 1 << 2
+java.nio.channels.SelectionKey	const	public static final int OP_CONNECT = 1 << 3
+java.nio.channels.SelectionKey	const	public static final int OP_ACCEPT = 1 << 4
+java.nio.channels.SelectionKey	method	public final boolean isReadable()
+java.nio.channels.SelectionKey	method	public final boolean isWritable()
+java.nio.channels.SelectionKey	method	public final boolean isConnectable()
+java.nio.channels.SelectionKey	method	public final boolean isAcceptable()
+java.nio.channels.SelectionKey	method	public final Object attach(Object ob)
+java.nio.channels.SelectionKey	method	public final Object attachment()
+java.nio.channels.Selector	ctor	protected Selector()
+java.nio.channels.Selector	method	public static Selector open() throws IOException
+java.nio.channels.Selector	method	public abstract boolean isOpen()
+java.nio.channels.Selector	method	public abstract SelectorProvider provider()
+java.nio.channels.Selector	method	public abstract Set<SelectionKey> keys()
+java.nio.channels.Selector	method	public abstract Set<SelectionKey> selectedKeys()
+java.nio.channels.Selector	method	public abstract int selectNow() throws IOException
+java.nio.channels.Selector	method	public abstract int select(long timeout) throws IOException
+java.nio.channels.Selector	method	public abstract int select() throws IOException
+java.nio.channels.Selector	method	public int select(Consumer<SelectionKey> action, long timeout) throws IOException
+java.nio.channels.Selector	method	public int select(Consumer<SelectionKey> action) throws IOException
+java.nio.channels.Selector	method	public int selectNow(Consumer<SelectionKey> action) throws IOException
+java.nio.channels.Selector	method	public abstract Selector wakeup()
+java.nio.channels.Selector	method	public abstract void close() throws IOException
+java.nio.channels.ServerSocketChannel	ctor	protected ServerSocketChannel(SelectorProvider provider)
+java.nio.channels.ServerSocketChannel	method	public static ServerSocketChannel open() throws IOException
+java.nio.channels.ServerSocketChannel	method	public static ServerSocketChannel open(ProtocolFamily family) throws IOException
+java.nio.channels.ServerSocketChannel	method	public final int validOps()
+java.nio.channels.ServerSocketChannel	method	public final ServerSocketChannel bind(SocketAddress local) throws IOException
+java.nio.channels.ServerSocketChannel	method	public abstract ServerSocketChannel bind(SocketAddress local, int backlog) throws IOException
+java.nio.channels.ServerSocketChannel	method	public abstract <T> ServerSocketChannel setOption(SocketOption<T> name, T value) throws IOException
+java.nio.channels.ServerSocketChannel	method	public abstract ServerSocket socket()
+java.nio.channels.ServerSocketChannel	method	public abstract SocketChannel accept() throws IOException
+java.nio.channels.ServerSocketChannel	method	public abstract SocketAddress getLocalAddress() throws IOException
+java.nio.channels.ShutdownChannelGroupException	ctor	public ShutdownChannelGroupException()
+java.nio.channels.SocketChannel	ctor	protected SocketChannel(SelectorProvider provider)
+java.nio.channels.SocketChannel	method	public static SocketChannel open() throws IOException
+java.nio.channels.SocketChannel	method	public static SocketChannel open(ProtocolFamily family) throws IOException
+java.nio.channels.SocketChannel	method	public static SocketChannel open(SocketAddress remote) throws IOException
+java.nio.channels.SocketChannel	method	public final int validOps()
+java.nio.channels.SocketChannel	method	public abstract SocketChannel bind(SocketAddress local) throws IOException
+java.nio.channels.SocketChannel	method	public abstract <T> SocketChannel setOption(SocketOption<T> name, T value) throws IOException
+java.nio.channels.SocketChannel	method	public abstract SocketChannel shutdownInput() throws IOException
+java.nio.channels.SocketChannel	method	public abstract SocketChannel shutdownOutput() throws IOException
+java.nio.channels.SocketChannel	method	public abstract Socket socket()
+java.nio.channels.SocketChannel	method	public abstract boolean isConnected()
+java.nio.channels.SocketChannel	method	public abstract boolean isConnectionPending()
+java.nio.channels.SocketChannel	method	public abstract boolean connect(SocketAddress remote) throws IOException
+java.nio.channels.SocketChannel	method	public abstract boolean finishConnect() throws IOException
+java.nio.channels.SocketChannel	method	public abstract SocketAddress getRemoteAddress() throws IOException
+java.nio.channels.SocketChannel	method	public abstract int read(ByteBuffer dst) throws IOException
+java.nio.channels.SocketChannel	method	public abstract long read(ByteBuffer[] dsts, int offset, int length) throws IOException
+java.nio.channels.SocketChannel	method	public final long read(ByteBuffer[] dsts) throws IOException
+java.nio.channels.SocketChannel	method	public abstract int write(ByteBuffer src) throws IOException
+java.nio.channels.SocketChannel	method	public abstract long write(ByteBuffer[] srcs, int offset, int length) throws IOException
+java.nio.channels.SocketChannel	method	public final long write(ByteBuffer[] srcs) throws IOException
+java.nio.channels.SocketChannel	method	public abstract SocketAddress getLocalAddress() throws IOException
+java.nio.channels.UnresolvedAddressException	ctor	public UnresolvedAddressException()
+java.nio.channels.UnsupportedAddressTypeException	ctor	public UnsupportedAddressTypeException()
+java.nio.channels.WritableByteChannel	method	public int write(ByteBuffer src) throws IOException
+java.nio.channels.WritePendingException	ctor	public WritePendingException()
+java.nio.channels.spi.AbstractInterruptibleChannel	ctor	protected AbstractInterruptibleChannel()
+java.nio.channels.spi.AbstractInterruptibleChannel	method	public final void close() throws IOException
+java.nio.channels.spi.AbstractInterruptibleChannel	method	protected abstract void implCloseChannel() throws IOException
+java.nio.channels.spi.AbstractInterruptibleChannel	method	public final boolean isOpen()
+java.nio.channels.spi.AbstractInterruptibleChannel	method	protected final void begin()
+java.nio.channels.spi.AbstractInterruptibleChannel	method	protected final void end(boolean completed) throws AsynchronousCloseException
+java.nio.channels.spi.AbstractSelectableChannel	ctor	protected AbstractSelectableChannel(SelectorProvider provider)
+java.nio.channels.spi.AbstractSelectableChannel	method	public final SelectorProvider provider()
+java.nio.channels.spi.AbstractSelectableChannel	method	public final boolean isRegistered()
+java.nio.channels.spi.AbstractSelectableChannel	method	public final SelectionKey keyFor(Selector sel)
+java.nio.channels.spi.AbstractSelectableChannel	method	public final SelectionKey register(Selector sel, int ops, Object att) throws ClosedChannelException
+java.nio.channels.spi.AbstractSelectableChannel	method	protected final void implCloseChannel() throws IOException
+java.nio.channels.spi.AbstractSelectableChannel	method	protected abstract void implCloseSelectableChannel() throws IOException
+java.nio.channels.spi.AbstractSelectableChannel	method	public final boolean isBlocking()
+java.nio.channels.spi.AbstractSelectableChannel	method	public final Object blockingLock()
+java.nio.channels.spi.AbstractSelectableChannel	method	public final SelectableChannel configureBlocking(boolean block) throws IOException
+java.nio.channels.spi.AbstractSelectableChannel	method	protected abstract void implConfigureBlocking(boolean block) throws IOException
+java.nio.channels.spi.AbstractSelectionKey	ctor	protected AbstractSelectionKey()
+java.nio.channels.spi.AbstractSelectionKey	method	public final boolean isValid()
+java.nio.channels.spi.AbstractSelectionKey	method	public final void cancel()
+java.nio.channels.spi.AbstractSelector	ctor	protected AbstractSelector(SelectorProvider provider)
+java.nio.channels.spi.AbstractSelector	method	public final void close() throws IOException
+java.nio.channels.spi.AbstractSelector	method	protected abstract void implCloseSelector() throws IOException
+java.nio.channels.spi.AbstractSelector	method	public final boolean isOpen()
+java.nio.channels.spi.AbstractSelector	method	public final SelectorProvider provider()
+java.nio.channels.spi.AbstractSelector	method	protected final Set<SelectionKey> cancelledKeys()
+java.nio.channels.spi.AbstractSelector	method	protected abstract SelectionKey register(AbstractSelectableChannel ch, int ops, Object att)
+java.nio.channels.spi.AbstractSelector	method	protected final void deregister(AbstractSelectionKey key)
+java.nio.channels.spi.AbstractSelector	method	protected final void begin()
+java.nio.channels.spi.AbstractSelector	method	protected final void end()
+java.nio.channels.spi.AsynchronousChannelProvider	ctor	protected AsynchronousChannelProvider()
+java.nio.channels.spi.AsynchronousChannelProvider	method	public static AsynchronousChannelProvider provider()
+java.nio.channels.spi.AsynchronousChannelProvider	method	public abstract AsynchronousChannelGroup openAsynchronousChannelGroup(int nThreads, ThreadFactory threadFactory) throws IOException
+java.nio.channels.spi.AsynchronousChannelProvider	method	public abstract AsynchronousChannelGroup openAsynchronousChannelGroup(ExecutorService executor, int initialSize) throws IOException
+java.nio.channels.spi.AsynchronousChannelProvider	method	public abstract AsynchronousServerSocketChannel openAsynchronousServerSocketChannel (AsynchronousChannelGroup group) throws IOException
+java.nio.channels.spi.AsynchronousChannelProvider	method	public abstract AsynchronousSocketChannel openAsynchronousSocketChannel (AsynchronousChannelGroup group) throws IOException
+java.nio.channels.spi.SelectorProvider	ctor	protected SelectorProvider()
+java.nio.channels.spi.SelectorProvider	method	public static SelectorProvider provider()
+java.nio.channels.spi.SelectorProvider	method	public abstract DatagramChannel openDatagramChannel() throws IOException
+java.nio.channels.spi.SelectorProvider	method	public abstract DatagramChannel openDatagramChannel(ProtocolFamily family) throws IOException
+java.nio.channels.spi.SelectorProvider	method	public abstract Pipe openPipe() throws IOException
+java.nio.channels.spi.SelectorProvider	method	public abstract AbstractSelector openSelector() throws IOException
+java.nio.channels.spi.SelectorProvider	method	public abstract ServerSocketChannel openServerSocketChannel() throws IOException
+java.nio.channels.spi.SelectorProvider	method	public abstract SocketChannel openSocketChannel() throws IOException
+java.nio.channels.spi.SelectorProvider	method	public Channel inheritedChannel() throws IOException
+java.nio.channels.spi.SelectorProvider	method	public SocketChannel openSocketChannel(ProtocolFamily family) throws IOException
+java.nio.channels.spi.SelectorProvider	method	public ServerSocketChannel openServerSocketChannel(ProtocolFamily family) throws IOException
+java.net.http.HttpClient	ctor	protected HttpClient()
+java.net.http.HttpClient	method	public static HttpClient newHttpClient()
+java.net.http.HttpClient	method	public static Builder newBuilder()
+java.net.http.HttpClient.Builder	const	public static final ProxySelector NO_PROXY = ProxySelector.of(null)
+java.net.http.HttpClient.Builder	method	public Builder cookieHandler(CookieHandler cookieHandler)
+java.net.http.HttpClient.Builder	method	public Builder connectTimeout(Duration duration)
+java.net.http.HttpClient.Builder	method	public Builder sslContext(SSLContext sslContext)
+java.net.http.HttpClient.Builder	method	public Builder sslParameters(SSLParameters sslParameters)
+java.net.http.HttpClient.Builder	method	public Builder executor(Executor executor)
+java.net.http.HttpClient.Builder	method	public Builder followRedirects(Redirect policy)
+java.net.http.HttpClient.Builder	method	public Builder version(HttpClient.Version version)
+java.net.http.HttpClient.Builder	method	public Builder priority(int priority)
+java.net.http.HttpClient.Builder	method	public Builder proxy(ProxySelector proxySelector)
+java.net.http.HttpClient.Builder	method	public Builder authenticator(Authenticator authenticator)
+java.net.http.HttpClient.Builder	method	default Builder localAddress(InetAddress localAddr)
+java.net.http.HttpClient.Builder	method	public HttpClient build()
+java.net.http.HttpClient	method	public abstract Optional<CookieHandler> cookieHandler()
+java.net.http.HttpClient	method	public abstract Optional<Duration> connectTimeout()
+java.net.http.HttpClient	method	public abstract Redirect followRedirects()
+java.net.http.HttpClient	method	public abstract Optional<ProxySelector> proxy()
+java.net.http.HttpClient	method	public abstract SSLContext sslContext()
+java.net.http.HttpClient	method	public abstract SSLParameters sslParameters()
+java.net.http.HttpClient	method	public abstract Optional<Authenticator> authenticator()
+java.net.http.HttpClient	method	public abstract HttpClient.Version version()
+java.net.http.HttpClient	method	public abstract Optional<Executor> executor()
+java.net.http.HttpClient.Version	enum_const	HTTP_1_1
+java.net.http.HttpClient.Version	enum_const	HTTP_2
+java.net.http.HttpClient.Version	enum_const	HTTP_3
+java.net.http.HttpClient.Redirect	enum_const	NEVER
+java.net.http.HttpClient.Redirect	enum_const	ALWAYS
+java.net.http.HttpClient.Redirect	enum_const	NORMAL
+java.net.http.HttpClient	method	public abstract <T> HttpResponse<T> send(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) throws IOException, InterruptedException
+java.net.http.HttpClient	method	public abstract <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, BodyHandler<T> responseBodyHandler)
+java.net.http.HttpClient	method	public abstract <T> CompletableFuture<HttpResponse<T>> sendAsync(HttpRequest request, BodyHandler<T> responseBodyHandler, PushPromiseHandler<T> pushPromiseHandler)
+java.net.http.HttpClient	method	public WebSocket.Builder newWebSocketBuilder()
+java.net.http.HttpClient	method	public void shutdown()
+java.net.http.HttpClient	method	public boolean awaitTermination(Duration duration) throws InterruptedException
+java.net.http.HttpClient	method	public boolean isTerminated()
+java.net.http.HttpClient	method	public void shutdownNow()
+java.net.http.HttpClient	method	public void close()
+java.net.http.HttpConnectTimeoutException	ctor	public HttpConnectTimeoutException(String message)
+java.net.http.HttpHeaders	method	public Optional<String> firstValue(String name)
+java.net.http.HttpHeaders	method	public OptionalLong firstValueAsLong(String name)
+java.net.http.HttpHeaders	method	public List<String> allValues(String name)
+java.net.http.HttpHeaders	method	public Map<String,List<String>> map()
+java.net.http.HttpHeaders	method	public final boolean equals(Object obj)
+java.net.http.HttpHeaders	method	public final int hashCode()
+java.net.http.HttpHeaders	method	public String toString()
+java.net.http.HttpHeaders	method	public static HttpHeaders of(Map<String,List<String>> headerMap, BiPredicate<String,String> filter)
+java.net.http.HttpOption	method	String name()
+java.net.http.HttpOption	method	Class<T> type()
+java.net.http.HttpOption	field	HttpOption<Http3DiscoveryMode> H3_DISCOVERY = new HttpRequestOptionImpl<>(Http3DiscoveryMode.class, "")
+java.net.http.HttpOption.Http3DiscoveryMode	enum_const	ANY
+java.net.http.HttpOption.Http3DiscoveryMode	enum_const	ALT_SVC
+java.net.http.HttpOption.Http3DiscoveryMode	enum_const	HTTP_3_URI_ONLY
+java.net.http.HttpRequest	ctor	protected HttpRequest()
+java.net.http.HttpRequest	method	public <T> Optional<T> getOption(HttpOption<T> option)
+java.net.http.HttpRequest.Builder	method	public Builder uri(URI uri)
+java.net.http.HttpRequest.Builder	method	public Builder expectContinue(boolean enable)
+java.net.http.HttpRequest.Builder	method	public Builder version(HttpClient.Version version)
+java.net.http.HttpRequest.Builder	method	public default <T> Builder setOption(HttpOption<T> option, T value)
+java.net.http.HttpRequest.Builder	method	public Builder header(String name, String value)
+java.net.http.HttpRequest.Builder	method	public Builder headers(String... headers)
+java.net.http.HttpRequest.Builder	method	public abstract Builder timeout(Duration duration)
+java.net.http.HttpRequest.Builder	method	public Builder setHeader(String name, String value)
+java.net.http.HttpRequest.Builder	method	public Builder GET()
+java.net.http.HttpRequest.Builder	method	public Builder POST(BodyPublisher bodyPublisher)
+java.net.http.HttpRequest.Builder	method	public Builder PUT(BodyPublisher bodyPublisher)
+java.net.http.HttpRequest.Builder	method	public Builder DELETE()
+java.net.http.HttpRequest.Builder	method	default Builder HEAD()
+java.net.http.HttpRequest.Builder	method	public Builder method(String method, BodyPublisher bodyPublisher)
+java.net.http.HttpRequest.Builder	method	public HttpRequest build()
+java.net.http.HttpRequest.Builder	method	public Builder copy()
+java.net.http.HttpRequest	method	public static HttpRequest.Builder newBuilder(URI uri)
+java.net.http.HttpRequest	method	public static Builder newBuilder(HttpRequest request, BiPredicate<String, String> filter)
+java.net.http.HttpRequest	method	public static HttpRequest.Builder newBuilder()
+java.net.http.HttpRequest	method	public abstract Optional<BodyPublisher> bodyPublisher()
+java.net.http.HttpRequest	method	public abstract String method()
+java.net.http.HttpRequest	method	public abstract Optional<Duration> timeout()
+java.net.http.HttpRequest	method	public abstract boolean expectContinue()
+java.net.http.HttpRequest	method	public abstract URI uri()
+java.net.http.HttpRequest	method	public abstract Optional<HttpClient.Version> version()
+java.net.http.HttpRequest	method	public abstract HttpHeaders headers()
+java.net.http.HttpRequest	method	public final boolean equals(Object obj)
+java.net.http.HttpRequest	method	public final int hashCode()
+java.net.http.HttpRequest.BodyPublisher	method	long contentLength()
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher fromPublisher(Flow.Publisher<? extends ByteBuffer> publisher)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher fromPublisher(Flow.Publisher<? extends ByteBuffer> publisher, long contentLength)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofString(String body)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofString(String s, Charset charset)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofInputStream(Supplier<? extends InputStream> streamSupplier)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofByteArray(byte[] buf)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofByteArray(byte[] buf, int offset, int length)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofFile(Path path) throws FileNotFoundException
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofFileChannel(FileChannel channel, long offset, long length) throws IOException
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher ofByteArrays(Iterable<byte[]> iter)
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher noBody()
+java.net.http.HttpRequest.BodyPublishers	method	public static BodyPublisher concat(BodyPublisher... publishers)
+java.net.http.HttpRequestOptionImpl	method	public String toString()
+java.net.http.HttpResponse	method	public int statusCode()
+java.net.http.HttpResponse	method	default Optional<String> connectionLabel()
+java.net.http.HttpResponse	method	public HttpRequest request()
+java.net.http.HttpResponse	method	public Optional<HttpResponse<T>> previousResponse()
+java.net.http.HttpResponse	method	public HttpHeaders headers()
+java.net.http.HttpResponse	method	public T body()
+java.net.http.HttpResponse	method	public Optional<SSLSession> sslSession()
+java.net.http.HttpResponse	method	public URI uri()
+java.net.http.HttpResponse	method	public HttpClient.Version version()
+java.net.http.HttpResponse.ResponseInfo	method	public int statusCode()
+java.net.http.HttpResponse.ResponseInfo	method	public HttpHeaders headers()
+java.net.http.HttpResponse.ResponseInfo	method	public HttpClient.Version version()
+java.net.http.HttpResponse.BodyHandler	method	public BodySubscriber<T> apply(ResponseInfo responseInfo)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Void> fromSubscriber(Subscriber<? super List<ByteBuffer>> subscriber)
+java.net.http.HttpResponse.BodyHandlers	method	public static <S extends Subscriber<? super List<ByteBuffer>>,T> BodyHandler<T> fromSubscriber(S subscriber, Function<? super S,? extends T> finisher)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Void> fromLineSubscriber(Subscriber<? super String> subscriber)
+java.net.http.HttpResponse.BodyHandlers	method	public static <S extends Subscriber<? super String>,T> BodyHandler<T> fromLineSubscriber(S subscriber, Function<? super S,? extends T> finisher, String lineSeparator)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Void> discarding()
+java.net.http.HttpResponse.BodyHandlers	method	public static <U> BodyHandler<U> replacing(U value)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<String> ofString(Charset charset)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Path> ofFile(Path file, OpenOption... openOptions)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Path> ofFile(Path file)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Path> ofFileDownload(Path directory, OpenOption... openOptions)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<InputStream> ofInputStream()
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Stream<String>> ofLines()
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Void> ofByteArrayConsumer(Consumer<Optional<byte[]>> consumer)
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<byte[]> ofByteArray()
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<String> ofString()
+java.net.http.HttpResponse.BodyHandlers	method	public static BodyHandler<Publisher<List<ByteBuffer>>> ofPublisher()
+java.net.http.HttpResponse.BodyHandlers	method	public static <T> BodyHandler<T> buffering(BodyHandler<T> downstreamHandler, int bufferSize)
+java.net.http.HttpResponse.BodyHandlers	method	public static <T> BodyHandler<T> limiting(BodyHandler<T> downstreamHandler, long capacity)
+java.net.http.HttpResponse.PushPromiseHandler	method	public void applyPushPromise( HttpRequest initiatingRequest, HttpRequest pushPromiseRequest, Function<HttpResponse.BodyHandler<T>,CompletableFuture<HttpResponse<T>>> acceptor )
+java.net.http.HttpResponse.PushPromiseHandler	method	public default void applyPushPromise( HttpRequest initiatingRequest, HttpRequest pushPromiseRequest, PushId pushid, Function<HttpResponse.BodyHandler<T>,CompletableFuture<HttpResponse<T>>> acceptor )
+java.net.http.HttpResponse.PushPromiseHandler	method	public default void notifyAdditionalPromise( HttpRequest initiatingRequest, PushId pushid )
+java.net.http.HttpResponse.PushPromiseHandler	method	public static <T> PushPromiseHandler<T> of(Function<HttpRequest,BodyHandler<T>> pushPromiseHandler, ConcurrentMap<HttpRequest,CompletableFuture<HttpResponse<T>>> pushPromisesMap)
+java.net.http.HttpResponse.BodySubscriber	method	public CompletionStage<T> getBody()
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Void> fromSubscriber(Subscriber<? super List<ByteBuffer>> subscriber)
+java.net.http.HttpResponse.BodySubscribers	method	public static <S extends Subscriber<? super List<ByteBuffer>>,T> BodySubscriber<T> fromSubscriber(S subscriber, Function<? super S,? extends T> finisher)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Void> fromLineSubscriber(Subscriber<? super String> subscriber)
+java.net.http.HttpResponse.BodySubscribers	method	public static <S extends Subscriber<? super String>,T> BodySubscriber<T> fromLineSubscriber(S subscriber, Function<? super S,? extends T> finisher, Charset charset, String lineSeparator)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<String> ofString(Charset charset)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<byte[]> ofByteArray()
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Path> ofFile(Path file, OpenOption... openOptions)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Path> ofFile(Path file)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Void> ofByteArrayConsumer(Consumer<Optional<byte[]>> consumer)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<InputStream> ofInputStream()
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Stream<String>> ofLines(Charset charset)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Publisher<List<ByteBuffer>>> ofPublisher()
+java.net.http.HttpResponse.BodySubscribers	method	public static <U> BodySubscriber<U> replacing(U value)
+java.net.http.HttpResponse.BodySubscribers	method	public static BodySubscriber<Void> discarding()
+java.net.http.HttpResponse.BodySubscribers	method	public static <T> BodySubscriber<T> buffering(BodySubscriber<T> downstream, int bufferSize)
+java.net.http.HttpResponse.BodySubscribers	method	public static <T,U> BodySubscriber<U> mapping(BodySubscriber<T> upstream, Function<? super T, ? extends U> mapper)
+java.net.http.HttpResponse.BodySubscribers	method	public static <T> BodySubscriber<T> limiting(BodySubscriber<T> downstreamSubscriber, long capacity)
+java.net.http.HttpTimeoutException	ctor	public HttpTimeoutException(String message)
+java.net.http.StreamLimitException	ctor	public StreamLimitException(final Version version, final String message)
+java.net.http.StreamLimitException	method	public final Version version()
+java.net.http.UnsupportedProtocolVersionException	ctor	public UnsupportedProtocolVersionException(String message)
+java.net.http.WebSocket	field	int NORMAL_CLOSURE = 1000
+java.net.http.WebSocket.Builder	method	Builder header(String name, String value)
+java.net.http.WebSocket.Builder	method	Builder connectTimeout(Duration timeout)
+java.net.http.WebSocket.Builder	method	Builder subprotocols(String mostPreferred, String... lesserPreferred)
+java.net.http.WebSocket.Builder	method	CompletableFuture<WebSocket> buildAsync(URI uri, Listener listener)
+java.net.http.WebSocket.Listener	method	default void onOpen(WebSocket webSocket)
+java.net.http.WebSocket.Listener	method	default CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last)
+java.net.http.WebSocket.Listener	method	default CompletionStage<?> onBinary(WebSocket webSocket, ByteBuffer data, boolean last)
+java.net.http.WebSocket.Listener	method	default CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message)
+java.net.http.WebSocket.Listener	method	default CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message)
+java.net.http.WebSocket.Listener	method	default CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason)
+java.net.http.WebSocket.Listener	method	default void onError(WebSocket webSocket, Throwable error)
+java.net.http.WebSocket	method	CompletableFuture<WebSocket> sendText(CharSequence data, boolean last)
+java.net.http.WebSocket	method	CompletableFuture<WebSocket> sendBinary(ByteBuffer data, boolean last)
+java.net.http.WebSocket	method	CompletableFuture<WebSocket> sendPing(ByteBuffer message)
+java.net.http.WebSocket	method	CompletableFuture<WebSocket> sendPong(ByteBuffer message)
+java.net.http.WebSocket	method	CompletableFuture<WebSocket> sendClose(int statusCode, String reason)
+java.net.http.WebSocket	method	void request(long n)
+java.net.http.WebSocket	method	String getSubprotocol()
+java.net.http.WebSocket	method	boolean isOutputClosed()
+java.net.http.WebSocket	method	boolean isInputClosed()
+java.net.http.WebSocket	method	void abort()
+java.net.http.WebSocketHandshakeException	ctor	public WebSocketHandshakeException(HttpResponse<?> response)
+java.net.http.WebSocketHandshakeException	method	public HttpResponse<?> getResponse()
+java.net.http.WebSocketHandshakeException	method	public WebSocketHandshakeException initCause(Throwable cause)
+com.sun.net.httpserver.Authenticator	ctor	protected Authenticator()
+com.sun.net.httpserver.Authenticator.Result	ctor	protected Result()
+com.sun.net.httpserver.Authenticator.Failure	ctor	public Failure(int responseCode)
+com.sun.net.httpserver.Authenticator.Failure	method	public int getResponseCode()
+com.sun.net.httpserver.Authenticator.Success	ctor	public Success(HttpPrincipal p)
+com.sun.net.httpserver.Authenticator.Success	method	public HttpPrincipal getPrincipal()
+com.sun.net.httpserver.Authenticator.Retry	ctor	public Retry(int responseCode)
+com.sun.net.httpserver.Authenticator.Retry	method	public int getResponseCode()
+com.sun.net.httpserver.Authenticator	method	public abstract Result authenticate(HttpExchange exch)
+com.sun.net.httpserver.BasicAuthenticator	field	protected final String realm
+com.sun.net.httpserver.BasicAuthenticator	ctor	public BasicAuthenticator(String realm)
+com.sun.net.httpserver.BasicAuthenticator	ctor	public BasicAuthenticator(String realm, Charset charset)
+com.sun.net.httpserver.BasicAuthenticator	method	public String getRealm()
+com.sun.net.httpserver.BasicAuthenticator	method	public Result authenticate(HttpExchange t)
+com.sun.net.httpserver.BasicAuthenticator	method	public abstract boolean checkCredentials(String username, String password)
+com.sun.net.httpserver.Filter	ctor	protected Filter()
+com.sun.net.httpserver.Filter.Chain	ctor	public Chain(List<Filter> filters, HttpHandler handler)
+com.sun.net.httpserver.Filter.Chain	method	public void doFilter(HttpExchange exchange) throws IOException
+com.sun.net.httpserver.Filter	method	public abstract void doFilter(HttpExchange exchange, Chain chain) throws IOException
+com.sun.net.httpserver.Filter	method	public abstract String description()
+com.sun.net.httpserver.Filter	method	public static Filter beforeHandler(String description, Consumer<HttpExchange> operation)
+com.sun.net.httpserver.Filter	method	public static Filter afterHandler(String description, Consumer<HttpExchange> operation)
+com.sun.net.httpserver.Filter	method	public static Filter adaptRequest(String description, UnaryOperator<Request> requestOperator)
+com.sun.net.httpserver.Headers	ctor	public Headers()
+com.sun.net.httpserver.Headers	ctor	public Headers(Map<String, List<String>> headers)
+com.sun.net.httpserver.Headers	method	public int size()
+com.sun.net.httpserver.Headers	method	public boolean isEmpty()
+com.sun.net.httpserver.Headers	method	public boolean containsKey(Object key)
+com.sun.net.httpserver.Headers	method	public boolean containsValue(Object value)
+com.sun.net.httpserver.Headers	method	public List<String> get(Object key)
+com.sun.net.httpserver.Headers	method	public String getFirst(String key)
+com.sun.net.httpserver.Headers	method	public List<String> put(String key, List<String> value)
+com.sun.net.httpserver.Headers	method	public void add(String key, String value)
+com.sun.net.httpserver.Headers	method	public void set(String key, String value)
+com.sun.net.httpserver.Headers	method	public List<String> remove(Object key)
+com.sun.net.httpserver.Headers	method	public void putAll(Map<? extends String,? extends List<String>> t)
+com.sun.net.httpserver.Headers	method	public void clear()
+com.sun.net.httpserver.Headers	method	public Set<String> keySet()
+com.sun.net.httpserver.Headers	method	public Collection<List<String>> values()
+com.sun.net.httpserver.Headers	method	public Set<Map.Entry<String, List<String>>> entrySet()
+com.sun.net.httpserver.Headers	method	public void replaceAll(BiFunction<? super String, ? super List<String>, ? extends List<String>> function)
+com.sun.net.httpserver.Headers	method	public boolean equals(Object o)
+com.sun.net.httpserver.Headers	method	public int hashCode()
+com.sun.net.httpserver.Headers	method	public String toString()
+com.sun.net.httpserver.Headers	method	public static Headers of(String... headers)
+com.sun.net.httpserver.Headers	method	public static Headers of(Map<String, List<String>> headers)
+com.sun.net.httpserver.HttpContext	ctor	protected HttpContext()
+com.sun.net.httpserver.HttpContext	method	public abstract HttpHandler getHandler()
+com.sun.net.httpserver.HttpContext	method	public abstract void setHandler(HttpHandler handler)
+com.sun.net.httpserver.HttpContext	method	public abstract String getPath()
+com.sun.net.httpserver.HttpContext	method	public abstract HttpServer getServer()
+com.sun.net.httpserver.HttpContext	method	public abstract Map<String, Object> getAttributes()
+com.sun.net.httpserver.HttpContext	method	public abstract List<Filter> getFilters()
+com.sun.net.httpserver.HttpContext	method	public abstract Authenticator setAuthenticator(Authenticator auth)
+com.sun.net.httpserver.HttpContext	method	public abstract Authenticator getAuthenticator()
+com.sun.net.httpserver.HttpExchange	const	public static final long RSPBODY_EMPTY = -1l
+com.sun.net.httpserver.HttpExchange	const	public static final long RSPBODY_CHUNKED = 0
+com.sun.net.httpserver.HttpExchange	ctor	protected HttpExchange()
+com.sun.net.httpserver.HttpExchange	method	public abstract Headers getRequestHeaders()
+com.sun.net.httpserver.HttpExchange	method	public abstract Headers getResponseHeaders()
+com.sun.net.httpserver.HttpExchange	method	public abstract URI getRequestURI()
+com.sun.net.httpserver.HttpExchange	method	public abstract String getRequestMethod()
+com.sun.net.httpserver.HttpExchange	method	public abstract HttpContext getHttpContext()
+com.sun.net.httpserver.HttpExchange	method	public abstract void close()
+com.sun.net.httpserver.HttpExchange	method	public abstract InputStream getRequestBody()
+com.sun.net.httpserver.HttpExchange	method	public abstract OutputStream getResponseBody()
+com.sun.net.httpserver.HttpExchange	method	public abstract void sendResponseHeaders(int rCode, long responseLength) throws IOException
+com.sun.net.httpserver.HttpExchange	method	public abstract InetSocketAddress getRemoteAddress()
+com.sun.net.httpserver.HttpExchange	method	public abstract int getResponseCode()
+com.sun.net.httpserver.HttpExchange	method	public abstract InetSocketAddress getLocalAddress()
+com.sun.net.httpserver.HttpExchange	method	public abstract String getProtocol()
+com.sun.net.httpserver.HttpExchange	method	public abstract Object getAttribute(String name)
+com.sun.net.httpserver.HttpExchange	method	public abstract void setAttribute(String name, Object value)
+com.sun.net.httpserver.HttpExchange	method	public abstract void setStreams(InputStream i, OutputStream o)
+com.sun.net.httpserver.HttpExchange	method	public abstract HttpPrincipal getPrincipal()
+com.sun.net.httpserver.HttpHandler	method	public abstract void handle(HttpExchange exchange) throws IOException
+com.sun.net.httpserver.HttpHandlers	method	public static HttpHandler handleOrElse(Predicate<Request> handlerTest, HttpHandler handler, HttpHandler fallbackHandler)
+com.sun.net.httpserver.HttpHandlers	method	public static HttpHandler of(int statusCode, Headers headers, String body)
+com.sun.net.httpserver.HttpPrincipal	ctor	public HttpPrincipal(String username, String realm)
+com.sun.net.httpserver.HttpPrincipal	method	public boolean equals(Object another)
+com.sun.net.httpserver.HttpPrincipal	method	public String getName()
+com.sun.net.httpserver.HttpPrincipal	method	public String getUsername()
+com.sun.net.httpserver.HttpPrincipal	method	public String getRealm()
+com.sun.net.httpserver.HttpPrincipal	method	public int hashCode()
+com.sun.net.httpserver.HttpPrincipal	method	public String toString()
+com.sun.net.httpserver.HttpServer	ctor	protected HttpServer()
+com.sun.net.httpserver.HttpServer	method	public static HttpServer create() throws IOException
+com.sun.net.httpserver.HttpServer	method	public static HttpServer create(InetSocketAddress addr, int backlog) throws IOException
+com.sun.net.httpserver.HttpServer	method	public static HttpServer create(InetSocketAddress addr, int backlog, String path, HttpHandler handler, Filter... filters) throws IOException
+com.sun.net.httpserver.HttpServer	method	public abstract void bind(InetSocketAddress addr, int backlog) throws IOException
+com.sun.net.httpserver.HttpServer	method	public abstract void start()
+com.sun.net.httpserver.HttpServer	method	public abstract void setExecutor(Executor executor)
+com.sun.net.httpserver.HttpServer	method	public abstract Executor getExecutor()
+com.sun.net.httpserver.HttpServer	method	public abstract void stop(int delay)
+com.sun.net.httpserver.HttpServer	method	public abstract HttpContext createContext(String path, HttpHandler handler)
+com.sun.net.httpserver.HttpServer	method	public abstract HttpContext createContext(String path)
+com.sun.net.httpserver.HttpServer	method	public abstract void removeContext(String path) throws IllegalArgumentException
+com.sun.net.httpserver.HttpServer	method	public abstract void removeContext(HttpContext context)
+com.sun.net.httpserver.HttpServer	method	public abstract InetSocketAddress getAddress()
+com.sun.net.httpserver.HttpsConfigurator	ctor	public HttpsConfigurator(SSLContext context)
+com.sun.net.httpserver.HttpsConfigurator	method	public SSLContext getSSLContext()
+com.sun.net.httpserver.HttpsConfigurator	method	public void configure(HttpsParameters params)
+com.sun.net.httpserver.HttpsExchange	ctor	protected HttpsExchange()
+com.sun.net.httpserver.HttpsExchange	method	public abstract SSLSession getSSLSession()
+com.sun.net.httpserver.HttpsParameters	ctor	protected HttpsParameters()
+com.sun.net.httpserver.HttpsParameters	method	public abstract HttpsConfigurator getHttpsConfigurator()
+com.sun.net.httpserver.HttpsParameters	method	public abstract InetSocketAddress getClientAddress()
+com.sun.net.httpserver.HttpsParameters	method	public abstract void setSSLParameters(SSLParameters params)
+com.sun.net.httpserver.HttpsParameters	method	public String[] getCipherSuites()
+com.sun.net.httpserver.HttpsParameters	method	public void setCipherSuites(String[] cipherSuites)
+com.sun.net.httpserver.HttpsParameters	method	public String[] getProtocols()
+com.sun.net.httpserver.HttpsParameters	method	public void setProtocols(String[] protocols)
+com.sun.net.httpserver.HttpsParameters	method	public boolean getWantClientAuth()
+com.sun.net.httpserver.HttpsParameters	method	public void setWantClientAuth(boolean wantClientAuth)
+com.sun.net.httpserver.HttpsParameters	method	public boolean getNeedClientAuth()
+com.sun.net.httpserver.HttpsParameters	method	public void setNeedClientAuth(boolean needClientAuth)
+com.sun.net.httpserver.HttpsServer	ctor	protected HttpsServer()
+com.sun.net.httpserver.HttpsServer	method	public static HttpsServer create() throws IOException
+com.sun.net.httpserver.HttpsServer	method	public static HttpsServer create(InetSocketAddress addr, int backlog) throws IOException
+com.sun.net.httpserver.HttpsServer	method	public static HttpsServer create(InetSocketAddress addr, int backlog, String path, HttpHandler handler, Filter... filters) throws IOException
+com.sun.net.httpserver.HttpsServer	method	public abstract void setHttpsConfigurator(HttpsConfigurator config)
+com.sun.net.httpserver.HttpsServer	method	public abstract HttpsConfigurator getHttpsConfigurator()
+com.sun.net.httpserver.Request	method	URI getRequestURI()
+com.sun.net.httpserver.Request	method	String getRequestMethod()
+com.sun.net.httpserver.Request	method	Headers getRequestHeaders()
+com.sun.net.httpserver.Request	method	default Request with(String headerName, List<String> headerValues)
+com.sun.net.httpserver.SimpleFileServer.OutputLevel	enum_const	NONE
+com.sun.net.httpserver.SimpleFileServer.OutputLevel	enum_const	INFO
+com.sun.net.httpserver.SimpleFileServer.OutputLevel	enum_const	VERBOSE
+com.sun.net.httpserver.SimpleFileServer	method	public static HttpServer createFileServer(InetSocketAddress addr, Path rootDirectory, OutputLevel outputLevel)
+com.sun.net.httpserver.SimpleFileServer	method	public static HttpHandler createFileHandler(Path rootDirectory)
+com.sun.net.httpserver.SimpleFileServer	method	public static Filter createOutputFilter(OutputStream out, OutputLevel outputLevel)
+com.sun.net.httpserver.spi.HttpServerProvider	method	public abstract HttpServer createHttpServer(InetSocketAddress addr, int backlog) throws IOException
+com.sun.net.httpserver.spi.HttpServerProvider	method	public abstract HttpsServer createHttpsServer(InetSocketAddress addr, int backlog) throws IOException
+com.sun.net.httpserver.spi.HttpServerProvider	ctor	protected HttpServerProvider()
+com.sun.net.httpserver.spi.HttpServerProvider	method	public static HttpServerProvider provider()
+jdk.net.ExtendedSocketOptions.ExtSocketOption	method	public String name()
+jdk.net.ExtendedSocketOptions.ExtSocketOption	method	public Class<T> type()
+jdk.net.ExtendedSocketOptions.ExtSocketOption	method	public String toString()
+jdk.net.ExtendedSocketOptions	const	public static final SocketOption<Boolean> TCP_QUICKACK = new ExtSocketOption<Boolean>("", Boolean.class)
+jdk.net.ExtendedSocketOptions	const	public static final SocketOption<Integer> TCP_KEEPIDLE = new ExtSocketOption<Integer>("", Integer.class)
+jdk.net.ExtendedSocketOptions	const	public static final SocketOption<Integer> TCP_KEEPINTERVAL = new ExtSocketOption<Integer>("", Integer.class)
+jdk.net.ExtendedSocketOptions	const	public static final SocketOption<Integer> TCP_KEEPCOUNT = new ExtSocketOption<Integer>("", Integer.class)
+jdk.net.ExtendedSocketOptions	const	public static final SocketOption<Integer> SO_INCOMING_NAPI_ID = new ExtSocketOption<Integer>("", Integer.class)
+jdk.net.ExtendedSocketOptions	const	public static final SocketOption<UnixDomainPrincipal> SO_PEERCRED = new ExtSocketOption<UnixDomainPrincipal> ("", UnixDomainPrincipal.class)
+jdk.net.ExtendedSocketOptions	const	public static final SocketOption<Boolean> IP_DONTFRAGMENT = new ExtSocketOption<Boolean>("", Boolean.class)
+jdk.net.ExtendedSocketOptions.PlatformSocketOptions	ctor	protected PlatformSocketOptions()
+jdk.net.NetworkPermission	ctor	public NetworkPermission(String name)
+jdk.net.NetworkPermission	ctor	public NetworkPermission(String name, String actions)
+jdk.net.Sockets	method	public static <T> void setOption(Socket s, SocketOption<T> name, T value) throws IOException
+jdk.net.Sockets	method	public static <T> T getOption(Socket s, SocketOption<T> name) throws IOException
+jdk.net.Sockets	method	public static <T> void setOption(ServerSocket s, SocketOption<T> name, T value) throws IOException
+jdk.net.Sockets	method	public static <T> T getOption(ServerSocket s, SocketOption<T> name) throws IOException
+jdk.net.Sockets	method	public static <T> void setOption(DatagramSocket s, SocketOption<T> name, T value) throws IOException
+jdk.net.Sockets	method	public static <T> T getOption(DatagramSocket s, SocketOption<T> name) throws IOException
+jdk.net.Sockets	method	public static Set<SocketOption<?>> supportedOptions(Class<?> socketType)

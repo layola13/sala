@@ -1,0 +1,1409 @@
+file	symbol	kind	signature
+dtls.sai	sa_std_dtls_buffer_data	fn	@extern sa_std_dtls_buffer_data(buffer: u64) -> &ptr
+dtls.sai	sa_std_dtls_buffer_free	fn	@extern sa_std_dtls_buffer_free(^buffer: u64) -> i32
+dtls.sai	sa_std_dtls_buffer_len	fn	@extern sa_std_dtls_buffer_len(buffer: u64) -> u64
+dtls.sai	sa_std_dtls_server_accept	fn	@extern sa_std_dtls_server_accept(ctx: u64, fd: i32, &out_ssl: ptr) -> i32
+dtls.sai	sa_std_dtls_server_close	fn	@extern sa_std_dtls_server_close(ssl: u64) -> i32
+dtls.sai	sa_std_dtls_server_ctx_create	fn	@extern sa_std_dtls_server_ctx_create(&cert_path: ptr, cert_path_len: u64, &key_path: ptr, key_path_len: u64, &out_ctx: ptr) -> i32
+dtls.sai	sa_std_dtls_server_ctx_free	fn	@extern sa_std_dtls_server_ctx_free(ctx: u64) -> i32
+dtls.sai	sa_std_dtls_server_read	fn	@extern sa_std_dtls_server_read(ssl: u64, &out: ptr, cap: u64, &out_read: ptr) -> i32
+dtls.sai	sa_std_dtls_server_write	fn	@extern sa_std_dtls_server_write(ssl: u64, &buf: ptr, len: u64, &out_written: ptr) -> i32
+dtls.sai	sa_std_dtls_status_json	fn	@extern sa_std_dtls_status_json(&out_handle: ptr) -> i32
+dtls.sai	sa_std_dtls_supported	fn	@extern sa_std_dtls_supported(&out_supported: ptr) -> i32
+dtls.sal	SA_DTLS_ERR_INVALID_ARGUMENT	const	#def SA_DTLS_ERR_INVALID_ARGUMENT = -22
+dtls.sal	SA_DTLS_ERR_NO_MEMORY	const	#def SA_DTLS_ERR_NO_MEMORY = -12
+dtls.sal	SA_DTLS_ERR_UNSUPPORTED	const	#def SA_DTLS_ERR_UNSUPPORTED = -1
+dtls.sal	SA_DTLS_OK	const	#def SA_DTLS_OK = 0
+http2.sai	sa_std_http2_buffer_data	fn	@extern sa_std_http2_buffer_data(buffer: u64) -> &ptr
+http2.sai	sa_std_http2_buffer_free	fn	@extern sa_std_http2_buffer_free(^buffer: u64) -> i32
+http2.sai	sa_std_http2_buffer_len	fn	@extern sa_std_http2_buffer_len(buffer: u64) -> u64
+http2.sai	sa_std_http2_client_request	fn	@extern sa_std_http2_client_request(&url: ptr, url_len: u64, &method: ptr, method_len: u64, &body: ptr, body_len: u64, &out_handle: ptr) -> i32
+http2.sai	sa_std_http2_client_request_with_settings	fn	@extern sa_std_http2_client_request_with_settings(&url: ptr, url_len: u64, &method: ptr, method_len: u64, &body: ptr, body_len: u64, &settings: ptr, settings_len: u64, &out_handle: ptr) -> i32
+http2.sai	sa_std_http2_constants_json	fn	@extern sa_std_http2_constants_json(&out_handle: ptr) -> i32
+http2.sai	sa_std_http2_get_default_settings_json	fn	@extern sa_std_http2_get_default_settings_json(&out_handle: ptr) -> i32
+http2.sai	sa_std_http2_get_packed_settings	fn	@extern sa_std_http2_get_packed_settings(&settings_json: ptr, settings_json_len: u64, &out_handle: ptr) -> i32
+http2.sai	sa_std_http2_get_unpacked_settings_json	fn	@extern sa_std_http2_get_unpacked_settings_json(&buf: ptr, buf_len: u64, &out_handle: ptr) -> i32
+http2.sai	sa_std_http2_nghttp2_version_json	fn	@extern sa_std_http2_nghttp2_version_json(&out_handle: ptr) -> i32
+http2.sai	sa_std_http2_perform_server_handshake	fn	@extern sa_std_http2_perform_server_handshake(&input: ptr, input_len: u64, &settings_json: ptr, settings_json_len: u64, &out_bytes: ptr, &out_json: ptr) -> i32
+http2.sai	sa_std_http2_sensitive_headers	fn	@extern sa_std_http2_sensitive_headers(&out_handle: ptr) -> i32
+http2.sai	sa_std_http2_status_json	fn	@extern sa_std_http2_status_json(&out_handle: ptr) -> i32
+http2.sai	sa_std_http2_supported	fn	@extern sa_std_http2_supported(&out_supported: ptr) -> i32
+http2.sal	HTTP2_DATA_FLAG_EOF	const	#def HTTP2_DATA_FLAG_EOF = 1
+http2.sal	HTTP2_FLAG_ACK	const	#def HTTP2_FLAG_ACK = 1
+http2.sal	HTTP2_FLAG_END_HEADERS	const	#def HTTP2_FLAG_END_HEADERS = 4
+http2.sal	HTTP2_FLAG_END_STREAM	const	#def HTTP2_FLAG_END_STREAM = 1
+http2.sal	HTTP2_FLAG_NONE	const	#def HTTP2_FLAG_NONE = 0
+http2.sal	HTTP2_FRAME_DATA	const	#def HTTP2_FRAME_DATA = 0
+http2.sal	HTTP2_FRAME_GOAWAY	const	#def HTTP2_FRAME_GOAWAY = 7
+http2.sal	HTTP2_FRAME_HEADERS	const	#def HTTP2_FRAME_HEADERS = 1
+http2.sal	HTTP2_FRAME_PING	const	#def HTTP2_FRAME_PING = 6
+http2.sal	HTTP2_FRAME_PRIORITY	const	#def HTTP2_FRAME_PRIORITY = 2
+http2.sal	HTTP2_FRAME_RST_STREAM	const	#def HTTP2_FRAME_RST_STREAM = 3
+http2.sal	HTTP2_FRAME_SETTINGS	const	#def HTTP2_FRAME_SETTINGS = 4
+http2.sal	HTTP2_FRAME_WINDOW_UPDATE	const	#def HTTP2_FRAME_WINDOW_UPDATE = 8
+http2.sal	HTTP2_SETTINGS_ENABLE_CONNECT_PROTOCOL	const	#def HTTP2_SETTINGS_ENABLE_CONNECT_PROTOCOL = 8
+http2.sal	HTTP2_SETTINGS_ENABLE_PUSH	const	#def HTTP2_SETTINGS_ENABLE_PUSH = 2
+http2.sal	HTTP2_SETTINGS_HEADER_TABLE_SIZE	const	#def HTTP2_SETTINGS_HEADER_TABLE_SIZE = 1
+http2.sal	HTTP2_SETTINGS_INITIAL_WINDOW_SIZE	const	#def HTTP2_SETTINGS_INITIAL_WINDOW_SIZE = 4
+http2.sal	HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS	const	#def HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS = 3
+http2.sal	HTTP2_SETTINGS_MAX_FRAME_SIZE	const	#def HTTP2_SETTINGS_MAX_FRAME_SIZE = 5
+http2.sal	HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE	const	#def HTTP2_SETTINGS_MAX_HEADER_LIST_SIZE = 6
+http2.sal	NGHTTP2_NV_FLAG_NONE	const	#def NGHTTP2_NV_FLAG_NONE = 0
+http2.sal	NGHTTP2_NV_FLAG_NO_EMIT_NAME	const	#def NGHTTP2_NV_FLAG_NO_EMIT_NAME = 2
+http2.sal	NGHTTP2_NV_FLAG_NO_EMIT_VALUE	const	#def NGHTTP2_NV_FLAG_NO_EMIT_VALUE = 4
+http2.sal	NGHTTP2_NV_FLAG_NO_INDEX	const	#def NGHTTP2_NV_FLAG_NO_INDEX = 1
+http2.sal	NGHTTP2_NV_FLAG_NO_NEVER_INDEX	const	#def NGHTTP2_NV_FLAG_NO_NEVER_INDEX = 8
+http2.sal	SA_H2_ERR_CONNECT	const	#def SA_H2_ERR_CONNECT = 100
+http2.sal	SA_H2_ERR_INVALID_ARGUMENT	const	#def SA_H2_ERR_INVALID_ARGUMENT = -22
+http2.sal	SA_H2_ERR_NO_MEMORY	const	#def SA_H2_ERR_NO_MEMORY = -12
+http2.sal	SA_H2_ERR_PROTOCOL	const	#def SA_H2_ERR_PROTOCOL = 101
+http2.sal	SA_H2_ERR_UNSUPPORTED	const	#def SA_H2_ERR_UNSUPPORTED = -1
+http2.sal	SA_H2_OK	const	#def SA_H2_OK = 0
+http_client.sai	sa_http_client_async_cancel_v2	fn	@extern sa_http_client_async_cancel_v2(op: ptr) -> u32
+http_client.sai	sa_http_client_async_free	fn	@extern sa_http_client_async_free(op: ptr) -> u32
+http_client.sai	sa_http_client_async_free_v2	fn	@extern sa_http_client_async_free_v2(op: ptr) -> u32
+http_client.sai	sa_http_client_async_poll	fn	@extern sa_http_client_async_poll(op: ptr, &out_ready: ptr) -> u32
+http_client.sai	sa_http_client_async_poll_v2	fn	@extern sa_http_client_async_poll_v2(op: ptr, timeout_ms: u32, &out_ready: ptr) -> u32
+http_client.sai	sa_http_client_async_take_response	fn	@extern sa_http_client_async_take_response(op: ptr, &out_resp: ptr) -> u32
+http_client.sai	sa_http_client_async_take_response_v2	fn	@extern sa_http_client_async_take_response_v2(op: ptr, &out_resp: ptr) -> u32
+http_client.sai	sa_http_client_body_reader_free	fn	@extern sa_http_client_body_reader_free(reader: ptr) -> u32
+http_client.sai	sa_http_client_free	fn	@extern sa_http_client_free(client: ptr) -> u32
+http_client.sai	sa_http_client_new	fn	@extern sa_http_client_new(use_tls: u8, &out_client: ptr) -> u32
+http_client.sai	sa_http_client_new_v2	fn	@extern sa_http_client_new_v2(use_tls: u8, &ca_bundle_path: ptr, ca_bundle_path_len: u64, &out_client: ptr) -> u32
+http_client.sai	sa_http_client_req_add_header	fn	@extern sa_http_client_req_add_header(req: ptr, &key: ptr, key_len: u64, &val: ptr, val_len: u64) -> u32
+http_client.sai	sa_http_client_req_add_header_v2	fn	@extern sa_http_client_req_add_header_v2(req: ptr, &key: ptr, key_len: u64, &value: ptr, value_len: u64) -> u32
+http_client.sai	sa_http_client_req_add_openai_auth	fn	@extern sa_http_client_req_add_openai_auth(req: ptr, &key: ptr, key_len: u64) -> u32
+http_client.sai	sa_http_client_req_free	fn	@extern sa_http_client_req_free(req: ptr) -> u32
+http_client.sai	sa_http_client_req_new	fn	@extern sa_http_client_req_new(client: ptr, method: u8, &url: ptr, url_len: u64, &out_req: ptr) -> u32
+http_client.sai	sa_http_client_req_new_joined	fn	@extern sa_http_client_req_new_joined(client: ptr, method: u8, &target: ptr, target_len: u64, &path: ptr, path_len: u64, preserve_base_path: u8, &out_req: ptr) -> u32
+http_client.sai	sa_http_client_req_new_v2	fn	@extern sa_http_client_req_new_v2(client: ptr, method: u8, &url: ptr, url_len: u64, &out_req: ptr) -> u32
+http_client.sai	sa_http_client_req_send	fn	@extern sa_http_client_req_send(req: ptr, &out_resp: ptr) -> u32
+http_client.sai	sa_http_client_req_send_async	fn	@extern sa_http_client_req_send_async(req: ptr, &out_op: ptr) -> u32
+http_client.sai	sa_http_client_req_send_async_v2	fn	@extern sa_http_client_req_send_async_v2(req: ptr, &out_op: ptr) -> u32
+http_client.sai	sa_http_client_req_send_v2	fn	@extern sa_http_client_req_send_v2(req: ptr, &out_resp: ptr) -> u32
+http_client.sai	sa_http_client_req_set_body	fn	@extern sa_http_client_req_set_body(req: ptr, &body: ptr, body_len: u64) -> u32
+http_client.sai	sa_http_client_req_set_body_v2	fn	@extern sa_http_client_req_set_body_v2(req: ptr, &body: ptr, body_len: u64) -> u32
+http_client.sai	sa_http_client_req_set_max_response_bytes_v2	fn	@extern sa_http_client_req_set_max_response_bytes_v2(req: ptr, max_bytes: u64) -> u32
+http_client.sai	sa_http_client_req_set_timeout_v2	fn	@extern sa_http_client_req_set_timeout_v2(req: ptr, timeout_ms: u32) -> u32
+http_client.sai	sa_http_client_req_websocket_connect_unix_v2	fn	@extern sa_http_client_req_websocket_connect_unix_v2(req: ptr, &socket_path: ptr, socket_path_len: u64, timeout_ms: u32, &out_ws: ptr) -> u32
+http_client.sai	sa_http_client_req_websocket_connect_v2	fn	@extern sa_http_client_req_websocket_connect_v2(req: ptr, timeout_ms: u32, &out_ws: ptr) -> u32
+http_client.sai	sa_http_client_resp_body_len	fn	@extern sa_http_client_resp_body_len(resp: ptr) -> u64
+http_client.sai	sa_http_client_resp_body_ptr	fn	@extern sa_http_client_resp_body_ptr(resp: ptr) -> ptr
+http_client.sai	sa_http_client_resp_body_reader	fn	@extern sa_http_client_resp_body_reader(resp: ptr, &out_reader: ptr) -> u32
+http_client.sai	sa_http_client_resp_body_slice	fn	@extern sa_http_client_resp_body_slice(resp: ptr, &out_body: ptr, &out_len: ptr) -> u32
+http_client.sai	sa_http_client_resp_free	fn	@extern sa_http_client_resp_free(resp: ptr) -> u32
+http_client.sai	sa_http_client_resp_get_header	fn	@extern sa_http_client_resp_get_header(resp: ptr, &key: ptr, key_len: u64, &out_val: ptr, &out_len: ptr) -> u32
+http_client.sai	sa_http_client_resp_read_chunk	fn	@extern sa_http_client_resp_read_chunk(reader: ptr, &buf: ptr, cap: u64, &out_len: ptr) -> u32
+http_client.sai	sa_http_client_resp_status	fn	@extern sa_http_client_resp_status(resp: ptr) -> u16
+http_client.sai	sa_http_client_sse_free	fn	@extern sa_http_client_sse_free(handle: ptr) -> u32
+http_client.sai	sa_http_client_sse_poll	fn	@extern sa_http_client_sse_poll(handle: ptr, &out_done: ptr) -> u32
+http_client.sai	sa_http_client_sse_post	fn	@extern sa_http_client_sse_post(&url: ptr, url_len: u64, &body: ptr, body_len: u64, &key: ptr, key_len: u64, &out_handle: ptr) -> u32
+http_client.sai	sa_http_client_sse_read	fn	@extern sa_http_client_sse_read(handle: ptr, &buf: ptr, buf_cap: u64, &out_len: ptr) -> u32
+http_client.sai	sa_http_client_sse_status	fn	@extern sa_http_client_sse_status(handle: ptr) -> u16
+http_client.sai	sa_http_client_sse_turn	fn	@extern sa_http_client_sse_turn(&url: ptr, url_len: u64, &body: ptr, body_len: u64, &key: ptr, key_len: u64, api_mode: u64, &out_text: ptr, &out_text_len: ptr, &out_calls: ptr, &out_calls_len: ptr) -> u32
+http_client.sai	sa_http_client_sse_turn_ex	fn	@extern sa_http_client_sse_turn_ex(&url: ptr, url_len: u64, &body: ptr, body_len: u64, &key: ptr, key_len: u64, api_mode: u64, &out_text: ptr, &out_text_len: ptr, &out_calls: ptr, &out_calls_len: ptr, &out_usage: ptr, &out_usage_len: ptr, &
+http_client.sai	sa_http_client_sse_turn_free	fn	@extern sa_http_client_sse_turn_free(&buf: ptr, len: u64) -> void
+http_client.sai	sa_http_client_sse_turn_free_all	fn	@extern sa_http_client_sse_turn_free_all(&text: ptr, text_len: u64, &calls: ptr, calls_len: u64, &usage: ptr, usage_len: u64, &reasoning: ptr, reasoning_len: u64) -> u32
+http_client.sai	sa_http_client_websocket_connect	fn	@extern sa_http_client_websocket_connect(client: ptr, &url: ptr, url_len: u64, &out_ws: ptr) -> u32
+http_client.sai	sa_http_client_websocket_connect_unix_v2	fn	@extern sa_http_client_websocket_connect_unix_v2(client: ptr, &socket_path: ptr, socket_path_len: u64, &url: ptr, url_len: u64, timeout_ms: u32, &out_ws: ptr) -> u32
+http_client.sai	sa_http_client_websocket_connect_v2	fn	@extern sa_http_client_websocket_connect_v2(client: ptr, &url: ptr, url_len: u64, timeout_ms: u32, &out_ws: ptr) -> u32
+http_client.sai	sa_http_fetch_bytes	fn	@extern sa_http_fetch_bytes(&url: ptr, url_len: u64, &buf: ptr, cap: u64, &out_len: ptr) -> i32
+http_client.sai	sa_http_websocket_close_v2	fn	@extern sa_http_websocket_close_v2(ws: ptr, code: u16, &reason: ptr, reason_len: u64) -> u32
+http_client.sai	sa_http_websocket_free	fn	@extern sa_http_websocket_free(ws: ptr) -> u32
+http_client.sai	sa_http_websocket_free_v2	fn	@extern sa_http_websocket_free_v2(ws: ptr) -> u32
+http_client.sai	sa_http_websocket_poll_v2	fn	@extern sa_http_websocket_poll_v2(ws: ptr, interests: u32, timeout_ms: u32, &out_events: ptr) -> u32
+http_client.sai	sa_http_websocket_read	fn	@extern sa_http_websocket_read(ws: ptr, max_len: u64, &out_opcode: ptr, &out_ptr: ptr, &out_len: ptr) -> u32
+http_client.sai	sa_http_websocket_read_v2	fn	@extern sa_http_websocket_read_v2(ws: ptr, max_len: u64, &out_opcode: ptr, &out_ptr: ptr, &out_len: ptr) -> u32
+http_client.sai	sa_http_websocket_write	fn	@extern sa_http_websocket_write(ws: ptr, opcode: u8, &data: ptr, data_len: u64) -> u32
+http_client.sai	sa_http_websocket_write_v2	fn	@extern sa_http_websocket_write_v2(ws: ptr, opcode: u8, &data: ptr, data_len: u64, &out_written: ptr) -> u32
+http_server.sai	sa_http_server_accept	fn	@extern sa_http_server_accept(server: ptr, &out_req: ptr) -> u32
+http_server.sai	sa_http_server_accept_v2	fn	@extern sa_http_server_accept_v2(server: ptr, timeout_ms: u32, &out_req: ptr) -> u32
+http_server.sai	sa_http_server_free	fn	@extern sa_http_server_free(server: ptr) -> u32
+http_server.sai	sa_http_server_free_v2	fn	@extern sa_http_server_free_v2(server: ptr) -> u32
+http_server.sai	sa_http_server_new	fn	@extern sa_http_server_new(&out_server: ptr) -> u32
+http_server.sai	sa_http_server_new_v2	fn	@extern sa_http_server_new_v2(&out_server: ptr) -> u32
+http_server.sai	sa_http_server_req_free	fn	@extern sa_http_server_req_free(req: ptr) -> u32
+http_server.sai	sa_http_server_req_free_v2	fn	@extern sa_http_server_req_free_v2(req: ptr) -> u32
+http_server.sai	sa_http_server_req_get_body	fn	@extern sa_http_server_req_get_body(req: ptr, &out_body: ptr, &out_len: ptr) -> u32
+http_server.sai	sa_http_server_req_get_header	fn	@extern sa_http_server_req_get_header(req: ptr, &key: ptr, key_len: u64, &out_val: ptr, &out_len: ptr) -> u32
+http_server.sai	sa_http_server_req_get_method	fn	@extern sa_http_server_req_get_method(req: ptr, &out_method: ptr, &out_len: ptr) -> u32
+http_server.sai	sa_http_server_req_get_path	fn	@extern sa_http_server_req_get_path(req: ptr, &out_path: ptr, &out_len: ptr) -> u32
+http_server.sai	sa_http_server_resp_add_header_v2	fn	@extern sa_http_server_resp_add_header_v2(resp: ptr, &name: ptr, name_len: u64, &value: ptr, value_len: u64) -> u32
+http_server.sai	sa_http_server_resp_free	fn	@extern sa_http_server_resp_free(resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_free_v2	fn	@extern sa_http_server_resp_free_v2(resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_new	fn	@extern sa_http_server_resp_new(req: ptr, status: u16, &out_resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_new_v2	fn	@extern sa_http_server_resp_new_v2(req: ptr, status: u16, &out_resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_send	fn	@extern sa_http_server_resp_send(resp: ptr, &body: ptr, body_len: u64) -> u32
+http_server.sai	sa_http_server_resp_send_v2	fn	@extern sa_http_server_resp_send_v2(resp: ptr, &body: ptr, body_len: u64, timeout_ms: u32) -> u32
+http_server.sai	sa_http_server_resp_set_content_type	fn	@extern sa_http_server_resp_set_content_type(resp: ptr, &content_type: ptr, content_type_len: u64) -> u32
+http_server.sai	sa_http_server_resp_stream_add_header_v2	fn	@extern sa_http_server_resp_stream_add_header_v2(resp: ptr, &name: ptr, name_len: u64, &value: ptr, value_len: u64) -> u32
+http_server.sai	sa_http_server_resp_stream_end	fn	@extern sa_http_server_resp_stream_end(resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_stream_end_v2	fn	@extern sa_http_server_resp_stream_end_v2(resp: ptr, timeout_ms: u32) -> u32
+http_server.sai	sa_http_server_resp_stream_flush	fn	@extern sa_http_server_resp_stream_flush(resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_stream_flush_v2	fn	@extern sa_http_server_resp_stream_flush_v2(resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_stream_free	fn	@extern sa_http_server_resp_stream_free(resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_stream_free_v2	fn	@extern sa_http_server_resp_stream_free_v2(resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_stream_new	fn	@extern sa_http_server_resp_stream_new(req: ptr, status: u16, &out_resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_stream_new_v2	fn	@extern sa_http_server_resp_stream_new_v2(req: ptr, status: u16, &out_resp: ptr) -> u32
+http_server.sai	sa_http_server_resp_stream_write	fn	@extern sa_http_server_resp_stream_write(resp: ptr, &body: ptr, body_len: u64) -> u32
+http_server.sai	sa_http_server_resp_stream_write_v2	fn	@extern sa_http_server_resp_stream_write_v2(resp: ptr, &body: ptr, body_len: u64, timeout_ms: u32) -> u32
+http_server.sai	sa_http_server_serve_threaded	fn	@extern sa_http_server_serve_threaded(server: ptr, num_threads: u32, handler: ptr, handler_ctx: ptr, max_requests: u64) -> u32
+http_server.sai	sa_http_server_set_max_body_bytes	fn	@extern sa_http_server_set_max_body_bytes(server: ptr, max_bytes: u64) -> u32
+http_server.sai	sa_http_server_start	fn	@extern sa_http_server_start(server: ptr, &host: ptr, host_len: u64, port: u16) -> u32
+http_server.sai	sa_http_server_start_v2	fn	@extern sa_http_server_start_v2(server: ptr, &host: ptr, host_len: u64, port: u16) -> u32
+http_server.sai	sa_http_server_stop_serving	fn	@extern sa_http_server_stop_serving(server: ptr) -> u32
+http_server.sai	sa_http_server_websocket_close_v2	fn	@extern sa_http_server_websocket_close_v2(ws: ptr, code: u16, &reason: ptr, reason_len: u64) -> u32
+http_server.sai	sa_http_server_websocket_free	fn	@extern sa_http_server_websocket_free(ws: ptr) -> u32
+http_server.sai	sa_http_server_websocket_free_v2	fn	@extern sa_http_server_websocket_free_v2(ws: ptr) -> u32
+http_server.sai	sa_http_server_websocket_poll_v2	fn	@extern sa_http_server_websocket_poll_v2(ws: ptr, interests: u32, timeout_ms: u32, &out_events: ptr) -> u32
+http_server.sai	sa_http_server_websocket_read	fn	@extern sa_http_server_websocket_read(ws: ptr, max_len: u64, &out_opcode: ptr, &out_data: ptr, &out_len: ptr) -> u32
+http_server.sai	sa_http_server_websocket_read_v2	fn	@extern sa_http_server_websocket_read_v2(ws: ptr, max_len: u64, &out_opcode: ptr, &out_data: ptr, &out_len: ptr) -> u32
+http_server.sai	sa_http_server_websocket_upgrade	fn	@extern sa_http_server_websocket_upgrade(req: ptr, &out_ws: ptr) -> u32
+http_server.sai	sa_http_server_websocket_upgrade_v2	fn	@extern sa_http_server_websocket_upgrade_v2(req: ptr, &out_ws: ptr) -> u32
+http_server.sai	sa_http_server_websocket_write	fn	@extern sa_http_server_websocket_write(ws: ptr, opcode: u8, &data: ptr, data_len: u64) -> u32
+http_server.sai	sa_http_server_websocket_write_v2	fn	@extern sa_http_server_websocket_write_v2(ws: ptr, opcode: u8, &data: ptr, data_len: u64, &out_written: ptr) -> u32
+net.sai	sa_net_addr_family	fn	@extern sa_net_addr_family(addr: u64) -> u32
+net.sai	sa_net_addr_free	fn	@extern sa_net_addr_free(addr: u64) -> i32!
+net.sai	sa_net_addr_host	fn	@extern sa_net_addr_host(addr: u64) -> &ptr
+net.sai	sa_net_addr_host_len	fn	@extern sa_net_addr_host_len(addr: u64) -> u64
+net.sai	sa_net_addr_port	fn	@extern sa_net_addr_port(addr: u64) -> u32
+net.sai	sa_net_addr_scope_id	fn	@extern sa_net_addr_scope_id(addr: u64) -> u64
+net.sai	sa_net_ipv4_format_ascii	fn	@extern sa_net_ipv4_format_ascii(&addr: ptr, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_net_ipv4_parse_ascii	fn	@extern sa_net_ipv4_parse_ascii(&text: ptr, text_len: u64, &out_addr: ptr) -> i32
+net.sai	sa_net_ipv6_format_ascii	fn	@extern sa_net_ipv6_format_ascii(&addr: ptr, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_net_ipv6_parse_ascii	fn	@extern sa_net_ipv6_parse_ascii(&text: ptr, text_len: u64, &out_addr: ptr) -> i32
+net.sai	sa_net_socket_addr_v4_format_ascii	fn	@extern sa_net_socket_addr_v4_format_ascii(&addr: ptr, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_net_socket_addr_v4_parse_ascii	fn	@extern sa_net_socket_addr_v4_parse_ascii(&text: ptr, text_len: u64, &out_socket_addr: ptr) -> i32
+net.sai	sa_net_socket_addr_v6_format_ascii	fn	@extern sa_net_socket_addr_v6_format_ascii(&addr: ptr, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_net_socket_addr_v6_parse_ascii	fn	@extern sa_net_socket_addr_v6_parse_ascii(&text: ptr, text_len: u64, &out_socket_addr: ptr) -> i32
+net.sai	sa_net_tcp_connect	fn	@extern sa_net_tcp_connect(&host: ptr, host_len: u64, port: u32) -> u64!
+net.sai	sa_net_tcp_listener_accept	fn	@extern sa_net_tcp_listener_accept(listener: u64) -> u64!
+net.sai	sa_net_tcp_listener_bind	fn	@extern sa_net_tcp_listener_bind(&host: ptr, host_len: u64, port: u16) -> u64!
+net.sai	sa_net_tcp_listener_close	fn	@extern sa_net_tcp_listener_close(listener: u64) -> i32!
+net.sai	sa_net_tcp_listener_local_addr	fn	@extern sa_net_tcp_listener_local_addr(listener: u64) -> u64!
+net.sai	sa_net_tcp_stream_close	fn	@extern sa_net_tcp_stream_close(stream: u64) -> i32!
+net.sai	sa_net_tcp_stream_flush	fn	@extern sa_net_tcp_stream_flush(stream: u64) -> i32
+net.sai	sa_net_tcp_stream_peek	fn	@extern sa_net_tcp_stream_peek(stream: u64, &buf: ptr, cap: u64) -> i32
+net.sai	sa_net_tcp_stream_peer_addr	fn	@extern sa_net_tcp_stream_peer_addr(stream: u64) -> i32
+net.sai	sa_net_tcp_stream_read	fn	@extern sa_net_tcp_stream_read(stream: u64, &buf: ptr, cap: u64) -> u64!
+net.sai	sa_net_tcp_stream_read_exact	fn	@extern sa_net_tcp_stream_read_exact(stream: u64, &buf: ptr, len: u64) -> i32!
+net.sai	sa_net_tcp_stream_set_nodelay	fn	@extern sa_net_tcp_stream_set_nodelay(stream: u64, enabled: i32) -> i32
+net.sai	sa_net_tcp_stream_set_nonblocking	fn	@extern sa_net_tcp_stream_set_nonblocking(stream: u64, enabled: i32) -> i32
+net.sai	sa_net_tcp_stream_set_read_timeout	fn	@extern sa_net_tcp_stream_set_read_timeout(stream: u64, timeout_ns: u64) -> i32
+net.sai	sa_net_tcp_stream_set_ttl	fn	@extern sa_net_tcp_stream_set_ttl(stream: u64, ttl: u32) -> i32
+net.sai	sa_net_tcp_stream_set_write_timeout	fn	@extern sa_net_tcp_stream_set_write_timeout(stream: u64, timeout_ns: u64) -> i32
+net.sai	sa_net_tcp_stream_shutdown	fn	@extern sa_net_tcp_stream_shutdown(stream: u64, how: u32) -> i32
+net.sai	sa_net_tcp_stream_write	fn	@extern sa_net_tcp_stream_write(stream: u64, &buf: ptr, len: u64) -> i32
+net.sai	sa_net_tcp_stream_write_all	fn	@extern sa_net_tcp_stream_write_all(stream: u64, &buf: ptr, len: u64) -> i32!
+net.sai	sa_net_udp_bind	fn	@extern sa_net_udp_bind(&host: ptr, host_len: u64, port: u16) -> i32
+net.sai	sa_net_udp_close	fn	@extern sa_net_udp_close(socket: u64) -> i32
+net.sai	sa_net_udp_connect	fn	@extern sa_net_udp_connect(socket: u64, &host: ptr, host_len: u64, port: u16) -> i32
+net.sai	sa_net_udp_join_multicast_v4	fn	@extern sa_net_udp_join_multicast_v4(socket: u64, &multi_host: ptr, multi_host_len: u64, &interface_host: ptr, interface_host_len: u64) -> i32
+net.sai	sa_net_udp_join_multicast_v6	fn	@extern sa_net_udp_join_multicast_v6(socket: u64, &multi_host: ptr, multi_host_len: u64, interface_index: u32) -> i32
+net.sai	sa_net_udp_leave_multicast_v4	fn	@extern sa_net_udp_leave_multicast_v4(socket: u64, &multi_host: ptr, multi_host_len: u64, &interface_host: ptr, interface_host_len: u64) -> i32
+net.sai	sa_net_udp_leave_multicast_v6	fn	@extern sa_net_udp_leave_multicast_v6(socket: u64, &multi_host: ptr, multi_host_len: u64, interface_index: u32) -> i32
+net.sai	sa_net_udp_local_addr	fn	@extern sa_net_udp_local_addr(socket: u64) -> i32
+net.sai	sa_net_udp_peek	fn	@extern sa_net_udp_peek(socket: u64, &buf: ptr, cap: u64) -> i32
+net.sai	sa_net_udp_peek_from	fn	@extern sa_net_udp_peek_from(socket: u64, &buf: ptr, cap: u64, &out_addr: ptr) -> i32
+net.sai	sa_net_udp_recv	fn	@extern sa_net_udp_recv(socket: u64, &buf: ptr, cap: u64) -> i32
+net.sai	sa_net_udp_recv_from	fn	@extern sa_net_udp_recv_from(socket: u64, &buf: ptr, cap: u64, &out_addr: ptr) -> i32
+net.sai	sa_net_udp_send	fn	@extern sa_net_udp_send(socket: u64, &buf: ptr, len: u64) -> i32
+net.sai	sa_net_udp_send_to	fn	@extern sa_net_udp_send_to(socket: u64, &buf: ptr, len: u64, &host: ptr, host_len: u64, port: u16) -> i32
+net.sai	sa_net_udp_set_broadcast	fn	@extern sa_net_udp_set_broadcast(socket: u64, enabled: i32) -> i32
+net.sai	sa_net_udp_set_multicast_loop_v4	fn	@extern sa_net_udp_set_multicast_loop_v4(socket: u64, enabled: i32) -> i32
+net.sai	sa_net_udp_set_multicast_ttl_v4	fn	@extern sa_net_udp_set_multicast_ttl_v4(socket: u64, ttl: u32) -> i32
+net.sai	sa_net_udp_set_nonblocking	fn	@extern sa_net_udp_set_nonblocking(socket: u64, enabled: i32) -> i32
+net.sai	sa_net_udp_set_read_timeout	fn	@extern sa_net_udp_set_read_timeout(socket: u64, timeout_ns: u64) -> i32
+net.sai	sa_net_udp_set_ttl	fn	@extern sa_net_udp_set_ttl(socket: u64, ttl: u32) -> i32
+net.sai	sa_net_udp_set_write_timeout	fn	@extern sa_net_udp_set_write_timeout(socket: u64, timeout_ns: u64) -> i32
+net.sai	sa_net_unix_addr_abstract_len	fn	@extern sa_net_unix_addr_abstract_len(addr: u64) -> u64
+net.sai	sa_net_unix_addr_abstract_ptr	fn	@extern sa_net_unix_addr_abstract_ptr(addr: u64) -> &ptr
+net.sai	sa_net_unix_addr_free	fn	@extern sa_net_unix_addr_free(addr: u64) -> i32!
+net.sai	sa_net_unix_addr_is_unnamed	fn	@extern sa_net_unix_addr_is_unnamed(addr: u64) -> u8
+net.sai	sa_net_unix_addr_kind	fn	@extern sa_net_unix_addr_kind(addr: u64) -> u32
+net.sai	sa_net_unix_addr_path_len	fn	@extern sa_net_unix_addr_path_len(addr: u64) -> u64
+net.sai	sa_net_unix_addr_path_ptr	fn	@extern sa_net_unix_addr_path_ptr(addr: u64) -> &ptr
+net.sai	sa_std_last_error	fn	@extern sa_std_last_error() -> i32
+net.sai	sa_std_net_addr_format	fn	@extern sa_std_net_addr_format(addr: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_net_addr_list_free	fn	@extern sa_std_net_addr_list_free(list: u64) -> i32
+net.sai	sa_std_net_addr_list_next	fn	@extern sa_std_net_addr_list_next(list: u64, &out_ok: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_addr_list_remaining	fn	@extern sa_std_net_addr_list_remaining(list: u64, &out_remaining: ptr) -> i32
+net.sai	sa_std_net_addr_list_reset	fn	@extern sa_std_net_addr_list_reset(list: u64) -> i32
+net.sai	sa_std_net_addr_reverse_lookup	fn	@extern sa_std_net_addr_reverse_lookup(addr: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_net_error_code_from_native_error	fn	@extern sa_std_net_error_code_from_native_error(error: i32) -> i32
+net.sai	sa_std_net_error_code_from_posix_errno	fn	@extern sa_std_net_error_code_from_posix_errno(errno: i32) -> i32
+net.sai	sa_std_net_error_code_from_status	fn	@extern sa_std_net_error_code_from_status(status: i32) -> i32
+net.sai	sa_std_net_error_code_from_wsa_error	fn	@extern sa_std_net_error_code_from_wsa_error(error: i32) -> i32
+net.sai	sa_std_net_error_code_name	fn	@extern sa_std_net_error_code_name(code: i32, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_net_error_platform	fn	@extern sa_std_net_error_platform() -> i32
+net.sai	sa_std_net_hostname	fn	@extern sa_std_net_hostname(&out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_net_ja3_hash	fn	@extern sa_std_net_ja3_hash(&ja3: ptr, ja3_len: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_net_ja4_hash12	fn	@extern sa_std_net_ja4_hash12(&data: ptr, data_len: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_net_sha256_hex	fn	@extern sa_std_net_sha256_hex(&input: ptr, input_len: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_net_tcp_accept	fn	@extern sa_std_net_tcp_accept(listener: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_accept_addr	fn	@extern sa_std_net_tcp_accept_addr(listener: u64, &out_stream: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_tcp_connect	fn	@extern sa_std_net_tcp_connect(&host: ptr, host_len: u64, port: u32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_connect_timeout	fn	@extern sa_std_net_tcp_connect_timeout(&host: ptr, host_len: u64, port: u32, timeout_ns: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_connect_timeout_addr	fn	@extern sa_std_net_tcp_connect_timeout_addr(addr: u64, timeout_ns: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_connect_timeout_all	fn	@extern sa_std_net_tcp_connect_timeout_all(&host: ptr, host_len: u64, port: u32, timeout_ns: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_listen	fn	@extern sa_std_net_tcp_listen(&host: ptr, host_len: u64, port: u32, &out_handle: ptr, &out_bound_port: ptr) -> i32
+net.sai	sa_std_net_tcp_listener_from_raw_fd	fn	@extern sa_std_net_tcp_listener_from_raw_fd(fd: i32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_listener_local_addr	fn	@extern sa_std_net_tcp_listener_local_addr(listener: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_listener_only_v6	fn	@extern sa_std_net_tcp_listener_only_v6(listener: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_tcp_listener_set_nonblocking	fn	@extern sa_std_net_tcp_listener_set_nonblocking(listener: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_listener_set_only_v6	fn	@extern sa_std_net_tcp_listener_set_only_v6(listener: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_listener_set_reuseaddr	fn	@extern sa_std_net_tcp_listener_set_reuseaddr(listener: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_listener_set_reuseport	fn	@extern sa_std_net_tcp_listener_set_reuseport(listener: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_listener_set_ttl	fn	@extern sa_std_net_tcp_listener_set_ttl(listener: u64, ttl: u32) -> i32
+net.sai	sa_std_net_tcp_listener_take_error	fn	@extern sa_std_net_tcp_listener_take_error(listener: u64, &out_error: ptr) -> i32
+net.sai	sa_std_net_tcp_listener_try_clone	fn	@extern sa_std_net_tcp_listener_try_clone(listener: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_listener_ttl	fn	@extern sa_std_net_tcp_listener_ttl(listener: u64, &out_ttl: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_deferaccept	fn	@extern sa_std_net_tcp_stream_deferaccept(stream: u64, &out_seconds: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_from_raw_fd	fn	@extern sa_std_net_tcp_stream_from_raw_fd(fd: i32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_keepalive	fn	@extern sa_std_net_tcp_stream_keepalive(stream: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_linger	fn	@extern sa_std_net_tcp_stream_linger(stream: u64, &out_enabled: ptr, &out_timeout_ns: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_local_addr	fn	@extern sa_std_net_tcp_stream_local_addr(stream: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_nodelay	fn	@extern sa_std_net_tcp_stream_nodelay(stream: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_peek	fn	@extern sa_std_net_tcp_stream_peek(stream: u64, &buf: ptr, cap: u64, &out_read: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_peer_addr	fn	@extern sa_std_net_tcp_stream_peer_addr(stream: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_quickack	fn	@extern sa_std_net_tcp_stream_quickack(stream: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_read	fn	@extern sa_std_net_tcp_stream_read(stream: u64, &buf: ptr, cap: u64, &out_read: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_read_timeout	fn	@extern sa_std_net_tcp_stream_read_timeout(stream: u64, &out_timeout_ns: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_read_vectored	fn	@extern sa_std_net_tcp_stream_read_vectored(stream: u64, &iovs: ptr, iov_count: u64, &out_read: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_recv_buffer_size	fn	@extern sa_std_net_tcp_stream_recv_buffer_size(stream: u64, &out_size: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_send_buffer_size	fn	@extern sa_std_net_tcp_stream_send_buffer_size(stream: u64, &out_size: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_set_deferaccept	fn	@extern sa_std_net_tcp_stream_set_deferaccept(stream: u64, seconds: u32) -> i32
+net.sai	sa_std_net_tcp_stream_set_keepalive	fn	@extern sa_std_net_tcp_stream_set_keepalive(stream: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_stream_set_keepalive_params	fn	@extern sa_std_net_tcp_stream_set_keepalive_params(stream: u64, idle_secs: u32, intvl_secs: u32, cnt: u32) -> i32
+net.sai	sa_std_net_tcp_stream_set_linger	fn	@extern sa_std_net_tcp_stream_set_linger(stream: u64, enabled: i32, timeout_ns: u64) -> i32
+net.sai	sa_std_net_tcp_stream_set_nodelay	fn	@extern sa_std_net_tcp_stream_set_nodelay(stream: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_stream_set_nonblocking	fn	@extern sa_std_net_tcp_stream_set_nonblocking(stream: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_stream_set_quickack	fn	@extern sa_std_net_tcp_stream_set_quickack(stream: u64, enabled: i32) -> i32
+net.sai	sa_std_net_tcp_stream_set_read_timeout	fn	@extern sa_std_net_tcp_stream_set_read_timeout(stream: u64, timeout_ns: u64) -> i32
+net.sai	sa_std_net_tcp_stream_set_recv_buffer_size	fn	@extern sa_std_net_tcp_stream_set_recv_buffer_size(stream: u64, size: u32) -> i32
+net.sai	sa_std_net_tcp_stream_set_send_buffer_size	fn	@extern sa_std_net_tcp_stream_set_send_buffer_size(stream: u64, size: u32) -> i32
+net.sai	sa_std_net_tcp_stream_set_ttl	fn	@extern sa_std_net_tcp_stream_set_ttl(stream: u64, ttl: u32) -> i32
+net.sai	sa_std_net_tcp_stream_set_write_timeout	fn	@extern sa_std_net_tcp_stream_set_write_timeout(stream: u64, timeout_ns: u64) -> i32
+net.sai	sa_std_net_tcp_stream_take_error	fn	@extern sa_std_net_tcp_stream_take_error(stream: u64, &out_error: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_try_clone	fn	@extern sa_std_net_tcp_stream_try_clone(stream: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_ttl	fn	@extern sa_std_net_tcp_stream_ttl(stream: u64, &out_ttl: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_write	fn	@extern sa_std_net_tcp_stream_write(stream: u64, &buf: ptr, len: u64, &out_written: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_write_timeout	fn	@extern sa_std_net_tcp_stream_write_timeout(stream: u64, &out_timeout_ns: ptr) -> i32
+net.sai	sa_std_net_tcp_stream_write_vectored	fn	@extern sa_std_net_tcp_stream_write_vectored(stream: u64, &iovs: ptr, iov_count: u64, &out_written: ptr) -> i32
+net.sai	sa_std_net_to_socket_addr_first	fn	@extern sa_std_net_to_socket_addr_first(&host: ptr, host_len: u64, port: u32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_to_socket_addr_list	fn	@extern sa_std_net_to_socket_addr_list(&host: ptr, host_len: u64, port: u32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_udp_bind	fn	@extern sa_std_net_udp_bind(&host: ptr, host_len: u64, port: u32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_udp_broadcast	fn	@extern sa_std_net_udp_broadcast(socket: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_udp_connect	fn	@extern sa_std_net_udp_connect(socket: u64, &host: ptr, host_len: u64, port: u32) -> i32
+net.sai	sa_std_net_udp_connect_addr	fn	@extern sa_std_net_udp_connect_addr(socket: u64, addr: u64) -> i32
+net.sai	sa_std_net_udp_from_raw_fd	fn	@extern sa_std_net_udp_from_raw_fd(fd: i32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_udp_join_multicast_v4	fn	@extern sa_std_net_udp_join_multicast_v4(socket: u64, &multi_host: ptr, multi_host_len: u64, &interface_host: ptr, interface_host_len: u64) -> i32
+net.sai	sa_std_net_udp_join_multicast_v6	fn	@extern sa_std_net_udp_join_multicast_v6(socket: u64, &multi_host: ptr, multi_host_len: u64, interface_index: u32) -> i32
+net.sai	sa_std_net_udp_leave_multicast_v4	fn	@extern sa_std_net_udp_leave_multicast_v4(socket: u64, &multi_host: ptr, multi_host_len: u64, &interface_host: ptr, interface_host_len: u64) -> i32
+net.sai	sa_std_net_udp_leave_multicast_v6	fn	@extern sa_std_net_udp_leave_multicast_v6(socket: u64, &multi_host: ptr, multi_host_len: u64, interface_index: u32) -> i32
+net.sai	sa_std_net_udp_local_addr	fn	@extern sa_std_net_udp_local_addr(socket: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_udp_multicast_hops_v6	fn	@extern sa_std_net_udp_multicast_hops_v6(socket: u64, &out_hops: ptr) -> i32
+net.sai	sa_std_net_udp_multicast_if_v4	fn	@extern sa_std_net_udp_multicast_if_v4(socket: u64, &out_interface_addr: ptr) -> i32
+net.sai	sa_std_net_udp_multicast_if_v6	fn	@extern sa_std_net_udp_multicast_if_v6(socket: u64, &out_interface_index: ptr) -> i32
+net.sai	sa_std_net_udp_multicast_loop_v4	fn	@extern sa_std_net_udp_multicast_loop_v4(socket: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_udp_multicast_loop_v6	fn	@extern sa_std_net_udp_multicast_loop_v6(socket: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_udp_multicast_ttl_v4	fn	@extern sa_std_net_udp_multicast_ttl_v4(socket: u64, &out_ttl: ptr) -> i32
+net.sai	sa_std_net_udp_only_v6	fn	@extern sa_std_net_udp_only_v6(socket: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_udp_peek	fn	@extern sa_std_net_udp_peek(socket: u64, &buf: ptr, cap: u64, &out_read: ptr) -> i32
+net.sai	sa_std_net_udp_peek_from	fn	@extern sa_std_net_udp_peek_from(socket: u64, &buf: ptr, cap: u64, &out_read: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_udp_peer_addr	fn	@extern sa_std_net_udp_peer_addr(socket: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_udp_read_timeout	fn	@extern sa_std_net_udp_read_timeout(socket: u64, &out_timeout_ns: ptr) -> i32
+net.sai	sa_std_net_udp_recv	fn	@extern sa_std_net_udp_recv(socket: u64, &buf: ptr, cap: u64, &out_read: ptr) -> i32
+net.sai	sa_std_net_udp_recv_buffer_size	fn	@extern sa_std_net_udp_recv_buffer_size(socket: u64, &out_size: ptr) -> i32
+net.sai	sa_std_net_udp_recv_from	fn	@extern sa_std_net_udp_recv_from(socket: u64, &buf: ptr, cap: u64, &out_read: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_udp_recv_from_vectored	fn	@extern sa_std_net_udp_recv_from_vectored(socket: u64, &iovs: ptr, iov_count: u64, &out_read: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_udp_send	fn	@extern sa_std_net_udp_send(socket: u64, &buf: ptr, len: u64, &out_written: ptr) -> i32
+net.sai	sa_std_net_udp_send_buffer_size	fn	@extern sa_std_net_udp_send_buffer_size(socket: u64, &out_size: ptr) -> i32
+net.sai	sa_std_net_udp_send_to	fn	@extern sa_std_net_udp_send_to(socket: u64, &buf: ptr, len: u64, &host: ptr, host_len: u64, port: u32, &out_written: ptr) -> i32
+net.sai	sa_std_net_udp_send_to_vectored	fn	@extern sa_std_net_udp_send_to_vectored(socket: u64, &iovs: ptr, iov_count: u64, &host: ptr, host_len: u64, port: u32, &out_written: ptr) -> i32
+net.sai	sa_std_net_udp_send_vectored	fn	@extern sa_std_net_udp_send_vectored(socket: u64, &iovs: ptr, iov_count: u64, &out_written: ptr) -> i32
+net.sai	sa_std_net_udp_set_broadcast	fn	@extern sa_std_net_udp_set_broadcast(socket: u64, enabled: i32) -> i32
+net.sai	sa_std_net_udp_set_multicast_hops_v6	fn	@extern sa_std_net_udp_set_multicast_hops_v6(socket: u64, hops: u32) -> i32
+net.sai	sa_std_net_udp_set_multicast_if_v4	fn	@extern sa_std_net_udp_set_multicast_if_v4(socket: u64, &interface_addr: ptr) -> i32
+net.sai	sa_std_net_udp_set_multicast_if_v6	fn	@extern sa_std_net_udp_set_multicast_if_v6(socket: u64, interface_index: u32) -> i32
+net.sai	sa_std_net_udp_set_multicast_loop_v4	fn	@extern sa_std_net_udp_set_multicast_loop_v4(socket: u64, enabled: i32) -> i32
+net.sai	sa_std_net_udp_set_multicast_loop_v6	fn	@extern sa_std_net_udp_set_multicast_loop_v6(socket: u64, enabled: i32) -> i32
+net.sai	sa_std_net_udp_set_multicast_ttl_v4	fn	@extern sa_std_net_udp_set_multicast_ttl_v4(socket: u64, ttl: u32) -> i32
+net.sai	sa_std_net_udp_set_nonblocking	fn	@extern sa_std_net_udp_set_nonblocking(socket: u64, enabled: i32) -> i32
+net.sai	sa_std_net_udp_set_only_v6	fn	@extern sa_std_net_udp_set_only_v6(socket: u64, enabled: i32) -> i32
+net.sai	sa_std_net_udp_set_read_timeout	fn	@extern sa_std_net_udp_set_read_timeout(socket: u64, timeout_ns: u64) -> i32
+net.sai	sa_std_net_udp_set_recv_buffer_size	fn	@extern sa_std_net_udp_set_recv_buffer_size(socket: u64, size: u32) -> i32
+net.sai	sa_std_net_udp_set_send_buffer_size	fn	@extern sa_std_net_udp_set_send_buffer_size(socket: u64, size: u32) -> i32
+net.sai	sa_std_net_udp_set_ttl	fn	@extern sa_std_net_udp_set_ttl(socket: u64, ttl: u32) -> i32
+net.sai	sa_std_net_udp_set_write_timeout	fn	@extern sa_std_net_udp_set_write_timeout(socket: u64, timeout_ns: u64) -> i32
+net.sai	sa_std_net_udp_take_error	fn	@extern sa_std_net_udp_take_error(socket: u64, &out_error: ptr) -> i32
+net.sai	sa_std_net_udp_try_clone	fn	@extern sa_std_net_udp_try_clone(socket: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_udp_ttl	fn	@extern sa_std_net_udp_ttl(socket: u64, &out_ttl: ptr) -> i32
+net.sai	sa_std_net_udp_write_timeout	fn	@extern sa_std_net_udp_write_timeout(socket: u64, &out_timeout_ns: ptr) -> i32
+net.sai	sa_std_net_unix_accept	fn	@extern sa_std_net_unix_accept(listener: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_accept_addr	fn	@extern sa_std_net_unix_accept_addr(listener: u64, &out_stream: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_unix_addr_from_abstract_name	fn	@extern sa_std_net_unix_addr_from_abstract_name(&name: ptr, name_len: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_addr_from_pathname	fn	@extern sa_std_net_unix_addr_from_pathname(&path: ptr, path_len: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_connect	fn	@extern sa_std_net_unix_connect(&path: ptr, path_len: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_connect_addr	fn	@extern sa_std_net_unix_connect_addr(addr: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_bind	fn	@extern sa_std_net_unix_datagram_bind(&path: ptr, path_len: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_bind_addr	fn	@extern sa_std_net_unix_datagram_bind_addr(addr: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_connect	fn	@extern sa_std_net_unix_datagram_connect(socket: u64, &path: ptr, path_len: u64) -> i32
+net.sai	sa_std_net_unix_datagram_connect_addr	fn	@extern sa_std_net_unix_datagram_connect_addr(socket: u64, addr: u64) -> i32
+net.sai	sa_std_net_unix_datagram_from_raw_fd	fn	@extern sa_std_net_unix_datagram_from_raw_fd(fd: i32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_local_addr	fn	@extern sa_std_net_unix_datagram_local_addr(socket: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_pair	fn	@extern sa_std_net_unix_datagram_pair(&out_left: ptr, &out_right: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_passcred	fn	@extern sa_std_net_unix_datagram_passcred(socket: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_peek_from	fn	@extern sa_std_net_unix_datagram_peek_from(socket: u64, &buf: ptr, cap: u64, &out_read: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_peer_addr	fn	@extern sa_std_net_unix_datagram_peer_addr(socket: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_recv_from	fn	@extern sa_std_net_unix_datagram_recv_from(socket: u64, &buf: ptr, cap: u64, &out_read: ptr, &out_addr: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_send_to	fn	@extern sa_std_net_unix_datagram_send_to(socket: u64, &buf: ptr, len: u64, &path: ptr, path_len: u64, &out_written: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_send_to_addr	fn	@extern sa_std_net_unix_datagram_send_to_addr(socket: u64, &buf: ptr, len: u64, addr: u64, &out_written: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_set_mark	fn	@extern sa_std_net_unix_datagram_set_mark(socket: u64, mark: u32) -> i32
+net.sai	sa_std_net_unix_datagram_set_passcred	fn	@extern sa_std_net_unix_datagram_set_passcred(socket: u64, enabled: i32) -> i32
+net.sai	sa_std_net_unix_datagram_shutdown	fn	@extern sa_std_net_unix_datagram_shutdown(socket: u64, how: u32) -> i32
+net.sai	sa_std_net_unix_datagram_try_clone	fn	@extern sa_std_net_unix_datagram_try_clone(socket: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_datagram_unbound	fn	@extern sa_std_net_unix_datagram_unbound(&out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_listen	fn	@extern sa_std_net_unix_listen(&path: ptr, path_len: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_listen_addr	fn	@extern sa_std_net_unix_listen_addr(addr: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_listener_from_raw_fd	fn	@extern sa_std_net_unix_listener_from_raw_fd(fd: i32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_listener_local_addr	fn	@extern sa_std_net_unix_listener_local_addr(listener: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_listener_try_clone	fn	@extern sa_std_net_unix_listener_try_clone(listener: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_pair	fn	@extern sa_std_net_unix_pair(&out_left: ptr, &out_right: ptr) -> i32
+net.sai	sa_std_net_unix_stream_from_raw_fd	fn	@extern sa_std_net_unix_stream_from_raw_fd(fd: i32, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_stream_local_addr	fn	@extern sa_std_net_unix_stream_local_addr(stream: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_stream_passcred	fn	@extern sa_std_net_unix_stream_passcred(stream: u64, &out_enabled: ptr) -> i32
+net.sai	sa_std_net_unix_stream_peer_addr	fn	@extern sa_std_net_unix_stream_peer_addr(stream: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_net_unix_stream_peer_cred	fn	@extern sa_std_net_unix_stream_peer_cred(stream: u64, &out_pid: ptr, &out_uid: ptr, &out_gid: ptr) -> i32
+net.sai	sa_std_net_unix_stream_set_mark	fn	@extern sa_std_net_unix_stream_set_mark(stream: u64, mark: u32) -> i32
+net.sai	sa_std_net_unix_stream_set_passcred	fn	@extern sa_std_net_unix_stream_set_passcred(stream: u64, enabled: i32) -> i32
+net.sai	sa_std_net_unix_stream_try_clone	fn	@extern sa_std_net_unix_stream_try_clone(stream: u64, &out_handle: ptr) -> i32
+net.sai	sa_std_url_parse	fn	@extern sa_std_url_parse(&url: ptr, url_len: u64, &scheme_out: ptr, scheme_cap: u64, &scheme_len: ptr, &host_out: ptr, host_cap: u64, &host_len: ptr, &path_out: ptr, path_cap: u64, &path_len: ptr, &out_port: ptr) -> i32
+net.sai	sa_std_ws_accept_key	fn	@extern sa_std_ws_accept_key(&key: ptr, key_len: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_ws_frame_build	fn	@extern sa_std_ws_frame_build(opcode: u32, fin: u32, &payload: ptr, payload_len: u64, &mask: ptr, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_ws_frame_build_unmasked	fn	@extern sa_std_ws_frame_build_unmasked(opcode: u32, fin: u32, &payload: ptr, payload_len: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+net.sai	sa_std_ws_frame_parse	fn	@extern sa_std_ws_frame_parse(&data: ptr, data_len: u64, &out_fin: ptr, &out_opcode: ptr, &out_masked: ptr, &out_payload_offset: ptr, &out_payload_len: ptr, &out_frame_len: ptr, &out_mask: ptr) -> i32
+net.sai	sa_std_ws_unmask	fn	@extern sa_std_ws_unmask(&payload: ptr, payload_len: u64, &mask: ptr) -> i32
+net.sal	ADDR_PARSE_ERROR_IP	const	#def ADDR_PARSE_ERROR_IP = 0
+net.sal	ADDR_PARSE_ERROR_IPV4	const	#def ADDR_PARSE_ERROR_IPV4 = 1
+net.sal	ADDR_PARSE_ERROR_IPV6	const	#def ADDR_PARSE_ERROR_IPV6 = 2
+net.sal	ADDR_PARSE_ERROR_SOCKET	const	#def ADDR_PARSE_ERROR_SOCKET = 3
+net.sal	ADDR_PARSE_ERROR_SOCKET_V4	const	#def ADDR_PARSE_ERROR_SOCKET_V4 = 4
+net.sal	ADDR_PARSE_ERROR_SOCKET_V6	const	#def ADDR_PARSE_ERROR_SOCKET_V6 = 5
+net.sal	AddrParseError_ALIGN	const	#def AddrParseError_ALIGN = 8
+net.sal	AddrParseError_SIZE	const	#def AddrParseError_SIZE = 8
+net.sal	AddrParseError_kind	const	#def AddrParseError_kind = +0
+net.sal	NET_IPV4_BITS_VALUE	const	#def NET_IPV4_BITS_VALUE = 32
+net.sal	NET_IPV6_BITS_VALUE	const	#def NET_IPV6_BITS_VALUE = 128
+net.sal	NET_IPV6_MULTICAST_SCOPE_ADMIN_LOCAL	const	#def NET_IPV6_MULTICAST_SCOPE_ADMIN_LOCAL = 4
+net.sal	NET_IPV6_MULTICAST_SCOPE_GLOBAL	const	#def NET_IPV6_MULTICAST_SCOPE_GLOBAL = 14
+net.sal	NET_IPV6_MULTICAST_SCOPE_INTERFACE_LOCAL	const	#def NET_IPV6_MULTICAST_SCOPE_INTERFACE_LOCAL = 1
+net.sal	NET_IPV6_MULTICAST_SCOPE_LINK_LOCAL	const	#def NET_IPV6_MULTICAST_SCOPE_LINK_LOCAL = 2
+net.sal	NET_IPV6_MULTICAST_SCOPE_ORGANIZATION_LOCAL	const	#def NET_IPV6_MULTICAST_SCOPE_ORGANIZATION_LOCAL = 8
+net.sal	NET_IPV6_MULTICAST_SCOPE_REALM_LOCAL	const	#def NET_IPV6_MULTICAST_SCOPE_REALM_LOCAL = 3
+net.sal	NET_IPV6_MULTICAST_SCOPE_RESERVED_F	const	#def NET_IPV6_MULTICAST_SCOPE_RESERVED_F = 15
+net.sal	NET_IPV6_MULTICAST_SCOPE_RESERVED_ZERO	const	#def NET_IPV6_MULTICAST_SCOPE_RESERVED_ZERO = 0
+net.sal	NET_IPV6_MULTICAST_SCOPE_SITE_LOCAL	const	#def NET_IPV6_MULTICAST_SCOPE_SITE_LOCAL = 5
+net.sal	NET_IPV6_MULTICAST_SCOPE_UNASSIGNED6	const	#def NET_IPV6_MULTICAST_SCOPE_UNASSIGNED6 = 6
+net.sal	NET_IPV6_MULTICAST_SCOPE_UNASSIGNED7	const	#def NET_IPV6_MULTICAST_SCOPE_UNASSIGNED7 = 7
+net.sal	NET_IPV6_MULTICAST_SCOPE_UNASSIGNED9	const	#def NET_IPV6_MULTICAST_SCOPE_UNASSIGNED9 = 9
+net.sal	NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_A	const	#def NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_A = 10
+net.sal	NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_B	const	#def NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_B = 11
+net.sal	NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_C	const	#def NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_C = 12
+net.sal	NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_D	const	#def NET_IPV6_MULTICAST_SCOPE_UNASSIGNED_D = 13
+net.sal	NET_IP_ADDR_V4	const	#def NET_IP_ADDR_V4 = 4
+net.sal	NET_IP_ADDR_V6	const	#def NET_IP_ADDR_V6 = 6
+net.sal	NetIpAddr_SIZE	const	#def NetIpAddr_SIZE = 24
+net.sal	NetIpAddr_payload	const	#def NetIpAddr_payload = +8
+net.sal	NetIpAddr_tag	const	#def NetIpAddr_tag = +0
+net.sal	NetIpv4Addr_SIZE	const	#def NetIpv4Addr_SIZE = 4
+net.sal	NetIpv4Addr_a	const	#def NetIpv4Addr_a = +0
+net.sal	NetIpv4Addr_b	const	#def NetIpv4Addr_b = +1
+net.sal	NetIpv4Addr_c	const	#def NetIpv4Addr_c = +2
+net.sal	NetIpv4Addr_d	const	#def NetIpv4Addr_d = +3
+net.sal	NetIpv6Addr_SIZE	const	#def NetIpv6Addr_SIZE = 16
+net.sal	NetIpv6Addr_s0	const	#def NetIpv6Addr_s0 = +0
+net.sal	NetIpv6Addr_s1	const	#def NetIpv6Addr_s1 = +2
+net.sal	NetIpv6Addr_s2	const	#def NetIpv6Addr_s2 = +4
+net.sal	NetIpv6Addr_s3	const	#def NetIpv6Addr_s3 = +6
+net.sal	NetIpv6Addr_s4	const	#def NetIpv6Addr_s4 = +8
+net.sal	NetIpv6Addr_s5	const	#def NetIpv6Addr_s5 = +10
+net.sal	NetIpv6Addr_s6	const	#def NetIpv6Addr_s6 = +12
+net.sal	NetIpv6Addr_s7	const	#def NetIpv6Addr_s7 = +14
+net.sal	NetSocketAddrV4_SIZE	const	#def NetSocketAddrV4_SIZE = 8
+net.sal	NetSocketAddrV4_ip	const	#def NetSocketAddrV4_ip = +0
+net.sal	NetSocketAddrV4_port	const	#def NetSocketAddrV4_port = +4
+net.sal	NetSocketAddrV6_SIZE	const	#def NetSocketAddrV6_SIZE = 32
+net.sal	NetSocketAddrV6_flowinfo	const	#def NetSocketAddrV6_flowinfo = +20
+net.sal	NetSocketAddrV6_ip	const	#def NetSocketAddrV6_ip = +0
+net.sal	NetSocketAddrV6_port	const	#def NetSocketAddrV6_port = +16
+net.sal	NetSocketAddrV6_scope_id	const	#def NetSocketAddrV6_scope_id = +24
+net.sal	NetSocketAddr_SIZE	const	#def NetSocketAddr_SIZE = 40
+net.sal	NetSocketAddr_payload	const	#def NetSocketAddr_payload = +8
+net.sal	NetSocketAddr_tag	const	#def NetSocketAddr_tag = +0
+net.sal	NetTcpIncoming_SIZE	const	#def NetTcpIncoming_SIZE = 8
+net.sal	NetTcpIncoming_listener	const	#def NetTcpIncoming_listener = +0
+net.sal	SA_NET_AF_INET	const	#def SA_NET_AF_INET = 2
+net.sal	SA_NET_AF_INET6	const	#def SA_NET_AF_INET6 = 10
+net.sal	SA_NET_AF_IPV4	const	#def SA_NET_AF_IPV4 = 4
+net.sal	SA_NET_AF_IPV6	const	#def SA_NET_AF_IPV6 = 6
+net.sal	SA_NET_AF_UNSPEC	const	#def SA_NET_AF_UNSPEC = 0
+net.sal	SA_NET_ERROR_CODE_ACCESS_DENIED	const	#def SA_NET_ERROR_CODE_ACCESS_DENIED = 8
+net.sal	SA_NET_ERROR_CODE_ADDR_IN_USE	const	#def SA_NET_ERROR_CODE_ADDR_IN_USE = 16
+net.sal	SA_NET_ERROR_CODE_ADDR_NOT_AVAILABLE	const	#def SA_NET_ERROR_CODE_ADDR_NOT_AVAILABLE = 17
+net.sal	SA_NET_ERROR_CODE_ALREADY_EXISTS	const	#def SA_NET_ERROR_CODE_ALREADY_EXISTS = 23
+net.sal	SA_NET_ERROR_CODE_BROKEN_PIPE	const	#def SA_NET_ERROR_CODE_BROKEN_PIPE = 22
+net.sal	SA_NET_ERROR_CODE_CONNECTION_ABORTED	const	#def SA_NET_ERROR_CODE_CONNECTION_ABORTED = 19
+net.sal	SA_NET_ERROR_CODE_CONNECTION_CLOSED	const	#def SA_NET_ERROR_CODE_CONNECTION_CLOSED = 5
+net.sal	SA_NET_ERROR_CODE_CONNECTION_REFUSED	const	#def SA_NET_ERROR_CODE_CONNECTION_REFUSED = 3
+net.sal	SA_NET_ERROR_CODE_CONNECTION_RESET	const	#def SA_NET_ERROR_CODE_CONNECTION_RESET = 18
+net.sal	SA_NET_ERROR_CODE_DNS	const	#def SA_NET_ERROR_CODE_DNS = 2
+net.sal	SA_NET_ERROR_CODE_HOST_UNREACHABLE	const	#def SA_NET_ERROR_CODE_HOST_UNREACHABLE = 21
+net.sal	SA_NET_ERROR_CODE_INTERRUPTED	const	#def SA_NET_ERROR_CODE_INTERRUPTED = 24
+net.sal	SA_NET_ERROR_CODE_INVALID_ADDRESS	const	#def SA_NET_ERROR_CODE_INVALID_ADDRESS = 7
+net.sal	SA_NET_ERROR_CODE_INVALID_ARGUMENT	const	#def SA_NET_ERROR_CODE_INVALID_ARGUMENT = 10
+net.sal	SA_NET_ERROR_CODE_INVALID_DATA	const	#def SA_NET_ERROR_CODE_INVALID_DATA = 26
+net.sal	SA_NET_ERROR_CODE_INVALID_HANDLE	const	#def SA_NET_ERROR_CODE_INVALID_HANDLE = 11
+net.sal	SA_NET_ERROR_CODE_IO	const	#def SA_NET_ERROR_CODE_IO = 14
+net.sal	SA_NET_ERROR_CODE_NETWORK_DOWN	const	#def SA_NET_ERROR_CODE_NETWORK_DOWN = 27
+net.sal	SA_NET_ERROR_CODE_NETWORK_UNREACHABLE	const	#def SA_NET_ERROR_CODE_NETWORK_UNREACHABLE = 15
+net.sal	SA_NET_ERROR_CODE_NOT_CONNECTED	const	#def SA_NET_ERROR_CODE_NOT_CONNECTED = 20
+net.sal	SA_NET_ERROR_CODE_NOT_FOUND	const	#def SA_NET_ERROR_CODE_NOT_FOUND = 12
+net.sal	SA_NET_ERROR_CODE_NO_MEMORY	const	#def SA_NET_ERROR_CODE_NO_MEMORY = 13
+net.sal	SA_NET_ERROR_CODE_OK	const	#def SA_NET_ERROR_CODE_OK = 0
+net.sal	SA_NET_ERROR_CODE_TIMED_OUT	const	#def SA_NET_ERROR_CODE_TIMED_OUT = 4
+net.sal	SA_NET_ERROR_CODE_UNEXPECTED_EOF	const	#def SA_NET_ERROR_CODE_UNEXPECTED_EOF = 25
+net.sal	SA_NET_ERROR_CODE_UNKNOWN	const	#def SA_NET_ERROR_CODE_UNKNOWN = 1
+net.sal	SA_NET_ERROR_CODE_UNSUPPORTED	const	#def SA_NET_ERROR_CODE_UNSUPPORTED = 9
+net.sal	SA_NET_ERROR_CODE_WOULD_BLOCK	const	#def SA_NET_ERROR_CODE_WOULD_BLOCK = 6
+net.sal	SA_NET_ERROR_CODE_WRITE_ZERO	const	#def SA_NET_ERROR_CODE_WRITE_ZERO = 28
+net.sal	SA_NET_ERROR_PLATFORM_NONE	const	#def SA_NET_ERROR_PLATFORM_NONE = 0
+net.sal	SA_NET_ERROR_PLATFORM_POSIX	const	#def SA_NET_ERROR_PLATFORM_POSIX = 1
+net.sal	SA_NET_ERROR_PLATFORM_WINDOWS	const	#def SA_NET_ERROR_PLATFORM_WINDOWS = 2
+net.sal	SA_NET_ERR_ACCESS	const	#def SA_NET_ERR_ACCESS = 4
+net.sal	SA_NET_ERR_CLOSED	const	#def SA_NET_ERR_CLOSED = 5
+net.sal	SA_NET_ERR_DNS	const	#def SA_NET_ERR_DNS = 2
+net.sal	SA_NET_ERR_INVALID_ADDR	const	#def SA_NET_ERR_INVALID_ADDR = 7
+net.sal	SA_NET_ERR_REFUSED	const	#def SA_NET_ERR_REFUSED = 3
+net.sal	SA_NET_ERR_TIMEOUT	const	#def SA_NET_ERR_TIMEOUT = 4
+net.sal	SA_NET_ERR_UNKNOWN	const	#def SA_NET_ERR_UNKNOWN = 1
+net.sal	SA_NET_ERR_UNSUPPORTED	const	#def SA_NET_ERR_UNSUPPORTED = 8
+net.sal	SA_NET_ERR_WOULD_BLOCK	const	#def SA_NET_ERR_WOULD_BLOCK = 6
+net.sal	SA_NET_IOV_MAX	const	#def SA_NET_IOV_MAX = 1024
+net.sal	SA_NET_OK	const	#def SA_NET_OK = 0
+net.sal	SA_NET_SHUTDOWN_BOTH	const	#def SA_NET_SHUTDOWN_BOTH = 2
+net.sal	SA_NET_SHUTDOWN_READ	const	#def SA_NET_SHUTDOWN_READ = 0
+net.sal	SA_NET_SHUTDOWN_WRITE	const	#def SA_NET_SHUTDOWN_WRITE = 1
+net.sal	SA_NET_SOCKET_OPTION_DISABLE	const	#def SA_NET_SOCKET_OPTION_DISABLE = 0
+net.sal	SA_NET_SOCKET_OPTION_ENABLE	const	#def SA_NET_SOCKET_OPTION_ENABLE = 1
+net.sal	SA_NET_STATUS_ACCESS	const	#def SA_NET_STATUS_ACCESS = 4
+net.sal	SA_NET_STATUS_INVALID_ARGUMENT	const	#def SA_NET_STATUS_INVALID_ARGUMENT = 1
+net.sal	SA_NET_STATUS_INVALID_HANDLE	const	#def SA_NET_STATUS_INVALID_HANDLE = 2
+net.sal	SA_NET_STATUS_IO	const	#def SA_NET_STATUS_IO = 6
+net.sal	SA_NET_STATUS_NET	const	#def SA_NET_STATUS_NET = 7
+net.sal	SA_NET_STATUS_NOT_FOUND	const	#def SA_NET_STATUS_NOT_FOUND = 3
+net.sal	SA_NET_STATUS_NO_MEMORY	const	#def SA_NET_STATUS_NO_MEMORY = 5
+net.sal	SA_NET_STATUS_OK	const	#def SA_NET_STATUS_OK = 0
+net.sal	SA_NET_STATUS_TRUNCATED	const	#def SA_NET_STATUS_TRUNCATED = 9
+net.sal	SA_NET_STATUS_UNKNOWN	const	#def SA_NET_STATUS_UNKNOWN = 127
+net.sal	SA_NET_STATUS_UNSUPPORTED	const	#def SA_NET_STATUS_UNSUPPORTED = 8
+net.sal	SA_NET_UNIX_ADDR_ABSTRACT	const	#def SA_NET_UNIX_ADDR_ABSTRACT = 2
+net.sal	SA_NET_UNIX_ADDR_PATHNAME	const	#def SA_NET_UNIX_ADDR_PATHNAME = 1
+net.sal	SA_NET_UNIX_ADDR_UNNAMED	const	#def SA_NET_UNIX_ADDR_UNNAMED = 0
+net.sal	SaNetAddr_SIZE	const	#def SaNetAddr_SIZE = 32
+net.sal	SaNetAddr_family	const	#def SaNetAddr_family = +0
+net.sal	SaNetAddr_host_len	const	#def SaNetAddr_host_len = +16
+net.sal	SaNetAddr_host_ptr	const	#def SaNetAddr_host_ptr = +8
+net.sal	SaNetAddr_port	const	#def SaNetAddr_port = +4
+net.sal	SaNetAddr_scope_id	const	#def SaNetAddr_scope_id = +24
+net.sal	SaNetError_ALIGN	const	#def SaNetError_ALIGN = 4
+net.sal	SaNetError_SIZE	const	#def SaNetError_SIZE = 16
+net.sal	SaNetError_code	const	#def SaNetError_code = +0
+net.sal	SaNetError_platform	const	#def SaNetError_platform = +4
+net.sal	SaNetError_raw	const	#def SaNetError_raw = +8
+net.sal	SaNetError_status	const	#def SaNetError_status = +12
+net.sal	SaNetIov_ALIGN	const	#def SaNetIov_ALIGN = 8
+net.sal	SaNetIov_SIZE	const	#def SaNetIov_SIZE = 16
+net.sal	SaNetIov_base	const	#def SaNetIov_base = +0
+net.sal	SaNetIov_len	const	#def SaNetIov_len = +8
+netx.sai	sa_netx_broadcast	fn	@extern sa_netx_broadcast(reactor_id: u32, &slot_ids: ptr, n: u32, &msg: ptr, len: u32) -> i32
+netx.sai	sa_netx_close_slot	fn	@extern sa_netx_close_slot(slot_id: u32) -> i32
+netx.sai	sa_netx_init	fn	@extern sa_netx_init(slot_capacity: u64, reactor_count: u32) -> i32
+netx.sai	sa_netx_listen	fn	@extern sa_netx_listen(&host: ptr, host_len: u64, port: u16) -> i32
+netx.sai	sa_netx_push_outbound	fn	@extern sa_netx_push_outbound(reactor_id: u32, slot_id: u32, &msg: ptr, len: u32) -> i32
+netx.sai	sa_netx_recv_ticket	fn	@extern sa_netx_recv_ticket(reactor_id: u32, &out_ticket: ptr) -> i32
+netx.sai	sa_netx_shutdown	fn	@extern sa_netx_shutdown() -> i32
+netx.sal	NETX_FLAG_EOF	const	#def NETX_FLAG_EOF = 4
+netx.sal	NETX_FLAG_FIN_CONTINUATION	const	#def NETX_FLAG_FIN_CONTINUATION = 32
+netx.sal	NETX_FLAG_MASKED	const	#def NETX_FLAG_MASKED = 8
+netx.sal	NETX_FLAG_TRUNCATED	const	#def NETX_FLAG_TRUNCATED = 1
+netx.sal	NETX_FLAG_UPGRADE	const	#def NETX_FLAG_UPGRADE = 2
+netx.sal	NETX_FLAG_ZC	const	#def NETX_FLAG_ZC = 16
+netx.sal	NETX_OP_ACCEPT	const	#def NETX_OP_ACCEPT = 1
+netx.sal	NETX_OP_ERR	const	#def NETX_OP_ERR = 8
+netx.sal	NETX_OP_HTTP_REQUEST	const	#def NETX_OP_HTTP_REQUEST = 2
+netx.sal	NETX_OP_PEER_CLOSE	const	#def NETX_OP_PEER_CLOSE = 6
+netx.sal	NETX_OP_RAW_BYTES	const	#def NETX_OP_RAW_BYTES = 5
+netx.sal	NETX_OP_SEND_DONE	const	#def NETX_OP_SEND_DONE = 7
+netx.sal	NETX_OP_WEBSOCKET_UPGRADE	const	#def NETX_OP_WEBSOCKET_UPGRADE = 3
+netx.sal	NETX_OP_WS_FRAME	const	#def NETX_OP_WS_FRAME = 4
+netx.sal	NetxProto_HTTP	const	#def NetxProto_HTTP = 1
+netx.sal	NetxProto_RAW	const	#def NetxProto_RAW = 3
+netx.sal	NetxProto_WS	const	#def NetxProto_WS = 2
+netx.sal	SA_NETX_ERR_ACCESS	const	#def SA_NETX_ERR_ACCESS = 4
+netx.sal	SA_NETX_ERR_INVALID_ARGUMENT	const	#def SA_NETX_ERR_INVALID_ARGUMENT = 1
+netx.sal	SA_NETX_ERR_INVALID_HANDLE	const	#def SA_NETX_ERR_INVALID_HANDLE = 2
+netx.sal	SA_NETX_ERR_IO	const	#def SA_NETX_ERR_IO = 6
+netx.sal	SA_NETX_ERR_NET	const	#def SA_NETX_ERR_NET = 7
+netx.sal	SA_NETX_ERR_NOT_FOUND	const	#def SA_NETX_ERR_NOT_FOUND = 3
+netx.sal	SA_NETX_ERR_NO_MEMORY	const	#def SA_NETX_ERR_NO_MEMORY = 5
+netx.sal	SA_NETX_ERR_TRUNCATED	const	#def SA_NETX_ERR_TRUNCATED = 9
+netx.sal	SA_NETX_ERR_UNSUPPORTED	const	#def SA_NETX_ERR_UNSUPPORTED = 8
+netx.sal	SA_NETX_OK	const	#def SA_NETX_OK = 0
+netx.sal	Ticket_SIZE	const	#def Ticket_SIZE = 24
+netx.sal	Ticket_flags	const	#def Ticket_flags = +7
+netx.sal	Ticket_op_code	const	#def Ticket_op_code = +4
+netx.sal	Ticket_pad	const	#def Ticket_pad = +20
+netx.sal	Ticket_payload	const	#def Ticket_payload = +8
+netx.sal	Ticket_payload_len	const	#def Ticket_payload_len = +16
+netx.sal	Ticket_proto	const	#def Ticket_proto = +6
+netx.sal	Ticket_slot_id	const	#def Ticket_slot_id = +0
+quic.sai	sa_std_http3_constants_json	fn	@extern sa_std_http3_constants_json(&out_handle: ptr) -> i32
+quic.sai	sa_std_http3_request_field	fn	@extern sa_std_http3_request_field(session: u64, stream_id: i64, &name: ptr, name_len: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+quic.sai	sa_std_http3_response_status	fn	@extern sa_std_http3_response_status(session: u64, stream_id: i64, &out_status: ptr) -> i32
+quic.sai	sa_std_http3_server_next_request	fn	@extern sa_std_http3_server_next_request(session: u64, &out_stream_id: ptr) -> i32
+quic.sai	sa_std_http3_session_bind	fn	@extern sa_std_http3_session_bind(session: u64, quic_conn: u64) -> i32
+quic.sai	sa_std_http3_session_create	fn	@extern sa_std_http3_session_create(&out_handle: ptr) -> i32
+quic.sai	sa_std_http3_session_destroy	fn	@extern sa_std_http3_session_destroy(session: u64) -> i32
+quic.sai	sa_std_http3_stream_read	fn	@extern sa_std_http3_stream_read(session: u64, stream_id: i64, &out: ptr, out_cap: u64, &out_read: ptr, &out_fin: ptr) -> i32
+quic.sai	sa_std_http3_submit_request	fn	@extern sa_std_http3_submit_request(session: u64, &method: ptr, method_len: u64, &authority: ptr, authority_len: u64, &path: ptr, path_len: u64, &body: ptr, body_len: u64, &out_stream_id: ptr) -> i32
+quic.sai	sa_std_http3_submit_response	fn	@extern sa_std_http3_submit_response(session: u64, stream_id: i64, status: u32, &body: ptr, body_len: u64) -> i32
+quic.sai	sa_std_http3_supported	fn	@extern sa_std_http3_supported(&out_supported: ptr) -> i32
+quic.sai	sa_std_quic_buffer_data	fn	@extern sa_std_quic_buffer_data(buffer: u64) -> &ptr
+quic.sai	sa_std_quic_buffer_free	fn	@extern sa_std_quic_buffer_free(^buffer: u64) -> i32
+quic.sai	sa_std_quic_buffer_len	fn	@extern sa_std_quic_buffer_len(buffer: u64) -> u64
+quic.sai	sa_std_quic_capabilities_json	fn	@extern sa_std_quic_capabilities_json(&out_handle: ptr) -> i32
+quic.sai	sa_std_quic_client_connect	fn	@extern sa_std_quic_client_connect(endpoint: u64, &host: ptr, host_len: u64, port: u32, &server_name: ptr, server_name_len: u64, &ca_file: ptr, ca_file_len: u64, &alpn: ptr, alpn_len: u64, &out_conn: ptr) -> i32
+quic.sai	sa_std_quic_conn_close	fn	@extern sa_std_quic_conn_close(conn: u64) -> i32
+quic.sai	sa_std_quic_conn_handshake_completed	fn	@extern sa_std_quic_conn_handshake_completed(conn: u64, &out_done: ptr) -> i32
+quic.sai	sa_std_quic_conn_poll	fn	@extern sa_std_quic_conn_poll(conn: u64, timeout_ms: u32) -> i32
+quic.sai	sa_std_quic_constants_json	fn	@extern sa_std_quic_constants_json(&out_handle: ptr) -> i32
+quic.sai	sa_std_quic_endpoint_create	fn	@extern sa_std_quic_endpoint_create(&out_handle: ptr) -> i32
+quic.sai	sa_std_quic_endpoint_destroy	fn	@extern sa_std_quic_endpoint_destroy(endpoint: u64) -> i32
+quic.sai	sa_std_quic_server_accept	fn	@extern sa_std_quic_server_accept(endpoint: u64, &out_conn: ptr) -> i32
+quic.sai	sa_std_quic_server_listen	fn	@extern sa_std_quic_server_listen(endpoint: u64, port: u32, &cert_file: ptr, cert_file_len: u64, &key_file: ptr, key_file_len: u64) -> i32
+quic.sai	sa_std_quic_server_poll	fn	@extern sa_std_quic_server_poll(endpoint: u64, timeout_ms: u32) -> i32
+quic.sai	sa_std_quic_stream_open	fn	@extern sa_std_quic_stream_open(conn: u64, &out_stream_id: ptr) -> i32
+quic.sai	sa_std_quic_stream_read	fn	@extern sa_std_quic_stream_read(conn: u64, stream_id: i64, &out: ptr, out_cap: u64, &out_read: ptr, &out_fin: ptr) -> i32
+quic.sai	sa_std_quic_stream_write	fn	@extern sa_std_quic_stream_write(conn: u64, stream_id: i64, &data: ptr, data_len: u64, fin: u32, &out_written: ptr) -> i32
+quic.sai	sa_std_quic_supported	fn	@extern sa_std_quic_supported(&out_supported: ptr) -> i32
+quic.sal	HTTP3_QPACK_RFC	const	#def HTTP3_QPACK_RFC = 9204
+quic.sal	HTTP3_RFC	const	#def HTTP3_RFC = 9114
+quic.sal	QUIC_ALPN_H3	const	#def QUIC_ALPN_H3 = 0
+quic.sal	QUIC_STREAM_BIDIRECTIONAL	const	#def QUIC_STREAM_BIDIRECTIONAL = 0
+quic.sal	QUIC_STREAM_UNIDIRECTIONAL	const	#def QUIC_STREAM_UNIDIRECTIONAL = 1
+quic.sal	SA_QUIC_ERR_INVALID_ARGUMENT	const	#def SA_QUIC_ERR_INVALID_ARGUMENT = -22
+quic.sal	SA_QUIC_ERR_NO_MEMORY	const	#def SA_QUIC_ERR_NO_MEMORY = -12
+quic.sal	SA_QUIC_ERR_UNSUPPORTED	const	#def SA_QUIC_ERR_UNSUPPORTED = -1
+quic.sal	SA_QUIC_OK	const	#def SA_QUIC_OK = 0
+sa_std.h	SA_JSON_KIND_ARRAY	const	#define SA_JSON_KIND_ARRAY 6u
+sa_std.h	SA_JSON_KIND_BOOL	const	#define SA_JSON_KIND_BOOL 1u
+sa_std.h	SA_JSON_KIND_FLOAT	const	#define SA_JSON_KIND_FLOAT 3u
+sa_std.h	SA_JSON_KIND_INTEGER	const	#define SA_JSON_KIND_INTEGER 2u
+sa_std.h	SA_JSON_KIND_INVALID	const	#define SA_JSON_KIND_INVALID 4294967295u
+sa_std.h	SA_JSON_KIND_NULL	const	#define SA_JSON_KIND_NULL 0u
+sa_std.h	SA_JSON_KIND_NUMBER_STRING	const	#define SA_JSON_KIND_NUMBER_STRING 4u
+sa_std.h	SA_JSON_KIND_OBJECT	const	#define SA_JSON_KIND_OBJECT 7u
+sa_std.h	SA_JSON_KIND_STRING	const	#define SA_JSON_KIND_STRING 5u
+sa_std.h	SA_JSON_TOKEN_ALLOCATED_NUMBER	const	#define SA_JSON_TOKEN_ALLOCATED_NUMBER 16u
+sa_std.h	SA_JSON_TOKEN_ALLOCATED_STRING	const	#define SA_JSON_TOKEN_ALLOCATED_STRING 17u
+sa_std.h	SA_JSON_TOKEN_ARRAY_BEGIN	const	#define SA_JSON_TOKEN_ARRAY_BEGIN 2u
+sa_std.h	SA_JSON_TOKEN_ARRAY_END	const	#define SA_JSON_TOKEN_ARRAY_END 3u
+sa_std.h	SA_JSON_TOKEN_END_OF_DOCUMENT	const	#define SA_JSON_TOKEN_END_OF_DOCUMENT 15u
+sa_std.h	SA_JSON_TOKEN_FALSE	const	#define SA_JSON_TOKEN_FALSE 5u
+sa_std.h	SA_JSON_TOKEN_INVALID	const	#define SA_JSON_TOKEN_INVALID 4294967295u
+sa_std.h	SA_JSON_TOKEN_NULL	const	#define SA_JSON_TOKEN_NULL 6u
+sa_std.h	SA_JSON_TOKEN_NUMBER	const	#define SA_JSON_TOKEN_NUMBER 7u
+sa_std.h	SA_JSON_TOKEN_OBJECT_BEGIN	const	#define SA_JSON_TOKEN_OBJECT_BEGIN 0u
+sa_std.h	SA_JSON_TOKEN_OBJECT_END	const	#define SA_JSON_TOKEN_OBJECT_END 1u
+sa_std.h	SA_JSON_TOKEN_PARTIAL_NUMBER	const	#define SA_JSON_TOKEN_PARTIAL_NUMBER 8u
+sa_std.h	SA_JSON_TOKEN_PARTIAL_STRING	const	#define SA_JSON_TOKEN_PARTIAL_STRING 10u
+sa_std.h	SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_1	const	#define SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_1 11u
+sa_std.h	SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_2	const	#define SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_2 12u
+sa_std.h	SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_3	const	#define SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_3 13u
+sa_std.h	SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_4	const	#define SA_JSON_TOKEN_PARTIAL_STRING_ESCAPED_4 14u
+sa_std.h	SA_JSON_TOKEN_STRING	const	#define SA_JSON_TOKEN_STRING 9u
+sa_std.h	SA_JSON_TOKEN_TRUE	const	#define SA_JSON_TOKEN_TRUE 4u
+sa_std.h	SA_JSON_WHITESPACE_INDENT_1	const	#define SA_JSON_WHITESPACE_INDENT_1 1u
+sa_std.h	SA_JSON_WHITESPACE_INDENT_2	const	#define SA_JSON_WHITESPACE_INDENT_2 2u
+sa_std.h	SA_JSON_WHITESPACE_INDENT_3	const	#define SA_JSON_WHITESPACE_INDENT_3 3u
+sa_std.h	SA_JSON_WHITESPACE_INDENT_4	const	#define SA_JSON_WHITESPACE_INDENT_4 4u
+sa_std.h	SA_JSON_WHITESPACE_INDENT_8	const	#define SA_JSON_WHITESPACE_INDENT_8 5u
+sa_std.h	SA_JSON_WHITESPACE_INDENT_TAB	const	#define SA_JSON_WHITESPACE_INDENT_TAB 6u
+sa_std.h	SA_JSON_WHITESPACE_MINIFIED	const	#define SA_JSON_WHITESPACE_MINIFIED 0u
+sa_std.h	SA_REGEX_EXTENDED	const	#define SA_REGEX_EXTENDED 1
+sa_std.h	SA_REGEX_ICASE	const	#define SA_REGEX_ICASE 2
+sa_std.h	SA_REGEX_NEWLINE	const	#define SA_REGEX_NEWLINE 4
+sa_std.h	SA_REGEX_NOSUB	const	#define SA_REGEX_NOSUB 8
+sa_std.h	SA_REGEX_NOTBOL	const	#define SA_REGEX_NOTBOL 1
+sa_std.h	SA_REGEX_NOTEOL	const	#define SA_REGEX_NOTEOL 2
+sa_std.h	SA_REGEX_REG_BADBR	const	#define SA_REGEX_REG_BADBR 10
+sa_std.h	SA_REGEX_REG_BADPAT	const	#define SA_REGEX_REG_BADPAT 2
+sa_std.h	SA_REGEX_REG_BADRPT	const	#define SA_REGEX_REG_BADRPT 13
+sa_std.h	SA_REGEX_REG_EBRACE	const	#define SA_REGEX_REG_EBRACE 9
+sa_std.h	SA_REGEX_REG_EBRACK	const	#define SA_REGEX_REG_EBRACK 7
+sa_std.h	SA_REGEX_REG_ECOLLATE	const	#define SA_REGEX_REG_ECOLLATE 3
+sa_std.h	SA_REGEX_REG_ECTYPE	const	#define SA_REGEX_REG_ECTYPE 4
+sa_std.h	SA_REGEX_REG_EESCAPE	const	#define SA_REGEX_REG_EESCAPE 5
+sa_std.h	SA_REGEX_REG_ENOSYS	const	#define SA_REGEX_REG_ENOSYS -1
+sa_std.h	SA_REGEX_REG_EPAREN	const	#define SA_REGEX_REG_EPAREN 8
+sa_std.h	SA_REGEX_REG_ERANGE	const	#define SA_REGEX_REG_ERANGE 11
+sa_std.h	SA_REGEX_REG_ESPACE	const	#define SA_REGEX_REG_ESPACE 12
+sa_std.h	SA_REGEX_REG_ESUBREG	const	#define SA_REGEX_REG_ESUBREG 6
+sa_std.h	SA_REGEX_REG_NOERROR	const	#define SA_REGEX_REG_NOERROR 0
+sa_std.h	SA_REGEX_REG_NOMATCH	const	#define SA_REGEX_REG_NOMATCH 1
+sa_std.h	SA_REGEX_REG_OK	const	#define SA_REGEX_REG_OK SA_REGEX_REG_NOERROR
+sa_std.h	SA_STD_ABI_VERSION	const	#define SA_STD_ABI_VERSION 1u
+sa_std.h	SA_STD_ERR_ACCESS	const	#define SA_STD_ERR_ACCESS 4
+sa_std.h	SA_STD_ERR_ALREADY_EXISTS	const	#define SA_STD_ERR_ALREADY_EXISTS 11
+sa_std.h	SA_STD_ERR_INVALID_ARGUMENT	const	#define SA_STD_ERR_INVALID_ARGUMENT 1
+sa_std.h	SA_STD_ERR_INVALID_HANDLE	const	#define SA_STD_ERR_INVALID_HANDLE 2
+sa_std.h	SA_STD_ERR_IO	const	#define SA_STD_ERR_IO 6
+sa_std.h	SA_STD_ERR_NET	const	#define SA_STD_ERR_NET 7
+sa_std.h	SA_STD_ERR_NOT_FOUND	const	#define SA_STD_ERR_NOT_FOUND 3
+sa_std.h	SA_STD_ERR_NO_MEMORY	const	#define SA_STD_ERR_NO_MEMORY 5
+sa_std.h	SA_STD_ERR_TRUNCATED	const	#define SA_STD_ERR_TRUNCATED 9
+sa_std.h	SA_STD_ERR_UNKNOWN	const	#define SA_STD_ERR_UNKNOWN 127
+sa_std.h	SA_STD_ERR_UNSUPPORTED	const	#define SA_STD_ERR_UNSUPPORTED 8
+sa_std.h	SA_STD_H	const	#define SA_STD_H
+sa_std.h	SA_STD_OK	const	#define SA_STD_OK 0
+sa_std.h	SA_STD_STDERR	const	#define SA_STD_STDERR 3ull
+sa_std.h	SA_STD_STDIN	const	#define SA_STD_STDIN 1ull
+sa_std.h	SA_STD_STDOUT	const	#define SA_STD_STDOUT 2ull
+sa_std.h	sa_assert_eq_i64	fn	void sa_assert_eq_i64(int64_t actual, int64_t expected, int32_t code);
+sa_std.h	sa_assert_eq_i64_at	fn	void sa_assert_eq_i64_at(int64_t actual, int64_t expected, int32_t code, const uint8_t *file, uint64_t file_len, uint32_t line, uint32_t col);
+sa_std.h	sa_b64dec_simd	fn	uint64_t sa_b64dec_simd(const uint8_t *data_base64, uint64_t b64_len, uint8_t *out);
+sa_std.h	sa_crypto_random_bytes	fn	int32_t sa_crypto_random_bytes(uint8_t *out, uint64_t len);
+sa_std.h	sa_deno_args_json	fn	uint64_t sa_deno_args_json(void);
+sa_std.h	sa_deno_atob	fn	uint64_t sa_deno_atob(const uint8_t *data_base64, uint64_t data_base64_len);
+sa_std.h	sa_deno_btoa	fn	uint64_t sa_deno_btoa(const uint8_t *data, uint64_t len);
+sa_std.h	sa_deno_build_json	fn	uint64_t sa_deno_build_json(void);
+sa_std.h	sa_deno_build_os	fn	uint64_t sa_deno_build_os(void);
+sa_std.h	sa_deno_build_platform_family	fn	uint64_t sa_deno_build_platform_family(void);
+sa_std.h	sa_deno_chat_json_to_responses	fn	uint64_t sa_deno_chat_json_to_responses(const uint8_t *chat_body, uint64_t chat_body_len, const uint8_t *req_body, uint64_t req_body_len);
+sa_std.h	sa_deno_chat_sse_to_responses	fn	uint64_t sa_deno_chat_sse_to_responses(const uint8_t *chat_body, uint64_t chat_body_len, const uint8_t *req_body, uint64_t req_body_len);
+sa_std.h	sa_deno_chdir	fn	int32_t sa_deno_chdir(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_deno_cwd	fn	uint64_t sa_deno_cwd(void);
+sa_std.h	sa_deno_date_now_iso	fn	uint64_t sa_deno_date_now_iso(void);
+sa_std.h	sa_deno_env_delete	fn	int32_t sa_deno_env_delete(const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_deno_env_set	fn	int32_t sa_deno_env_set(const uint8_t *key, uint64_t key_len, const uint8_t *value, uint64_t value_len);
+sa_std.h	sa_deno_jsonrpc_params_string_literal	fn	uint64_t sa_deno_jsonrpc_params_string_literal(const uint8_t *body, uint64_t body_len, const uint8_t *key, uint64_t key_len, const uint8_t *fallback, uint64_t fallback_len, uint8_t emit_null_if_missing);
+sa_std.h	sa_deno_random_uuid	fn	uint64_t sa_deno_random_uuid(void);
+sa_std.h	sa_deno_responses_chat_fallback_request	fn	uint64_t sa_deno_responses_chat_fallback_request(const uint8_t *body, uint64_t body_len, const uint8_t *default_model, uint64_t default_model_len, uint8_t plan_mode_like);
+sa_std.h	sa_deno_responses_json_normalize	fn	uint64_t sa_deno_responses_json_normalize(const uint8_t *body, uint64_t body_len);
+sa_std.h	sa_deno_responses_request_normalize	fn	uint64_t sa_deno_responses_request_normalize(const uint8_t *body, uint64_t body_len);
+sa_std.h	sa_deno_responses_sse_normalize	fn	uint64_t sa_deno_responses_sse_normalize(const uint8_t *sse_body, uint64_t sse_body_len);
+sa_std.h	sa_deno_text_decode	fn	uint64_t sa_deno_text_decode(const uint8_t *data, uint64_t len);
+sa_std.h	sa_deno_text_encode	fn	uint64_t sa_deno_text_encode(const uint8_t *data, uint64_t len);
+sa_std.h	sa_deno_version_deno	fn	uint64_t sa_deno_version_deno(void);
+sa_std.h	sa_deno_version_json	fn	uint64_t sa_deno_version_json(void);
+sa_std.h	sa_dl_close	fn	int32_t sa_dl_close(uint64_t handle);
+sa_std.h	sa_dl_error	fn	const uint8_t *sa_dl_error(void);
+sa_std.h	sa_dl_open	fn	int32_t sa_dl_open(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_dl_sym	fn	int32_t sa_dl_sym(uint64_t handle, const uint8_t *symbol, uint64_t symbol_len, void **out_ptr);
+sa_std.h	sa_env_args_json	fn	uint64_t sa_env_args_json(void);
+sa_std.h	sa_env_buffer_data	fn	uint8_t *sa_env_buffer_data(uint64_t buffer);
+sa_std.h	sa_env_buffer_free	fn	int32_t sa_env_buffer_free(uint64_t buffer);
+sa_std.h	sa_env_buffer_len	fn	uint64_t sa_env_buffer_len(uint64_t buffer);
+sa_std.h	sa_env_current_dir	fn	uint64_t sa_env_current_dir(void);
+sa_std.h	sa_env_current_exe	fn	uint64_t sa_env_current_exe(void);
+sa_std.h	sa_env_get	fn	uint64_t sa_env_get(const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_env_has	fn	int32_t sa_env_has(const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_env_home_dir	fn	uint64_t sa_env_home_dir(void);
+sa_std.h	sa_env_join_paths_json	fn	uint64_t sa_env_join_paths_json(const uint8_t *paths_json, uint64_t paths_json_len);
+sa_std.h	sa_env_remove_var	fn	int32_t sa_env_remove_var(const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_env_set_current_dir	fn	int32_t sa_env_set_current_dir(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_env_set_var	fn	int32_t sa_env_set_var(const uint8_t *key, uint64_t key_len, const uint8_t *value, uint64_t value_len);
+sa_std.h	sa_env_split_paths_json	fn	uint64_t sa_env_split_paths_json(const uint8_t *path_list, uint64_t path_list_len);
+sa_std.h	sa_env_temp_dir	fn	uint64_t sa_env_temp_dir(void);
+sa_std.h	sa_env_vars_json	fn	uint64_t sa_env_vars_json(void);
+sa_std.h	sa_env_xdg_cache_home_dir	fn	uint64_t sa_env_xdg_cache_home_dir(void);
+sa_std.h	sa_env_xdg_config_dirs	fn	uint64_t sa_env_xdg_config_dirs(void);
+sa_std.h	sa_env_xdg_config_home_dir	fn	uint64_t sa_env_xdg_config_home_dir(void);
+sa_std.h	sa_env_xdg_data_dirs	fn	uint64_t sa_env_xdg_data_dirs(void);
+sa_std.h	sa_env_xdg_data_home_dir	fn	uint64_t sa_env_xdg_data_home_dir(void);
+sa_std.h	sa_env_xdg_state_home_dir	fn	uint64_t sa_env_xdg_state_home_dir(void);
+sa_std.h	sa_fmt_bool	fn	uint64_t sa_fmt_bool(uint8_t value);
+sa_std.h	sa_fmt_bool_into	fn	int32_t sa_fmt_bool_into(uint8_t value, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_fmt_buffer_data	fn	uint8_t *sa_fmt_buffer_data(uint64_t buffer);
+sa_std.h	sa_fmt_buffer_free	fn	int32_t sa_fmt_buffer_free(uint64_t buffer);
+sa_std.h	sa_fmt_buffer_len	fn	uint64_t sa_fmt_buffer_len(uint64_t buffer);
+sa_std.h	sa_fmt_buffer_write_to	fn	int32_t sa_fmt_buffer_write_to(uint64_t buffer, uint64_t writer);
+sa_std.h	sa_fmt_bytes	fn	uint64_t sa_fmt_bytes(const uint8_t *buf, uint64_t len);
+sa_std.h	sa_fmt_bytes_into	fn	int32_t sa_fmt_bytes_into(const uint8_t *buf, uint64_t len, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_fmt_f64	fn	uint64_t sa_fmt_f64(double value, uint32_t precision);
+sa_std.h	sa_fmt_f64_into	fn	int32_t sa_fmt_f64_into(double value, uint32_t precision, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_fmt_i64	fn	uint64_t sa_fmt_i64(int64_t value, uint32_t base);
+sa_std.h	sa_fmt_i64_into	fn	int32_t sa_fmt_i64_into(int64_t value, uint32_t base, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_fmt_u64	fn	uint64_t sa_fmt_u64(uint64_t value, uint32_t base);
+sa_std.h	sa_fmt_u64_into	fn	int32_t sa_fmt_u64_into(uint64_t value, uint32_t base, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_fs_chown	fn	int32_t sa_fs_chown(const uint8_t *path, uint64_t path_len, uint32_t uid, uint32_t gid, uint32_t has_uid, uint32_t has_gid);
+sa_std.h	sa_fs_chroot	fn	int32_t sa_fs_chroot(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_copy_file	fn	int32_t sa_fs_copy_file(const uint8_t *from_path, uint64_t from_len, const uint8_t *to_path, uint64_t to_len);
+sa_std.h	sa_fs_create_dir	fn	int32_t sa_fs_create_dir(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_create_dir_mode	fn	int32_t sa_fs_create_dir_mode(const uint8_t *path, uint64_t path_len, uint32_t mode);
+sa_std.h	sa_fs_dir_buffer_data	fn	uint8_t *sa_fs_dir_buffer_data(uint64_t handle);
+sa_std.h	sa_fs_dir_buffer_free	fn	int32_t sa_fs_dir_buffer_free(uint64_t handle);
+sa_std.h	sa_fs_dir_buffer_len	fn	uint64_t sa_fs_dir_buffer_len(uint64_t handle);
+sa_std.h	sa_fs_dir_entries_free	fn	int32_t sa_fs_dir_entries_free(uint64_t handle);
+sa_std.h	sa_fs_dir_entries_len	fn	uint64_t sa_fs_dir_entries_len(uint64_t handle);
+sa_std.h	sa_fs_dir_entry_file_name_len	fn	uint64_t sa_fs_dir_entry_file_name_len(uint64_t handle);
+sa_std.h	sa_fs_dir_entry_file_name_ptr	fn	uint8_t *sa_fs_dir_entry_file_name_ptr(uint64_t handle);
+sa_std.h	sa_fs_dir_entry_free	fn	int32_t sa_fs_dir_entry_free(uint64_t handle);
+sa_std.h	sa_fs_dir_entry_ino	fn	uint64_t sa_fs_dir_entry_ino(uint64_t handle);
+sa_std.h	sa_fs_dir_entry_kind	fn	uint32_t sa_fs_dir_entry_kind(uint64_t handle);
+sa_std.h	sa_fs_dir_entry_name_len	fn	uint64_t sa_fs_dir_entry_name_len(uint64_t handle);
+sa_std.h	sa_fs_dir_entry_name_ptr	fn	uint8_t *sa_fs_dir_entry_name_ptr(uint64_t handle);
+sa_std.h	sa_fs_fchown	fn	int32_t sa_fs_fchown(uint64_t handle, uint32_t uid, uint32_t gid, uint32_t has_uid, uint32_t has_gid);
+sa_std.h	sa_fs_file_sync	fn	int32_t sa_fs_file_sync(uint64_t handle);
+sa_std.h	sa_fs_file_sync_data	fn	int32_t sa_fs_file_sync_data(uint64_t handle);
+sa_std.h	sa_fs_file_truncate	fn	int32_t sa_fs_file_truncate(uint64_t handle, uint64_t new_size);
+sa_std.h	sa_fs_hard_link	fn	int32_t sa_fs_hard_link(const uint8_t *from_path, uint64_t from_len, const uint8_t *to_path, uint64_t to_len);
+sa_std.h	sa_fs_lchown	fn	int32_t sa_fs_lchown(const uint8_t *path, uint64_t path_len, uint32_t uid, uint32_t gid, uint32_t has_uid, uint32_t has_gid);
+sa_std.h	sa_fs_make_dir	fn	int32_t sa_fs_make_dir(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_make_dir_mode	fn	int32_t sa_fs_make_dir_mode(const uint8_t *path, uint64_t path_len, uint32_t mode);
+sa_std.h	sa_fs_metadata	fn	sa_std_fallible_u64 sa_fs_metadata(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_metadata_accessed_ms	fn	int64_t sa_fs_metadata_accessed_ms(uint64_t handle);
+sa_std.h	sa_fs_metadata_blksize	fn	uint64_t sa_fs_metadata_blksize(uint64_t handle);
+sa_std.h	sa_fs_metadata_blocks	fn	uint64_t sa_fs_metadata_blocks(uint64_t handle);
+sa_std.h	sa_fs_metadata_changed_ms	fn	int64_t sa_fs_metadata_changed_ms(uint64_t handle);
+sa_std.h	sa_fs_metadata_created_ms	fn	int64_t sa_fs_metadata_created_ms(uint64_t handle);
+sa_std.h	sa_fs_metadata_dev	fn	uint64_t sa_fs_metadata_dev(uint64_t handle);
+sa_std.h	sa_fs_metadata_free	fn	sa_std_fallible_i32 sa_fs_metadata_free(uint64_t handle);
+sa_std.h	sa_fs_metadata_gid	fn	uint32_t sa_fs_metadata_gid(uint64_t handle);
+sa_std.h	sa_fs_metadata_ino	fn	uint64_t sa_fs_metadata_ino(uint64_t handle);
+sa_std.h	sa_fs_metadata_is_block_device	fn	uint8_t sa_fs_metadata_is_block_device(uint64_t handle);
+sa_std.h	sa_fs_metadata_is_char_device	fn	uint8_t sa_fs_metadata_is_char_device(uint64_t handle);
+sa_std.h	sa_fs_metadata_is_directory	fn	uint8_t sa_fs_metadata_is_directory(uint64_t handle);
+sa_std.h	sa_fs_metadata_is_fifo	fn	uint8_t sa_fs_metadata_is_fifo(uint64_t handle);
+sa_std.h	sa_fs_metadata_is_file	fn	uint8_t sa_fs_metadata_is_file(uint64_t handle);
+sa_std.h	sa_fs_metadata_is_socket	fn	uint8_t sa_fs_metadata_is_socket(uint64_t handle);
+sa_std.h	sa_fs_metadata_is_symlink	fn	uint8_t sa_fs_metadata_is_symlink(uint64_t handle);
+sa_std.h	sa_fs_metadata_json	fn	sa_std_fallible_u64 sa_fs_metadata_json(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_metadata_len	fn	uint64_t sa_fs_metadata_len(uint64_t handle);
+sa_std.h	sa_fs_metadata_mode	fn	uint32_t sa_fs_metadata_mode(uint64_t handle);
+sa_std.h	sa_fs_metadata_modified_ms	fn	int64_t sa_fs_metadata_modified_ms(uint64_t handle);
+sa_std.h	sa_fs_metadata_nlink	fn	uint64_t sa_fs_metadata_nlink(uint64_t handle);
+sa_std.h	sa_fs_metadata_rdev	fn	uint64_t sa_fs_metadata_rdev(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_atime	fn	int64_t sa_fs_metadata_st_atime(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_atime_nsec	fn	int64_t sa_fs_metadata_st_atime_nsec(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_blksize	fn	uint64_t sa_fs_metadata_st_blksize(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_blocks	fn	uint64_t sa_fs_metadata_st_blocks(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_ctime	fn	int64_t sa_fs_metadata_st_ctime(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_ctime_nsec	fn	int64_t sa_fs_metadata_st_ctime_nsec(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_dev	fn	uint64_t sa_fs_metadata_st_dev(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_gid	fn	uint32_t sa_fs_metadata_st_gid(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_ino	fn	uint64_t sa_fs_metadata_st_ino(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_mode	fn	uint32_t sa_fs_metadata_st_mode(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_mtime	fn	int64_t sa_fs_metadata_st_mtime(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_mtime_nsec	fn	int64_t sa_fs_metadata_st_mtime_nsec(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_nlink	fn	uint64_t sa_fs_metadata_st_nlink(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_rdev	fn	uint64_t sa_fs_metadata_st_rdev(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_size	fn	uint64_t sa_fs_metadata_st_size(uint64_t handle);
+sa_std.h	sa_fs_metadata_st_uid	fn	uint32_t sa_fs_metadata_st_uid(uint64_t handle);
+sa_std.h	sa_fs_metadata_uid	fn	uint32_t sa_fs_metadata_uid(uint64_t handle);
+sa_std.h	sa_fs_mkdir_p	fn	int32_t sa_fs_mkdir_p(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_mkfifo	fn	int32_t sa_fs_mkfifo(const uint8_t *path, uint64_t path_len, uint32_t mode);
+sa_std.h	sa_fs_read_buffer_data	fn	uint8_t *sa_fs_read_buffer_data(uint64_t handle);
+sa_std.h	sa_fs_read_buffer_free	fn	int32_t sa_fs_read_buffer_free(uint64_t handle);
+sa_std.h	sa_fs_read_buffer_len	fn	uint64_t sa_fs_read_buffer_len(uint64_t handle);
+sa_std.h	sa_fs_read_dir_entries	fn	sa_std_fallible_u64 sa_fs_read_dir_entries(const uint8_t *path, uint64_t path_len, uint64_t max_entries);
+sa_std.h	sa_fs_read_dir_json	fn	sa_std_fallible_u64 sa_fs_read_dir_json(const uint8_t *path, uint64_t path_len, uint64_t max_entries);
+sa_std.h	sa_fs_read_file	fn	sa_std_fallible_u64 sa_fs_read_file(const uint8_t *path, uint64_t path_len, uint64_t max_bytes);
+sa_std.h	sa_fs_read_file_base64	fn	sa_std_fallible_u64 sa_fs_read_file_base64(const uint8_t *path, uint64_t path_len, uint64_t max_bytes);
+sa_std.h	sa_fs_read_to_string	fn	sa_std_fallible_u64 sa_fs_read_to_string(const uint8_t *path, uint64_t path_len, uint64_t max_bytes);
+sa_std.h	sa_fs_remove_dir	fn	int32_t sa_fs_remove_dir(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_remove_dir_all	fn	int32_t sa_fs_remove_dir_all(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_remove_file	fn	int32_t sa_fs_remove_file(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_remove_path	fn	int32_t sa_fs_remove_path(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_fs_rename	fn	int32_t sa_fs_rename(const uint8_t *from_path, uint64_t from_len, const uint8_t *to_path, uint64_t to_len);
+sa_std.h	sa_fs_set_permissions	fn	int32_t sa_fs_set_permissions(const uint8_t *path, uint64_t path_len, uint32_t mode);
+sa_std.h	sa_fs_set_times_ms	fn	int32_t sa_fs_set_times_ms(const uint8_t *path, uint64_t path_len, int64_t accessed_ms, int64_t modified_ms);
+sa_std.h	sa_fs_symlink	fn	int32_t sa_fs_symlink(const uint8_t *target_path, uint64_t target_len, const uint8_t *link_path, uint64_t link_len);
+sa_std.h	sa_fs_write_file	fn	int32_t sa_fs_write_file(const uint8_t *path, uint64_t path_len, const uint8_t *buf, uint64_t len);
+sa_std.h	sa_fs_write_file_base64	fn	int32_t sa_fs_write_file_base64(const uint8_t *path, uint64_t path_len, const uint8_t *data_base64, uint64_t data_base64_len);
+sa_std.h	sa_global_bytes_get	fn	int32_t sa_global_bytes_get(const uint8_t *name, uint64_t name_len, uint8_t *buf, uint64_t cap, uint64_t *out_len);
+sa_std.h	sa_global_bytes_set	fn	int32_t sa_global_bytes_set(const uint8_t *name, uint64_t name_len, const uint8_t *value, uint64_t value_len);
+sa_std.h	sa_global_u64_add	fn	int32_t sa_global_u64_add(const uint8_t *name, uint64_t name_len, int64_t delta, uint64_t *out);
+sa_std.h	sa_global_u64_get	fn	int32_t sa_global_u64_get(const uint8_t *name, uint64_t name_len, uint64_t *out);
+sa_std.h	sa_global_u64_set	fn	int32_t sa_global_u64_set(const uint8_t *name, uint64_t name_len, uint64_t value);
+sa_std.h	sa_global_u64_set_once	fn	int32_t sa_global_u64_set_once(const uint8_t *name, uint64_t name_len, uint64_t value, uint64_t *out_already);
+sa_std.h	sa_hexdec_simd	fn	uint64_t sa_hexdec_simd(const uint8_t *data_hex, uint64_t hex_len, uint8_t *out);
+sa_std.h	sa_hmac_sha1_hex	fn	int32_t sa_hmac_sha1_hex(const uint8_t *key, uint64_t key_len, const uint8_t *msg, uint64_t msg_len, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_hmac_sha256_hex	fn	int32_t sa_hmac_sha256_hex(const uint8_t *key, uint64_t key_len, const uint8_t *msg, uint64_t msg_len, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_http_client_resp_body_slice	fn	uint32_t sa_http_client_resp_body_slice(void *resp, const uint8_t **out_body_ptr, uint64_t *out_body_len);
+sa_std.h	sa_idmap_clear	fn	int32_t sa_idmap_clear(uint64_t handle);
+sa_std.h	sa_idmap_free	fn	int32_t sa_idmap_free(uint64_t handle);
+sa_std.h	sa_idmap_get	fn	int32_t sa_idmap_get(uint64_t handle, uint64_t key, uint8_t *buf, uint64_t cap, uint64_t *out_len);
+sa_std.h	sa_idmap_get_u64	fn	int32_t sa_idmap_get_u64(uint64_t handle, uint64_t key, uint64_t *out);
+sa_std.h	sa_idmap_has	fn	int32_t sa_idmap_has(uint64_t handle, uint64_t key, uint64_t *out);
+sa_std.h	sa_idmap_len	fn	int32_t sa_idmap_len(uint64_t handle, uint64_t *out);
+sa_std.h	sa_idmap_new	fn	int32_t sa_idmap_new(uint64_t *out_handle);
+sa_std.h	sa_idmap_remove	fn	int32_t sa_idmap_remove(uint64_t handle, uint64_t key);
+sa_std.h	sa_idmap_set	fn	int32_t sa_idmap_set(uint64_t handle, uint64_t key, const uint8_t *value, uint64_t value_len);
+sa_std.h	sa_idmap_set_u64	fn	int32_t sa_idmap_set_u64(uint64_t handle, uint64_t key, uint64_t value);
+sa_std.h	sa_idset_add	fn	int32_t sa_idset_add(uint64_t handle, uint64_t key);
+sa_std.h	sa_idset_clear	fn	int32_t sa_idset_clear(uint64_t handle);
+sa_std.h	sa_idset_free	fn	int32_t sa_idset_free(uint64_t handle);
+sa_std.h	sa_idset_has	fn	int32_t sa_idset_has(uint64_t handle, uint64_t key, uint64_t *out);
+sa_std.h	sa_idset_len	fn	int32_t sa_idset_len(uint64_t handle, uint64_t *out);
+sa_std.h	sa_idset_new	fn	int32_t sa_idset_new(uint64_t *out_handle);
+sa_std.h	sa_idset_remove	fn	int32_t sa_idset_remove(uint64_t handle, uint64_t key);
+sa_std.h	sa_io_buffer_data	fn	uint8_t *sa_io_buffer_data(const SaIoBuffer *buffer);
+sa_std.h	sa_io_buffer_free	fn	int32_t sa_io_buffer_free(SaIoBuffer *buffer);
+sa_std.h	sa_io_buffer_len	fn	uint64_t sa_io_buffer_len(const SaIoBuffer *buffer);
+sa_std.h	sa_io_close	fn	int32_t sa_io_close(uint64_t handle);
+sa_std.h	sa_io_flush	fn	int32_t sa_io_flush(uint64_t handle);
+sa_std.h	sa_io_read	fn	int32_t sa_io_read(uint64_t handle, uint8_t *out, uint64_t out_cap, uint64_t *out_read);
+sa_std.h	sa_io_read_exact	fn	int32_t sa_io_read_exact(uint64_t handle, uint8_t *out, uint64_t len);
+sa_std.h	sa_io_read_line	fn	int32_t sa_io_read_line(uint64_t handle, uint64_t max_bytes, uint64_t *out_handle);
+sa_std.h	sa_io_stderr	fn	uint64_t sa_io_stderr(void);
+sa_std.h	sa_io_stdin	fn	uint64_t sa_io_stdin(void);
+sa_std.h	sa_io_stdout	fn	uint64_t sa_io_stdout(void);
+sa_std.h	sa_io_write	fn	int32_t sa_io_write(uint64_t handle, const uint8_t *data, uint64_t len, uint64_t *out_written);
+sa_std.h	sa_io_write_all	fn	int32_t sa_io_write_all(uint64_t handle, const uint8_t *data, uint64_t len);
+sa_std.h	sa_json_array_get	fn	int32_t sa_json_array_get(uint64_t node, uint64_t index, uint64_t *out_handle);
+sa_std.h	sa_json_array_push_bool	fn	int32_t sa_json_array_push_bool(uint64_t node, uint8_t value);
+sa_std.h	sa_json_array_push_f64	fn	int32_t sa_json_array_push_f64(uint64_t node, double value);
+sa_std.h	sa_json_array_push_i64	fn	int32_t sa_json_array_push_i64(uint64_t node, int64_t value);
+sa_std.h	sa_json_array_push_node	fn	int32_t sa_json_array_push_node(uint64_t node, uint64_t child);
+sa_std.h	sa_json_array_push_null	fn	int32_t sa_json_array_push_null(uint64_t node);
+sa_std.h	sa_json_array_push_string	fn	int32_t sa_json_array_push_string(uint64_t node, const uint8_t *data, uint64_t len);
+sa_std.h	sa_json_as_bool	fn	int32_t sa_json_as_bool(uint64_t node, uint8_t *out_value);
+sa_std.h	sa_json_as_f64	fn	int32_t sa_json_as_f64(uint64_t node, double *out_value);
+sa_std.h	sa_json_as_i64	fn	int32_t sa_json_as_i64(uint64_t node, int64_t *out_value);
+sa_std.h	sa_json_buffer_data	fn	uint8_t *sa_json_buffer_data(uint64_t buffer);
+sa_std.h	sa_json_buffer_free	fn	int32_t sa_json_buffer_free(uint64_t buffer);
+sa_std.h	sa_json_buffer_len	fn	uint64_t sa_json_buffer_len(uint64_t buffer);
+sa_std.h	sa_json_free	fn	int32_t sa_json_free(uint64_t node);
+sa_std.h	sa_json_kind	fn	uint32_t sa_json_kind(uint64_t node);
+sa_std.h	sa_json_object_get	fn	int32_t sa_json_object_get(uint64_t node, const uint8_t *key, uint64_t key_len, uint64_t *out_handle);
+sa_std.h	sa_json_object_get_bool	fn	int32_t sa_json_object_get_bool(uint64_t node, const uint8_t *key, uint64_t key_len, uint8_t *out_value);
+sa_std.h	sa_json_object_get_f64	fn	int32_t sa_json_object_get_f64(uint64_t node, const uint8_t *key, uint64_t key_len, double *out_value);
+sa_std.h	sa_json_object_get_i64	fn	int32_t sa_json_object_get_i64(uint64_t node, const uint8_t *key, uint64_t key_len, int64_t *out_value);
+sa_std.h	sa_json_object_get_string	fn	int32_t sa_json_object_get_string(uint64_t node, const uint8_t *key, uint64_t key_len, const uint8_t **out_ptr, uint64_t *out_len);
+sa_std.h	sa_json_object_key_at	fn	int32_t sa_json_object_key_at(uint64_t node, uint64_t index, const uint8_t **out_ptr, uint64_t *out_len);
+sa_std.h	sa_json_object_remove	fn	int32_t sa_json_object_remove(uint64_t node, const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_json_object_set_bool	fn	int32_t sa_json_object_set_bool(uint64_t node, const uint8_t *key, uint64_t key_len, uint8_t value);
+sa_std.h	sa_json_object_set_f64	fn	int32_t sa_json_object_set_f64(uint64_t node, const uint8_t *key, uint64_t key_len, double value);
+sa_std.h	sa_json_object_set_i64	fn	int32_t sa_json_object_set_i64(uint64_t node, const uint8_t *key, uint64_t key_len, int64_t value);
+sa_std.h	sa_json_object_set_node	fn	int32_t sa_json_object_set_node(uint64_t node, const uint8_t *key, uint64_t key_len, uint64_t child);
+sa_std.h	sa_json_object_set_null	fn	int32_t sa_json_object_set_null(uint64_t node, const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_json_object_set_string	fn	int32_t sa_json_object_set_string(uint64_t node, const uint8_t *key, uint64_t key_len, const uint8_t *data, uint64_t len);
+sa_std.h	sa_json_parse	fn	uint64_t sa_json_parse(const uint8_t *json_bytes, uint64_t len);
+sa_std.h	sa_json_scanner_end_input	fn	int32_t sa_json_scanner_end_input(uint64_t scanner);
+sa_std.h	sa_json_scanner_feed	fn	int32_t sa_json_scanner_feed(uint64_t scanner, const uint8_t *input, uint64_t len);
+sa_std.h	sa_json_scanner_free	fn	int32_t sa_json_scanner_free(uint64_t scanner);
+sa_std.h	sa_json_scanner_new	fn	int32_t sa_json_scanner_new(uint64_t *out_handle);
+sa_std.h	sa_json_scanner_next	fn	int32_t sa_json_scanner_next(uint64_t scanner, SaJsonToken *out_token);
+sa_std.h	sa_json_stream_free	fn	int32_t sa_json_stream_free(uint64_t stream);
+sa_std.h	sa_json_stream_get_slice_len	fn	uint64_t sa_json_stream_get_slice_len(uint64_t stream);
+sa_std.h	sa_json_stream_get_slice_ptr	fn	const uint8_t *sa_json_stream_get_slice_ptr(uint64_t stream);
+sa_std.h	sa_json_stream_new	fn	uint64_t sa_json_stream_new(const uint8_t *json_bytes, uint64_t len);
+sa_std.h	sa_json_stream_next	fn	uint32_t sa_json_stream_next(uint64_t stream);
+sa_std.h	sa_json_string_len	fn	uint64_t sa_json_string_len(uint64_t node);
+sa_std.h	sa_json_string_ptr	fn	const uint8_t *sa_json_string_ptr(uint64_t node);
+sa_std.h	sa_json_stringify	fn	int32_t sa_json_stringify(uint64_t node, uint64_t *out_handle);
+sa_std.h	sa_json_value_count	fn	int32_t sa_json_value_count(uint64_t node, uint64_t *out_count);
+sa_std.h	sa_json_writer_begin_array	fn	int32_t sa_json_writer_begin_array(uint64_t writer);
+sa_std.h	sa_json_writer_begin_object	fn	int32_t sa_json_writer_begin_object(uint64_t writer);
+sa_std.h	sa_json_writer_end_array	fn	int32_t sa_json_writer_end_array(uint64_t writer);
+sa_std.h	sa_json_writer_end_object	fn	int32_t sa_json_writer_end_object(uint64_t writer);
+sa_std.h	sa_json_writer_field_bool	fn	int32_t sa_json_writer_field_bool(uint64_t writer, const uint8_t *key, uint64_t key_len, uint8_t value);
+sa_std.h	sa_json_writer_field_f64	fn	int32_t sa_json_writer_field_f64(uint64_t writer, const uint8_t *key, uint64_t key_len, double value);
+sa_std.h	sa_json_writer_field_i64	fn	int32_t sa_json_writer_field_i64(uint64_t writer, const uint8_t *key, uint64_t key_len, int64_t value);
+sa_std.h	sa_json_writer_field_node	fn	int32_t sa_json_writer_field_node(uint64_t writer, const uint8_t *key, uint64_t key_len, uint64_t node);
+sa_std.h	sa_json_writer_field_null	fn	int32_t sa_json_writer_field_null(uint64_t writer, const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_json_writer_field_string	fn	int32_t sa_json_writer_field_string(uint64_t writer, const uint8_t *key, uint64_t key_len, const uint8_t *data, uint64_t len);
+sa_std.h	sa_json_writer_finish	fn	int32_t sa_json_writer_finish(uint64_t writer, uint64_t *out_handle);
+sa_std.h	sa_json_writer_finish_buffer	fn	uint64_t sa_json_writer_finish_buffer(uint64_t writer);
+sa_std.h	sa_json_writer_free	fn	int32_t sa_json_writer_free(uint64_t writer);
+sa_std.h	sa_json_writer_new	fn	int32_t sa_json_writer_new(uint32_t whitespace, uint8_t emit_null_optional_fields, uint8_t emit_strings_as_arrays, uint8_t escape_unicode, uint8_t emit_nonportable_numbers_as_strings, uint64_t *out_handle);
+sa_std.h	sa_json_writer_object_field	fn	int32_t sa_json_writer_object_field(uint64_t writer, const uint8_t *key, uint64_t key_len);
+sa_std.h	sa_json_writer_write_bool	fn	int32_t sa_json_writer_write_bool(uint64_t writer, uint8_t value);
+sa_std.h	sa_json_writer_write_f64	fn	int32_t sa_json_writer_write_f64(uint64_t writer, double value);
+sa_std.h	sa_json_writer_write_i64	fn	int32_t sa_json_writer_write_i64(uint64_t writer, int64_t value);
+sa_std.h	sa_json_writer_write_node	fn	int32_t sa_json_writer_write_node(uint64_t writer, uint64_t node);
+sa_std.h	sa_json_writer_write_null	fn	int32_t sa_json_writer_write_null(uint64_t writer);
+sa_std.h	sa_json_writer_write_string	fn	int32_t sa_json_writer_write_string(uint64_t writer, const uint8_t *data, uint64_t len);
+sa_std.h	sa_math_ceil	fn	double sa_math_ceil(double x);
+sa_std.h	sa_math_cos	fn	double sa_math_cos(double x);
+sa_std.h	sa_math_floor	fn	double sa_math_floor(double x);
+sa_std.h	sa_math_pow	fn	double sa_math_pow(double base, double exp);
+sa_std.h	sa_math_random	fn	double sa_math_random(void);
+sa_std.h	sa_math_sin	fn	double sa_math_sin(double x);
+sa_std.h	sa_math_sqrt	fn	double sa_math_sqrt(double x);
+sa_std.h	sa_mfind_u8	fn	uint64_t sa_mfind_u8(const uint8_t *hay, uint64_t hay_len, const uint8_t *ndl, uint64_t ndl_len);
+sa_std.h	sa_net_addr_family	fn	uint32_t sa_net_addr_family(uint64_t addr_handle);
+sa_std.h	sa_net_addr_free	fn	sa_std_fallible_i32 sa_net_addr_free(uint64_t addr_handle);
+sa_std.h	sa_net_addr_host	fn	uint8_t *sa_net_addr_host(uint64_t addr_handle);
+sa_std.h	sa_net_addr_host_len	fn	uint64_t sa_net_addr_host_len(uint64_t addr_handle);
+sa_std.h	sa_net_addr_port	fn	uint32_t sa_net_addr_port(uint64_t addr_handle);
+sa_std.h	sa_net_addr_scope_id	fn	uint64_t sa_net_addr_scope_id(uint64_t addr_handle);
+sa_std.h	sa_net_ipv4_format_ascii	fn	int32_t sa_net_ipv4_format_ascii(const uint8_t *addr, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_net_ipv4_parse_ascii	fn	int32_t sa_net_ipv4_parse_ascii(const uint8_t *text, uint64_t text_len, uint8_t *out_addr);
+sa_std.h	sa_net_ipv6_format_ascii	fn	int32_t sa_net_ipv6_format_ascii(const uint8_t *addr, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_net_ipv6_parse_ascii	fn	int32_t sa_net_ipv6_parse_ascii(const uint8_t *text, uint64_t text_len, uint8_t *out_addr);
+sa_std.h	sa_net_socket_addr_v4_format_ascii	fn	int32_t sa_net_socket_addr_v4_format_ascii(const uint8_t *addr, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_net_socket_addr_v4_parse_ascii	fn	int32_t sa_net_socket_addr_v4_parse_ascii(const uint8_t *text, uint64_t text_len, uint8_t *out_socket_addr);
+sa_std.h	sa_net_socket_addr_v6_format_ascii	fn	int32_t sa_net_socket_addr_v6_format_ascii(const uint8_t *addr, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_net_socket_addr_v6_parse_ascii	fn	int32_t sa_net_socket_addr_v6_parse_ascii(const uint8_t *text, uint64_t text_len, uint8_t *out_socket_addr);
+sa_std.h	sa_net_tcp_stream_peek	fn	int32_t sa_net_tcp_stream_peek(uint64_t stream_handle, uint8_t *out, uint64_t cap);
+sa_std.h	sa_net_tcp_stream_read_exact	fn	sa_std_fallible_i32 sa_net_tcp_stream_read_exact(uint64_t stream_handle, uint8_t *out, uint64_t len);
+sa_std.h	sa_net_tcp_stream_set_nodelay	fn	int32_t sa_net_tcp_stream_set_nodelay(uint64_t stream_handle, int32_t enabled);
+sa_std.h	sa_net_tcp_stream_set_nonblocking	fn	int32_t sa_net_tcp_stream_set_nonblocking(uint64_t stream_handle, int32_t enabled);
+sa_std.h	sa_net_tcp_stream_set_read_timeout	fn	int32_t sa_net_tcp_stream_set_read_timeout(uint64_t stream_handle, uint64_t timeout_ns);
+sa_std.h	sa_net_tcp_stream_set_ttl	fn	int32_t sa_net_tcp_stream_set_ttl(uint64_t stream_handle, uint32_t ttl);
+sa_std.h	sa_net_tcp_stream_set_write_timeout	fn	int32_t sa_net_tcp_stream_set_write_timeout(uint64_t stream_handle, uint64_t timeout_ns);
+sa_std.h	sa_net_udp_close	fn	int32_t sa_net_udp_close(uint64_t socket_handle);
+sa_std.h	sa_net_udp_connect	fn	int32_t sa_net_udp_connect(uint64_t socket_handle, const uint8_t *host, uint64_t host_len, uint16_t port);
+sa_std.h	sa_net_udp_join_multicast_v4	fn	int32_t sa_net_udp_join_multicast_v4(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, const uint8_t *interface_host, uint64_t interface_host_len);
+sa_std.h	sa_net_udp_join_multicast_v6	fn	int32_t sa_net_udp_join_multicast_v6(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, uint32_t interface_index);
+sa_std.h	sa_net_udp_leave_multicast_v4	fn	int32_t sa_net_udp_leave_multicast_v4(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, const uint8_t *interface_host, uint64_t interface_host_len);
+sa_std.h	sa_net_udp_leave_multicast_v6	fn	int32_t sa_net_udp_leave_multicast_v6(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, uint32_t interface_index);
+sa_std.h	sa_net_udp_recv	fn	int32_t sa_net_udp_recv(uint64_t socket_handle, uint8_t *out, uint64_t cap);
+sa_std.h	sa_net_udp_send	fn	int32_t sa_net_udp_send(uint64_t socket_handle, const uint8_t *buf, uint64_t len);
+sa_std.h	sa_net_udp_set_broadcast	fn	int32_t sa_net_udp_set_broadcast(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_net_udp_set_multicast_loop_v4	fn	int32_t sa_net_udp_set_multicast_loop_v4(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_net_udp_set_multicast_ttl_v4	fn	int32_t sa_net_udp_set_multicast_ttl_v4(uint64_t socket_handle, uint32_t ttl);
+sa_std.h	sa_net_udp_set_nonblocking	fn	int32_t sa_net_udp_set_nonblocking(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_net_udp_set_read_timeout	fn	int32_t sa_net_udp_set_read_timeout(uint64_t socket_handle, uint64_t timeout_ns);
+sa_std.h	sa_net_udp_set_ttl	fn	int32_t sa_net_udp_set_ttl(uint64_t socket_handle, uint32_t ttl);
+sa_std.h	sa_net_udp_set_write_timeout	fn	int32_t sa_net_udp_set_write_timeout(uint64_t socket_handle, uint64_t timeout_ns);
+sa_std.h	sa_net_unix_addr_abstract_len	fn	uint64_t sa_net_unix_addr_abstract_len(uint64_t addr_handle);
+sa_std.h	sa_net_unix_addr_abstract_ptr	fn	uint8_t *sa_net_unix_addr_abstract_ptr(uint64_t addr_handle);
+sa_std.h	sa_net_unix_addr_free	fn	sa_std_fallible_i32 sa_net_unix_addr_free(uint64_t addr_handle);
+sa_std.h	sa_net_unix_addr_is_unnamed	fn	uint8_t sa_net_unix_addr_is_unnamed(uint64_t addr_handle);
+sa_std.h	sa_net_unix_addr_kind	fn	uint32_t sa_net_unix_addr_kind(uint64_t addr_handle);
+sa_std.h	sa_net_unix_addr_path_len	fn	uint64_t sa_net_unix_addr_path_len(uint64_t addr_handle);
+sa_std.h	sa_net_unix_addr_path_ptr	fn	uint8_t *sa_net_unix_addr_path_ptr(uint64_t addr_handle);
+sa_std.h	sa_parse_float	fn	double sa_parse_float(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_print_bytes	fn	void sa_print_bytes(const uint8_t *data, uint64_t len);
+sa_std.h	sa_regex_buffer_data	fn	const uint8_t *sa_regex_buffer_data(uint64_t buffer);
+sa_std.h	sa_regex_buffer_free	fn	int32_t sa_regex_buffer_free(uint64_t buffer);
+sa_std.h	sa_regex_buffer_len	fn	uint64_t sa_regex_buffer_len(uint64_t buffer);
+sa_std.h	sa_regex_compile	fn	uint64_t sa_regex_compile(const uint8_t *pattern, uint64_t pattern_len, int32_t cflags);
+sa_std.h	sa_regex_free	fn	int32_t sa_regex_free(uint64_t regex);
+sa_std.h	sa_regex_group_count	fn	uint64_t sa_regex_group_count(uint64_t regex);
+sa_std.h	sa_regex_group_len	fn	uint64_t sa_regex_group_len(uint64_t match, uint32_t group_idx);
+sa_std.h	sa_regex_group_ptr	fn	const uint8_t *sa_regex_group_ptr(uint64_t match, uint32_t group_idx);
+sa_std.h	sa_regex_group_start	fn	uint64_t sa_regex_group_start(uint64_t match, uint32_t group_idx);
+sa_std.h	sa_regex_match	fn	uint64_t sa_regex_match(uint64_t regex, const uint8_t *text, uint64_t text_len);
+sa_std.h	sa_regex_match_all	fn	uint64_t sa_regex_match_all(uint64_t regex, const uint8_t *text, uint64_t text_len);
+sa_std.h	sa_regex_match_free	fn	int32_t sa_regex_match_free(uint64_t match);
+sa_std.h	sa_regex_match_list_at	fn	uint64_t sa_regex_match_list_at(uint64_t list, uint64_t index);
+sa_std.h	sa_regex_match_list_count	fn	uint64_t sa_regex_match_list_count(uint64_t list);
+sa_std.h	sa_regex_match_list_free	fn	int32_t sa_regex_match_list_free(uint64_t list);
+sa_std.h	sa_regex_replace	fn	uint64_t sa_regex_replace(uint64_t regex, const uint8_t *text, uint64_t text_len, const uint8_t *replacement, uint64_t replacement_len);
+sa_std.h	sa_regex_replace_all	fn	uint64_t sa_regex_replace_all(uint64_t regex, const uint8_t *text, uint64_t text_len, const uint8_t *replacement, uint64_t replacement_len);
+sa_std.h	sa_regex_split	fn	uint64_t sa_regex_split(uint64_t regex, const uint8_t *text, uint64_t text_len, uint64_t limit);
+sa_std.h	sa_regex_split_count	fn	uint64_t sa_regex_split_count(uint64_t list);
+sa_std.h	sa_regex_split_free	fn	int32_t sa_regex_split_free(uint64_t list);
+sa_std.h	sa_regex_split_len	fn	uint64_t sa_regex_split_len(uint64_t list, uint64_t index);
+sa_std.h	sa_regex_split_ptr	fn	const uint8_t *sa_regex_split_ptr(uint64_t list, uint64_t index);
+sa_std.h	sa_std_close	fn	int32_t sa_std_close(uint64_t handle);
+sa_std.h	sa_std_error_name	fn	int32_t sa_std_error_name(int32_t code, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_std_fd_as_raw	fn	int32_t sa_std_fd_as_raw(uint64_t handle, int32_t *out_fd);
+sa_std.h	sa_std_fd_close_raw	fn	int32_t sa_std_fd_close_raw(int32_t fd);
+sa_std.h	sa_std_fd_dup	fn	int32_t sa_std_fd_dup(uint64_t handle, uint64_t *out_handle);
+sa_std.h	sa_std_fd_dup_raw	fn	int32_t sa_std_fd_dup_raw(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_fd_from_raw	fn	int32_t sa_std_fd_from_raw(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_fd_into_raw	fn	int32_t sa_std_fd_into_raw(uint64_t handle, int32_t *out_fd);
+sa_std.h	sa_std_fd_is_terminal	fn	int32_t sa_std_fd_is_terminal(uint64_t handle, uint8_t *out_flag);
+sa_std.h	sa_std_fs_canonicalize	fn	int32_t sa_std_fs_canonicalize(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_fs_dir_entries_get	fn	int32_t sa_std_fs_dir_entries_get(uint64_t handle, uint64_t index, uint64_t *out_entry_handle);
+sa_std.h	sa_std_fs_exists	fn	int32_t sa_std_fs_exists(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_std_fs_file_from_raw_fd	fn	int32_t sa_std_fs_file_from_raw_fd(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_fs_file_read	fn	int32_t sa_std_fs_file_read(uint64_t handle, uint8_t *out, uint64_t out_cap, uint64_t *out_read);
+sa_std.h	sa_std_fs_file_read_at	fn	int32_t sa_std_fs_file_read_at(uint64_t handle, uint8_t *out, uint64_t out_cap, uint64_t offset, uint64_t *out_read);
+sa_std.h	sa_std_fs_file_read_exact_at	fn	int32_t sa_std_fs_file_read_exact_at(uint64_t handle, uint8_t *out, uint64_t len, uint64_t offset);
+sa_std.h	sa_std_fs_file_seek	fn	int32_t sa_std_fs_file_seek(uint64_t handle, uint32_t whence, int64_t offset, uint64_t *out_pos);
+sa_std.h	sa_std_fs_file_write	fn	int32_t sa_std_fs_file_write(uint64_t handle, const uint8_t *data, uint64_t len, uint64_t *out_written);
+sa_std.h	sa_std_fs_file_write_all_at	fn	int32_t sa_std_fs_file_write_all_at(uint64_t handle, const uint8_t *data, uint64_t len, uint64_t offset);
+sa_std.h	sa_std_fs_file_write_at	fn	int32_t sa_std_fs_file_write_at(uint64_t handle, const uint8_t *data, uint64_t len, uint64_t offset, uint64_t *out_written);
+sa_std.h	sa_std_fs_len	fn	int32_t sa_std_fs_len(const uint8_t *path, uint64_t path_len, uint64_t *out_len);
+sa_std.h	sa_std_fs_metadata	fn	int32_t sa_std_fs_metadata(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_fs_metadata_free	fn	int32_t sa_std_fs_metadata_free(uint64_t handle);
+sa_std.h	sa_std_fs_metadata_json	fn	int32_t sa_std_fs_metadata_json(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_fs_open_create_excl	fn	int32_t sa_std_fs_open_create_excl(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_fs_open_options	fn	int32_t sa_std_fs_open_options(const uint8_t *path, uint64_t path_len, uint32_t flags, uint32_t create_mode, uint32_t custom_flags, uint64_t *out_handle);
+sa_std.h	sa_std_fs_open_read	fn	int32_t sa_std_fs_open_read(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_fs_open_write	fn	int32_t sa_std_fs_open_write(const uint8_t *path, uint64_t path_len, uint32_t truncate, uint64_t *out_handle);
+sa_std.h	sa_std_fs_read_dir_entries	fn	int32_t sa_std_fs_read_dir_entries(const uint8_t *path, uint64_t path_len, uint64_t max_entries, uint64_t *out_handle);
+sa_std.h	sa_std_fs_read_dir_json	fn	int32_t sa_std_fs_read_dir_json(const uint8_t *path, uint64_t path_len, uint64_t max_entries, uint64_t *out_handle);
+sa_std.h	sa_std_fs_read_file	fn	int32_t sa_std_fs_read_file(const uint8_t *path, uint64_t path_len, uint64_t max_bytes, uint64_t *out_handle);
+sa_std.h	sa_std_fs_read_file_base64	fn	int32_t sa_std_fs_read_file_base64(const uint8_t *path, uint64_t path_len, uint64_t max_bytes, uint64_t *out_handle);
+sa_std.h	sa_std_fs_read_link	fn	int32_t sa_std_fs_read_link(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_fs_read_to_string	fn	int32_t sa_std_fs_read_to_string(const uint8_t *path, uint64_t path_len, uint64_t max_bytes, uint64_t *out_handle);
+sa_std.h	sa_std_fs_remove	fn	int32_t sa_std_fs_remove(const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_std_fs_try_exists	fn	int32_t sa_std_fs_try_exists(const uint8_t *path, uint64_t path_len, uint8_t *out_exists);
+sa_std.h	sa_std_http2_buffer_data	fn	const uint8_t *sa_std_http2_buffer_data(uint64_t handle);
+sa_std.h	sa_std_http2_buffer_free	fn	int32_t sa_std_http2_buffer_free(uint64_t handle);
+sa_std.h	sa_std_http2_buffer_len	fn	uint64_t sa_std_http2_buffer_len(uint64_t handle);
+sa_std.h	sa_std_http2_client_request	fn	int32_t sa_std_http2_client_request(const uint8_t *url, uint64_t url_len, const uint8_t *method, uint64_t method_len, const uint8_t *body, uint64_t body_len, uint64_t *out_handle);
+sa_std.h	sa_std_http2_constants_json	fn	int32_t sa_std_http2_constants_json(uint64_t *out_handle);
+sa_std.h	sa_std_http2_get_default_settings_json	fn	int32_t sa_std_http2_get_default_settings_json(uint64_t *out_handle);
+sa_std.h	sa_std_http2_get_packed_settings	fn	int32_t sa_std_http2_get_packed_settings(const uint8_t *settings_json, uint64_t settings_json_len, uint64_t *out_handle);
+sa_std.h	sa_std_http2_get_unpacked_settings_json	fn	int32_t sa_std_http2_get_unpacked_settings_json(const uint8_t *buf, uint64_t buf_len, uint64_t *out_handle);
+sa_std.h	sa_std_http2_nghttp2_version_json	fn	int32_t sa_std_http2_nghttp2_version_json(uint64_t *out_handle);
+sa_std.h	sa_std_http2_perform_server_handshake	fn	int32_t sa_std_http2_perform_server_handshake(const uint8_t *input, uint64_t input_len, const uint8_t *settings_json, uint64_t settings_json_len, uint64_t *out_bytes, uint64_t *out_json);
+sa_std.h	sa_std_http2_sensitive_headers	fn	int32_t sa_std_http2_sensitive_headers(uint64_t *out_handle);
+sa_std.h	sa_std_http2_status_json	fn	int32_t sa_std_http2_status_json(uint64_t *out_handle);
+sa_std.h	sa_std_http2_supported	fn	int32_t sa_std_http2_supported(uint32_t *out_supported);
+sa_std.h	sa_std_last_error	fn	int32_t sa_std_last_error(void);
+sa_std.h	sa_std_net_addr_format	fn	int32_t sa_std_net_addr_format(uint64_t addr_handle, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_std_net_addr_list_free	fn	int32_t sa_std_net_addr_list_free(uint64_t list);
+sa_std.h	sa_std_net_addr_list_next	fn	int32_t sa_std_net_addr_list_next(uint64_t list, int32_t *out_ok, uint64_t *out_addr);
+sa_std.h	sa_std_net_addr_list_remaining	fn	int32_t sa_std_net_addr_list_remaining(uint64_t list, uint64_t *out_remaining);
+sa_std.h	sa_std_net_addr_list_reset	fn	int32_t sa_std_net_addr_list_reset(uint64_t list);
+sa_std.h	sa_std_net_error_code_from_native_error	fn	int32_t sa_std_net_error_code_from_native_error(int32_t error);
+sa_std.h	sa_std_net_error_code_from_posix_errno	fn	int32_t sa_std_net_error_code_from_posix_errno(int32_t error);
+sa_std.h	sa_std_net_error_code_from_status	fn	int32_t sa_std_net_error_code_from_status(int32_t status);
+sa_std.h	sa_std_net_error_code_from_wsa_error	fn	int32_t sa_std_net_error_code_from_wsa_error(int32_t error);
+sa_std.h	sa_std_net_error_code_name	fn	int32_t sa_std_net_error_code_name(int32_t code, uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_std_net_error_platform	fn	int32_t sa_std_net_error_platform(void);
+sa_std.h	sa_std_net_hostname	fn	int32_t sa_std_net_hostname(uint8_t *out, uint64_t out_cap, uint64_t *out_len);
+sa_std.h	sa_std_net_tcp_accept	fn	int32_t sa_std_net_tcp_accept(uint64_t listener_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_accept_addr	fn	int32_t sa_std_net_tcp_accept_addr(uint64_t listener_handle, uint64_t *out_stream, uint64_t *out_addr);
+sa_std.h	sa_std_net_tcp_connect	fn	int32_t sa_std_net_tcp_connect(const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_connect_timeout	fn	int32_t sa_std_net_tcp_connect_timeout(const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t timeout_ns, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_connect_timeout_addr	fn	int32_t sa_std_net_tcp_connect_timeout_addr(uint64_t addr_handle, uint64_t timeout_ns, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_connect_timeout_all	fn	int32_t sa_std_net_tcp_connect_timeout_all(const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t timeout_ns, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_listen	fn	int32_t sa_std_net_tcp_listen(const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t *out_handle, uint32_t *out_bound_port);
+sa_std.h	sa_std_net_tcp_listener_from_raw_fd	fn	int32_t sa_std_net_tcp_listener_from_raw_fd(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_listener_local_addr	fn	int32_t sa_std_net_tcp_listener_local_addr(uint64_t listener_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_listener_only_v6	fn	int32_t sa_std_net_tcp_listener_only_v6(uint64_t listener_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_tcp_listener_set_nonblocking	fn	int32_t sa_std_net_tcp_listener_set_nonblocking(uint64_t listener_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_listener_set_only_v6	fn	int32_t sa_std_net_tcp_listener_set_only_v6(uint64_t listener_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_listener_set_reuseaddr	fn	int32_t sa_std_net_tcp_listener_set_reuseaddr(uint64_t listener_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_listener_set_reuseport	fn	int32_t sa_std_net_tcp_listener_set_reuseport(uint64_t listener_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_listener_set_ttl	fn	int32_t sa_std_net_tcp_listener_set_ttl(uint64_t listener_handle, uint32_t ttl);
+sa_std.h	sa_std_net_tcp_listener_take_error	fn	int32_t sa_std_net_tcp_listener_take_error(uint64_t listener_handle, int32_t *out_error);
+sa_std.h	sa_std_net_tcp_listener_try_clone	fn	int32_t sa_std_net_tcp_listener_try_clone(uint64_t listener, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_listener_ttl	fn	int32_t sa_std_net_tcp_listener_ttl(uint64_t listener_handle, uint32_t *out_ttl);
+sa_std.h	sa_std_net_tcp_stream_deferaccept	fn	int32_t sa_std_net_tcp_stream_deferaccept(uint64_t stream_handle, uint32_t *out_seconds);
+sa_std.h	sa_std_net_tcp_stream_from_raw_fd	fn	int32_t sa_std_net_tcp_stream_from_raw_fd(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_stream_keepalive	fn	int32_t sa_std_net_tcp_stream_keepalive(uint64_t stream_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_tcp_stream_linger	fn	int32_t sa_std_net_tcp_stream_linger(uint64_t stream_handle, int32_t *out_enabled, uint64_t *out_timeout_ns);
+sa_std.h	sa_std_net_tcp_stream_local_addr	fn	int32_t sa_std_net_tcp_stream_local_addr(uint64_t stream_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_stream_nodelay	fn	int32_t sa_std_net_tcp_stream_nodelay(uint64_t stream_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_tcp_stream_peek	fn	int32_t sa_std_net_tcp_stream_peek(uint64_t stream_handle, uint8_t *out, uint64_t cap, uint64_t *out_read);
+sa_std.h	sa_std_net_tcp_stream_peer_addr	fn	int32_t sa_std_net_tcp_stream_peer_addr(uint64_t stream_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_stream_quickack	fn	int32_t sa_std_net_tcp_stream_quickack(uint64_t stream_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_tcp_stream_read	fn	int32_t sa_std_net_tcp_stream_read(uint64_t stream_handle, uint8_t *out, uint64_t cap, uint64_t *out_read);
+sa_std.h	sa_std_net_tcp_stream_read_timeout	fn	int32_t sa_std_net_tcp_stream_read_timeout(uint64_t stream_handle, uint64_t *out_timeout_ns);
+sa_std.h	sa_std_net_tcp_stream_read_vectored	fn	int32_t sa_std_net_tcp_stream_read_vectored(uint64_t stream_handle, const sa_net_iov *iovs, uint64_t iov_count, uint64_t *out_read);
+sa_std.h	sa_std_net_tcp_stream_recv_buffer_size	fn	int32_t sa_std_net_tcp_stream_recv_buffer_size(uint64_t stream_handle, uint32_t *out_size);
+sa_std.h	sa_std_net_tcp_stream_send_buffer_size	fn	int32_t sa_std_net_tcp_stream_send_buffer_size(uint64_t stream_handle, uint32_t *out_size);
+sa_std.h	sa_std_net_tcp_stream_set_deferaccept	fn	int32_t sa_std_net_tcp_stream_set_deferaccept(uint64_t stream_handle, uint32_t seconds);
+sa_std.h	sa_std_net_tcp_stream_set_keepalive	fn	int32_t sa_std_net_tcp_stream_set_keepalive(uint64_t stream_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_stream_set_keepalive_params	fn	int32_t sa_std_net_tcp_stream_set_keepalive_params(uint64_t stream_handle, uint32_t idle_secs, uint32_t interval_secs, uint32_t count);
+sa_std.h	sa_std_net_tcp_stream_set_linger	fn	int32_t sa_std_net_tcp_stream_set_linger(uint64_t stream_handle, int32_t enabled, uint64_t timeout_ns);
+sa_std.h	sa_std_net_tcp_stream_set_nodelay	fn	int32_t sa_std_net_tcp_stream_set_nodelay(uint64_t stream_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_stream_set_nonblocking	fn	int32_t sa_std_net_tcp_stream_set_nonblocking(uint64_t stream_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_stream_set_quickack	fn	int32_t sa_std_net_tcp_stream_set_quickack(uint64_t stream_handle, int32_t enabled);
+sa_std.h	sa_std_net_tcp_stream_set_read_timeout	fn	int32_t sa_std_net_tcp_stream_set_read_timeout(uint64_t stream_handle, uint64_t timeout_ns);
+sa_std.h	sa_std_net_tcp_stream_set_recv_buffer_size	fn	int32_t sa_std_net_tcp_stream_set_recv_buffer_size(uint64_t stream_handle, uint32_t size);
+sa_std.h	sa_std_net_tcp_stream_set_send_buffer_size	fn	int32_t sa_std_net_tcp_stream_set_send_buffer_size(uint64_t stream_handle, uint32_t size);
+sa_std.h	sa_std_net_tcp_stream_set_ttl	fn	int32_t sa_std_net_tcp_stream_set_ttl(uint64_t stream_handle, uint32_t ttl);
+sa_std.h	sa_std_net_tcp_stream_set_write_timeout	fn	int32_t sa_std_net_tcp_stream_set_write_timeout(uint64_t stream_handle, uint64_t timeout_ns);
+sa_std.h	sa_std_net_tcp_stream_take_error	fn	int32_t sa_std_net_tcp_stream_take_error(uint64_t stream_handle, int32_t *out_error);
+sa_std.h	sa_std_net_tcp_stream_try_clone	fn	int32_t sa_std_net_tcp_stream_try_clone(uint64_t stream, uint64_t *out_handle);
+sa_std.h	sa_std_net_tcp_stream_ttl	fn	int32_t sa_std_net_tcp_stream_ttl(uint64_t stream_handle, uint32_t *out_ttl);
+sa_std.h	sa_std_net_tcp_stream_write	fn	int32_t sa_std_net_tcp_stream_write(uint64_t stream_handle, const uint8_t *buf, uint64_t len, uint64_t *out_written);
+sa_std.h	sa_std_net_tcp_stream_write_timeout	fn	int32_t sa_std_net_tcp_stream_write_timeout(uint64_t stream_handle, uint64_t *out_timeout_ns);
+sa_std.h	sa_std_net_tcp_stream_write_vectored	fn	int32_t sa_std_net_tcp_stream_write_vectored(uint64_t stream_handle, const sa_net_iov *iovs, uint64_t iov_count, uint64_t *out_written);
+sa_std.h	sa_std_net_to_socket_addr_first	fn	int32_t sa_std_net_to_socket_addr_first(const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t *out_handle);
+sa_std.h	sa_std_net_to_socket_addr_list	fn	int32_t sa_std_net_to_socket_addr_list(const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t *out_handle);
+sa_std.h	sa_std_net_udp_bind	fn	int32_t sa_std_net_udp_bind(const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t *out_handle);
+sa_std.h	sa_std_net_udp_broadcast	fn	int32_t sa_std_net_udp_broadcast(uint64_t socket_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_udp_connect	fn	int32_t sa_std_net_udp_connect(uint64_t socket_handle, const uint8_t *host, uint64_t host_len, uint32_t port);
+sa_std.h	sa_std_net_udp_connect_addr	fn	int32_t sa_std_net_udp_connect_addr(uint64_t socket_handle, uint64_t addr_handle);
+sa_std.h	sa_std_net_udp_from_raw_fd	fn	int32_t sa_std_net_udp_from_raw_fd(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_net_udp_join_multicast_v4	fn	int32_t sa_std_net_udp_join_multicast_v4(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, const uint8_t *interface_host, uint64_t interface_host_len);
+sa_std.h	sa_std_net_udp_join_multicast_v6	fn	int32_t sa_std_net_udp_join_multicast_v6(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, uint32_t interface_index);
+sa_std.h	sa_std_net_udp_leave_multicast_v4	fn	int32_t sa_std_net_udp_leave_multicast_v4(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, const uint8_t *interface_host, uint64_t interface_host_len);
+sa_std.h	sa_std_net_udp_leave_multicast_v6	fn	int32_t sa_std_net_udp_leave_multicast_v6(uint64_t socket_handle, const uint8_t *multi_host, uint64_t multi_host_len, uint32_t interface_index);
+sa_std.h	sa_std_net_udp_local_addr	fn	int32_t sa_std_net_udp_local_addr(uint64_t socket_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_udp_multicast_hops_v6	fn	int32_t sa_std_net_udp_multicast_hops_v6(uint64_t socket_handle, uint32_t *out_hops);
+sa_std.h	sa_std_net_udp_multicast_if_v4	fn	int32_t sa_std_net_udp_multicast_if_v4(uint64_t socket_handle, uint8_t *out_interface_addr);
+sa_std.h	sa_std_net_udp_multicast_if_v6	fn	int32_t sa_std_net_udp_multicast_if_v6(uint64_t socket_handle, uint32_t *out_interface_index);
+sa_std.h	sa_std_net_udp_multicast_loop_v4	fn	int32_t sa_std_net_udp_multicast_loop_v4(uint64_t socket_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_udp_multicast_loop_v6	fn	int32_t sa_std_net_udp_multicast_loop_v6(uint64_t socket_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_udp_multicast_ttl_v4	fn	int32_t sa_std_net_udp_multicast_ttl_v4(uint64_t socket_handle, uint32_t *out_ttl);
+sa_std.h	sa_std_net_udp_only_v6	fn	int32_t sa_std_net_udp_only_v6(uint64_t socket, int32_t *out_enabled);
+sa_std.h	sa_std_net_udp_peek	fn	int32_t sa_std_net_udp_peek(uint64_t socket_handle, uint8_t *out, uint64_t cap, uint64_t *out_read);
+sa_std.h	sa_std_net_udp_peek_from	fn	int32_t sa_std_net_udp_peek_from(uint64_t socket_handle, uint8_t *out, uint64_t cap, uint64_t *out_read, uint64_t *out_addr_handle);
+sa_std.h	sa_std_net_udp_peer_addr	fn	int32_t sa_std_net_udp_peer_addr(uint64_t socket_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_udp_read_timeout	fn	int32_t sa_std_net_udp_read_timeout(uint64_t socket_handle, uint64_t *out_timeout_ns);
+sa_std.h	sa_std_net_udp_recv	fn	int32_t sa_std_net_udp_recv(uint64_t socket_handle, uint8_t *out, uint64_t cap, uint64_t *out_read);
+sa_std.h	sa_std_net_udp_recv_buffer_size	fn	int32_t sa_std_net_udp_recv_buffer_size(uint64_t socket_handle, uint32_t *out_size);
+sa_std.h	sa_std_net_udp_recv_from	fn	int32_t sa_std_net_udp_recv_from(uint64_t socket_handle, uint8_t *out, uint64_t cap, uint64_t *out_read, uint64_t *out_addr_handle);
+sa_std.h	sa_std_net_udp_recv_from_vectored	fn	int32_t sa_std_net_udp_recv_from_vectored(uint64_t socket, const sa_net_iov *iovs, uint64_t iov_count, uint64_t *out_read, uint64_t *out_addr);
+sa_std.h	sa_std_net_udp_send	fn	int32_t sa_std_net_udp_send(uint64_t socket_handle, const uint8_t *buf, uint64_t len, uint64_t *out_written);
+sa_std.h	sa_std_net_udp_send_buffer_size	fn	int32_t sa_std_net_udp_send_buffer_size(uint64_t socket_handle, uint32_t *out_size);
+sa_std.h	sa_std_net_udp_send_to	fn	int32_t sa_std_net_udp_send_to(uint64_t socket_handle, const uint8_t *buf, uint64_t len, const uint8_t *host, uint64_t host_len, uint32_t port, uint64_t *out_written);
+sa_std.h	sa_std_net_udp_send_to_vectored	fn	int32_t sa_std_net_udp_send_to_vectored(uint64_t socket, const sa_net_iov *iovs, uint64_t iov_count, const uint8_t *host_ptr, uint64_t host_len, uint32_t port, uint64_t *out_written);
+sa_std.h	sa_std_net_udp_send_vectored	fn	int32_t sa_std_net_udp_send_vectored(uint64_t socket, const sa_net_iov *iovs, uint64_t iov_count, uint64_t *out_written);
+sa_std.h	sa_std_net_udp_set_broadcast	fn	int32_t sa_std_net_udp_set_broadcast(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_std_net_udp_set_multicast_hops_v6	fn	int32_t sa_std_net_udp_set_multicast_hops_v6(uint64_t socket_handle, uint32_t hops);
+sa_std.h	sa_std_net_udp_set_multicast_if_v4	fn	int32_t sa_std_net_udp_set_multicast_if_v4(uint64_t socket_handle, const uint8_t *interface_addr);
+sa_std.h	sa_std_net_udp_set_multicast_if_v6	fn	int32_t sa_std_net_udp_set_multicast_if_v6(uint64_t socket_handle, uint32_t interface_index);
+sa_std.h	sa_std_net_udp_set_multicast_loop_v4	fn	int32_t sa_std_net_udp_set_multicast_loop_v4(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_std_net_udp_set_multicast_loop_v6	fn	int32_t sa_std_net_udp_set_multicast_loop_v6(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_std_net_udp_set_multicast_ttl_v4	fn	int32_t sa_std_net_udp_set_multicast_ttl_v4(uint64_t socket_handle, uint32_t ttl);
+sa_std.h	sa_std_net_udp_set_nonblocking	fn	int32_t sa_std_net_udp_set_nonblocking(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_std_net_udp_set_only_v6	fn	int32_t sa_std_net_udp_set_only_v6(uint64_t socket, int32_t enabled);
+sa_std.h	sa_std_net_udp_set_read_timeout	fn	int32_t sa_std_net_udp_set_read_timeout(uint64_t socket_handle, uint64_t timeout_ns);
+sa_std.h	sa_std_net_udp_set_recv_buffer_size	fn	int32_t sa_std_net_udp_set_recv_buffer_size(uint64_t socket_handle, uint32_t size);
+sa_std.h	sa_std_net_udp_set_send_buffer_size	fn	int32_t sa_std_net_udp_set_send_buffer_size(uint64_t socket_handle, uint32_t size);
+sa_std.h	sa_std_net_udp_set_ttl	fn	int32_t sa_std_net_udp_set_ttl(uint64_t socket_handle, uint32_t ttl);
+sa_std.h	sa_std_net_udp_set_write_timeout	fn	int32_t sa_std_net_udp_set_write_timeout(uint64_t socket_handle, uint64_t timeout_ns);
+sa_std.h	sa_std_net_udp_take_error	fn	int32_t sa_std_net_udp_take_error(uint64_t socket_handle, int32_t *out_error);
+sa_std.h	sa_std_net_udp_try_clone	fn	int32_t sa_std_net_udp_try_clone(uint64_t socket, uint64_t *out_handle);
+sa_std.h	sa_std_net_udp_ttl	fn	int32_t sa_std_net_udp_ttl(uint64_t socket_handle, uint32_t *out_ttl);
+sa_std.h	sa_std_net_udp_write_timeout	fn	int32_t sa_std_net_udp_write_timeout(uint64_t socket_handle, uint64_t *out_timeout_ns);
+sa_std.h	sa_std_net_unix_accept	fn	int32_t sa_std_net_unix_accept(uint64_t listener_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_accept_addr	fn	int32_t sa_std_net_unix_accept_addr(uint64_t listener_handle, uint64_t *out_stream, uint64_t *out_addr);
+sa_std.h	sa_std_net_unix_addr_from_abstract_name	fn	int32_t sa_std_net_unix_addr_from_abstract_name(const uint8_t *name, uint64_t name_len, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_addr_from_pathname	fn	int32_t sa_std_net_unix_addr_from_pathname(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_connect	fn	int32_t sa_std_net_unix_connect(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_connect_addr	fn	int32_t sa_std_net_unix_connect_addr(uint64_t addr_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_datagram_bind	fn	int32_t sa_std_net_unix_datagram_bind(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_datagram_bind_addr	fn	int32_t sa_std_net_unix_datagram_bind_addr(uint64_t addr_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_datagram_connect	fn	int32_t sa_std_net_unix_datagram_connect(uint64_t socket_handle, const uint8_t *path, uint64_t path_len);
+sa_std.h	sa_std_net_unix_datagram_connect_addr	fn	int32_t sa_std_net_unix_datagram_connect_addr(uint64_t socket_handle, uint64_t addr_handle);
+sa_std.h	sa_std_net_unix_datagram_from_raw_fd	fn	int32_t sa_std_net_unix_datagram_from_raw_fd(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_datagram_local_addr	fn	int32_t sa_std_net_unix_datagram_local_addr(uint64_t socket_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_datagram_pair	fn	int32_t sa_std_net_unix_datagram_pair(uint64_t *out_left, uint64_t *out_right);
+sa_std.h	sa_std_net_unix_datagram_passcred	fn	int32_t sa_std_net_unix_datagram_passcred(uint64_t socket_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_unix_datagram_peek_from	fn	int32_t sa_std_net_unix_datagram_peek_from(uint64_t socket_handle, uint8_t *out, uint64_t cap, uint64_t *out_read, uint64_t *out_addr);
+sa_std.h	sa_std_net_unix_datagram_peer_addr	fn	int32_t sa_std_net_unix_datagram_peer_addr(uint64_t socket_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_datagram_recv_from	fn	int32_t sa_std_net_unix_datagram_recv_from(uint64_t socket_handle, uint8_t *out, uint64_t cap, uint64_t *out_read, uint64_t *out_addr);
+sa_std.h	sa_std_net_unix_datagram_send_to	fn	int32_t sa_std_net_unix_datagram_send_to(uint64_t socket_handle, const uint8_t *buf, uint64_t len, const uint8_t *path, uint64_t path_len, uint64_t *out_written);
+sa_std.h	sa_std_net_unix_datagram_send_to_addr	fn	int32_t sa_std_net_unix_datagram_send_to_addr(uint64_t socket_handle, const uint8_t *buf, uint64_t len, uint64_t addr_handle, uint64_t *out_written);
+sa_std.h	sa_std_net_unix_datagram_set_mark	fn	int32_t sa_std_net_unix_datagram_set_mark(uint64_t socket_handle, uint32_t mark);
+sa_std.h	sa_std_net_unix_datagram_set_passcred	fn	int32_t sa_std_net_unix_datagram_set_passcred(uint64_t socket_handle, int32_t enabled);
+sa_std.h	sa_std_net_unix_datagram_shutdown	fn	int32_t sa_std_net_unix_datagram_shutdown(uint64_t socket_handle, uint32_t how);
+sa_std.h	sa_std_net_unix_datagram_try_clone	fn	int32_t sa_std_net_unix_datagram_try_clone(uint64_t socket_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_datagram_unbound	fn	int32_t sa_std_net_unix_datagram_unbound(uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_listen	fn	int32_t sa_std_net_unix_listen(const uint8_t *path, uint64_t path_len, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_listen_addr	fn	int32_t sa_std_net_unix_listen_addr(uint64_t addr_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_listener_from_raw_fd	fn	int32_t sa_std_net_unix_listener_from_raw_fd(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_listener_local_addr	fn	int32_t sa_std_net_unix_listener_local_addr(uint64_t listener_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_listener_try_clone	fn	int32_t sa_std_net_unix_listener_try_clone(uint64_t listener_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_pair	fn	int32_t sa_std_net_unix_pair(uint64_t *out_left, uint64_t *out_right);
+sa_std.h	sa_std_net_unix_stream_from_raw_fd	fn	int32_t sa_std_net_unix_stream_from_raw_fd(int32_t fd, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_stream_local_addr	fn	int32_t sa_std_net_unix_stream_local_addr(uint64_t stream_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_stream_passcred	fn	int32_t sa_std_net_unix_stream_passcred(uint64_t stream_handle, int32_t *out_enabled);
+sa_std.h	sa_std_net_unix_stream_peer_addr	fn	int32_t sa_std_net_unix_stream_peer_addr(uint64_t stream_handle, uint64_t *out_handle);
+sa_std.h	sa_std_net_unix_stream_peer_cred	fn	int32_t sa_std_net_unix_stream_peer_cred(uint64_t stream_handle, int32_t *out_pid, uint32_t *out_uid, uint32_t *out_gid);
+sa_std.h	sa_std_net_unix_stream_set_mark	fn	int32_t sa_std_net_unix_stream_set_mark(uint64_t stream_handle, uint32_t mark);
+sa_std.h	sa_std_net_unix_stream_set_passcred	fn	int32_t sa_std_net_unix_stream_set_passcred(uint64_t stream_handle, int32_t enabled);
+sa_std.h	sa_std_net_unix_stream_try_clone	fn	int32_t sa_std_net_unix_stream_try_clone(uint64_t stream_handle, uint64_t *out_handle);
+sa_std.h	sa_std_pidfd_kill	fn	int32_t sa_std_pidfd_kill(uint64_t handle);
+sa_std.h	sa_std_pidfd_send_signal	fn	int32_t sa_std_pidfd_send_signal(uint64_t handle, int32_t signal);
+sa_std.h	sa_std_pidfd_try_wait	fn	int32_t sa_std_pidfd_try_wait(uint64_t handle, int32_t *out_ready, uint32_t *out_code);
+sa_std.h	sa_std_pidfd_try_wait_raw	fn	int32_t sa_std_pidfd_try_wait_raw(uint64_t handle, int32_t *out_ready, int32_t *out_raw);
+sa_std.h	sa_std_pidfd_wait	fn	int32_t sa_std_pidfd_wait(uint64_t handle, uint32_t *out_code);
+sa_std.h	sa_std_pidfd_wait_raw	fn	int32_t sa_std_pidfd_wait_raw(uint64_t handle, int32_t *out_raw);
+sa_std.h	sa_std_print	fn	int32_t sa_std_print(const uint8_t *data, uint64_t len);
+sa_std.h	sa_std_println	fn	int32_t sa_std_println(const uint8_t *data, uint64_t len);
+sa_std.h	sa_std_process_abort	fn	void sa_std_process_abort(void);
+sa_std.h	sa_std_process_child_id	fn	int32_t sa_std_process_child_id(uint64_t handle, uint32_t *out_pid);
+sa_std.h	sa_std_process_close	fn	int32_t sa_std_process_close(uint64_t handle);
+sa_std.h	sa_std_process_exec_capture	fn	int32_t sa_std_process_exec_capture(const SaProcessArgv *argv, uint64_t argv_len, uint32_t *out_code, uint64_t *out_stdout, uint64_t *out_stderr);
+sa_std.h	sa_std_process_exec_capture_cwd	fn	int32_t sa_std_process_exec_capture_cwd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t *out_code, uint64_t *out_stdout, uint64_t *out_stderr);
+sa_std.h	sa_std_process_exec_command_ext	fn	int32_t sa_std_process_exec_command_ext(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t has_pro
+sa_std.h	sa_std_process_exit_status_code	fn	uint32_t sa_std_process_exit_status_code(int32_t raw);
+sa_std.h	sa_std_process_exit_status_continued	fn	uint8_t sa_std_process_exit_status_continued(int32_t raw);
+sa_std.h	sa_std_process_exit_status_core_dumped	fn	uint8_t sa_std_process_exit_status_core_dumped(int32_t raw);
+sa_std.h	sa_std_process_exit_status_signal	fn	int32_t sa_std_process_exit_status_signal(int32_t raw);
+sa_std.h	sa_std_process_exit_status_stopped_signal	fn	int32_t sa_std_process_exit_status_stopped_signal(int32_t raw);
+sa_std.h	sa_std_process_group_id	fn	uint32_t sa_std_process_group_id(void);
+sa_std.h	sa_std_process_id	fn	uint32_t sa_std_process_id(void);
+sa_std.h	sa_std_process_into_pidfd	fn	int32_t sa_std_process_into_pidfd(uint64_t handle, uint64_t *out_pidfd);
+sa_std.h	sa_std_process_kill	fn	int32_t sa_std_process_kill(uint64_t handle);
+sa_std.h	sa_std_process_kill_process_group	fn	int32_t sa_std_process_kill_process_group(uint64_t handle);
+sa_std.h	sa_std_process_parent_id	fn	uint32_t sa_std_process_parent_id(void);
+sa_std.h	sa_std_process_pidfd	fn	int32_t sa_std_process_pidfd(uint64_t handle, uint64_t *out_pidfd);
+sa_std.h	sa_std_process_read_stderr	fn	int32_t sa_std_process_read_stderr(uint64_t handle, uint8_t *out, uint64_t out_cap, uint64_t *out_read);
+sa_std.h	sa_std_process_read_stdout	fn	int32_t sa_std_process_read_stdout(uint64_t handle, uint8_t *out, uint64_t out_cap, uint64_t *out_read);
+sa_std.h	sa_std_process_run	fn	int32_t sa_std_process_run(const SaProcessArgv *argv, uint64_t argv_len, uint64_t *out_handle);
+sa_std.h	sa_std_process_run_command_ext	fn	int32_t sa_std_process_run_command_ext(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t has_proc
+sa_std.h	sa_std_process_run_command_ext_chroot	fn	int32_t sa_std_process_run_command_ext_chroot(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t h
+sa_std.h	sa_std_process_run_command_ext_groups	fn	int32_t sa_std_process_run_command_ext_groups(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t h
+sa_std.h	sa_std_process_run_command_ext_pidfd	fn	int32_t sa_std_process_run_command_ext_pidfd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t ha
+sa_std.h	sa_std_process_run_command_ext_uid_gid	fn	int32_t sa_std_process_run_command_ext_uid_gid(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t 
+sa_std.h	sa_std_process_run_cwd	fn	int32_t sa_std_process_run_cwd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint64_t *out_handle);
+sa_std.h	sa_std_process_send_process_group_signal	fn	int32_t sa_std_process_send_process_group_signal(uint64_t handle, int32_t signal);
+sa_std.h	sa_std_process_send_signal	fn	int32_t sa_std_process_send_signal(uint64_t handle, int32_t signal);
+sa_std.h	sa_std_process_spawn	fn	int32_t sa_std_process_spawn(const SaProcessArgv *argv, uint64_t argv_len, uint64_t *out_handle);
+sa_std.h	sa_std_process_spawn_bidi	fn	int32_t sa_std_process_spawn_bidi(const SaProcessArgv *argv, uint64_t argv_len, uint64_t *out_process, uint64_t *out_stdin, uint64_t *out_stdout, uint64_t *out_stderr);
+sa_std.h	sa_std_process_spawn_bidi_cwd	fn	int32_t sa_std_process_spawn_bidi_cwd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint64_t *out_process, uint64_t *out_stdin, uint64_t *out_stdout, uint64_t *out_stderr);
+sa_std.h	sa_std_process_spawn_command_ext	fn	int32_t sa_std_process_spawn_command_ext(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t has_pr
+sa_std.h	sa_std_process_spawn_command_ext_chroot	fn	int32_t sa_std_process_spawn_command_ext_chroot(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t
+sa_std.h	sa_std_process_spawn_command_ext_groups	fn	int32_t sa_std_process_spawn_command_ext_groups(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t
+sa_std.h	sa_std_process_spawn_command_ext_pidfd	fn	int32_t sa_std_process_spawn_command_ext_pidfd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t 
+sa_std.h	sa_std_process_spawn_command_ext_uid_gid	fn	int32_t sa_std_process_spawn_command_ext_uid_gid(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_
+sa_std.h	sa_std_process_spawn_cwd	fn	int32_t sa_std_process_spawn_cwd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint64_t *out_handle);
+sa_std.h	sa_std_process_spawn_stream	fn	int32_t sa_std_process_spawn_stream(const SaProcessArgv *argv, uint64_t argv_len, uint64_t *out_process, uint64_t *out_stdout, uint64_t *out_stderr);
+sa_std.h	sa_std_process_spawn_stream_command_ext	fn	int32_t sa_std_process_spawn_stream_command_ext(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, uint32_t
+sa_std.h	sa_std_process_spawn_stream_command_ext_chroot	fn	int32_t sa_std_process_spawn_stream_command_ext_chroot(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, u
+sa_std.h	sa_std_process_spawn_stream_command_ext_groups	fn	int32_t sa_std_process_spawn_stream_command_ext_groups(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, u
+sa_std.h	sa_std_process_spawn_stream_command_ext_pidfd	fn	int32_t sa_std_process_spawn_stream_command_ext_pidfd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, ui
+sa_std.h	sa_std_process_spawn_stream_command_ext_uid_gid	fn	int32_t sa_std_process_spawn_stream_command_ext_uid_gid(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint32_t has_cwd, const uint8_t *arg0, uint64_t arg0_len, uint32_t has_arg0, int32_t process_group, 
+sa_std.h	sa_std_process_spawn_stream_cwd	fn	int32_t sa_std_process_spawn_stream_cwd(const SaProcessArgv *argv, uint64_t argv_len, const uint8_t *cwd, uint64_t cwd_len, uint64_t *out_process, uint64_t *out_stdout, uint64_t *out_stderr);
+sa_std.h	sa_std_process_try_wait	fn	int32_t sa_std_process_try_wait(uint64_t handle, int32_t *out_ready, uint32_t *out_code);
+sa_std.h	sa_std_process_try_wait_raw	fn	int32_t sa_std_process_try_wait_raw(uint64_t handle, int32_t *out_ready, int32_t *out_raw);
+sa_std.h	sa_std_process_user_id	fn	uint32_t sa_std_process_user_id(void);
+sa_std.h	sa_std_process_wait	fn	int32_t sa_std_process_wait(uint64_t handle, uint32_t *out_code);
+sa_std.h	sa_std_process_wait_raw	fn	int32_t sa_std_process_wait_raw(uint64_t handle, int32_t *out_raw);
+sa_std.h	sa_std_read	fn	int32_t sa_std_read(uint64_t handle, uint8_t *out, uint64_t out_cap, uint64_t *out_read);
+sa_std.h	sa_std_stderr	fn	uint64_t sa_std_stderr(void);
+sa_std.h	sa_std_stdin	fn	uint64_t sa_std_stdin(void);
+sa_std.h	sa_std_stdout	fn	uint64_t sa_std_stdout(void);
+sa_std.h	sa_std_version	fn	uint32_t sa_std_version(void);
+sa_std.h	sa_std_write	fn	int32_t sa_std_write(uint64_t handle, const uint8_t *data, uint64_t len, uint64_t *out_written);
+sa_std.h	sa_str_eq_ignore_ascii_case	fn	int32_t sa_str_eq_ignore_ascii_case(const uint8_t *left, uint64_t left_len, const uint8_t *right, uint64_t right_len);
+sa_std.h	sa_str_is_ascii	fn	int32_t sa_str_is_ascii(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_str_trim_ascii_end_len	fn	uint64_t sa_str_trim_ascii_end_len(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_str_trim_ascii_start_index	fn	uint64_t sa_str_trim_ascii_start_index(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_str_utf8_char_at	fn	int32_t sa_str_utf8_char_at(const uint8_t *ptr, uint64_t len, uint64_t char_index, uint64_t *out_codepoint);
+sa_std.h	sa_str_utf8_char_at_byte	fn	int32_t sa_str_utf8_char_at_byte(const uint8_t *ptr, uint64_t len, uint64_t byte_index, uint64_t *out_codepoint, uint64_t *out_len);
+sa_std.h	sa_str_utf8_char_count	fn	uint64_t sa_str_utf8_char_count(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_str_utf8_char_range_at	fn	int32_t sa_str_utf8_char_range_at(const uint8_t *ptr, uint64_t len, uint64_t char_index, uint64_t *out_start, uint64_t *out_len);
+sa_std.h	sa_str_utf8_lossy_next	fn	int32_t sa_str_utf8_lossy_next(const uint8_t *ptr, uint64_t len, uint64_t byte_index, uint64_t *out_codepoint, uint64_t *out_len);
+sa_std.h	sa_str_utf8_validate	fn	int32_t sa_str_utf8_validate(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_string_code_point_at	fn	int32_t sa_string_code_point_at(const uint8_t *ptr, uint64_t len, uint64_t idx);
+sa_std.h	sa_string_concat	fn	uint64_t sa_string_concat(const uint8_t *left, uint64_t left_len, const uint8_t *right, uint64_t right_len);
+sa_std.h	sa_string_ends_with	fn	int32_t sa_string_ends_with(const uint8_t *hay_ptr, uint64_t hay_len, const uint8_t *ndl_ptr, uint64_t ndl_len);
+sa_std.h	sa_string_from_char_code	fn	uint64_t sa_string_from_char_code(int32_t code);
+sa_std.h	sa_string_from_code_point	fn	uint64_t sa_string_from_code_point(int32_t code);
+sa_std.h	sa_string_index_of	fn	int32_t sa_string_index_of(const uint8_t *hay_ptr, uint64_t hay_len, const uint8_t *ndl_ptr, uint64_t ndl_len, uint64_t from);
+sa_std.h	sa_string_last_index_of	fn	int32_t sa_string_last_index_of(const uint8_t *hay_ptr, uint64_t hay_len, const uint8_t *ndl_ptr, uint64_t ndl_len, uint64_t from);
+sa_std.h	sa_string_pad_end	fn	uint64_t sa_string_pad_end(const uint8_t *ptr, uint64_t len, uint64_t target_len, const uint8_t *pad_ptr, uint64_t pad_len);
+sa_std.h	sa_string_pad_start	fn	uint64_t sa_string_pad_start(const uint8_t *ptr, uint64_t len, uint64_t target_len, const uint8_t *pad_ptr, uint64_t pad_len);
+sa_std.h	sa_string_repeat	fn	uint64_t sa_string_repeat(const uint8_t *ptr, uint64_t len, uint64_t count);
+sa_std.h	sa_string_replace	fn	uint64_t sa_string_replace(const uint8_t *hay_ptr, uint64_t hay_len, const uint8_t *ndl_ptr, uint64_t ndl_len, const uint8_t *rep_ptr, uint64_t rep_len, uint64_t all);
+sa_std.h	sa_string_starts_with	fn	int32_t sa_string_starts_with(const uint8_t *hay_ptr, uint64_t hay_len, const uint8_t *ndl_ptr, uint64_t ndl_len);
+sa_std.h	sa_string_to_lower_ascii	fn	uint64_t sa_string_to_lower_ascii(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_string_to_upper_ascii	fn	uint64_t sa_string_to_upper_ascii(const uint8_t *ptr, uint64_t len);
+sa_std.h	sa_term_epoll_close	fn	int32_t sa_term_epoll_close(uint64_t handle);
+sa_std.h	sa_term_epoll_create	fn	int32_t sa_term_epoll_create(uint32_t flags, uint64_t *out_handle);
+sa_std.h	sa_term_epoll_ctl	fn	int32_t sa_term_epoll_ctl(uint64_t epoll_handle, uint32_t op, uint64_t target_handle, uint32_t events, uint64_t data);
+sa_std.h	sa_term_epoll_wait	fn	int32_t sa_term_epoll_wait(uint64_t epoll_handle, SaTermEpollEvent *out_events, uint64_t max_events, int32_t timeout_ms, uint64_t *out_count);
+sa_std.h	sa_term_raw_enter	fn	int32_t sa_term_raw_enter(uint64_t handle, uint64_t *out_session);
+sa_std.h	sa_term_raw_leave	fn	int32_t sa_term_raw_leave(uint64_t session);
+sa_std.h	sa_term_winsize	fn	int32_t sa_term_winsize(uint64_t handle, SaTermWinsize *out_size);
+sa_std.h	sa_test_debug_i64	fn	void sa_test_debug_i64(const uint8_t *name, uint64_t name_len, int64_t value);
+sa_std.h	sa_test_fallible_i32_value	fn	sa_std_fallible_i32 sa_test_fallible_i32_value(int32_t value);
+sa_std.h	sa_thread_as_pthread_t	fn	int32_t sa_thread_as_pthread_t(int32_t handle, uint64_t *out_raw);
+sa_std.h	sa_thread_current_id	fn	uint64_t sa_thread_current_id(void);
+sa_std.h	sa_thread_into_pthread_t	fn	int32_t sa_thread_into_pthread_t(int32_t handle, uint64_t *out_raw);
+sa_std.h	sa_thread_raw_pthread_join	fn	int32_t sa_thread_raw_pthread_join(uint64_t raw, uint8_t *out);
+sa_std.h	sa_thread_yield_now	fn	int32_t sa_thread_yield_now(void);
+sa_std.h	sa_time_format_utc	fn	uint64_t sa_time_format_utc(int64_t ms, uint64_t fmt);
+sa_std.h	sa_time_get_date	fn	int64_t sa_time_get_date(int64_t ms);
+sa_std.h	sa_time_get_day	fn	int64_t sa_time_get_day(int64_t ms);
+sa_std.h	sa_time_get_full_year	fn	int64_t sa_time_get_full_year(int64_t ms);
+sa_std.h	sa_time_get_hours	fn	int64_t sa_time_get_hours(int64_t ms);
+sa_std.h	sa_time_get_milliseconds	fn	int64_t sa_time_get_milliseconds(int64_t ms);
+sa_std.h	sa_time_get_minutes	fn	int64_t sa_time_get_minutes(int64_t ms);
+sa_std.h	sa_time_get_month	fn	int64_t sa_time_get_month(int64_t ms);
+sa_std.h	sa_time_get_seconds	fn	int64_t sa_time_get_seconds(int64_t ms);
+sa_std.h	sa_time_instant_ns	fn	uint64_t sa_time_instant_ns(void);
+sa_std.h	sa_time_iso_from_unix_ms	fn	uint64_t sa_time_iso_from_unix_ms(int64_t ms);
+sa_std.h	sa_time_parse_iso	fn	int32_t sa_time_parse_iso(const uint8_t *iso, uint64_t len, int64_t *out_ms);
+sa_std.h	sa_time_set_field	fn	int64_t sa_time_set_field(int64_t ms, uint64_t field, int64_t value);
+sa_std.h	sa_time_sleep_ms	fn	int32_t sa_time_sleep_ms(uint64_t ms);
+sa_std.h	sa_time_sleep_ns	fn	int32_t sa_time_sleep_ns(uint64_t ns);
+sa_std.h	sa_time_unix_ms	fn	int64_t sa_time_unix_ms(void);
+sa_std.h	sa_time_unix_ns	fn	int64_t sa_time_unix_ns(void);
+sa_std.h	sa_time_unix_s	fn	int64_t sa_time_unix_s(void);
+sa_std.h	sa_time_utc_now	fn	int32_t sa_time_utc_now(SaTimeDate *out_date);
+ssh.sai	sa_std_ssh_auth_keyfile	fn	@extern sa_std_ssh_auth_keyfile(session: ptr, &user: ptr, user_len: u64, &pub_path: ptr, pub_path_len: u64, &priv_path: ptr, priv_path_len: u64, &passphrase: ptr, passphrase_len: u64) -> i32
+ssh.sai	sa_std_ssh_auth_password	fn	@extern sa_std_ssh_auth_password(session: ptr, &user: ptr, user_len: u64, &password: ptr, password_len: u64) -> i32
+ssh.sai	sa_std_ssh_buffer_data	fn	@extern sa_std_ssh_buffer_data(buffer: u64) -> &ptr
+ssh.sai	sa_std_ssh_buffer_free	fn	@extern sa_std_ssh_buffer_free(^buffer: u64) -> i32
+ssh.sai	sa_std_ssh_buffer_len	fn	@extern sa_std_ssh_buffer_len(buffer: u64) -> u64
+ssh.sai	sa_std_ssh_channel_close	fn	@extern sa_std_ssh_channel_close(^channel: ptr) -> i32
+ssh.sai	sa_std_ssh_channel_read	fn	@extern sa_std_ssh_channel_read(channel: ptr, stream: u32, &out: ptr, cap: u64, &out_read: ptr) -> i32
+ssh.sai	sa_std_ssh_channel_send_exit	fn	@extern sa_std_ssh_channel_send_exit(channel: ptr, exit_code: i32) -> i32
+ssh.sai	sa_std_ssh_channel_write	fn	@extern sa_std_ssh_channel_write(channel: ptr, stream: u32, &data: ptr, data_len: u64, &out_written: ptr) -> i32
+ssh.sai	sa_std_ssh_client_connect	fn	@extern sa_std_ssh_client_connect(&host: ptr, host_len: u64, port: u32, &out_session: ptr) -> i32
+ssh.sai	sa_std_ssh_exec	fn	@extern sa_std_ssh_exec(session: ptr, &command: ptr, command_len: u64, &out_stdout: ptr, &out_stderr: ptr, &out_exit: ptr) -> i32
+ssh.sai	sa_std_ssh_hostkey_fingerprint	fn	@extern sa_std_ssh_hostkey_fingerprint(session: ptr, &out: ptr, cap: u64, &out_len: ptr) -> i32
+ssh.sai	sa_std_ssh_server_accept	fn	@extern sa_std_ssh_server_accept(bind: ptr, &out_session: ptr) -> i32
+ssh.sai	sa_std_ssh_server_auth_accept	fn	@extern sa_std_ssh_server_auth_accept(session: ptr) -> i32
+ssh.sai	sa_std_ssh_server_auth_deny	fn	@extern sa_std_ssh_server_auth_deny(session: ptr) -> i32
+ssh.sai	sa_std_ssh_server_auth_next	fn	@extern sa_std_ssh_server_auth_next(session: ptr, &out_kind: ptr, &out_user: ptr, &out_secret: ptr, &out_state: ptr) -> i32
+ssh.sai	sa_std_ssh_server_bind_close	fn	@extern sa_std_ssh_server_bind_close(^bind: ptr) -> i32
+ssh.sai	sa_std_ssh_server_channel_accept	fn	@extern sa_std_ssh_server_channel_accept(session: ptr, &out_channel: ptr) -> i32
+ssh.sai	sa_std_ssh_server_channel_exec	fn	@extern sa_std_ssh_server_channel_exec(session: ptr, &out_kind: ptr, &out_command: ptr) -> i32
+ssh.sai	sa_std_ssh_server_listen	fn	@extern sa_std_ssh_server_listen(&bind_addr: ptr, bind_addr_len: u64, port: u32, &hostkey_path: ptr, hostkey_path_len: u64, &out_bind: ptr) -> i32
+ssh.sai	sa_std_ssh_server_session_close	fn	@extern sa_std_ssh_server_session_close(^session: ptr) -> i32
+ssh.sai	sa_std_ssh_session_close	fn	@extern sa_std_ssh_session_close(^session: ptr) -> i32
+ssh.sai	sa_std_ssh_sftp_read	fn	@extern sa_std_ssh_sftp_read(session: ptr, &path: ptr, path_len: u64, &out_handle: ptr) -> i32
+ssh.sai	sa_std_ssh_sftp_stat	fn	@extern sa_std_ssh_sftp_stat(session: ptr, &path: ptr, path_len: u64, &out_size: ptr, &out_is_dir: ptr) -> i32
+ssh.sai	sa_std_ssh_sftp_write	fn	@extern sa_std_ssh_sftp_write(session: ptr, &path: ptr, path_len: u64, &data: ptr, data_len: u64) -> i32
+ssh.sai	sa_std_ssh_supported	fn	@extern sa_std_ssh_supported(&out_flags: ptr) -> i32
+tls_client.sai	sa_std_tls_client_add_ca_file	fn	@extern sa_std_tls_client_add_ca_file(&path: ptr, path_len: u64) -> i32
+tls_client.sai	sa_std_tls_client_buffer_data	fn	@extern sa_std_tls_client_buffer_data(buffer: u64) -> &ptr
+tls_client.sai	sa_std_tls_client_buffer_free	fn	@extern sa_std_tls_client_buffer_free(^buffer: u64) -> i32
+tls_client.sai	sa_std_tls_client_buffer_len	fn	@extern sa_std_tls_client_buffer_len(buffer: u64) -> u64
+tls_client.sai	sa_std_tls_client_close	fn	@extern sa_std_tls_client_close(handle: u64) -> i32
+tls_client.sai	sa_std_tls_client_connect	fn	@extern sa_std_tls_client_connect(&host: ptr, host_len: u64, port: u32, &out_handle: ptr) -> i32
+tls_client.sai	sa_std_tls_client_read	fn	@extern sa_std_tls_client_read(handle: u64, &buf: ptr, cap: u64, &out_read: ptr) -> i32
+tls_client.sai	sa_std_tls_client_status_json	fn	@extern sa_std_tls_client_status_json(&out_handle: ptr) -> i32
+tls_client.sai	sa_std_tls_client_supported	fn	@extern sa_std_tls_client_supported(&out_supported: ptr) -> i32
+tls_client.sai	sa_std_tls_client_write	fn	@extern sa_std_tls_client_write(handle: u64, &buf: ptr, len: u64, &out_written: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_buffer_data	fn	@extern sa_std_tls_shaped_buffer_data(buffer: u64) -> &ptr
+tls_client.sai	sa_std_tls_shaped_buffer_free	fn	@extern sa_std_tls_shaped_buffer_free(^buffer: u64) -> i32
+tls_client.sai	sa_std_tls_shaped_buffer_len	fn	@extern sa_std_tls_shaped_buffer_len(buffer: u64) -> u64
+tls_client.sai	sa_std_tls_shaped_close	fn	@extern sa_std_tls_shaped_close(handle: u64) -> i32
+tls_client.sai	sa_std_tls_shaped_connect	fn	@extern sa_std_tls_shaped_connect(&host: ptr, host_len: u64, port: u32, &profile: ptr, profile_len: u64, &out_handle: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_hello_ja3	fn	@extern sa_std_tls_shaped_hello_ja3(handle: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_hello_ja3_string	fn	@extern sa_std_tls_shaped_hello_ja3_string(handle: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_hello_ja4	fn	@extern sa_std_tls_shaped_hello_ja4(handle: u64, &out: ptr, out_cap: u64, &out_len: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_negotiated_json	fn	@extern sa_std_tls_shaped_negotiated_json(handle: u64, &out_handle: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_read	fn	@extern sa_std_tls_shaped_read(handle: u64, &buf: ptr, cap: u64, &out_read: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_supported	fn	@extern sa_std_tls_shaped_supported(&out_supported: ptr) -> i32
+tls_client.sai	sa_std_tls_shaped_write	fn	@extern sa_std_tls_shaped_write(handle: u64, &buf: ptr, len: u64, &out_written: ptr) -> i32
+tls_server.sai	sa_std_tls_server_accept	fn	@extern sa_std_tls_server_accept(ctx: u64, fd: i32, &out_ssl: ptr) -> i32
+tls_server.sai	sa_std_tls_server_buffer_data	fn	@extern sa_std_tls_server_buffer_data(buffer: u64) -> &ptr
+tls_server.sai	sa_std_tls_server_buffer_free	fn	@extern sa_std_tls_server_buffer_free(^buffer: u64) -> i32
+tls_server.sai	sa_std_tls_server_buffer_len	fn	@extern sa_std_tls_server_buffer_len(buffer: u64) -> u64
+tls_server.sai	sa_std_tls_server_close	fn	@extern sa_std_tls_server_close(ssl: u64) -> i32
+tls_server.sai	sa_std_tls_server_ctx_create	fn	@extern sa_std_tls_server_ctx_create(&cert_path: ptr, cert_path_len: u64, &key_path: ptr, key_path_len: u64, &out_ctx: ptr) -> i32
+tls_server.sai	sa_std_tls_server_ctx_free	fn	@extern sa_std_tls_server_ctx_free(ctx: u64) -> i32
+tls_server.sai	sa_std_tls_server_read	fn	@extern sa_std_tls_server_read(ssl: u64, &out: ptr, cap: u64, &out_read: ptr) -> i32
+tls_server.sai	sa_std_tls_server_status_json	fn	@extern sa_std_tls_server_status_json(&out_handle: ptr) -> i32
+tls_server.sai	sa_std_tls_server_supported	fn	@extern sa_std_tls_server_supported(&out_supported: ptr) -> i32
+tls_server.sai	sa_std_tls_server_write	fn	@extern sa_std_tls_server_write(ssl: u64, &buf: ptr, len: u64, &out_written: ptr) -> i32
+tls_server.sal	SA_TLS_SERVER_ERR_INVALID_ARGUMENT	const	#def SA_TLS_SERVER_ERR_INVALID_ARGUMENT = -22
+tls_server.sal	SA_TLS_SERVER_ERR_NO_MEMORY	const	#def SA_TLS_SERVER_ERR_NO_MEMORY = -12
+tls_server.sal	SA_TLS_SERVER_ERR_UNSUPPORTED	const	#def SA_TLS_SERVER_ERR_UNSUPPORTED = -1
+tls_server.sal	SA_TLS_SERVER_OK	const	#def SA_TLS_SERVER_OK = 0
+ws_client.sai	sa_std_ws_client_add_ca_file	fn	@extern sa_std_ws_client_add_ca_file(&path: ptr, path_len: u64) -> i32
+ws_client.sai	sa_std_ws_client_buffer_data	fn	@extern sa_std_ws_client_buffer_data(buffer: u64) -> &ptr
+ws_client.sai	sa_std_ws_client_buffer_free	fn	@extern sa_std_ws_client_buffer_free(^buffer: u64) -> i32
+ws_client.sai	sa_std_ws_client_buffer_len	fn	@extern sa_std_ws_client_buffer_len(buffer: u64) -> u64
+ws_client.sai	sa_std_ws_client_close	fn	@extern sa_std_ws_client_close(handle: u64, code: u16, &reason: ptr, reason_len: u64) -> i32
+ws_client.sai	sa_std_ws_client_connect	fn	@extern sa_std_ws_client_connect(&url: ptr, url_len: u64, &out_handle: ptr) -> i32
+ws_client.sai	sa_std_ws_client_ping	fn	@extern sa_std_ws_client_ping(handle: u64, &buf: ptr, len: u64) -> i32
+ws_client.sai	sa_std_ws_client_recv	fn	@extern sa_std_ws_client_recv(handle: u64, &out_opcode: ptr, &out_buf_handle: ptr) -> i32
+ws_client.sai	sa_std_ws_client_send_binary	fn	@extern sa_std_ws_client_send_binary(handle: u64, &buf: ptr, len: u64) -> i32
+ws_client.sai	sa_std_ws_client_send_text	fn	@extern sa_std_ws_client_send_text(handle: u64, &buf: ptr, len: u64) -> i32
+ws_client.sai	sa_std_ws_client_status_json	fn	@extern sa_std_ws_client_status_json(&out_handle: ptr) -> i32
+ws_client.sai	sa_std_ws_client_supported	fn	@extern sa_std_ws_client_supported(&out_supported: ptr) -> i32

@@ -1,0 +1,285 @@
+module	package	fqn	kind	modifiers	file
+java.base	java.net	java.net.Authenticator	class	public abstract	Authenticator.java
+java.base	java.net	java.net.Authenticator.RequestorType	enum	public	Authenticator.java
+java.base	java.net	java.net.BindException	class	public	BindException.java
+java.base	java.net	java.net.CacheRequest	class	public abstract	CacheRequest.java
+java.base	java.net	java.net.CacheResponse	class	public abstract	CacheResponse.java
+java.base	java.net	java.net.ConnectException	class	public	ConnectException.java
+java.base	java.net	java.net.ContentHandler	class	public abstract	ContentHandler.java
+java.base	java.net	java.net.ContentHandlerFactory	interface	public	ContentHandlerFactory.java
+java.base	java.net	java.net.CookieHandler	class	public abstract	CookieHandler.java
+java.base	java.net	java.net.CookieManager	class	public	CookieManager.java
+java.base	java.net	java.net.CookieManager.CookieComparator	class	static	CookieManager.java
+java.base	java.net	java.net.CookiePolicy	interface	public	CookiePolicy.java
+java.base	java.net	java.net.CookieStore	interface	public	CookieStore.java
+java.base	java.net	java.net.DatagramPacket	class	public final	DatagramPacket.java
+java.base	java.net	java.net.DatagramSocket	class	public	DatagramSocket.java
+java.base	java.net	java.net.DatagramSocketImpl	class	public abstract	DatagramSocketImpl.java
+java.base	java.net	java.net.DatagramSocketImplFactory	interface	public	DatagramSocketImplFactory.java
+java.base	java.net	java.net.DelegatingSocketImpl	class		DelegatingSocketImpl.java
+java.base	java.net	java.net.FileNameMap	interface	public	FileNameMap.java
+java.base	java.net	java.net.HostPortrange	class		HostPortrange.java
+java.base	java.net	java.net.HttpConnectSocketImpl	class		HttpConnectSocketImpl.java
+java.base	java.net	java.net.HttpCookie	class	public final	HttpCookie.java
+java.base	java.net	java.net.HttpCookie.CookieAttributeAssignor	interface	static	HttpCookie.java
+java.base	java.net	java.net.HttpRetryException	class	public	HttpRetryException.java
+java.base	java.net	java.net.HttpURLConnection	class	public abstract	HttpURLConnection.java
+java.base	java.net	java.net.IDN	class	public final	IDN.java
+java.base	java.net	java.net.InMemoryCookieStore	class		InMemoryCookieStore.java
+java.base	java.net	java.net.Inet4Address	class	public final	Inet4Address.java
+java.base	java.net	java.net.Inet4AddressImpl	class	final	Inet4AddressImpl.java
+java.base	java.net	java.net.Inet6Address	class	public final	Inet6Address.java
+java.base	java.net	java.net.Inet6Address.Inet6AddressHolder	class	private static	Inet6Address.java
+java.base	java.net	java.net.Inet6AddressImpl	class	final	Inet6AddressImpl.java
+java.base	java.net	java.net.InetAddress	class	public sealed	InetAddress.java
+java.base	java.net	java.net.InetAddress.InetAddressHolder	class	static	InetAddress.java
+java.base	java.net	java.net.InetAddress.Addresses	interface	private	InetAddress.java
+java.base	java.net	java.net.InetAddress.CachedLookup	class	private static	InetAddress.java
+java.base	java.net	java.net.InetAddress.ValidCachedLookup	class	private static final	InetAddress.java
+java.base	java.net	java.net.InetAddress.NameServiceAddresses	class	private static final	InetAddress.java
+java.base	java.net	java.net.InetAddress.PlatformResolver	class	private static final	InetAddress.java
+java.base	java.net	java.net.InetAddress.HostsFileResolver	class	private static final	InetAddress.java
+java.base	java.net	java.net.InetAddress.CachedLocalHost	class	private static final	InetAddress.java
+java.base	java.net	java.net.InetAddressImpl	interface	sealed	InetAddressImpl.java
+java.base	java.net	java.net.InetSocketAddress	class	public	InetSocketAddress.java
+java.base	java.net	java.net.InetSocketAddress.InetSocketAddressHolder	class	private static final	InetSocketAddress.java
+java.base	java.net	java.net.InterfaceAddress	class	public final	InterfaceAddress.java
+java.base	java.net	java.net.JarURLConnection	class	public abstract	JarURLConnection.java
+java.base	java.net	java.net.MalformedURLException	class	public	MalformedURLException.java
+java.base	java.net	java.net.MulticastSocket	class	public	MulticastSocket.java
+java.base	java.net	java.net.NetMulticastSocket	class	final	NetMulticastSocket.java
+java.base	java.net	java.net.NetPermission	class	public final	NetPermission.java
+java.base	java.net	java.net.NetworkInterface	class	public final	NetworkInterface.java
+java.base	java.net	java.net.NoRouteToHostException	class	public	NoRouteToHostException.java
+java.base	java.net	java.net.PasswordAuthentication	class	public final	PasswordAuthentication.java
+java.base	java.net	java.net.PortUnreachableException	class	public	PortUnreachableException.java
+java.base	java.net	java.net.ProtocolException	class	public	ProtocolException.java
+java.base	java.net	java.net.ProtocolFamily	interface	public	ProtocolFamily.java
+java.base	java.net	java.net.Proxy	class	public	Proxy.java
+java.base	java.net	java.net.Proxy.Type	enum	public	Proxy.java
+java.base	java.net	java.net.ProxySelector	class	public abstract	ProxySelector.java
+java.base	java.net	java.net.ProxySelector.StaticProxySelector	class	static	ProxySelector.java
+java.base	java.net	java.net.ResponseCache	class	public abstract	ResponseCache.java
+java.base	java.net	java.net.SecureCacheResponse	class	public abstract	SecureCacheResponse.java
+java.base	java.net	java.net.ServerSocket	class	public	ServerSocket.java
+java.base	java.net	java.net.Socket	class	public	Socket.java
+java.base	java.net	java.net.Socket.SocketInputStream	class	private static	Socket.java
+java.base	java.net	java.net.Socket.SocketOutputStream	class	private static	Socket.java
+java.base	java.net	java.net.SocketAddress	class	public abstract	SocketAddress.java
+java.base	java.net	java.net.SocketException	class	public	SocketException.java
+java.base	java.net	java.net.SocketImpl	class	public abstract	SocketImpl.java
+java.base	java.net	java.net.SocketImplFactory	interface	public	SocketImplFactory.java
+java.base	java.net	java.net.SocketOption	interface	public	SocketOption.java
+java.base	java.net	java.net.SocketOptions	interface	public	SocketOptions.java
+java.base	java.net	java.net.SocketPermission	class	public final	SocketPermission.java
+java.base	java.net	java.net.SocketPermission.EphemeralRange	class	private static	SocketPermission.java
+java.base	java.net	java.net.SocketPermissionCollection	class	final	SocketPermission.java
+java.base	java.net	java.net.SocketTimeoutException	class	public	SocketTimeoutException.java
+java.base	java.net	java.net.SocksConsts	interface		SocksConsts.java
+java.base	java.net	java.net.SocksSocketImpl	class		SocksSocketImpl.java
+java.base	java.net	java.net.StandardProtocolFamily	enum	public	StandardProtocolFamily.java
+java.base	java.net	java.net.StandardSocketOptions	class	public final	StandardSocketOptions.java
+java.base	java.net	java.net.StandardSocketOptions.StdSocketOption	class	private static	StandardSocketOptions.java
+java.base	java.net	java.net.URI	class	public final	URI.java
+java.base	java.net	java.net.URI.Parser	class	private	URI.java
+java.base	java.net	java.net.URISyntaxException	class	public	URISyntaxException.java
+java.base	java.net	java.net.URL	class	public final	URL.java
+java.base	java.net	java.net.URL.DefaultFactory	class	private static	URL.java
+java.base	java.net	java.net.UrlDeserializedState	class	final	URL.java
+java.base	java.net	java.net.URLClassLoader	class	public	URLClassLoader.java
+java.base	java.net	java.net.URLConnection	class	public abstract	URLConnection.java
+java.base	java.net	java.net.UnknownContentHandler	class		URLConnection.java
+java.base	java.net	java.net.URLDecoder	class	public final	URLDecoder.java
+java.base	java.net	java.net.URLEncoder	class	public final	URLEncoder.java
+java.base	java.net	java.net.URLPermission	class	public final	URLPermission.java
+java.base	java.net	java.net.URLPermission.Authority	class	static	URLPermission.java
+java.base	java.net	java.net.URLStreamHandler	class	public abstract	URLStreamHandler.java
+java.base	java.net	java.net.URLStreamHandlerFactory	interface	public	URLStreamHandlerFactory.java
+java.base	java.net	java.net.UnixDomainSocketAddress	class	public final	UnixDomainSocketAddress.java
+java.base	java.net	java.net.UnixDomainSocketAddress.Ser	class	private static final	UnixDomainSocketAddress.java
+java.base	java.net	java.net.UnknownHostException	class	public	UnknownHostException.java
+java.base	java.net	java.net.UnknownServiceException	class	public	UnknownServiceException.java
+java.base	java.net.spi	java.net.spi.InetAddressResolver	interface	public	InetAddressResolver.java
+java.base	java.net.spi	java.net.spi.InetAddressResolver.LookupPolicy	class	final	InetAddressResolver.java
+java.base	java.net.spi	java.net.spi.InetAddressResolverProvider	class	public abstract	InetAddressResolverProvider.java
+java.base	java.net.spi	java.net.spi.InetAddressResolverProvider.Configuration	interface	public sealed	InetAddressResolverProvider.java
+java.base	java.net.spi	java.net.spi.URLStreamHandlerProvider	class	public abstract	URLStreamHandlerProvider.java
+java.base	javax.net	javax.net.ServerSocketFactory	class	public abstract	ServerSocketFactory.java
+java.base	javax.net	javax.net.DefaultServerSocketFactory	class		ServerSocketFactory.java
+java.base	javax.net	javax.net.SocketFactory	class	public abstract	SocketFactory.java
+java.base	javax.net	javax.net.DefaultSocketFactory	class		SocketFactory.java
+java.base	javax.net.ssl	javax.net.ssl.CertPathTrustManagerParameters	class	public	CertPathTrustManagerParameters.java
+java.base	javax.net.ssl	javax.net.ssl.ExtendedSSLSession	class	public abstract	ExtendedSSLSession.java
+java.base	javax.net.ssl	javax.net.ssl.HandshakeCompletedEvent	class	public	HandshakeCompletedEvent.java
+java.base	javax.net.ssl	javax.net.ssl.HandshakeCompletedListener	interface	public	HandshakeCompletedListener.java
+java.base	javax.net.ssl	javax.net.ssl.HostnameVerifier	interface	public	HostnameVerifier.java
+java.base	javax.net.ssl	javax.net.ssl.HttpsURLConnection	class	public abstract	HttpsURLConnection.java
+java.base	javax.net.ssl	javax.net.ssl.HttpsURLConnection.DefaultHostnameVerifier	class	private static	HttpsURLConnection.java
+java.base	javax.net.ssl	javax.net.ssl.KeyManager	interface	public	KeyManager.java
+java.base	javax.net.ssl	javax.net.ssl.KeyManagerFactory	class	public	KeyManagerFactory.java
+java.base	javax.net.ssl	javax.net.ssl.KeyManagerFactorySpi	class	public abstract	KeyManagerFactorySpi.java
+java.base	javax.net.ssl	javax.net.ssl.KeyStoreBuilderParameters	class	public	KeyStoreBuilderParameters.java
+java.base	javax.net.ssl	javax.net.ssl.ManagerFactoryParameters	interface	public	ManagerFactoryParameters.java
+java.base	javax.net.ssl	javax.net.ssl.SNIHostName	class	public final	SNIHostName.java
+java.base	javax.net.ssl	javax.net.ssl.SNIHostName.SNIHostNameMatcher	class	private static final	SNIHostName.java
+java.base	javax.net.ssl	javax.net.ssl.SNIMatcher	class	public abstract	SNIMatcher.java
+java.base	javax.net.ssl	javax.net.ssl.SNIServerName	class	public abstract	SNIServerName.java
+java.base	javax.net.ssl	javax.net.ssl.SSLContext	class	public	SSLContext.java
+java.base	javax.net.ssl	javax.net.ssl.SSLContextSpi	class	public abstract	SSLContextSpi.java
+java.base	javax.net.ssl	javax.net.ssl.SSLEngine	class	public abstract	SSLEngine.java
+java.base	javax.net.ssl	javax.net.ssl.SSLEngineResult	class	public	SSLEngineResult.java
+java.base	javax.net.ssl	javax.net.ssl.SSLEngineResult.Status	enum	public	SSLEngineResult.java
+java.base	javax.net.ssl	javax.net.ssl.SSLEngineResult.HandshakeStatus	enum	public	SSLEngineResult.java
+java.base	javax.net.ssl	javax.net.ssl.SSLException	class	public	SSLException.java
+java.base	javax.net.ssl	javax.net.ssl.SSLHandshakeException	class	public	SSLHandshakeException.java
+java.base	javax.net.ssl	javax.net.ssl.SSLKeyException	class	public	SSLKeyException.java
+java.base	javax.net.ssl	javax.net.ssl.SSLParameters	class	public	SSLParameters.java
+java.base	javax.net.ssl	javax.net.ssl.SSLPeerUnverifiedException	class	public	SSLPeerUnverifiedException.java
+java.base	javax.net.ssl	javax.net.ssl.SSLPermission	class	public final	SSLPermission.java
+java.base	javax.net.ssl	javax.net.ssl.SSLProtocolException	class	public	SSLProtocolException.java
+java.base	javax.net.ssl	javax.net.ssl.SSLServerSocket	class	public abstract	SSLServerSocket.java
+java.base	javax.net.ssl	javax.net.ssl.SSLServerSocketFactory	class	public abstract	SSLServerSocketFactory.java
+java.base	javax.net.ssl	javax.net.ssl.SSLServerSocketFactory.DefaultFactoryHolder	class	private static final	SSLServerSocketFactory.java
+java.base	javax.net.ssl	javax.net.ssl.DefaultSSLServerSocketFactory	class		SSLServerSocketFactory.java
+java.base	javax.net.ssl	javax.net.ssl.SSLSession	interface	public	SSLSession.java
+java.base	javax.net.ssl	javax.net.ssl.SSLSessionBindingEvent	class	public	SSLSessionBindingEvent.java
+java.base	javax.net.ssl	javax.net.ssl.SSLSessionBindingListener	interface	public	SSLSessionBindingListener.java
+java.base	javax.net.ssl	javax.net.ssl.SSLSessionContext	interface	public	SSLSessionContext.java
+java.base	javax.net.ssl	javax.net.ssl.SSLSocket	class	public abstract	SSLSocket.java
+java.base	javax.net.ssl	javax.net.ssl.SSLSocketFactory	class	public abstract	SSLSocketFactory.java
+java.base	javax.net.ssl	javax.net.ssl.SSLSocketFactory.DefaultFactoryHolder	class	private static final	SSLSocketFactory.java
+java.base	javax.net.ssl	javax.net.ssl.DefaultSSLSocketFactory	class		SSLSocketFactory.java
+java.base	javax.net.ssl	javax.net.ssl.StandardConstants	class	public final	StandardConstants.java
+java.base	javax.net.ssl	javax.net.ssl.TrustManager	interface	public	TrustManager.java
+java.base	javax.net.ssl	javax.net.ssl.TrustManagerFactory	class	public	TrustManagerFactory.java
+java.base	javax.net.ssl	javax.net.ssl.TrustManagerFactorySpi	class	public abstract	TrustManagerFactorySpi.java
+java.base	javax.net.ssl	javax.net.ssl.X509ExtendedKeyManager	class	public abstract	X509ExtendedKeyManager.java
+java.base	javax.net.ssl	javax.net.ssl.X509ExtendedTrustManager	class	public abstract	X509ExtendedTrustManager.java
+java.base	javax.net.ssl	javax.net.ssl.X509KeyManager	interface	public	X509KeyManager.java
+java.base	javax.net.ssl	javax.net.ssl.X509TrustManager	interface	public	X509TrustManager.java
+java.base	java.nio.channels	java.nio.channels.AcceptPendingException	class	public	AcceptPendingException.java
+java.base	java.nio.channels	java.nio.channels.AlreadyBoundException	class	public	AlreadyBoundException.java
+java.base	java.nio.channels	java.nio.channels.AlreadyConnectedException	class	public	AlreadyConnectedException.java
+java.base	java.nio.channels	java.nio.channels.AsynchronousByteChannel	interface	public	AsynchronousByteChannel.java
+java.base	java.nio.channels	java.nio.channels.AsynchronousChannel	interface	public	AsynchronousChannel.java
+java.base	java.nio.channels	java.nio.channels.AsynchronousChannelGroup	class	public abstract	AsynchronousChannelGroup.java
+java.base	java.nio.channels	java.nio.channels.AsynchronousCloseException	class	public	AsynchronousCloseException.java
+java.base	java.nio.channels	java.nio.channels.AsynchronousFileChannel	class	public abstract	AsynchronousFileChannel.java
+java.base	java.nio.channels	java.nio.channels.AsynchronousServerSocketChannel	class	public abstract	AsynchronousServerSocketChannel.java
+java.base	java.nio.channels	java.nio.channels.AsynchronousSocketChannel	class	public abstract	AsynchronousSocketChannel.java
+java.base	java.nio.channels	java.nio.channels.ByteChannel	interface	public	ByteChannel.java
+java.base	java.nio.channels	java.nio.channels.CancelledKeyException	class	public	CancelledKeyException.java
+java.base	java.nio.channels	java.nio.channels.Channel	interface	public	Channel.java
+java.base	java.nio.channels	java.nio.channels.Channels	class	public final	Channels.java
+java.base	java.nio.channels	java.nio.channels.Channels.ReadableByteChannelImpl	class	private static	Channels.java
+java.base	java.nio.channels	java.nio.channels.Channels.WritableByteChannelImpl	class	private static	Channels.java
+java.base	java.nio.channels	java.nio.channels.ClosedByInterruptException	class	public	ClosedByInterruptException.java
+java.base	java.nio.channels	java.nio.channels.ClosedChannelException	class	public	ClosedChannelException.java
+java.base	java.nio.channels	java.nio.channels.ClosedSelectorException	class	public	ClosedSelectorException.java
+java.base	java.nio.channels	java.nio.channels.CompletionHandler	interface	public	CompletionHandler.java
+java.base	java.nio.channels	java.nio.channels.ConnectionPendingException	class	public	ConnectionPendingException.java
+java.base	java.nio.channels	java.nio.channels.DatagramChannel	class	public abstract	DatagramChannel.java
+java.base	java.nio.channels	java.nio.channels.FileChannel	class	public abstract	FileChannel.java
+java.base	java.nio.channels	java.nio.channels.FileChannel.MapMode	class	public static	FileChannel.java
+java.base	java.nio.channels	java.nio.channels.FileLock	class	public abstract	FileLock.java
+java.base	java.nio.channels	java.nio.channels.FileLockInterruptionException	class	public	FileLockInterruptionException.java
+java.base	java.nio.channels	java.nio.channels.GatheringByteChannel	interface	public	GatheringByteChannel.java
+java.base	java.nio.channels	java.nio.channels.IllegalBlockingModeException	class	public	IllegalBlockingModeException.java
+java.base	java.nio.channels	java.nio.channels.IllegalChannelGroupException	class	public	IllegalChannelGroupException.java
+java.base	java.nio.channels	java.nio.channels.IllegalSelectorException	class	public	IllegalSelectorException.java
+java.base	java.nio.channels	java.nio.channels.InterruptedByTimeoutException	class	public	InterruptedByTimeoutException.java
+java.base	java.nio.channels	java.nio.channels.InterruptibleChannel	interface	public	InterruptibleChannel.java
+java.base	java.nio.channels	java.nio.channels.MembershipKey	class	public abstract	MembershipKey.java
+java.base	java.nio.channels	java.nio.channels.MulticastChannel	interface	public	MulticastChannel.java
+java.base	java.nio.channels	java.nio.channels.NetworkChannel	interface	public	NetworkChannel.java
+java.base	java.nio.channels	java.nio.channels.NoConnectionPendingException	class	public	NoConnectionPendingException.java
+java.base	java.nio.channels	java.nio.channels.NonReadableChannelException	class	public	NonReadableChannelException.java
+java.base	java.nio.channels	java.nio.channels.NonWritableChannelException	class	public	NonWritableChannelException.java
+java.base	java.nio.channels	java.nio.channels.NotYetBoundException	class	public	NotYetBoundException.java
+java.base	java.nio.channels	java.nio.channels.NotYetConnectedException	class	public	NotYetConnectedException.java
+java.base	java.nio.channels	java.nio.channels.OverlappingFileLockException	class	public	OverlappingFileLockException.java
+java.base	java.nio.channels	java.nio.channels.Pipe	class	public abstract	Pipe.java
+java.base	java.nio.channels	java.nio.channels.Pipe.SourceChannel	class	public abstract static	Pipe.java
+java.base	java.nio.channels	java.nio.channels.Pipe.SinkChannel	class	public abstract static	Pipe.java
+java.base	java.nio.channels	java.nio.channels.ReadPendingException	class	public	ReadPendingException.java
+java.base	java.nio.channels	java.nio.channels.ReadableByteChannel	interface	public	ReadableByteChannel.java
+java.base	java.nio.channels	java.nio.channels.ScatteringByteChannel	interface	public	ScatteringByteChannel.java
+java.base	java.nio.channels	java.nio.channels.SeekableByteChannel	interface	public	SeekableByteChannel.java
+java.base	java.nio.channels	java.nio.channels.SelectableChannel	class	public abstract	SelectableChannel.java
+java.base	java.nio.channels	java.nio.channels.SelectionKey	class	public abstract	SelectionKey.java
+java.base	java.nio.channels	java.nio.channels.Selector	class	public abstract	Selector.java
+java.base	java.nio.channels	java.nio.channels.ServerSocketChannel	class	public abstract	ServerSocketChannel.java
+java.base	java.nio.channels	java.nio.channels.ShutdownChannelGroupException	class	public	ShutdownChannelGroupException.java
+java.base	java.nio.channels	java.nio.channels.SocketChannel	class	public abstract	SocketChannel.java
+java.base	java.nio.channels	java.nio.channels.UnresolvedAddressException	class	public	UnresolvedAddressException.java
+java.base	java.nio.channels	java.nio.channels.UnsupportedAddressTypeException	class	public	UnsupportedAddressTypeException.java
+java.base	java.nio.channels	java.nio.channels.WritableByteChannel	interface	public	WritableByteChannel.java
+java.base	java.nio.channels	java.nio.channels.WritePendingException	class	public	WritePendingException.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.AbstractInterruptibleChannel	class	public abstract	AbstractInterruptibleChannel.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.AbstractSelectableChannel	class	public abstract	AbstractSelectableChannel.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.AbstractSelectionKey	class	public abstract	AbstractSelectionKey.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.AbstractSelector	class	public abstract	AbstractSelector.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.AsynchronousChannelProvider	class	public abstract	AsynchronousChannelProvider.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.AsynchronousChannelProvider.ProviderHolder	class	private static	AsynchronousChannelProvider.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.SelectorProvider	class	public abstract	SelectorProvider.java
+java.base	java.nio.channels.spi	java.nio.channels.spi.SelectorProvider.Holder	class	private static	SelectorProvider.java
+java.net.http	java.net.http	java.net.http.HttpClient	class	public abstract	HttpClient.java
+java.net.http	java.net.http	java.net.http.HttpClient.Builder	interface	public	HttpClient.java
+java.net.http	java.net.http	java.net.http.HttpClient.Version	enum	public	HttpClient.java
+java.net.http	java.net.http	java.net.http.HttpClient.Redirect	enum	public	HttpClient.java
+java.net.http	java.net.http	java.net.http.HttpConnectTimeoutException	class	public	HttpConnectTimeoutException.java
+java.net.http	java.net.http	java.net.http.HttpHeaders	class	public final	HttpHeaders.java
+java.net.http	java.net.http	java.net.http.HttpOption	interface	public sealed	HttpOption.java
+java.net.http	java.net.http	java.net.http.HttpOption.Http3DiscoveryMode	enum		HttpOption.java
+java.net.http	java.net.http	java.net.http.HttpRequest	class	public abstract	HttpRequest.java
+java.net.http	java.net.http	java.net.http.HttpRequest.Builder	interface	public	HttpRequest.java
+java.net.http	java.net.http	java.net.http.HttpRequest.BodyPublisher	interface	public	HttpRequest.java
+java.net.http	java.net.http	java.net.http.HttpRequest.BodyPublishers	class	public static	HttpRequest.java
+java.net.http	java.net.http	java.net.http.HttpRequestOptionImpl	record		HttpRequestOptionImpl.java
+java.net.http	java.net.http	java.net.http.HttpResponse	interface	public	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.ResponseInfo	interface	public	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.BodyHandler	interface	public	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.BodyHandlers	class	public static	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.PushPromiseHandler	interface	public	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.PushPromiseHandler.PushId	interface	public sealed	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.PushPromiseHandler.PushId.Http3PushId	record		HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.BodySubscriber	interface	public	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpResponse.BodySubscribers	class	public static	HttpResponse.java
+java.net.http	java.net.http	java.net.http.HttpTimeoutException	class	public	HttpTimeoutException.java
+java.net.http	java.net.http	java.net.http.StreamLimitException	class	public final	StreamLimitException.java
+java.net.http	java.net.http	java.net.http.UnsupportedProtocolVersionException	class	public final	UnsupportedProtocolVersionException.java
+java.net.http	java.net.http	java.net.http.WebSocket	interface	public	WebSocket.java
+java.net.http	java.net.http	java.net.http.WebSocket.Builder	interface		WebSocket.java
+java.net.http	java.net.http	java.net.http.WebSocket.Listener	interface		WebSocket.java
+java.net.http	java.net.http	java.net.http.WebSocketHandshakeException	class	public final	WebSocketHandshakeException.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Authenticator	class	public abstract	Authenticator.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Result	class	public abstract static	Authenticator.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Failure	class	public static	Authenticator.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Success	class	public static	Authenticator.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Retry	class	public static	Authenticator.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.BasicAuthenticator	class	public abstract	BasicAuthenticator.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Filter	class	public abstract	Filter.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Filter.Chain	class	public static	Filter.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Headers	class	public	Headers.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpContext	class	public abstract	HttpContext.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpExchange	class	public abstract	HttpExchange.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpHandler	interface	public	HttpHandler.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpHandlers	class	public final	HttpHandlers.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpPrincipal	class	public	HttpPrincipal.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpServer	class	public abstract	HttpServer.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpsConfigurator	class	public	HttpsConfigurator.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpsExchange	class	public abstract	HttpsExchange.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpsParameters	class	public abstract	HttpsParameters.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.HttpsServer	class	public abstract	HttpsServer.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.Request	interface	public	Request.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.SimpleFileServer	class	public final	SimpleFileServer.java
+jdk.httpserver	com.sun.net.httpserver	com.sun.net.httpserver.SimpleFileServer.OutputLevel	enum	public	SimpleFileServer.java
+jdk.httpserver	com.sun.net.httpserver.spi	com.sun.net.httpserver.spi.HttpServerProvider	class	public abstract	HttpServerProvider.java
+jdk.net	jdk.net	jdk.net.ExtendedSocketOptions	class	public final	ExtendedSocketOptions.java
+jdk.net	jdk.net	jdk.net.ExtendedSocketOptions.ExtSocketOption	class	private static	ExtendedSocketOptions.java
+jdk.net	jdk.net	jdk.net.ExtendedSocketOptions.PlatformSocketOptions	class	static	ExtendedSocketOptions.java
+jdk.net	jdk.net	jdk.net.NetworkPermission	class	public final	NetworkPermission.java
+jdk.net	jdk.net	jdk.net.Sockets	class	public	Sockets.java
+jdk.net	jdk.net	jdk.net.Sockets.QuickAck	class	static	Sockets.java
+jdk.net	jdk.net	jdk.net.Sockets.KeepAliveOptions	class	static	Sockets.java
+jdk.net	jdk.net	jdk.net.UnixDomainPrincipal	record	public	UnixDomainPrincipal.java

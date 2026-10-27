@@ -1,0 +1,234 @@
+package	fqn	kind	members	class	note
+com.sun.net.httpserver	com.sun.net.httpserver.Authenticator	class	2	需建模	服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面
+com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Failure	class	2	需建模	服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面
+com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Result	class	1	需建模	服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面
+com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Retry	class	2	需建模	服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面
+com.sun.net.httpserver	com.sun.net.httpserver.Authenticator.Success	class	2	需建模	服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面
+com.sun.net.httpserver	com.sun.net.httpserver.BasicAuthenticator	class	6	需建模	服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面
+com.sun.net.httpserver	com.sun.net.httpserver.Filter	class	6	需建模	中间件过滤链（框架层）
+com.sun.net.httpserver	com.sun.net.httpserver.Filter.Chain	class	2	需建模	中间件过滤链（框架层）
+com.sun.net.httpserver	com.sun.net.httpserver.Headers	class	23	已有等价	http_server req/resp 头函数面（见 HttpHeaders 行）
+com.sun.net.httpserver	com.sun.net.httpserver.HttpContext	class	9	需建模	路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层
+com.sun.net.httpserver	com.sun.net.httpserver.HttpExchange	class	20	需建模	单次交换对象（请求/响应流 + 属性表）；能力由 accept_v2 的 req/resp 句柄覆盖，对象模型属框架层
+com.sun.net.httpserver	com.sun.net.httpserver.HttpHandler	interface	1	需建模	路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层
+com.sun.net.httpserver	com.sun.net.httpserver.HttpHandlers	class	2	需建模	路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层
+com.sun.net.httpserver	com.sun.net.httpserver.HttpPrincipal	class	7	需建模	服务器侧 HTTP Basic 认证 + 主体；SA std 无 auth 符号面
+com.sun.net.httpserver	com.sun.net.httpserver.HttpServer	class	14	已有等价	sa_http_server_new/start/accept(_v2) + req method/path/header/body + resp/stream 面 + serve_threaded
+com.sun.net.httpserver	com.sun.net.httpserver.HttpsConfigurator	class	3	需建模	HTTP×TLS 组合服务器 + 服务器 TLS 参数；SA 有 tls_server 分立面，无组合 https server 与参数面
+com.sun.net.httpserver	com.sun.net.httpserver.HttpsExchange	class	2	需建模	单次交换对象（请求/响应流 + 属性表）；能力由 accept_v2 的 req/resp 句柄覆盖，对象模型属框架层
+com.sun.net.httpserver	com.sun.net.httpserver.HttpsParameters	class	12	需建模	HTTP×TLS 组合服务器 + 服务器 TLS 参数；SA 有 tls_server 分立面，无组合 https server 与参数面
+com.sun.net.httpserver	com.sun.net.httpserver.HttpsServer	class	6	需建模	HTTP×TLS 组合服务器 + 服务器 TLS 参数；SA 有 tls_server 分立面，无组合 https server 与参数面
+com.sun.net.httpserver	com.sun.net.httpserver.Request	interface	4	需建模	路径上下文 + handler 对象（框架层）；SA std 为 accept 循环层，框架形态属 plugin 门面层
+com.sun.net.httpserver	com.sun.net.httpserver.SimpleFileServer	class	3	可直接对应	静态文件服务助手（http_server 之上的小型固化实现）；std 无现成符号
+com.sun.net.httpserver	com.sun.net.httpserver.SimpleFileServer.OutputLevel	enum	3	可直接对应	静态文件服务助手（http_server 之上的小型固化实现）；std 无现成符号
+com.sun.net.httpserver.spi	com.sun.net.httpserver.spi.HttpServerProvider	class	4	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.net	java.net.Authenticator	class	17	需建模	HTTP 凭据回调（Authenticator 模型）；sa_http_client 仅有 req_add_openai_auth 硬编码面，无通用凭据回调
+java.net	java.net.Authenticator.RequestorType	enum	2	需建模	HTTP 凭据回调（Authenticator 模型）；sa_http_client 仅有 req_add_openai_auth 硬编码面，无通用凭据回调
+java.net	java.net.BindException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.CacheRequest	class	3	需建模	HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面
+java.net	java.net.CacheResponse	class	3	需建模	HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面
+java.net	java.net.ConnectException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.ContentHandler	class	3	模型不合	URLConnection 内容处理器可插拔架构，随 URLConnection 模型不迁移
+java.net	java.net.ContentHandlerFactory	interface	1	模型不合	URLConnection 内容处理器可插拔架构，随 URLConnection 模型不迁移
+java.net	java.net.CookieHandler	class	5	需建模	HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零
+java.net	java.net.CookieManager	class	6	需建模	HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零
+java.net	java.net.CookiePolicy	interface	1	需建模	HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零
+java.net	java.net.CookieStore	interface	6	需建模	HTTP cookie jar + 接受策略 + 存储，并与 HTTP 客户端集成；std cookie 符号为零
+java.net	java.net.DatagramPacket	class	18	已有等价	udp send_to/recv_from + 地址句柄 + 缓冲三件套（包对象为值语义）
+java.net	java.net.DatagramSocket	class	40	已有等价	sa_std_net_udp_* 全族（bind/connect/send_to/recv_from/peek/broadcast/超时/缓冲）
+java.net	java.net.DatagramSocketImpl	class	23	模型不合	SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面
+java.net	java.net.DatagramSocketImplFactory	interface	1	模型不合	SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面
+java.net	java.net.FileNameMap	interface	1	可直接对应	扩展名→MIME 类型表（小型纯函数面），std 无符号
+java.net	java.net.HttpCookie	class	31	可直接对应	单个 cookie 的解析/序列化/域路径匹配（纯函数）；jar 与存储见 CookieStore 簇
+java.net	java.net.HttpRetryException	class	5	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.HttpURLConnection	class	63	需建模	URLConnection 对象模型（legacy 客户端）；能力大部由 sa_http_client_* 覆盖，缺重定向/认证/缓存集成与流式请求体
+java.net	java.net.IDN	class	6	可直接对应	punycode/IDNA 双向转换：std 全域无符号（纯函数，可直接落 sa_std）
+java.net	java.net.Inet4Address	class	16	已有等价	sa_std_net_to_socket_addr_list/_first（解析为地址列表）+ addr_format + reverse_lookup + scope_id；子缺口：isReachable（ICMP/echo 探测）无符号
+java.net	java.net.Inet6Address	class	20	已有等价	sa_std_net_to_socket_addr_list/_first（解析为地址列表）+ addr_format + reverse_lookup + scope_id；子缺口：isReachable（ICMP/echo 探测）无符号
+java.net	java.net.InetAddress	class	26	已有等价	sa_std_net_to_socket_addr_list/_first（解析为地址列表）+ addr_format + reverse_lookup + scope_id；子缺口：isReachable（ICMP/echo 探测）无符号
+java.net	java.net.InetSocketAddress	class	12	已有等价	socket_addr v4/v6 parse/format + port（createUnresolved ≈ parse_ascii 不解析路径）
+java.net	java.net.InterfaceAddress	class	6	可直接对应	网卡枚举面（getifaddrs 类）：地址/广播/前缀长度/MTU/硬件地址/up/回环标志；std 仅有主机名与单地址解析，无枚举符号
+java.net	java.net.JarURLConnection	class	10	模型不合	jar: 协议 URL 语义（Java 归档协议），SA 无对应协议栈
+java.net	java.net.MalformedURLException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.MulticastSocket	class	15	已有等价	sa_net_udp_join/leave_multicast_v4/v6 + multicast_if/ttl/hops/loop 全套
+java.net	java.net.NetPermission	class	2	模型不合	Java 权限/SecurityManager 模型；SA 侧由 policy 体系（sala 16_policy）承担，不迁移权限类
+java.net	java.net.NetworkInterface	class	24	可直接对应	网卡枚举面（getifaddrs 类）：地址/广播/前缀长度/MTU/硬件地址/up/回环标志；std 仅有主机名与单地址解析，无枚举符号
+java.net	java.net.NoRouteToHostException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.PasswordAuthentication	class	3	需建模	HTTP 凭据回调（Authenticator 模型）；sa_http_client 仅有 req_add_openai_auth 硬编码面，无通用凭据回调
+java.net	java.net.PortUnreachableException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.ProtocolException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.ProtocolFamily	interface	1	已有等价	地址族值（sa_net_addr_family）；注意 AJ 普查登记的 SA_NET_AF 双定义陷阱（.sal 内编号 vs OS 值）
+java.net	java.net.Proxy	class	7	需建模	代理配置与选择（HTTP/SOCKS）；std 代理符号为零，客户端与套接字均无代理参数面
+java.net	java.net.Proxy.Type	enum	3	需建模	代理配置与选择（HTTP/SOCKS）；std 代理符号为零，客户端与套接字均无代理参数面
+java.net	java.net.ProxySelector	class	6	需建模	代理配置与选择（HTTP/SOCKS）；std 代理符号为零，客户端与套接字均无代理参数面
+java.net	java.net.ResponseCache	class	5	需建模	HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面
+java.net	java.net.SecureCacheResponse	class	7	需建模	HTTP 响应缓存 SPI + 客户端集成点；std 无缓存面
+java.net	java.net.ServerSocket	class	28	已有等价	sa_std_net_tcp_listen/accept 族（backlog/reuseaddr/reuseport/only_v6/nonblocking）
+java.net	java.net.Socket	class	54	已有等价	sa_std_net_tcp_stream_*/sa_net_tcp_* 全族（连接/读写/vectored/选项/shutdown）；子缺口：OOB 紧急数据、traffic class
+java.net	java.net.SocketAddress	class	1	已有等价	NetAddr 不透明句柄（sa_net_addr_*）
+java.net	java.net.SocketException	class	4	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.SocketImpl	class	29	模型不合	SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面
+java.net	java.net.SocketImplFactory	interface	1	模型不合	SocketImpl 实现继承/工厂架构（JVM 可插拔实现层）；SA 为直达 extern 面
+java.net	java.net.SocketOption	interface	2	已有等价	选项常量 ↔ sa_std_net_*_set_* 选项族（nodelay/keepalive/linger/ttl/缓冲/quickack/deferaccept）+ SA_NET_SOCKET_OPTION_*
+java.net	java.net.SocketOptions	interface	17	已有等价	选项常量 ↔ sa_std_net_*_set_* 选项族（nodelay/keepalive/linger/ttl/缓冲/quickack/deferaccept）+ SA_NET_SOCKET_OPTION_*
+java.net	java.net.SocketPermission	class	6	模型不合	Java 权限/SecurityManager 模型；SA 侧由 policy 体系（sala 16_policy）承担，不迁移权限类
+java.net	java.net.SocketTimeoutException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.StandardProtocolFamily	enum	3	已有等价	地址族值（sa_net_addr_family）；注意 AJ 普查登记的 SA_NET_AF 双定义陷阱（.sal 内编号 vs OS 值）
+java.net	java.net.StandardSocketOptions	class	12	已有等价	选项常量 ↔ sa_std_net_*_set_* 选项族（nodelay/keepalive/linger/ttl/缓冲/quickack/deferaccept）+ SA_NET_SOCKET_OPTION_*
+java.net	java.net.URI	class	34	可直接对应	URI 语法操作：仅 sa_std_url_parse（scheme/host/port/path）存在；resolve/relativize/normalize/引号编解码等纯语法面未覆盖
+java.net	java.net.URISyntaxException	class	6	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.URL	class	29	需建模	URL 值对象绑定 openStream/openConnection（URLConnection 栈）；解析部分由 sa_std_url_parse 覆盖
+java.net	java.net.URLClassLoader	class	16	模型不合	网络类加载（JVM 类加载体系），非网络能力面
+java.net	java.net.URLConnection	class	61	需建模	URLConnection 对象模型（legacy 客户端）；能力大部由 sa_http_client_* 覆盖，缺重定向/认证/缓存集成与流式请求体
+java.net	java.net.URLDecoder	class	3	可直接对应	application/x-www-form-urlencoded 百分号编解码：std 无符号（纯函数）
+java.net	java.net.URLEncoder	class	3	可直接对应	application/x-www-form-urlencoded 百分号编解码：std 无符号（纯函数）
+java.net	java.net.URLPermission	class	6	模型不合	Java 权限/SecurityManager 模型；SA 侧由 policy 体系（sala 16_policy）承担，不迁移权限类
+java.net	java.net.URLStreamHandler	class	13	模型不合	协议处理器可插拔架构（URLStreamHandler 族）
+java.net	java.net.URLStreamHandlerFactory	interface	1	模型不合	协议处理器可插拔架构（URLStreamHandler 族）
+java.net	java.net.UnixDomainSocketAddress	class	6	已有等价	sa_std_net_unix_addr_from_pathname/_abstract_name + unix 流/数据报全族
+java.net	java.net.UnknownHostException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net	java.net.UnknownServiceException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net.http	java.net.http.HttpClient	class	21	需建模	客户端聚合配置（版本偏好/重定向/cookie/proxy/auth/连接超时/executor）；SA 为分立函数面，多项子面缺失（见各簇）
+java.net.http	java.net.http.HttpClient.Builder	interface	13	需建模	客户端聚合配置（版本偏好/重定向/cookie/proxy/auth/连接超时/executor）；SA 为分立函数面，多项子面缺失（见各簇）
+java.net.http	java.net.http.HttpClient.Redirect	enum	3	可直接对应	重定向跟随策略与客户端重定向循环：SA 客户端符号面未见重定向处理（小面策略 + 既有 send 循环）
+java.net.http	java.net.http.HttpClient.Version	enum	3	需建模	协议版本偏好；SA 以 http_client / http2 client_request / http3 session 三个显式入口分立
+java.net.http	java.net.http.HttpConnectTimeoutException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net.http	java.net.http.HttpHeaders	class	8	已有等价	req/resp 头函数面（get/add）；无独立多值映射容器类型，能力对应
+java.net.http	java.net.http.HttpOption	interface	3	需建模	HttpClient 的 HTTP/3 发现模式配置（Alt-Svc/HTTPS RR 发现与回退）；SA http3 为显式 session API，无发现语义
+java.net.http	java.net.http.HttpOption.Http3DiscoveryMode	enum	3	需建模	HttpClient 的 HTTP/3 发现模式配置（Alt-Svc/HTTPS RR 发现与回退）；SA http3 为显式 session API，无发现语义
+java.net.http	java.net.http.HttpRequest	class	14	已有等价	sa_http_client_req_new/add_header/set_body/set_timeout/send(+async/poll)；method 以 u8 传入（AJ 登记：method 命名常量面仅四种）
+java.net.http	java.net.http.HttpRequest.BodyPublisher	interface	1	需建模	请求体发布者：字符串/字节 ≈ req_set_body；文件/输入流/迭代器发布者无对应（请求体为整缓冲模型）
+java.net.http	java.net.http.HttpRequest.BodyPublishers	class	12	需建模	请求体发布者：字符串/字节 ≈ req_set_body；文件/输入流/迭代器发布者无对应（请求体为整缓冲模型）
+java.net.http	java.net.http.HttpRequest.Builder	interface	16	已有等价	sa_http_client_req_new/add_header/set_body/set_timeout/send(+async/poll)；method 以 u8 传入（AJ 登记：method 命名常量面仅四种）
+java.net.http	java.net.http.HttpResponse	interface	9	已有等价	sa_http_client_resp_status/get_header/body_len/body_ptr/body_reader/read_chunk
+java.net.http	java.net.http.HttpResponse.BodyHandler	interface	1	需建模	响应体处理器：ofString/ofBytes ≈ 体缓冲；ofFile/ofLines 流式 ≈ body_reader/read_chunk 部分对应，处理器注册模型无
+java.net.http	java.net.http.HttpResponse.BodyHandlers	class	18	需建模	响应体处理器：ofString/ofBytes ≈ 体缓冲；ofFile/ofLines 流式 ≈ body_reader/read_chunk 部分对应，处理器注册模型无
+java.net.http	java.net.http.HttpResponse.BodySubscriber	interface	1	需建模	响应式流订阅模型（Flow.Subscription 背压）；SA 为拉取式 body_reader，模型不同
+java.net.http	java.net.http.HttpResponse.BodySubscribers	class	17	需建模	响应式流订阅模型（Flow.Subscription 背压）；SA 为拉取式 body_reader，模型不同
+java.net.http	java.net.http.HttpResponse.PushPromiseHandler	interface	4	需建模	h2/h3 服务器推送处理；SA http2 有 HTTP2_SETTINGS_ENABLE_PUSH、http3 有 session，无推送承诺处理面
+java.net.http	java.net.http.HttpResponse.PushPromiseHandler.PushId	interface	0	需建模	h2/h3 服务器推送处理；SA http2 有 HTTP2_SETTINGS_ENABLE_PUSH、http3 有 session，无推送承诺处理面
+java.net.http	java.net.http.HttpResponse.PushPromiseHandler.PushId.Http3PushId	record	0	需建模	h2/h3 服务器推送处理；SA http2 有 HTTP2_SETTINGS_ENABLE_PUSH、http3 有 session，无推送承诺处理面
+java.net.http	java.net.http.HttpResponse.ResponseInfo	interface	3	已有等价	sa_http_client_resp_status/get_header/body_len/body_ptr/body_reader/read_chunk
+java.net.http	java.net.http.HttpTimeoutException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net.http	java.net.http.StreamLimitException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net.http	java.net.http.UnsupportedProtocolVersionException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net.http	java.net.http.WebSocket	interface	11	已有等价	sa_std_ws_client_*（connect/send_text/send_binary/ping/recv/close）+ sa_http_client_websocket_*；Listener 回调 ↔ SA 轮询读（poll/read）模型差异已注
+java.net.http	java.net.http.WebSocket.Builder	interface	4	已有等价	sa_std_ws_client_*（connect/send_text/send_binary/ping/recv/close）+ sa_http_client_websocket_*；Listener 回调 ↔ SA 轮询读（poll/read）模型差异已注
+java.net.http	java.net.http.WebSocket.Listener	interface	7	已有等价	sa_std_ws_client_*（connect/send_text/send_binary/ping/recv/close）+ sa_http_client_websocket_*；Listener 回调 ↔ SA 轮询读（poll/read）模型差异已注
+java.net.http	java.net.http.WebSocketHandshakeException	class	3	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.net.spi	java.net.spi.InetAddressResolver	interface	2	需建模	可插拔 DNS 解析器钩子（InetAddress 解析策略点）；std 解析为内置实现、无策略注入面
+java.net.spi	java.net.spi.InetAddressResolver.LookupPolicy	class	6	需建模	可插拔 DNS 解析器钩子（InetAddress 解析策略点）；std 解析为内置实现、无策略注入面
+java.net.spi	java.net.spi.InetAddressResolverProvider	class	3	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.net.spi	java.net.spi.InetAddressResolverProvider.Configuration	interface	2	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.net.spi	java.net.spi.URLStreamHandlerProvider	class	1	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.nio.channels	java.nio.channels.AcceptPendingException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.AlreadyBoundException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.AlreadyConnectedException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.AsynchronousByteChannel	interface	4	需建模	完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）
+java.nio.channels	java.nio.channels.AsynchronousChannel	interface	1	需建模	完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）
+java.nio.channels	java.nio.channels.AsynchronousChannelGroup	class	10	模型不合	通道组 = JVM 线程池/运行时架构（AIO 线程池生命周期）
+java.nio.channels	java.nio.channels.AsynchronousCloseException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.AsynchronousFileChannel	class	16	模型不合	范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口
+java.nio.channels	java.nio.channels.AsynchronousServerSocketChannel	class	10	需建模	完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）
+java.nio.channels	java.nio.channels.AsynchronousSocketChannel	class	20	需建模	完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）
+java.nio.channels	java.nio.channels.ByteChannel	interface	0	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.CancelledKeyException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.Channel	interface	2	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.Channels	class	12	模型不合	java.io 流 ↔ 通道适配（建立在 Java IO 类型体系上）
+java.nio.channels	java.nio.channels.ClosedByInterruptException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.ClosedChannelException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.ClosedSelectorException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.CompletionHandler	interface	2	需建模	完成式 AIO（CompletionHandler/Future 回调）；与 netx 票据模型相近但形态不同（netx 无 per-op handler 对象）
+java.nio.channels	java.nio.channels.ConnectionPendingException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.DatagramChannel	class	20	已有等价	udp 族（bind/connect/send/recv + 组播）
+java.nio.channels	java.nio.channels.FileChannel	class	24	模型不合	范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口
+java.nio.channels	java.nio.channels.FileChannel.MapMode	class	4	模型不合	范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口
+java.nio.channels	java.nio.channels.FileLock	class	12	模型不合	范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口
+java.nio.channels	java.nio.channels.FileLockInterruptionException	class	1	模型不合	范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口
+java.nio.channels	java.nio.channels.GatheringByteChannel	interface	2	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.IllegalBlockingModeException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.IllegalChannelGroupException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.IllegalSelectorException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.InterruptedByTimeoutException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.InterruptibleChannel	interface	1	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.MembershipKey	class	9	已有等价	udp join_multicast 对应；源特定组播（SSM）过滤 block/unblock 未见符号（子缺口）
+java.nio.channels	java.nio.channels.MulticastChannel	interface	3	已有等价	udp join_multicast 对应；源特定组播（SSM）过滤 block/unblock 未见符号（子缺口）
+java.nio.channels	java.nio.channels.NetworkChannel	interface	5	需建模	就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态
+java.nio.channels	java.nio.channels.NoConnectionPendingException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.NonReadableChannelException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.NonWritableChannelException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.NotYetBoundException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.NotYetConnectedException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.OverlappingFileLockException	class	1	模型不合	范围外（文件域）：NIO 文件通道归 sa_std fs 契约，本普查登记但不计入网络缺口
+java.nio.channels	java.nio.channels.Pipe	class	4	已有等价	sa_net_unix_pair（socketpair）
+java.nio.channels	java.nio.channels.Pipe.SinkChannel	class	2	已有等价	sa_net_unix_pair（socketpair）
+java.nio.channels	java.nio.channels.Pipe.SourceChannel	class	2	已有等价	sa_net_unix_pair（socketpair）
+java.nio.channels	java.nio.channels.ReadPendingException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.ReadableByteChannel	interface	1	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.ScatteringByteChannel	interface	2	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.SeekableByteChannel	interface	6	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.SelectableChannel	class	10	需建模	就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态
+java.nio.channels	java.nio.channels.SelectionKey	class	20	需建模	就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态
+java.nio.channels	java.nio.channels.Selector	class	14	需建模	就绪选择模型（interestOps/selectedKeys/wakeup）；SA 的对应物是 netx io_uring 完成式反应器（票据模型）+ 非阻塞句柄，无 Selector 形态
+java.nio.channels	java.nio.channels.ServerSocketChannel	class	10	已有等价	tcp_listener 族（bind/accept/nonblocking）
+java.nio.channels	java.nio.channels.ShutdownChannelGroupException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.SocketChannel	class	22	已有等价	sa_std_net_tcp_stream_* + set_nonblocking + read/write_vectored（通道阻塞/非阻塞双模 ↔ nonblocking 开关）
+java.nio.channels	java.nio.channels.UnresolvedAddressException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.UnsupportedAddressTypeException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels	java.nio.channels.WritableByteChannel	interface	1	模型不合	通道接口层级（类型体系抽象）；SA 句柄模型无对应的接口层级
+java.nio.channels	java.nio.channels.WritePendingException	class	1	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+java.nio.channels.spi	java.nio.channels.spi.AbstractInterruptibleChannel	class	6	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.nio.channels.spi	java.nio.channels.spi.AbstractSelectableChannel	class	11	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.nio.channels.spi	java.nio.channels.spi.AbstractSelectionKey	class	3	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.nio.channels.spi	java.nio.channels.spi.AbstractSelector	class	10	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.nio.channels.spi	java.nio.channels.spi.AsynchronousChannelProvider	class	6	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+java.nio.channels.spi	java.nio.channels.spi.SelectorProvider	class	11	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+javax.net	javax.net.ServerSocketFactory	class	6	需建模	工厂间接层；底层 connect/listen 能力已有（sa_std_net_tcp_*），SA 惯例为直达函数，工厂层属建模选择
+javax.net	javax.net.SocketFactory	class	7	需建模	工厂间接层；底层 connect/listen 能力已有（sa_std_net_tcp_*），SA 惯例为直达函数，工厂层属建模选择
+javax.net.ssl	javax.net.ssl.CertPathTrustManagerParameters	class	2	需建模	信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调
+javax.net.ssl	javax.net.ssl.ExtendedSSLSession	class	7	需建模	TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面
+javax.net.ssl	javax.net.ssl.HandshakeCompletedEvent	class	9	需建模	握手完成事件/回调（SSLSocket/SSLEngine 事件面）
+javax.net.ssl	javax.net.ssl.HandshakeCompletedListener	interface	1	需建模	握手完成事件/回调（SSLSocket/SSLEngine 事件面）
+javax.net.ssl	javax.net.ssl.HostnameVerifier	interface	1	需建模	主机名校验回调；SA 客户端校验策略未在符号面暴露
+javax.net.ssl	javax.net.ssl.HttpsURLConnection	class	16	需建模	URLConnection×TLS 复合类；底层能力由 http_client(use_tls)+tls 覆盖，对象模型见 URLConnection 簇
+javax.net.ssl	javax.net.ssl.KeyManager	interface	0	需建模	密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）
+javax.net.ssl	javax.net.ssl.KeyManagerFactory	class	10	需建模	密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）
+javax.net.ssl	javax.net.ssl.KeyManagerFactorySpi	class	4	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+javax.net.ssl	javax.net.ssl.KeyStoreBuilderParameters	class	3	需建模	密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）
+javax.net.ssl	javax.net.ssl.ManagerFactoryParameters	interface	0	需建模	信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调
+javax.net.ssl	javax.net.ssl.SNIHostName	class	7	需建模	SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面
+javax.net.ssl	javax.net.ssl.SNIMatcher	class	3	需建模	SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面
+javax.net.ssl	javax.net.ssl.SNIServerName	class	6	需建模	SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面
+javax.net.ssl	javax.net.ssl.SSLContext	class	17	需建模	TLS 上下文聚合（key/trust/session/参数）；SA 仅 tls_server ctx（证书路径）与客户端直连，无统一上下文对象
+javax.net.ssl	javax.net.ssl.SSLContextSpi	class	10	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+javax.net.ssl	javax.net.ssl.SSLEngine	class	39	需建模	非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态
+javax.net.ssl	javax.net.ssl.SSLEngineResult	class	8	需建模	非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态
+javax.net.ssl	javax.net.ssl.SSLEngineResult.HandshakeStatus	enum	6	需建模	非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态
+javax.net.ssl	javax.net.ssl.SSLEngineResult.Status	enum	4	需建模	非阻塞 TLS 引擎（wrap/unwrap 字节缓冲状态机），可嵌入自有反应器（如 netx）；SA 的 TLS 绑定套接字、无引擎形态
+javax.net.ssl	javax.net.ssl.SSLException	class	3	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+javax.net.ssl	javax.net.ssl.SSLHandshakeException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+javax.net.ssl	javax.net.ssl.SSLKeyException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+javax.net.ssl	javax.net.ssl.SSLParameters	class	31	需建模	TLS 配置面：密码套件/协议版本/ALPN/SNI 匹配/端点识别/客户端认证模式；SA 符号面无对应（shaped 客户端的指纹整形是另一条轴）
+javax.net.ssl	javax.net.ssl.SSLPeerUnverifiedException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+javax.net.ssl	javax.net.ssl.SSLPermission	class	2	模型不合	Java 权限模型（见 NetPermission 行）
+javax.net.ssl	javax.net.ssl.SSLProtocolException	class	2	已有等价	SA 错误码模型：SA_NET_ERROR_CODE_*（29 个）+ sa_std_net_error_code_name；SA 无异常类型，状态码即对应面
+javax.net.ssl	javax.net.ssl.SSLServerSocket	class	20	已有等价	sa_std_tls_server_ctx_create（cert/key 文件路径）+ accept/read/write
+javax.net.ssl	javax.net.ssl.SSLServerSocketFactory	class	4	已有等价	sa_std_tls_server_ctx_create（cert/key 文件路径）+ accept/read/write
+javax.net.ssl	javax.net.ssl.SSLSession	interface	21	需建模	TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面
+javax.net.ssl	javax.net.ssl.SSLSessionBindingEvent	class	3	需建模	TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面
+javax.net.ssl	javax.net.ssl.SSLSessionBindingListener	interface	2	需建模	TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面
+javax.net.ssl	javax.net.ssl.SSLSessionContext	interface	6	需建模	TLS 会话内省/恢复/绑定事件；SA 仅 status_json/negotiated_json 部分内省，无会话缓存与恢复面
+javax.net.ssl	javax.net.ssl.SSLSocket	class	30	已有等价	sa_std_tls_client_*（connect/read/write/close/add_ca_file）+ tls_shaped 指纹客户端（JA3/JA4 整形）；会话信息经 status_json 部分对应
+javax.net.ssl	javax.net.ssl.SSLSocketFactory	class	6	已有等价	tls_client connect 入口（工厂形态不同、能力对应）
+javax.net.ssl	javax.net.ssl.StandardConstants	class	1	需建模	SNI 名称与匹配（SSLParameters 簇）；tls connect 以 host 隐含 SNI，无显式多名/匹配器面
+javax.net.ssl	javax.net.ssl.TrustManager	interface	0	需建模	信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调
+javax.net.ssl	javax.net.ssl.TrustManagerFactory	class	10	需建模	信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调
+javax.net.ssl	javax.net.ssl.TrustManagerFactorySpi	class	4	模型不合	Java 可插拔 provider/SPI 架构（ServiceLoader/工厂注册），SA 为直达 extern 面，不迁移
+javax.net.ssl	javax.net.ssl.X509ExtendedKeyManager	class	3	需建模	密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）
+javax.net.ssl	javax.net.ssl.X509ExtendedTrustManager	class	5	需建模	信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调
+javax.net.ssl	javax.net.ssl.X509KeyManager	interface	6	需建模	密钥材料管理（内存证书、别名选择回调）；SA 仅文件路径装载（ctx_create/add_ca_file）
+javax.net.ssl	javax.net.ssl.X509TrustManager	interface	3	需建模	信任决策面（自定义校验回调、证书链内省）；SA 仅 add_ca_file，无 X.509 解析符号与校验回调
+jdk.net	jdk.net.ExtendedSocketOptions	class	7	已有等价	扩展套接字选项 ↔ keepalive_params/quickack/deferaccept/ttl 等 set 族（个别平台项如 SO_FLOW_SLA 未见对应）
+jdk.net	jdk.net.NetworkPermission	class	2	模型不合	Java 权限模型（见 NetPermission 行）
+jdk.net	jdk.net.Sockets	class	7	已有等价	扩展套接字选项 ↔ keepalive_params/quickack/deferaccept/ttl 等 set 族（个别平台项如 SO_FLOW_SLA 未见对应）
+jdk.net	jdk.net.UnixDomainPrincipal	record	0	可直接对应	unix 套接字对端凭据（SO_PEERCRED 面）；SA unix addr 族有 kind/path/abstract，无 peer-cred 符号（小面）
