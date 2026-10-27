@@ -90,6 +90,22 @@
         ":memory:"
       ],
       "parent": "overview"
+    },
+    {
+      "id": "vm-support",
+      "title": "VM 支持规划：可编程查询层",
+      "file": "07_vm_support.html",
+      "keywords": [
+        "VM",
+        "SAB",
+        "qmod",
+        "可编程查询",
+        "字节码",
+        "燃料计量",
+        "存储过程",
+        "规划"
+      ],
+      "parent": null
     }
   ]
 }
