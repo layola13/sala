@@ -1,0 +1,79 @@
+module	item	class	sa_counterpart	note
+socket	TCP 流（connect/listen/accept/recv/send）	已有等价	sa_std_net_tcp_*；sa_net_tcp_*	句柄模型
+socket	UDP 数据报	已有等价	sa_std_net_udp_*；sa_net_udp_*	
+socket	Unix domain（stream/datagram/abstract）	已有等价	sa_std_net_unix_*	含 abstract 地址
+socket	地址解析与格式化（getaddrinfo/getnameinfo/addr 对象）	已有等价	sa_std_net_to_socket_addr_list；sa_std_net_addr_reverse_lookup；sa_net_socket_addr_v4/v6_parse_ascii、format_ascii	
+socket	服务/协议名查询（getservbyname/port、getprotobyname/num、getfqdn）	可直接对应	—	小函数群，SA 查无
+socket	网卡接口枚举（if_nameindex/if_nametoindex/if_indextoname）	可直接对应	—	
+socket	具名套接字选项群（nodelay/keepalive/linger/ttl/缓冲/广播/组播/reuse/passcred/mark）	已有等价	sa_std_net_*_set_*（40+ 具名 setter）	
+socket	通用 setsockopt/getsockopt 透传（任意 level/optname/值）	可直接对应	—	逃生口缺失
+socket	sendmsg/recvmsg 与辅助数据（SCM_RIGHTS fd 传递）	需建模	—	passcred 有、fd 传递无
+socket	socketpair	已有等价	sa_std_net_unix_pair；sa_std_net_unix_datagram_pair	
+socket	fromfd/dup/detach 句柄互操作	已有等价	sa_std_net_*_from_raw_fd；sa_std_net_tcp_listener_try_clone	stream 侧 try_clone 缺（并入透传项注记）
+socket	settimeout/setblocking/gettimeout	已有等价	sa_std_net_*_set_nonblocking；set_read/write_timeout	
+socket	socket.sendfile	可直接对应	—	net 面查无；os 层零拷贝不在本普查范围
+socket	常量空间（_socket C 注册 608 名：AF_*/SOCK_*/SO_*/IPPROTO_*/AI_* 等）	可直接对应	net.sal 142 常量（子集）	含平台条件名，为源码注册上界；SA_NET_AF_* 编号陷阱为既有登记
+socket	makefile/SocketIO（io.RawIOBase 适配）	需建模	—	SA io 面为句柄+缓冲三件套
+socket	异常面（gaierror/herror/timeout 等 OSError 子类）	模型不合	SA_NET_ERR_*；sa_std_net_error_code_name	SA 无异常体系；错误分类本身已由错误码覆盖
+ssl	客户端连接（SSLContext.wrap_socket + server_hostname SNI + 校验策略）	需建模	sa_std_tls_client_connect（仅 host/port）	无 SNI/校验参数
+ssl	服务端（ctx_create + accept）	已有等价	sa_std_tls_server_ctx_create/accept；sa_std_dtls_*	仅证书/私钥文件路径装载
+ssl	SSLContext 配置面（verify_mode/flags、options、版本上下限、cipher 列表、ALPN/NPN、SNI 回调）	需建模	sa_std_tls_shaped_*（profile 指纹面，相邻）	无配置对象；单项旋钮可直接对应
+ssl	证书装载形态与 PEM/DER 转换（DER_cert_to_PEM_cert、PEM_cert_to_DER_cert、内存装载）	可直接对应	—	
+ssl	对端证书与证书链（getpeercert/get_verified_chain/get_unverified_chain）	可直接对应	—	status_json 不含证书解码
+ssl	协商信息查询（cipher/version/group/sigalg/shared_ciphers/selected_alpn）	可直接对应	sa_std_tls_shaped_negotiated_json（塑形面部分覆盖）	
+ssl	MemoryBIO/SSLObject 增量 TLS（wrap_bio）	需建模	—	仅套接字一体形态
+ssl	会话复用（SSLSession/session/session_reused）	可直接对应	—	低优先
+ssl	get_server_certificate	可直接对应	—	依赖对端证书面组合可达
+ssl	常量/枚举面（PROTOCOL_*/CERT_*/VERIFY_*/OP_*/TLSVersion/Purpose；Lib 6 + C 43 名）	可直接对应	tls_server.sal 4 常量（子集）	成批补齐型
+ssl	DTLS	已有等价	sa_std_dtls_*	
+ipaddress	地址解析/格式化（ip_address、exploded/compressed/packed）	已有等价	sa_net_ipv4/ipv6_parse_ascii；sa_net_ipv4/ipv6_format_ascii；sa_net_socket_addr_*_ascii	
+ipaddress	地址分类谓词（is_private/is_global/is_loopback/is_multicast/is_reserved/is_link_local/teredo/sixtofour/ipv4_mapped 等）	可直接对应	—	is_private/is_global 需 IANA 特殊注册表数据
+ipaddress	网络对象运算（IPv4/6Network/Interface：subnets/supernet/hosts/overlaps/summarize/collapse 等，私有基类 25 法）	需建模	—	宜 SLA 值类型库形态，非 extern 面
+ipaddress	整数互转（v4/v6_int_to_packed 等）	已有等价	sa_net_addr 对象内 packed 表示	小函数可随网络运算项补
+http	HTTPStatus 枚举 + is_* 谓词	可直接对应	—	SA 无 HTTP 状态码命名常量面（与 AJ 状态码登记同族）
+http	HTTPMethod 枚举	可直接对应	—	AJ 登记：SA http method 仅四种
+http.client	HTTP/1.1 请求-响应（HTTPConnection/HTTPResponse）	已有等价	sa_http_client_*（含 v2 面）	
+http.client	响应流式读取（read/readinto/read1/peek）	已有等价	sa_http_client_resp_body_reader；sa_http_client_resp_read_chunk	
+http.client	HTTPS 客户端（TLS 配置在 http 契约层可见）	需建模	sa_std_tls_client_*（分离面）	http_client.sai 契约未暴露 TLS 开关/校验/SNI；实现层是否内建 HTTPS 不在本普查证据内
+http.client	隧道与代理（set_tunnel）	可直接对应	—	
+http.client	异常类群（HTTPException 等 12 类）	模型不合	错误码返回	无异常体系
+http.client	set_debuglevel 等零散小项	可直接对应	—	低优先
+http.server	服务骨架（HTTPServer/ThreadingHTTPServer/serve_forever）	已有等价	sa_http_server_new/start/accept/serve/stop	
+http.server	BaseHTTPRequestHandler 处理模型（请求解析/do_* 分发/send_response 家族）	需建模	sa_http_server_req_get_*；sa_http_server_resp_*（显式面部分覆盖）	
+http.server	静态文件服务（SimpleHTTPRequestHandler：目录列表/translate_path/MIME 猜测）	可直接对应	—	
+http.server	HTTPSServer（server × SSLContext 组合）	已有等价	sa_std_tls_server_*（可组合）	
+http.server	CGIHTTPRequestHandler	上游已移除（登记）	—	3.13 已自 Python 移除；3.15 树实测无此类
+http.cookies	Cookie 解析/序列化（SimpleCookie/Morsel）	可直接对应	—	SA 仅原始 header 读写
+http.cookiejar	CookieJar 策略与持久化（域/过期/第三方策略、Mozilla/LWP 文件格式）	需建模	—	24 个模块级工具函数为其实现细节面
+urllib.parse	URL 拆解/组装（urlparse/urlsplit/ParseResult/urljoin）	需建模	sa_std_url_parse（基础拆解子集）	完整组件模型与相对解析缺
+urllib.parse	百分号编解码（quote/quote_plus/unquote/unquote_plus/quote_from_bytes）	可直接对应	—	
+urllib.parse	查询串（parse_qs/parse_qsl/urlencode）	可直接对应	—	
+urllib.request	urlopen 便捷面	已有等价	sa_http_fetch_bytes；sa_http_client_*	
+urllib.request	Opener/Handler 可插拔链（含重定向策略）	需建模	—	SA http_client 为固定管线
+urllib.request	HTTP Basic/Digest 认证 handler	可直接对应	—	sa_http_client_req_add_openai_auth 为专用头，非通用 auth
+urllib.request	ProxyHandler + 环境代理读取（getproxies）	可直接对应	—	
+urllib.request	FTP/Data/File handler	可直接对应	—	低优先；file: 语义由 fs 面覆盖（范围外注记）
+urllib.request	Request 对象（头/数据/方法建模）	已有等价	sa_http_client_req_new/add_header/set_body；sa_http_client_req_set_timeout_v2	
+urllib.error	URLError/HTTPError/ContentTooShortError	模型不合	错误码返回	HTTPError 的异常×响应双重身份亦无对应模型
+urllib.response	addinfourl 等响应包装	已有等价	sa_http_client_resp_status/get_header/body_slice	
+urllib.robotparser	RobotFileParser（robots.txt 规则/can_fetch/crawl_delay）	可直接对应	—	低优先
+socketserver	通用服务框架（BaseServer/TCPServer/UDPServer 生命周期）	需建模	sa_http_server 生命周期；net listen/accept（网络部分覆盖）	无通用请求处理框架
+socketserver	请求处理器模型（BaseRequestHandler setup/handle/finish、Stream/Datagram 变体、rfile/wfile）	需建模	—	
+socketserver	ThreadingMixIn 并发混合	需建模	async/netx 反应器；thread 面	能力可达、模型不同
+socketserver	ForkingMixIn	上游已移除（登记）	—	3.15 树实测无此类
+selectors	Selector 注册表（register/unregister/modify/select/get_map）	需建模	sa_netx_*（io_uring 反应器，能力相邻）	无 select/poll/epoll 风格显式注册表 API
+selectors	EVENT_READ/EVENT_WRITE 常量	可直接对应	—	
+asyncio	loop.create_connection/create_server/connect_accepted_socket	已有等价	net 句柄 + async.sla/future/task 协程面；plugin_async；sa_netx_*	
+asyncio	StreamReader/StreamWriter（readline/readuntil/drain 流控）	需建模	—	缓冲流读写器面缺
+asyncio	Transport/Protocol 回调模型（transports/protocols 接口族）	模型不合	—	SA 为协程+显式句柄模型，无 data_received 式回调协议
+asyncio	loop.sock_*（sock_recv/sock_sendall/sock_connect/sock_accept 等）	已有等价	非阻塞句柄 + async poll；netx ticket	
+asyncio	create_datagram_endpoint	已有等价	sa_std_net_udp_*；sa_net_udp_*	传输面等价；回调面归 Transport/Protocol 项
+asyncio	loop.start_tls / StreamWriter.start_tls（既有连接升级）	可直接对应	—	tls 仅 connect/accept 一体形态
+asyncio	loop.getnameinfo	已有等价	sa_std_net_addr_reverse_lookup；sa_std_net_addr_format	与 socket 地址解析项同口径
+asyncio	TransportSocket（trsock）	模型不合	—	依赖 transport 模型
+asyncio	平台事件循环（Proactor/Windows IOCP 面）	模型不合	sa_netx_*（io_uring，Linux 反应器）	平台模型不合；能力由跨平台句柄覆盖
+smtplib	SMTP 客户端（SMTP/SMTP_SSL/LMTP、ESMTP 扩展、STARTTLS）	可直接对应	—	协议助手中最高频
+ftplib	FTP 客户端（FTP/FTP_TLS）	可直接对应	—	低优先
+imaplib	IMAP4 客户端	可直接对应	—	低优先
+poplib	POP3 客户端	可直接对应	—	低优先
+nntplib	NNTP 客户端	上游已移除（登记）	—	PEP 594，3.13 已移除；3.15 树实测无 Lib/nntplib.py

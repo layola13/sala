@@ -1,0 +1,165 @@
+{
+ "_missing_modules": [],
+ "_socket(C)": {
+  "c_const": 608,
+  "c_method": 42
+ },
+ "_ssl(C)": {
+  "c_const": 43
+ },
+ "_token_fallback_modules": [
+  "http.server",
+  "http.cookies"
+ ],
+ "_total_rows": 1856,
+ "asyncio.base_events": {
+  "async_method": 18,
+  "class": 2,
+  "const": 3,
+  "method": 31
+ },
+ "asyncio.proactor_events": {
+  "async_method": 8,
+  "class": 1,
+  "method": 2
+ },
+ "asyncio.protocols": {
+  "class": 5,
+  "method": 14
+ },
+ "asyncio.selector_events": {
+  "async_method": 8,
+  "class": 1,
+  "const": 1,
+  "method": 6
+ },
+ "asyncio.sslproto": {
+  "class": 3,
+  "enum_member": 9,
+  "func": 1,
+  "method": 8
+ },
+ "asyncio.streams": {
+  "async_func": 2,
+  "async_method": 7,
+  "class": 4,
+  "const": 1,
+  "method": 25
+ },
+ "asyncio.transports": {
+  "class": 6,
+  "method": 25
+ },
+ "asyncio.trsock": {
+  "class": 1,
+  "method": 16
+ },
+ "asyncio.unix_events": {
+  "func": 2
+ },
+ "asyncio.windows_events": {
+  "async_method": 3,
+  "class": 5,
+  "const": 6,
+  "method": 20
+ },
+ "ftplib": {
+  "class": 6,
+  "const": 5,
+  "func": 7,
+  "method": 39
+ },
+ "http": {
+  "class": 2,
+  "method": 5
+ },
+ "http.client": {
+  "class": 17,
+  "const": 11,
+  "func": 1,
+  "method": 35
+ },
+ "http.cookiejar": {
+  "class": 9,
+  "const": 25,
+  "func": 24,
+  "method": 49
+ },
+ "http.cookies": {
+  "class": 4,
+  "method": 20
+ },
+ "http.server": {
+  "class": 6,
+  "const": 2,
+  "func": 3,
+  "method": 28
+ },
+ "imaplib": {
+  "class": 3,
+  "const": 4,
+  "func": 4,
+  "method": 62
+ },
+ "ipaddress": {
+  "class": 8,
+  "const": 2,
+  "func": 8,
+  "method": 44
+ },
+ "poplib": {
+  "class": 2,
+  "const": 6,
+  "method": 20
+ },
+ "selectors": {
+  "class": 2,
+  "const": 2,
+  "method": 11
+ },
+ "smtplib": {
+  "class": 12,
+  "const": 7,
+  "func": 2,
+  "method": 34
+ },
+ "socket": {
+  "class": 2,
+  "const": 6,
+  "func": 6,
+  "method": 19
+ },
+ "socketserver": {
+  "class": 9,
+  "method": 37
+ },
+ "ssl": {
+  "class": 5,
+  "const": 6,
+  "func": 7,
+  "method": 81
+ },
+ "urllib.error": {
+  "class": 3,
+  "method": 6
+ },
+ "urllib.parse": {
+  "class": 6,
+  "const": 6,
+  "func": 28
+ },
+ "urllib.request": {
+  "class": 25,
+  "func": 16,
+  "method": 84
+ },
+ "urllib.response": {
+  "class": 4,
+  "method": 9
+ },
+ "urllib.robotparser": {
+  "class": 3,
+  "func": 5,
+  "method": 15
+ }
+}

@@ -1,0 +1,99 @@
+{
+ "missing_files": [],
+ "per_source": {
+  "dtls.sa": {
+   "macro": 11
+  },
+  "dtls.sai": {
+   "extern": 11
+  },
+  "dtls.sal": {
+   "const": 4
+  },
+  "http2.sa": {
+   "macro": 15
+  },
+  "http2.sai": {
+   "extern": 14
+  },
+  "http2.sal": {
+   "const": 31
+  },
+  "http_client.sai": {
+   "extern": 57
+  },
+  "http_server.sai": {
+   "extern": 46
+  },
+  "multipart.sai": {
+   "extern": 18
+  },
+  "net.sa": {
+   "macro": 476
+  },
+  "net.sai": {
+   "extern": 222
+  },
+  "net.sal": {
+   "const": 142
+  },
+  "netx.sa": {
+   "macro": 15
+  },
+  "netx.sai": {
+   "extern": 7
+  },
+  "netx.sal": {
+   "const": 35
+  },
+  "plugin_async.sa": {
+   "macro": 8
+  },
+  "plugin_http_async.sa": {
+   "macro": 3
+  },
+  "plugin_http_server.sa": {
+   "macro": 8
+  },
+  "quic.sa": {
+   "macro": 29
+  },
+  "quic.sai": {
+   "extern": 29
+  },
+  "quic.sal": {
+   "const": 9
+  },
+  "sa_std.h": {
+   "c_func": 207
+  },
+  "ssh.sai": {
+   "extern": 26
+  },
+  "tls_client.sa": {
+   "macro": 6
+  },
+  "tls_client.sai": {
+   "extern": 22
+  },
+  "tls_server.sa": {
+   "macro": 11
+  },
+  "tls_server.sai": {
+   "extern": 11
+  },
+  "tls_server.sal": {
+   "const": 4
+  },
+  "ws_client.sa": {
+   "macro": 9
+  },
+  "ws_client.sai": {
+   "extern": 12
+  }
+ },
+ "sa_layer_unique_names": 1291,
+ "sa_std_h_net_funcs": 207,
+ "sa_std_h_total_funcs": 652,
+ "total_rows": 1498
+}

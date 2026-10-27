@@ -1,0 +1,1857 @@
+module	kind	name	detail
+socket	const	EBADF	
+socket	const	EAGAIN	
+socket	const	EWOULDBLOCK	
+socket	const	_LOCALHOST	
+socket	const	_LOCALHOST_V6	
+socket	class	socket	bases=socket
+socket	method	socket.__init__	
+socket	method	socket.dup	
+socket	method	socket.accept	
+socket	method	socket.makefile	
+socket	method	socket.sendfile	
+socket	method	socket.close	
+socket	method	socket.detach	
+socket	method	socket.family	
+socket	method	socket.type	
+socket	func	fromfd	args=fd,family,type,proto
+socket	class	SocketIO	bases=RawIOBase
+socket	method	SocketIO.__init__	
+socket	method	SocketIO.readinto	
+socket	method	SocketIO.write	
+socket	method	SocketIO.readable	
+socket	method	SocketIO.writable	
+socket	method	SocketIO.seekable	
+socket	method	SocketIO.fileno	
+socket	method	SocketIO.name	
+socket	method	SocketIO.mode	
+socket	method	SocketIO.close	
+socket	func	getfqdn	args=name
+socket	const	_GLOBAL_DEFAULT_TIMEOUT	
+socket	func	create_connection	args=address,timeout,source_address
+socket	func	has_dualstack_ipv6	args=
+socket	func	create_server	args=address
+socket	func	getaddrinfo	args=host,port,family,type,proto,flags
+ssl	const	_PROTOCOL_NAMES	
+ssl	class	TLSVersion	bases=
+ssl	const	CHANNEL_BINDING_TYPES	
+ssl	const	HAS_NEVER_CHECK_COMMON_NAME	
+ssl	const	_RESTRICTED_SERVER_CIPHERS	
+ssl	func	get_default_verify_paths	args=
+ssl	class	Purpose	bases=_ASN1Object,_Enum
+ssl	class	SSLContext	bases=_SSLContext
+ssl	method	SSLContext.wrap_socket	
+ssl	method	SSLContext.wrap_bio	
+ssl	method	SSLContext.set_npn_protocols	
+ssl	method	SSLContext.set_servername_callback	
+ssl	method	SSLContext.set_alpn_protocols	
+ssl	method	SSLContext.load_default_certs	
+ssl	method	SSLContext.options	
+ssl	method	SSLContext.options	
+ssl	method	SSLContext.protocol	
+ssl	method	SSLContext.verify_flags	
+ssl	method	SSLContext.verify_flags	
+ssl	method	SSLContext.verify_mode	
+ssl	method	SSLContext.verify_mode	
+ssl	func	create_default_context	args=purpose
+ssl	class	SSLObject	bases=
+ssl	method	SSLObject.__init__	
+ssl	method	SSLObject.context	
+ssl	method	SSLObject.context	
+ssl	method	SSLObject.session	
+ssl	method	SSLObject.session	
+ssl	method	SSLObject.session_reused	
+ssl	method	SSLObject.server_side	
+ssl	method	SSLObject.server_hostname	
+ssl	method	SSLObject.read	
+ssl	method	SSLObject.write	
+ssl	method	SSLObject.getpeercert	
+ssl	method	SSLObject.get_verified_chain	
+ssl	method	SSLObject.get_unverified_chain	
+ssl	method	SSLObject.selected_npn_protocol	
+ssl	method	SSLObject.selected_alpn_protocol	
+ssl	method	SSLObject.cipher	
+ssl	method	SSLObject.group	
+ssl	method	SSLObject.client_sigalg	
+ssl	method	SSLObject.server_sigalg	
+ssl	method	SSLObject.shared_ciphers	
+ssl	method	SSLObject.compression	
+ssl	method	SSLObject.pending	
+ssl	method	SSLObject.do_handshake	
+ssl	method	SSLObject.unwrap	
+ssl	method	SSLObject.get_channel_binding	
+ssl	method	SSLObject.version	
+ssl	method	SSLObject.verify_client_post_handshake	
+ssl	class	SSLSocket	bases=socket
+ssl	method	SSLSocket.__init__	
+ssl	method	SSLSocket.context	
+ssl	method	SSLSocket.context	
+ssl	method	SSLSocket.session	
+ssl	method	SSLSocket.session	
+ssl	method	SSLSocket.session_reused	
+ssl	method	SSLSocket.dup	
+ssl	method	SSLSocket.read	
+ssl	method	SSLSocket.write	
+ssl	method	SSLSocket.getpeercert	
+ssl	method	SSLSocket.get_verified_chain	
+ssl	method	SSLSocket.get_unverified_chain	
+ssl	method	SSLSocket.selected_npn_protocol	
+ssl	method	SSLSocket.selected_alpn_protocol	
+ssl	method	SSLSocket.cipher	
+ssl	method	SSLSocket.group	
+ssl	method	SSLSocket.client_sigalg	
+ssl	method	SSLSocket.server_sigalg	
+ssl	method	SSLSocket.shared_ciphers	
+ssl	method	SSLSocket.compression	
+ssl	method	SSLSocket.send	
+ssl	method	SSLSocket.sendto	
+ssl	method	SSLSocket.sendmsg	
+ssl	method	SSLSocket.sendall	
+ssl	method	SSLSocket.sendfile	
+ssl	method	SSLSocket.recv	
+ssl	method	SSLSocket.recv_into	
+ssl	method	SSLSocket.recvfrom	
+ssl	method	SSLSocket.recvfrom_into	
+ssl	method	SSLSocket.recvmsg	
+ssl	method	SSLSocket.recvmsg_into	
+ssl	method	SSLSocket.pending	
+ssl	method	SSLSocket.shutdown	
+ssl	method	SSLSocket.unwrap	
+ssl	method	SSLSocket.verify_client_post_handshake	
+ssl	method	SSLSocket.do_handshake	
+ssl	method	SSLSocket.connect	
+ssl	method	SSLSocket.connect_ex	
+ssl	method	SSLSocket.accept	
+ssl	method	SSLSocket.get_channel_binding	
+ssl	method	SSLSocket.version	
+ssl	func	cert_time_to_seconds	args=cert_time
+ssl	const	PEM_HEADER	
+ssl	const	PEM_FOOTER	
+ssl	func	DER_cert_to_PEM_cert	args=der_cert_bytes
+ssl	func	PEM_cert_to_DER_cert	args=pem_cert_string
+ssl	func	get_server_certificate	args=addr,ssl_version,ca_certs,timeout
+ssl	func	get_protocol_name	args=protocol_code
+ipaddress	const	IPV4LENGTH	
+ipaddress	const	IPV6LENGTH	
+ipaddress	class	AddressValueError	bases=ValueError
+ipaddress	class	NetmaskValueError	bases=ValueError
+ipaddress	func	ip_address	args=address
+ipaddress	func	ip_network	args=address,strict
+ipaddress	func	ip_interface	args=address
+ipaddress	func	v4_int_to_packed	args=address
+ipaddress	func	v6_int_to_packed	args=address
+ipaddress	func	summarize_address_range	args=first,last
+ipaddress	func	collapse_addresses	args=addresses
+ipaddress	func	get_mixed_type_key	args=obj
+ipaddress	class	IPv4Address	bases=_BaseV4,_BaseAddress
+ipaddress	method	IPv4Address.__init__	
+ipaddress	method	IPv4Address.packed	
+ipaddress	method	IPv4Address.is_reserved	
+ipaddress	method	IPv4Address.is_private	
+ipaddress	method	IPv4Address.is_global	
+ipaddress	method	IPv4Address.is_multicast	
+ipaddress	method	IPv4Address.is_unspecified	
+ipaddress	method	IPv4Address.is_loopback	
+ipaddress	method	IPv4Address.is_link_local	
+ipaddress	method	IPv4Address.ipv6_mapped	
+ipaddress	class	IPv4Interface	bases=IPv4Address
+ipaddress	method	IPv4Interface.__init__	
+ipaddress	method	IPv4Interface.hostmask	
+ipaddress	method	IPv4Interface.ip	
+ipaddress	method	IPv4Interface.with_prefixlen	
+ipaddress	method	IPv4Interface.with_netmask	
+ipaddress	method	IPv4Interface.with_hostmask	
+ipaddress	method	IPv4Interface.is_unspecified	
+ipaddress	class	IPv4Network	bases=_BaseV4,_BaseNetwork
+ipaddress	method	IPv4Network.__init__	
+ipaddress	method	IPv4Network.is_global	
+ipaddress	class	IPv6Address	bases=_BaseV6,_BaseAddress
+ipaddress	method	IPv6Address.__init__	
+ipaddress	method	IPv6Address.scope_id	
+ipaddress	method	IPv6Address.packed	
+ipaddress	method	IPv6Address.is_multicast	
+ipaddress	method	IPv6Address.is_reserved	
+ipaddress	method	IPv6Address.is_link_local	
+ipaddress	method	IPv6Address.is_site_local	
+ipaddress	method	IPv6Address.is_private	
+ipaddress	method	IPv6Address.is_global	
+ipaddress	method	IPv6Address.is_unspecified	
+ipaddress	method	IPv6Address.is_loopback	
+ipaddress	method	IPv6Address.ipv4_mapped	
+ipaddress	method	IPv6Address.teredo	
+ipaddress	method	IPv6Address.sixtofour	
+ipaddress	class	IPv6Interface	bases=IPv6Address
+ipaddress	method	IPv6Interface.__init__	
+ipaddress	method	IPv6Interface.hostmask	
+ipaddress	method	IPv6Interface.ip	
+ipaddress	method	IPv6Interface.with_prefixlen	
+ipaddress	method	IPv6Interface.with_netmask	
+ipaddress	method	IPv6Interface.with_hostmask	
+ipaddress	method	IPv6Interface.is_unspecified	
+ipaddress	method	IPv6Interface.is_loopback	
+ipaddress	class	IPv6Network	bases=_BaseV6,_BaseNetwork
+ipaddress	method	IPv6Network.__init__	
+ipaddress	method	IPv6Network.hosts	
+ipaddress	method	IPv6Network.is_site_local	
+http	class	HTTPStatus	bases=
+http	method	HTTPStatus.is_informational	
+http	method	HTTPStatus.is_success	
+http	method	HTTPStatus.is_redirection	
+http	method	HTTPStatus.is_client_error	
+http	method	HTTPStatus.is_server_error	
+http	class	HTTPMethod	bases=
+http.client	const	HTTP_PORT	
+http.client	const	HTTPS_PORT	
+http.client	const	_UNKNOWN	
+http.client	const	_CS_IDLE	
+http.client	const	_CS_REQ_STARTED	
+http.client	const	_CS_REQ_SENT	
+http.client	const	_MAXLINE	
+http.client	const	_MAXHEADERS	
+http.client	const	_MAXINTERIMRESPONSES	
+http.client	const	_MIN_READ_BUF_SIZE	
+http.client	const	_METHODS_EXPECTING_BODY	
+http.client	class	HTTPMessage	bases=Message
+http.client	method	HTTPMessage.getallmatchingheaders	
+http.client	func	parse_headers	args=fp,_class
+http.client	class	HTTPResponse	bases=BufferedIOBase
+http.client	method	HTTPResponse.__init__	
+http.client	method	HTTPResponse.begin	
+http.client	method	HTTPResponse.close	
+http.client	method	HTTPResponse.flush	
+http.client	method	HTTPResponse.readable	
+http.client	method	HTTPResponse.isclosed	
+http.client	method	HTTPResponse.read	
+http.client	method	HTTPResponse.readinto	
+http.client	method	HTTPResponse.read1	
+http.client	method	HTTPResponse.peek	
+http.client	method	HTTPResponse.readline	
+http.client	method	HTTPResponse.fileno	
+http.client	method	HTTPResponse.getheader	
+http.client	method	HTTPResponse.getheaders	
+http.client	method	HTTPResponse.info	
+http.client	method	HTTPResponse.geturl	
+http.client	method	HTTPResponse.getcode	
+http.client	class	HTTPConnection	bases=
+http.client	method	HTTPConnection.__init__	
+http.client	method	HTTPConnection.set_tunnel	
+http.client	method	HTTPConnection.set_debuglevel	
+http.client	method	HTTPConnection.get_proxy_response_headers	
+http.client	method	HTTPConnection.connect	
+http.client	method	HTTPConnection.close	
+http.client	method	HTTPConnection.send	
+http.client	method	HTTPConnection.putrequest	
+http.client	method	HTTPConnection.putheader	
+http.client	method	HTTPConnection.endheaders	
+http.client	method	HTTPConnection.request	
+http.client	method	HTTPConnection.getresponse	
+http.client	class	HTTPException	bases=Exception
+http.client	class	NotConnected	bases=HTTPException
+http.client	class	InvalidURL	bases=HTTPException
+http.client	class	UnknownProtocol	bases=HTTPException
+http.client	method	UnknownProtocol.__init__	
+http.client	class	UnknownTransferEncoding	bases=HTTPException
+http.client	class	UnimplementedFileMode	bases=HTTPException
+http.client	class	IncompleteRead	bases=HTTPException
+http.client	method	IncompleteRead.__init__	
+http.client	class	ImproperConnectionState	bases=HTTPException
+http.client	class	CannotSendRequest	bases=ImproperConnectionState
+http.client	class	CannotSendHeader	bases=ImproperConnectionState
+http.client	class	ResponseNotReady	bases=ImproperConnectionState
+http.client	class	BadStatusLine	bases=HTTPException
+http.client	method	BadStatusLine.__init__	
+http.client	class	LineTooLong	bases=HTTPException
+http.client	method	LineTooLong.__init__	
+http.client	class	RemoteDisconnected	bases=ConnectionResetError,BadStatusLine
+http.client	method	RemoteDisconnected.__init__	
+http.server	const	DEFAULT_ERROR_MESSAGE	
+http.server	const	DEFAULT_ERROR_CONTENT_TYPE	
+http.server	class	HTTPServer	bases=socketserver . TCPServer
+http.server	method	HTTPServer.server_bind	
+http.server	class	ThreadingHTTPServer	bases=socketserver . ThreadingMixIn,HTTPServer
+http.server	class	HTTPSServer	bases=HTTPServer
+http.server	method	HTTPSServer.__init__	
+http.server	method	HTTPSServer.server_activate	
+http.server	class	ThreadingHTTPSServer	bases=socketserver . ThreadingMixIn,HTTPSServer
+http.server	class	BaseHTTPRequestHandler	bases=socketserver . StreamRequestHandler
+http.server	method	BaseHTTPRequestHandler.parse_request	
+http.server	method	BaseHTTPRequestHandler.handle_expect_100	
+http.server	method	BaseHTTPRequestHandler.handle_one_request	
+http.server	method	BaseHTTPRequestHandler.handle	
+http.server	method	BaseHTTPRequestHandler.send_error	
+http.server	method	BaseHTTPRequestHandler.send_response	
+http.server	method	BaseHTTPRequestHandler.send_response_only	
+http.server	method	BaseHTTPRequestHandler.send_header	
+http.server	method	BaseHTTPRequestHandler.end_headers	
+http.server	method	BaseHTTPRequestHandler.flush_headers	
+http.server	method	BaseHTTPRequestHandler.log_request	
+http.server	method	BaseHTTPRequestHandler.log_error	
+http.server	method	BaseHTTPRequestHandler.log_message	
+http.server	method	BaseHTTPRequestHandler.version_string	
+http.server	method	BaseHTTPRequestHandler.date_time_string	
+http.server	method	BaseHTTPRequestHandler.log_date_time_string	
+http.server	method	BaseHTTPRequestHandler.address_string	
+http.server	class	SimpleHTTPRequestHandler	bases=BaseHTTPRequestHandler
+http.server	method	SimpleHTTPRequestHandler.__init__	
+http.server	method	SimpleHTTPRequestHandler.do_GET	
+http.server	method	SimpleHTTPRequestHandler.do_HEAD	
+http.server	method	SimpleHTTPRequestHandler.send_head	
+http.server	method	SimpleHTTPRequestHandler.list_directory	
+http.server	method	SimpleHTTPRequestHandler.translate_path	
+http.server	method	SimpleHTTPRequestHandler.copyfile	
+http.server	method	SimpleHTTPRequestHandler.guess_type	
+http.server	func	nobody_uid	
+http.server	func	executable	
+http.server	func	test	
+http.cookies	class	CookieError	bases=Exception
+http.cookies	class	Morsel	bases=dict
+http.cookies	method	Morsel.__init__	
+http.cookies	method	Morsel.key	
+http.cookies	method	Morsel.value	
+http.cookies	method	Morsel.coded_value	
+http.cookies	method	Morsel.setdefault	
+http.cookies	method	Morsel.copy	
+http.cookies	method	Morsel.update	
+http.cookies	method	Morsel.isReservedKey	
+http.cookies	method	Morsel.set	
+http.cookies	method	Morsel.output	
+http.cookies	method	Morsel.js_output	
+http.cookies	method	Morsel.OutputString	
+http.cookies	class	BaseCookie	bases=dict
+http.cookies	method	BaseCookie.value_decode	
+http.cookies	method	BaseCookie.value_encode	
+http.cookies	method	BaseCookie.__init__	
+http.cookies	method	BaseCookie.output	
+http.cookies	method	BaseCookie.js_output	
+http.cookies	method	BaseCookie.load	
+http.cookies	class	SimpleCookie	bases=BaseCookie
+http.cookies	method	SimpleCookie.value_decode	
+http.cookies	method	SimpleCookie.value_encode	
+http.cookiejar	const	HTTPONLY_ATTR	
+http.cookiejar	const	HTTPONLY_PREFIX	
+http.cookiejar	const	DEFAULT_HTTP_PORT	
+http.cookiejar	const	NETSCAPE_MAGIC_RGX	
+http.cookiejar	const	MISSING_FILENAME_TEXT	
+http.cookiejar	const	NETSCAPE_HEADER_TEXT	
+http.cookiejar	const	EPOCH_YEAR	
+http.cookiejar	const	DAYS	
+http.cookiejar	const	MONTHS	
+http.cookiejar	const	MONTHS_LOWER	
+http.cookiejar	func	time2isoz	args=t
+http.cookiejar	func	time2netscape	args=t
+http.cookiejar	const	UTC_ZONES	
+http.cookiejar	const	TIMEZONE_RE	
+http.cookiejar	func	offset_from_tz_string	args=tz
+http.cookiejar	const	STRICT_DATE_RE	
+http.cookiejar	const	WEEKDAY_RE	
+http.cookiejar	const	LOOSE_HTTP_DATE_RE	
+http.cookiejar	func	http2time	args=text
+http.cookiejar	const	ISO_DATE_RE	
+http.cookiejar	func	iso2time	args=text
+http.cookiejar	func	unmatched	args=match
+http.cookiejar	const	HEADER_TOKEN_RE	
+http.cookiejar	const	HEADER_QUOTED_VALUE_RE	
+http.cookiejar	const	HEADER_VALUE_RE	
+http.cookiejar	const	HEADER_ESCAPE_RE	
+http.cookiejar	func	split_header_words	args=header_values
+http.cookiejar	const	HEADER_JOIN_TOKEN_RE	
+http.cookiejar	const	HEADER_JOIN_ESCAPE_RE	
+http.cookiejar	func	join_header_words	args=lists
+http.cookiejar	func	strip_quotes	args=text
+http.cookiejar	func	parse_ns_headers	args=ns_headers
+http.cookiejar	const	IPV4_RE	
+http.cookiejar	func	is_HDN	args=text
+http.cookiejar	func	domain_match	args=A,B
+http.cookiejar	func	liberal_is_HDN	args=text
+http.cookiejar	func	user_domain_match	args=A,B
+http.cookiejar	func	request_host	args=request
+http.cookiejar	func	eff_request_host	args=request
+http.cookiejar	func	request_path	args=request
+http.cookiejar	func	request_port	args=request
+http.cookiejar	const	HTTP_PATH_SAFE	
+http.cookiejar	const	ESCAPED_CHAR_RE	
+http.cookiejar	func	uppercase_escaped_char	args=match
+http.cookiejar	func	escape_path	args=path
+http.cookiejar	func	reach	args=h
+http.cookiejar	func	is_third_party	args=request
+http.cookiejar	class	Cookie	bases=
+http.cookiejar	method	Cookie.__init__	
+http.cookiejar	method	Cookie.has_nonstandard_attr	
+http.cookiejar	method	Cookie.get_nonstandard_attr	
+http.cookiejar	method	Cookie.set_nonstandard_attr	
+http.cookiejar	method	Cookie.is_expired	
+http.cookiejar	class	CookiePolicy	bases=
+http.cookiejar	method	CookiePolicy.set_ok	
+http.cookiejar	method	CookiePolicy.return_ok	
+http.cookiejar	method	CookiePolicy.domain_return_ok	
+http.cookiejar	method	CookiePolicy.path_return_ok	
+http.cookiejar	class	DefaultCookiePolicy	bases=CookiePolicy
+http.cookiejar	method	DefaultCookiePolicy.__init__	
+http.cookiejar	method	DefaultCookiePolicy.blocked_domains	
+http.cookiejar	method	DefaultCookiePolicy.set_blocked_domains	
+http.cookiejar	method	DefaultCookiePolicy.is_blocked	
+http.cookiejar	method	DefaultCookiePolicy.allowed_domains	
+http.cookiejar	method	DefaultCookiePolicy.set_allowed_domains	
+http.cookiejar	method	DefaultCookiePolicy.is_not_allowed	
+http.cookiejar	method	DefaultCookiePolicy.set_ok	
+http.cookiejar	method	DefaultCookiePolicy.set_ok_version	
+http.cookiejar	method	DefaultCookiePolicy.set_ok_verifiability	
+http.cookiejar	method	DefaultCookiePolicy.set_ok_name	
+http.cookiejar	method	DefaultCookiePolicy.set_ok_path	
+http.cookiejar	method	DefaultCookiePolicy.set_ok_domain	
+http.cookiejar	method	DefaultCookiePolicy.set_ok_port	
+http.cookiejar	method	DefaultCookiePolicy.return_ok	
+http.cookiejar	method	DefaultCookiePolicy.return_ok_version	
+http.cookiejar	method	DefaultCookiePolicy.return_ok_verifiability	
+http.cookiejar	method	DefaultCookiePolicy.return_ok_secure	
+http.cookiejar	method	DefaultCookiePolicy.return_ok_expires	
+http.cookiejar	method	DefaultCookiePolicy.return_ok_port	
+http.cookiejar	method	DefaultCookiePolicy.return_ok_domain	
+http.cookiejar	method	DefaultCookiePolicy.domain_return_ok	
+http.cookiejar	method	DefaultCookiePolicy.path_return_ok	
+http.cookiejar	func	deepvalues	args=mapping
+http.cookiejar	class	Absent	bases=
+http.cookiejar	class	CookieJar	bases=
+http.cookiejar	method	CookieJar.__init__	
+http.cookiejar	method	CookieJar.set_policy	
+http.cookiejar	method	CookieJar.add_cookie_header	
+http.cookiejar	method	CookieJar.make_cookies	
+http.cookiejar	method	CookieJar.set_cookie_if_ok	
+http.cookiejar	method	CookieJar.set_cookie	
+http.cookiejar	method	CookieJar.extract_cookies	
+http.cookiejar	method	CookieJar.clear	
+http.cookiejar	method	CookieJar.clear_session_cookies	
+http.cookiejar	method	CookieJar.clear_expired_cookies	
+http.cookiejar	class	LoadError	bases=OSError
+http.cookiejar	class	FileCookieJar	bases=CookieJar
+http.cookiejar	method	FileCookieJar.__init__	
+http.cookiejar	method	FileCookieJar.save	
+http.cookiejar	method	FileCookieJar.load	
+http.cookiejar	method	FileCookieJar.revert	
+http.cookiejar	func	lwp_cookie_str	args=cookie
+http.cookiejar	class	LWPCookieJar	bases=FileCookieJar
+http.cookiejar	method	LWPCookieJar.as_lwp_str	
+http.cookiejar	method	LWPCookieJar.save	
+http.cookiejar	class	MozillaCookieJar	bases=FileCookieJar
+http.cookiejar	method	MozillaCookieJar.save	
+urllib.parse	const	_WHATWG_C0_CONTROL_OR_SPACE	
+urllib.parse	const	_UNSAFE_URL_BYTES_TO_REMOVE	
+urllib.parse	func	clear_cache	args=
+urllib.parse	const	_UNSPECIFIED	
+urllib.parse	const	_MISSING_AS_NONE_DEFAULT	
+urllib.parse	class	DefragResult	bases=_DefragResultBase,_ResultMixinStr
+urllib.parse	class	SplitResult	bases=_SplitResultBase,_NetlocResultMixinStr
+urllib.parse	class	ParseResult	bases=_ParseResultBase,_NetlocResultMixinStr
+urllib.parse	class	DefragResultBytes	bases=_DefragResultBase,_ResultMixinBytes
+urllib.parse	class	SplitResultBytes	bases=_SplitResultBase,_NetlocResultMixinBytes
+urllib.parse	class	ParseResultBytes	bases=_ParseResultBase,_NetlocResultMixinBytes
+urllib.parse	func	urlparse	args=url,scheme,allow_fragments
+urllib.parse	func	urlsplit	args=url,scheme,allow_fragments
+urllib.parse	func	urlunparse	args=components
+urllib.parse	func	urlunsplit	args=components
+urllib.parse	func	urljoin	args=base,url,allow_fragments
+urllib.parse	func	urldefrag	args=url
+urllib.parse	func	unquote_to_bytes	args=string
+urllib.parse	func	unquote	args=string,encoding,errors
+urllib.parse	func	parse_qs	args=qs,keep_blank_values,strict_parsing,encoding,errors,max_num_fields,separator
+urllib.parse	func	parse_qsl	args=qs,keep_blank_values,strict_parsing,encoding,errors,max_num_fields,separator
+urllib.parse	func	unquote_plus	args=string,encoding,errors
+urllib.parse	const	_ALWAYS_SAFE	
+urllib.parse	const	_ALWAYS_SAFE_BYTES	
+urllib.parse	func	quote	args=string,safe,encoding,errors
+urllib.parse	func	quote_plus	args=string,safe,encoding,errors
+urllib.parse	func	quote_from_bytes	args=bs,safe
+urllib.parse	func	urlencode	args=query,doseq,safe,encoding,errors,quote_via
+urllib.parse	func	to_bytes	args=url
+urllib.parse	func	unwrap	args=url
+urllib.parse	func	splittype	args=url
+urllib.parse	func	splithost	args=url
+urllib.parse	func	splituser	args=host
+urllib.parse	func	splitpasswd	args=user
+urllib.parse	func	splitport	args=host
+urllib.parse	func	splitnport	args=host,defport
+urllib.parse	func	splitquery	args=url
+urllib.parse	func	splittag	args=url
+urllib.parse	func	splitattr	args=url
+urllib.parse	func	splitvalue	args=attr
+urllib.request	func	urlopen	args=url,data,timeout
+urllib.request	func	install_opener	args=opener
+urllib.request	func	urlretrieve	args=url,filename,reporthook,data
+urllib.request	func	urlcleanup	args=
+urllib.request	func	request_host	args=request
+urllib.request	class	Request	bases=
+urllib.request	method	Request.__init__	
+urllib.request	method	Request.full_url	
+urllib.request	method	Request.full_url	
+urllib.request	method	Request.full_url	
+urllib.request	method	Request.data	
+urllib.request	method	Request.data	
+urllib.request	method	Request.data	
+urllib.request	method	Request.get_method	
+urllib.request	method	Request.get_full_url	
+urllib.request	method	Request.set_proxy	
+urllib.request	method	Request.has_proxy	
+urllib.request	method	Request.add_header	
+urllib.request	method	Request.add_unredirected_header	
+urllib.request	method	Request.has_header	
+urllib.request	method	Request.get_header	
+urllib.request	method	Request.remove_header	
+urllib.request	method	Request.header_items	
+urllib.request	class	OpenerDirector	bases=
+urllib.request	method	OpenerDirector.__init__	
+urllib.request	method	OpenerDirector.add_handler	
+urllib.request	method	OpenerDirector.close	
+urllib.request	method	OpenerDirector.open	
+urllib.request	method	OpenerDirector.error	
+urllib.request	func	build_opener	args=
+urllib.request	class	BaseHandler	bases=
+urllib.request	method	BaseHandler.add_parent	
+urllib.request	method	BaseHandler.close	
+urllib.request	class	HTTPErrorProcessor	bases=BaseHandler
+urllib.request	method	HTTPErrorProcessor.http_response	
+urllib.request	class	HTTPDefaultErrorHandler	bases=BaseHandler
+urllib.request	method	HTTPDefaultErrorHandler.http_error_default	
+urllib.request	class	HTTPRedirectHandler	bases=BaseHandler
+urllib.request	method	HTTPRedirectHandler.redirect_request	
+urllib.request	method	HTTPRedirectHandler.http_error_302	
+urllib.request	class	ProxyHandler	bases=BaseHandler
+urllib.request	method	ProxyHandler.__init__	
+urllib.request	method	ProxyHandler.proxy_open	
+urllib.request	class	HTTPPasswordMgr	bases=
+urllib.request	method	HTTPPasswordMgr.__init__	
+urllib.request	method	HTTPPasswordMgr.add_password	
+urllib.request	method	HTTPPasswordMgr.find_user_password	
+urllib.request	method	HTTPPasswordMgr.reduce_uri	
+urllib.request	method	HTTPPasswordMgr.is_suburi	
+urllib.request	class	HTTPPasswordMgrWithDefaultRealm	bases=HTTPPasswordMgr
+urllib.request	method	HTTPPasswordMgrWithDefaultRealm.find_user_password	
+urllib.request	class	HTTPPasswordMgrWithPriorAuth	bases=HTTPPasswordMgrWithDefaultRealm
+urllib.request	method	HTTPPasswordMgrWithPriorAuth.__init__	
+urllib.request	method	HTTPPasswordMgrWithPriorAuth.add_password	
+urllib.request	method	HTTPPasswordMgrWithPriorAuth.update_authenticated	
+urllib.request	method	HTTPPasswordMgrWithPriorAuth.is_authenticated	
+urllib.request	class	AbstractBasicAuthHandler	bases=
+urllib.request	method	AbstractBasicAuthHandler.__init__	
+urllib.request	method	AbstractBasicAuthHandler.http_error_auth_reqed	
+urllib.request	method	AbstractBasicAuthHandler.retry_http_basic_auth	
+urllib.request	method	AbstractBasicAuthHandler.http_request	
+urllib.request	method	AbstractBasicAuthHandler.http_response	
+urllib.request	class	HTTPBasicAuthHandler	bases=AbstractBasicAuthHandler,BaseHandler
+urllib.request	method	HTTPBasicAuthHandler.http_error_401	
+urllib.request	class	ProxyBasicAuthHandler	bases=AbstractBasicAuthHandler,BaseHandler
+urllib.request	method	ProxyBasicAuthHandler.http_error_407	
+urllib.request	class	AbstractDigestAuthHandler	bases=
+urllib.request	method	AbstractDigestAuthHandler.__init__	
+urllib.request	method	AbstractDigestAuthHandler.reset_retry_count	
+urllib.request	method	AbstractDigestAuthHandler.http_error_auth_reqed	
+urllib.request	method	AbstractDigestAuthHandler.retry_http_digest_auth	
+urllib.request	method	AbstractDigestAuthHandler.get_cnonce	
+urllib.request	method	AbstractDigestAuthHandler.get_authorization	
+urllib.request	method	AbstractDigestAuthHandler.get_algorithm_impls	
+urllib.request	method	AbstractDigestAuthHandler.get_entity_digest	
+urllib.request	class	HTTPDigestAuthHandler	bases=BaseHandler,AbstractDigestAuthHandler
+urllib.request	method	HTTPDigestAuthHandler.http_error_401	
+urllib.request	class	ProxyDigestAuthHandler	bases=BaseHandler,AbstractDigestAuthHandler
+urllib.request	method	ProxyDigestAuthHandler.http_error_407	
+urllib.request	class	AbstractHTTPHandler	bases=BaseHandler
+urllib.request	method	AbstractHTTPHandler.__init__	
+urllib.request	method	AbstractHTTPHandler.set_http_debuglevel	
+urllib.request	method	AbstractHTTPHandler.do_request_	
+urllib.request	method	AbstractHTTPHandler.do_open	
+urllib.request	class	HTTPHandler	bases=AbstractHTTPHandler
+urllib.request	method	HTTPHandler.http_open	
+urllib.request	class	HTTPCookieProcessor	bases=BaseHandler
+urllib.request	method	HTTPCookieProcessor.__init__	
+urllib.request	method	HTTPCookieProcessor.http_request	
+urllib.request	method	HTTPCookieProcessor.http_response	
+urllib.request	class	UnknownHandler	bases=BaseHandler
+urllib.request	method	UnknownHandler.unknown_open	
+urllib.request	func	parse_keqv_list	args=l
+urllib.request	func	parse_http_list	args=s
+urllib.request	class	FileHandler	bases=BaseHandler
+urllib.request	method	FileHandler.get_names	
+urllib.request	method	FileHandler.open_local_file	
+urllib.request	class	FTPHandler	bases=BaseHandler
+urllib.request	method	FTPHandler.ftp_open	
+urllib.request	method	FTPHandler.connect_ftp	
+urllib.request	class	CacheFTPHandler	bases=FTPHandler
+urllib.request	method	CacheFTPHandler.__init__	
+urllib.request	method	CacheFTPHandler.setTimeout	
+urllib.request	method	CacheFTPHandler.setMaxConns	
+urllib.request	method	CacheFTPHandler.connect_ftp	
+urllib.request	method	CacheFTPHandler.check_cache	
+urllib.request	method	CacheFTPHandler.clear_cache	
+urllib.request	class	DataHandler	bases=BaseHandler
+urllib.request	method	DataHandler.data_open	
+urllib.request	func	url2pathname	args=url
+urllib.request	func	pathname2url	args=pathname
+urllib.request	func	localhost	args=
+urllib.request	func	thishost	args=
+urllib.request	func	ftperrors	args=
+urllib.request	func	noheaders	args=
+urllib.request	class	ftpwrapper	bases=
+urllib.request	method	ftpwrapper.__init__	
+urllib.request	method	ftpwrapper.init	
+urllib.request	method	ftpwrapper.retrfile	
+urllib.request	method	ftpwrapper.endtransfer	
+urllib.request	method	ftpwrapper.close	
+urllib.request	method	ftpwrapper.file_close	
+urllib.request	method	ftpwrapper.real_close	
+urllib.request	func	getproxies_environment	args=
+urllib.request	func	proxy_bypass_environment	args=host,proxies
+urllib.error	class	URLError	bases=OSError
+urllib.error	method	URLError.__init__	
+urllib.error	class	HTTPError	bases=URLError,addinfourl
+urllib.error	method	HTTPError.__init__	
+urllib.error	method	HTTPError.reason	
+urllib.error	method	HTTPError.headers	
+urllib.error	method	HTTPError.headers	
+urllib.error	class	ContentTooShortError	bases=URLError
+urllib.error	method	ContentTooShortError.__init__	
+urllib.response	class	addbase	bases=_TemporaryFileWrapper
+urllib.response	method	addbase.__init__	
+urllib.response	class	addclosehook	bases=addbase
+urllib.response	method	addclosehook.__init__	
+urllib.response	method	addclosehook.close	
+urllib.response	class	addinfo	bases=addbase
+urllib.response	method	addinfo.__init__	
+urllib.response	method	addinfo.info	
+urllib.response	class	addinfourl	bases=addinfo
+urllib.response	method	addinfourl.__init__	
+urllib.response	method	addinfourl.status	
+urllib.response	method	addinfourl.getcode	
+urllib.response	method	addinfourl.geturl	
+urllib.robotparser	class	RobotFileParser	bases=
+urllib.robotparser	method	RobotFileParser.__init__	
+urllib.robotparser	method	RobotFileParser.mtime	
+urllib.robotparser	method	RobotFileParser.modified	
+urllib.robotparser	method	RobotFileParser.set_url	
+urllib.robotparser	method	RobotFileParser.read	
+urllib.robotparser	method	RobotFileParser.parse	
+urllib.robotparser	method	RobotFileParser.can_fetch	
+urllib.robotparser	method	RobotFileParser.crawl_delay	
+urllib.robotparser	method	RobotFileParser.request_rate	
+urllib.robotparser	method	RobotFileParser.site_maps	
+urllib.robotparser	class	RuleLine	bases=
+urllib.robotparser	method	RuleLine.__init__	
+urllib.robotparser	method	RuleLine.applies_to	
+urllib.robotparser	class	Entry	bases=
+urllib.robotparser	method	Entry.__init__	
+urllib.robotparser	method	Entry.applies_to	
+urllib.robotparser	method	Entry.allowance	
+urllib.robotparser	func	normalize	args=path
+urllib.robotparser	func	normalize_uri	args=path
+urllib.robotparser	func	normalize_pattern	args=path
+urllib.robotparser	func	translate_pattern	args=path
+urllib.robotparser	func	merge_entries	args=e1,e2
+socketserver	class	BaseServer	bases=
+socketserver	method	BaseServer.__init__	
+socketserver	method	BaseServer.server_activate	
+socketserver	method	BaseServer.serve_forever	
+socketserver	method	BaseServer.shutdown	
+socketserver	method	BaseServer.service_actions	
+socketserver	method	BaseServer.handle_request	
+socketserver	method	BaseServer.handle_timeout	
+socketserver	method	BaseServer.verify_request	
+socketserver	method	BaseServer.process_request	
+socketserver	method	BaseServer.server_close	
+socketserver	method	BaseServer.finish_request	
+socketserver	method	BaseServer.shutdown_request	
+socketserver	method	BaseServer.close_request	
+socketserver	method	BaseServer.handle_error	
+socketserver	class	TCPServer	bases=BaseServer
+socketserver	method	TCPServer.__init__	
+socketserver	method	TCPServer.server_bind	
+socketserver	method	TCPServer.server_activate	
+socketserver	method	TCPServer.server_close	
+socketserver	method	TCPServer.fileno	
+socketserver	method	TCPServer.get_request	
+socketserver	method	TCPServer.shutdown_request	
+socketserver	method	TCPServer.close_request	
+socketserver	class	UDPServer	bases=TCPServer
+socketserver	method	UDPServer.get_request	
+socketserver	method	UDPServer.server_activate	
+socketserver	method	UDPServer.shutdown_request	
+socketserver	method	UDPServer.close_request	
+socketserver	class	ThreadingMixIn	bases=
+socketserver	method	ThreadingMixIn.process_request_thread	
+socketserver	method	ThreadingMixIn.process_request	
+socketserver	method	ThreadingMixIn.server_close	
+socketserver	class	ThreadingUDPServer	bases=ThreadingMixIn,UDPServer
+socketserver	class	ThreadingTCPServer	bases=ThreadingMixIn,TCPServer
+socketserver	class	BaseRequestHandler	bases=
+socketserver	method	BaseRequestHandler.__init__	
+socketserver	method	BaseRequestHandler.setup	
+socketserver	method	BaseRequestHandler.handle	
+socketserver	method	BaseRequestHandler.finish	
+socketserver	class	StreamRequestHandler	bases=BaseRequestHandler
+socketserver	method	StreamRequestHandler.setup	
+socketserver	method	StreamRequestHandler.finish	
+socketserver	class	DatagramRequestHandler	bases=BaseRequestHandler
+socketserver	method	DatagramRequestHandler.setup	
+socketserver	method	DatagramRequestHandler.finish	
+selectors	const	EVENT_READ	
+selectors	const	EVENT_WRITE	
+selectors	class	BaseSelector	bases=
+selectors	method	BaseSelector.register	
+selectors	method	BaseSelector.unregister	
+selectors	method	BaseSelector.modify	
+selectors	method	BaseSelector.select	
+selectors	method	BaseSelector.close	
+selectors	method	BaseSelector.get_key	
+selectors	method	BaseSelector.get_map	
+selectors	class	SelectSelector	bases=_BaseSelectorImpl
+selectors	method	SelectSelector.__init__	
+selectors	method	SelectSelector.register	
+selectors	method	SelectSelector.unregister	
+selectors	method	SelectSelector.select	
+asyncio.streams	const	_DEFAULT_LIMIT	
+asyncio.streams	async_func	open_connection	args=host,port
+asyncio.streams	async_func	start_server	args=client_connected_cb,host,port
+asyncio.streams	class	FlowControlMixin	bases=Protocol
+asyncio.streams	method	FlowControlMixin.__init__	
+asyncio.streams	method	FlowControlMixin.pause_writing	
+asyncio.streams	method	FlowControlMixin.resume_writing	
+asyncio.streams	method	FlowControlMixin.connection_lost	
+asyncio.streams	class	StreamReaderProtocol	bases=FlowControlMixin,Protocol
+asyncio.streams	method	StreamReaderProtocol.__init__	
+asyncio.streams	method	StreamReaderProtocol.connection_made	
+asyncio.streams	method	StreamReaderProtocol.connection_lost	
+asyncio.streams	method	StreamReaderProtocol.data_received	
+asyncio.streams	method	StreamReaderProtocol.eof_received	
+asyncio.streams	class	StreamWriter	bases=
+asyncio.streams	method	StreamWriter.__init__	
+asyncio.streams	method	StreamWriter.transport	
+asyncio.streams	method	StreamWriter.write	
+asyncio.streams	method	StreamWriter.writelines	
+asyncio.streams	method	StreamWriter.write_eof	
+asyncio.streams	method	StreamWriter.can_write_eof	
+asyncio.streams	method	StreamWriter.close	
+asyncio.streams	method	StreamWriter.is_closing	
+asyncio.streams	async_method	StreamWriter.wait_closed	
+asyncio.streams	method	StreamWriter.get_extra_info	
+asyncio.streams	async_method	StreamWriter.drain	
+asyncio.streams	async_method	StreamWriter.start_tls	
+asyncio.streams	class	StreamReader	bases=
+asyncio.streams	method	StreamReader.__init__	
+asyncio.streams	method	StreamReader.exception	
+asyncio.streams	method	StreamReader.set_exception	
+asyncio.streams	method	StreamReader.set_transport	
+asyncio.streams	method	StreamReader.feed_eof	
+asyncio.streams	method	StreamReader.at_eof	
+asyncio.streams	method	StreamReader.feed_data	
+asyncio.streams	async_method	StreamReader.readline	
+asyncio.streams	async_method	StreamReader.readuntil	
+asyncio.streams	async_method	StreamReader.read	
+asyncio.streams	async_method	StreamReader.readexactly	
+asyncio.transports	class	BaseTransport	bases=
+asyncio.transports	method	BaseTransport.__init__	
+asyncio.transports	method	BaseTransport.get_extra_info	
+asyncio.transports	method	BaseTransport.is_closing	
+asyncio.transports	method	BaseTransport.close	
+asyncio.transports	method	BaseTransport.set_protocol	
+asyncio.transports	method	BaseTransport.get_protocol	
+asyncio.transports	class	ReadTransport	bases=BaseTransport
+asyncio.transports	method	ReadTransport.is_reading	
+asyncio.transports	method	ReadTransport.pause_reading	
+asyncio.transports	method	ReadTransport.resume_reading	
+asyncio.transports	class	WriteTransport	bases=BaseTransport
+asyncio.transports	method	WriteTransport.set_write_buffer_limits	
+asyncio.transports	method	WriteTransport.get_write_buffer_size	
+asyncio.transports	method	WriteTransport.get_write_buffer_limits	
+asyncio.transports	method	WriteTransport.write	
+asyncio.transports	method	WriteTransport.writelines	
+asyncio.transports	method	WriteTransport.write_eof	
+asyncio.transports	method	WriteTransport.can_write_eof	
+asyncio.transports	method	WriteTransport.abort	
+asyncio.transports	class	Transport	bases=ReadTransport,WriteTransport
+asyncio.transports	class	DatagramTransport	bases=BaseTransport
+asyncio.transports	method	DatagramTransport.sendto	
+asyncio.transports	method	DatagramTransport.abort	
+asyncio.transports	class	SubprocessTransport	bases=BaseTransport
+asyncio.transports	method	SubprocessTransport.get_pid	
+asyncio.transports	method	SubprocessTransport.get_returncode	
+asyncio.transports	method	SubprocessTransport.get_pipe_transport	
+asyncio.transports	method	SubprocessTransport.send_signal	
+asyncio.transports	method	SubprocessTransport.terminate	
+asyncio.transports	method	SubprocessTransport.kill	
+asyncio.protocols	class	BaseProtocol	bases=
+asyncio.protocols	method	BaseProtocol.connection_made	
+asyncio.protocols	method	BaseProtocol.connection_lost	
+asyncio.protocols	method	BaseProtocol.pause_writing	
+asyncio.protocols	method	BaseProtocol.resume_writing	
+asyncio.protocols	class	Protocol	bases=BaseProtocol
+asyncio.protocols	method	Protocol.data_received	
+asyncio.protocols	method	Protocol.eof_received	
+asyncio.protocols	class	BufferedProtocol	bases=BaseProtocol
+asyncio.protocols	method	BufferedProtocol.get_buffer	
+asyncio.protocols	method	BufferedProtocol.buffer_updated	
+asyncio.protocols	method	BufferedProtocol.eof_received	
+asyncio.protocols	class	DatagramProtocol	bases=BaseProtocol
+asyncio.protocols	method	DatagramProtocol.datagram_received	
+asyncio.protocols	method	DatagramProtocol.error_received	
+asyncio.protocols	class	SubprocessProtocol	bases=BaseProtocol
+asyncio.protocols	method	SubprocessProtocol.pipe_data_received	
+asyncio.protocols	method	SubprocessProtocol.pipe_connection_lost	
+asyncio.protocols	method	SubprocessProtocol.process_exited	
+asyncio.selector_events	const	_HAS_SENDMSG	
+asyncio.selector_events	class	BaseSelectorEventLoop	bases=BaseEventLoop
+asyncio.selector_events	method	BaseSelectorEventLoop.__init__	
+asyncio.selector_events	method	BaseSelectorEventLoop.close	
+asyncio.selector_events	method	BaseSelectorEventLoop.add_reader	
+asyncio.selector_events	method	BaseSelectorEventLoop.remove_reader	
+asyncio.selector_events	method	BaseSelectorEventLoop.add_writer	
+asyncio.selector_events	method	BaseSelectorEventLoop.remove_writer	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_recv	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_recv_into	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_recvfrom	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_recvfrom_into	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_sendall	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_sendto	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_connect	
+asyncio.selector_events	async_method	BaseSelectorEventLoop.sock_accept	
+asyncio.base_events	const	_MIN_SCHEDULED_TIMER_HANDLES	
+asyncio.base_events	const	_MIN_CANCELLED_TIMER_HANDLES_FRACTION	
+asyncio.base_events	const	MAXIMUM_SELECT_TIMEOUT	
+asyncio.base_events	class	Server	bases=AbstractServer
+asyncio.base_events	method	Server.__init__	
+asyncio.base_events	method	Server.get_loop	
+asyncio.base_events	method	Server.is_serving	
+asyncio.base_events	method	Server.sockets	
+asyncio.base_events	method	Server.close	
+asyncio.base_events	method	Server.close_clients	
+asyncio.base_events	method	Server.abort_clients	
+asyncio.base_events	async_method	Server.start_serving	
+asyncio.base_events	async_method	Server.serve_forever	
+asyncio.base_events	async_method	Server.wait_closed	
+asyncio.base_events	class	BaseEventLoop	bases=AbstractEventLoop
+asyncio.base_events	method	BaseEventLoop.__init__	
+asyncio.base_events	method	BaseEventLoop.create_future	
+asyncio.base_events	method	BaseEventLoop.create_task	
+asyncio.base_events	method	BaseEventLoop.set_task_factory	
+asyncio.base_events	method	BaseEventLoop.get_task_factory	
+asyncio.base_events	async_method	BaseEventLoop.shutdown_asyncgens	
+asyncio.base_events	async_method	BaseEventLoop.shutdown_default_executor	
+asyncio.base_events	method	BaseEventLoop.run_forever	
+asyncio.base_events	method	BaseEventLoop.run_until_complete	
+asyncio.base_events	method	BaseEventLoop.stop	
+asyncio.base_events	method	BaseEventLoop.close	
+asyncio.base_events	method	BaseEventLoop.is_closed	
+asyncio.base_events	method	BaseEventLoop.is_running	
+asyncio.base_events	method	BaseEventLoop.time	
+asyncio.base_events	method	BaseEventLoop.call_later	
+asyncio.base_events	method	BaseEventLoop.call_at	
+asyncio.base_events	method	BaseEventLoop.call_soon	
+asyncio.base_events	method	BaseEventLoop.call_soon_threadsafe	
+asyncio.base_events	method	BaseEventLoop.run_in_executor	
+asyncio.base_events	method	BaseEventLoop.set_default_executor	
+asyncio.base_events	async_method	BaseEventLoop.getaddrinfo	
+asyncio.base_events	async_method	BaseEventLoop.getnameinfo	
+asyncio.base_events	async_method	BaseEventLoop.sock_sendfile	
+asyncio.base_events	async_method	BaseEventLoop.create_connection	
+asyncio.base_events	async_method	BaseEventLoop.sendfile	
+asyncio.base_events	async_method	BaseEventLoop.start_tls	
+asyncio.base_events	async_method	BaseEventLoop.create_datagram_endpoint	
+asyncio.base_events	async_method	BaseEventLoop.create_server	
+asyncio.base_events	async_method	BaseEventLoop.connect_accepted_socket	
+asyncio.base_events	async_method	BaseEventLoop.connect_read_pipe	
+asyncio.base_events	async_method	BaseEventLoop.connect_write_pipe	
+asyncio.base_events	async_method	BaseEventLoop.subprocess_shell	
+asyncio.base_events	async_method	BaseEventLoop.subprocess_exec	
+asyncio.base_events	method	BaseEventLoop.get_exception_handler	
+asyncio.base_events	method	BaseEventLoop.set_exception_handler	
+asyncio.base_events	method	BaseEventLoop.default_exception_handler	
+asyncio.base_events	method	BaseEventLoop.call_exception_handler	
+asyncio.base_events	method	BaseEventLoop.get_debug	
+asyncio.base_events	method	BaseEventLoop.set_debug	
+asyncio.proactor_events	class	BaseProactorEventLoop	bases=BaseEventLoop
+asyncio.proactor_events	method	BaseProactorEventLoop.__init__	
+asyncio.proactor_events	method	BaseProactorEventLoop.close	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_recv	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_recv_into	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_recvfrom	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_recvfrom_into	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_sendall	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_sendto	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_connect	
+asyncio.proactor_events	async_method	BaseProactorEventLoop.sock_accept	
+asyncio.unix_events	func	waitstatus_to_exitcode	args=status
+asyncio.unix_events	func	can_use_pidfd	args=
+asyncio.windows_events	const	NULL	
+asyncio.windows_events	const	INFINITE	
+asyncio.windows_events	const	ERROR_CONNECTION_REFUSED	
+asyncio.windows_events	const	ERROR_CONNECTION_ABORTED	
+asyncio.windows_events	const	CONNECT_PIPE_INIT_DELAY	
+asyncio.windows_events	const	CONNECT_PIPE_MAX_DELAY	
+asyncio.windows_events	class	PipeServer	bases=object
+asyncio.windows_events	method	PipeServer.__init__	
+asyncio.windows_events	method	PipeServer.closed	
+asyncio.windows_events	method	PipeServer.close	
+asyncio.windows_events	class	ProactorEventLoop	bases=BaseProactorEventLoop
+asyncio.windows_events	method	ProactorEventLoop.__init__	
+asyncio.windows_events	async_method	ProactorEventLoop.create_pipe_connection	
+asyncio.windows_events	async_method	ProactorEventLoop.start_serving_pipe	
+asyncio.windows_events	class	IocpProactor	bases=
+asyncio.windows_events	method	IocpProactor.__init__	
+asyncio.windows_events	method	IocpProactor.set_loop	
+asyncio.windows_events	method	IocpProactor.select	
+asyncio.windows_events	method	IocpProactor.finish_socket_func	
+asyncio.windows_events	method	IocpProactor.recv	
+asyncio.windows_events	method	IocpProactor.recv_into	
+asyncio.windows_events	method	IocpProactor.recvfrom	
+asyncio.windows_events	method	IocpProactor.recvfrom_into	
+asyncio.windows_events	method	IocpProactor.sendto	
+asyncio.windows_events	method	IocpProactor.send	
+asyncio.windows_events	method	IocpProactor.accept	
+asyncio.windows_events	method	IocpProactor.connect	
+asyncio.windows_events	method	IocpProactor.sendfile	
+asyncio.windows_events	method	IocpProactor.accept_pipe	
+asyncio.windows_events	async_method	IocpProactor.connect_pipe	
+asyncio.windows_events	method	IocpProactor.wait_for_handle	
+asyncio.windows_events	method	IocpProactor.close	
+asyncio.windows_events	class	_WindowsSelectorEventLoopPolicy	bases=_BaseDefaultEventLoopPolicy
+asyncio.windows_events	class	_WindowsProactorEventLoopPolicy	bases=_BaseDefaultEventLoopPolicy
+asyncio.sslproto	class	SSLProtocolState	bases=Enum
+asyncio.sslproto	enum_member	SSLProtocolState.UNWRAPPED	
+asyncio.sslproto	enum_member	SSLProtocolState.DO_HANDSHAKE	
+asyncio.sslproto	enum_member	SSLProtocolState.WRAPPED	
+asyncio.sslproto	enum_member	SSLProtocolState.FLUSHING	
+asyncio.sslproto	enum_member	SSLProtocolState.SHUTDOWN	
+asyncio.sslproto	class	AppProtocolState	bases=Enum
+asyncio.sslproto	enum_member	AppProtocolState.STATE_INIT	
+asyncio.sslproto	enum_member	AppProtocolState.STATE_CON_MADE	
+asyncio.sslproto	enum_member	AppProtocolState.STATE_EOF	
+asyncio.sslproto	enum_member	AppProtocolState.STATE_CON_LOST	
+asyncio.sslproto	func	add_flowcontrol_defaults	args=high,low,kb
+asyncio.sslproto	class	SSLProtocol	bases=BufferedProtocol
+asyncio.sslproto	method	SSLProtocol.__init__	
+asyncio.sslproto	method	SSLProtocol.connection_made	
+asyncio.sslproto	method	SSLProtocol.connection_lost	
+asyncio.sslproto	method	SSLProtocol.get_buffer	
+asyncio.sslproto	method	SSLProtocol.buffer_updated	
+asyncio.sslproto	method	SSLProtocol.eof_received	
+asyncio.sslproto	method	SSLProtocol.pause_writing	
+asyncio.sslproto	method	SSLProtocol.resume_writing	
+asyncio.trsock	class	TransportSocket	bases=
+asyncio.trsock	method	TransportSocket.__init__	
+asyncio.trsock	method	TransportSocket.family	
+asyncio.trsock	method	TransportSocket.type	
+asyncio.trsock	method	TransportSocket.proto	
+asyncio.trsock	method	TransportSocket.fileno	
+asyncio.trsock	method	TransportSocket.dup	
+asyncio.trsock	method	TransportSocket.get_inheritable	
+asyncio.trsock	method	TransportSocket.shutdown	
+asyncio.trsock	method	TransportSocket.getsockopt	
+asyncio.trsock	method	TransportSocket.setsockopt	
+asyncio.trsock	method	TransportSocket.getpeername	
+asyncio.trsock	method	TransportSocket.getsockname	
+asyncio.trsock	method	TransportSocket.getsockbyname	
+asyncio.trsock	method	TransportSocket.settimeout	
+asyncio.trsock	method	TransportSocket.gettimeout	
+asyncio.trsock	method	TransportSocket.setblocking	
+smtplib	const	SMTP_PORT	
+smtplib	const	SMTP_SSL_PORT	
+smtplib	const	CRLF	
+smtplib	const	_MAXLINE	
+smtplib	const	_MAXCHALLENGE	
+smtplib	const	OLDSTYLE_AUTH	
+smtplib	class	SMTPException	bases=OSError
+smtplib	class	SMTPNotSupportedError	bases=SMTPException
+smtplib	class	SMTPServerDisconnected	bases=SMTPException
+smtplib	class	SMTPResponseException	bases=SMTPException
+smtplib	method	SMTPResponseException.__init__	
+smtplib	class	SMTPSenderRefused	bases=SMTPResponseException
+smtplib	method	SMTPSenderRefused.__init__	
+smtplib	class	SMTPRecipientsRefused	bases=SMTPException
+smtplib	method	SMTPRecipientsRefused.__init__	
+smtplib	class	SMTPDataError	bases=SMTPResponseException
+smtplib	class	SMTPConnectError	bases=SMTPResponseException
+smtplib	class	SMTPHeloError	bases=SMTPResponseException
+smtplib	class	SMTPAuthenticationError	bases=SMTPResponseException
+smtplib	func	quoteaddr	args=addrstring
+smtplib	func	quotedata	args=data
+smtplib	class	SMTP	bases=
+smtplib	method	SMTP.__init__	
+smtplib	method	SMTP.set_debuglevel	
+smtplib	method	SMTP.connect	
+smtplib	method	SMTP.send	
+smtplib	method	SMTP.putcmd	
+smtplib	method	SMTP.getreply	
+smtplib	method	SMTP.docmd	
+smtplib	method	SMTP.helo	
+smtplib	method	SMTP.ehlo	
+smtplib	method	SMTP.has_extn	
+smtplib	method	SMTP.help	
+smtplib	method	SMTP.rset	
+smtplib	method	SMTP.noop	
+smtplib	method	SMTP.mail	
+smtplib	method	SMTP.rcpt	
+smtplib	method	SMTP.data	
+smtplib	method	SMTP.verify	
+smtplib	method	SMTP.expn	
+smtplib	method	SMTP.ehlo_or_helo_if_needed	
+smtplib	method	SMTP.auth	
+smtplib	method	SMTP.auth_cram_md5	
+smtplib	method	SMTP.auth_plain	
+smtplib	method	SMTP.auth_login	
+smtplib	method	SMTP.login	
+smtplib	method	SMTP.starttls	
+smtplib	method	SMTP.sendmail	
+smtplib	method	SMTP.send_message	
+smtplib	method	SMTP.close	
+smtplib	method	SMTP.quit	
+smtplib	const	LMTP_PORT	
+smtplib	class	LMTP	bases=SMTP
+smtplib	method	LMTP.__init__	
+smtplib	method	LMTP.connect	
+ftplib	const	MSG_OOB	
+ftplib	const	FTP_PORT	
+ftplib	const	MAXLINE	
+ftplib	class	Error	bases=Exception
+ftplib	class	error_reply	bases=Error
+ftplib	class	error_temp	bases=Error
+ftplib	class	error_perm	bases=Error
+ftplib	class	error_proto	bases=Error
+ftplib	const	CRLF	
+ftplib	const	B_CRLF	
+ftplib	class	FTP	bases=
+ftplib	method	FTP.__init__	
+ftplib	method	FTP.connect	
+ftplib	method	FTP.getwelcome	
+ftplib	method	FTP.set_debuglevel	
+ftplib	method	FTP.set_pasv	
+ftplib	method	FTP.sanitize	
+ftplib	method	FTP.putline	
+ftplib	method	FTP.putcmd	
+ftplib	method	FTP.getline	
+ftplib	method	FTP.getmultiline	
+ftplib	method	FTP.getresp	
+ftplib	method	FTP.voidresp	
+ftplib	method	FTP.abort	
+ftplib	method	FTP.sendcmd	
+ftplib	method	FTP.voidcmd	
+ftplib	method	FTP.sendport	
+ftplib	method	FTP.sendeprt	
+ftplib	method	FTP.makeport	
+ftplib	method	FTP.makepasv	
+ftplib	method	FTP.ntransfercmd	
+ftplib	method	FTP.transfercmd	
+ftplib	method	FTP.login	
+ftplib	method	FTP.retrbinary	
+ftplib	method	FTP.retrlines	
+ftplib	method	FTP.storbinary	
+ftplib	method	FTP.storlines	
+ftplib	method	FTP.acct	
+ftplib	method	FTP.nlst	
+ftplib	method	FTP.dir	
+ftplib	method	FTP.mlsd	
+ftplib	method	FTP.rename	
+ftplib	method	FTP.delete	
+ftplib	method	FTP.cwd	
+ftplib	method	FTP.size	
+ftplib	method	FTP.mkd	
+ftplib	method	FTP.rmd	
+ftplib	method	FTP.pwd	
+ftplib	method	FTP.quit	
+ftplib	method	FTP.close	
+ftplib	func	parse150	args=resp
+ftplib	func	parse227	args=resp
+ftplib	func	parse229	args=resp,peer
+ftplib	func	parse257	args=resp
+ftplib	func	print_line	args=line
+ftplib	func	ftpcp	args=source,sourcename,target,targetname,type
+ftplib	func	test	args=
+imaplib	const	CRLF	
+imaplib	const	IMAP4_PORT	
+imaplib	const	IMAP4_SSL_PORT	
+imaplib	const	_MAXLINE	
+imaplib	class	IMAP4	bases=
+imaplib	method	IMAP4.__init__	
+imaplib	method	IMAP4.open	
+imaplib	method	IMAP4.file	
+imaplib	method	IMAP4.file	
+imaplib	method	IMAP4.read	
+imaplib	method	IMAP4.readline	
+imaplib	method	IMAP4.send	
+imaplib	method	IMAP4.shutdown	
+imaplib	method	IMAP4.socket	
+imaplib	method	IMAP4.recent	
+imaplib	method	IMAP4.response	
+imaplib	method	IMAP4.append	
+imaplib	method	IMAP4.authenticate	
+imaplib	method	IMAP4.capability	
+imaplib	method	IMAP4.check	
+imaplib	method	IMAP4.close	
+imaplib	method	IMAP4.copy	
+imaplib	method	IMAP4.create	
+imaplib	method	IMAP4.delete	
+imaplib	method	IMAP4.deleteacl	
+imaplib	method	IMAP4.enable	
+imaplib	method	IMAP4.expunge	
+imaplib	method	IMAP4.fetch	
+imaplib	method	IMAP4.getacl	
+imaplib	method	IMAP4.getannotation	
+imaplib	method	IMAP4.getquota	
+imaplib	method	IMAP4.getquotaroot	
+imaplib	method	IMAP4.idle	
+imaplib	method	IMAP4.list	
+imaplib	method	IMAP4.login	
+imaplib	method	IMAP4.login_cram_md5	
+imaplib	method	IMAP4.logout	
+imaplib	method	IMAP4.lsub	
+imaplib	method	IMAP4.myrights	
+imaplib	method	IMAP4.namespace	
+imaplib	method	IMAP4.noop	
+imaplib	method	IMAP4.partial	
+imaplib	method	IMAP4.proxyauth	
+imaplib	method	IMAP4.rename	
+imaplib	method	IMAP4.search	
+imaplib	method	IMAP4.select	
+imaplib	method	IMAP4.setacl	
+imaplib	method	IMAP4.setannotation	
+imaplib	method	IMAP4.setquota	
+imaplib	method	IMAP4.sort	
+imaplib	method	IMAP4.starttls	
+imaplib	method	IMAP4.status	
+imaplib	method	IMAP4.store	
+imaplib	method	IMAP4.subscribe	
+imaplib	method	IMAP4.thread	
+imaplib	method	IMAP4.uid	
+imaplib	method	IMAP4.unsubscribe	
+imaplib	method	IMAP4.unselect	
+imaplib	method	IMAP4.xatom	
+imaplib	class	Idler	bases=
+imaplib	method	Idler.__init__	
+imaplib	method	Idler.burst	
+imaplib	class	IMAP4_stream	bases=IMAP4
+imaplib	method	IMAP4_stream.__init__	
+imaplib	method	IMAP4_stream.open	
+imaplib	method	IMAP4_stream.read	
+imaplib	method	IMAP4_stream.readline	
+imaplib	method	IMAP4_stream.send	
+imaplib	method	IMAP4_stream.shutdown	
+imaplib	func	Internaldate2tuple	args=resp
+imaplib	func	Int2AP	args=num
+imaplib	func	ParseFlags	args=resp
+imaplib	func	Time2Internaldate	args=date_time
+poplib	class	error_proto	bases=Exception
+poplib	const	POP3_PORT	
+poplib	const	POP3_SSL_PORT	
+poplib	const	CR	
+poplib	const	LF	
+poplib	const	CRLF	
+poplib	const	_MAXLINE	
+poplib	class	POP3	bases=
+poplib	method	POP3.__init__	
+poplib	method	POP3.getwelcome	
+poplib	method	POP3.set_debuglevel	
+poplib	method	POP3.user	
+poplib	method	POP3.pass_	
+poplib	method	POP3.stat	
+poplib	method	POP3.list	
+poplib	method	POP3.retr	
+poplib	method	POP3.dele	
+poplib	method	POP3.noop	
+poplib	method	POP3.rset	
+poplib	method	POP3.quit	
+poplib	method	POP3.close	
+poplib	method	POP3.rpop	
+poplib	method	POP3.apop	
+poplib	method	POP3.top	
+poplib	method	POP3.uidl	
+poplib	method	POP3.utf8	
+poplib	method	POP3.capa	
+poplib	method	POP3.stls	
+_socket(C)	c_method	CMSG_LEN	source=C PyMethodDef scan
+_socket(C)	c_method	CMSG_SPACE	source=C PyMethodDef scan
+_socket(C)	c_method	_accept	source=C PyMethodDef scan
+_socket(C)	c_method	bind	source=C PyMethodDef scan
+_socket(C)	c_method	close	source=C PyMethodDef scan
+_socket(C)	c_method	connect	source=C PyMethodDef scan
+_socket(C)	c_method	connect_ex	source=C PyMethodDef scan
+_socket(C)	c_method	detach	source=C PyMethodDef scan
+_socket(C)	c_method	dup	source=C PyMethodDef scan
+_socket(C)	c_method	fileno	source=C PyMethodDef scan
+_socket(C)	c_method	getaddrinfo	source=C PyMethodDef scan
+_socket(C)	c_method	getblocking	source=C PyMethodDef scan
+_socket(C)	c_method	getdefaulttimeout	source=C PyMethodDef scan
+_socket(C)	c_method	gethostbyaddr	source=C PyMethodDef scan
+_socket(C)	c_method	gethostbyname	source=C PyMethodDef scan
+_socket(C)	c_method	gethostbyname_ex	source=C PyMethodDef scan
+_socket(C)	c_method	gethostname	source=C PyMethodDef scan
+_socket(C)	c_method	getnameinfo	source=C PyMethodDef scan
+_socket(C)	c_method	getpeername	source=C PyMethodDef scan
+_socket(C)	c_method	getprotobyname	source=C PyMethodDef scan
+_socket(C)	c_method	getservbyname	source=C PyMethodDef scan
+_socket(C)	c_method	getservbyport	source=C PyMethodDef scan
+_socket(C)	c_method	getsockname	source=C PyMethodDef scan
+_socket(C)	c_method	getsockopt	source=C PyMethodDef scan
+_socket(C)	c_method	if_nameindex	source=C PyMethodDef scan
+_socket(C)	c_method	inet_ntop	source=C PyMethodDef scan
+_socket(C)	c_method	inet_pton	source=C PyMethodDef scan
+_socket(C)	c_method	ioctl	source=C PyMethodDef scan
+_socket(C)	c_method	listen	source=C PyMethodDef scan
+_socket(C)	c_method	recv	source=C PyMethodDef scan
+_socket(C)	c_method	recvfrom	source=C PyMethodDef scan
+_socket(C)	c_method	recvmsg	source=C PyMethodDef scan
+_socket(C)	c_method	recvmsg_into	source=C PyMethodDef scan
+_socket(C)	c_method	sendto	source=C PyMethodDef scan
+_socket(C)	c_method	setblocking	source=C PyMethodDef scan
+_socket(C)	c_method	setdefaulttimeout	source=C PyMethodDef scan
+_socket(C)	c_method	sethostname	source=C PyMethodDef scan
+_socket(C)	c_method	setsockopt	source=C PyMethodDef scan
+_socket(C)	c_method	settimeout	source=C PyMethodDef scan
+_socket(C)	c_method	share	source=C PyMethodDef scan
+_socket(C)	c_method	shutdown	source=C PyMethodDef scan
+_socket(C)	c_method	socketpair	source=C PyMethodDef scan
+_socket(C)	c_const	AF_AAL5	source=C constant-name scan
+_socket(C)	c_const	AF_ALG	source=C constant-name scan
+_socket(C)	c_const	AF_APPLETALK	source=C constant-name scan
+_socket(C)	c_const	AF_ASH	source=C constant-name scan
+_socket(C)	c_const	AF_ATMPVC	source=C constant-name scan
+_socket(C)	c_const	AF_ATMSVC	source=C constant-name scan
+_socket(C)	c_const	AF_AX25	source=C constant-name scan
+_socket(C)	c_const	AF_BLUETOOTH	source=C constant-name scan
+_socket(C)	c_const	AF_BRIDGE	source=C constant-name scan
+_socket(C)	c_const	AF_CAN	source=C constant-name scan
+_socket(C)	c_const	AF_DEC	source=C constant-name scan
+_socket(C)	c_const	AF_DIVERT	source=C constant-name scan
+_socket(C)	c_const	AF_ECONET	source=C constant-name scan
+_socket(C)	c_const	AF_HYPERV	source=C constant-name scan
+_socket(C)	c_const	AF_INET	source=C constant-name scan
+_socket(C)	c_const	AF_INET6	source=C constant-name scan
+_socket(C)	c_const	AF_IPX	source=C constant-name scan
+_socket(C)	c_const	AF_IRDA	source=C constant-name scan
+_socket(C)	c_const	AF_KEY	source=C constant-name scan
+_socket(C)	c_const	AF_LINK	source=C constant-name scan
+_socket(C)	c_const	AF_LLC	source=C constant-name scan
+_socket(C)	c_const	AF_NETBEUI	source=C constant-name scan
+_socket(C)	c_const	AF_NETLINK	source=C constant-name scan
+_socket(C)	c_const	AF_NETROM	source=C constant-name scan
+_socket(C)	c_const	AF_PACKET	source=C constant-name scan
+_socket(C)	c_const	AF_PPPOX	source=C constant-name scan
+_socket(C)	c_const	AF_QIPCRTR	source=C constant-name scan
+_socket(C)	c_const	AF_RDS	source=C constant-name scan
+_socket(C)	c_const	AF_ROSE	source=C constant-name scan
+_socket(C)	c_const	AF_ROUTE	source=C constant-name scan
+_socket(C)	c_const	AF_SECURITY	source=C constant-name scan
+_socket(C)	c_const	AF_SNA	source=C constant-name scan
+_socket(C)	c_const	AF_SYSTEM	source=C constant-name scan
+_socket(C)	c_const	AF_TIPC	source=C constant-name scan
+_socket(C)	c_const	AF_UNIX	source=C constant-name scan
+_socket(C)	c_const	AF_UNSPEC	source=C constant-name scan
+_socket(C)	c_const	AF_VSOCK	source=C constant-name scan
+_socket(C)	c_const	AF_WANPIPE	source=C constant-name scan
+_socket(C)	c_const	AF_X25	source=C constant-name scan
+_socket(C)	c_const	AI_ADDRCONFIG	source=C constant-name scan
+_socket(C)	c_const	AI_ALL	source=C constant-name scan
+_socket(C)	c_const	AI_CANONNAME	source=C constant-name scan
+_socket(C)	c_const	AI_DEFAULT	source=C constant-name scan
+_socket(C)	c_const	AI_MASK	source=C constant-name scan
+_socket(C)	c_const	AI_NUMERICHOST	source=C constant-name scan
+_socket(C)	c_const	AI_NUMERICSERV	source=C constant-name scan
+_socket(C)	c_const	AI_PASSIVE	source=C constant-name scan
+_socket(C)	c_const	AI_V4MAPPED	source=C constant-name scan
+_socket(C)	c_const	AI_V4MAPPED_CFG	source=C constant-name scan
+_socket(C)	c_const	ALG_OP_DECRYPT	source=C constant-name scan
+_socket(C)	c_const	ALG_OP_ENCRYPT	source=C constant-name scan
+_socket(C)	c_const	ALG_OP_SIGN	source=C constant-name scan
+_socket(C)	c_const	ALG_OP_VERIFY	source=C constant-name scan
+_socket(C)	c_const	ALG_SET_AEAD_ASSOCLEN	source=C constant-name scan
+_socket(C)	c_const	ALG_SET_AEAD_AUTHSIZE	source=C constant-name scan
+_socket(C)	c_const	ALG_SET_IV	source=C constant-name scan
+_socket(C)	c_const	ALG_SET_KEY	source=C constant-name scan
+_socket(C)	c_const	ALG_SET_OP	source=C constant-name scan
+_socket(C)	c_const	ALG_SET_PUBKEY	source=C constant-name scan
+_socket(C)	c_const	BDADDR_ANY	source=C constant-name scan
+_socket(C)	c_const	BDADDR_BREDR	source=C constant-name scan
+_socket(C)	c_const	BDADDR_LE_PUBLIC	source=C constant-name scan
+_socket(C)	c_const	BDADDR_LE_RANDOM	source=C constant-name scan
+_socket(C)	c_const	BDADDR_LOCAL	source=C constant-name scan
+_socket(C)	c_const	BTPROTO_HCI	source=C constant-name scan
+_socket(C)	c_const	BTPROTO_L2CAP	source=C constant-name scan
+_socket(C)	c_const	BTPROTO_RFCOMM	source=C constant-name scan
+_socket(C)	c_const	BTPROTO_SCO	source=C constant-name scan
+_socket(C)	c_const	BT_CHANNEL_POLICY	source=C constant-name scan
+_socket(C)	c_const	BT_CHANNEL_POLICY_BREDR_ONLY	source=C constant-name scan
+_socket(C)	c_const	BT_CHANNEL_POLICY_BREDR_PREFERRED	source=C constant-name scan
+_socket(C)	c_const	BT_CODEC	source=C constant-name scan
+_socket(C)	c_const	BT_DEFER_SETUP	source=C constant-name scan
+_socket(C)	c_const	BT_FLUSHABLE	source=C constant-name scan
+_socket(C)	c_const	BT_FLUSHABLE_OFF	source=C constant-name scan
+_socket(C)	c_const	BT_FLUSHABLE_ON	source=C constant-name scan
+_socket(C)	c_const	BT_ISO_QOS	source=C constant-name scan
+_socket(C)	c_const	BT_MODE	source=C constant-name scan
+_socket(C)	c_const	BT_MODE_BASIC	source=C constant-name scan
+_socket(C)	c_const	BT_MODE_ERTM	source=C constant-name scan
+_socket(C)	c_const	BT_MODE_EXT_FLOWCTL	source=C constant-name scan
+_socket(C)	c_const	BT_MODE_LE_FLOWCTL	source=C constant-name scan
+_socket(C)	c_const	BT_MODE_STREAMING	source=C constant-name scan
+_socket(C)	c_const	BT_PHY	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_BR_1M_1SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_BR_1M_3SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_BR_1M_5SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_EDR_2M_1SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_EDR_2M_3SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_EDR_2M_5SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_EDR_3M_1SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_EDR_3M_3SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_EDR_3M_5SLOT	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_LE_1M_RX	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_LE_1M_TX	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_LE_2M_RX	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_LE_2M_TX	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_LE_CODED_RX	source=C constant-name scan
+_socket(C)	c_const	BT_PHY_LE_CODED_TX	source=C constant-name scan
+_socket(C)	c_const	BT_PKT_STATUS	source=C constant-name scan
+_socket(C)	c_const	BT_POWER	source=C constant-name scan
+_socket(C)	c_const	BT_POWER_FORCE_ACTIVE_OFF	source=C constant-name scan
+_socket(C)	c_const	BT_POWER_FORCE_ACTIVE_ON	source=C constant-name scan
+_socket(C)	c_const	BT_RCVMTU	source=C constant-name scan
+_socket(C)	c_const	BT_SECURITY	source=C constant-name scan
+_socket(C)	c_const	BT_SECURITY_FIPS	source=C constant-name scan
+_socket(C)	c_const	BT_SECURITY_HIGH	source=C constant-name scan
+_socket(C)	c_const	BT_SECURITY_LOW	source=C constant-name scan
+_socket(C)	c_const	BT_SECURITY_MEDIUM	source=C constant-name scan
+_socket(C)	c_const	BT_SECURITY_SDP	source=C constant-name scan
+_socket(C)	c_const	BT_SNDMTU	source=C constant-name scan
+_socket(C)	c_const	BT_VOICE	source=C constant-name scan
+_socket(C)	c_const	BT_VOICE_CVSD_16BIT	source=C constant-name scan
+_socket(C)	c_const	BT_VOICE_TRANSPARENT	source=C constant-name scan
+_socket(C)	c_const	BT_VOICE_TRANSPARENT_16BIT	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_CAN_FD_FRAME	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_ANNOUNCE_RESUME	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_CHANGED	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_CHECK_DLC	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_DELETE	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_FILTER_ID	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_NO_AUTOTIMER	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_READ	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_RTR_FRAME	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_SETUP	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_STATUS	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_RX_TIMEOUT	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_SETTIMER	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_STARTTIMER	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_ANNOUNCE	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_COUNTEVT	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_CP_CAN_ID	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_DELETE	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_EXPIRED	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_READ	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_RESET_MULTI_IDX	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_SEND	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_SETUP	source=C constant-name scan
+_socket(C)	c_const	CAN_BCM_TX_STATUS	source=C constant-name scan
+_socket(C)	c_const	CAN_EFF_FLAG	source=C constant-name scan
+_socket(C)	c_const	CAN_EFF_MASK	source=C constant-name scan
+_socket(C)	c_const	CAN_ERR_FLAG	source=C constant-name scan
+_socket(C)	c_const	CAN_ERR_MASK	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_CHK_PAD_DATA	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_CHK_PAD_LEN	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_EXT_ADDRESS	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_FLAGS	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_FRAME_TXTIME	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_LL_MTU	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_LL_TX_DL	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_LL_TX_FLAGS	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_PAD_CONTENT	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_RECV_BS	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_RECV_STMIN	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_DEFAULT_RECV_WFTMAX	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_EXTEND_ADDR	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_FORCE_RXSTMIN	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_FORCE_TXSTMIN	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_HALF_DUPLEX	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_LISTEN_MODE	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_LL_OPTS	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_OPTS	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_RECV_FC	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_RX_EXT_ADDR	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_RX_PADDING	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_RX_STMIN	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_SF_BROADCAST	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_TX_PADDING	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_TX_STMIN	source=C constant-name scan
+_socket(C)	c_const	CAN_ISOTP_WAIT_TX_DONE	source=C constant-name scan
+_socket(C)	c_const	CAN_J1939	source=C constant-name scan
+_socket(C)	c_const	CAN_RAW	source=C constant-name scan
+_socket(C)	c_const	CAN_RAW_ERR_FILTER	source=C constant-name scan
+_socket(C)	c_const	CAN_RAW_FD_FRAMES	source=C constant-name scan
+_socket(C)	c_const	CAN_RAW_FILTER	source=C constant-name scan
+_socket(C)	c_const	CAN_RAW_JOIN_FILTERS	source=C constant-name scan
+_socket(C)	c_const	CAN_RAW_LOOPBACK	source=C constant-name scan
+_socket(C)	c_const	CAN_RAW_RECV_OWN_MSGS	source=C constant-name scan
+_socket(C)	c_const	CAN_RTR_FLAG	source=C constant-name scan
+_socket(C)	c_const	CAN_SFF_MASK	source=C constant-name scan
+_socket(C)	c_const	CMSG_FIRSTHDR	source=C constant-name scan
+_socket(C)	c_const	CMSG_LEN	source=C constant-name scan
+_socket(C)	c_const	CMSG_NXTHDR	source=C constant-name scan
+_socket(C)	c_const	CMSG_SPACE	source=C constant-name scan
+_socket(C)	c_const	EAI_ADDRFAMILY	source=C constant-name scan
+_socket(C)	c_const	EAI_AGAIN	source=C constant-name scan
+_socket(C)	c_const	EAI_BADFLAGS	source=C constant-name scan
+_socket(C)	c_const	EAI_BADHINTS	source=C constant-name scan
+_socket(C)	c_const	EAI_FAIL	source=C constant-name scan
+_socket(C)	c_const	EAI_FAMILY	source=C constant-name scan
+_socket(C)	c_const	EAI_MAX	source=C constant-name scan
+_socket(C)	c_const	EAI_MEMORY	source=C constant-name scan
+_socket(C)	c_const	EAI_NODATA	source=C constant-name scan
+_socket(C)	c_const	EAI_NONAME	source=C constant-name scan
+_socket(C)	c_const	EAI_OVERFLOW	source=C constant-name scan
+_socket(C)	c_const	EAI_PROTOCOL	source=C constant-name scan
+_socket(C)	c_const	EAI_SERVICE	source=C constant-name scan
+_socket(C)	c_const	EAI_SOCKTYPE	source=C constant-name scan
+_socket(C)	c_const	EAI_SYSTEM	source=C constant-name scan
+_socket(C)	c_const	ETHERTYPE_ARP	source=C constant-name scan
+_socket(C)	c_const	ETHERTYPE_IP	source=C constant-name scan
+_socket(C)	c_const	ETHERTYPE_IPV6	source=C constant-name scan
+_socket(C)	c_const	ETHERTYPE_VLAN	source=C constant-name scan
+_socket(C)	c_const	ETH_P_ALL	source=C constant-name scan
+_socket(C)	c_const	HCI_CHANNEL_CONTROL	source=C constant-name scan
+_socket(C)	c_const	HCI_CHANNEL_LOGGING	source=C constant-name scan
+_socket(C)	c_const	HCI_CHANNEL_MONITOR	source=C constant-name scan
+_socket(C)	c_const	HCI_CHANNEL_RAW	source=C constant-name scan
+_socket(C)	c_const	HCI_CHANNEL_USER	source=C constant-name scan
+_socket(C)	c_const	HCI_DATA_DIR	source=C constant-name scan
+_socket(C)	c_const	HCI_DEV_NONE	source=C constant-name scan
+_socket(C)	c_const	HCI_FILTER	source=C constant-name scan
+_socket(C)	c_const	HCI_TIME_STAMP	source=C constant-name scan
+_socket(C)	c_const	HVSOCKET_ADDRESS_FLAG_PASSTHRU	source=C constant-name scan
+_socket(C)	c_const	HVSOCKET_CONNECTED_SUSPEND	source=C constant-name scan
+_socket(C)	c_const	HVSOCKET_CONNECT_TIMEOUT	source=C constant-name scan
+_socket(C)	c_const	HVSOCKET_CONNECT_TIMEOUT_MAX	source=C constant-name scan
+_socket(C)	c_const	HV_GUID_BROADCAST	source=C constant-name scan
+_socket(C)	c_const	HV_GUID_CHILDREN	source=C constant-name scan
+_socket(C)	c_const	HV_GUID_LOOPBACK	source=C constant-name scan
+_socket(C)	c_const	HV_GUID_PARENT	source=C constant-name scan
+_socket(C)	c_const	HV_GUID_WILDCARD	source=C constant-name scan
+_socket(C)	c_const	HV_GUID_ZERO	source=C constant-name scan
+_socket(C)	c_const	HV_PROTOCOL_RAW	source=C constant-name scan
+_socket(C)	c_const	INADDR_ALLHOSTS_GROUP	source=C constant-name scan
+_socket(C)	c_const	INADDR_ANY	source=C constant-name scan
+_socket(C)	c_const	INADDR_BROADCAST	source=C constant-name scan
+_socket(C)	c_const	INADDR_LOOPBACK	source=C constant-name scan
+_socket(C)	c_const	INADDR_MAX_LOCAL_GROUP	source=C constant-name scan
+_socket(C)	c_const	INADDR_NONE	source=C constant-name scan
+_socket(C)	c_const	INADDR_UNSPEC_GROUP	source=C constant-name scan
+_socket(C)	c_const	INT	source=C constant-name scan
+_socket(C)	c_const	IOCTL_VM_SOCKETS_GET_LOCAL_CID	source=C constant-name scan
+_socket(C)	c_const	IPPORT_RESERVED	source=C constant-name scan
+_socket(C)	c_const	IPPORT_USERRESERVED	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_AH	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_BIP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_CBT	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_DSTOPTS	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_EGP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_EON	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_ESP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_FRAGMENT	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_GGP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_GRE	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_HELLO	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_HOPOPTS	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_ICLFXBM	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_ICMP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_ICMPV6	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IDP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IGMP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IGP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IPCOMP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IPIP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IPV4	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_IPV6	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_L2TP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_MAX	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_MOBILE	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_MPTCP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_ND	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_NONE	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_PGM	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_PIM	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_PUP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_RAW	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_RDP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_ROUTING	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_RSVP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_SCTP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_ST	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_TCP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_TP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_UDP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_UDPLITE	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_VRRP	source=C constant-name scan
+_socket(C)	c_const	IPPROTO_XTP	source=C constant-name scan
+_socket(C)	c_const	IPV6_CHECKSUM	source=C constant-name scan
+_socket(C)	c_const	IPV6_DONTFRAG	source=C constant-name scan
+_socket(C)	c_const	IPV6_DSTOPTS	source=C constant-name scan
+_socket(C)	c_const	IPV6_HDRINCL	source=C constant-name scan
+_socket(C)	c_const	IPV6_HOPLIMIT	source=C constant-name scan
+_socket(C)	c_const	IPV6_HOPOPTS	source=C constant-name scan
+_socket(C)	c_const	IPV6_JOIN_GROUP	source=C constant-name scan
+_socket(C)	c_const	IPV6_LEAVE_GROUP	source=C constant-name scan
+_socket(C)	c_const	IPV6_MULTICAST_HOPS	source=C constant-name scan
+_socket(C)	c_const	IPV6_MULTICAST_IF	source=C constant-name scan
+_socket(C)	c_const	IPV6_MULTICAST_LOOP	source=C constant-name scan
+_socket(C)	c_const	IPV6_NEXTHOP	source=C constant-name scan
+_socket(C)	c_const	IPV6_PATHMTU	source=C constant-name scan
+_socket(C)	c_const	IPV6_PKTINFO	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVDSTOPTS	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVERR	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVHOPLIMIT	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVHOPOPTS	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVPATHMTU	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVPKTINFO	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVRTHDR	source=C constant-name scan
+_socket(C)	c_const	IPV6_RECVTCLASS	source=C constant-name scan
+_socket(C)	c_const	IPV6_RTHDR	source=C constant-name scan
+_socket(C)	c_const	IPV6_RTHDRDSTOPTS	source=C constant-name scan
+_socket(C)	c_const	IPV6_RTHDR_TYPE_0	source=C constant-name scan
+_socket(C)	c_const	IPV6_TCLASS	source=C constant-name scan
+_socket(C)	c_const	IPV6_UNICAST_HOPS	source=C constant-name scan
+_socket(C)	c_const	IPV6_USE_MIN_MTU	source=C constant-name scan
+_socket(C)	c_const	IPV6_V6ONLY	source=C constant-name scan
+_socket(C)	c_const	IPX_TYPE	source=C constant-name scan
+_socket(C)	c_const	IP_ADD_MEMBERSHIP	source=C constant-name scan
+_socket(C)	c_const	IP_ADD_SOURCE_MEMBERSHIP	source=C constant-name scan
+_socket(C)	c_const	IP_BIND_ADDRESS_NO_PORT	source=C constant-name scan
+_socket(C)	c_const	IP_BLOCK_SOURCE	source=C constant-name scan
+_socket(C)	c_const	IP_DEFAULT_MULTICAST_LOOP	source=C constant-name scan
+_socket(C)	c_const	IP_DEFAULT_MULTICAST_TTL	source=C constant-name scan
+_socket(C)	c_const	IP_DROP_MEMBERSHIP	source=C constant-name scan
+_socket(C)	c_const	IP_DROP_SOURCE_MEMBERSHIP	source=C constant-name scan
+_socket(C)	c_const	IP_FREEBIND	source=C constant-name scan
+_socket(C)	c_const	IP_HDRINCL	source=C constant-name scan
+_socket(C)	c_const	IP_MAX_MEMBERSHIPS	source=C constant-name scan
+_socket(C)	c_const	IP_MULTICAST_IF	source=C constant-name scan
+_socket(C)	c_const	IP_MULTICAST_LOOP	source=C constant-name scan
+_socket(C)	c_const	IP_MULTICAST_TTL	source=C constant-name scan
+_socket(C)	c_const	IP_OPTIONS	source=C constant-name scan
+_socket(C)	c_const	IP_PKTINFO	source=C constant-name scan
+_socket(C)	c_const	IP_RECVDSTADDR	source=C constant-name scan
+_socket(C)	c_const	IP_RECVERR	source=C constant-name scan
+_socket(C)	c_const	IP_RECVOPTS	source=C constant-name scan
+_socket(C)	c_const	IP_RECVORIGDSTADDR	source=C constant-name scan
+_socket(C)	c_const	IP_RECVRETOPTS	source=C constant-name scan
+_socket(C)	c_const	IP_RECVTOS	source=C constant-name scan
+_socket(C)	c_const	IP_RECVTTL	source=C constant-name scan
+_socket(C)	c_const	IP_RETOPTS	source=C constant-name scan
+_socket(C)	c_const	IP_TOS	source=C constant-name scan
+_socket(C)	c_const	IP_TRANSPARENT	source=C constant-name scan
+_socket(C)	c_const	IP_TTL	source=C constant-name scan
+_socket(C)	c_const	IP_UNBLOCK_SOURCE	source=C constant-name scan
+_socket(C)	c_const	J1939_EE_INFO_NONE	source=C constant-name scan
+_socket(C)	c_const	J1939_EE_INFO_TX_ABORT	source=C constant-name scan
+_socket(C)	c_const	J1939_FILTER_MAX	source=C constant-name scan
+_socket(C)	c_const	J1939_IDLE_ADDR	source=C constant-name scan
+_socket(C)	c_const	J1939_MAX_UNICAST_ADDR	source=C constant-name scan
+_socket(C)	c_const	J1939_NLA_BYTES_ACKED	source=C constant-name scan
+_socket(C)	c_const	J1939_NLA_PAD	source=C constant-name scan
+_socket(C)	c_const	J1939_NO_ADDR	source=C constant-name scan
+_socket(C)	c_const	J1939_NO_NAME	source=C constant-name scan
+_socket(C)	c_const	J1939_NO_PGN	source=C constant-name scan
+_socket(C)	c_const	J1939_PGN_ADDRESS_CLAIMED	source=C constant-name scan
+_socket(C)	c_const	J1939_PGN_ADDRESS_COMMANDED	source=C constant-name scan
+_socket(C)	c_const	J1939_PGN_MAX	source=C constant-name scan
+_socket(C)	c_const	J1939_PGN_PDU1_MAX	source=C constant-name scan
+_socket(C)	c_const	J1939_PGN_REQUEST	source=C constant-name scan
+_socket(C)	c_const	L2CAP_LM	source=C constant-name scan
+_socket(C)	c_const	L2CAP_LM_AUTH	source=C constant-name scan
+_socket(C)	c_const	L2CAP_LM_ENCRYPT	source=C constant-name scan
+_socket(C)	c_const	L2CAP_LM_MASTER	source=C constant-name scan
+_socket(C)	c_const	L2CAP_LM_RELIABLE	source=C constant-name scan
+_socket(C)	c_const	L2CAP_LM_SECURE	source=C constant-name scan
+_socket(C)	c_const	L2CAP_LM_TRUSTED	source=C constant-name scan
+_socket(C)	c_const	LOCAL_CREDS	source=C constant-name scan
+_socket(C)	c_const	LOCAL_CREDS_PERSISTENT	source=C constant-name scan
+_socket(C)	c_const	LOCAL_PEERCRED	source=C constant-name scan
+_socket(C)	c_const	MSG_BCAST	source=C constant-name scan
+_socket(C)	c_const	MSG_BTAG	source=C constant-name scan
+_socket(C)	c_const	MSG_CMSG_CLOEXEC	source=C constant-name scan
+_socket(C)	c_const	MSG_CONFIRM	source=C constant-name scan
+_socket(C)	c_const	MSG_CTRUNC	source=C constant-name scan
+_socket(C)	c_const	MSG_DONTROUTE	source=C constant-name scan
+_socket(C)	c_const	MSG_DONTWAIT	source=C constant-name scan
+_socket(C)	c_const	MSG_EOF	source=C constant-name scan
+_socket(C)	c_const	MSG_EOR	source=C constant-name scan
+_socket(C)	c_const	MSG_ERRQUEUE	source=C constant-name scan
+_socket(C)	c_const	MSG_ETAG	source=C constant-name scan
+_socket(C)	c_const	MSG_FASTOPEN	source=C constant-name scan
+_socket(C)	c_const	MSG_MCAST	source=C constant-name scan
+_socket(C)	c_const	MSG_MORE	source=C constant-name scan
+_socket(C)	c_const	MSG_NOSIGNAL	source=C constant-name scan
+_socket(C)	c_const	MSG_NOTIFICATION	source=C constant-name scan
+_socket(C)	c_const	MSG_OOB	source=C constant-name scan
+_socket(C)	c_const	MSG_PEEK	source=C constant-name scan
+_socket(C)	c_const	MSG_TRUNC	source=C constant-name scan
+_socket(C)	c_const	MSG_WAITALL	source=C constant-name scan
+_socket(C)	c_const	NETLINK_CRYPTO	source=C constant-name scan
+_socket(C)	c_const	NETLINK_DNRTMSG	source=C constant-name scan
+_socket(C)	c_const	NETLINK_FIREWALL	source=C constant-name scan
+_socket(C)	c_const	NETLINK_IP6_FW	source=C constant-name scan
+_socket(C)	c_const	NETLINK_NFLOG	source=C constant-name scan
+_socket(C)	c_const	NETLINK_ROUTE	source=C constant-name scan
+_socket(C)	c_const	NETLINK_USERSOCK	source=C constant-name scan
+_socket(C)	c_const	NETLINK_XFRM	source=C constant-name scan
+_socket(C)	c_const	NI_DGRAM	source=C constant-name scan
+_socket(C)	c_const	NI_IDN	source=C constant-name scan
+_socket(C)	c_const	NI_MAXHOST	source=C constant-name scan
+_socket(C)	c_const	NI_MAXSERV	source=C constant-name scan
+_socket(C)	c_const	NI_NAMEREQD	source=C constant-name scan
+_socket(C)	c_const	NI_NOFQDN	source=C constant-name scan
+_socket(C)	c_const	NI_NUMERICHOST	source=C constant-name scan
+_socket(C)	c_const	NI_NUMERICSERV	source=C constant-name scan
+_socket(C)	c_const	PACKET_BROADCAST	source=C constant-name scan
+_socket(C)	c_const	PACKET_FASTROUTE	source=C constant-name scan
+_socket(C)	c_const	PACKET_HOST	source=C constant-name scan
+_socket(C)	c_const	PACKET_LOOPBACK	source=C constant-name scan
+_socket(C)	c_const	PACKET_MULTICAST	source=C constant-name scan
+_socket(C)	c_const	PACKET_OTHERHOST	source=C constant-name scan
+_socket(C)	c_const	PACKET_OUTGOING	source=C constant-name scan
+_socket(C)	c_const	PF_CAN	source=C constant-name scan
+_socket(C)	c_const	PF_DIVERT	source=C constant-name scan
+_socket(C)	c_const	PF_PACKET	source=C constant-name scan
+_socket(C)	c_const	PF_RDS	source=C constant-name scan
+_socket(C)	c_const	PF_SYSTEM	source=C constant-name scan
+_socket(C)	c_const	RCVALL_IPLEVEL	source=C constant-name scan
+_socket(C)	c_const	RCVALL_MAX	source=C constant-name scan
+_socket(C)	c_const	RCVALL_OFF	source=C constant-name scan
+_socket(C)	c_const	RCVALL_ON	source=C constant-name scan
+_socket(C)	c_const	RCVALL_SOCKETLEVELONLY	source=C constant-name scan
+_socket(C)	c_const	RDS_CANCEL_SENT_TO	source=C constant-name scan
+_socket(C)	c_const	RDS_CMSG_RDMA_ARGS	source=C constant-name scan
+_socket(C)	c_const	RDS_CMSG_RDMA_DEST	source=C constant-name scan
+_socket(C)	c_const	RDS_CMSG_RDMA_MAP	source=C constant-name scan
+_socket(C)	c_const	RDS_CMSG_RDMA_STATUS	source=C constant-name scan
+_socket(C)	c_const	RDS_CMSG_RDMA_UPDATE	source=C constant-name scan
+_socket(C)	c_const	RDS_CONG_MONITOR	source=C constant-name scan
+_socket(C)	c_const	RDS_FREE_MR	source=C constant-name scan
+_socket(C)	c_const	RDS_GET_MR	source=C constant-name scan
+_socket(C)	c_const	RDS_GET_MR_FOR_DEST	source=C constant-name scan
+_socket(C)	c_const	RDS_RDMA_DONTWAIT	source=C constant-name scan
+_socket(C)	c_const	RDS_RDMA_FENCE	source=C constant-name scan
+_socket(C)	c_const	RDS_RDMA_INVALIDATE	source=C constant-name scan
+_socket(C)	c_const	RDS_RDMA_NOTIFY_ME	source=C constant-name scan
+_socket(C)	c_const	RDS_RDMA_READWRITE	source=C constant-name scan
+_socket(C)	c_const	RDS_RDMA_SILENT	source=C constant-name scan
+_socket(C)	c_const	RDS_RDMA_USE_ONCE	source=C constant-name scan
+_socket(C)	c_const	RDS_RECVERR	source=C constant-name scan
+_socket(C)	c_const	RFCOMM_LM_AUTH	source=C constant-name scan
+_socket(C)	c_const	RFCOMM_LM_ENCRYPT	source=C constant-name scan
+_socket(C)	c_const	RFCOMM_LM_SECURE	source=C constant-name scan
+_socket(C)	c_const	SCM_CREDENTIALS	source=C constant-name scan
+_socket(C)	c_const	SCM_CREDS	source=C constant-name scan
+_socket(C)	c_const	SCM_CREDS2	source=C constant-name scan
+_socket(C)	c_const	SCM_J1939_DEST_ADDR	source=C constant-name scan
+_socket(C)	c_const	SCM_J1939_DEST_NAME	source=C constant-name scan
+_socket(C)	c_const	SCM_J1939_ERRQUEUE	source=C constant-name scan
+_socket(C)	c_const	SCM_J1939_PRIO	source=C constant-name scan
+_socket(C)	c_const	SCM_RIGHTS	source=C constant-name scan
+_socket(C)	c_const	SHUT_RD	source=C constant-name scan
+_socket(C)	c_const	SHUT_RDWR	source=C constant-name scan
+_socket(C)	c_const	SHUT_WR	source=C constant-name scan
+_socket(C)	c_const	SOCK_CLOEXEC	source=C constant-name scan
+_socket(C)	c_const	SOCK_DGRAM	source=C constant-name scan
+_socket(C)	c_const	SOCK_NONBLOCK	source=C constant-name scan
+_socket(C)	c_const	SOCK_RAW	source=C constant-name scan
+_socket(C)	c_const	SOCK_RDM	source=C constant-name scan
+_socket(C)	c_const	SOCK_SEQPACKET	source=C constant-name scan
+_socket(C)	c_const	SOCK_STREAM	source=C constant-name scan
+_socket(C)	c_const	SOL_ALG	source=C constant-name scan
+_socket(C)	c_const	SOL_ATALK	source=C constant-name scan
+_socket(C)	c_const	SOL_AX25	source=C constant-name scan
+_socket(C)	c_const	SOL_BLUETOOTH	source=C constant-name scan
+_socket(C)	c_const	SOL_CAN_BASE	source=C constant-name scan
+_socket(C)	c_const	SOL_CAN_ISOTP	source=C constant-name scan
+_socket(C)	c_const	SOL_CAN_RAW	source=C constant-name scan
+_socket(C)	c_const	SOL_HCI	source=C constant-name scan
+_socket(C)	c_const	SOL_IP	source=C constant-name scan
+_socket(C)	c_const	SOL_IPX	source=C constant-name scan
+_socket(C)	c_const	SOL_L2CAP	source=C constant-name scan
+_socket(C)	c_const	SOL_NETROM	source=C constant-name scan
+_socket(C)	c_const	SOL_RDS	source=C constant-name scan
+_socket(C)	c_const	SOL_RFCOMM	source=C constant-name scan
+_socket(C)	c_const	SOL_ROSE	source=C constant-name scan
+_socket(C)	c_const	SOL_SCO	source=C constant-name scan
+_socket(C)	c_const	SOL_SOCKET	source=C constant-name scan
+_socket(C)	c_const	SOL_TCP	source=C constant-name scan
+_socket(C)	c_const	SOL_TIPC	source=C constant-name scan
+_socket(C)	c_const	SOL_UDP	source=C constant-name scan
+_socket(C)	c_const	SOMAXCONN	source=C constant-name scan
+_socket(C)	c_const	SO_ACCEPTCONN	source=C constant-name scan
+_socket(C)	c_const	SO_BINDTODEVICE	source=C constant-name scan
+_socket(C)	c_const	SO_BINDTOIFINDEX	source=C constant-name scan
+_socket(C)	c_const	SO_BROADCAST	source=C constant-name scan
+_socket(C)	c_const	SO_BTH_ENCRYPT	source=C constant-name scan
+_socket(C)	c_const	SO_BTH_MTU	source=C constant-name scan
+_socket(C)	c_const	SO_BTH_MTU_MAX	source=C constant-name scan
+_socket(C)	c_const	SO_BTH_MTU_MIN	source=C constant-name scan
+_socket(C)	c_const	SO_DEBUG	source=C constant-name scan
+_socket(C)	c_const	SO_DOMAIN	source=C constant-name scan
+_socket(C)	c_const	SO_DONTROUTE	source=C constant-name scan
+_socket(C)	c_const	SO_ERROR	source=C constant-name scan
+_socket(C)	c_const	SO_EXCLUSIVEADDRUSE	source=C constant-name scan
+_socket(C)	c_const	SO_HCI_EVT_FILTER	source=C constant-name scan
+_socket(C)	c_const	SO_HCI_PKT_FILTER	source=C constant-name scan
+_socket(C)	c_const	SO_INCOMING_CPU	source=C constant-name scan
+_socket(C)	c_const	SO_J1939_ERRQUEUE	source=C constant-name scan
+_socket(C)	c_const	SO_J1939_FILTER	source=C constant-name scan
+_socket(C)	c_const	SO_J1939_PROMISC	source=C constant-name scan
+_socket(C)	c_const	SO_J1939_SEND_PRIO	source=C constant-name scan
+_socket(C)	c_const	SO_KEEPALIVE	source=C constant-name scan
+_socket(C)	c_const	SO_L2CAP_ENCRYPTED	source=C constant-name scan
+_socket(C)	c_const	SO_L2CAP_FLUSH	source=C constant-name scan
+_socket(C)	c_const	SO_L2CAP_IMTU	source=C constant-name scan
+_socket(C)	c_const	SO_L2CAP_IQOS	source=C constant-name scan
+_socket(C)	c_const	SO_L2CAP_LM	source=C constant-name scan
+_socket(C)	c_const	SO_L2CAP_OMTU	source=C constant-name scan
+_socket(C)	c_const	SO_L2CAP_OQOS	source=C constant-name scan
+_socket(C)	c_const	SO_LINGER	source=C constant-name scan
+_socket(C)	c_const	SO_MARK	source=C constant-name scan
+_socket(C)	c_const	SO_OOBINLINE	source=C constant-name scan
+_socket(C)	c_const	SO_ORIGINAL_DST	source=C constant-name scan
+_socket(C)	c_const	SO_PASSCRED	source=C constant-name scan
+_socket(C)	c_const	SO_PASSRIGHTS	source=C constant-name scan
+_socket(C)	c_const	SO_PASSSEC	source=C constant-name scan
+_socket(C)	c_const	SO_PEERCRED	source=C constant-name scan
+_socket(C)	c_const	SO_PEERSEC	source=C constant-name scan
+_socket(C)	c_const	SO_PRIORITY	source=C constant-name scan
+_socket(C)	c_const	SO_PROTOCOL	source=C constant-name scan
+_socket(C)	c_const	SO_RCVBUF	source=C constant-name scan
+_socket(C)	c_const	SO_RCVLOWAT	source=C constant-name scan
+_socket(C)	c_const	SO_RCVTIMEO	source=C constant-name scan
+_socket(C)	c_const	SO_REUSEADDR	source=C constant-name scan
+_socket(C)	c_const	SO_REUSEPORT	source=C constant-name scan
+_socket(C)	c_const	SO_REUSEPORT_LB	source=C constant-name scan
+_socket(C)	c_const	SO_RFCOMM_FC_INFO	source=C constant-name scan
+_socket(C)	c_const	SO_RFCOMM_LM	source=C constant-name scan
+_socket(C)	c_const	SO_RFCOMM_MTU	source=C constant-name scan
+_socket(C)	c_const	SO_RTABLE	source=C constant-name scan
+_socket(C)	c_const	SO_SCO_CONNINFO	source=C constant-name scan
+_socket(C)	c_const	SO_SCO_HANDLE	source=C constant-name scan
+_socket(C)	c_const	SO_SCO_MTU	source=C constant-name scan
+_socket(C)	c_const	SO_SETFIB	source=C constant-name scan
+_socket(C)	c_const	SO_SNDBUF	source=C constant-name scan
+_socket(C)	c_const	SO_SNDLOWAT	source=C constant-name scan
+_socket(C)	c_const	SO_SNDTIMEO	source=C constant-name scan
+_socket(C)	c_const	SO_TYPE	source=C constant-name scan
+_socket(C)	c_const	SO_USELOOPBACK	source=C constant-name scan
+_socket(C)	c_const	SO_USER_COOKIE	source=C constant-name scan
+_socket(C)	c_const	SO_VM_SOCKETS_BUFFER_MAX_SIZE	source=C constant-name scan
+_socket(C)	c_const	SO_VM_SOCKETS_BUFFER_MIN_SIZE	source=C constant-name scan
+_socket(C)	c_const	SO_VM_SOCKETS_BUFFER_SIZE	source=C constant-name scan
+_socket(C)	c_const	SYSPROTO_CONTROL	source=C constant-name scan
+_socket(C)	c_const	TCP_CC_INFO	source=C constant-name scan
+_socket(C)	c_const	TCP_CONGESTION	source=C constant-name scan
+_socket(C)	c_const	TCP_CONNECTION_INFO	source=C constant-name scan
+_socket(C)	c_const	TCP_CORK	source=C constant-name scan
+_socket(C)	c_const	TCP_DEFER_ACCEPT	source=C constant-name scan
+_socket(C)	c_const	TCP_FASTOPEN	source=C constant-name scan
+_socket(C)	c_const	TCP_FASTOPEN_CONNECT	source=C constant-name scan
+_socket(C)	c_const	TCP_FASTOPEN_KEY	source=C constant-name scan
+_socket(C)	c_const	TCP_FASTOPEN_NO_COOKIE	source=C constant-name scan
+_socket(C)	c_const	TCP_INFO	source=C constant-name scan
+_socket(C)	c_const	TCP_INQ	source=C constant-name scan
+_socket(C)	c_const	TCP_KEEPALIVE	source=C constant-name scan
+_socket(C)	c_const	TCP_KEEPCNT	source=C constant-name scan
+_socket(C)	c_const	TCP_KEEPIDLE	source=C constant-name scan
+_socket(C)	c_const	TCP_KEEPINTVL	source=C constant-name scan
+_socket(C)	c_const	TCP_LINGER2	source=C constant-name scan
+_socket(C)	c_const	TCP_MAXSEG	source=C constant-name scan
+_socket(C)	c_const	TCP_MD5SIG	source=C constant-name scan
+_socket(C)	c_const	TCP_MD5SIG_EXT	source=C constant-name scan
+_socket(C)	c_const	TCP_NODELAY	source=C constant-name scan
+_socket(C)	c_const	TCP_NOTSENT_LOWAT	source=C constant-name scan
+_socket(C)	c_const	TCP_QUEUE_SEQ	source=C constant-name scan
+_socket(C)	c_const	TCP_QUICKACK	source=C constant-name scan
+_socket(C)	c_const	TCP_REPAIR	source=C constant-name scan
+_socket(C)	c_const	TCP_REPAIR_OPTIONS	source=C constant-name scan
+_socket(C)	c_const	TCP_REPAIR_QUEUE	source=C constant-name scan
+_socket(C)	c_const	TCP_REPAIR_WINDOW	source=C constant-name scan
+_socket(C)	c_const	TCP_SAVED_SYN	source=C constant-name scan
+_socket(C)	c_const	TCP_SAVE_SYN	source=C constant-name scan
+_socket(C)	c_const	TCP_SYNCNT	source=C constant-name scan
+_socket(C)	c_const	TCP_THIN_DUPACK	source=C constant-name scan
+_socket(C)	c_const	TCP_THIN_LINEAR_TIMEOUTS	source=C constant-name scan
+_socket(C)	c_const	TCP_TIMESTAMP	source=C constant-name scan
+_socket(C)	c_const	TCP_TX_DELAY	source=C constant-name scan
+_socket(C)	c_const	TCP_ULP	source=C constant-name scan
+_socket(C)	c_const	TCP_USER_TIMEOUT	source=C constant-name scan
+_socket(C)	c_const	TCP_WINDOW_CLAMP	source=C constant-name scan
+_socket(C)	c_const	TCP_ZEROCOPY_RECEIVE	source=C constant-name scan
+_socket(C)	c_const	TIPC_ADDR_ID	source=C constant-name scan
+_socket(C)	c_const	TIPC_ADDR_NAME	source=C constant-name scan
+_socket(C)	c_const	TIPC_ADDR_NAMESEQ	source=C constant-name scan
+_socket(C)	c_const	TIPC_CFG_SRV	source=C constant-name scan
+_socket(C)	c_const	TIPC_CLUSTER_SCOPE	source=C constant-name scan
+_socket(C)	c_const	TIPC_CONN_TIMEOUT	source=C constant-name scan
+_socket(C)	c_const	TIPC_CRITICAL_IMPORTANCE	source=C constant-name scan
+_socket(C)	c_const	TIPC_DEST_DROPPABLE	source=C constant-name scan
+_socket(C)	c_const	TIPC_HIGH_IMPORTANCE	source=C constant-name scan
+_socket(C)	c_const	TIPC_IMPORTANCE	source=C constant-name scan
+_socket(C)	c_const	TIPC_LOW_IMPORTANCE	source=C constant-name scan
+_socket(C)	c_const	TIPC_MEDIUM_IMPORTANCE	source=C constant-name scan
+_socket(C)	c_const	TIPC_NODE_SCOPE	source=C constant-name scan
+_socket(C)	c_const	TIPC_PUBLISHED	source=C constant-name scan
+_socket(C)	c_const	TIPC_SRC_DROPPABLE	source=C constant-name scan
+_socket(C)	c_const	TIPC_SUBSCR_TIMEOUT	source=C constant-name scan
+_socket(C)	c_const	TIPC_SUB_CANCEL	source=C constant-name scan
+_socket(C)	c_const	TIPC_SUB_PORTS	source=C constant-name scan
+_socket(C)	c_const	TIPC_SUB_SERVICE	source=C constant-name scan
+_socket(C)	c_const	TIPC_TOP_SRV	source=C constant-name scan
+_socket(C)	c_const	TIPC_WAIT_FOREVER	source=C constant-name scan
+_socket(C)	c_const	TIPC_WITHDRAWN	source=C constant-name scan
+_socket(C)	c_const	TIPC_ZONE_SCOPE	source=C constant-name scan
+_socket(C)	c_const	UDPLITE_RECV_CSCOV	source=C constant-name scan
+_socket(C)	c_const	UDPLITE_SEND_CSCOV	source=C constant-name scan
+_socket(C)	c_const	VMADDR_CID_ANY	source=C constant-name scan
+_socket(C)	c_const	VMADDR_CID_HOST	source=C constant-name scan
+_socket(C)	c_const	VMADDR_CID_LOCAL	source=C constant-name scan
+_socket(C)	c_const	VMADDR_PORT_ANY	source=C constant-name scan
+_socket(C)	c_const	VM_SOCKETS_INVALID_VERSION	source=C constant-name scan
+_ssl(C)	c_const	ALERT_DESCRIPTION_	source=C constant-name scan
+_ssl(C)	c_const	CERT_NONE	source=C constant-name scan
+_ssl(C)	c_const	CERT_OPTIONAL	source=C constant-name scan
+_ssl(C)	c_const	CERT_REQUIRED	source=C constant-name scan
+_ssl(C)	c_const	HAS_ALPN	source=C constant-name scan
+_ssl(C)	c_const	HAS_ECDH	source=C constant-name scan
+_ssl(C)	c_const	HAS_NPN	source=C constant-name scan
+_ssl(C)	c_const	HAS_PHA	source=C constant-name scan
+_ssl(C)	c_const	HAS_PSK	source=C constant-name scan
+_ssl(C)	c_const	HAS_PSK_TLS13	source=C constant-name scan
+_ssl(C)	c_const	HAS_SNI	source=C constant-name scan
+_ssl(C)	c_const	HAS_TLS_UNIQUE	source=C constant-name scan
+_ssl(C)	c_const	OP_ALL	source=C constant-name scan
+_ssl(C)	c_const	OP_CIPHER_SERVER_PREFERENCE	source=C constant-name scan
+_ssl(C)	c_const	OP_ENABLE_KTLS	source=C constant-name scan
+_ssl(C)	c_const	OP_ENABLE_MIDDLEBOX_COMPAT	source=C constant-name scan
+_ssl(C)	c_const	OP_IGNORE_UNEXPECTED_EOF	source=C constant-name scan
+_ssl(C)	c_const	OP_LEGACY_SERVER_CONNECT	source=C constant-name scan
+_ssl(C)	c_const	OP_NO_COMPRESSION	source=C constant-name scan
+_ssl(C)	c_const	OP_NO_RENEGOTIATION	source=C constant-name scan
+_ssl(C)	c_const	OP_NO_TICKET	source=C constant-name scan
+_ssl(C)	c_const	OP_SINGLE_DH_USE	source=C constant-name scan
+_ssl(C)	c_const	OP_SINGLE_ECDH_USE	source=C constant-name scan
+_ssl(C)	c_const	PROTOCOL_TLS	source=C constant-name scan
+_ssl(C)	c_const	PROTOCOL_TLS_CLIENT	source=C constant-name scan
+_ssl(C)	c_const	PROTOCOL_TLS_SERVER	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_EOF	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_INVALID_ERROR_CODE	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_SSL	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_SYSCALL	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_WANT_CONNECT	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_WANT_READ	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_WANT_WRITE	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_WANT_X509_LOOKUP	source=C constant-name scan
+_ssl(C)	c_const	SSL_ERROR_ZERO_RETURN	source=C constant-name scan
+_ssl(C)	c_const	VERIFY_ALLOW_PROXY_CERTS	source=C constant-name scan
+_ssl(C)	c_const	VERIFY_CRL_CHECK_CHAIN	source=C constant-name scan
+_ssl(C)	c_const	VERIFY_CRL_CHECK_LEAF	source=C constant-name scan
+_ssl(C)	c_const	VERIFY_DEFAULT	source=C constant-name scan
+_ssl(C)	c_const	VERIFY_X509_PARTIAL_CHAIN	source=C constant-name scan
+_ssl(C)	c_const	VERIFY_X509_STRICT	source=C constant-name scan
+_ssl(C)	c_const	VERIFY_X509_TRUSTED_FIRST	source=C constant-name scan
+_ssl(C)	c_const	_DEFAULT_CIPHERS	source=C constant-name scan
