@@ -140,6 +140,24 @@
         "路线图"
       ],
       "parent": null
+    },
+    {
+      "id": "backend-coverage",
+      "title": "后台服务覆盖图：已有、立项与缺口",
+      "file": "10_backend_coverage.html",
+      "keywords": [
+        "后台服务",
+        "覆盖图",
+        "缺口",
+        "Raft",
+        "共识",
+        "sangx",
+        "sardis",
+        "消息队列",
+        "全文搜索",
+        "对象存储"
+      ],
+      "parent": null
     }
   ]
 }
