@@ -174,6 +174,20 @@
         "路线图"
       ],
       "parent": null
+    },
+    {
+      "id": "haxe-backend",
+      "title": "Haxe 编译后端：SA 作为 Haxe 的底层目标",
+      "file": "12_haxe_backend.html",
+      "keywords": [
+        "Haxe",
+        "HashLink",
+        "hl2sa",
+        "编译后端",
+        "GC",
+        "底层目标"
+      ],
+      "parent": null
     }
   ]
 }
