@@ -269,6 +269,23 @@
         "sla_ecs"
       ],
       "parent": null
+    },
+    {
+      "id": "mobile-transpile",
+      "title": "移动端转译：sla2swift 与 sla2kotlin",
+      "file": "18_mobile_transpile.html",
+      "keywords": [
+        "Android",
+        "iOS",
+        "Swift",
+        "Kotlin",
+        "sla2swift",
+        "sla2kotlin",
+        "移动端",
+        "转译",
+        "交付客户"
+      ],
+      "parent": null
     }
   ]
 }
