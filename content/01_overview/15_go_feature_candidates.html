@@ -55,6 +55,24 @@
 </ul>
 <p>一句话收敛：<strong>slanginx 是补心脏，slaredis 是拆状态机加解锁阻塞命令，db 是给接入层发并发驾照；三台的性能 99% 仍各自归 std 热点线。</strong></p>
 
+<h2>七、隐式接口普查结论与 Jev 裁定（2026-10-29）</h2>
+<p>按第二节排序，隐式接口候普查后单独裁定。普查已完成（2026-10-29，四出处：sala 文档、sa_plugin_sla demos、sa_plugin_sla tests 语料、sci 的 sa_std 清单；普查报告存 <code>~/workspace/impliface-census/CENSUS.md</code>）。</p>
+<p><strong>普查结论：SLA 的接口满足判定为纯名义式，零结构化成分。</strong></p>
+<ul>
+<li><strong>满足判定 = 显式 impl 注册表</strong>：检查器把每个 <code>impl Trait for Type</code> 以 <code>"{trait}|{type}"</code> 键登记（type_checker.zig:2365-2375）；类型的方法集全对得上但没写 impl 块 = 不满足该 trait。impl 完整性三查俱在；<strong>无孤儿 / 一致性规则</strong>。</li>
+<li><strong>trait 本体为签名-only</strong>：无默认实现、无关联类型 / 常量。超 trait 支持在册；<code>dyn Trait</code> 是真动态分发（胖指针 16 字节）；但 <strong>vtable 由两后端按 impl 逐个发射</strong>——结构化满足（无 impl）即无 vtable 可指，须新造双后端同构的（接口，类型）vtable 合成路径，这是结构化方案的最大硬成本。</li>
+<li><strong>使用面极薄</strong>：1572 个 .sla 文件中仅 15 个声明 trait、5 个用 dyn，全部来自 Rust 对齐 rosetta demo 与单元测试；sci 的 sa_std（.sai / .sla）零 trait 声明。四出处内<strong>没有任何在等的结构化满足消费方</strong>；原动机 go2sa 已按用户令暂停（见 <a href="14_cpp2sa_go2sa.html">14 号文档</a>）。</li>
+</ul>
+<p><strong>解耦登记项（与本节裁定分开，不捆绑处置）：泛型约束是空壳。</strong><code>&lt;T: Trait&gt;</code> 被 parser 解析后直接丢弃（parser.zig:1026 只消费标识符不保存；AST 的 generics 只存名字），检查器与单态化均无 bound 表示——写了约束也<strong>不生效</strong>，语料中实际用例仅 2 处。此为静默误导点，口径先行入册如上；后续方向 = <strong>响亮诊断</strong>（约束不生效须报错 / 警告），作独立小批另行排期，不与隐式接口裁定捆绑。</p>
+<p><strong>Jev 裁定</strong>（2026-10-29，jev-1.14.0，逐项 noul，裁定文件 <code>~/workspace/jev-designs/implicit_interfaces_ruling.json</code>）：</p>
+<ul>
+<li><strong>A 不做：0.83</strong>——保持纯名义式满足。</li>
+<li><strong>B 仅 dyn 侧结构化、限只读方法集：0.05</strong>——须新造双后端 vtable 合成。</li>
+<li><strong>C 全量结构化（含约束系统实装）：0.04</strong>——还须先背泛型约束实装全价。</li>
+<li><strong>D 显式 <code>conform Trait for Type;</code> 声明：0.81</strong>——编译器核方法集后走现有名义注册与 vtable 发射，用户免写转发 impl 块、双后端零改动、保留声明点合显式教义。</li>
+</ul>
+<p><strong>主会话处置（默认同意 Jev）</strong>：<strong>结构化（隐式）接口不采纳</strong>——A 胜出，B / C 明确否决。D 不是隐式接口，而是名义体系内的省样板便利，<strong>登记为独立候选、不排期</strong>，待真实消费方出现（如 go2sa 复活）时再议。另记 slars 一致性：slars 宪章为 Rust 名义式 trait 且与 SLA 共享 lowering 与双 codegen，SLA 单方面结构化会在共享层制造满足语义分叉——此点亦支持不采纳。</p>
+
 <p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>。</p>
 </body>
 </html>
