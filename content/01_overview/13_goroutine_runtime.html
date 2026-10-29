@@ -8,7 +8,7 @@
 <body>
 <div class="topic-header">入门指南 &gt; goroutine 运行时：引入 sa_std 的设计讨论</div>
 
-<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行，一期实施线已启动（本机 staging goroutine-local，基点 sci main 5509766b）；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收，SLA 内建语法面仍按 S3 裁定后置。</div>
+<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行，一期实施线已启动（本机 staging goroutine-local，基点 sci main 5509766b）；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收；SLA 内建语法面经 S3 重裁改为紧随运行时一期验收之后（见第八节）。</div>
 
 <h2>一、命题与落点</h2>
 <p>命题：能否把 Go 的 goroutine 引入 SA。讨论收敛的落点是：<strong>不进 SA 规约</strong>——SA 底座冻结（寄存器 + 所有权/能力规约保持稳定，不为任何单一前端让路）；goroutine 本质是一个运行时能力，应落在 <strong>sa_std 运行时核心</strong>，上层语法面（SLA 的 spawn 面、go2sa 的 <code>go</code> 语句）只是表面糖。定位上它属于基础核心，合「一切基础核心 built-in sa_std、插件只做包装/框架层」的架构 doctrine：没有它，goroutine 语义的每个上层消费者都要各自造调度器轮子。</p>
@@ -32,7 +32,7 @@
 
 <h2>四、硬边界</h2>
 <ul>
-<li><strong>wasm 目标</strong>没有栈式切换的立足点：要么走 Asyncify，要么在该目标上明示 UNSUPPORTED，二选一、写进契约。</li>
+<li><strong>wasm 目标</strong>：原理上可支持 goroutine（用户 2026-10-29 指正：Go 官方 wasm 移植即实证；可行路径为 Asyncify 式二进制变换、编译器级栈状态变换、Wasm 栈切换提案 / JSPI 等），但<strong>不能用一期 x86_64 的原生栈指针切换机制实现</strong>，须走独立降低轨道。故一期对 wasm 仍明示 UNSUPPORTED，登记性质为<strong>机制差异、非原理否定</strong>，写进契约。</li>
 <li><strong>goroutine ≠ GC</strong>：引入 goroutine 不解决 go2sa 的堆对象内存故事，那是独立未解项，不要混为一谈。</li>
 <li>在 goroutine 内调用阻塞型 extern（FFI）会堵住载体线程，此约束须入运行时契约文档，调用方自担。</li>
 </ul>
@@ -62,6 +62,24 @@
 <li><strong>S6 sync 原语</strong>：选定 <strong>一期同批交付</strong>（Mutex/RwLock/WaitGroup/Once，建在 park 队列上）（0.69）；未选一期不含（0.57）。</li>
 </ul>
 <p><strong>一期范围收敛</strong>：固定栈协作式 M:N 调度运行时（sa_std，x86_64）+ 全量通道/select + sync 原语，表面先供 go2sa，SLA 内建面二期。</p>
+<h2>八、SLA 语法面与生态提升讨论暨 S3 重裁（2026-10-29）</h2>
+<p>讨论命题（用户）：若真的引入 goroutine，SLA 也要增加对应语法——这对整个生态提升多少？主会话评估收敛：<strong>提升主要在应用层，且是结构性的</strong>。</p>
+<ul>
+<li><strong>服务器形态归位</strong>：slanginx / slaredis / db 三台服务器不再各自手搓并发模型——slaredis 的单线程 poll 循环 + 分片等待集、slanginx 的 F2 并发 serve 至今没有原生答案、db 的并发困在 Zig 层 epoch 模型里 SLA 够不着；有了 <code>go</code> + channel + select，都能写成「每连接一条顺序代码」。</li>
+<li><strong>消除函数染色</strong>：SLA 现有 async 是 stackless，async/sync 两界分明；栈式 goroutine 让任何函数都可阻塞，日常并发代码不再需要为异步涂色。</li>
+<li><strong>CXU 后端接缝原生化</strong>：桥接泵、长轮询、子进程管理、流式转发这些并发形接缝，现在靠回调与轮询拼接，goroutine + select 是它们的原生形状。</li>
+<li><strong>生态定位</strong>：SLA 语法面落地后，生态定位收敛为「Go 的并发模型 + 所有权检查 + 无 GC」；仅有 extern 面撑不起这个定位。</li>
+</ul>
+<p><strong>不提升项</strong>：单线程性能数字（99% 目标拼的是 std 实现质量，调度开销甚至略高于手调事件循环）、编译器存量缺陷，一个都不因此解决。<strong>代价</strong>：检查器要新增通道载荷所有权规则与 spawn 捕获规则（goroutine 可捕获什么、按移还是按借——Go 不管，我们不能不管），以及与既有 stackless async 的互操作口径，均为真实设计工作量。</p>
+<p><strong>前提变更</strong>：第七节 S3 原裁（go2sa 先行 0.61 / 两面同批 0.43）的理由是 go2sa 先消费运行时；用户已定 go2sa / cpp2sa 暂缓且无恢复日期，SLA 成为运行时唯一消费面，extern 直调只是验收形态、不是生态形态——排序理由不复存在，故重裁。</p>
+<p><strong>Jev 重裁</strong>（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/goroutine_s3_reruling.json</code>）：</p>
+<ul>
+<li>前提已实质变更：<strong>0.89</strong>。</li>
+<li>新排序：<strong>SLA 语法面紧随运行时一期验收之后</strong>（0.83）——批内含 go/spawn 语句、channel 类型、select 语句、通道载荷所有权与 spawn 捕获的检查器规则、与既有 async 的互操作口径；检查器设计可与运行时 C 期重叠，但 SLA 编译器代码不得先于运行时验收落地。</li>
+<li>未选：维持原 S3 姿态等 go2sa 时代（0.51）；立即与运行时并行开工（0.14）。</li>
+</ul>
+<p>据此，第七节收敛句中「表面先供 go2sa，SLA 内建面二期」自本节起改为：运行时一期验收后紧接 SLA 语法面批，go2sa 恢复立项时直接继承已验证的表面。</p>
+
 <p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（go2sa 的 goroutine/channel 语义依本页运行时裁定）。</p>
 </body>
 </html>
