@@ -8,7 +8,7 @@
 <body>
 <div class="topic-header">入门指南 &gt; cpp2sa 与 go2sa：两个新前端的立项讨论</div>
 
-<div class="note">状态：讨论记录（2026-10-29）。两条路线性质完全不同：cpp2sa 是「借道」——做成 bc2sa 的一个档位工程；go2sa 必须「新造」——写源码转换器，且其并发语义依 <a href="13_goroutine_runtime.html">goroutine 运行时</a>的裁定结果。两者均属上层前端/转换器，不动 SA 底座。未立项。</div>
+<div class="note">状态：讨论记录（2026-10-29）。两条路线性质完全不同：cpp2sa 是「借道」——做成 bc2sa 的一个档位工程；go2sa 必须「新造」——写源码转换器，且其并发语义依 <a href="13_goroutine_runtime.html">goroutine 运行时</a>的裁定结果。两者均属上层前端/转换器，不动 SA 底座。立项暂缓（用户 2026-10-29 定）：goroutine 运行时先行，本文保留为两前端恢复立项时的路线依据。</div>
 
 <h2>一、cpp2sa：走 bc2sa 档位，不写源码前端</h2>
 <p>C++ 源码面是主流语言里最大的（模板实例化、重载决议、异常、RTTI），手写源码前端等于重写半个 clang，不取。bc2sa 已端到端打通（传输墙、phi 墙已拆，三缺口在补强线落地，真 crate 函数运行对拍过），clang++ <code>-emit-llvm-bc</code> 把模板与重载决议整个语言面免费做完——cpp2sa 只需做成 bc2sa 的<strong>档位工程</strong>：驱动 + 旗标集 + 覆盖普查 + 回归语料，仓可独立、实现与 bc2sa 共享。</p>
