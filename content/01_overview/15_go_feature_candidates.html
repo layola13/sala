@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Go 生态候选语法与底层成套引入</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; Go 生态候选语法与底层成套引入</div>
+
+<div class="note">状态：登记记录（2026-10-29）。本页是 goroutine 周边候选语法与 Jev 排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。</div>
+
+<h2>一、用户定案：周边语法成套引入「底层」（2026-10-29）</h2>
+<p>用户定案（2026-10-29 10:20）：<strong>一切配合 goroutine 周边的语法都要引入 SA 底层，成套引入、不零敲碎打</strong>。</p>
+<p>「底层」的口径（主会话收敛，承 2026-10-27 底座定案）：机制进 <strong>sa_std 运行时核心</strong>（调度器 / 通道 / select / sync / netpoller 胶水 / 边界 trap 承接点），语法面进 <strong>SLA 一等语法</strong>（go/spawn、channel、select、defer、recover 监督）；<strong>SA 规约本身（寄存器 + 所有权/能力规约）不动</strong>，仍是一切前端的共同目标，不为任何单一前端让路。</p>
+<p>周边全集 = 已裁定的 goroutine 本体（见 <a href="13_goroutine_runtime.html">13 号文档</a>）+ <strong>defer</strong> + <strong>goroutine 边界 recover/监督</strong> + <strong>context 式取消约定</strong>（std 规范、非语法，见第三节）。</p>
+
+<h2>二、候选清单与 Jev 排序（2026-10-29）</h2>
+<p>排序（2026-10-29，jev-1.14.0，逐项 noul，裁定文件 <code>~/workspace/jev-designs/go_features_ranking.json</code>），数值为「早引入强度」：</p>
+<ul>
+<li><strong>goroutine 边界 recover / 监督语义：0.73（第一）</strong>——是三台 per-connection 改造的上线门槛。</li>
+<li><strong>编译期嵌入（go:embed 式）：0.58</strong>——独立小批，与并发程序正交。</li>
+<li><strong>defer：0.56</strong>——与嵌入同分量级。</li>
+<li><strong>隐式接口：0.29（末位）</strong>——先普查 SLA 既有泛型 / trait 面再单独裁定。</li>
+</ul>
+<p><strong>打包裁定</strong>：defer + recover 随 SLA goroutine 语法批<strong>同批设计交付</strong>（0.73）。embed 为独立小批，随时可插。</p>
+
+<h2>三、各候选的设计要点</h2>
+<ul>
+<li><strong>defer</strong>：作用域退出时按 LIFO 执行登记的清理动作——是<strong>任意动作、不止 drop</strong>（owned 值的自动释放已有 drop 机制，defer 覆盖的是 drop 之外的清理）；与 sync 原语的 <code>lock(); defer unlock()</code> idiom 配套交付。</li>
+<li><strong>recover</strong>：仅在 <strong>goroutine 边界</strong>承接 trap——记日志、重启或降级，使单条连接的故障不拖死整个进程。<strong>明示：不是通用异常系统、不替代 Result 错误处理</strong>，普通代码的错误仍走 Result + 传播符。</li>
+<li><strong>编译期嵌入（embed）</strong>：编译期读文件、落数据段，供单二进制部署携带静态资源/模板；路径纪律与构建可复现性待该批设计时处理，不预设。</li>
+<li><strong>隐式接口</strong>：结构满足（有方法集即实现）+ 消费方定义小接口。是<strong>语言级承诺</strong>，须普查先行（SLA 既有泛型 / trait 面的对齐盘点），普查后再单独裁定，不阻塞 goroutine 程序。</li>
+<li><strong>context 式取消约定</strong>：不是语法，是 std 规范——一个可 select 的 Done 通道（或等价形态）沿调用链传递取消信号，随通道批一起立规范。</li>
+</ul>
+
+<h2>四、落选记录</h2>
+<ul>
+<li><strong>Go error 语法</strong>：不引入。SLA 已有 Result + 传播运算符且更优；只取其「错误是值」的原则一条——该原则本已在 SLA 内。</li>
+<li><strong>iota、命名返回值等多重小糖</strong>：不引入。SLA 有等价物，引入只增表面积。</li>
+<li><strong>struct 嵌入</strong>：不引入。与所有权组合时语义易浑，显式字段转发足够。</li>
+</ul>
+
+<h2>五、状态与排程</h2>
+<p>本页为候选与排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准：运行时一期 → SLA 语法批（扩围含 defer 与 recover/监督）→ 三台改造。embed 小批可插队；隐式接口候普查后裁定。</p>
+
+<p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>。</p>
+</body>
+</html>

@@ -219,6 +219,22 @@
         "TinyGo"
       ],
       "parent": null
+    },
+    {
+      "id": "go-feature-candidates",
+      "title": "Go 生态候选语法与底层成套引入",
+      "file": "15_go_feature_candidates.html",
+      "keywords": [
+        "Go",
+        "goroutine",
+        "defer",
+        "recover",
+        "go:embed",
+        "隐式接口",
+        "候选语法",
+        "成套引入"
+      ],
+      "parent": null
     }
   ]
 }
