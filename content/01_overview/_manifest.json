@@ -235,6 +235,23 @@
         "成套引入"
       ],
       "parent": null
+    },
+    {
+      "id": "erlang-verse-candidates",
+      "title": "Erlang 并发候选与 Verse 事务调研评估",
+      "file": "16_erlang_verse.html",
+      "keywords": [
+        "Erlang",
+        "BEAM",
+        "监督树",
+        "monitor",
+        "OTP",
+        "Verse",
+        "事务",
+        "STM",
+        "效应标注"
+      ],
+      "parent": null
     }
   ]
 }

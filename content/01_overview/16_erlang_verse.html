@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Erlang 并发候选与 Verse 事务调研评估</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; Erlang 并发候选与 Verse 事务调研评估</div>
+
+<div class="note">状态：评估记录（2026-10-29）。本页登记 Erlang 并发候选与 Verse 事务调研的评估结论及 Jev 裁定；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链与 <a href="15_go_feature_candidates.html">15 号文档</a>为准。</div>
+
+<h2>一、Erlang 候选（主会话评估）</h2>
+<p>Erlang 的强处在 BEAM 虚拟机上的<strong>故障架构</strong>：Actor 模型零共享状态、按归约计数预算的真抢占调度、链接/监视加监督树构成的容错体系，外加分布与热升级。它的进程首先是故障隔离域，并行只是副产品。从中取四项候选：</p>
+<ul>
+<li><strong>监督结构升格 std 一等件</strong>：承 <a href="15_go_feature_candidates.html">15 号文档</a>已采的 goroutine 边界 recover 之上，把重启策略做成声明式 std 件（一组 goroutine 挂在监督者下，写明 one-for-one / 全组重启 / 重启强度上限），而不是每个服务器各自手写 recover 循环。</li>
+<li><strong>monitor：死亡通知即消息</strong>：goroutine 退出或崩溃时，向监视方投递一条可经通道 / select 接收的信号，把「等对方死」从轮询变成事件。运行时侧只是一个小原语，与已定的通道 + select 表面严丝合缝。</li>
+<li><strong>预算式让出检查</strong>：Erlang 归约计数的静态版——编译器在循环回边 / 调用点插入计数检查，预算耗尽即让出。这是治「CPU 型 goroutine 不让出饿死同伴」的正解，但要动编译器发射，登记为 goroutine 二期候选。</li>
+<li><strong>OTP 式服务器骨架作 std 库惯用法</strong>：gen_server 形的标准服务器骨架（init / handle / 状态循环）是纯库层模式，等语法批落地后做成 SLA std 惯用法，不动语言。</li>
+</ul>
+<p><strong>不取三项</strong>：邮箱 + 选择性接收全套（单队列模式匹配接收语义复杂、扫描成本有名，通道 + select 已覆盖主要价值且所有权故事更干净）；不可变 + 拷贝语义（与所有权零拷贝正相反，我们在「无共享」上走通道传所有权这条静态更强的路，不换道）；分布与热升级（三台都是单机对标物，db 还明确拒网络监听面，与本生态无关）。</p>
+<p><strong>隔离对照</strong>：Erlang 进程的隔离性是靠「每进程 GC + 全拷贝」买的，这正是无 GC 模型付不起也不必付的——我们的监督走<strong>边界 trap + 所有权栈</strong>，隔离强度够服务器用，成本低一个量级。</p>
+
+<h2>二、Verse 调研结论（深研，2026-10-29）</h2>
+<p>Verse 是 Epic 的 UEFN / UE6 语言：Tim Sweeney 提出构想，Simon Peyton Jones 等人设计，2023 年 3 月随 UEFN 首发；2026 年 6 月 State of Unreal 宣布它是 UE6 的基础语言，UE6 早期访问定在 2027 年底。</p>
+<p><strong>血统纠正：Verse 没有 Erlang 渊源。</strong>它的根在 Haskell 的 STM（软件事务内存）与逻辑编程——核心演算见《The Verse Calculus》。Erlang（零共享 + 消息传递）与 Verse（共享状态 + 事务）是对「并发为什么难」的两种<strong>相反</strong>回答，不是亲戚。</p>
+<p><strong>已发货的部分</strong>：一是<strong>本地失败回滚事务</strong>——Verse 表达式可以「失败」（无值、非异常），失败上下文内对 <code>var</code> 的写入是暂定的，上下文整体成功才提交、任何一步失败即整体回滚；其运行时 AutoRTFM 是写日志式的<strong>单线程</strong>事务，已在 Fortnite 服务器生产运行。二是<strong>函数签名效应标注</strong>：<code>&lt;transacts&gt;</code>（可回滚地改状态）、<code>&lt;decides&gt;</code>（可失败）、<code>&lt;suspends&gt;</code>（异步）、<code>&lt;varies&gt;</code> 等写进签名、由编译器静态检查，不可回滚的函数默认禁止进入失败上下文。</p>
+<p><strong>未发货的部分（宣布 / 设计目标）</strong>：<strong>并行 STM</strong>——Sweeney 公开点名 Haskell 的《Composable Memory Transactions》为蓝本（大量更新并行推测执行、无冲突提交、冲突重试）；<strong>客户端预测</strong>——仅见于 Book of Verse 中一个未发布的 <code>&lt;predicts&gt;</code> 效应设计（客户端预测运行、服务器权威纠正）。两者都是 UE6 的目标，不是现成机制。</p>
+<p>Verse 的并发本体是协作式协程：<code>race</code> / <code>sync</code> / <code>rush</code> / <code>branch</code> 与 <code>spawn</code>；且 <code>&lt;suspends&gt;</code> 与 <code>&lt;decides&gt;</code> 不可同体——异步世界与事务世界之间有一道硬接缝。</p>
+
+<h2>三、主会话评估：三方对照的收敛</h2>
+<p>我们的并发选型在光谱上的位置：<strong>主体站 Erlang 侧</strong>（goroutine 隔离 + 通道 + 监督），<strong>事务只在 db 引擎层以显式写集存在</strong>（写集暂存 + 原子提交）——等于两边各取了适合无 GC + 所有权模型的那一半。</p>
+<ul>
+<li><strong>Verse 最有行动价值的是效应标注</strong>：它用 Epic 级规模证明了「把 suspends / transacts / decides 写进函数签名、编译器强制」可行。这恰好是函数染色问题的正解形态——不是消灭染色，是把染色变成可检查的契约。正对 SLA 语法批已列的「async 互操作口径」一项：spawn、通道操作、可能 trap 的能力应在签名上可见且被检查。</li>
+<li><strong>Verse 式隐式回滚不采</strong>：「写了再说、失败自动撤销」的隐式语义与我们的显式纪律相冲，且三台都不做推测执行，没有消费场景；我们需要事务的地方（db）已有显式写集这一自己的版本。</li>
+<li><strong>联机预测 / 回滚不采（只观察）</strong>：那是游戏 netcode（多人联机状态预测与协调）的命题，我们的交付物里没有这个物种；且其机制本身在 Epic 侧也尚未发布。</li>
+</ul>
+
+<h2>四、Jev 评估与采纳处置（2026-10-29）</h2>
+<p>评估（2026-10-29，jev-1.14.0，逐项 noul，裁定文件 <code>~/workspace/jev-designs/erlang_verse_candidates.json</code>），默认同意、已采纳：</p>
+<ul>
+<li><strong>monitor 死亡通知（经通道 / select）：采纳 0.81</strong>。</li>
+<li><strong>OTP 式服务器骨架作 std 惯用法：采纳 0.77</strong>。</li>
+<li><strong>预算式让出检查：登记为 goroutine v2 头条 0.74</strong>。</li>
+<li><strong>监督结构 std 一等件：随 SLA 语法批采纳 0.72</strong>。</li>
+<li><strong>Verse 式效应标注：进 SLA 语法批的 async 互操作设计 0.66</strong>。</li>
+<li><strong>monitor 运行时半部预留进运行时 v1：0.58</strong>（温和肯定——留形不扩验收）。</li>
+<li><strong>Verse 隐式事务回滚不采纳：确认 0.86</strong>。</li>
+<li><strong>联机预测 / 并行 STM 只观察：确认 0.86</strong>。</li>
+</ul>
+
+<h2>五、状态与排程</h2>
+<p>本页为 Erlang / Verse 两路候选与评估的登记处。落地次序随既定定序链：monitor 的运行时半部在运行时一期留形；监督结构与效应标注随 SLA goroutine 语法批；OTP 骨架在语法批后作 std 惯用法；预算让出登记 goroutine 二期。Verse 隐式回滚与联机预测不立项。</p>
+
+<p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="15_go_feature_candidates.html">Go 生态候选语法与底层成套引入</a>。</p>
+</body>
+</html>
