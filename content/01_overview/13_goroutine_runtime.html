@@ -80,6 +80,16 @@
 </ul>
 <p>据此，第七节收敛句中「表面先供 go2sa，SLA 内建面二期」自本节起改为：运行时一期验收后紧接 SLA 语法面批，go2sa 恢复立项时直接继承已验证的表面。</p>
 
+<h2>九、优先级定序（用户 2026-10-29 定）</h2>
+<p>用户定 goroutine 为<strong>最高优先级</strong>，理由采主会话评估：三个 99% 目标项目（slanginx、slaredis、db）都在手工写并发，goroutine 落地后以它改进三台。</p>
+<p><strong>定序链</strong>：goroutine 运行时一期（在建）→ SLA 语法面一批（紧随验收）→ 三台改造：</p>
+<ul>
+<li>slanginx：per-connection goroutine serve——即其 F2 项的原生答案；</li>
+<li>slaredis：以 per-connection goroutine 取代 poll 循环 + 分片等待集形态；</li>
+<li>db：不动 epoch 引擎，在其上长 SLA 级 goroutine 并发接入层。</li>
+</ul>
+<p>三台改造前后均以各自仓内 bench 同口径复测、对 99% 目标。已判毕的各集成批（sci / sla / slanginx / db / slaredis 改进版）为正交修复、照旧收尾，不受本定序影响。</p>
+
 <p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（go2sa 的 goroutine/channel 语义依本页运行时裁定）。</p>
 </body>
 </html>
