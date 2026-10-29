@@ -50,6 +50,18 @@
 <li><strong>S5 架构范围</strong>：一期仅 x86_64，还是 x86_64 与 aarch64 同批？</li>
 <li><strong>S6 sync 原语</strong>：Mutex / WaitGroup 等同步原语是否一期同批交付？</li>
 </ul>
+
+<h2>七、Jev 裁定（2026-10-29）</h2>
+<p>裁定（2026-10-29，jev-1.14.0，逐项双选项 noul 对比，裁定文件 <code>~/workspace/jev-designs/goroutine_scope_ruling.json</code>）：</p>
+<ul>
+<li><strong>S1 栈模型</strong>：选定 <strong>固定虚拟栈预留 + guard page 按需提交 + 溢出显式 trap</strong>（0.81）；未选拷贝扩栈（0.09）。</li>
+<li><strong>S2 抢占</strong>：选定 <strong>一期协作式</strong>（前端在调用点/循环回边/通道操作插 yield 点）（0.75）；未选信号异步抢占（0.17）。</li>
+<li><strong>S3 表面范围</strong>：选定 <strong>go2sa 先行、SLA 内建语法面后置</strong>（0.61）；未选两面同批（0.43）。sa_std 运行时 extern 面不变，推迟的只是 SLA 编译器的语法/检查器工作。</li>
+<li><strong>S4 通道语义</strong>：选定 <strong>无缓冲 + 有缓冲 + select 全量</strong>（0.49）；未选仅无缓冲最小集（0.30）。此项胜出把握为六项中最低；实施时 select 的多路等待登记按调度器 park 队列原生设计、不做事后拼凑。</li>
+<li><strong>S5 架构</strong>：选定 <strong>一期仅 x86_64</strong>（0.82）；未选 x86_64+aarch64 同批（0.17）。</li>
+<li><strong>S6 sync 原语</strong>：选定 <strong>一期同批交付</strong>（Mutex/RwLock/WaitGroup/Once，建在 park 队列上）（0.69）；未选一期不含（0.57）。</li>
+</ul>
+<p><strong>一期范围收敛</strong>：固定栈协作式 M:N 调度运行时（sa_std，x86_64）+ 全量通道/select + sync 原语，表面先供 go2sa，SLA 内建面二期。</p>
 <p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（go2sa 的 goroutine/channel 语义依本页运行时裁定）。</p>
 </body>
 </html>
