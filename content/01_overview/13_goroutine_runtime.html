@@ -8,7 +8,7 @@
 <body>
 <div class="topic-header">入门指南 &gt; goroutine 运行时：引入 sa_std 的设计讨论</div>
 
-<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行，一期实施线已启动（本机 staging goroutine-local，基点 sci main 5509766b）；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收；SLA 内建语法面经 S3 重裁改为紧随运行时一期验收之后（见第八节）。</div>
+<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收；SLA 内建语法面经 S3 重裁改为紧随运行时一期验收之后（见第八节）。<strong>运行时一期已完工并集成关闭（见第十节）；SLA 语法面一批施工中。</strong></div>
 
 <h2>一、命题与落点</h2>
 <p>命题：能否把 Go 的 goroutine 引入 SA。讨论收敛的落点是：<strong>不进 SA 规约</strong>——SA 底座冻结（寄存器 + 所有权/能力规约保持稳定，不为任何单一前端让路）；goroutine 本质是一个运行时能力，应落在 <strong>sa_std 运行时核心</strong>，上层语法面（SLA 的 spawn 面、go2sa 的 <code>go</code> 语句）只是表面糖。定位上它属于基础核心，合「一切基础核心 built-in sa_std、插件只做包装/框架层」的架构 doctrine：没有它，goroutine 语义的每个上层消费者都要各自造调度器轮子。</p>
@@ -89,6 +89,23 @@
 <li>db：不动 epoch 引擎，在其上长 SLA 级 goroutine 并发接入层。</li>
 </ul>
 <p>三台改造前后均以各自仓内 bench 同口径复测、对 99% 目标。已判毕的各集成批（sci / sla / slanginx / db / slaredis 改进版）为正交修复、照旧收尾，不受本定序影响。</p>
+
+<h2>十、一期完工与关闭（2026-10-29）</h2>
+<p><strong>运行时实现完工</strong>（本机 staging <code>~/workspace/goroutine-local/sci</code>，分支 <code>goroutine</code>，基点 sci main <code>5509766b</code>，五笔逐期提交）：</p>
+<ul>
+<li>期 A 调度 <code>ef93e93b</code>：M:N 调度骨架（真汇编上下文切换、固定栈 + guard、载体池 + work stealing、park/unpark、定时器堆、spawn/exit/join 两段回收、边界 trap 承接点、opt-in 死锁守卫）；</li>
+<li>期 B 通道 <code>65cd34c1</code>：通道全量（Go 语义）+ park 队列原生 select（default/timeout 形态）；</li>
+<li>期 C 原语 <code>aaad424e</code>：Mutex/RwLock/WaitGroup/Once（park 队列）+ netpoller 胶水；另两修复笔（poll 直连 extern、死锁守卫 idle 上限）。</li>
+<li>表面：<code>sa_std/task.sai</code> 共 <strong>33 个 extern</strong>；两次独立 <code>zig build sa-std-static</code> 后 <code>nm libsa_std.a</code> 均为 <strong>36 个 T 符号</strong>（33 extern + 3 个 ctx 汇编原语），逐项对应。</li>
+<li>盒上 sa-std-unit 全量：基线 284/285 → <strong>305/306，失败名字集恰 = {sa_crypto.test.keyring}</strong>；模块 Zig 测试 <strong>22/22</strong>（含 10,000 goroutine、生产者-消费者总和与 Mutex 竞争双 oracle 精确、select 三形态、边界 trap sink）；子进程场景：栈溢出与死锁均 <strong>rc=134 + 精确命名报文</strong>，非裸段错误。</li>
+<li>设计注记两条落形：边界 trap 承接点（每 goroutine 在 trampoline 内先 arm RescueFrame、快照存结构体不放栈上，join 以 <code>SA_TASK_TRAPPED=100</code> 报告）；monitor 交付点 = goroutineExit 单一汇聚点（正常退出与 trap 均经此、trap 记录定稿后、join 等待者唤醒前，向订阅者通道投递退出通知的形态已留）。</li>
+<li>施工中确诊并修复三缺陷：Zig naked fn 触发编译器自身 SEGV（改走真汇编文件）；<code>.init_array</code> ctor 使 SA 构建的二进制启动段错误（摘除自注册、poll 改直连 extern）；死锁守卫在真实进程形态下永不触发（arm 时 idle 等待加 50ms 上限）。另有三处并发缺陷同线修复：park 丢失唤醒（两段式协议）、定时器搁浅、代际计数移出可释放结构体（防槽位复用 UAF）。</li>
+</ul>
+<p><strong>验收期缺口与 Jev 首判</strong>：SLA 非 spawn 面直调验收 4/4 通过，但 <strong>SLA 源码级 spawn 被编译器缺口阻塞</strong>——SLA 函数值无法物化为可调用机器地址传给 raw extern 的 ptr 形参（野外佐证：既有 pthread_spawn、threaded serve 面在两树中 SLA 调用者为零）。Jev 完成判定（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/goroutine_v1_completion.json</code>）：完成 <strong>0.53</strong> / 合理 <strong>0.53</strong> / 接受（含延期）<strong>0.53</strong> / 残余风险有界 <strong>0.73</strong> / <strong>「先集成 + 缺口另立 REG 研究」仅 0.17</strong>。主会话采 Jev：<strong>不先集成</strong>，先派 fnptr 编译器修复线补缺口、跑通停放的 SLA 验收，再谈集成。</p>
+<p><strong>fnptr 修复</strong>：根因——SLA fn 值为 vtable 指针（vtable [0] 槽存真机器地址），调用实参物化计划只认 fn 类型形参，extern 的 raw <code>ptr</code> 形参漏检，原样传出 vtable 数据地址致原生侧跳转即 signal 11；checker 对 extern 实参整段 bypass，错位得以静默通过（简报旧症状 <code>UnsupportedSabDirectFeature</code> 在基点不复现、已如实更正）。修复三笔（本地分支 <code>fnptr</code>）：<code>765895c</code> 物化时 load 真地址、<code>ec6acf7</code> 语料 + 发射回归、<code>33629b7</code> 测试形态修正；语料实证在修复前代码上失败、修复后通过。停放的 <strong>SLA 验收 spawn 一族 7/7 跑通</strong>（spawn/join 计数、ping-pong、10,000 goroutine、生产者-消费者 oracle、Mutex oracle、WaitGroup、Once），Jev 0.17 的前置条件满足。</p>
+<p><strong>集成与 task.sai 事件</strong>：双链经盒守卫推送（推前核对远端旧值、推后主会话 <code>git ls-remote</code> 直核）：sa_plugin_sla master <code>9f0e2774</code> → <strong><code>33629b75</code></strong>（fnptr 三笔）；sci main <code>5509766b</code> → <strong><code>870cda60</code></strong>（goroutine 五笔 + 集成修复一笔）。合并树门禁复跑：sa-std-static rc=0、nm 恰 36、unit 305/306 失败集恰 = {keyring}、SLA 验收全集 4/4 + 7/7。集成中确诊一雷：<strong>task.sai 是 sa_std 唯一用 <code>#</code> 写注释的文件，宿主 SA flattener 因此 ForbiddenSyntax 1001 拒绝一切导入</strong>（最小复现与影子目录对照锁定注释字符本身为病因）；集成修复笔 <code>870cda60</code> 仅将第 35–70 行注释 <code>#</code> 改 <code>//</code>（36 行），逐字节证明 33 条声明零改动，文本路径复证 PASS。其余正交登记（pthread_join 注册表句柄路径 libc 内崩、文本后端 borrow 实参一般形态、结构体数组 SAB 物化读回）不在本批处理、另行登记。</p>
+<p><strong>Jev 复判与关闭裁量</strong>（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/goroutine_v1_rejudge.json</code>）：完成 <strong>0.56</strong> / 一期关闭并开语法批 <strong>0.49</strong>——仍偏冷，且未给出新的具体阻塞点。主会话裁量：<strong>按证据关闭一期</strong>——一期自设门禁已全数以失败名字集证据满足，首判的具体反对（0.17）已按其条件全额执行；Jev 冷判如实入档备查。复判残余定价点两项已落实为语法批线的硬任务：文本后端 spawn 验收未单独复跑 → 语法批线第 0 步（红则先修、不带病施工）；真 socket netpoller 端到端未单独跑 → 语法批验收加 per-connection 回声服务冒烟件。</p>
+<p><strong>SLA 语法面一批已开工</strong>（本地 staging <code>~/workspace/gosyntax-local/</code>，基点 sla master <code>33629b75</code>，先设计记录后分期实现），范围八项：go/spawn 语句 + spawn 捕获检查器规则、channel 类型 + 通道载荷所有权、select 语句、defer、goroutine 边界 recover + 监督结构 std 一等件、monitor 语法面、async 互操作口径（Verse 式效应标注：能力在签名可见且被检查）、context 取消的 Done 通道惯例。运行时一期至此关闭，后续定序（语法批 → 三台改造 → 第三阶段吸纳）见第九节与 15–17 号文档。</p>
 
 <p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（go2sa 的 goroutine/channel 语义依本页运行时裁定）。</p>
 </body>
