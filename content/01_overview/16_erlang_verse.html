@@ -64,6 +64,11 @@
 <p><strong>Jev 裁定</strong>（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/stm_narrow_candidate.json</code>）：窄形态——显式 <code>atomically</code> + 受限事务单元、仅服务小型 goroutine 协调状态、排 goroutine v2 之后、立项前先过检查器可行性普查——登记为远期候选 <strong>0.63</strong>（温和肯定）。但两扇门当前都偏冷：<strong>需求门 0.30</strong>（三台改造以属主模式 + 锁落地后，剖析真能揭出「非 STM 不可」的协调痛点的期望低）；<strong>检查器可行性门 0.36</strong>（在不危及现有裁判机健全性的前提下扩展出事务纪律，把握弱、属研究级风险）。</p>
 <p><strong>采纳处置</strong>（默认同意）：登记为远期候选、<strong>双门制</strong>——需求门（三台改造后的剖析实证）与可行性门（检查器普查）任一不过即关闭；不进当前 SLA 语法批，不动三台改造计划。</p>
 
+<h2>七、综合定位收束（用户 2026-10-29 定）</h2>
+<p><strong>必建主线（承重墙）</strong>：Go 的执行模型打底（goroutine + 通道 / select + sync + defer）× Erlang 的故障架构罩上（边界 recover、监督结构、monitor 死亡通知、context 取消约定）× Verse 偷来的效应标注作契约层——这是三台与 CXU 的并发地基，已在施工 / 已排程，无商量余地。</p>
+<p><strong>STM 是备件柜</strong>：连第二支柱都算不上。只有当主线的自有工具（属主 goroutine、Mutex / RwLock、db 显式写集事务）在某个具体协调点被剖析证明不够用、且检查器可行性普查过关（双门，见第六节），才以窄形态启用；大概率永远用不上，理论位置已留好。</p>
+<p>一句话收束：<strong>goroutine 综合体是承重墙，STM 是备件柜。</strong></p>
+
 <p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="15_go_feature_candidates.html">Go 生态候选语法与底层成套引入</a>。</p>
 </body>
 </html>
