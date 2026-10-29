@@ -305,11 +305,17 @@
       "parent": null
     },
     {
-      "id": "biochem-education-language",
-      "title": "生化教育编程语言：开发计划",
+      "id": "gaokao-unified-engine",
+      "title": "高考统一引擎（生化核心演算先行）：开发计划",
       "file": "20_biochem_education_language.html",
       "keywords": [
-        "生物化学",
+        "高考",
+        "统一引擎",
+        "四科一体",
+        "数学",
+        "物理",
+        "化学",
+        "生物",
         "教育",
         "分级教学",
         "反应网络",
@@ -318,6 +324,10 @@
         "检查器",
         "核心演算",
         "CTMC",
+        "three.js",
+        "ECS",
+        "sla_ecs",
+        "全覆盖验证",
         "SLA 实现"
       ],
       "parent": null
