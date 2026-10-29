@@ -286,6 +286,23 @@
         "交付客户"
       ],
       "parent": null
+    },
+    {
+      "id": "side-tracks-foundation-gaps",
+      "title": "支线研究与底层不足登记",
+      "file": "19_side_tracks_foundation_gaps.html",
+      "keywords": [
+        "支线",
+        "底层不足",
+        "登记册",
+        "sla2ts",
+        "SAX",
+        "跨平台",
+        "std 修复优先",
+        "内存模型",
+        "整数溢出"
+      ],
+      "parent": null
     }
   ]
 }
