@@ -44,6 +44,17 @@
 <h2>五、状态与排程</h2>
 <p>本页为候选与排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准：运行时一期 → SLA 语法批（扩围含 defer 与 recover/监督）→ 三台改造。embed 小批可插队；隐式接口候普查后裁定。</p>
 
+<h2>六、对三台目标项目的帮助评估（主会话评估，2026-10-29）</h2>
+<p><strong>总纲</strong>：帮助主要在并发结构、健壮性与开发速度，不在单机吞吐数字。三台的 99% 缺口此前归因都不在并发模型，goroutine 不直接抬性能数字。</p>
+<ul>
+<li><strong>slanginx（帮助最大）</strong>：其 F2 并发 serve 本缺原生形态，goroutine 给出 per-connection 顺序处理器、反向代理双向泵（两个 goroutine + 通道）、context 取消上游；recover 监督使单连接 trap 不杀进程，是现完全没有的健壮性档位。不帮的部分：每请求内存斜率的残余怀疑在 std http/string 文本机器内部，属 F-perf 线；多核 serve 从无到有算中等偏正，热点优化仍是另一条线。</li>
+<li><strong>slaredis（结构帮助大、吞吐帮助有限甚至可能微负）</strong>：poll 循环 + 分片等待集的手工状态机可整体消失；解锁阻塞命令类功能（BLPOP 在事件循环里要挂起连接 + 超时队列，在 goroutine 里是顺序代码）；过期处理与 AOF 写入管道（专用 goroutine + 通道喂批）变自然。但其性能平台期实测仅为 Redis 的 0.12–0.19，归因在 std 数据结构与每命令开销，goroutine 不关此缺口；高频小命令下上下文切换比紧凑 poll 循环略贵。</li>
+<li><strong>db（帮助中等偏小，在接入层不在引擎）</strong>：epoch 快照模型已把读扩到核数（8 线程列和实测 15,386/s），不靠 goroutine。受益两处：中转站查额度场景的 SLA 服务层（并发查询 goroutine 各自钉快照、扣减经通道汇到单写者，即 group commit 的语言级形状，现为手搓锁与队列）；应用从 SLA 并发使用 db 不再手管线程。点读对 SQLite 的延迟缺口在 per-exec 校验，goroutine 不碰。</li>
+<li><strong>跨三台共同项</strong>：三套手搓并发收敛为一套语言级模型，bug 面与维护面同步收缩；defer 使「资源忘了放」类泄漏问题三台同降一档；监督语义给两个网络服务器统一的崩溃隔离。</li>
+<li><strong>诚实保留</strong>：v1 是协作式调度，纯计算不让出会饿死同伴；调度器成熟度与尾延迟比不了 Go 十年打磨——须在三台改造验收中实测盯住，不默认与 Go 一样顺滑。</li>
+</ul>
+<p>一句话收敛：<strong>slanginx 是补心脏，slaredis 是拆状态机加解锁阻塞命令，db 是给接入层发并发驾照；三台的性能 99% 仍各自归 std 热点线。</strong></p>
+
 <p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>。</p>
 </body>
 </html>
