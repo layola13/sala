@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>goroutine 运行时：引入 sa_std 的设计讨论</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; goroutine 运行时：引入 sa_std 的设计讨论</div>
+
+<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），但范围未裁定——文末第六节「待 Jev 裁定范围」六条开放问题将由 Jev 裁定后决定立项形态，本页不预判。</div>
+
+<h2>一、命题与落点</h2>
+<p>命题：能否把 Go 的 goroutine 引入 SA。讨论收敛的落点是：<strong>不进 SA 规约</strong>——SA 底座冻结（寄存器 + 所有权/能力规约保持稳定，不为任何单一前端让路）；goroutine 本质是一个运行时能力，应落在 <strong>sa_std 运行时核心</strong>，上层语法面（SLA 的 spawn 面、go2sa 的 <code>go</code> 语句）只是表面糖。定位上它属于基础核心，合「一切基础核心 built-in sa_std、插件只做包装/框架层」的架构 doctrine：没有它，goroutine 语义的每个上层消费者都要各自造调度器轮子。</p>
+
+<h2>二、为什么 SA 装 goroutine 反而更顺</h2>
+<ul>
+<li><strong>无 GC 缠绕</strong>：Go 调度器最难的一半是与 GC 的配合——栈扫描找根、栈拷贝时逐指针修正。SA 是所有权模型、无 GC，这一半成本直接不存在：栈不需要为 GC 扫描，v1 不做栈拷贝也就没有指针修正问题。</li>
+<li><strong>通道可静态防竞争</strong>：channel 传所有权值可由检查器按类 Send 语义静态验证（发送即移交、接收即取得），构成「无 GC 的 goroutine + 编译期防数据竞争的 channel」组合——这是 Go 本身给不了的，也是本命题区别于「又一个协程库」的核心亮点。</li>
+<li><strong>地基已备两块</strong>：F-perf-1 的 <code>sa_std_net_poll_wait</code> 就是 Go netpoller 的对应物（已落地、slaredis 已采用）；std 的 pthread 面也在。缺口只有中间一层：上下文切换 + M:N 调度器。</li>
+</ul>
+
+<h2>三、v1 形态（讨论稿，范围以裁定为准）</h2>
+<ul>
+<li><strong>栈式协程</strong>，不走 stackless（stackless 无法在任意函数深处挂起，与 goroutine 语义不符）。</li>
+<li>每 goroutine <strong>固定虚拟栈预留 + guard page 按需提交</strong>，栈溢出显式 trap；首期不做 Go 式拷贝扩栈，上限写明、不静默。</li>
+<li>上下文切换先做 x86_64（每架构约百行汇编量级），其余架构是否同批见 S5。</li>
+<li>调度器以 Zig 写在 sa_std：运行队列 + work stealing + park/unpark；网络 I/O 全部经 netpoller（<code>sa_std_net_poll_wait</code>）不阻塞载体线程。</li>
+<li>抢占首期<strong>协作式</strong>：前端在调用点、循环回边、通道操作处插入 yield 点（Go 1.14 之前同款）；信号异步抢占留二期——是否一期即做见 S2。</li>
+<li>阻塞文件 syscall 会堵住载体线程：调度器线程池代偿，或首期明确只保证网络 I/O 非阻塞、文件走线程卸载——两种处理都必须显式登记，不许静默降级。</li>
+</ul>
+
+<h2>四、硬边界</h2>
+<ul>
+<li><strong>wasm 目标</strong>没有栈式切换的立足点：要么走 Asyncify，要么在该目标上明示 UNSUPPORTED，二选一、写进契约。</li>
+<li><strong>goroutine ≠ GC</strong>：引入 goroutine 不解决 go2sa 的堆对象内存故事，那是独立未解项，不要混为一谈。</li>
+<li>在 goroutine 内调用阻塞型 extern（FFI）会堵住载体线程，此约束须入运行时契约文档，调用方自担。</li>
+</ul>
+
+<h2>五、下游价值</h2>
+<p>此运行时不只为 go2sa 的 <code>go</code> 语句铺路：slanginx 的 per-connection 模型、slaredis 的连接处理、db 的服务化候选都吃同一个 M:N 运行时。它是 sa_std 继网络核心之后，第二个「上层没有它就得各造轮子」的基础核心候选。</p>
+
+<h2>六、待 Jev 裁定范围</h2>
+<p>以下六条为开放问题，措辞即裁定题面；裁定结果决定一期范围与后续分期，本页不预判：</p>
+<ul>
+<li><strong>S1 栈模型</strong>：每 goroutine 固定虚拟栈预留 + 溢出显式 trap，还是一期即实现拷贝扩栈？</li>
+<li><strong>S2 抢占</strong>：一期协作式（前端在调用点、循环回边、通道操作处插 yield 点），还是一期即做信号异步抢占？</li>
+<li><strong>S3 表面范围</strong>：SLA 内建语法面与 go2sa 同批落地，还是一期 go2sa 先行、SLA 表面后置？</li>
+<li><strong>S4 通道语义范围</strong>：一期无缓冲 + 有缓冲 + select 全量交付，还是仅无缓冲最小集？</li>
+<li><strong>S5 架构范围</strong>：一期仅 x86_64，还是 x86_64 与 aarch64 同批？</li>
+<li><strong>S6 sync 原语</strong>：Mutex / WaitGroup 等同步原语是否一期同批交付？</li>
+</ul>
+<p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（go2sa 的 goroutine/channel 语义依本页运行时裁定）。</p>
+</body>
+</html>

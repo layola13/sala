@@ -188,6 +188,37 @@
         "底层目标"
       ],
       "parent": null
+    },
+    {
+      "id": "goroutine-runtime",
+      "title": "goroutine 运行时：引入 sa_std 的设计讨论",
+      "file": "13_goroutine_runtime.html",
+      "keywords": [
+        "goroutine",
+        "协程",
+        "调度器",
+        "channel",
+        "sa_std",
+        "运行时",
+        "M:N"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cpp-go-frontends",
+      "title": "cpp2sa 与 go2sa：两个新前端的立项讨论",
+      "file": "14_cpp2sa_go2sa.html",
+      "keywords": [
+        "cpp2sa",
+        "go2sa",
+        "C++",
+        "Go",
+        "bc2sa",
+        "前端",
+        "转换器",
+        "TinyGo"
+      ],
+      "parent": null
     }
   ]
 }
