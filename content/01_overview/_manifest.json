@@ -303,6 +303,24 @@
         "整数溢出"
       ],
       "parent": null
+    },
+    {
+      "id": "biochem-education-language",
+      "title": "生化教育编程语言：开发计划",
+      "file": "20_biochem_education_language.html",
+      "keywords": [
+        "生物化学",
+        "教育",
+        "分级教学",
+        "反应网络",
+        "热力学",
+        "守恒",
+        "检查器",
+        "核心演算",
+        "CTMC",
+        "SLA 实现"
+      ],
+      "parent": null
     }
   ]
 }
