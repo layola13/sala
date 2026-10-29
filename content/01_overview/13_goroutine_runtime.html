@@ -111,6 +111,8 @@
 <p><strong>让出点集（TS-13）</strong>：一期抢占为协作式（见第三节），其让出点集现枚举成文——让出点 = 显式 <code>sa_task_yield</code> extern 调用点 + <strong>每个阻塞运行时调用</strong>。SLA 编译器不插入任何让出：没有循环回边让出、没有调用点让出。阻塞运行时调用集（按实现枚举）：chan send / recv / select、<code>sa_task_join</code>、<code>sa_task_sleep_ns</code> / <code>sa_task_sleep_ms</code>、<code>sa_task_net_wait</code>、<code>sa_sync_mutex_lock</code> 的停泊路径。不调用上述任何入口的计算密集 goroutine 会饿死载体线程，这是运行时头注释自明的<strong>明示行为</strong>、不是缺陷。</p>
 <p><strong>select 选择策略（正册 2 号）</strong>：<code>sa_chan_select</code> 的就绪选择分两阶段。Phase 1（即时求值）：按 case 下标<strong>声明序</strong>逐个试、首个就绪者立即返回——即时阶段存在<strong>声明序偏置</strong>；Phase 2（停泊之后）：由首个到达的对端经 <code>selectTryClaim</code> 认领——<strong>先到先得的时间序</strong>。整体口径<strong>不是</strong> Go 式的均匀伪随机选择，依赖选择公平性的代码须按此口径书写。select 的 timeout 计时走单调钟（口径见 <a href="../06_stdlib/08_time.html">stdlib time 页「时钟口径」</a>）。</p>
 
+<p><strong>R2 的定位（TS-14）</strong>：检查器唯一的效应类产物是函数签名上的 <code>is_async</code> 布尔；签名表中没有 blocking / effect 字段。效应规则 R2 是<strong>浅层句法规则</strong>，只有两个检查点——async 函数体内直接出现的 Chan <code>send</code> / <code>recv</code> 方法调用、与无 default / timeout 兜底的 <code>select</code>——由单一遍历状态门控，进入闭包体时该状态复位。它的覆盖面到此为止：<strong>不及传递调用</strong>（同步 fn 内部阻塞不留下任何标记，async fn 调用它不触发 R2），<strong>不及 extern 直调</strong>（<code>sa_task_sleep_ns</code>、<code>sa_chan_*</code>、<code>sa_sync_mutex_lock</code> 等阻塞型 extern 按普通调用检查）。当前<strong>不存在</strong>传递可阻塞集、阻塞 extern 名单或调用图附表这类产物——需要可阻塞性结论的场合（栈less 目标的异步着色、原生侧阻塞审计）须自行计算，无官方附表可依。传递着色附表若补，是检查器新增分析 pass，另行排期；本段只落字定位。</p>
+
 <h2>十二、内存模型：同步边的契约（TS-15，2026-10-29）</h2>
 <p>SA 此前没有成文内存模型；以下六面按当前运行时实现的同步纪律写成契约（实现出处：sci <code>src/runtime/sa_task.zig</code>、<code>src/runtime/sa_globals.zig</code> 与 LLVM 发射层）。本节是定序二（三台 goroutine 改造）的正确性地基；六面均以当前实现为据，实现若变，本节须随之修订。</p>
 <ul>
@@ -121,6 +123,15 @@
 <li><strong>globals</strong>：全部 get / set / add 由单个全局互斥量串行化，故 globals 操作<strong>全序串行</strong>、天然构成 happens-before 边；<code>add</code> 是回绕的读-改-写（RMW）。</li>
 <li><strong>SA 原子指令</strong>：指令带 ordering 字段；LLVM 发射在未另行指定时缺省 <code>.seq_cst</code>。</li>
 </ul>
+
+<h2>十三、运行时契约落字（二）：栈形态与递归深度（TS-18，2026-10-29）</h2>
+<p>递归深度在三条执行面上是三种形态、三种溢出待遇，本节按实现现状成文（含一处无定义，照实写明）：</p>
+<ul>
+<li><strong>goroutine：有完整定义</strong>。固定虚拟栈，可用空间默认 256 KiB（可经 env <code>SA_TASK_STACK_KIB</code> 调），带守卫页；溢出时运行时 SIGSEGV 处理器识别守卫页地址，打印 <code>sa_task: goroutine &lt;id&gt; stack overflow</code> 后 abort——响亮，但栈已失，不可在 goroutine 边界恢复。</li>
+<li><strong>解释路：有成文数值</strong>。调用深度上限 1024 帧，超限返回 <code>RunError.CallStackOverflow</code>、映射为退出码 108，是干净错误而非崩溃；守卫先于宿主栈增长触发。</li>
+<li><strong>编译路主线（main 与普通调用链）：当前无定义</strong>。main 不是 goroutine——C 入口包装直接在宿主进程主线程上调用程序 main，SA 函数帧全程走宿主 OS 线程栈；实现中没有任何主线程栈尺寸设置，上限即宿主主线程栈（Linux 默认 rlimit，典型 8 MiB）除以帧大小，<strong>无语言级数值、随帧大小浮动、不可移植</strong>。溢出即 SIGSEGV 且<strong>无任何「递归过深」诊断</strong>：任务运行时已初始化时，处理器确认故障地址非守卫页后恢复默认信号处理、以原信号死亡；未初始化时是裸 SIGSEGV。编译路的 @test 主线同此待遇（仅测试内 spawn 的 goroutine 走 256 KiB 定义栈）。</li>
+</ul>
+<p>即：同一深递归程序，解释路在 1024 帧处得确定性错误，goroutine 内得带 id 的响亮 trap，编译路主线得无诊断的 SIGSEGV，三面不一致是现状。编译路主线栈深的定义化（入口线程栈显式化或深度计数）是代码面候选（批三候选，须与盒上探针同批实证后裁定），本节只落字现状。</p>
 
 <p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（go2sa 的 goroutine/channel 语义依本页运行时裁定）。</p>
 </body>

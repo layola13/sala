@@ -109,18 +109,18 @@
 <table>
 <tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
 <tr><td>TS-13</td><td><strong>goroutine 让出 / 抢占点集合未明文</strong>（正册 2 号姊妹）：只有「协作式」定性口径；确切集合（通道点？调用点？循环回边？）未枚举。</td><td><strong>咬语法批本体</strong>；v2 预算让出的对照基线</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十一节——让出点集已枚举（显式 yield + 阻塞运行时调用集），与 2 号同批落字</td></tr>
-<tr><td>TS-14</td><td><strong>可阻塞性未进入签名 / 效应面</strong>（正册 4 号并发分面）：R2 只单向约束 async 体，同步 fn 的可阻塞性在签名上不可见、检查器不产出传递着色附表。</td><td>原生侧阻塞审计同样无据</td><td>已登记</td></tr>
+<tr><td>TS-14</td><td><strong>可阻塞性未进入签名 / 效应面</strong>（正册 4 号并发分面）：R2 只单向约束 async 体，同步 fn 的可阻塞性在签名上不可见、检查器不产出传递着色附表。</td><td>原生侧阻塞审计同样无据</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十一节——R2 浅层定位成文（is_async 为唯一效应产物、无传递可阻塞集 / 无阻塞 extern 名单 / 无调用图）；传递着色附表产物仍仅登记、另行排期</td></tr>
 <tr><td>TS-15</td><td><strong>SA 内存模型未成文</strong>：chan/mutex/globals 各自建立什么 happens-before 边无契约，并发程序正确性无判据。</td><td><strong>咬定序二</strong>：三台 goroutine 改造的正确性地基</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十二节「内存模型」——六面同步边成文；定序二前置地基已备</td></tr>
 <tr><td>TS-16</td><td><strong>panic 在 async/future 边界的传播语义未明文（须查）</strong>：goroutine 边界有 DESIGN 明文，future/await 边界无对应口径，明文程度不对称。</td><td>异步错误处理面</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/09_async——future 边界 panic 为进程级、poll 不以数据形式观察；async 体内运行时 trap 与 rescue 帧交互一子项未定待查</td></tr>
 <tr><td>TS-17</td><td><strong>time 域时钟口径未明文</strong>：select timeout_ns 与 time 域的时钟是单调还是墙钟、时间戳时区口径均无载。</td><td>三台服务器的超时逻辑</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/08_time「时钟口径」节（双钟划分）+ 13 号第十一节 select timeout 指针</td></tr>
-<tr><td>TS-18</td><td><strong>递归深度与栈溢出定义面不全（须查）</strong>：goroutine 有固定栈 + 溢出 trap，主线程 / 普通调用链的深递归行为未明文。</td><td>递归遍历 AST（CXU / slars 日常负载）正处此边界</td><td>已登记</td></tr>
+<tr><td>TS-18</td><td><strong>递归深度与栈溢出定义面不全（须查）</strong>：goroutine 有固定栈 + 溢出 trap，主线程 / 普通调用链的深递归行为未明文。</td><td>递归遍历 AST（CXU / slars 日常负载）正处此边界</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十三节——三面栈形态成文（goroutine 256 KiB / 解释路 1024 帧 / 编译路主线无定义、溢出无诊断）；编译路主线栈深定义为<strong>批三候选</strong></td></tr>
 </table>
 
 <h3>附表 D′ · TS 探针：程序形态 / 契约层 / std 面</h3>
 <table>
 <tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
-<tr><td>TS-19</td><td><strong>程序入口形态未成文（须查）</strong>：main 签名 / 返回值 / argv 注入 / 可否 async，无成文契约，散见于验收程序惯例。</td><td>一切可执行程序</td><td>已登记</td></tr>
-<tr><td>TS-20</td><td><strong>顶层初始化顺序未明文（须查）</strong>：跨模块 const/globals 求值序与循环依赖行为无载——大程序「换 import 序变行为」的隐患面。</td><td>大程序模块化</td><td>已登记</td></tr>
+<tr><td>TS-19</td><td><strong>程序入口形态未成文（须查）</strong>：main 签名 / 返回值 / argv 注入 / 可否 async，无成文契约，散见于验收程序惯例。</td><td>一切可执行程序</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/03_functions「程序入口：main 契约」节；checker 响亮拒绝 async main / 带参 main 为<strong>批三候选</strong>（async main 静默失效系代码路径推定）</td></tr>
+<tr><td>TS-20</td><td><strong>顶层初始化顺序未明文（须查）</strong>：跨模块 const/globals 求值序与循环依赖行为无载——大程序「换 import 序变行为」的隐患面。</td><td>大程序模块化</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/07_modules「顶层 const 与初始化契约」节——const 编译期契约（展开序登记、前向引用失败）+ globals 惰性创建契约（NOT_FOUND=3 不写出参）</td></tr>
 <tr><td>TS-21</td><td><strong>struct 一般布局契约缺位</strong>：唯一写下的布局保证是 Chan 的 16B 槽位个案；字段重排 / 对齐 / 填充的一般规则不存在。</td><td>FFI 按值传结构体与序列化都默认它存在</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/05_structs_enums「布局契约」节</td></tr>
 <tr><td>TS-22</td><td><strong>.sai 域无机器可读宿主能力标注</strong>（正册 6 号域侧姊妹）：39 域纯逻辑 / 需 fs / 需 net 全靠人工普查，每个子集决策重做一遍。</td><td>一切子集 / 裁剪决策</td><td>已登记；.sai 域头加能力标注——小件、收益面广</td></tr>
 <tr><td>TS-23</td><td><strong>JS 宿主兼容面与契约层脱节（实证）</strong>：教义宣称 node/deno/bun 兼容内建，但唯一的 JS 形状面 <code>sa_deno_*</code>（34 符号）只在 C 头 sa_std.h、不在 .sai 契约宇宙——SLA 看不见、契约检查管不到；三宿主兼容矩阵亦无成文。</td><td>三宿主兼容教义的可执行面</td><td>已登记</td></tr>
