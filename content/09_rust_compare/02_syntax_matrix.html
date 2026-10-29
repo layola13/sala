@@ -59,7 +59,7 @@
 <tr><td><code>'a</code> / <code>'static</code></td><td>解析但不落到语义</td><td>SA 不做跨函数借用图</td></tr>
 <tr><td><code>pub</code> / <code>pub(crate)</code></td><td>解析丢弃</td><td>SA 默认全部链接器可见</td></tr>
 <tr><td><code>unsafe { ... }</code> / <code>unsafe fn</code></td><td>解析丢弃；涉及裸指针时要求包在 <code>@ffi_wrapper</code> 内</td><td>Sla 用函数级隔离替代块级 unsafe</td></tr>
-<tr><td><code>where T: Bound</code></td><td>解析；约束只在单态化时用于 trait 方法查找</td><td>不引入约束求解</td></tr>
+<tr><td><code>where T: Bound</code> / <code>&lt;T: Bound&gt;</code></td><td><b>响亮报错</b>（2026-10-29 裁定）：SLA 不支持泛型约束——历史实现解析后静默丢弃 bound（空壳：parser 只消费 bound 名不保存，AST / 检查器 / 单态化均无 bound 表示，连指向不存在 trait 的 bound 都能通过检查）；现已裁定改为写出 bound 即编译错误（见 <a href="../01_overview/15_go_feature_candidates.html">15 号文档</a>第七节补记）</td><td>trait 方法分发靠显式 impl 注册表 + 单态化，与写没写 bound 无关；不引入约束求解</td></tr>
 <tr><td><code>#[derive(...)]</code> / <code>#[inline]</code></td><td>映射到现有 <code>@derive(...)</code> / <code>inline</code></td><td>同语义换皮</td></tr>
 </table>
 

@@ -72,6 +72,14 @@
 <li><strong>D 显式 <code>conform Trait for Type;</code> 声明：0.81</strong>——编译器核方法集后走现有名义注册与 vtable 发射，用户免写转发 impl 块、双后端零改动、保留声明点合显式教义。</li>
 </ul>
 <p><strong>主会话处置（默认同意 Jev）</strong>：<strong>结构化（隐式）接口不采纳</strong>——A 胜出，B / C 明确否决。D 不是隐式接口，而是名义体系内的省样板便利，<strong>登记为独立候选、不排期</strong>，待真实消费方出现（如 go2sa 复活）时再议。另记 slars 一致性：slars 宪章为 Rust 名义式 trait 且与 SLA 共享 lowering 与双 codegen，SLA 单方面结构化会在共享层制造满足语义分叉——此点亦支持不采纳。</p>
+<p><strong>补记（2026-10-29）：上文解耦登记项「泛型约束空壳」已单独裁定。</strong>出现面普查（存 <code>~/workspace/bounds-local/CENSUS_USES.md</code>）穷举全树 .sla：bound 实际出现仅 rosetta 两处（31_trait_static_dispatch、170_marker_traits，均为 Rust 对照演示、且不依赖 bound 被校验），tests 与 sla_std 中为<strong>零</strong>；探针实证 bound 名连存在性都不查（<code>&lt;T: NoSuchTrait&gt;</code> 亦 check rc=0）。<strong>Jev 裁定</strong>（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/bounds_diagnostic_ruling.json</code>）：</p>
+<ul>
+<li><strong>甲 改为报错，并同批修正 rosetta 31 / 170 两 demo 为无 bound 形态、demo.md 注记与语法矩阵口径同步修正：0.93</strong>。</li>
+<li><strong>乙 改为报错，但豁免 rosetta demo：0.11</strong>。</li>
+<li><strong>丙 仅警告：0.07</strong>。</li>
+<li><strong>丁 做实 bound 系统（parser 保存 + 检查器求解）：0.06</strong>。</li>
+</ul>
+<p><strong>主会话处置（默认同意 Jev）：采甲。</strong>写 bound 即响亮报错；因出现面仅 rosetta 2 处、tests / sla_std 为零，改报错<strong>零误伤面</strong>。实施线进行中（本地 staging <code>~/workspace/bounds-local</code>，完成与门禁状态以其终报为准）；<a href="../09_rust_compare/02_syntax_matrix.html">09 号语法矩阵</a>的原错误口径（「约束只在单态化时用于 trait 方法查找」）已同步修正。</p>
 
 <p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>。</p>
 </body>
