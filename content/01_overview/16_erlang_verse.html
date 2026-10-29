@@ -52,6 +52,18 @@
 <h2>五、状态与排程</h2>
 <p>本页为 Erlang / Verse 两路候选与评估的登记处。落地次序随既定定序链：monitor 的运行时半部在运行时一期留形；监督结构与效应标注随 SLA goroutine 语法批；OTP 骨架在语法批后作 std 惯用法；预算让出登记 goroutine 二期。Verse 隐式回滚与联机预测不立项。</p>
 
+<h2>六、STM 窄形态候选（Haskell 显式式，2026-10-29）</h2>
+<p><strong>区分在先</strong>：本节的 STM 指 <strong>Haskell 显式式</strong>——<code>atomically</code> 块圈定范围、读写走事务变量、冲突时自动重试，块与块可组合（含 <code>orElse</code> 的「试 A、不行试 B」）。它与第二节所述、第四节已否的 <strong>Verse 隐式回滚</strong>（写进失败上下文即自动暂定 / 撤销，不采纳确认 0.86）不是一物——<strong>否隐式式不等于否显式式</strong>，故本节单独裁定。</p>
+<p><strong>主会话评估要点</strong>：</p>
+<ul>
+<li>STM 的真本事是<strong>可组合性</strong>：<code>atomically</code> 可以嵌套合并、<code>orElse</code> 给出协调组合——这是锁与通道都给不了的，理论层不判死。</li>
+<li>张力在它<strong>预设多方共享可变状态</strong>，与我们的所有权纪律相冲：共享状态的答案队列已有次序——属主 goroutine 模式（OTP 骨架）→ Mutex / RwLock（运行时一期 C 期已含）→ db 引擎层，STM 只能排在这条队列之后。</li>
+<li><strong>适用面有限</strong>：热键冲突下的重试风暴、事务内禁做 I/O（提交后才能落盘）这两条限制它在大状态上的适用；Clojure 的 STM 亦只用在中小协调状态、非数据库引擎——窄形态正是按这个量级圈定的。</li>
+<li><strong>检查器是拦路虎</strong>：事务会重试意味着块内代码可能执行多次——副作用须静态禁绝（I/O、通道操作不得入块）；事务单元内 owned 值在读 / 写 / 回滚 / 重试各路径上的所有权归属须可判读。这是研究级的检查器设计，不是语法批能捎带的。可行的借力路径是 <strong>Verse 的效应标注</strong>：用签名效应圈定可回滚代码，接第四节已采纳的效应标注线（0.66）。</li>
+</ul>
+<p><strong>Jev 裁定</strong>（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/stm_narrow_candidate.json</code>）：窄形态——显式 <code>atomically</code> + 受限事务单元、仅服务小型 goroutine 协调状态、排 goroutine v2 之后、立项前先过检查器可行性普查——登记为远期候选 <strong>0.63</strong>（温和肯定）。但两扇门当前都偏冷：<strong>需求门 0.30</strong>（三台改造以属主模式 + 锁落地后，剖析真能揭出「非 STM 不可」的协调痛点的期望低）；<strong>检查器可行性门 0.36</strong>（在不危及现有裁判机健全性的前提下扩展出事务纪律，把握弱、属研究级风险）。</p>
+<p><strong>采纳处置</strong>（默认同意）：登记为远期候选、<strong>双门制</strong>——需求门（三台改造后的剖析实证）与可行性门（检查器普查）任一不过即关闭；不进当前 SLA 语法批，不动三台改造计划。</p>
+
 <p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="15_go_feature_candidates.html">Go 生态候选语法与底层成套引入</a>。</p>
 </body>
 </html>
