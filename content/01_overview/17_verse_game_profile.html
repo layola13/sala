@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Verse 游戏向吸纳与插件承载</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; Verse 游戏向吸纳与插件承载</div>
+
+<div class="note">状态：定位记录（2026-10-29，用户定）。本页登记 Verse 特性集因「将来为游戏服务」前提变更而升级的定位，及其插件承载形态；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准，Verse 调研事实见 <a href="16_erlang_verse.html">16 号文档</a>第二节。</div>
+
+<h2>一、前提变更：从「只观察」到远期完全吸纳</h2>
+<p>用户定（2026-10-29）：本生态的 SA / SLA 将来可能要<strong>为游戏服务</strong>。<a href="16_erlang_verse.html">16 号文档</a>里 Jev 对「联机预测 / 并行 STM」的裁定是<strong>只观察（0.86）</strong>，但那条裁定建立在一个明确前提上——<strong>我们的交付物不做联机预测</strong>。该前提现已变更，裁定的地基随之失效：Verse 特性集的定位由「只观察」升级为<strong>远期完全吸纳目标</strong>。</p>
+<p>吸纳视野按 16 号第二节的调研事实全量圈定，不分已发货与未发货：<strong>已发货</strong>的本地失败回滚事务与函数签名效应标注；<strong>未发布</strong>的并行 STM（推测执行 + 冲突重试）与 <code>&lt;predicts&gt;</code> 客户端预测（客户端预测运行、服务器权威纠正）。后者在 Epic 侧尚不存在成形机制，吸纳的是其<strong>设计目标与语义形态</strong>，落地时以我们的运行时条件为准重新设计，不是对 Epic 实现的移植。</p>
+
+<h2>二、承载形态：插件承载、三层拆分</h2>
+<p>主会话方案，用户批准：Verse 这一套不进 SLA 本体，按性质拆成三层、分别归位。</p>
+<ul>
+<li><strong>语言语义层 → 语言插件 / 方言前端</strong>。失败回滚语义（失败上下文内的写入暂定、失败即整体撤销）、<code>decides</code> / <code>transacts</code> 式可回滚代码圈定，都是<strong>编译器语义</strong>，进不了运行时插件。但插件体系里早有 <code>kind=language</code> 一类：SLA、slars 皆以语言前端挂在宿主上、由宿主按扩展名分发。故形态 = <strong>Verse 向语言插件 / 方言档</strong>，承 slars 的硬条件——<strong>不动 SLA、另开前端、lowering 与 codegen 与 SLA 共享同一份代码</strong>，落点同为 SA；SLA 本体不被游戏语义污染。</li>
+<li><strong>运行时引擎层 → 领域插件</strong>。事务推测引擎（写日志 / 撤销）、预测与回滚的 netcode 骨架（快照环、输入延迟、回滚重演）是<strong>领域能力</strong>，不是 HTTP / TCP 那类基础核心，不适用「基础核心进 sa_std」的归位。先例现成：db 插件即「领域引擎 + 宿主注册」的形态。既有的游戏向种子 <strong>sla_ecs 归此线名下</strong>，作为该引擎层的存量起点。</li>
+<li><strong>通用部分 → SLA 本体</strong>。效应标注对非游戏场景同样成立，已按 16 号文档裁定（0.66）采纳进 <strong>SLA goroutine 语法批</strong>，走本体路线，<strong>不随游戏档走</strong>——游戏档将来无论是否启动，这一部分都照常落地。</li>
+</ul>
+
+<h2>三、边界</h2>
+<p>吸纳的是 Verse 的<strong>机制</strong>（事务推测、预测回滚、效应圈定），<strong>不是把 SLA 改成 Verse</strong>：语法表面、检查器纪律与所有权模型仍是本生态自己的。游戏档是<strong>可选挂载</strong>——服务器三台（slanginx / slaredis / db）的代码路径永不被迫背上推测执行的成本，不用游戏档就一字不付。SA 规约照旧<strong>冻结</strong>：三层全部落在 sa_std 之外的上层与插件面，与底座定案不冲突。</p>
+
+<h2>四、排程</h2>
+<p><strong>全程序总定序（用户 2026-10-29 定）</strong>：先完成 <strong>Erlang + goroutine 综合体</strong>（运行时一期 → SLA 语法批，定序见 13 / 15 / 16 号文档），再完成<strong>三台（slanginx / slaredis / db）的并发性能改进</strong>，<strong>两者都完成之后</strong>，才考虑加入 Verse、Haskell（STM 等）的特性。故本线的启动门是「<strong>综合体 + 三台改进双双完成</strong>」，不是综合体一完就开。属<strong>远期线</strong>。当前只改登记定位、<strong>不动任何施工面</strong>——在建的运行时一期、已排的语法批与三台改造均不受本页影响。启动时点与分期（语言档与引擎层的先后、首期语义子集的圈定）候届时另行裁定。</p>
+
+<p>相关讨论：<a href="16_erlang_verse.html">Erlang 并发候选与 Verse 事务调研评估</a>、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>。</p>
+</body>
+</html>

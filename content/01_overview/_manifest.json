@@ -252,6 +252,23 @@
         "效应标注"
       ],
       "parent": null
+    },
+    {
+      "id": "verse-game-profile",
+      "title": "Verse 游戏向吸纳与插件承载",
+      "file": "17_verse_game_profile.html",
+      "keywords": [
+        "Verse",
+        "游戏",
+        "插件",
+        "语言前端",
+        "方言",
+        "事务推测",
+        "预测回滚",
+        "netcode",
+        "sla_ecs"
+      ],
+      "parent": null
     }
   ]
 }
