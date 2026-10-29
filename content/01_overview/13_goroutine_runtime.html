@@ -107,6 +107,21 @@
 <p><strong>Jev 复判与关闭裁量</strong>（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/goroutine_v1_rejudge.json</code>）：完成 <strong>0.56</strong> / 一期关闭并开语法批 <strong>0.49</strong>——仍偏冷，且未给出新的具体阻塞点。主会话裁量：<strong>按证据关闭一期</strong>——一期自设门禁已全数以失败名字集证据满足，首判的具体反对（0.17）已按其条件全额执行；Jev 冷判如实入档备查。复判残余定价点两项已落实为语法批线的硬任务：文本后端 spawn 验收未单独复跑 → 语法批线第 0 步（红则先修、不带病施工）；真 socket netpoller 端到端未单独跑 → 语法批验收加 per-connection 回声服务冒烟件。</p>
 <p><strong>SLA 语法面一批已开工</strong>（本地 staging <code>~/workspace/gosyntax-local/</code>，基点 sla master <code>33629b75</code>，先设计记录后分期实现），范围八项：go/spawn 语句 + spawn 捕获检查器规则、channel 类型 + 通道载荷所有权、select 语句、defer、goroutine 边界 recover + 监督结构 std 一等件、monitor 语法面、async 互操作口径（Verse 式效应标注：能力在签名可见且被检查）、context 取消的 Done 通道惯例。运行时一期至此关闭，后续定序（语法批 → 三台改造 → 第三阶段吸纳）见第九节与 15–17 号文档。</p>
 
+<h2>十一、运行时契约落字（一）：让出点集与 select 选择策略（2026-10-29）</h2>
+<p><strong>让出点集（TS-13）</strong>：一期抢占为协作式（见第三节），其让出点集现枚举成文——让出点 = 显式 <code>sa_task_yield</code> extern 调用点 + <strong>每个阻塞运行时调用</strong>。SLA 编译器不插入任何让出：没有循环回边让出、没有调用点让出。阻塞运行时调用集（按实现枚举）：chan send / recv / select、<code>sa_task_join</code>、<code>sa_task_sleep_ns</code> / <code>sa_task_sleep_ms</code>、<code>sa_task_net_wait</code>、<code>sa_sync_mutex_lock</code> 的停泊路径。不调用上述任何入口的计算密集 goroutine 会饿死载体线程，这是运行时头注释自明的<strong>明示行为</strong>、不是缺陷。</p>
+<p><strong>select 选择策略（正册 2 号）</strong>：<code>sa_chan_select</code> 的就绪选择分两阶段。Phase 1（即时求值）：按 case 下标<strong>声明序</strong>逐个试、首个就绪者立即返回——即时阶段存在<strong>声明序偏置</strong>；Phase 2（停泊之后）：由首个到达的对端经 <code>selectTryClaim</code> 认领——<strong>先到先得的时间序</strong>。整体口径<strong>不是</strong> Go 式的均匀伪随机选择，依赖选择公平性的代码须按此口径书写。select 的 timeout 计时走单调钟（口径见 <a href="../06_stdlib/08_time.html">stdlib time 页「时钟口径」</a>）。</p>
+
+<h2>十二、内存模型：同步边的契约（TS-15，2026-10-29）</h2>
+<p>SA 此前没有成文内存模型；以下六面按当前运行时实现的同步纪律写成契约（实现出处：sci <code>src/runtime/sa_task.zig</code>、<code>src/runtime/sa_globals.zig</code> 与 LLVM 发射层）。本节是定序二（三台 goroutine 改造）的正确性地基；六面均以当前实现为据，实现若变，本节须随之修订。</p>
+<ul>
+<li><strong>chan</strong>：载荷移动全在通道的 futex 互斥锁内完成（锁实现为 cmpxchg <code>.acquire</code> / swap <code>.release</code> + futex 等待/唤醒）；发送在锁内写缓冲或直接交付接收者，接收在锁内取走。实现上构成同步边：一次 send 同步先于其配对 recv 的完成。</li>
+<li><strong>select</strong>：认领在 select 互斥量（<code>sel.mu</code>）内完成；载荷由认领方在<strong>通道锁内</strong>写入等待节点的槽位，之后才唤醒 select 拥有者（unpark）；等待者引用计数（<code>SelectWaiter.refs</code>）用 <code>.seq_cst</code>。</li>
+<li><strong>spawn / join</strong>：goroutine 退出收敛于单一汇聚点（<code>goroutineExit</code>）；trap 记录在唤醒 join 等待者<strong>之前</strong>写定。故 join 返回之后读取 trap 信息在实现上是安全的。</li>
+<li><strong>用户 Mutex</strong>（<code>sa_sync_mutex_*</code>）：goroutine 感知的停泊式锁，底层同步与通道同走 futex Mutex 的 acquire / release 配对；<strong>非重入</strong>——重入返回 ERR_INVALID（实现注释自述）。</li>
+<li><strong>globals</strong>：全部 get / set / add 由单个全局互斥量串行化，故 globals 操作<strong>全序串行</strong>、天然构成 happens-before 边；<code>add</code> 是回绕的读-改-写（RMW）。</li>
+<li><strong>SA 原子指令</strong>：指令带 ordering 字段；LLVM 发射在未另行指定时缺省 <code>.seq_cst</code>。</li>
+</ul>
+
 <p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（go2sa 的 goroutine/channel 语义依本页运行时裁定）。</p>
 </body>
 </html>

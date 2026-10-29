@@ -122,6 +122,11 @@ rosetta 314/315 仍以断言 panic 失败（共享层缺口，见下）。不能
 Box、derive、select/join/streams、基础 async）双后端执行输出完全一致；
 rosetta 314/315 双后端同 panic（跨 async fn 边界的嵌套 await，共享层缺口，
 非 SA/SAB 分歧，另立项）；</li>
+<li><strong>panic 在 future / await 边界的传播（TS-16，2026-10-29 落字）</strong>：async 体内的
+<code>panic()</code> 与 goroutine 边界口径对称——<strong>进程级终止</strong>，不以数据形式被 future
+观察：future 的状态 / 轮询表示（<code>sa_std/future.sa</code>）没有 panic 槽位，poll 永不返回一个
+「已 panic」结果，进程在 poll 驱动点直接终止（解释路记为 <code>RunError.UserExit</code>，
+编译路为 <code>panic</code> / <code>panic_msg</code> 主机调用）。</li>
 </ul>
 
 <div class="note"><span class="label">注意</span>编译器内部使用 continuation/state-machine

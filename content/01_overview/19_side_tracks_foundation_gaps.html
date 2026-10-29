@@ -39,8 +39,8 @@
 <table>
 <tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
 <tr><td>1</td><td><strong>整数溢出语义无明文口径</strong>：sala 未载 SLA/SA 溢出语义，外部参照三方默认值互不相同（Swift trap、Kotlin/JVM 回绕、JS f64 塌陷）；双后端（文本/SAB）实现是否一致尚未查，若不一致即现行编译器缺陷。</td><td>全生态地基：一切跨后端 / 跨目标一致性</td><td>已登记；查 sci 双 codegen 定事实口径 → 落字 → 不一致按缺陷修（带语料回归）。量级小（修复量视查证）</td></tr>
-<tr><td>2</td><td><strong>sa_chan_select 多臂就绪选择策略无明文</strong>：声明序偏置还是均匀 / 随机未取证，直接影响 select 公平性。</td><td>goroutine 语法批本体</td><td>已登记；读 sci chan 实现定策略 → 明文入 13 号文档；若声明序偏置，评估改均匀选择（Go 口径）</td></tr>
-<tr><td>3</td><td><strong>SLA <code>char</code> 类型精确语义未明文</strong>：宽度 / 编码未定。</td><td>基本类型映射与文本处理</td><td>已登记；查 checker/codegen 实测定口径 → 入 02_types</td></tr>
+<tr><td>2</td><td><strong>sa_chan_select 多臂就绪选择策略无明文</strong>：声明序偏置还是均匀 / 随机未取证，直接影响 select 公平性。</td><td>goroutine 语法批本体</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十一节——即时阶段声明序偏置 + 停泊后先到先得（非 Go 式均匀选择）；是否改均匀选择仍待裁定</td></tr>
+<tr><td>3</td><td><strong>SLA <code>char</code> 类型精确语义未明文</strong>：宽度 / 编码未定。</td><td>基本类型映射与文本处理</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/02_types「算术与类型契约」节——SLA 无 char 类型；std char = u32 Unicode 标量</td></tr>
 <tr><td>4</td><td><strong>检查器消费判定不以数据形式暴露</strong>：move/copy 分类是检查器内部状态，无 (prog, tc) 附表，任何「第三消费者」（转译器、分析工具）都须重走流分析。</td><td>一切 AST 消费者</td><td>仅登记、不排期；远期落为检查器附表输出。量级中</td></tr>
 </table>
 <p>（关联已办：泛型约束 <code>&lt;T: Trait&gt;</code> 空壳问题已由 bounds 批处理——响亮报错落地、候门禁，不在本表重复。）</p>
@@ -87,32 +87,32 @@
 <table>
 <tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
 <tr><td>TS-1</td><td><strong>整数除零行为未明文</strong>：trap / 状态码 / 未定义无载；双后端若不一致即现行缺陷。</td><td>一切算术代码</td><td>已登记；查双 codegen + 落字（随 A 组钉死批）</td></tr>
-<tr><td>TS-2</td><td><strong>除法 / 取余取向未明文</strong>（截断 / 地板 / 欧几里得）：Zig 双算子并存、发射端选错即静默变义；双后端与 std 包装层一致性未验。</td><td>一切算术代码</td><td>已登记；同 TS-1</td></tr>
+<tr><td>TS-2</td><td><strong>除法 / 取余取向未明文</strong>（截断 / 地板 / 欧几里得）：Zig 双算子并存、发射端选错即静默变义；双后端与 std 包装层一致性未验。</td><td>一切算术代码</td><td><strong>口径已落字（2026-10-29）</strong>：02_types「算术与类型契约」节——截断除法、余数符号随被除数，三条执行路一致</td></tr>
 <tr><td>TS-3</td><td><strong>移位超宽行为未明文 + 硬件掩码分岔嫌疑</strong>：x86 掩码 6 位，<code>x &lt;&lt; 64</code> 双后端可能已分岔，可探针实证。</td><td>bitpack / 哈希类代码</td><td>已登记；探针实证 → 钉口径</td></tr>
 <tr><td>TS-4</td><td><strong>数值转换语义未成文</strong>：float→int 越界 / NaN、int↔int 截断无 <code>as</code> 族边界口径。</td><td>一切跨类型数值代码</td><td>已登记；查实现定口径落字</td></tr>
 <tr><td>TS-5</td><td><strong>浮点文本形态族未明文</strong>：f64→十进制算法与往返保证、科学计数阈值、f32 中间舍入、数学函数域错误（NaN 还是 trap）四点全空（移动研究曾列「不可作行为依据」，本条正式立目）。</td><td>格式化 / 打印 / 协议文本面</td><td>已登记</td></tr>
-<tr><td>TS-6</td><td><strong>（正册 1 号补证，不另立目）</strong>checked 算术仅以 num 域 3 个 extern 存于 std 角落——「默认不检查」至今只是从 std 形状反推的推断、不是契约。</td><td>同 1 号</td><td>钉溢出口径时须同时裁定 checked 族定位</td></tr>
+<tr><td>TS-6</td><td><strong>（正册 1 号补证，不另立目）</strong>checked 算术仅以 num 域 3 个 extern 存于 std 角落——「默认不检查」至今只是从 std 形状反推的推断、不是契约。</td><td>同 1 号</td><td><strong>口径已落字（2026-10-29）</strong>：02_types「算术与类型契约」节——checked 族定位成文（MIR *WithOverflow 落点、SLA 无 checked 语法）；溢出总口径随 1 号在批二裁定</td></tr>
 <tr><td>TS-7</td><td><strong>字面量定型规则与边界未成文</strong>：无后缀字面量默认定型、i64 最小值负字面量边角、进制 / 后缀全集均无明文（≥2^63 部分已在 backlog，本条补全图景）。</td><td>语言表面完整性</td><td>已登记</td></tr>
-<tr><td>TS-8</td><td><strong><code>usize</code>/<code>isize</code> 位宽随目标口径未明文</strong>：原生 64 位 vs CXU 前端 wasm 32 位，同一 SLA 程序的算术 / 序列化在自家两目标上即可分岔。</td><td><strong>咬现行程序</strong>：A 方案「前后端同源」承诺的地基</td><td>已登记；明文位宽口径 + 跨目标纪律</td></tr>
+<tr><td>TS-8</td><td><strong><code>usize</code>/<code>isize</code> 位宽随目标口径未明文</strong>：原生 64 位 vs CXU 前端 wasm 32 位，同一 SLA 程序的算术 / 序列化在自家两目标上即可分岔。</td><td><strong>咬现行程序</strong>：A 方案「前后端同源」承诺的地基</td><td><strong>口径已落字（2026-10-29）</strong>：02_types「算术与类型契约」节——SLA 层恒 64 位、与宿主指针宽度脱钩；双目标分岔经定性普查证不存在（原担忧不成立）</td></tr>
 </table>
 
 <h3>附表 B′ · TS 探针：字符串 / 集合 / 派生</h3>
 <table>
 <tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
-<tr><td>TS-9</td><td><strong>String 的 UTF-8 有效性不变式未明文</strong>：字节句柄可装任意字节，string 域 25 extern 哪些假设文本、哪些纯字节未逐个标明，语言层无文本 / 字节类型区分。</td><td>string 域全部消费者</td><td>已登记</td></tr>
+<tr><td>TS-9</td><td><strong>String 的 UTF-8 有效性不变式未明文</strong>：字节句柄可装任意字节，string 域 25 extern 哪些假设文本、哪些纯字节未逐个标明，语言层无文本 / 字节类型区分。</td><td>string 域全部消费者</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/04_string「字节 / 文本口径」节；string.sai 逐行注记属 std 批、不在本批</td></tr>
 <tr><td>TS-10</td><td><strong>String 序关系未明文（须查）</strong>：UTF-8 字节序 = 码点序，但一切有序输出悬于 Ord 实现（memcmp 与否）一查。</td><td>BTreeMap 键序与有序输出</td><td>已登记；查 Ord 实现定口径</td></tr>
-<tr><td>TS-11</td><td><strong>HashMap 哈希种子与迭代顺序口径未明文</strong>：种子策略（进程随机 / 固定）未查未载，「顺序无保证」未落字；程序可能已暗中依赖当前实现的偶然顺序。</td><td>一切 HashMap 消费者</td><td>已登记</td></tr>
+<tr><td>TS-11</td><td><strong>HashMap 哈希种子与迭代顺序口径未明文</strong>：种子策略（进程随机 / 固定）未查未载，「顺序无保证」未落字；程序可能已暗中依赖当前实现的偶然顺序。</td><td>一切 HashMap 消费者</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/05_collections「哈希种子与迭代序口径」节——固定种子、无进程随机化；迭代序契约为无保证</td></tr>
 <tr><td>TS-12</td><td><strong>@derive 派生语义未成文</strong>：派生 Eq 对 f64 字段用 IEEE ==（NaN 破自反性）还是位相等、派生 Ord 字段序、派生 Hash 与 Eq 一致性及跨后端稳定性、enum 判别值是否契约——四点全空。</td><td>结构体作 HashMap 键的全部代码</td><td>已登记</td></tr>
 </table>
 
 <h3>附表 C′ · TS 探针：并发与运行时</h3>
 <table>
 <tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
-<tr><td>TS-13</td><td><strong>goroutine 让出 / 抢占点集合未明文</strong>（正册 2 号姊妹）：只有「协作式」定性口径；确切集合（通道点？调用点？循环回边？）未枚举。</td><td><strong>咬语法批本体</strong>；v2 预算让出的对照基线</td><td>已登记；读 sci 调度实现定集落字，与 2 号同批钉死</td></tr>
+<tr><td>TS-13</td><td><strong>goroutine 让出 / 抢占点集合未明文</strong>（正册 2 号姊妹）：只有「协作式」定性口径；确切集合（通道点？调用点？循环回边？）未枚举。</td><td><strong>咬语法批本体</strong>；v2 预算让出的对照基线</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十一节——让出点集已枚举（显式 yield + 阻塞运行时调用集），与 2 号同批落字</td></tr>
 <tr><td>TS-14</td><td><strong>可阻塞性未进入签名 / 效应面</strong>（正册 4 号并发分面）：R2 只单向约束 async 体，同步 fn 的可阻塞性在签名上不可见、检查器不产出传递着色附表。</td><td>原生侧阻塞审计同样无据</td><td>已登记</td></tr>
-<tr><td>TS-15</td><td><strong>SA 内存模型未成文</strong>：chan/mutex/globals 各自建立什么 happens-before 边无契约，并发程序正确性无判据。</td><td><strong>咬定序二</strong>：三台 goroutine 改造的正确性地基</td><td>已登记；<strong>升为定序二的前置地基</strong>，改造开工前补</td></tr>
-<tr><td>TS-16</td><td><strong>panic 在 async/future 边界的传播语义未明文（须查）</strong>：goroutine 边界有 DESIGN 明文，future/await 边界无对应口径，明文程度不对称。</td><td>异步错误处理面</td><td>已登记</td></tr>
-<tr><td>TS-17</td><td><strong>time 域时钟口径未明文</strong>：select timeout_ns 与 time 域的时钟是单调还是墙钟、时间戳时区口径均无载。</td><td>三台服务器的超时逻辑</td><td>已登记</td></tr>
+<tr><td>TS-15</td><td><strong>SA 内存模型未成文</strong>：chan/mutex/globals 各自建立什么 happens-before 边无契约，并发程序正确性无判据。</td><td><strong>咬定序二</strong>：三台 goroutine 改造的正确性地基</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十二节「内存模型」——六面同步边成文；定序二前置地基已备</td></tr>
+<tr><td>TS-16</td><td><strong>panic 在 async/future 边界的传播语义未明文（须查）</strong>：goroutine 边界有 DESIGN 明文，future/await 边界无对应口径，明文程度不对称。</td><td>异步错误处理面</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/09_async——future 边界 panic 为进程级、poll 不以数据形式观察；async 体内运行时 trap 与 rescue 帧交互一子项未定待查</td></tr>
+<tr><td>TS-17</td><td><strong>time 域时钟口径未明文</strong>：select timeout_ns 与 time 域的时钟是单调还是墙钟、时间戳时区口径均无载。</td><td>三台服务器的超时逻辑</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/08_time「时钟口径」节（双钟划分）+ 13 号第十一节 select timeout 指针</td></tr>
 <tr><td>TS-18</td><td><strong>递归深度与栈溢出定义面不全（须查）</strong>：goroutine 有固定栈 + 溢出 trap，主线程 / 普通调用链的深递归行为未明文。</td><td>递归遍历 AST（CXU / slars 日常负载）正处此边界</td><td>已登记</td></tr>
 </table>
 
@@ -121,12 +121,12 @@
 <tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
 <tr><td>TS-19</td><td><strong>程序入口形态未成文（须查）</strong>：main 签名 / 返回值 / argv 注入 / 可否 async，无成文契约，散见于验收程序惯例。</td><td>一切可执行程序</td><td>已登记</td></tr>
 <tr><td>TS-20</td><td><strong>顶层初始化顺序未明文（须查）</strong>：跨模块 const/globals 求值序与循环依赖行为无载——大程序「换 import 序变行为」的隐患面。</td><td>大程序模块化</td><td>已登记</td></tr>
-<tr><td>TS-21</td><td><strong>struct 一般布局契约缺位</strong>：唯一写下的布局保证是 Chan 的 16B 槽位个案；字段重排 / 对齐 / 填充的一般规则不存在。</td><td>FFI 按值传结构体与序列化都默认它存在</td><td>已登记</td></tr>
+<tr><td>TS-21</td><td><strong>struct 一般布局契约缺位</strong>：唯一写下的布局保证是 Chan 的 16B 槽位个案；字段重排 / 对齐 / 填充的一般规则不存在。</td><td>FFI 按值传结构体与序列化都默认它存在</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/05_structs_enums「布局契约」节</td></tr>
 <tr><td>TS-22</td><td><strong>.sai 域无机器可读宿主能力标注</strong>（正册 6 号域侧姊妹）：39 域纯逻辑 / 需 fs / 需 net 全靠人工普查，每个子集决策重做一遍。</td><td>一切子集 / 裁剪决策</td><td>已登记；.sai 域头加能力标注——小件、收益面广</td></tr>
 <tr><td>TS-23</td><td><strong>JS 宿主兼容面与契约层脱节（实证）</strong>：教义宣称 node/deno/bun 兼容内建，但唯一的 JS 形状面 <code>sa_deno_*</code>（34 符号）只在 C 头 sa_std.h、不在 .sai 契约宇宙——SLA 看不见、契约检查管不到；三宿主兼容矩阵亦无成文。</td><td>三宿主兼容教义的可执行面</td><td>已登记</td></tr>
 <tr><td>TS-24</td><td><strong>TS 语义库 @ts_* 的语义决策无成文对照表</strong>：45 个 @ts_* 函数把 JS 语义固化在手写 SA 里却只有函数名清单；<code>@ts_arr_sort</code> / <code>@ts_arr_sort_str</code> 并存即决策化石。</td><td><strong>咬 P0-1</strong>：tofixed D1–D4 缺陷正是从这张缺失的表里烂出来的</td><td>已登记；逐个补语义决策对照，与 P0-1 修复线协同</td></tr>
 <tr><td>TS-25</td><td><strong>fs/env 域路径与环境变量的字节语义未明文</strong>：任意字节 / NUL / 无效 UTF-8 的政策、Windows 镜像的 UTF-16 路径转换政策均无载。</td><td>CXU 是 Windows 应用——现行问题而非转译问题</td><td>已登记</td></tr>
-<tr><td>TS-26</td><td><strong>JSON 域数值保真口径未明文（须查，尖锐）</strong>：节点模型（64 extern）的数值表示若为 f64 单型，则 2^53 以上整数<strong>在原生链路上今天就已静默丢精度</strong>，与转译无关。</td><td>CXU 的 JSON-RPC 面</td><td>已登记；先查节点模型数值表示定性，再议口径</td></tr>
+<tr><td>TS-26</td><td><strong>JSON 域数值保真口径未明文（须查，尖锐）</strong>：节点模型（64 extern）的数值表示若为 f64 单型，则 2^53 以上整数<strong>在原生链路上今天就已静默丢精度</strong>，与转译无关。</td><td>CXU 的 JSON-RPC 面</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/11_encoding「数值模型：三态」节——三态已查清（原「f64 单型」担忧不成立），访问器口径成文</td></tr>
 </table>
 
 <h2>四、排程注记</h2>

@@ -89,6 +89,13 @@ impl Draw for Button {
 let button = Button { id: 77 };
 let result = render(&amp;button);   // 77</code></pre>
 
+<h2>布局契约（TS-21，2026-10-29 落字）</h2>
+<p>聚合类型的内存布局有一般规则（双后端共享同一布局计划，
+<code>lowering_rules.structFieldLayout</code>），现成文如下：struct 字段按<strong>声明序排列、
+不重排</strong>；每个字段按其存储对齐对齐偏移；<code>union</code> 的全部字段都在偏移 0。
+enum 的判别标签（tag）是 <code>i64</code>、位于偏移 0，payload 自偏移 8 起。
+FFI 按值传结构体与序列化可依赖此契约。</p>
+
 <h2>标准库常用聚合</h2>
 <table>
 <tr><th>类型</th><th>来源契约</th><th>示例用法</th></tr>

@@ -29,6 +29,13 @@
 <tr><td><code>sa_time_set_field(ms: i64, field: u64, value: i64) -&gt; i64</code></td><td>Date setter 系（field 0..6，month 入参 0 起）；越界按 JS 翻转归一，返回新毫秒值</td></tr>
 </table>
 
+<h2>时钟口径（TS-17，2026-10-29 落字）</h2>
+<p>time 域是<strong>双钟划分</strong>，现成文如下：<code>sa_time_instant_ns</code> 是<strong>单调钟</strong>
+（相对进程原点的时钟）；运行时任务计时同走单调钟——task / select 的 timeout 与睡眠计时
+均为单调口径（<code>CLOCK_MONOTONIC</code>），<code>sa_time_sleep_ns</code> 是按此时钟的时长睡眠；
+<code>sa_time_unix_*</code> 一族是<strong>墙钟</strong>（真实时间）；日历字段分解与
+<code>sa_time_format_utc</code> 为 <strong>UTC 口径</strong>。</p>
+
 <h2>TS 前端（satsgo Date 链）</h2>
 <p>satsgo 把 <code>Date</code> 窄化为 <code>i64</code> 毫秒值（UTC 子集，无时区）：
 <code>Date.now()</code> / 无参 <code>new Date()</code> 直调
