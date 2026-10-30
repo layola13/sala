@@ -184,6 +184,7 @@
 
 <h2>六、状态</h2>
 <p><strong>已开工。</strong>2026-10-29 晚的升格裁决链已全部并入本页：全覆盖验证（含 95%+ 覆盖率目标的双口径定义，见一节）、引擎 + 语言、<strong>四科一体统一引擎（修订三）</strong>，及两条架构细节裁决——呈现层定 three.js 示意级、世界模型层基座定 sla_ecs（均见三节）；同晚 22:40，用户拍板引擎定名「衡（Heng）」（命名三义见一节）；22:41，呈现 / 交互层增补 JSXGraph 管二维、数学核不外包定案（均见三节）。同晚其后裁决二条：<strong>22:43，用户下令开工</strong>——「未开工」状态就此推翻，引擎 v0.1 首批六线当晚全部落地（本地仓，首批落地记录见五节），集成验收进行中；<strong>22:55，用户定「禁止用 Python」</strong>——本引擎的工具、校验器与脚本一律以 SLA 实现，kb 知识底座线校验器已按此规由 Python 移植为 SLA。本页仍不承诺排期；本计划不占现行总定序（定序一语法批 → 定序二三台改造 → 定序三 Verse / STM）的位置。语义底稿草案 v0.2 的后续修订（离子强度校正、伪异构体组等其 §8 所列 v0.3 事项）随草案自身演进，不在本页跟踪。</p>
+<p><strong>kb 并发关账（2026-10-30）</strong>：kb 子系统并发改造的镜像复验已齐备关账——species 双后端 20/20、kb test_json 在 SAB PASS、found test_quantity 盒上 5/5 PASS、validate_kb 盒上 build + run <strong>RESULT ALL PASS</strong>（grade 批并发此前已关账、与顺序版逐字节一致）。<strong>唯一口径差如实登记</strong>：validate_kb 报告与金标 md5 不同、仅在 INFO 计数行——并发版按分片发报（70+1 / 18+38 / 16+52），加和恰为金标聚合 71 / 56 / 68，其余逐字节一致；金标是顺序版时代产物（衡仓 <code>edd2693</code> 入库、并发重写 <code>ffcb114</code> 后未再生成），属衡侧陈旧金标 / 发射形态，<strong>不是编译器缺陷</strong>，不入 DEF 线。另 validate_kb（SAB 构建）的任务栈需求在 (2MiB, 4MiB]、vs 默认 256 KiB，属编译器线 DEF-R2 / DEF-4 家族的容量面（见 <a href="13_goroutine_runtime.html">13 号文档</a>第十七节），不当作 kb 侧问题。衡仓已迁至 GitHub <code>layola13/slaheng</code> 并完成首推与 README 现状更新（main <code>e546168</code>，本机 ls-remote 复核一致）。期二余项（C2 热力学一致性、kb 能量数据采集、canon1 随 L2 接入、四科扩展）仍候用户排期、未开工。</p>
 
 <p>相关记录：<a href="19_side_tracks_foundation_gaps.html">支线研究与底层不足登记</a>（三探针为不立项仅讨论，与本篇定位的区别见页首注）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（模拟层轨迹并行的运行时来源）。</p>
 </body>
