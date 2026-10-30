@@ -8,7 +8,7 @@
 <body>
 <div class="topic-header">入门指南 &gt; Go 生态候选语法与底层成套引入</div>
 
-<div class="note">状态：登记记录（2026-10-29）。本页是 goroutine 周边候选语法与 Jev 排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。</div>
+<div class="note">状态：登记记录（2026-10-29）。本页是 goroutine 周边候选语法与 Jev 排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。定序二三台改造：slanginx、db 已落地，slaredis 进行中（2026-10-30，见第六节落地记录）。</div>
 
 <h2>一、用户定案：周边语法成套引入「底层」（2026-10-29）</h2>
 <p>用户定案（2026-10-29 10:20）：<strong>一切配合 goroutine 周边的语法都要引入 SA 底层，成套引入、不零敲碎打</strong>。</p>
@@ -43,7 +43,7 @@
 </ul>
 
 <h2>五、状态与排程</h2>
-<p>本页为候选与排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。现状（2026-10-30）：运行时一期与 SLA 语法批（扩围含 defer 与 recover / 监督、Done 取消约定）均已完工并集成关闭；下一步为定序二三台 goroutine 改造（预备与 Jev 三裁已就绪）。embed 小批维持独立排期（本地完工、未集成）；隐式接口已普查并裁定不采纳（见第七节）。</p>
+<p>本页为候选与排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。现状（2026-10-30）：运行时一期与 SLA 语法批（扩围含 defer 与 recover / 监督、Done 取消约定）均已完工并集成关闭；定序二三台 goroutine 改造：slanginx、db 已落地（2026-10-30），slaredis 进行中（基点 <code>957eaa0</code>，gserver 已落码、尚无门禁结果），落地记录见第六节。embed 小批维持独立排期（本地完工、未集成）；隐式接口已普查并裁定不采纳（见第七节）。</p>
 
 <h2>六、对三台目标项目的帮助评估（主会话评估，2026-10-29）</h2>
 <p><strong>总纲</strong>：帮助主要在并发结构、健壮性与开发速度，不在单机吞吐数字。三台的 99% 缺口此前归因都不在并发模型，goroutine 不直接抬性能数字。</p>
@@ -55,6 +55,12 @@
 <li><strong>诚实保留</strong>：v1 是协作式调度，纯计算不让出会饿死同伴；调度器成熟度与尾延迟比不了 Go 十年打磨——须在三台改造验收中实测盯住，不默认与 Go 一样顺滑。</li>
 </ul>
 <p>一句话收敛：<strong>slanginx 是补心脏，slaredis 是拆状态机加解锁阻塞命令，db 是给接入层发并发驾照；三台的性能 99% 仍各自归 std 热点线。</strong></p>
+
+<h3>定序二落地记录（2026-10-30）</h3>
+<p>以下推送均经主会话 ls-remote 独立复核，数字为各线终报。</p>
+<p><strong>slanginx 已落地</strong>：main <code>e19f058</code> → <code>07157a6c8de55f284f24f2e351bbf64fa91bb3f5</code>。goroutine serve 定版形态：dispatcher（主任务）以 <code>ACCEPT_POLL_MS=1</code> 短轮询 accept、直 spawn supervised conn_worker、completions chan 回收时 join 读 trap、64 槽连接池 dispatcher 独占、看门狗补 trapped worker 无 completion 的缺口、代际轮换 <code>GEN_EVENT_BUDGET=20000</code>。两处实测改形（与原 PLAN 的偏差，登记在案）：① 每连接 supervisor goroutine 撞非主任务 spawn/join 累计天花板约 300k（周期 PANIC 60901），监督收回主任务，语义等价保留；② acceptor goroutine 喂 chan 撞 std 面 accept 泵动停驻（负载下停驻 6–9 s、零 CPU），accept 回归 dispatcher。门禁（四联）：单元 25/25 逐名全过、验收 49 PASS / 0 FAIL、120,000 请求负载冒烟 0 错误且访问日志精确 120,000 行、畸形输入（垃圾请求行 / 60 KB 头）连接被处置而进程存活。同窗 bench 对 nginx（比值 c1/c10/c50）：small 3.8%/6.0%/4.5%、large 7.6%/14.2%/15.7%、proxy 36.3%/80.9%/40.9%（G7 顺序版：small 26.3%/5.9%/4.4%、large 44.3%/15.3%/5.3%）；判读：c10/c50 与基线同水平（large c50 反超），dispatcher 上限约 5.5k rps 与顺序版串行天花板同量级；<strong>c1 是明确弱面</strong>——轮询片量化 + spawn 链串行使单连接约 760 rps 封顶，顺序版 c1 的高比值来自零交接内联，取舍已写入交付文档。耐力：默认 8 MiB 栈下 600,000 请求 0 错误、ENDURANCE_PASS，越过顺序版死亡点 523,128，进程死亡面关闭；VmStk 全程有界。斜率：15,100 → 约 6,500 B/req（耐力平均），应用层三段成因已按构造消除；残余为运行时每 spawn 保留约 4,231 B，属运行时面。DEF 移交包已备（栈棘轮 probe_b 主件 + 四补充：detached spawn 保留、任务栈约 256 KiB 溢出为进程 abort 不可监督、非主任务 spawn/join 天花板与 defer-on-trap 不执行、accept 泵动停驻），候主会话转发 DEF 线。</p>
+<p><strong>db 已落地</strong>：sa_plugin_db master <code>c02b4ec</code> → <code>9b61981</code>（新增 <code>sla/</code> 并发接入层：查询 goroutine 各自 pin 快照读、扣减经 Chan 汇入单写者 goroutine 组提交——按批大小/窗口攒批、一批一 commit、watchdog 标记写者死亡为服务级致命、close 排空收件箱；引擎 Zig 未动），接入验收 9/9（SAB 后端）、配额服务示例端到端过；OTP executor 骨架入 sci sa_std（sci main <code>e7c18568</code> → <code>9c874290</code>，<code>sa_std/executor.sla</code> + <code>executor_test.sla</code> 两笔）。接入层同窗数（线终报）：点读约 0.95–1.13k qps、直连 pinned 读 5.50M qps——瓶颈已从引擎移到接入路径本身（每查询一次 goroutine + Chan 往返）；组提交 deduct 82 rps @4 客户端（2,000 次扣减、500 次提交，批合并生效）；引擎中位数复现 G3 写 114.7/s。第六节「给接入层发并发驾照」的判断兑现，读吞吐缺口的新归因（接入路径开销）在案。</p>
+<p><strong>slaredis 进行中</strong>：基点 <code>957eaa0</code>，gserver（per-connection goroutine + Store 单执行者 goroutine 独占）已落码并迭代中，尚无验收 / 冒烟 / bench 结果，不预记结论；第 4 面（≥1000 连接批量关闭段错误）随本线以 smoke_1000 为验收门关闭。</p>
 
 <h2>七、隐式接口普查结论与 Jev 裁定（2026-10-29）</h2>
 <p>按第二节排序，隐式接口候普查后单独裁定。普查已完成（2026-10-29，四出处：sala 文档、sa_plugin_sla demos、sa_plugin_sla tests 语料、sci 的 sa_std 清单；普查报告存 <code>~/workspace/impliface-census/CENSUS.md</code>）。</p>
