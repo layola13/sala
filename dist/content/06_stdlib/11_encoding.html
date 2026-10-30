@@ -40,6 +40,17 @@
 <tr><td><code>sa_json_writer_finish(writer: ptr, &amp;out_handle: ptr) -&gt; i32</code> 或 <code>sa_json_writer_finish_buffer(writer: ptr) -&gt; ptr</code></td><td>结束并取输出</td></tr>
 </table>
 
+<h3>数值模型：三态（TS-26，2026-10-29 落字）</h3>
+<p>JSON 节点的数值表示是<strong>三态</strong>，不是单型 f64：<code>.integer</code>（i64）、
+<code>.float</code>（f64）、<code>.number_string</code>（原始文本）。解析口径：字面为整数形
+且落在 i64 内 → <code>.integer</code>，<strong>精确</strong>；整数超 i64 → <code>.number_string</code>
+原文保存；非整数且有限 → <code>.float</code>；非有限 → <code>.number_string</code>。
+访问器口径：<code>sa_json_as_i64</code> 对 <code>.integer</code> 精确，对 <code>.float</code> 要求
+整值且在 i64 范围内，对 <code>.number_string</code> 做整数解析、溢出即 InvalidArgument；
+<code>sa_json_as_f64</code> 对大整数做浮点舍入（超过 2^53 的整数经 f64 路径会失精度，
+须走 i64 / 原文路径）。stringify 对 <code>.number_string</code> 逐字回写，故
+<strong>解析 → 回写对任意大整数无损</strong>。</p>
+
 <h2>text/regex.sai</h2>
 <table>
 <tr><th>签名</th><th>说明</th></tr>

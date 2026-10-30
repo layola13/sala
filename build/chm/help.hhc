@@ -77,6 +77,102 @@
 <param name="Local" value="../dist/content/01_overview/08_cxu_rewrite_roadmap.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sangx：自研 Web 服务器（nginx 重构）规划">
+<param name="Local" value="../dist/content/01_overview/09_nginx_rebuild_roadmap.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="后台服务覆盖图：已有、立项与缺口">
+<param name="Local" value="../dist/content/01_overview/10_backend_coverage.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sardis（暂名）：Redis 重构规划">
+<param name="Local" value="../dist/content/01_overview/11_sardis_roadmap.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Haxe 编译后端：SA 作为 Haxe 的底层目标">
+<param name="Local" value="../dist/content/01_overview/12_haxe_backend.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="goroutine 运行时：引入 sa_std 的设计讨论">
+<param name="Local" value="../dist/content/01_overview/13_goroutine_runtime.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="cpp2sa 与 go2sa：两个新前端的立项讨论">
+<param name="Local" value="../dist/content/01_overview/14_cpp2sa_go2sa.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Go 生态候选语法与底层成套引入">
+<param name="Local" value="../dist/content/01_overview/15_go_feature_candidates.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Erlang 并发候选与 Verse 事务调研评估">
+<param name="Local" value="../dist/content/01_overview/16_erlang_verse.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Verse 游戏向吸纳与插件承载">
+<param name="Local" value="../dist/content/01_overview/17_verse_game_profile.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="移动端转译：sla2swift 与 sla2kotlin">
+<param name="Local" value="../dist/content/01_overview/18_mobile_transpile.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="支线研究与底层不足登记">
+<param name="Local" value="../dist/content/01_overview/19_side_tracks_foundation_gaps.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="高考统一引擎「衡 · Heng」（生化核心演算先行）：开发计划">
+<param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">
@@ -243,6 +339,14 @@
 </OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA vs Rust vs Go 性能实测（native / WASM / 编译 / 网络）">
 <param name="Local" value="../dist/content/09_rust_compare/09_performance.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Rust std × sa_std 表面普查与缺口表">
+<param name="Local" value="../dist/content/09_rust_compare/10_std_census.html">
 </OBJECT>
 </UL>
 </UL>
@@ -645,6 +749,22 @@
 </OBJECT>
 </UL>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="VM 支持规划：可编程查询层">
+<param name="Local" value="../dist/content/10_db/07_vm_support.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="三角对比与漏洞统计：MySQL / SQLite / db 插件">
+<param name="Local" value="../dist/content/10_db/08_mysql_sqlite_compare.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">
@@ -919,6 +1039,14 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="跨语言 std 普查：Java（OpenJDK）net × sa_std">
+<param name="Local" value="../dist/content/06_stdlib/21_java_net_census.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Go net 标准库 × sa_std 缺口普查">
 <param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html">
 </OBJECT>
@@ -987,6 +1115,46 @@
 </OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ws_client：WebSocket 客户端">
 <param name="Local" value="../dist/content/06_stdlib/20_ws_client.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Android net 表面 × sa_std 缺口普查">
+<param name="Local" value="../dist/content/06_stdlib/21_android_net_census.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Unreal Engine 网络体系 × sa_std 网络面普查与缺口表">
+<param name="Local" value="../dist/content/06_stdlib/23_unreal_net_census.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="跨语言普查：Python (CPython) net 标准库 × sa_std 缺口">
+<param name="Local" value="../dist/content/06_stdlib/24_python_net_census.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="iOS net 表面 × sa_std 缺口普查">
+<param name="Local" value="../dist/content/06_stdlib/25_ios_net_census.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value=".NET net 表面 × sa_std 缺口普查">
+<param name="Local" value="../dist/content/06_stdlib/26_dotnet_net_census.html">
 </OBJECT>
 </UL>
 </UL>

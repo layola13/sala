@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>.NET net 表面 × sa_std 缺口普查</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; .NET net 表面 × sa_std 缺口普查</div>
+<h1>.NET net 表面 × sa_std 缺口普查</h1>
+
+<p>本页是跨语言 std 普查批的一份（同批：Rust 全 std、Go net、Python net、Java net、Android net、iOS net）。
+.NET 的网络标准库分两层：现代核心（Sockets / HttpClient / SslStream / QUIC / WebSockets）与
+一整层 WebRequest 时代的旧模型（WebClient / HttpWebRequest / ServicePoint / 缓存策略），
+后者连 .NET 自己都在持续标 Obsolete。本页把 <code>System.Net.*</code> 全部 19 个程序集的公共面
+与 sa_std 网络面逐类型比对、四分类，并给出优先补齐短名单。</p>
+
+<h2>来源与版本</h2>
+<table>
+<tr><th>侧</th><th>来源</th></tr>
+<tr><td>.NET 公共面</td><td>dotnet/runtime 最新 GA tag <code>v10.0.14</code>（.NET 10 servicing，
+commit <code>6aa72daa</code>），稀疏克隆 <code>src/libraries/System.Net.*</code> 共 19 个程序集，
+解析各程序集的 <code>ref/*.cs</code> 参考源码——即公共 API 契约面本身。</td></tr>
+<tr><td>SA 侧基线</td><td>sci main <code>8a943911</code> 的 <code>sa_std</code> 网络面：
+12 个 .sai 契约文件共 <strong>475</strong> 个 extern（net 222、http_client 57、http_server 46、
+quic 29、ssh 26、tls_client 22、multipart 18、http2 14、ws_client 12、tls_server 11、dtls 11、netx 7；
+同批 Android 页按不含 multipart 的 11 文件口径计 457），另 .sal 常量 225、.sa 宏 583、
+<code>sa_std.h</code> 声明 208，全表面抽取 1,491 行。</td></tr>
+</table>
+
+<h2>方法与清单规模</h2>
+<p>双边机械抽取（脚本与产物在 <code>tools/dotnet_net_census/</code>，可复跑）：
+.NET 侧解析 ref 源码的类型与成员声明及 <code>[Obsolete]</code> 标记；SA 侧解析
+<code>@extern</code> / <code>#def</code> / <code>[MACRO]</code> 与 C 头声明。
+.NET 侧共抽得 <strong>337 条类型记录（归并同名后 334 个类型）/ 4,194 个成员</strong>
+（method 1,355、property 1,214、enum_member 1,134、ctor 374、field 100、event 17）。
+分类粒度为类型级，逐类型结果在 <code>gap_classification.tsv</code>；
+头部类型的成员级差异写在注记里。四分类口径与同批一致。</p>
+<p>总结果：<strong>已有等价 32（9.6%）/ 可直接对应 140（41.9%）/ 需建模 62（18.6%）/ 模型不合 100（29.9%）</strong>。
+按成员加权：671 / 1,927 / 915 / 681。模型不合的构成并不神秘：异常类型 17、委托 24、事件参数 14、
+类型级已被 .NET 自己标 Obsolete 的 12，其余 33 为平台专属件（Windows 控制码、PAC 脚本、ExtendedProtection 等）。
+剔除类型级 Obsolete 后看现代表面（322 个类型）：32 / 139 / 62 / 89。</p>
+
+<h2>按命名空间计数</h2>
+<table>
+<tr><th>命名空间</th><th>类型</th><th>成员</th><th>已有等价</th><th>可直接对应</th><th>需建模</th><th>模型不合</th></tr>
+<tr><td><code>System.Net</code></td><td>87</td><td>1020</td><td>5</td><td>19</td><td>17</td><td>46</td></tr>
+<tr><td><code>System.Net.Sockets</code></td><td>34</td><td>730</td><td>14</td><td>10</td><td>1</td><td>9</td></tr>
+<tr><td><code>System.Net.NetworkInformation</code></td><td>44</td><td>438</td><td>0</td><td>36</td><td>0</td><td>8</td></tr>
+<tr><td><code>System.Net.Security</code></td><td>23</td><td>608</td><td>0</td><td>11</td><td>8</td><td>4</td></tr>
+<tr><td><code>System.Net.Http</code></td><td>34</td><td>351</td><td>6</td><td>6</td><td>15</td><td>7</td></tr>
+<tr><td><code>System.Net.Http.Headers</code></td><td>28</td><td>306</td><td>0</td><td>20</td><td>7</td><td>1</td></tr>
+<tr><td><code>System.Net.Mail</code></td><td>20</td><td>194</td><td>0</td><td>7</td><td>9</td><td>4</td></tr>
+<tr><td><code>System.Net.WebSockets</code></td><td>16</td><td>180</td><td>4</td><td>7</td><td>4</td><td>1</td></tr>
+<tr><td><code>System.Net.Quic</code></td><td>13</td><td>104</td><td>3</td><td>7</td><td>1</td><td>2</td></tr>
+<tr><td><code>System.Net.Mime</code></td><td>10</td><td>77</td><td>0</td><td>10</td><td>0</td><td>0</td></tr>
+<tr><td><code>System.Net.Cache</code></td><td>5</td><td>38</td><td>0</td><td>0</td><td>0</td><td>5</td></tr>
+<tr><td><code>System.Security.Authentication</code></td><td>6</td><td>36</td><td>0</td><td>1</td><td>0</td><td>5</td></tr>
+<tr><td><code>System.Security.Authentication.ExtendedProtection</code></td><td>6</td><td>26</td><td>0</td><td>0</td><td>0</td><td>6</td></tr>
+<tr><td><code>System.Net.ServerSentEvents</code></td><td>4</td><td>14</td><td>0</td><td>3</td><td>0</td><td>1</td></tr>
+<tr><td><code>System.Net.Http.Json</code></td><td>3</td><td>67</td><td>0</td><td>3</td><td>0</td><td>0</td></tr>
+<tr><td><code>System.Net.Http.Metrics</code></td><td>1</td><td>5</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td><strong>合计</strong></td><td><strong>334</strong></td><td><strong>4194</strong></td><td><strong>32</strong></td><td><strong>140</strong></td><td><strong>62</strong></td><td><strong>100</strong></td></tr>
+</table>
+
+<h2>分类口径</h2>
+<ul>
+<li><strong>已有等价</strong>：功能已被 sa_std 现有面覆盖（形态可不同：句柄 vs 对象、状态码 vs 异常）。</li>
+<li><strong>可直接对应</strong>：sa_std 没有，但可直译补齐——纯函数、命名常量、参数袋、协议直译型客户端。
+「只是没做」是这一类的全部含义。</li>
+<li><strong>需建模</strong>：概念成立、底座原语多已备，但需要一层状态/对象模型（句柄表、配置对象、回调注册）。</li>
+<li><strong>模型不合</strong>：依赖 SA 模型外的东西，或 .NET 自己已弃置的旧模型。家族规则：
+异常类型（SA 以状态码 + <code>SA_NET_ERROR_CODE_*</code> + 错误码名建模，无异常对象）、
+委托与 EventArgs（SA 以句柄 + poll/回调注册建模，无事件订阅）、平台专属件。</li>
+</ul>
+
+<h2>套接字：核心已备，长尾在平台件</h2>
+<p><code>Socket</code>（191 个成员）的核心与 sa 的 <a href="10_net.html">net 面</a>逐项对得上：
+connect/listen/accept、read/write/peek/vectored、选项族（nodelay、keepalive、TTL、收发缓冲、
+linger、quickack、defer-accept 的 set/get 双向）、UDP send_to/recv_from 与组播加入/离开、
+Unix 域（地址对象族 144 个符号含 abstract/unnamed 形态）——<code>TcpClient / TcpListener /
+UdpClient / NetworkStream</code> 同为已有等价。差异集中在 .NET 的三套异步形态
+（APM / <code>SocketAsyncEventArgs</code> / Task 扩展，sa 以 netx 反应器与 poll 建模）
+与 Windows 专属件（<code>IOControlCode</code> 34 值 WSAIoctl 码、TransmitFile、SendPackets）。</p>
+<div class="warning"><span class="label">警告</span>
+地址族命名存在<strong>双定义陷阱</strong>（AJ2 普查已登记）：.sal 里 <code>SA_NET_AF_IPV4=4 / IPV6=6</code>
+是 std 内部编号，而 <code>sa_net_addr_family</code> 返回 OS 值（AF_INET=2 / AF_INET6=10）。
+<code>AddressFamily / ProtocolFamily</code> 因此只计「可直接对应」并注明须先解陷阱，不计已有等价。</div>
+
+<h2>HTTP 客户端：传输齐备，handler 层是最大建模块</h2>
+<p><code>sa_http_client_*</code> 57 个符号覆盖建连、请求构造、头、体、同步/异步发送
+（async + poll + take_response）、响应状态/头/体（含流式 body_reader）、SSE 与 WebSocket 升级连接。
+但 .NET 的 <code>HttpClient</code> 真正的体量在 handler 层：<code>SocketsHttpHandler</code>（连接池、
+池生命周期、ConnectCallback、明文流过滤）与 <code>HttpClientHandler</code> 的配置面里，
+<strong>cookie、proxy、重定向、自动解压四项在 sa 网络全表面关键词命中为 0</strong>。
+<code>System.Net.Http</code> 的需建模 15 个类型几乎全属这一组——这是本普查第一优先的建模对象。
+请求/响应对象（<code>HttpRequestMessage / HttpResponseMessage</code>）原语齐全、对象层需拼装；
+内容族则多为已有等价（内存体由 <code>req_set_body</code> 覆盖、multipart 有 <code>multipart.sai</code>），
+例外是请求体流式写（<code>StreamContent</code>）在 sa http client 符号中未见。</p>
+
+<h2>HTTP 服务端与 SSE</h2>
+<p>sa 的 <code>http_server</code> 面（46 extern，含 v2 的 accept / resp_send / stream_write 与
+<code>sa_http_server_websocket_upgrade</code>）是 accept 循环形态；.NET 的 <code>HttpListener</code>
+是前缀路由 + 上下文队列 + 认证的对象模型——传输能力已备、对象层需建模，故 HttpListener
+及其 Context/Request/Response 一组 8 个类型计需建模。
+SSE 方向相反：sa 有 <code>sa_http_client_sse_*</code> 的 turn 型客户端（为 LLM 流式而建），
+.NET 的 <code>System.Net.ServerSentEvents</code> 是通用增量解析器 <code>SseParser</code>——
+sa 没有独立解析器面；解析器是纯状态机，计可直接对应。</p>
+
+<h2>TLS 与证书：传输已备，证书面为零</h2>
+<p><a href="19_tls_client.html">tls_client</a> / tls_server / dtls 的传输面齐全（连接、读写、
+ctx、accept、add_ca_file），另有 .NET 完全没有的 shaped 面（见下）。
+但 <code>SslStream</code> 的对象层——把 TLS 包装到任意流上、协商选项、证书校验/选择回调、
+<code>SslCertificateTrust</code> 信任库、密码套件策略——在 sa 侧无对应物：
+全表面 <code>cert|x509</code> 关键词命中为 0（仅有 CA 文件一项配置）。
+<code>TlsCipherSuite</code> 一个枚举就有 337 个值（本次抽取最大的单个枚举），
+sa tls 没有任何套件命名面；ALPN 同理只有 shaped 协商结果 JSON、无命名常量。
+这一组计：传输相关已有等价在 SslStream 行以建模注记呈现，选项/回调 8 个类型需建模，
+命名面 11 个类型可直接对应。</p>
+
+<h2>QUIC 专节</h2>
+<p>.NET 的 QUIC 面（<code>System.Net.Quic</code>，13 个类型）与 sa 的对应是全普查最齐整的一组，
+因为 sa_std 把 QUIC 传输与 HTTP/3 会话两层都做成了公开面：</p>
+<table>
+<tr><th>.NET</th><th>sa_std 对应</th><th>分类</th></tr>
+<tr><td><code>QuicListener</code></td><td><code>sa_std_quic_server_listen / _accept / _poll</code></td><td>已有等价</td></tr>
+<tr><td><code>QuicConnection</code></td><td><code>sa_std_quic_client_connect / _server_accept / _conn_poll / _conn_close / _stream_open</code></td><td>已有等价</td></tr>
+<tr><td><code>QuicStream</code></td><td><code>sa_std_quic_stream_open / _read / _write</code></td><td>已有等价（Stream 对象语义以句柄读写替代）</td></tr>
+<tr><td><code>QuicConnectionOptions</code> 等参数袋</td><td>connect/accept 的参数结构</td><td>可直接对应</td></tr>
+<tr><td><code>QuicListenerOptions</code></td><td>含 ConnectionOptionsCallback 协商委托</td><td>需建模</td></tr>
+<tr><td><code>QuicError</code>（12 值）</td><td><code>SA_QUIC_ERR_*</code> 仅 3 值</td><td>可直接对应（细粒度命名）</td></tr>
+</table>
+<p>形态差异两点：.NET 的 QUIC 依赖 MsQuic 原生库，sa quic 是 std 内置；
+.NET 的 HTTP/3 只经 HttpClient 内部消费 QUIC、不公开会话 API，
+sa 反而把 <code>sa_std_http3_session_create / _submit_request / _server_next_request</code>
+等 HTTP/3 会话层做成公开面——这一块是 sa 的多出面，不是缺口。</p>
+
+<h2>WebSocket、DNS、网络信息、邮件</h2>
+<p><strong>WebSocket</strong>：客户端（<a href="20_ws_client.html">ws_client</a>：connect/send/recv/ping/close、
+wss 继承 TLS 策略、add_ca_file）与服务端升级（http_server 的 upgrade 入口）均为已有等价；
+缺的是选项层（<code>ClientWebSocketOptions</code> 含代理与证书回调，需建模）与命名常量
+（opcode 与 <code>WebSocketCloseStatus</code> 无命名组——AJ2 已登记过 ws opcode 同类缺口）。
+<strong>DNS</strong>：sa 只有反向查询 <code>sa_std_net_addr_reverse_lookup</code> 与错误码，
+正向解析隐含在 connect 的主机名字符串里，没有 <code>Dns</code> 式的独立查询面与结果集
+（<code>IPHostEntry</code>）——与 Android 线的短名单第一项是同一个跨语言一致缺口。
+<strong>网络信息</strong>：<code>System.Net.NetworkInformation</code> 整域 44 个类型里 36 个可直接对应——
+网卡枚举、接口属性、统计快照、ICMP <code>Ping</code> 在 sa 侧全部为 0，但都是系统查询直译，无模型障碍。
+<strong>邮件</strong>：sa 侧 SMTP/MIME 均为 0。<code>SmtpClient</code> 是协议直译型（计可直接对应，
+STARTTLS 复用 tls_client），<code>MailMessage</code> 及其附件/视图聚合 9 个类型需先建数据模型；
+FTP 同理（<code>FtpWebRequest</code> 协议直译可对应，sa 只有 SSH 的 SFTP）。</p>
+
+<h2>旧模型登记（不进补齐名单）</h2>
+<p>模型不合 100 个里的大头是 .NET 自己正在弃置的东西，如实登记、不移植：
+<code>WebRequest / HttpWebRequest / WebResponse</code> 可插拔协议模型、<code>WebClient</code>
+（官方 SYSLIB0014 不推荐；ref 中成员级 Obsolete 7 处）、<code>ServicePointManager</code>、
+<code>System.Net.Cache</code> 的缓存策略 5 个类型、ExtendedProtection 6 个类型，
+以及 WebClient 的事件/委托家族 18 个。计量上：类型级标 Obsolete 的 12 个、
+成员级标 Obsolete 的 84 个（其中 Requests 程序集 24 个）。</p>
+
+<h2>sa 侧独有面（.NET 无对应）</h2>
+<ul>
+<li><strong>SSH</strong>：客户端 + 服务端 + SFTP（<code>ssh.sai</code> 26 个 extern）——.NET 核心库至今无 SSH。</li>
+<li><strong>TLS 指纹面</strong>：<code>sa_std_tls_shaped_*</code> 的 JA3/JA4 ClientHello 塑形与协商结果导出。</li>
+<li><strong>DTLS 服务端、netx io_uring 反应器、WebSocket over Unix socket、HTTP/3 会话公开 API</strong>（见 QUIC 节）。</li>
+</ul>
+
+<h2>优先补齐短名单</h2>
+<ol>
+<li><strong>HTTP 客户端 handler 组建模</strong>（<code>SocketsHttpHandler / HttpClientHandler / HttpClient</code> 门面）：
+cookie、proxy、重定向、自动解压四项从 0 到有 + 连接池语义。本普查需建模的最大块，也是 CXU 与代理场景的高频面。</li>
+<li><strong>DNS 正向解析独立面</strong>（<code>Dns / IPHostEntry / DnsEndPoint</code>）：地址与记录查询 + 结果集句柄；
+与 Android 线短名单第一项跨语言互证。</li>
+<li><strong>TLS 配置与证书面</strong>（<code>SslClientAuthenticationOptions / SslServerAuthenticationOptions /
+SslCertificateTrust / CipherSuitesPolicy</code> + 校验回调）：传输已备、配置为零，是 HTTPS 可信面的关键缺口。</li>
+<li><strong>命名常量批</strong>：<code>HttpStatusCode</code>（67）、请求/响应头名（41+30）、<code>HttpMethod</code> 补全、
+WebSocket opcode 与 <code>WebSocketCloseStatus</code>、<code>QuicError</code>（12）、<code>TlsCipherSuite</code>（337）、
+<code>SocketOptionName</code>（50）；动手前先解 <code>AddressFamily</code> 双定义陷阱。便宜、与既有常量补齐（AJ/AJ2）同轨。</li>
+<li><strong>Cookie 三件套</strong>（<code>Cookie / CookieCollection / CookieContainer</code>）：
+解析/格式化纯逻辑可先行，jar 状态随第 1 项落地。</li>
+<li><strong>本机网络信息面</strong>（NetworkInformation 的 36 个可直接对应类型）+ <strong>ICMP Ping</strong>：
+getifaddrs 与系统计数直译，运维/诊断场景。</li>
+<li><strong>通用 SSE 解析器</strong>（<code>SseParser / SseItem / SseFormatter</code>）：小而独立，
+把现有 turn 专用 SSE 客户端泛化。</li>
+<li><strong>头值解析族 + CIDR</strong>：<code>System.Net.Http.Headers</code> 的 20 个结构化头值类型与
+<code>IPNetwork</code>，全是纯函数，适合批处理。</li>
+</ol>
+
+<h2>覆盖边界</h2>
+<ul>
+<li>以 ref 源码为公共面权威来源；仅存在于 src 实现、未进 ref 的表面不在普查内。</li>
+<li>嵌套类型按（命名空间，类型名）归并：337 条记录 → 334 个类型（Enumerator / JsonContent / SseParser 各一组同名重复）。</li>
+<li>泛型委托的抽取伪影 2 个（<code>T</code>、<code>TContext</code>）已在分类表中按伪影登记为模型不合，不假装是真实类型。</li>
+<li><code>System.Net.Http.WinHttpHandler</code> 程序集在普查范围内（Windows 平台 handler，归模型不合）；
+<code>System.Net.Http.Json</code> 的 JSON 扩展按组合胶水计可直接对应。</li>
+<li>分类为类型级；如 <code>Socket</code> 的长尾成员差异、<code>SslStream</code> 的传输/对象层之分，
+以分类表注记为准，不另拆成员级计数。</li>
+</ul>
+<p>同批其他页面：<a href="21_android_net_census.html">Android net 表面 × sa_std 缺口普查</a>；
+sa 网络面总览见 <a href="10_net.html">net：TCP / UDP / Unix 套接字与 HTTP/2</a>。
+复跑方法与全部清单在 <code>tools/dotnet_net_census/</code>。</p>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

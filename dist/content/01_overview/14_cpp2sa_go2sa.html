@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>cpp2sa 与 go2sa：两个新前端的立项讨论</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; cpp2sa 与 go2sa：两个新前端的立项讨论</div>
+
+<div class="note">状态：讨论记录（2026-10-29）。两条路线性质完全不同：cpp2sa 是「借道」——做成 bc2sa 的一个档位工程；go2sa 必须「新造」——写源码转换器，且其并发语义依 <a href="13_goroutine_runtime.html">goroutine 运行时</a>的裁定结果。两者均属上层前端/转换器，不动 SA 底座。立项暂缓（用户 2026-10-29 定）：goroutine 运行时先行，本文保留为两前端恢复立项时的路线依据。</div>
+
+<h2>一、cpp2sa：走 bc2sa 档位，不写源码前端</h2>
+<p>C++ 源码面是主流语言里最大的（模板实例化、重载决议、异常、RTTI），手写源码前端等于重写半个 clang，不取。bc2sa 已端到端打通（传输墙、phi 墙已拆，三缺口在补强线落地，真 crate 函数运行对拍过），clang++ <code>-emit-llvm-bc</code> 把模板与重载决议整个语言面免费做完——cpp2sa 只需做成 bc2sa 的<strong>档位工程</strong>：驱动 + 旗标集 + 覆盖普查 + 回归语料，仓可独立、实现与 bc2sa 共享。</p>
+<ul>
+<li>首期甜点区：<code>-fno-exceptions -fno-rtti</code>，类比 Rust 路线的 panic=abort 甜点区，先绕开异常与 RTTI。</li>
+<li>预期新 unsupported 类（按 Rust 探针经验应是集中几类、非长尾）：<code>invoke</code>/landingpad（异常）、可变参数、内联汇编、TLS、全局构造顺序、虚表与多重继承的 thunk——按普查逐类机械补齐，不预先写大翻译器。</li>
+<li>STL 的 string/vector/map 是头文件模板，在 bitcode 里已单态化，机械可过；extern 面落在 libc/libc++abi 的少数族上。</li>
+<li>首期验收照 bc2sa 三档：核心子集（类/虚函数/RAII）→ STL 容器档 → 一个真 C++ 小库的纯逻辑函数与原生运行对拍。</li>
+</ul>
+
+<h2>二、go2sa：源码转换器，难在运行时不在语法</h2>
+<p>Go 语法小而规整，且官方工具链自带 parser 与类型检查器（<code>go/ast</code>、<code>go/types</code>），转换器<strong>以 Go 写、直接吃 go/types 的具体类型</strong>，前端成本远低于 TS 那条线。真正的成本在语义与运行时模型：goroutine/通道要调度器、接口要动态派发、defer/panic/recover 是控制流、堆对象要内存故事。</p>
+<ul>
+<li>首期范围：顺序子集 + 接口 + defer；接口以胖指针 + 方法表落地，defer 以作用域守卫落地。</li>
+<li>goroutine/channel：不自带运行时，直接落在 sa_std 的 goroutine 运行时上（见 <a href="13_goroutine_runtime.html">goroutine 运行时讨论页</a>），其一期范围由该页文末 S1–S6 裁定决定，本页不另立口径。</li>
+<li>GC/堆对象内存故事：独立未解项。候选（首期裁定）：类 TinyGo <code>-gc=leaking</code> 的短命豁免，或按模块 arena/引用计数——不许静默假装有 GC。</li>
+<li>panic/recover：首期只保证 recover-free 代码的 abort 语义，recover 的支持范围显式登记。</li>
+</ul>
+
+<h2>三、TinyGo 路线：只作探针档</h2>
+<p>TinyGo 能发 LLVM bitcode 喂 bc2sa，几乎零新代码，值得做一档探针小样、用普查数据说话。但 TinyGo 的 std 子集与反射限制会把「转真 Go 工程」的承诺打折——与 slars 首期范围裁定的教训同型：差异清单必须由普查决定，不能拍脑袋删。故定位为探针/快速通道候选，不作 go2sa 主路线。</p>
+
+<h2>四、定位与分工</h2>
+<p>与现有前端家族的分工：slars 是人写的自有前端，bc2sa 是机器转换真 Rust 的通道，tsgosa 是 TS 转换器，cpp2sa 是 bc2sa 的 C++ 档位，go2sa 是新写的 Go 源码转换器。五者都属上层演进，SA 规约不动。本页仅为讨论记录：立项与否、以及 go2sa 与 goroutine 运行时的排期先后，归用户与 Jev 裁定。</p>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

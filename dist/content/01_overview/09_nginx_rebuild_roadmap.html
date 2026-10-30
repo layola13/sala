@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sangx：自研 Web 服务器（nginx 重构）规划</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; 自研 Web 服务器（nginx 重构）规划</div>
+<h1>sangx：自研 Web 服务器（nginx 重构）规划</h1>
+
+<div class="note"><span class="label">状态</span>规划已成、未立项开工（2026-10-28 用户提出「做自己的 nginx」并完成可行性/配置/安全三场讨论，本页为讨论结论的权威记录）。项目定名 <strong>sangx</strong>（sa + ngx，用户 2026-10-28 定）。前置条件：STD 补齐第二波收官 + 反向代理 handler 模型裁定。分期与待裁定项在本页滚动更新。</div>
+
+<h2>动机：为什么不用 nginx 本体</h2>
+<ul>
+<li><strong>配置反人类是结构性的</strong>：<code>add_header</code> 在子块出现即全灭父块继承、<code>if</code> 官方自认 evil、location 精确/前缀/正则优先级靠背、变量惰性求值且只在特定 phase 有值、没有函数/循环/真表达式。业界普遍以模板引擎生成 nginx.conf，等于承认该格式不可直接书写。</li>
+<li><strong>扩展模型落后</strong>：nginx 模块是 C 代码、全权限进程内运行；OpenResty 的 Lua 同为全权限。SA 生态已有更现代的形态：插件分 kind、安装时确认 ∩ 运行时策略两层权限、VM 能力（capability）模型。</li>
+<li><strong>地基已经具备</strong>：这正是「基础核心全内置 sa_std」方针的自然终点——HTTP 核心当年因插件边界失败才收回 std（2026-10-24），服务器本体用同一套 std 写成是题中之义。</li>
+</ul>
+
+<h2>可行性映射（对 sci main 9dedd406 与 STD 第二波在制品）</h2>
+<h3>已有面（nginx 的大半地基）</h3>
+<ul>
+<li>协议核心：HTTP/1.1 服务端+客户端、HTTP/2、HTTP/3/QUIC 会话、WebSocket（含 over unix）、TCP/UDP、DTLS——普查多线判定为反超面。</li>
+<li>TLS 配置面（STD 第一波落地）：SNI、ALPN、对端证书、mTLS、start_tls、会话复用，即 nginx ssl 模块的核心面。</li>
+<li>事件与并发：SLA async/task 模型、netx io_uring、进程 spawn、定时器。</li>
+<li>工具面：压缩、sa_regex、TOML 读写、IP/CIDR 值层（ACL/geo 匹配原语）、DNS 记录型查询（upstream resolver 原语）。</li>
+<li>STD 第二波在制：sockopt 通用透传（含 SO_REUSEPORT）、代理面、SSE 解析、位级打包。</li>
+</ul>
+<h3>缺口（按性质分类）</h3>
+<ul>
+<li><strong>反向代理 handler/钩子模型（唯一架构级缺口）</strong>：三件悬置架构裁定之一。nginx 本身即模板——其 11 个 phase handler + filter 链是被验证二十年的钩子模型，裁定可按其形状拟定，CXU 与本项目共同受益。</li>
+<li><strong>跨 worker 共享状态</strong>：nginx shared zone 的对应物（限流计数、upstream 健康、SSL 会话缓存）。SA 现有进程内 globals；进程间 shmem 面要补，或以单进程事件循环+线程池模型绕开——压测后裁定。</li>
+<li><strong>sendfile/零拷贝发送路径</strong>：静态文件吞吐命门；std 是否已有待核查（普查未单独点名），不在则按 direct 小件补。</li>
+<li><strong>协议客户端尾巴</strong>：FastCGI/uWSGI/SCGI，纯协议活，与 STD 第二波的 SMTP 线同类，机械补齐。</li>
+<li><strong>HTTP 缓存</strong>：fs+锁+过期管理，量大但无架构风险，属模块层。</li>
+</ul>
+
+<h2>配置设计：声明层 + 代码层</h2>
+<ul>
+<li><strong>声明层</strong>（90% 场景）：结构化数据（TOML），server/listen/root/upstream 即填表；无继承陷阱，字段缺失与类型错误在加载期带源码定位报错。</li>
+<li><strong>代码层</strong>（逻辑场景）：配置本身是 SLA 程序——函数、循环、条件、按环境分支全开，启动时编译+类型检查（体面版的 <code>nginx -t</code>）。ACL 可直写 <code>ip_in_cidr(req.ip, ip_prefix_parse("10.0.0.0/8"))</code> 这类真表达式，复用 ip.sla 值层，而非 geo 块拼变量。</li>
+<li>求值顺序显式、无惰性变量怪癖：nginx 大量「特定配置组合才触发」的缺陷土壤在此消失（见安全节）。</li>
+</ul>
+
+<h2>扩展设计：VM 插件</h2>
+<ul>
+<li><strong>钩子四类</strong>：phase handler、filter、upstream balancer、变量/指令扩展，注册到 phase 模型。</li>
+<li><strong>分发两档</strong>：热路径（filter、均衡算法）用原生编译插件；逻辑层（鉴权、动态路由、灰度）用 SAB 字节码插件走 SA VM——改逻辑不重编译服务器、热加载新代、老连接在旧代排干（借 nginx reload 的代际模型）。</li>
+<li><strong>权限笼子</strong>：沿用插件系统已定案的两层权限（安装时 permissions.lock 确认 ∩ 运行时策略）与 VM 的 fs/net capability 模型——反代插件默认只有 net 出站，碰文件系统须单独确认。VM 插件 trap 只死自身、不带走 worker（C 模块给不了的隔离）。</li>
+<li><strong>生态复用</strong>：与 CXU 同一套 sap 插件格式与确认流；CXU 侧插件可直接挂载（如 jev 决策型 upstream 选择、经 VM 工具面带审计地改路由）。</li>
+</ul>
+
+<h2>安全论证：nginx 漏洞史的分类裁定</h2>
+<p>依据 nginx 官方 security_advisories 全量（2009–2026）。其漏洞史按类高度集中，本项目逐类裁定如下：</p>
+<ul>
+<li><strong>内存破坏类</strong>（绝对主力：chunked 栈溢出 CVE-2013-2028、SPDY CVE-2014-0133、mp4 模块反复六次以上、resolver 一族含 CVE-2021-23017 一字节覆写、SSI/AIO/HTTP3 的 UAF 至今仍在出；且潜伏期极长——2026-10 修的 alias+rewrite 溢出受影响版本自 0.1.29 起潜伏 21 年）：<strong>构造性消除大半、后果降两档</strong>。SLA 层无裸指针算术（PTR 宏为显式例外），所有权+referee 封死 UAF，越界退化为 trap——同类 bug 由 RCE 降为 worker 崩溃（DoS 级）。TCB 边界须划清：红利只覆盖 SLA 层；底层 Zig runtime 与链接的 OpenSSL 不在红利内，其 CVE 流照单继承。</li>
+<li><strong>整数/逻辑错误→信息泄露</strong>（代表作 range filter 整数溢出 CVE-2017-7529）：语言救不了「算错」，但斩断了「算错→读到缓存外内存」的链，单独存在至多响应错误。对策是工程纪律：range 类逻辑以固定向量对拍，全部解析器（HTTP/QUIC/DNS wire）自第一天起挂模糊测试。</li>
+<li><strong>协议状态机 DoS</strong>（HTTP/2 资源耗尽族 CVE-2018-16843/44、2019-9511/9513/9516 与协议级 Rapid Reset）：与语言无关、任何实现都会撞，是唯一不占便宜的一类；对策是把全族清单（stream reset 速率、header 上限、连接级配额）写进设计与验收用例，而非事后逐个补。</li>
+<li><strong>配置组合触发类</strong>：nginx 变量惰性求值+脚本引擎隐式顺序是其土壤；配置即代码后土壤小得多。反面须认：用户配置逻辑进入 TCB，故插件必须有能力笼子+trap 隔离。</li>
+<li><strong>本项目特有新风险（不藏）</strong>：编译器进 TCB——referee 误判（AW 线 2026-10-28 实证：多 String 字段结构经 &amp; 读/移被系统性误判）能让安全源码产出不安全产物；VM 解释器稳定性有在册问题（SAB 解释器 &amp; 标量实参 segfault）。总账：漏洞类别整体迁移——自内存破坏可 RCE，迁移至逻辑错误至多 DoS + 工具链风险，危害系统性降一档，代价是审计面扩至编译器。</li>
+</ul>
+
+<h2>分期（建议）</h2>
+<ul>
+<li><strong>M0</strong>：静态文件服务 + 双层配置 + 访问日志（本期验 sendfile 缺口）。</li>
+<li><strong>M1</strong>：反向代理 + upstream 负载均衡与健康检查（吃 handler 裁定）。</li>
+<li><strong>M2</strong>：TLS/HTTP2 全面化 + limit_req/limit_conn（吃共享状态裁定）。</li>
+<li><strong>M3</strong>：HTTP 缓存 + FastCGI/uWSGI 协议尾巴。</li>
+<li>每期验收口径：行为对拍（以 nginx 本体为参照）、协议泛洪用例、解析器 fuzz 轮次、与 nginx 的同机压测对比（静态文件与反代两场景）。</li>
+</ul>
+
+<h2>待裁定清单</h2>
+<ul>
+<li>项目定名：sangx（已定，2026-10-28）。</li>
+<li>反向代理 handler/钩子模型（按 nginx phase 模型拟案，与 CXU 共用裁定）。</li>
+<li>共享状态模型：补 std shmem 面 vs 单进程模型绕开。</li>
+<li>进程模型：多进程 SO_REUSEPORT（nginx 式）vs 单进程事件循环+线程池，M0/M1 压测后定。</li>
+<li>立项时点：STD 第二波收官后。</li>
+</ul>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

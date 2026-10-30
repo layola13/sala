@@ -35,6 +35,14 @@
 <tr><td><code>Slice</code></td><td>下标读 <code>s[i]</code> 与地址视图</td></tr>
 </table>
 
+<h2>HashMap：哈希种子与迭代序口径（TS-11，2026-10-29 落字）</h2>
+<p>哈希种子<strong>全固定、无进程随机化</strong>：SA 层 HashMap 默认入口以种子 0 哈希
+（xor-shift 终化）；SLA <code>Hash</code> trait 的 DefaultHasher 是 FNV-1a 形（固定种子常量
+与素数）；SipHash 形的 RandomState 虽存在，其默认键同为编译期常量，map 路径不从 OS 熵播种。
+迭代顺序是<strong>表位序</strong>，由（哈希、容量、插入序）确定性决定——但契约口径是
+<strong>迭代顺序无保证</strong>：实现虽确定，程序不得依赖任何具体顺序。附事实注记：
+无随机化意味着没有哈希洪水防护，是否处理属后续安全裁定，不在本节口径内。</p>
+
 <h2>真实示例</h2>
 <p>摘自 <code>sa_plugin_sla/tests/import_fixtures/std_nested/uses_vec.sla</code>：</p>
 <pre><code>@import "sa_std/vec.sa"

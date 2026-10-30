@@ -42,6 +42,66 @@ var TOC = [
     "t": "CXU 完整 SLA 重构路线图",
     "f": "content/01_overview/08_cxu_rewrite_roadmap.html",
     "c": []
+   },
+   {
+    "t": "sangx：自研 Web 服务器（nginx 重构）规划",
+    "f": "content/01_overview/09_nginx_rebuild_roadmap.html",
+    "c": []
+   },
+   {
+    "t": "后台服务覆盖图：已有、立项与缺口",
+    "f": "content/01_overview/10_backend_coverage.html",
+    "c": []
+   },
+   {
+    "t": "sardis（暂名）：Redis 重构规划",
+    "f": "content/01_overview/11_sardis_roadmap.html",
+    "c": []
+   },
+   {
+    "t": "Haxe 编译后端：SA 作为 Haxe 的底层目标",
+    "f": "content/01_overview/12_haxe_backend.html",
+    "c": []
+   },
+   {
+    "t": "goroutine 运行时：引入 sa_std 的设计讨论",
+    "f": "content/01_overview/13_goroutine_runtime.html",
+    "c": []
+   },
+   {
+    "t": "cpp2sa 与 go2sa：两个新前端的立项讨论",
+    "f": "content/01_overview/14_cpp2sa_go2sa.html",
+    "c": []
+   },
+   {
+    "t": "Go 生态候选语法与底层成套引入",
+    "f": "content/01_overview/15_go_feature_candidates.html",
+    "c": []
+   },
+   {
+    "t": "Erlang 并发候选与 Verse 事务调研评估",
+    "f": "content/01_overview/16_erlang_verse.html",
+    "c": []
+   },
+   {
+    "t": "Verse 游戏向吸纳与插件承载",
+    "f": "content/01_overview/17_verse_game_profile.html",
+    "c": []
+   },
+   {
+    "t": "移动端转译：sla2swift 与 sla2kotlin",
+    "f": "content/01_overview/18_mobile_transpile.html",
+    "c": []
+   },
+   {
+    "t": "支线研究与底层不足登记",
+    "f": "content/01_overview/19_side_tracks_foundation_gaps.html",
+    "c": []
+   },
+   {
+    "t": "高考统一引擎「衡 · Heng」（生化核心演算先行）：开发计划",
+    "f": "content/01_overview/20_biochem_education_language.html",
+    "c": []
    }
   ]
  },
@@ -148,6 +208,11 @@ var TOC = [
    {
     "t": "SLA vs Rust vs Go 性能实测（native / WASM / 编译 / 网络）",
     "f": "content/09_rust_compare/09_performance.html",
+    "c": []
+   },
+   {
+    "t": "Rust std × sa_std 表面普查与缺口表",
+    "f": "content/09_rust_compare/10_std_census.html",
     "c": []
    }
   ]
@@ -409,6 +474,16 @@ var TOC = [
       "c": []
      }
     ]
+   },
+   {
+    "t": "VM 支持规划：可编程查询层",
+    "f": "content/10_db/07_vm_support.html",
+    "c": []
+   },
+   {
+    "t": "三角对比与漏洞统计：MySQL / SQLite / db 插件",
+    "f": "content/10_db/08_mysql_sqlite_compare.html",
+    "c": []
    }
   ]
  },
@@ -585,6 +660,11 @@ var TOC = [
       "f": "content/06_stdlib/10_net.html",
       "c": [
        {
+        "t": "跨语言 std 普查：Java（OpenJDK）net × sa_std",
+        "f": "content/06_stdlib/21_java_net_census.html",
+        "c": []
+       },
+       {
         "t": "Go net 标准库 × sa_std 缺口普查",
         "f": "content/06_stdlib/22_go_net_census.html",
         "c": []
@@ -632,6 +712,31 @@ var TOC = [
    {
     "t": "ws_client：WebSocket 客户端",
     "f": "content/06_stdlib/20_ws_client.html",
+    "c": []
+   },
+   {
+    "t": "Android net 表面 × sa_std 缺口普查",
+    "f": "content/06_stdlib/21_android_net_census.html",
+    "c": []
+   },
+   {
+    "t": "Unreal Engine 网络体系 × sa_std 网络面普查与缺口表",
+    "f": "content/06_stdlib/23_unreal_net_census.html",
+    "c": []
+   },
+   {
+    "t": "跨语言普查：Python (CPython) net 标准库 × sa_std 缺口",
+    "f": "content/06_stdlib/24_python_net_census.html",
+    "c": []
+   },
+   {
+    "t": "iOS net 表面 × sa_std 缺口普查",
+    "f": "content/06_stdlib/25_ios_net_census.html",
+    "c": []
+   },
+   {
+    "t": ".NET net 表面 × sa_std 缺口普查",
+    "f": "content/06_stdlib/26_dotnet_net_census.html",
     "c": []
    }
   ]

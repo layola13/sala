@@ -102,6 +102,14 @@ fn compute() -&gt; Result&lt;i32, i32&gt; {
     };
 };</code></pre>
 
+<h2>程序入口：main 契约</h2>
+<p>可执行程序的入口是名为 <code>main</code> 的<strong>普通函数</strong>：检查器对 main 的签名不作任何特判，契约由宿主层执行——宿主只为「kind 为普通函数、名为 main、<strong>0 参数</strong>」的函数生成 C 入口包装。<strong>带参数的 main 不生成包装，即没有入口</strong>（且当前无诊断；检查器响亮拒绝列为批三候选）。语料惯例一边倒：tests 与 demos 中的 <code>fn main</code> 全部是 <code>fn main() -&gt; i32</code>。</p>
+<ul>
+<li><strong>返回与退出码</strong>：编译路——入口包装零参调用 main，返回值强转 i32 作进程退出码；void 返回补 0；fallible 返回取其 status 字段。解释路——退出码为 main 返回值截断 u8（fallible 同样取 status 截断），另有保留码：程序自设退出（UserExit）、除零 100、调用栈溢出 108。</li>
+<li><strong>argv 不经形参</strong>：包装把宿主的 argc / argv 存入全局，程序内经 SA 层 <code>sys_argc</code> / <code>sys_argv</code> 读取，或经 std env 域 <code>@extern sa_env_args_json()</code> 取得 JSON 句柄。wasm_compat 时入口名改为 <code>__main_argc_argv</code>（WASI 契约）。</li>
+<li><strong>main 必须同步</strong>：宿主层不存在 async 入口这一形态。写 <code>async fn main</code> 当前不会被检查器拒绝，但其 future 返回会被入口包装按普通返回值处理、永不被驱动——<strong>程序静默失效而非响亮报错（此失效形态系代码路径推定，未做探针实证）</strong>。惯例是 main 为同步函数，异步工作在 main 内以 std 的 block_on 形态驱动（<code>sa_std/async.sla</code> 的轮询驱动）。检查器对 async main 的响亮拒绝同列批三候选。</li>
+</ul>
+
 <p>相关页面：<a href="04_patterns.html">模式匹配</a>、<a href="09_async.html">async/await 现状</a>。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>

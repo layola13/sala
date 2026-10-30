@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Haxe 编译后端：SA 能否成为 Haxe 的底层编译器</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; Haxe 编译后端：SA 作为 Haxe 的底层目标</div>
+
+<div class="note">状态：讨论定案（2026-10-28）。结论：能，但正确形态不是改 Haxe 编译器、也不是源码转译，而是走 HashLink 字节码翻译（hl2sa）；真正的成本中心是 GC 运行时与异常机制这类「运行时移植」，不是编译器本身。未立项，探针设计已备。</div>
+
+<h2>一、先分清问题：三种「成为 Haxe 后端」的路线</h2>
+<p>「SA 成为 Haxe 的底层编译器」有三种完全不同的含义，成本差一个数量级：</p>
+<table>
+<tr><th>路线</th><th>形态</th><th>前端（语法/类型/宏）</th><th>评价</th></tr>
+<tr><td>A. 编译器 generator</td><td>在 Haxe 编译器（OCaml）里新增一个 SA 代码生成器，与 genhxcpp 等并列</td><td>Haxe 编译器免费完成</td><td>最「正统」，但要长期跟随上游 OCaml 代码库，且要在 SA 上从零写整套 Haxe 运行时；上游合并成本最高</td></tr>
+<tr><td>B. HashLink 字节码翻译（hl2sa）</td><td>Haxe → HashLink 字节码 → SA，翻译器与 bc2sa 同构</td><td>Haxe 编译器免费完成</td><td><strong>推荐</strong>。HL 本身就是寄存器式、强类型的低层字节码，与 SA 的形状在所有候选中间最接近；不碰 OCaml、不碰源码语义</td></tr>
+<tr><td>C. 经 C/C++ 中转</td><td>hxcpp 的 C++ 或 HL/C 的 C → LLVM bitcode → bc2sa</td><td>Haxe 编译器免费完成</td><td>看似现成实则最堵：C++ 异常、hxcpp 运行时、setjmp/longjmp 都在 bc2sa 当前覆盖之外，且没有 Rust 路线那种 panic=abort + no_std 甜点区</td></tr>
+</table>
+<p>与 2026-10-27 旧讨论的关系：当时否决的是「Haxe 源码转译 SA」（haxe2sa 源码路线）——源码层要复刻 Haxe 全部语义，被 bc2sa 路线全面压制，该结论不变。本页问的是「当编译后端」，前端语义全部由 Haxe 编译器承担，问题性质完全不同，结论也不同。</p>
+
+<h2>二、语义鸿沟只有一条半</h2>
+<h3>1. GC vs 所有权（唯一的真鸿沟）</h3>
+<p>Haxe 是 GC 语言（对象图可成环、Dynamic 任意引用），SA 是所有权/能力模型、无 GC。这不是原理障碍：SA 是底层目标语言，完全可以在其上实现一个 GC 运行时——hxcpp（C++ 目标）正是自带 GC 运行时落地的，HashLink VM 本身也是标记清除 GC。真实代价有二：① Haxe 程序享受不到 SA 的所有权红利（无 GC 停顿、确定性释放），编译产物里始终带着一个 GC；② GC 运行时进入 TCB，要自己维护。选型：引用计数与 SA 的所有权形状更贴（确定性释放、实现小），但 Haxe 对象图可成环，须配循环回收或改标记清除；HashLink 原生是标记清除。P1 阶段实证裁定，先以引用计数起步、循环问题显式登记，不假装不存在。</p>
+<h3>2. 异常（半条）</h3>
+<p>Haxe 异常是真实控制流，HL 字节码有对应的 Trap/Throw 类操作码；SA 没有原生异常机制。对策是运行时层解决：处理器链 + 跨帧跳转原语（sa_std 补一个 setjmp 族小原语即可，与 BE 线登记的「缺原始套接字原语」是同一类 std 表面小件），或全调用图状态码协议（侵入性大，不取）。不能学 Rust 路线用 panic=abort 绕过——Haxe 程序真实依赖 try/catch 语义。</p>
+<h3>3. 其余都不是鸿沟，是工程量</h3>
+<p>闭包、枚举（代数数据类型）、匿名结构、迭代器、字符串/数组/Map 等容器、Dynamic 与反射（Type/Reflect）：HL 字节码里都有直接对应的低层操作（ToDyn、DynField、闭包与枚举构造子操作码等），翻译器逐个映射 + 运行时给一层动态值表示（标记联合 + 类型注册表）即可。Haxe 宏在编译期由 Haxe 编译器自己执行，后端完全不涉及——这是「当后端」相对「源码转译」的最大便宜。</p>
+
+<h2>三、为什么 HL 的形状最合 SA</h2>
+<ul>
+<li>HL 是寄存器式字节码：函数、寄存器、基本块、显式调用约定，与 SA 的寄存器模型同族；bc2sa 在 LLVM 路线里踩到的 phi 跨块复用墙，在 HL 路线里即便出现，同一种解法（跨块槽位发布 + 使用块重装载）已实证可用。</li>
+<li>HL 是强类型字节码（Int/Float/Bool/Dyn/Obj/Enum/Fun 等类型标记随指令走），翻译时不需要重建类型推断。</li>
+<li>聚合值（对象/枚举构造子）的传递可沿 bc2sa 已落地的槽模型 + sret 约定。</li>
+<li>bc2sa 探针的总评可直接复用为方法论：先普查 opcode 覆盖（bc2sa 三档样本只撞 9 类构造），再按类补齐，而不是先写大翻译器。</li>
+</ul>
+
+<h2>四、价值与定位</h2>
+<p>若成，Haxe 带来的是一个成熟语言前端 + 宏系统 + 跨平台生态（游戏侧 OpenFL/Kha 等、大量纯逻辑库），SA 得到「除 SLA/slars 之外第一个借壳的成熟前端」；Haxe 侧则多一个产出原生二进制、且能进 SA 能力/权限体系的后端。和现有两条线的分工：slars 是人写的自有前端，bc2sa 是机器转换真 Rust 的通道，hl2sa 是借壳成熟生态的通道——三者不互相替代。</p>
+
+<h2>五、分期（探针先行，与 bc2sa 同打法）</h2>
+<ul>
+<li><strong>P0 探针（周级）</strong>：HL 字节码子集（标量运算、函数调用、闭包、枚举、数组）直译 SA → sa check/build → 与 HashLink 原生运行逐项对拍；同时对 HL 全部 opcode 做覆盖普查（已有等价/可直接对应/需运行时建模/模型不合四类，循八语系普查口径）。</li>
+<li><strong>P1 运行时三件</strong>：GC 选型实证（引用计数起步 + 成环用例对拍）、异常 Trap 机制（处理器链 + 跳转原语）、Dynamic 表示与类型注册表。</li>
+<li><strong>P2 甜点区普查</strong>：对 Haxe 标准库与主流纯逻辑库做表面普查，定第一批可跑范围（纯逻辑先行，IO/平台库随后）；验收沿 bc2sa 口径：真 Haxe 程序端到端对拍原生 HashLink 运行。</li>
+</ul>
+
+<h2>六、风险登记</h2>
+<ul>
+<li>GC 运行时与 SA 编译器/裁判同入 TCB：AW 线实证的 SAB 裁判误判（多 String 字段结构体）说明编译器成熟度本身是这类借壳路线的共同风险，探针期就要把裁判误判列进验收项。</li>
+<li>跟随成本：HL 字节码格式随 HashLink 版本演进，翻译器要钉版本并把版本墙写进前置项（bc2sa 的 LLVM 版本墙是现成教训）。</li>
+<li>生态体量：Haxe 社区小于 Rust/TS，此路线的收益上限取决于用户对 Haxe 生态的实际需求，不宜先行投入 P1 以上。</li>
+<li>本页仅为讨论定案，未立项、未排期；立项与否归用户。</li>
+</ul>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Go 生态候选语法与底层成套引入</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; Go 生态候选语法与底层成套引入</div>
+
+<div class="note">状态：登记记录（2026-10-29）。本页是 goroutine 周边候选语法与 Jev 排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。</div>
+
+<h2>一、用户定案：周边语法成套引入「底层」（2026-10-29）</h2>
+<p>用户定案（2026-10-29 10:20）：<strong>一切配合 goroutine 周边的语法都要引入 SA 底层，成套引入、不零敲碎打</strong>。</p>
+<p>「底层」的口径（主会话收敛，承 2026-10-27 底座定案）：机制进 <strong>sa_std 运行时核心</strong>（调度器 / 通道 / select / sync / netpoller 胶水 / 边界 trap 承接点），语法面进 <strong>SLA 一等语法</strong>（go/spawn、channel、select、defer、recover 监督）；<strong>SA 规约本身（寄存器 + 所有权/能力规约）不动</strong>，仍是一切前端的共同目标，不为任何单一前端让路。</p>
+<p>周边全集 = 已裁定的 goroutine 本体（见 <a href="13_goroutine_runtime.html">13 号文档</a>）+ <strong>defer</strong> + <strong>goroutine 边界 recover/监督</strong> + <strong>context 式取消约定</strong>（std 规范、非语法，见第三节）。</p>
+
+<h2>二、候选清单与 Jev 排序（2026-10-29）</h2>
+<p>排序（2026-10-29，jev-1.14.0，逐项 noul，裁定文件 <code>~/workspace/jev-designs/go_features_ranking.json</code>），数值为「早引入强度」：</p>
+<ul>
+<li><strong>goroutine 边界 recover / 监督语义：0.73（第一）</strong>——是三台 per-connection 改造的上线门槛。</li>
+<li><strong>编译期嵌入（go:embed 式）：0.58</strong>——独立小批，与并发程序正交。</li>
+<li><strong>defer：0.56</strong>——与嵌入同分量级。</li>
+<li><strong>隐式接口：0.29（末位）</strong>——先普查 SLA 既有泛型 / trait 面再单独裁定。</li>
+</ul>
+<p><strong>打包裁定</strong>：defer + recover 随 SLA goroutine 语法批<strong>同批设计交付</strong>（0.73）。embed 为独立小批，随时可插。</p>
+<p><strong>落地状态（2026-10-30）</strong>：defer、goroutine 边界 recover / 监督语义与 context 式取消约定已随 SLA 语法批落地并集成关闭（sa_plugin_sla master <code>6004af4</code> / sci main <code>e7c18568</code>），使用例见 <a href="13_goroutine_runtime.html">13 号文档</a>第十五节（例 4 defer、例 5 监督重启、例 6 monitor、例 7 Done 取消）。go:embed 未随本批落地（本地小批已完工、未集成，维持独立排期）；隐式接口维持第七节裁定（不采纳，D 登记不排期）。</p>
+
+<h2>三、各候选的设计要点</h2>
+<ul>
+<li><strong>defer</strong>：作用域退出时按 LIFO 执行登记的清理动作——是<strong>任意动作、不止 drop</strong>（owned 值的自动释放已有 drop 机制，defer 覆盖的是 drop 之外的清理）；与 sync 原语的 <code>lock(); defer unlock()</code> idiom 配套交付。（已落地：块作用域 LIFO + 参数快照，见 13 号文档第十五节例 4。）</li>
+<li><strong>recover</strong>：仅在 <strong>goroutine 边界</strong>承接 trap——记日志、重启或降级，使单条连接的故障不拖死整个进程。<strong>明示：不是通用异常系统、不替代 Result 错误处理</strong>，普通代码的错误仍走 Result + 传播符。（已落地：边界 trap + <code>supervisor.sla</code> 监督重启，见 13 号文档第十五节例 5、例 6。）</li>
+<li><strong>编译期嵌入（embed）</strong>：编译期读文件、落数据段，供单二进制部署携带静态资源/模板；路径纪律与构建可复现性待该批设计时处理，不预设。</li>
+<li><strong>隐式接口</strong>：结构满足（有方法集即实现）+ 消费方定义小接口。是<strong>语言级承诺</strong>，须普查先行（SLA 既有泛型 / trait 面的对齐盘点），普查后再单独裁定，不阻塞 goroutine 程序。</li>
+<li><strong>context 式取消约定</strong>：不是语法，是 std 规范——一个可 select 的 Done 通道（或等价形态）沿调用链传递取消信号，随通道批一起立规范。（已落地：<code>sa_std/ctx.sla</code> 惯用法，见 13 号文档第十五节例 7。）</li>
+</ul>
+
+<h2>四、落选记录</h2>
+<ul>
+<li><strong>Go error 语法</strong>：不引入。SLA 已有 Result + 传播运算符且更优；只取其「错误是值」的原则一条——该原则本已在 SLA 内。</li>
+<li><strong>iota、命名返回值等多重小糖</strong>：不引入。SLA 有等价物，引入只增表面积。</li>
+<li><strong>struct 嵌入</strong>：不引入。与所有权组合时语义易浑，显式字段转发足够。</li>
+</ul>
+
+<h2>五、状态与排程</h2>
+<p>本页为候选与排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。现状（2026-10-30）：运行时一期与 SLA 语法批（扩围含 defer 与 recover / 监督、Done 取消约定）均已完工并集成关闭；下一步为定序二三台 goroutine 改造（预备与 Jev 三裁已就绪）。embed 小批维持独立排期（本地完工、未集成）；隐式接口已普查并裁定不采纳（见第七节）。</p>
+
+<h2>六、对三台目标项目的帮助评估（主会话评估，2026-10-29）</h2>
+<p><strong>总纲</strong>：帮助主要在并发结构、健壮性与开发速度，不在单机吞吐数字。三台的 99% 缺口此前归因都不在并发模型，goroutine 不直接抬性能数字。</p>
+<ul>
+<li><strong>slanginx（帮助最大）</strong>：其 F2 并发 serve 本缺原生形态，goroutine 给出 per-connection 顺序处理器、反向代理双向泵（两个 goroutine + 通道）、context 取消上游；recover 监督使单连接 trap 不杀进程，是现完全没有的健壮性档位。不帮的部分：每请求内存斜率的残余怀疑在 std http/string 文本机器内部，属 F-perf 线；多核 serve 从无到有算中等偏正，热点优化仍是另一条线。</li>
+<li><strong>slaredis（结构帮助大、吞吐帮助有限甚至可能微负）</strong>：poll 循环 + 分片等待集的手工状态机可整体消失；解锁阻塞命令类功能（BLPOP 在事件循环里要挂起连接 + 超时队列，在 goroutine 里是顺序代码）；过期处理与 AOF 写入管道（专用 goroutine + 通道喂批）变自然。但其性能平台期实测仅为 Redis 的 0.12–0.19，归因在 std 数据结构与每命令开销，goroutine 不关此缺口；高频小命令下上下文切换比紧凑 poll 循环略贵。</li>
+<li><strong>db（帮助中等偏小，在接入层不在引擎）</strong>：epoch 快照模型已把读扩到核数（8 线程列和实测 15,386/s），不靠 goroutine。受益两处：中转站查额度场景的 SLA 服务层（并发查询 goroutine 各自钉快照、扣减经通道汇到单写者，即 group commit 的语言级形状，现为手搓锁与队列）；应用从 SLA 并发使用 db 不再手管线程。点读对 SQLite 的延迟缺口在 per-exec 校验，goroutine 不碰。</li>
+<li><strong>跨三台共同项</strong>：三套手搓并发收敛为一套语言级模型，bug 面与维护面同步收缩；defer 使「资源忘了放」类泄漏问题三台同降一档；监督语义给两个网络服务器统一的崩溃隔离。</li>
+<li><strong>诚实保留</strong>：v1 是协作式调度，纯计算不让出会饿死同伴；调度器成熟度与尾延迟比不了 Go 十年打磨——须在三台改造验收中实测盯住，不默认与 Go 一样顺滑。</li>
+</ul>
+<p>一句话收敛：<strong>slanginx 是补心脏，slaredis 是拆状态机加解锁阻塞命令，db 是给接入层发并发驾照；三台的性能 99% 仍各自归 std 热点线。</strong></p>
+
+<h2>七、隐式接口普查结论与 Jev 裁定（2026-10-29）</h2>
+<p>按第二节排序，隐式接口候普查后单独裁定。普查已完成（2026-10-29，四出处：sala 文档、sa_plugin_sla demos、sa_plugin_sla tests 语料、sci 的 sa_std 清单；普查报告存 <code>~/workspace/impliface-census/CENSUS.md</code>）。</p>
+<p><strong>普查结论：SLA 的接口满足判定为纯名义式，零结构化成分。</strong></p>
+<ul>
+<li><strong>满足判定 = 显式 impl 注册表</strong>：检查器把每个 <code>impl Trait for Type</code> 以 <code>"{trait}|{type}"</code> 键登记（type_checker.zig:2365-2375）；类型的方法集全对得上但没写 impl 块 = 不满足该 trait。impl 完整性三查俱在；<strong>无孤儿 / 一致性规则</strong>。</li>
+<li><strong>trait 本体为签名-only</strong>：无默认实现、无关联类型 / 常量。超 trait 支持在册；<code>dyn Trait</code> 是真动态分发（胖指针 16 字节）；但 <strong>vtable 由两后端按 impl 逐个发射</strong>——结构化满足（无 impl）即无 vtable 可指，须新造双后端同构的（接口，类型）vtable 合成路径，这是结构化方案的最大硬成本。</li>
+<li><strong>使用面极薄</strong>：1572 个 .sla 文件中仅 15 个声明 trait、5 个用 dyn，全部来自 Rust 对齐 rosetta demo 与单元测试；sci 的 sa_std（.sai / .sla）零 trait 声明。四出处内<strong>没有任何在等的结构化满足消费方</strong>；原动机 go2sa 已按用户令暂停（见 <a href="14_cpp2sa_go2sa.html">14 号文档</a>）。</li>
+</ul>
+<p><strong>解耦登记项（与本节裁定分开，不捆绑处置）：泛型约束是空壳。</strong><code>&lt;T: Trait&gt;</code> 被 parser 解析后直接丢弃（parser.zig:1026 只消费标识符不保存；AST 的 generics 只存名字），检查器与单态化均无 bound 表示——写了约束也<strong>不生效</strong>，语料中实际用例仅 2 处。此为静默误导点，口径先行入册如上；后续方向 = <strong>响亮诊断</strong>（约束不生效须报错 / 警告），作独立小批另行排期，不与隐式接口裁定捆绑。</p>
+<p><strong>Jev 裁定</strong>（2026-10-29，jev-1.14.0，逐项 noul，裁定文件 <code>~/workspace/jev-designs/implicit_interfaces_ruling.json</code>）：</p>
+<ul>
+<li><strong>A 不做：0.83</strong>——保持纯名义式满足。</li>
+<li><strong>B 仅 dyn 侧结构化、限只读方法集：0.05</strong>——须新造双后端 vtable 合成。</li>
+<li><strong>C 全量结构化（含约束系统实装）：0.04</strong>——还须先背泛型约束实装全价。</li>
+<li><strong>D 显式 <code>conform Trait for Type;</code> 声明：0.81</strong>——编译器核方法集后走现有名义注册与 vtable 发射，用户免写转发 impl 块、双后端零改动、保留声明点合显式教义。</li>
+</ul>
+<p><strong>主会话处置（默认同意 Jev）</strong>：<strong>结构化（隐式）接口不采纳</strong>——A 胜出，B / C 明确否决。D 不是隐式接口，而是名义体系内的省样板便利，<strong>登记为独立候选、不排期</strong>，待真实消费方出现（如 go2sa 复活）时再议。另记 slars 一致性：slars 宪章为 Rust 名义式 trait 且与 SLA 共享 lowering 与双 codegen，SLA 单方面结构化会在共享层制造满足语义分叉——此点亦支持不采纳。</p>
+<p><strong>补记（2026-10-29）：上文解耦登记项「泛型约束空壳」已单独裁定。</strong>出现面普查（存 <code>~/workspace/bounds-local/CENSUS_USES.md</code>）穷举全树 .sla：bound 实际出现仅 rosetta 两处（31_trait_static_dispatch、170_marker_traits，均为 Rust 对照演示、且不依赖 bound 被校验），tests 与 sla_std 中为<strong>零</strong>；探针实证 bound 名连存在性都不查（<code>&lt;T: NoSuchTrait&gt;</code> 亦 check rc=0）。<strong>Jev 裁定</strong>（2026-10-29，jev-1.14.0，裁定文件 <code>~/workspace/jev-designs/bounds_diagnostic_ruling.json</code>）：</p>
+<ul>
+<li><strong>甲 改为报错，并同批修正 rosetta 31 / 170 两 demo 为无 bound 形态、demo.md 注记与语法矩阵口径同步修正：0.93</strong>。</li>
+<li><strong>乙 改为报错，但豁免 rosetta demo：0.11</strong>。</li>
+<li><strong>丙 仅警告：0.07</strong>。</li>
+<li><strong>丁 做实 bound 系统（parser 保存 + 检查器求解）：0.06</strong>。</li>
+</ul>
+<p><strong>主会话处置（默认同意 Jev）：采甲。</strong>写 bound 即响亮报错；因出现面仅 rosetta 2 处、tests / sla_std 为零，改报错<strong>零误伤面</strong>。实施线进行中（本地 staging <code>~/workspace/bounds-local</code>，完成与门禁状态以其终报为准）；<a href="../09_rust_compare/02_syntax_matrix.html">09 号语法矩阵</a>的原错误口径（「约束只在单态化时用于 trait 方法查找」）已同步修正。</p>
+
+<p>相关讨论：<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>、<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>。</p>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

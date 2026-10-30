@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sardis（暂名）：Redis 重构规划</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; sardis（暂名）：Redis 重构规划</div>
+<h1>sardis（暂名）：Redis 重构规划</h1>
+
+<div class="note"><span class="label">状态</span>讨论成案、未立项（2026-10-28 用户续议 Redis 后成案，本页为权威记录）。<strong>sardis 为候选名（sa + rdis 缩合），待用户定名。</strong>与 <a href="09_nginx_rebuild_roadmap.html">sangx</a> 同属自研后台服务系列；多节点形态依赖 <a href="10_backend_coverage.html">覆盖图</a>的第一缺口（Raft 共识）。</div>
+
+<h2>为什么 Redis 比 nginx 更适合这套地基</h2>
+<ul>
+<li>核心是单线程事件循环 + 一套内存数据结构，没有 nginx 二十年的模块与配置包袱。</li>
+<li>RESP 协议比 HTTP 简单一个量级，纯 SLA 解析器是小活；TCP 服务面、async 事件模型、定时器（过期键主动采样）、fs（AOF/RDB 落盘）、进程 spawn 都在 std 现成。</li>
+<li>基础集合（hashmap/btree）sci 已有；紧凑编码要吃的位级打包原语已由 STD 第二波 BD 线落地（sa_std/encoding/bitpack.sla）。</li>
+</ul>
+
+<h2>真正的活在三处（都不在协议层）</h2>
+<ul>
+<li><strong>紧凑编码是 Redis 的护城河</strong>：ziplist/listpack、intset、skiplist、rax（Streams）这套特化结构决定了内存效率——朴素 hashmap 版能跑但内存翻倍，等于丢一半价值。须在 SLA 里逐个实现，全是确定性的纯值层工程（与 IP/CIDR 值层同性质）。</li>
+<li><strong>持久化模型裁定（开工前唯一的真设计题）</strong>：Redis 靠 fork + 写时复制做 RDB 快照与 AOF 重写。SA 进程面有无 fork 语义待核查；没有则三选一——线程快照（一致性处理）、纯 AOF 起步、或给 std 补 fork 面。</li>
+<li><strong>复制与高可用是长尾</strong>：PSYNC + 复制积压缓冲区是协议活可做；Sentinel 与 Cluster（gossip、16384 槽、故障转移）是另一个量级，且 Cluster 的地基是共识/复制日志原语（见覆盖图缺口一），明确放最后单独论。</li>
+</ul>
+
+<h2>安全：Redis 的招牌漏洞类被本架构正面克制</h2>
+<ul>
+<li><strong>Lua 沙箱逃逸类</strong>（Redis 近年最重：RediShell CVE-2025-49844，Lua 垃圾回收 UAF，潜伏约 13 年、CVSS 10 分）：根源是内嵌完整 Lua 运行时再手工打沙箱补丁。本项目的脚本面就是 SA VM 本身——脚本以 SAB 字节码在能力受限的 VM 中执行，没有第二个语言运行时要打补丁。同一笔诚实账：VM 解释器由此进入 TCB，其稳定性清理是前置项（与 sangx 共用）。</li>
+<li><strong>内存破坏类</strong>（如 HyperLogLog 越界写 CVE-2025-32023）：同 sangx 页的裁定——SLA 层构造性消除、后果降为 trap/崩溃而非内存破坏。</li>
+<li><strong>部署类</strong>：Redis 历史上最大的真实损失来自无密码裸奔公网。本项目默认应为<strong>强制认证 + 默认回环监听</strong>，显式配置才放开——显式胜过方便。</li>
+</ul>
+
+<h2>分期（建议）</h2>
+<ul>
+<li><strong>M0</strong>：核心五类型（string/hash/list/set/zset）+ RESP + 过期。</li>
+<li><strong>M1</strong>：持久化（按 fork 裁定走）+ 主从复制。</li>
+<li><strong>M2</strong>：脚本面（VM 版 EVAL）+ Pub/Sub + 事务（MULTI/EXEC/WATCH）。</li>
+<li><strong>M3</strong>：Streams / GEO / Bitmap / HyperLogLog 等类型尾巴。</li>
+<li>Cluster 单独论，前置为 Raft/复制日志原语（覆盖图缺口一）。</li>
+</ul>
+
+<h2>待裁定清单</h2>
+<ul>
+<li>定名（候选 sardis）。</li>
+<li>fork 面核查与持久化模型三选一。</li>
+<li>立项时点：STD 第二波收官后，与 sangx 错峰。</li>
+</ul>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

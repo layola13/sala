@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>iOS net 表面 × sa_std 缺口普查</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; iOS net 表面 × sa_std 缺口普查</div>
+<h1>iOS net 表面 × sa_std 缺口普查</h1>
+
+<p>本页是跨语言 std 普查批的一份（同批：Rust 全 std、Go net、Python net、Java net、.NET net、Android net）。
+iOS 的「net std」分三层：底层的 <strong>Network.framework</strong>（连接/监听/协议栈的参数化模型）、
+上层的 <strong>Foundation URLSession 家族</strong>（会话/任务/委托模型），以及两者之下的
+<strong>POSIX/BSD 层</strong>。另有一层桌面 std 不存在的平台连接模型（路径、费用、策略强制），
+与 Android 页的平台模型正好对照：可移植的协议/工具面按四分类与 sa_std 比对，平台模型单列登记。</p>
+
+<p><strong>先说清来源现实</strong>：Network.framework 与 CFNetwork 没有完整开源发布。
+本页所有 iOS 侧数据按可靠度分级标注（开源源码 / 开源对应物 / 官方文档面），
+拿不到的面登记为不可核、绝不凭印象补写 API——本页的覆盖边界比其他平台页更需要先读。</p>
+
+<h2>来源与版本</h2>
+<table>
+<tr><th>侧</th><th>来源与等级</th></tr>
+<tr><td>Network.framework 公共表面</td><td><strong>grade=doc（文档面、非源码面）</strong>：Apple 开发者文档站的官方
+DocC 数据端点（<code>developer.apple.com/tutorials/data/documentation/network/…</code>），
+自框架根页沿符号引用 BFS 爬取闭包：<strong>1,712 页、抓取错误 0、符号 1,711</strong>。
+文档面中出现的最高 iOS 引入版本为 <strong>iOS 27.0</strong>（逐符号 <code>introducedAt</code> 实测），
+故本普查以 <strong>iOS 27 世代</strong>文档面为准。该框架无开源源码，此为可得的最高等级来源。</td></tr>
+<tr><td>Foundation URLSession 家族</td><td><strong>grade=oss-swift（开源对应物）</strong>：
+<code>swift-corelibs-foundation</code> 最新发行标签 <strong>swift-6.4.1-RELEASE</strong>，
+取 <code>Sources/FoundationNetworking</code> 全部 .swift（URLSession 模块）+
+<code>Sources/Foundation</code> 的 URL 值类型三件，共 35 个文件。
+它是 Swift Foundation 层的开源实现、不是 Darwin 二进制的源码；与 Darwin 的已知差异见「覆盖边界」。</td></tr>
+<tr><td>POSIX / 解析器层</td><td><strong>grade=oss（Apple 开源发布）</strong>：<code>apple-oss-distributions</code>
+的 Libinfo（<code>lookup.subproj/netdb.h</code>、<code>netdb_async.h</code>）与 xnu
+（<code>bsd/sys/socket.h</code>、<code>bsd/netinet/in.h</code> 原文），仓主分支快照，下载于 2026-10-27。</td></tr>
+<tr><td>CFNetwork</td><td><strong>不可核登记</strong>：CFNetwork 的 C 面（CFHTTPMessage 等）不在任何
+Apple 开源发布内，文档面上亦无成体系的符号集，本线不取、不写。</td></tr>
+<tr><td>SA 侧基线</td><td>sci main <code>8a943911</code> 的 <code>sa_std</code> 网络面：
+12 个 .sai 契约共 <strong>475</strong> 个 extern（net 222、http_client 57、http_server 46、quic 29、
+ssh 26、tls_client 22、multipart 18、http2 14、ws_client 12、tls_server 11、dtls 11、netx 7），
+另 net.sal 的 <code>#def</code> 常量 142 个，合计 <strong>617</strong> 个符号。
+（与 AT 页的 457 口径差 = 本线多计 multipart 18；常量与 .sa 层简化面只作注记、不逐项比对。）</td></tr>
+</table>
+
+<h2>方法与清单规模</h2>
+<p>双边机械抽取（脚本与产物在 <code>tools/ios_net_census/</code>，可复跑）：iOS 侧三路——
+DocC 爬虫逐页取符号的标题/种类/引入版本；corelibs 用 Swift 公共声明扫描器（显式
+<code>public/open</code> 修饰判定，含 public extension 内的成员）；Apple 开源头文件用
+C 原型抽取器。SA 侧解析 .sai 的 <code>@extern</code> 与 .sal 的 <code>#def</code>。
+iOS 侧清单共 <strong>2,241</strong> 行（Network 文档面 1,711 + corelibs 454 + 开源 POSIX 76）。
+分类在 <strong>35 个能力域</strong>粒度进行（逐符号 1:1 对参数 getter/setter 无意义，
+与同批各页同理），四分类口径与同批一致：<code>可直接对应</code> / <code>需建模</code> /
+<code>模型不合</code> / <code>已有等价</code>。结果：已有等价 10、可直接对应 8、需建模 11、模型不合 6。</p>
+
+<h2>按框架计数</h2>
+<table>
+<tr><th>框架/层</th><th>来源等级</th><th>规模</th><th>构成要点</th></tr>
+<tr><td>Network.framework</td><td>doc</td><td>1,711 符号</td><td>按种类：property 365、func 308、method 243、
+case 194、init 166、var 116、typealias 83、struct 69、protocol 52、enum 51、class 47，
+其余 associatedtype/macro/subscript/op 17。按属主（前列）：NWConnection 102、NWParameters 69、
+NWProtocolWebSocket 51、NWProtocolQUIC 41、NWBrowser 38、NWListener 37、NWProtocolFramer 35、
+NWPath 30、NWInterface 30、NWConnectionGroup 30、NWEndpoint 27、NWProtocolTCP 22；
+框架级（C API）638，其中 nw_* 前缀函数群以 nw_connection_group 30、nw_data_transfer 23、
+nw_txt_record 22、nw_ethernet_channel 20 为首</td></tr>
+<tr><td>Foundation URLSession 家族</td><td>oss-swift</td><td>454 声明（35 文件）</td><td>按属主（前列）：
+URLResourceValues 92（其中网络相关仅少数，见覆盖边界）、URLSessionConfiguration 30、
+URLRequest 29、URLSessionTask 22、URLSession 19、HTTPCookie 16、URLProtectionSpace 14、
+URLProtocol 14、URLCache 13、HTTPCookieStorage 11、URLCredential 10、URLCredentialStorage 10、
+URLSessionWebSocketTask 8；类型面含 URLSession/DataTask/DownloadTask 与四个 Delegate 协议</td></tr>
+<tr><td>POSIX / 解析器（Apple 开源）</td><td>oss</td><td>76 函数</td><td>Libinfo netdb.h 20（getaddrinfo 家族 + 数据库迭代）、
+netdb_async.h 28（Darwin 异步解析）、xnu bsd/sys/socket.h 20、bsd/netinet/in.h 8</td></tr>
+<tr><td>sa_std 网络面</td><td>—</td><td>617 符号</td><td>见「来源与版本」的 SA 侧基线行</td></tr>
+</table>
+<p>SA 侧关键词探针（在 617 符号全表上，与 AT 的探针同口径、结果互相印证）：
+<code>cookie 0、proxy 0、alpn 0、route 0、peercred 0、mdns 0、bonjour 0</code>；
+<code>dns</code> 仅 2 个错误码常量；正面命中：quic 31、tls 44、websocket 23、http2 14、multicast 38。</p>
+
+<h2>缺口分类表</h2>
+<h3>Network.framework（21 域）</h3>
+<table>
+<tr><th>域</th><th>iOS 表面</th><th>sa_std 对应</th><th>分类</th><th>说明</th></tr>
+<tr><td>连接生命周期与状态机</td><td>NWConnection（102，含 state 枚举与 stateUpdateHandler）、nw_connection_state 家族</td><td>netx.sai 反应器（7）+ net.sai 非阻塞标志</td><td>需建模</td><td>iOS 是「连接对象 + 状态回调队列」模型；SA 是同步句柄 + io_uring 反应器，事件形态不同，需状态机/回调到 poll 的建模层</td></tr>
+<tr><td>监听器</td><td>NWListener（37）、NetworkListener（21）</td><td>net.sai tcp_listen/accept + http_server 监听面</td><td>已有等价</td><td>监听/接受能力面对齐；随附的 Bonjour 服务发布单列 Bonjour 行</td></tr>
+<tr><td>字节流收发与内容上下文</td><td>NWConnection send/receive（complete 语义、最小/最大长度）、nw_content_context（14）</td><td>net.sai tcp_stream read/write/peek/vectored、udp send/recv</td><td>已有等价</td><td>读写与分段能力对应；content context 的消息元数据属分帧语义</td></tr>
+<tr><td>自定义分帧协议</td><td>NWProtocolFramer（35：framer message、帧构造、协议定义插件点）</td><td>无（ws 帧编解码只服务 WebSocket 自身）</td><td>需建模</td><td>把用户协议做成可插入协议栈的分帧对象，是协议插件模型；与 URLProtocol 行同族</td></tr>
+<tr><td>协议参数栈配置</td><td>NWParameters（69）+ NWParametersProvider（37）+ nw_parameters_set/get（27）</td><td>net.sai 逐项 setter（nodelay/keepalive/TTL/缓冲/linger/超时）</td><td>需建模</td><td>能力子集大面积重叠，但 iOS 是声明式参数对象组装协议栈，SA 是命令式逐项调用，缺统一参数对象层</td></tr>
+<tr><td>TLS 协议面</td><td>NWProtocolTLS（6）+ TLS（15）：版本/套件/ALPN/证书验证回调/PSK/会话恢复</td><td>tls_client.sai（22，含 add_ca_file、status_json、shaped 指纹 JA3/JA4）+ tls_server（11）+ dtls（11）</td><td>需建模</td><td>TLS 本体与指纹面 SA 已有且强；配置面缺位（alpn 关键词 0，SNI/套件集/验证回调无独立配置符号）</td></tr>
+<tr><td>QUIC</td><td>NWProtocolQUIC（41）+ QUIC（26）</td><td>quic.sai（29）+ http3 session 面</td><td>已有等价</td><td>核心连接/流面对齐；子缺口：QUIC datagram 在 quic.sai 无符号（短名单第 8 项）</td></tr>
+<tr><td>WebSocket 协议</td><td>NWProtocolWebSocket（51）</td><td>ws_client（12）+ http_client/http_server 的 websocket 面 + net.sai 帧编解码</td><td>已有等价</td><td>客户端与服务端两侧 SA 均有契约</td></tr>
+<tr><td>TCP/UDP/IP 协议选项</td><td>NWProtocolTCP（22）、NWProtocolUDP、NWProtocolIP（29）</td><td>net.sai tcp/udp 选项全套 + 组播选项（multicast 命中 38）</td><td>已有等价</td><td>—</td></tr>
+<tr><td>ECN 显式面</td><td>nw_ip_ecn（5）</td><td>无显式符号</td><td>可直接对应</td><td>套接字选项级增量，无模型问题</td></tr>
+<tr><td>Bonjour/mDNS 服务发现与发布</td><td>NWBrowser（38）+ nw_browse_result（22）+ nw_txt_record（22）+ nw_advertise_descriptor（9）</td><td>无（mdns/bonjour 关键词 0）</td><td>可直接对应</td><td>DNS-SD 是开放协议面，需整套引擎但无平台模型依赖；与 AT 页 mDNS 补齐项同缺口</td></tr>
+<tr><td>基础名字解析</td><td>NWEndpoint（27），连接建立时系统解析</td><td>net.sai to_socket_addr_first/list + addr_reverse_lookup</td><td>已有等价</td><td>经系统解析器，与 AT 对 InetAddress 基础解析同结论</td></tr>
+<tr><td>加密 DNS 解析配置</td><td>nw_resolver_config（4：指定 DoH/DoT 服务器）、requiresDNSEncryptedResolution</td><td>无（dns 仅错误码常量）</td><td>可直接对应</td><td>加密解析端点配置是协议面（DoH/DoT 客户端配置），SA 无对应符号</td></tr>
+<tr><td>代理配置</td><td>nw_proxy_config（8：http_connect/socksv5/relay、failover）</td><td>无（proxy 关键词 0）</td><td>可直接对应</td><td>客户端代理（HTTP CONNECT/SOCKS5 隧道）是纯协议面；系统 PAC/全局代理发现属平台面、只注记</td></tr>
+<tr><td>隐私中继与 Oblivious HTTP</td><td>nw_privacy_context（7）+ nw_proxy_config_create_oblivious_http</td><td>无</td><td>需建模</td><td>OHTTP 的封装与双跳中继可做协议建模；Private Relay 运营服务本身不移植</td></tr>
+<tr><td>连接组</td><td>NWConnectionGroup（30）+ nw_connection_group（30）</td><td>net.sai 单套接字组播选项</td><td>需建模</td><td>iOS 把「一组连接」做成一等对象（统一状态、批量收发），SA 缺组对象层</td></tr>
+<tr><td>路径监测与路径对象</td><td>NWPathMonitor（10）+ nw_path_monitor（11）+ NWPath（30）</td><td>无（route 关键词 0）</td><td>模型不合</td><td>依赖系统路径服务的评估与回调派发，是平台连接模型；平台节详述，与 AT 的 NetworkCapabilities 对照</td></tr>
+<tr><td>接口清单与属性枚举</td><td>NWInterface（30）+ nw_path_enumerate_interfaces</td><td>无（仅 1 个组播 scope 常量）</td><td>可直接对应</td><td>本机接口清单（名/索引/地址）是可移植信息面；radio/费用属性归平台节</td></tr>
+<tr><td>连接报告与计量</td><td>nw_data_transfer_report（23）+ nw_establishment_report（11）+ nw_resolution_report（7）+ nw_report_resolution（12）</td><td>无成体系对应</td><td>模型不合</td><td>细粒度诊断报告依赖框架内部埋点与系统计量，属平台遥测模型</td></tr>
+<tr><td>Ethernet 通道</td><td>NWEthernetChannel（23）+ nw_ethernet_channel（20）</td><td>无</td><td>模型不合</td><td>局域网原始以太网帧通道，依赖系统授权（entitlement）与平台驱动面</td></tr>
+<tr><td>多路径服务</td><td>nw_multipath_service（5）+ NWParameters.multipathService</td><td>无</td><td>模型不合</td><td>蜂窝/WiFi 多路径迁移由系统按策略执行，平台节详述</td></tr>
+</table>
+
+<h3>Foundation URLSession 家族（10 域）</h3>
+<table>
+<tr><th>域</th><th>iOS 表面（corelibs）</th><th>sa_std 对应</th><th>分类</th><th>说明</th></tr>
+<tr><td>会话与任务核心</td><td>URLSession（19）+ URLSessionTask（22）+ Data/Download/Stream 任务类型</td><td>http_client.sai（57：req_new/send/async_poll/body_reader/SSE）</td><td>已有等价</td><td>请求执行核心面对齐；组织形态不同（会话/任务对象 vs 请求句柄 + poll）</td></tr>
+<tr><td>会话配置对象</td><td>URLSessionConfiguration（30：超时组、每主机连接上限、默认头、protocolClasses 等）</td><td>http_client 零散项（set_timeout_v2 等），无配置对象</td><td>需建模</td><td>配置以对象形式先于会话存在，SA 缺配置对象层；cookie/proxy/TLS 子项分见各行</td></tr>
+<tr><td>Cookie</td><td>HTTPCookie（16）+ HTTPCookieStorage（11）+ 配置三项</td><td>无（cookie 关键词 0）</td><td>可直接对应</td><td>解析/序列化是纯函数面、存储是简单状态面；跨平台共识缺口（AT 短名单同项）</td></tr>
+<tr><td>HTTP 缓存</td><td>URLCache（13）+ CachedURLResponse + requestCachePolicy</td><td>无 HTTP 缓存符号</td><td>需建模</td><td>新鲜度/条件验证（ETag/Expires）加内存/磁盘两级存储的语义模型</td></tr>
+<tr><td>认证挑战与凭据</td><td>URLCredential（10）+ URLCredentialStorage（10）+ URLProtectionSpace（14）+ 挑战 delegate</td><td>http_client 仅 req_add_openai_auth 专用项</td><td>需建模</td><td>挑战-应答由 delegate 回调驱动、另有凭据库；SA 无挑战模型亦无凭据存储面</td></tr>
+<tr><td>WebSocket 任务</td><td>URLSessionWebSocketTask（8）</td><td>http_client websocket 面</td><td>已有等价</td><td>—</td></tr>
+<tr><td>后台会话与代管传输</td><td>URLSessionConfiguration.background(withIdentifier:) 等；任务由系统进程接管并重放事件</td><td>无</td><td>模型不合</td><td>依赖 iOS 守护进程代管与生命周期事件重放；断点续传的 Range 语义本身可移植（注记）</td></tr>
+<tr><td>自定义协议</td><td>URLProtocol（14）+ URLProtocolClient + protocolClasses、DataURLProtocol</td><td>无</td><td>需建模</td><td>请求拦截/自定义 scheme 的协议插件模型，与 NWProtocolFramer 行同族</td></tr>
+<tr><td>URL 值类型</td><td>URL（15）+ URLComponents（7）+ URLQueryItem</td><td>sa_std_url_parse 单函数 + 地址格式化</td><td>可直接对应</td><td>构造/拼接/相对化/query/percent 编解码是纯函数面；与 AT 短名单第 2 项同</td></tr>
+<tr><td>委托回调、进度与指标</td><td>四个 Delegate 协议 + 任务字节计数/进度 + metrics 回调</td><td>http_client 的 async poll 模型</td><td>需建模</td><td>iOS 是 delegate 回调族集中分发，SA 是显式 poll；回调面需一层事件模型承接（与连接状态机行同族）</td></tr>
+</table>
+
+<h3>POSIX / 解析器层（4 域）</h3>
+<table>
+<tr><th>域</th><th>iOS 表面（Apple 开源）</th><th>sa_std 对应</th><th>分类</th><th>说明</th></tr>
+<tr><td>BSD socket 调用面</td><td>xnu bsd/sys/socket.h（20）+ bsd/netinet/in.h（8）</td><td>net.sai 全套（222）即该面的句柄化封装</td><td>已有等价</td><td>边界层：SA 的 net 模型就是 BSD socket 的句柄化，本行是共同底座而非缺口</td></tr>
+<tr><td>同步 DNS 解析</td><td>Libinfo netdb.h：getaddrinfo/getnameinfo/freeaddrinfo/gai_strerror</td><td>net.sai to_socket_addr_first/list + addr_reverse_lookup</td><td>已有等价</td><td>与基础名字解析行是同一能力的 POSIX 形态</td></tr>
+<tr><td>Darwin 异步解析</td><td>Libinfo netdb_async.h（29，mach port 回调形态）</td><td>无</td><td>模型不合</td><td>Darwin 异步解析走 mach 消息端口，是平台 IPC 形态；需求可由 SA 自身 async 面承接（注记），不移植其形态</td></tr>
+<tr><td>传统数据库迭代面</td><td>Libinfo netdb.h：gethostent/getservent/getprotoent/getnetent 迭代组</td><td>无</td><td>可直接对应</td><td>纯 C 数据面、无模型问题；属 NSS 时代形态、现代价值低，登记为可对应、不进短名单</td></tr>
+</table>
+<p>分类汇总：<strong>已有等价 10 / 可直接对应 8 / 需建模 11 / 模型不合 6</strong>（共 35 域）。
+读法与同批一致：等价面集中在协议执行层（socket/TCP/UDP/QUIC/WebSocket/HTTP 执行），
+缺口集中在<strong>组织层</strong>（参数对象、配置对象、委托/回调、协议插件）与<strong>工具面</strong>
+（cookie、URL 操作、mDNS、代理、加密 DNS 配置）——前者要建模，后者只是没做。</p>
+
+<h2>平台特有模型（桌面 std 没有的层）</h2>
+<p>以下四组是 iOS 的平台连接模型，与 Android 页的「网络能力模型 / 计费与多网络绑定 / 平台强制策略」
+逐项对照：两家在同一批问题上给出了同构的平台答案，而 sa_std 作为可移植 std 整体不承接——
+归模型不合是结论、不是缺陷。</p>
+
+<h3>路径与费用模型</h3>
+<p><code>NWPath</code> 是连接的「路径快照」：status（satisfied/unsatisfied/requiresConnection）、
+有序的接口列、<code>isExpensive</code>（蜂窝计费）、<code>isConstrained</code>（低数据模式）、
+<code>supportsDNS/supportsIPv4/supportsIPv6</code>、网关列；<code>NWPathMonitor</code> 以回调持续推送路径变化。
+这与 Android 的 NetworkCapabilities + ConnectivityManager 回调是同一个模型的两份实现：
+应用不直接选网卡，而是声明需求、由系统给出当前路径并持续修正。
+sa_std 的对应位置是空的（route 关键词 0）——可移植的部分只有「接口清单枚举」这一信息面
+（已单列为可直接对应），路径评估与回调派发本身属平台服务。</p>
+
+<h3>参数策略约束</h3>
+<p>连接策略写在 <code>NWParameters</code> 里随连接声明：禁止的接口类型（prohibitedInterfaceTypes）、
+<code>requiresDNSEncryptedResolution</code>、多路径服务档位（handover/interactive/aggregate）、
+服务等级（nw_service_class）；URLSession 侧对应 <code>allowsCellularAccess</code>、
+<code>waitsForConnectivity</code>（连接不可达时挂起等待而非立即失败）、
+<code>isDiscretionary</code>（由系统择时）。Android 的对照物是按 Network 绑定与 Private DNS 模式。
+这类「策略即参数」在桌面 std 里没有对应层：它要求一个有系统在背后执行策略的运行时，
+移植到 sa_std 只能落成应用层约定、不成 std 面。</p>
+
+<h3>ATS 传输安全强制策略</h3>
+<p>App Transport Security 不是 API：它没有可抽取的符号面，载体是应用的 Info.plist 配置
+（NSAppTransportSecurity：默认强制 TLS 与最低版本、对声明的例外域放行明文），由系统在
+URLSession/Network.framework 装载时强制执行。因此它<strong>不在本页任何符号计数内</strong>，
+在此登记其形态与结论：与 Android 页的「平台强制策略」（cleartext 策略、网络安全配置）同类，
+属平台强制层、模型不合。其中可移植的只有 TLS 最低版本这类<strong>配置项</strong>本身，
+已计入 TLS 行的配置面缺口。</p>
+
+<h3>本地网络权限与后台代管</h3>
+<p>访问本地网络（Bonjour 浏览/发布、局域网连接）需要系统授权（Local Network 隐私权限），
+未授权时浏览结果被脱敏——服务发现在 iOS 上因此多一层平台许可面（N11 的协议面可移植、
+许可面不移植）。后台传输则由系统守护进程在应用挂起/终止时代管 URLSession 后台会话并在
+应用重启后重放完成事件（U7 行）——这与 Android 的平台代管下载同属「系统替应用活着」的模型，
+sa_std 无进程生命周期可依附，整体登记为模型不合。</p>
+
+<h2>优先补齐短名单（仅可移植面）</h2>
+<ol>
+<li><strong>Cookie 面</strong>（U3）：cookie 解析/序列化（Set-Cookie/Cookie 头、属性全集）+ 存储 +
+按配置自动挂接。纯函数加简单状态，与 AT 名单第 4 项重合，是本批多平台共同点名的缺口。</li>
+<li><strong>URI/URL 操作面</strong>（U9）：URL 构造/拼接/相对化、query 解析与生成、percent 编解码
+（sa_std 现仅 <code>sa_std_url_parse</code> 单函数）。与 AT 名单第 2 项同。</li>
+<li><strong>TLS 配置面</strong>（N6）：ALPN、SNI 显式控制、密码套件集、证书验证回调、最低 TLS 版本。
+sa_std 的 TLS 本体与 JA3/JA4 指纹面已强，缺的正是这层配置；与 AT 名单第 3 项同。</li>
+<li><strong>DNS 记录型查询 + 加密 DNS 客户端配置</strong>（N13）：按记录类型（A/AAAA/TXT/SRV）
+的查询结果模型（AT 名单第 1 项）与 DoH/DoT 端点配置——iOS 侧以「每连接 resolver 配置」的
+形态证明了这层需求的产品位置。</li>
+<li><strong>mDNS / DNS-SD</strong>（N11）：服务浏览/发布/TXT 记录。iOS 的 Bonjour 与 Android 的
+NsdManager 是两份平台实现，协议面同一；iOS 侧的本地网络许可面不移植。</li>
+<li><strong>本机接口信息面</strong>（N18）：接口清单枚举（名/索引/地址族/地址）。与 AT 名单的
+「本机网络信息」项呼应；iOS 无公共路由表 API（不可核），故本项只取接口枚举、不含路由表。</li>
+<li><strong>客户端代理面</strong>（N14）：HTTP CONNECT / SOCKS5 代理配置与隧道建立。
+本批五平台普查中 SA 侧 proxy 关键词恒为 0，是系统性空白。</li>
+<li><strong>协议小面两件</strong>（N7 子缺口、N10）：QUIC datagram 与 IP ECN 显式读写——
+都是既有协议面上的纯增量，无模型风险，适合随手批处理。</li>
+</ol>
+
+<h2>覆盖边界</h2>
+<ul>
+<li><strong>来源等级即证据等级</strong>：Network.framework 的全部结论建立在官方文档面
+（grade=doc）之上——文档面给出符号的存在与签名形态，但不保证与 SDK 头文件的逐字一致
+（同页合并的重载按一页计一行；ObjC/Swift 双面在 DocC 同页合并，清单以 Swift 面为主、
+<code>lang</code> 列区分）。若将来取得 SDK 头文件，应以头文件复跑本页计数。</li>
+<li><strong>corelibs 与 Darwin 的差异</strong>：URLSession 家族以 corelibs 开源实现为准
+（grade=oss-swift）。已知差异方向：后台会话在 corelibs 是配置符号存在、代管语义缺失
+（Linux 无对应守护进程）；个别 Darwin 专属行为（如部分缓存/凭据持久化细节）在 corelibs
+为桩或缺席。本页对这类面只按 corelibs 的实际符号分类，并在 U7 行把代管语义单列为模型不合，
+不以 Darwin 文档印象补写 corelibs 没有的符号。</li>
+<li><strong>CFNetwork 不可核</strong>：CFNetwork 的 C API 面（CFHTTPMessage/CFHTTPStream 等）
+无开源发布、文档面无成体系符号集，本线登记为不可核，不出现在任何计数里。
+Security.framework（证书/信任评估的底层）同理未展开——U5 行的「服务器信任」只到
+URLSession 挑战面为止，其下的 SecTrust 配置面不可核。</li>
+<li><strong>POSIX 层只抽了三个头</strong>：bsd/sys/socket.h、bsd/netinet/in.h 与 Libinfo 的
+netdb 双头；ifaddrs.h（getifaddrs）等其余 Darwin 头未展开——N18 的结论以 Network.framework
+的接口面为据，POSIX 侧的接口枚举（如 getifaddrs）未计入，属已知的偏小覆盖。</li>
+<li><strong>抽取器近似</strong>：corelibs 扫描器以显式 public/open 修饰与 public extension
+成员为准，无修饰地写在普通 extension 里的公共成员会漏计；DocC 爬虫取引用闭包，
+未被任何已访页面引用的孤立符号不在内（本次爬取 1,712 页、抓取错误 0，闭包已收敛）。
+URLResourceValues 的 92 个声明多为文件/iCloud 属性，与网络无关的部分只计入清单规模、
+未进入分类表（分类表只取其 URL 构造相关面，归 U9 行）。</li>
+<li><strong>平台模型不进补齐名单</strong>：路径/费用/多路径/ATS/代管/许可六组平台模型
+（含分类表中的 6 个模型不合行）只登记形态与对照，不作为 sa_std 缺口统计——与同批各页口径一致。</li>
+</ul>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

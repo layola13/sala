@@ -96,6 +96,23 @@ fn spawn_bullet() -&gt; i32 {
 
 fn unwrap_or(opt: OptionValue&lt;i32&gt;, default: i32) -&gt; i32 { ... }</code></pre>
 
+<h2>算术与类型契约（2026-10-29 落字）</h2>
+<p>本节把若干已由实现查实的语义口径写成契约（来源：std 改进批定性普查；括注为底层不足登记册条目编号，见 <a href="../01_overview/19_side_tracks_foundation_gaps.html">19 号登记篇</a>）。</p>
+
+<h3>除法与取余：截断取向（TS-2）</h3>
+<p>整数除法与取余为<strong>截断取向</strong>，三条执行路一致：SLA 发射 <code>sdiv</code>/<code>srem</code>（<code>lowering_rules.zig</code> 的算术计划）；编译路为 LLVM 的 <code>SDiv</code>/<code>SRem</code>（其语义即截断）；解释路为 <code>@divTrunc</code>/<code>@rem</code>；常量折叠亦同。余数的符号<strong>随被除数</strong>。</p>
+
+<h3>checked 算术的定位（TS-6）</h3>
+<p>sa_std 的 checked 算术族全集恰三个 extern：<code>sa_num_add_checked</code>、<code>sa_num_sub_checked</code>、<code>sa_num_mul_checked</code>（仅 i64，见 <code>sa_std/num.sai</code>）。其定位是 MIR <code>*WithOverflow</code> rvalue 的落点（Rust 流入编译器面），语义为溢出时 <code>panic(code)</code>、不回绕；<code>num.sal</code> 有对应宏镜像供生成的 SA 内联。SLA 层<strong>没有</strong> checked 语法，普通算子不经此族；num 域亦无 wrapping / saturating 具名函数族。普通算子自身的溢出口径见登记册 1 号，其双路对齐属后续批次。</p>
+
+<h3>usize / isize 恒 64 位（TS-8）</h3>
+<p><code>usize</code> / <code>isize</code> 在 SLA 层<strong>恒为 64 位、与目标无关</strong>：检查器尺寸表定为 8 字节，两个 codegen 一律映射到 SA 的 <code>u64</code> / <code>i64</code>，插件没有 target 位宽开关、没有 wasm32 分支。因此 wasm 产物中的 usize 算术同为 64 位，不存在「原生 64 位 vs wasm 32 位」的分岔；口径即 usize 位宽与宿主指针宽度<strong>脱钩</strong>。（指针经 JS number 传递的宿主桥面属 SAX / airlock 层，不在本条口径内。）</p>
+
+<h3>char：SLA 无此类型（正册 3 号）</h3>
+<p>SLA 语言层<strong>不存在 <code>char</code> 类型</strong>：<code>Primitive</code> 枚举无 char，词法与语法均无字符字面量。char 只存在于 SA / std 层：<code>sa_std/char.sal</code> 定 <code>CHAR_SIZE = 4</code>、<code>CHAR_MAX = 1114111</code>（0x10FFFF），并排除代理区（55296–57343）——即 <strong>u32 宽的 Unicode 标量值</strong>宏库（与 Rust <code>char</code> 同义）；<code>sa_std/char.sa</code> 有 <code>CHAR_IS_VALID_SCALAR</code> / <code>CHAR_FROM_U32</code> 校验宏。</p>
+
+<div class="note"><span class="label">待实证</span>移位超宽（移位量 ≥ 位宽）的行为口径尚未落字：三条执行路的源码形态互异，待盒探针实证后钉死（登记 TS-3）。</div>
+
 <p>相关页面：<a href="05_structs_enums.html">结构体与枚举</a>、<a href="06_ownership.html">所有权与生命周期</a>。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>

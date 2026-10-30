@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Rust std × sa_std 表面普查与缺口表</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">与 Rust 对比 &gt; Rust std × sa_std 表面普查与缺口表</div>
+<h1>Rust std × sa_std 表面普查与缺口表</h1>
+
+<p>这一页是 2026-10-27 做的一次<b>双边机械普查</b>：把 Rust 最新 stable 的
+library 源码公共表面逐项抽成清单，再与 sa_std 的全表面清单逐项比对分类。
+它服务于两个既定用途：一是「一切基础核心内置 sa_std」学说的缺口账目，
+二是 bc2sa / slars 两条 Rust 路线在 extern 表面规划时的撞面预测。
+全部数字来自随页入库的脚本与清单（<code>tools/rust_std_census/</code>），可复跑，
+不凭印象下结论。</p>
+
+<h2>来源与版本</h2>
+<table>
+<tr><th>侧</th><th>来源</th><th>版本 / 基点</th></tr>
+<tr><td>Rust</td><td>rustup <code>rust-src</code> 组件的 library/{core, alloc, std} 源码</td>
+<td>rustc 1.99.1（commit 58cf8f9c35b355199727627d07ae34a4e2846d67，2026-10-13，LLVM 23.1.1）</td></tr>
+<tr><td>SA</td><td>sci 仓 sa_std 全目录（.sai / .sal / .sa / .sla）+ src/runtime/sa_std.h</td>
+<td>sci main <code>8a943911</code></td></tr>
+</table>
+
+<h2>方法与覆盖边界</h2>
+<p>抽取是源码级机械扫描：Rust 侧用「净化视图（去注释、字面量内容置空）+ 大括号
+上下文追踪」识别 pub 项与 inherent / trait 声明 / trait impl 方法，含 Rust 1.99 的
+<code>const impl</code> 与多行 impl 头（where 子句）；SA 侧按各层语法分别抽取
+（<code>@extern</code>、<code>#def</code>、<code>[MACRO]</code>、<code>@export</code> / 函数定义、
+SLA 的 fn/const/struct、头文件的函数与 #define）。SA 侧四项计数经独立 grep
+交叉验证精确一致（macro 9413、extern 997、sal_def 1552、sa_fn 131+209）。</p>
+<p>覆盖边界（如实声明）：</p>
+<ul>
+<li><b>不跟踪 <code>pub use</code> 再导出</b>：条目记在定义模块下；个别 crate 内部
+pub 项（如 core::unicode 的生成表）会留在公共计数内，量级小且在原始清单可查；
+std::sys、core::intrinsics、alloc::raw_vec 等内部实现模块单列为「非公共面」剔出分母。</li>
+<li><b>cfg 平台变体逐个计行</b>：同一 API 在 unix/windows 两套定义文件各计一行，
+故另给 distinct（kind, owner, name）口径；ffi_os 域受此影响最大。</li>
+<li><b>macro_rules 只计数不展开</b>（310 条定义行）；宏生成的 impl 不展开，
+可能漏计个别宏生成方法；过程宏不在 library 三 crate 范围内。</li>
+<li><b>「已有等价」是名字/家族级证据</b>：sa_std 存在同名或同族符号即记等价
+（如 <code>String::push_str → STRING_PUSH_STR</code>、<code>HashMap::get → sa_map_get</code>），
+不声称语义逐项对拍过——语义核对是后续补齐线的工作。</li>
+</ul>
+<p>分类四档：<b>已有等价</b>（sa_std 已覆盖，含改名对应）、<b>可直接对应</b>
+（语义可直接落 sa_std、只是没做）、<b>需建模</b>（要句柄/状态机/trait 展开等建模层）、
+<b>模型不合</b>（依赖 SA 模型外的机制，逐条给原因）。每条分类记录了命中的规则编号，
+在 <code>rust_classified.tsv</code> 中可审计。</p>
+
+<h2>总量</h2>
+<table>
+<tr><th>口径</th><th>行数</th><th>说明</th></tr>
+<tr><td>Rust 侧抽取总行数</td><td>13,693</td><td>core 3,940 / alloc 970 / std 8,783（std 含大量平台变体与内部模块）</td></tr>
+<tr><td>其中非公共面</td><td>6,892</td><td>std::sys、core::intrinsics 等内部实现，不进缺口分母</td></tr>
+<tr><td><b>公共表面（分母）</b></td><td><b>6,801</b></td><td>distinct (kind, owner, name) 口径 5,176</td></tr>
+<tr><td>SA 侧清单</td><td>13,130</td><td>12,382 个 distinct 名字：extern 997、macro 9,413、sa_fn 340、sal_def 1,552、SLA 面 102、sa_std.h 726</td></tr>
+</table>
+<table>
+<tr><th>分类</th><th>行数</th><th>占公共表面</th></tr>
+<tr><td>已有等价</td><td>841</td><td>12.4%</td></tr>
+<tr><td>可直接对应（缺口）</td><td>4,383</td><td>64.4%</td></tr>
+<tr><td>需建模（缺口）</td><td>1,453</td><td>21.4%</td></tr>
+<tr><td>模型不合（缺口）</td><td>124</td><td>1.8%</td></tr>
+</table>
+<p>读法：缺口总量 5,960 行里，近三分之二是「可直接对应」——不是设计问题，
+是没做完；真正的设计题只有「需建模」的 1,453 行，且高度集中在少数几个域。</p>
+
+<h2>按域计数</h2>
+<table>
+<tr><th>域</th><th>总量</th><th>已有等价</th><th>可直接对应</th><th>需建模</th><th>模型不合</th></tr>
+<tr><td>num（基本数值与运算符）</td><td>1,326</td><td>27</td><td>1,206</td><td>93</td><td>0</td></tr>
+<tr><td>ffi_os（FFI 与 OS 扩展面）</td><td>1,217</td><td>30</td><td>1,112</td><td>75</td><td>0</td></tr>
+<tr><td>collections（集合与智能指针）</td><td>781</td><td>304</td><td>458</td><td>19</td><td>0</td></tr>
+<tr><td>string_str（String / str / char）</td><td>457</td><td>112</td><td>309</td><td>36</td><td>0</td></tr>
+<tr><td>mem（内存与指针原语）</td><td>452</td><td>15</td><td>426</td><td>11</td><td>0</td></tr>
+<tr><td>sync（同步原语）</td><td>429</td><td>99</td><td>74</td><td>256</td><td>0</td></tr>
+<tr><td>slice（切片与数组）</td><td>273</td><td>42</td><td>200</td><td>31</td><td>0</td></tr>
+<tr><td>io（Read/Write 体系）</td><td>235</td><td>6</td><td>0</td><td>229</td><td>0</td></tr>
+<tr><td>iter（迭代器）</td><td>222</td><td>1</td><td>0</td><td>221</td><td>0</td></tr>
+<tr><td>fs（文件与路径）</td><td>183</td><td>39</td><td>140</td><td>4</td><td>0</td></tr>
+<tr><td>net（网络）</td><td>170</td><td>4</td><td>163</td><td>3</td><td>0</td></tr>
+<tr><td>fmt（格式化）</td><td>161</td><td>4</td><td>0</td><td>157</td><td>0</td></tr>
+<tr><td>other（未归域）</td><td>141</td><td>5</td><td>69</td><td>62</td><td>5</td></tr>
+<tr><td>option_result</td><td>105</td><td>76</td><td>29</td><td>0</td><td>0</td></tr>
+<tr><td>cell（内部可变性）</td><td>88</td><td>13</td><td>74</td><td>1</td><td>0</td></tr>
+<tr><td>process_env（进程与环境）</td><td>87</td><td>5</td><td>30</td><td>52</td><td>0</td></tr>
+<tr><td>panic</td><td>81</td><td>1</td><td>1</td><td>4</td><td>75</td></tr>
+<tr><td>async（Future/Waker）</td><td>78</td><td>25</td><td>0</td><td>53</td><td>0</td></tr>
+<tr><td>time</td><td>75</td><td>24</td><td>49</td><td>2</td><td>0</td></tr>
+<tr><td>marker_meta（标记与 Any）</td><td>65</td><td>0</td><td>0</td><td>21</td><td>44</td></tr>
+<tr><td>thread</td><td>60</td><td>4</td><td>0</td><td>56</td><td>0</td></tr>
+<tr><td>cmp</td><td>47</td><td>1</td><td>39</td><td>7</td><td>0</td></tr>
+<tr><td>convert（From/Into 等转换 trait）</td><td>37</td><td>3</td><td>0</td><td>34</td><td>0</td></tr>
+<tr><td>error</td><td>31</td><td>1</td><td>4</td><td>26</td><td>0</td></tr>
+</table>
+
+<h2>缺口分类要点</h2>
+<h3>可直接对应（4,383）：主体是「逐类型展开」与「平台扩展面」</h3>
+<p>最大的三块是 num 的 1,206（基本类型 inherent 方法的逐类型展开——每个整数/浮点
+类型各有数十个方法，SA 以运算符/内建 + 数学 extern 覆盖大半，余下是机械核对的长尾）、
+ffi_os 的 1,112（std::os 的 unix/windows 扩展 trait 方法，按平台各计一行，
+是直接的 syscall/句柄访问面）、mem 的 426（指针/内存原语，本就是 SA 的原生面）。
+这三块合计占全部可直接对应缺口的六成以上，没有设计争议，只有工作量。
+collections（458）与 string_str（309）、slice（200）是纯数据结构与字节算法，
+属同一性质。公共面 const 共 353 条散在各域，多为基本类型的关联常量，
+可与 AJ 式常量补齐打包处理。</p>
+<h3>需建模（1,453）：五个建模题</h3>
+<ul>
+<li><b>迭代器</b>：iter 域 221 + 各集合/字符串/切片域中「返回迭代器」的方法 35 条
+（规则 R-iter-return），加上以迭代器为输入的方法（如 <code>extend</code> 家族）。
+sa_std 现有的 ts_arr_* 是急切数组函数，只覆盖「数组进、数组出」的子集，
+与惰性适配器链不等价——这是五个题里影响面最大的。</li>
+<li><b>io 句柄面</b>：io 域 235 条中 229 条需建模。sa_std 不缺具体的读写 extern
+（fs/net 各有自己的），缺的是 Read/Write/Seek/BufRead 的统一句柄对象面。
+注意 Rust 1.99 已把 io 的基础部分下沉到 core::io / alloc::io，本普查按定义模块
+归域后 io 域以这三处合计。</li>
+<li><b>格式化</b>：fmt 域 157 条全需建模（Display/Debug/Formatter 体系），
+另有宏面 266 条需建模中包含 format!/println! 家族（宏按定义域归类）。</li>
+<li><b>同步</b>：sync 域 256 条需建模，主体是 mpsc/mpmc 通道与 poison/nonpoison
+锁家族、Once/LazyLock 惰性初始化；原子与引用计数面（99 已有等价 + 一批直接对应）
+已有基础，缺的是阻塞等待与通道的状态模型。</li>
+<li><b>其余</b>：thread 56（句柄/join/TLS）、async 53（Waker 面）、
+process_env 52（Command 构建器与子进程管道）、error 26 与 convert 34
+（trait 体系的展开面）、trait 本体 166 条（规则 R-trait，散在各域）。</li>
+</ul>
+<h3>模型不合（124）：是结论不是缺陷</h3>
+<p>panic 域 75 条（展开机制、panic 钩子、回溯——SA 无 panic 展开模型，
+错误面以状态码与显式失败路径表达）与 marker_meta 44 条（Any/downcast 依赖 RTTI、
+Send/Sync 等标记 trait 是类型系统层声明，在 SA 模型中被擦除）合计占模型不合的 96%。
+这类条目不应进补齐名单；写 Rust 侧代码时应以显式错误与显式资源管理替代。</p>
+
+<h2>优先补齐短名单</h2>
+<ol>
+<li><b>迭代器建模层</b>（iter 221 + 跨域 35+）：Rust 代码的第一高频构造，
+slars 人写面与 bc2sa 机器面共同的第一堵墙；先做 Iterator 状态机句柄 +
+常用适配器（map/filter/zip/enumerate/chain/collect 落点）。</li>
+<li><b>格式化建模层</b>（fmt 157 + format 宏家族）：format!/println! 是 slars
+宏白名单与 bc2sa 探针 (b) 档 format_args 的共同落点，是 Rust 输出面的地基。</li>
+<li><b>io 统一句柄模型</b>（io 229）：fs/net/process 的上层 io 都踩它；
+与学说中 http/ws 等内置核心的内部接口对齐，避免各域各造一套读写面。</li>
+<li><b>sync 建模批</b>（sync 256）：mpsc/mpmc 通道 + Once/LazyLock + poison 锁家族，
+在既有 mutex/mpsc 基础面上扩成完整模型。</li>
+<li><b>num 逐类型核对批</b>（num 直接对应 1,206 + 公共 const 353）：全普查最大的
+「只是没做」，无设计风险，适合批处理；bc2sa 的整数/浮点指令语义最终也落到这批上。</li>
+<li><b>collections / string / slice / mem 的 direct 长尾</b>（458+309+200+426）：
+其中 Vec/String/slice 正是 bc2sa 探针 (b) 档撞墙后要落的 alloc 表面，
+补齐它们等于给 bc2sa 路线铺 extern 地基。</li>
+<li><b>net / fs 的 direct 补齐</b>（163+140）：net 主体是 IpAddr/SocketAddr 解析与
+socket 选项（该家族在 Rust 1.99 已下沉 core::net），fs 主体是路径与元数据扩展面，
+小步无争议，贴合「基础核心全内置」。</li>
+<li><b>async 对齐面</b>（async 53）：面小但位置关键——SLA 已有 task poll 运行时，
+差的是与 Rust Future/Waker 形状的对齐层，bc2sa 转换 async 代码时必撞。</li>
+</ol>
+
+<h2>复跑方法</h2>
+<p>脚本与清单在 <code>tools/rust_std_census/</code>：<code>extract_rust.py</code>
+（参数：rust-src 的 library 目录、输出路径）、<code>extract_sa.py</code>
+（参数：sci 仓根、输出路径）、<code>classify.py</code>（参数：两份清单、输出路径，
+同时打印 summary.json 的内容）。分类规则全部在 classify.py 内且逐行记录规则编号，
+调整口径后重跑即可刷新本页数字。</p>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>移动端转译：sla2swift 与 sla2kotlin</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; 移动端转译：sla2swift 与 sla2kotlin</div>
+
+<div class="note">状态：方向裁定记录（2026-10-29，用户定）。本页登记 SLA 写 Android / iOS 的路线裁定（采双转译器）与形态约束；设计普查进行中，细则以普查产出为准。本方向为<strong>支线</strong>，总定序见 <a href="13_goroutine_runtime.html">13 号文档</a>第九节与 <a href="17_verse_game_profile.html">17 号文档</a>第四节。</div>
+
+<h2>一、需求：产物交付客户、客户只用 Swift / Kotlin</h2>
+<p>用户定（2026-10-29）：SLA 除了能写前端与后端，还要能<strong>直接写 Android / iOS</strong>。决定性的约束不在技术面、而在<strong>交付形态</strong>：移动端产物是<strong>交付给客户</strong>的，客户明确要用 <strong>Swift 与 Kotlin 两门语言</strong>，且<strong>不熟悉 SA / SLA</strong>。也就是说，客户须以这两门语言的<strong>源码形态</strong>接收产物、在自己的工具链（Xcode / Android Studio）内继续维护；交付一个他们读不懂的中间形态不成立。</p>
+
+<h2>二、三路线与裁定：A、B 否决，采 C</h2>
+<ul>
+<li><strong>A — SA 原生编译 arm64 + C ABI 薄胶水（否决）</strong>。SLA 经 SA 编译为 arm64 原生产物、以 C ABI 对外、宿主侧写一层薄胶水接入平台。此路线让客户面对的不是 Swift / Kotlin 源码，交付形态不合第一节约束。</li>
+<li><strong>B — 经 SA 的 C 发射器（否决）</strong>。产物为 C 源码、再由客户侧桥接进 Swift / Kotlin。客户明确要两门语言本身，中间隔一层 C 同样不合交付形态。</li>
+<li><strong>C — sla2swift + sla2kotlin 双转译器（采纳）</strong>。SLA 源码直接转译为 Swift 源码与 Kotlin 源码，客户以原生工程形态接收并共维。A、B 系主会话分析所提，经用户于 2026-10-29 明确否定；本生态此前唯一成立 C 的情形即「产物须以目标语言源码分发」，移动端恰属此情形。</li>
+</ul>
+
+<h2>三、形态约束</h2>
+<ul>
+<li><strong>发射层级</strong>：两个转译器的输入为 <strong>SLA 检查之后（宜单态化之后）的 AST</strong>，与现有文本 / SAB 双 codegen <strong>同源</strong>；<strong>不走 SA 寄存器层</strong>（寄存器层的形态无法产出客户可读可维护的目标语言源码）。</li>
+<li><strong>无忠实映射处响亮拒绝</strong>：SLA 语义（所有权与移动、goroutine 并发等）在 Swift / Kotlin 无忠实对应的，一律<strong>显式报错拒绝</strong>，禁止静默近似——tsgosa 方言的教训即在于此（看似等价的表面转换、语义悄悄变样）。拒绝清单由设计普查逐项圈定并落字，不留隐含行为。</li>
+<li><strong>目标语言运行时支持面</strong>：String、Vec 与集合、并发原语等 SLA 概念在目标侧由一套随转译器交付的<strong>运行时支持代码</strong>（Swift / Kotlin 各一份）承接映射，转译产物依赖此面而非逐处内联展开；支持面的范围与形态由设计普查定义。</li>
+</ul>
+
+<h2>四、状态与排程</h2>
+<p>设计普查线已派：产出 sla2swift / sla2kotlin 的<strong>映射表、不支持清单与分期建议</strong>（存 <code>~/workspace/sla2mobile/DESIGN.md</code>），完成状态以其终报为准。本方向定位为<strong>支线</strong>：全程序总定序（Erlang + goroutine 综合体 → 三台并发性能改进 → Verse / Haskell 特性）<strong>不变</strong>，用户未另行提级之前，本线只做设计普查登记，<strong>不挤占主线施工面</strong>。</p>
+
+<p>相关讨论：<a href="14_cpp2sa_go2sa.html">cpp2sa 与 go2sa：两个新前端的立项讨论</a>（方向相反：彼为他语言入 SA，此为 SLA 出目标语言）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（并发语义来源，映射难点之一）。</p>
+
+<p>后续（2026-10-29 晚）：本方向与 SAX 跨平台、sla2ts 三支线的总判、用户裁定链与所挖底层不足登记全表（43 条），见 <a href="19_side_tracks_foundation_gaps.html">19 号文档《支线研究与底层不足登记》</a>。</p>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

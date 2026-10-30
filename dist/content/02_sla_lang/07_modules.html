@@ -104,6 +104,16 @@ impl Meter {
 <div class="warning"><span class="label">警告</span>模块级 method-style 调用必须显式声明
 <code>using</code>；没有 <code>using</code> 时，对非 impl 方法的链式调用会在前端报“未找到方法”。</div>
 
+<h2>顶层 const 与初始化契约</h2>
+<p>SLA 没有顶层可变状态这一形态：顶层声明中只有 <code>const</code>，没有 var / global 声明节点。「顶层初始化」的契约因此分编译期 const 与运行时 globals 两面：</p>
+<ul>
+<li><strong>const 是编译期构造、无运行时求值序</strong>：检查器在查函数之前设专门 pass，按展开后声明的顺序逐个登记顶层 const，登记时即检查初值并定义符号。引用只能及于已登记者：引用排在其后的 const 在代码路径上以 <code>UndefinedVariable</code> 失败（<strong>此失败形态系代码路径推定，未做探针实证</strong>）；别名环（<code>const A = B; const B = A;</code>）同理由此失败——响亮，但诊断名是未定义变量，没有专门的循环诊断。</li>
+<li><strong>codegen 的折叠与声明序无关</strong>：标量 const（字面量、标量别名、标量二元式）以迭代不动点逐跳折叠、在使用点内联，不生成任何运行时代码。这与检查器登记序构成一处名实不符的形态事实：折叠器本可处理前向引用，检查器先拒——现状如此，写程序时以登记序为准。</li>
+<li><strong>非标量 const 是静态数据</strong>：字符串 / 数组 / 结构体字面量、vtable 形（含 @embed 脱糖产物）发为 SA <code>@const</code> 静态数据进数据段，程序启动时没有求值动作、无顺序可言。</li>
+<li><strong>import 展开序</strong>：深度优先、依赖先行、每模块只展开一次；import 环由去重自然终止（不报错、不重复展开）。展开序即 const 登记序的跨模块部分。</li>
+<li><strong>运行时 globals（<code>sa_global_*</code>）无静态初始化</strong>：没有先于 main 的初始化段；条目由运行期的首个 <code>set</code> / <code>add</code> / <code>set_once</code> 在执行点惰性创建，<code>get</code> 未建键返回状态码 <code>NOT_FOUND=3</code> 且<strong>不写出参</strong>。故 globals 的「初始化顺序」就是程序执行顺序本身。对未建键 get 期望得到 0 值的写法与本契约不符（语法批签名 D 的落差即出于此）。globals 的同步纪律见 <a href="../01_overview/13_goroutine_runtime.html">goroutine 运行时页</a>第十二节内存模型。</li>
+</ul>
+
 <p>相关页面：<a href="08_extensions.html">扩展机制</a>、<a href="06_ownership.html">所有权与生命周期</a>。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>

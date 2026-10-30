@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>支线研究与底层不足登记</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; 支线研究与底层不足登记</div>
+
+<div class="note">状态：裁定与登记记录（2026-10-29，用户定）。本页汇总当日三条<strong>支线研究</strong>（移动转译、SAX 跨平台、sla2ts）的总判与定位、用户裁定链，以及三研究所挖<strong>底层不足的登记全表（43 条）</strong>。三支线均<strong>不立项、仅讨论</strong>，待现行程序（goroutine、Erlang 综合体、nginx、redis、db、sab 等）全部完成后再考虑；登记的底层不足则要改进，其中所涉 std / 运行时 / 语义面改进已按最新裁定<strong>升为优先</strong>。移动方向本身的讨论记录见 <a href="18_mobile_transpile.html">18 号文档</a>。</div>
+
+<h2>一、支线三探针：总判与定位</h2>
+<p>三条支线的共同定位（用户 2026-10-29 18:32–18:38 先后定）：<strong>不立项、不落代码、仅讨论与研究</strong>；研究的价值不在方向本身先行，而在以外部目标为<strong>探针</strong>，照出我方栈（SLA / SA / sa_std / SAX）自身未明文的语义与缺失面——sla2ts 线更被明确订正为「<strong>挖掘底层不足为首要目的，安全性 / 保真不是考虑的优先级</strong>」。三份研究报告存本机 <code>~/workspace/sla2mobile/FEASIBILITY.md</code>、<code>~/workspace/sax-crossplatform/FEASIBILITY.md</code>、<code>~/workspace/sla2ts/FEASIBILITY.md</code>，登记册原件存 <code>~/workspace/foundation-gaps/REGISTER.md</code>；本页第三节即登记全表的落字版。</p>
+<ul>
+<li><strong>探针一 · 移动转译（sla2swift / sla2kotlin）——总判：有条件可行。</strong>发射层级唯一可行 = <strong>单态化后 + 检查后 AST（lowering 前）</strong>：泛型已实例化（泛型映射与约束空壳问题整体消失）、并发构造仍是原生节点、所有权信息可见，且正是现有 syntax_lowering 与双 codegen 的共同输入形态；SA 寄存器层发射对客户交付不可行（产物不可读）。两目标难度不对称：Kotlin 侧整体顺（Channel / select 近直映，主要成本在所有权拷贝纪律）；Swift 侧所有权面更贴（<code>~Copyable</code> 近 1:1），但标准库无通道、无 select，actor 自建通道 + 多路等待是全案最重的单件工程。直映面含 async/await、状态码模型、trait 静态分发；String 两侧均须支持面字节串类型承接（SLA 是 UTF-8 字节串语义）；拒绝面 = 原始指针 / 布局依赖 / 宏定义 / 子集外 extern。支持面量级 Swift 约 4–7 千行、Kotlin 约 2–3.5 千行；双目标 v1 约 2–4 人月（未校准估计）；验收法 = 三方差分对拍（SA 原生 vs Swift vs Kotlin 同程序）。</li>
+<li><strong>探针二 · SAX 跨平台 UI（五面：web / Windows / iOS / Android / TUI）——总判：有条件可行。</strong>三条件全在 SAX 语义层：① 布局 / 样式语义入 SAX（现状布局全靠浏览器 CSS、SAX 自身零布局语义，是头号地基）；② 原语契约补语义 / 无障碍通道与能力协商通道；③ 声明式子集剖面成文。路线以 <strong>(c) 宿主胶水泛化</strong>为骨干（web 链即活证：约 25 个宿主 extern、JS 桥只用 8 类 DOM 操作），(a) 原生控件映射降为其宿主实现策略，(b) 自绘被<strong>文本引擎零存量</strong>卡死只作 sidecar。落地顺序建议：web 基线 → TUI（最便宜的新面、首验地基）→ Windows via WebView2 → WinUI 原生后置 → iOS / Android 最后（与转译线耦合最深）。移动交叉倾向：SAX 声明式子集转译落 SwiftUI / Compose（设备侧运行时交付的是 SA 黑盒，与客户只收源码的裁定相悖），命令式 dom_* 逃逸须响亮拒绝并成文为 profile。</li>
+<li><strong>探针三 · sla2ts（SLA → TypeScript）——首要产出：26 条底层不足（TS-1…TS-26，见第三节附表）</strong>；可行性只作次要速判：差分测试资产用途<strong>成立</strong>（回报最直接——对拍分岔的归因过程正是 26 条的取证过程）；npm 纯逻辑交付与迁移回退路<strong>条件成立</strong>；前端共享与 CXU 已定的 wasm 路线冲突、<strong>不成立</strong>。发射层级 (b) 复核成立且更硬：现行管线单态化（:683）<strong>先于</strong>检查（:723)，层级 (a) 在管线中根本不存在；数字表示（number vs BigInt）须按具体类型定型。</li>
+<li><strong>附 · slats 定性（消歧）</strong>：GitHub 仓 layola13/slats（HEAD <code>b5ff4b83</code>）<strong>不是 sla2ts</strong>——它是把 tsrs（TypeScript 编译器的 Rust 重写）<strong>移植进 SLA</strong> 的工程，方向与 sla2ts 相反（以 SLA 为实现语言写一个 TS 编译器，属 X→SLA 流入家族）。真转完的只有 span-map 管线（spanmap 15/15)，其余为 pending 镜像桩。它浮现的两个我方缺陷已登记为候选 16 / 17（待核）。</li>
+</ul>
+
+<h2>二、用户裁定链（2026-10-29）</h2>
+<ul>
+<li><strong>18:15 移动方向定调 C</strong>：SLA 达 Android / iOS 采 sla2swift + sla2kotlin 双转译器（产物交付客户、客户只用 Swift / Kotlin 且不熟悉 SA/SLA，是分发形态需求）；A（SA 原生 + C ABI 胶水）、B（经 C 发射器）被明确否定。形态共识：发射在检查后 / 单态化后 AST、无忠实映射处响亮拒绝、配目标侧运行时支持面。记录见 18 号文档。</li>
+<li><strong>18:17 全生态愿景</strong>：「我希望 sla/sa 成为全生态的语言」——SA 为冻结的共同底座、SLA 为主前端：后端（SA native）、前端（SA wasm + SAX 胶水）、移动端（转译交付客户）、代码流入面（tsgosa / bc2sa / d.ts2sai / sla convert、slars 承接 Rust)、游戏（Verse 插件线 + sla_ecs)、分发（插件 npm 化）。</li>
+<li><strong>18:18–18:19 降为仅讨论</strong>：「仅讨论，包括 swift、kotlin」——不立项、不落代码；其间派出的设计普查线停派、sala 落字线在被停前已推送 18 号，用户定：18 号留作讨论记录。继而 <strong>18:20 订正：「不落代码不代表不研究，你研究可行性」</strong>——可行性研究线重派，纯研究无代码。</li>
+<li><strong>18:24–18:25 SAX 五面定调</strong>：SAX 作为通平台 UI 层，平台面共五面 = web / Windows / iOS / Android / <strong>TUI</strong>（TUI 系用户补入，sa_plugin_tui 已有存量）；定位为支线研究、不落代码。</li>
+<li><strong>18:32 总口径定</strong>：移动转译与 SAX 跨平台<strong>不立、仅讨论</strong>；但两份研究挖出的<strong>底层不足要改进</strong>（随现行程序顺路推进、不为它们新开大线），汇总登记成本页第三节的全表。</li>
+<li><strong>18:33 再确认时序</strong>：上述方向<strong>等现行 todo 程序全部完成后再考虑</strong>——现行程序 = goroutine、Erlang 综合体、nginx（slanginx）、redis（slaredis）、db、sab 等。</li>
+<li><strong>18:34 / 18:38 sla2ts 讨论开启并定位订正</strong>：sla2ts 可能性列入支线讨论；随即订正其首要目的为<strong>挖掘我方底层不足</strong>（以 TS 为探针照未明文语义与缺失面），<strong>安全性 / 保真不是考虑的优先级</strong>，不许以「不安全」为由收缩探索面。</li>
+<li><strong>18:42–18:44 slats 消歧</strong>：用户提及既有仓 slats 问是否同一目标，主会话直查确认<strong>不一样</strong>（见第一节附），用户确认记起。</li>
+<li><strong>18:50 最新裁定：优先级修复我们的 std</strong>——26 条新挖不足「很好」；登记册全表所涉 <strong>std / 运行时 / 语义面改进升为优先</strong>；同令把本轮讨论与登记<strong>记录入 sala</strong>（即本页）。</li>
+</ul>
+
+<h2>三、底层不足登记全表（43 条）</h2>
+<p>正册 15 条（编号 1–15）出自移动与 SAX 两份研究；候选 16 / 17 由 slats 仓浮现、待核；附表 TS-1…TS-26 出自 sla2ts 研究（其编号与正册 A/B/C/D 分组同名不同系，引用时带 TS- 前缀）。「须查」= 口径可能已在实现中、只是未取证未明文，改进第一步是查证而非设计。本表与登记册原件（<code>~/workspace/foundation-gaps/REGISTER.md</code>）同为记录，两处不一致时以裁定与查证的更新为准。</p>
+
+<h3>正册 A 组 · SLA/SA 语义明文缺口</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>1</td><td><strong>整数溢出语义无明文口径</strong>：sala 未载 SLA/SA 溢出语义，外部参照三方默认值互不相同（Swift trap、Kotlin/JVM 回绕、JS f64 塌陷）；双后端（文本/SAB）实现是否一致尚未查，若不一致即现行编译器缺陷。</td><td>全生态地基：一切跨后端 / 跨目标一致性</td><td>已登记；查 sci 双 codegen 定事实口径 → 落字 → 不一致按缺陷修（带语料回归）。量级小（修复量视查证）</td></tr>
+<tr><td>2</td><td><strong>sa_chan_select 多臂就绪选择策略无明文</strong>：声明序偏置还是均匀 / 随机未取证，直接影响 select 公平性。</td><td>goroutine 语法批本体</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十一节——即时阶段声明序偏置 + 停泊后先到先得（非 Go 式均匀选择）；是否改均匀选择仍待裁定</td></tr>
+<tr><td>3</td><td><strong>SLA <code>char</code> 类型精确语义未明文</strong>：宽度 / 编码未定。</td><td>基本类型映射与文本处理</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/02_types「算术与类型契约」节——SLA 无 char 类型；std char = u32 Unicode 标量</td></tr>
+<tr><td>4</td><td><strong>检查器消费判定不以数据形式暴露</strong>：move/copy 分类是检查器内部状态，无 (prog, tc) 附表，任何「第三消费者」（转译器、分析工具）都须重走流分析。</td><td>一切 AST 消费者</td><td>仅登记、不排期；远期落为检查器附表输出。量级中</td></tr>
+</table>
+<p>（关联已办：泛型约束 <code>&lt;T: Trait&gt;</code> 空壳问题已由 bounds 批处理——响亮报错落地、候门禁，不在本表重复。）</p>
+
+<h3>正册 B 组 · sa_std / 运行时存量缺口</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>5</td><td><strong>文本引擎零存量</strong>：全栈无字体加载 / 字形 shaping / 行布局（wgpu.sai 13 extern 零文本；sa_std/text 只有 regex 与文本处理）。</td><td>任何 GUI 自绘路线的地基；web/TUI 不受影响（浏览器 / 终端排版）</td><td>仅登记；大件，不在现行程序内启动，自绘路线升主路线时须单独立项评估</td></tr>
+<tr><td>6</td><td><strong>extern 传递闭包未普查</strong>：语料直接书写 sa_* 的文件很少（25/1588)，但经 sa_std SLA 包装层的传递触达面未知。</td><td>一切「子集」类决策（转译子集、插件面裁剪）的证据基础</td><td>已登记；机械普查一次（纯本地可做）。量级小–中</td></tr>
+</table>
+
+<h3>正册 C 组 · SAX 语义层缺口（CXU Phase 2 正在咬）</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>7</td><td><strong>布局语义真空（头号）</strong>：SAX 无任何布局构造，web 全靠浏览器 CSS，class/style 为不透明字符串。</td><td>CXU 前端地基；一切非 web 面</td><td>已登记；定义可移植 flex 子集布局 + 盒模型 + <strong>求解语义</strong>入 SAX（非属性表；RN/Yoga 为参照）。量级中–大</td></tr>
+<tr><td>8</td><td><strong>声明式条件 / 列表渲染缺位</strong>：if/each 在 CXU .sax 骨架中只是注释标记（ChatRow 单文件 85 if / 16 each），无可执行构造；动态列表靠命令式 DOM 逃逸手写。</td><td>CXU 前端日常负载（聊天流、表格、文件树）</td><td>已登记；补 if/each 声明式构造 + 正式剖面（可移植子集 vs 命令式逃逸的边界成文）。量级中</td></tr>
+<tr><td>9</td><td><strong>样式系统缺位</strong>：无类型化样式、无主题 / 暗色模型，MUI 组件库样式寄生 CSS。</td><td>同 7</td><td>已登记；随第 7 条一并定义可移植样式子集。量级中</td></tr>
+<tr><td>10</td><td><strong>IME 组合输入全栈无证据</strong>：composition 事件在 SAX 原语 / airlock 桥中无任何面，五面各有各的 composition 协议。</td><td>CXU 是中文聊天应用——现行硬伤，非远期问题</td><td>已登记；原语契约补 composition 事件通道（先 web 面落地验证）。量级小–中</td></tr>
+<tr><td>11</td><td><strong>无障碍语义通道缺位</strong>：原语契约无 role/label/焦点序 / 语义动作的位置。</td><td>一切自绘或映射面</td><td>已登记；契约修订时预留语义通道（后补税远高于预留）。量级小（预留）/ 大（后补）</td></tr>
+<tr><td>12</td><td><strong>焦点与键盘导航模型缺位；动画缺位；手势 / 滚动（含虚拟化）未证；双向绑定缺位</strong>。</td><td>桌面 / TUI / 移动各面的日常交互</td><td>已登记候排；随 SAX 语义层修订批次逐项补。各小–中</td></tr>
+</table>
+
+<h3>正册 D 组 · TUI 宿主面缺口（sa_plugin_tui README 自列）</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>13</td><td><strong>五项待建</strong>：① 转义序列 → 类型化事件解码；② resize 事件队列；③ cell/frame 表面 + diff 提交；④ PTY/ConPTY 监督；⑤ 宿主回调 ABI。现插件仅是终端宿主适配器（354 行、7 extern）。</td><td>CXU 的 fx TUI 栈在等这层</td><td>已登记候排；随 TUI 面推进逐项建（③ 是 ratatui 式定式）。合计中</td></tr>
+</table>
+
+<h3>正册 E 组 · 工具链与文档实证缺口</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>14</td><td><strong>Windows 构建未实证</strong>：sax/sla 插件与 sci 宿主在 Windows 上的构建 / 测试无仓内记录（tui 插件有 windows 产物实证）。</td><td>CXU 本体是 Windows 应用</td><td>已登记；一次 Windows 环境实测并留记录。量级小（修复视结果）</td></tr>
+<tr><td>15</td><td><strong>SAX 自身文档性缺口</strong>：事件完整封闭表未逐一验；<code>@sax_selective_render</code> / <code>@sax_updater_render</code> 语义与成熟度未查清（各仅 1 处引用）。</td><td>SAX 契约面认知完整性</td><td>已登记；读 parser/lowerer 对应段补齐记录。量级小</td></tr>
+</table>
+
+<h3>候选条目（slats 仓浮现，待核）</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>16</td><td><strong>SA 验证器 PhiStateConflict 误报（候选）</strong>：借用参数在循环内经 <code>VEC_PUSH</code> update-via-move 的合法形态被验证器误报，slats 仓自带补丁 <code>patches/sa-phi-borrow-rewrite.patch</code> 才过。</td><td>SA 验证器正确性</td><td>候选待核：该误报在当前 sci 主线是否仍在（补丁针对的版本口径待对）</td></tr>
+<tr><td>17</td><td><strong>SAB 直通后端对某些 Vec 形态 UnsupportedSabDirectFeature（候选）</strong>：slats 的 spanmap 代码形态被 SAB 直通拒绝、只能走 legacy .sa 后端跑测试。</td><td>SAB 后端覆盖面</td><td>候选待核：具体哪种 Vec 用法形态触发（我方语料大量 Vec 在 SAB 可跑，此条应为特定形态）</td></tr>
+</table>
+
+<h3>附表 A′ · TS 探针：数字与算术</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>TS-1</td><td><strong>整数除零行为未明文</strong>：trap / 状态码 / 未定义无载；双后端若不一致即现行缺陷。</td><td>一切算术代码</td><td>已登记；查双 codegen + 落字（随 A 组钉死批）</td></tr>
+<tr><td>TS-2</td><td><strong>除法 / 取余取向未明文</strong>（截断 / 地板 / 欧几里得）：Zig 双算子并存、发射端选错即静默变义；双后端与 std 包装层一致性未验。</td><td>一切算术代码</td><td><strong>口径已落字（2026-10-29）</strong>：02_types「算术与类型契约」节——截断除法、余数符号随被除数，三条执行路一致</td></tr>
+<tr><td>TS-3</td><td><strong>移位超宽行为未明文 + 硬件掩码分岔嫌疑</strong>：x86 掩码 6 位，<code>x &lt;&lt; 64</code> 双后端可能已分岔，可探针实证。</td><td>bitpack / 哈希类代码</td><td>已登记；探针实证 → 钉口径</td></tr>
+<tr><td>TS-4</td><td><strong>数值转换语义未成文</strong>：float→int 越界 / NaN、int↔int 截断无 <code>as</code> 族边界口径。</td><td>一切跨类型数值代码</td><td>已登记；查实现定口径落字</td></tr>
+<tr><td>TS-5</td><td><strong>浮点文本形态族未明文</strong>：f64→十进制算法与往返保证、科学计数阈值、f32 中间舍入、数学函数域错误（NaN 还是 trap）四点全空（移动研究曾列「不可作行为依据」，本条正式立目）。</td><td>格式化 / 打印 / 协议文本面</td><td>已登记</td></tr>
+<tr><td>TS-6</td><td><strong>（正册 1 号补证，不另立目）</strong>checked 算术仅以 num 域 3 个 extern 存于 std 角落——「默认不检查」至今只是从 std 形状反推的推断、不是契约。</td><td>同 1 号</td><td><strong>口径已落字（2026-10-29）</strong>：02_types「算术与类型契约」节——checked 族定位成文（MIR *WithOverflow 落点、SLA 无 checked 语法）；溢出总口径随 1 号在批二裁定</td></tr>
+<tr><td>TS-7</td><td><strong>字面量定型规则与边界未成文</strong>：无后缀字面量默认定型、i64 最小值负字面量边角、进制 / 后缀全集均无明文（≥2^63 部分已在 backlog，本条补全图景）。</td><td>语言表面完整性</td><td>已登记</td></tr>
+<tr><td>TS-8</td><td><strong><code>usize</code>/<code>isize</code> 位宽随目标口径未明文</strong>：原生 64 位 vs CXU 前端 wasm 32 位，同一 SLA 程序的算术 / 序列化在自家两目标上即可分岔。</td><td><strong>咬现行程序</strong>：A 方案「前后端同源」承诺的地基</td><td><strong>口径已落字（2026-10-29）</strong>：02_types「算术与类型契约」节——SLA 层恒 64 位、与宿主指针宽度脱钩；双目标分岔经定性普查证不存在（原担忧不成立）</td></tr>
+</table>
+
+<h3>附表 B′ · TS 探针：字符串 / 集合 / 派生</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>TS-9</td><td><strong>String 的 UTF-8 有效性不变式未明文</strong>：字节句柄可装任意字节，string 域 25 extern 哪些假设文本、哪些纯字节未逐个标明，语言层无文本 / 字节类型区分。</td><td>string 域全部消费者</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/04_string「字节 / 文本口径」节；string.sai 逐行注记属 std 批、不在本批</td></tr>
+<tr><td>TS-10</td><td><strong>String 序关系未明文（须查）</strong>：UTF-8 字节序 = 码点序，但一切有序输出悬于 Ord 实现（memcmp 与否）一查。</td><td>BTreeMap 键序与有序输出</td><td>已登记；查 Ord 实现定口径</td></tr>
+<tr><td>TS-11</td><td><strong>HashMap 哈希种子与迭代顺序口径未明文</strong>：种子策略（进程随机 / 固定）未查未载，「顺序无保证」未落字；程序可能已暗中依赖当前实现的偶然顺序。</td><td>一切 HashMap 消费者</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/05_collections「哈希种子与迭代序口径」节——固定种子、无进程随机化；迭代序契约为无保证</td></tr>
+<tr><td>TS-12</td><td><strong>@derive 派生语义未成文</strong>：派生 Eq 对 f64 字段用 IEEE ==（NaN 破自反性）还是位相等、派生 Ord 字段序、派生 Hash 与 Eq 一致性及跨后端稳定性、enum 判别值是否契约——四点全空。</td><td>结构体作 HashMap 键的全部代码</td><td>已登记</td></tr>
+</table>
+
+<h3>附表 C′ · TS 探针：并发与运行时</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>TS-13</td><td><strong>goroutine 让出 / 抢占点集合未明文</strong>（正册 2 号姊妹）：只有「协作式」定性口径；确切集合（通道点？调用点？循环回边？）未枚举。</td><td><strong>咬语法批本体</strong>；v2 预算让出的对照基线</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十一节——让出点集已枚举（显式 yield + 阻塞运行时调用集），与 2 号同批落字</td></tr>
+<tr><td>TS-14</td><td><strong>可阻塞性未进入签名 / 效应面</strong>（正册 4 号并发分面）：R2 只单向约束 async 体，同步 fn 的可阻塞性在签名上不可见、检查器不产出传递着色附表。</td><td>原生侧阻塞审计同样无据</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十一节——R2 浅层定位成文（is_async 为唯一效应产物、无传递可阻塞集 / 无阻塞 extern 名单 / 无调用图）；传递着色附表产物仍仅登记、另行排期</td></tr>
+<tr><td>TS-15</td><td><strong>SA 内存模型未成文</strong>：chan/mutex/globals 各自建立什么 happens-before 边无契约，并发程序正确性无判据。</td><td><strong>咬定序二</strong>：三台 goroutine 改造的正确性地基</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十二节「内存模型」——六面同步边成文；定序二前置地基已备</td></tr>
+<tr><td>TS-16</td><td><strong>panic 在 async/future 边界的传播语义未明文（须查）</strong>：goroutine 边界有 DESIGN 明文，future/await 边界无对应口径，明文程度不对称。</td><td>异步错误处理面</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/09_async——future 边界 panic 为进程级、poll 不以数据形式观察；async 体内运行时 trap 与 rescue 帧交互一子项未定待查</td></tr>
+<tr><td>TS-17</td><td><strong>time 域时钟口径未明文</strong>：select timeout_ns 与 time 域的时钟是单调还是墙钟、时间戳时区口径均无载。</td><td>三台服务器的超时逻辑</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/08_time「时钟口径」节（双钟划分）+ 13 号第十一节 select timeout 指针</td></tr>
+<tr><td>TS-18</td><td><strong>递归深度与栈溢出定义面不全（须查）</strong>：goroutine 有固定栈 + 溢出 trap，主线程 / 普通调用链的深递归行为未明文。</td><td>递归遍历 AST（CXU / slars 日常负载）正处此边界</td><td><strong>口径已落字（2026-10-29）</strong>：13 号第十三节——三面栈形态成文（goroutine 256 KiB / 解释路 1024 帧 / 编译路主线无定义、溢出无诊断）；编译路主线栈深定义为<strong>批三候选</strong></td></tr>
+</table>
+
+<h3>附表 D′ · TS 探针：程序形态 / 契约层 / std 面</h3>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合面</th><th>状态</th></tr>
+<tr><td>TS-19</td><td><strong>程序入口形态未成文（须查）</strong>：main 签名 / 返回值 / argv 注入 / 可否 async，无成文契约，散见于验收程序惯例。</td><td>一切可执行程序</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/03_functions「程序入口：main 契约」节；checker 响亮拒绝 async main / 带参 main 为<strong>批三候选</strong>（async main 静默失效系代码路径推定）</td></tr>
+<tr><td>TS-20</td><td><strong>顶层初始化顺序未明文（须查）</strong>：跨模块 const/globals 求值序与循环依赖行为无载——大程序「换 import 序变行为」的隐患面。</td><td>大程序模块化</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/07_modules「顶层 const 与初始化契约」节——const 编译期契约（展开序登记、前向引用失败）+ globals 惰性创建契约（NOT_FOUND=3 不写出参）</td></tr>
+<tr><td>TS-21</td><td><strong>struct 一般布局契约缺位</strong>：唯一写下的布局保证是 Chan 的 16B 槽位个案；字段重排 / 对齐 / 填充的一般规则不存在。</td><td>FFI 按值传结构体与序列化都默认它存在</td><td><strong>口径已落字（2026-10-29）</strong>：02_sla_lang/05_structs_enums「布局契约」节</td></tr>
+<tr><td>TS-22</td><td><strong>.sai 域无机器可读宿主能力标注</strong>（正册 6 号域侧姊妹）：39 域纯逻辑 / 需 fs / 需 net 全靠人工普查，每个子集决策重做一遍。</td><td>一切子集 / 裁剪决策</td><td>已登记；.sai 域头加能力标注——小件、收益面广</td></tr>
+<tr><td>TS-23</td><td><strong>JS 宿主兼容面与契约层脱节（实证）</strong>：教义宣称 node/deno/bun 兼容内建，但唯一的 JS 形状面 <code>sa_deno_*</code>（34 符号）只在 C 头 sa_std.h、不在 .sai 契约宇宙——SLA 看不见、契约检查管不到；三宿主兼容矩阵亦无成文。</td><td>三宿主兼容教义的可执行面</td><td>已登记</td></tr>
+<tr><td>TS-24</td><td><strong>TS 语义库 @ts_* 的语义决策无成文对照表</strong>：45 个 @ts_* 函数把 JS 语义固化在手写 SA 里却只有函数名清单；<code>@ts_arr_sort</code> / <code>@ts_arr_sort_str</code> 并存即决策化石。</td><td><strong>咬 P0-1</strong>：tofixed D1–D4 缺陷正是从这张缺失的表里烂出来的</td><td>已登记；逐个补语义决策对照，与 P0-1 修复线协同</td></tr>
+<tr><td>TS-25</td><td><strong>fs/env 域路径与环境变量的字节语义未明文</strong>：任意字节 / NUL / 无效 UTF-8 的政策、Windows 镜像的 UTF-16 路径转换政策均无载。</td><td>CXU 是 Windows 应用——现行问题而非转译问题</td><td>已登记</td></tr>
+<tr><td>TS-26</td><td><strong>JSON 域数值保真口径未明文（须查，尖锐）</strong>：节点模型（64 extern）的数值表示若为 f64 单型，则 2^53 以上整数<strong>在原生链路上今天就已静默丢精度</strong>，与转译无关。</td><td>CXU 的 JSON-RPC 面</td><td><strong>口径已落字（2026-10-29）</strong>：06_stdlib/11_encoding「数值模型：三态」节——三态已查清（原「f64 单型」担忧不成立），访问器口径成文</td></tr>
+</table>
+
+<h2>四、排程注记</h2>
+<ul>
+<li><strong>最新裁定（18:50）：std 修复优先。</strong>登记全表所涉 std / 运行时 / 语义面改进升为优先事项；三支线方向本身仍按 18:32–18:33 口径搁置，待现行程序全部完成后再考虑。</li>
+<li><strong>A 组明文批</strong>（正册 1 / 2 / 3 + TS-1 / TS-2 / TS-4 及 TS-13）属 SLA 地基小件，以查证为主，建议随 goroutine 语法批集成后顺手钉死（不占盒上重套件）。</li>
+<li><strong>TS-15（SA 内存模型）是定序二的前置地基</strong>：三台 goroutine 改造（slanginx / slaredis / db）开工前先补 happens-before 契约，否则改造的并发正确性无判据。</li>
+<li><strong>TS-24 与 P0-1 协同</strong>：@ts_* 语义决策对照表是 P0-1（tofixed D1–D4）的根因面，两线同批推进。</li>
+<li><strong>小件高收益可随手做</strong>：TS-22（.sai 域能力标注）；TS-3 可先用探针实证双后端分岔与否；TS-26 先查 JSON 节点模型数值表示定性。</li>
+<li><strong>C 组（SAX 地基）随 CXU Phase 2 推进</strong>；正册 5（文本引擎）与 B 组其余仅登记、不在现行程序内启动；正册 4 与 TS-14 仅登记不排期。</li>
+<li>本表只登记「我方栈自身的不足」；目标平台特有问题（如 Kotlin panic 可捕获、Swift 语言模式钉版）属转译项目内部事项，随项目搁置，不入表。</li>
+</ul>
+
+<p>相关记录：<a href="18_mobile_transpile.html">移动端转译：sla2swift 与 sla2kotlin</a>（方向讨论记录）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（总定序与并发语义来源）、<a href="17_verse_game_profile.html">Verse 游戏向吸纳与插件承载</a>（定序三）。</p>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Unreal Engine 网络体系 × sa_std 网络面普查与缺口表</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; Unreal Engine 网络体系 × sa_std 网络面普查与缺口表</div>
+<h1>Unreal Engine 网络体系 × sa_std 网络面普查与缺口表</h1>
+
+<p>这一页是 2026-10-27 做的一次<b>双边普查</b>（跨语言 std 普查批的 Unreal 线）：
+把 Unreal Engine 5.8 的网络体系表面抽成清单，再与 sa_std 的网络面逐项比对分类。
+先把定性讲清：<b>UE 的网络体系不是一套通用 net std，而是一套游戏复制
+（Replication）系统</b>——它的重心是把游戏对象的状态增量同步到多个客户端；
+真正与通用 std 同构的只有最底下的 Sockets 传输层。因此本页的比对口径是
+分层的：传输层逐项对能力，复制层只登记模型与前提，最后划清哪些是 sa_std
+该补的缺口、哪些是通用 std 不应吸收的引擎专用面。全部条目来自随页入库的
+脚本与清单（<code>tools/unreal_net_census/</code>），可复跑，不凭印象下结论。
+同批页面：<a href="21_android_net_census.html">Android net × sa_std 普查</a>、
+<a href="../../09_rust_compare/10_std_census.html">Rust std × sa_std 普查</a>。</p>
+
+<h2>来源与版本</h2>
+<table>
+<tr><th>侧</th><th>来源</th><th>版本 / 基点</th></tr>
+<tr><td>UE（实测失败）</td><td>EpicGames/UnrealEngine 官方 GitHub 仓</td>
+<td><b>门控仓，克隆失败</b>：匿名 <code>git clone</code> 与 <code>git ls-remote</code> 均报
+<code>fatal: could not read Username for 'https://github.com'</code>——该仓需要关联 Epic
+账号并经 EULA 授权的 GitHub 身份，盒上无此凭证。EpicGames 组织另有 56 个公开仓
+（经 api.github.com 核），均为媒体/插件示例与第三方工具，不含引擎网络源码。</td></tr>
+<tr><td>UE（实际来源）</td><td>Epic 官方 API 参考与文档（dev.epicgames.com）</td>
+<td>Unreal Engine <b>5.8</b> 文档。API 参考页为服务端渲染，含头文件路径与完整的
+函数/变量/枚举表；不存在的 URL 返回约 31KB 的前端壳（无标题、noindex），
+本普查把这种响应定义为 <b>soft-404</b>，绝不当作证据。</td></tr>
+<tr><td>SA</td><td>sci 仓 sa_std 网络相关文件（net/netx/http*/tls*/ws*/dtls/quic/ssh/encoding/compress）</td>
+<td>sci main <code>8a943911</code></td></tr>
+</table>
+
+<h2>来源等级与覆盖边界</h2>
+<ul>
+<li><b>等级 1（签名级）</b>：官方 API 参考类页——类名、头文件、签名候选均由脚本从页面表格抽取。
+本线深抽 21 个旗舰类，并用 5 个模块索引页（Sockets / PacketHandler / IrisCore /
+ReplicationGraph / OnlineSubsystem）做类级盘点。</li>
+<li><b>等级 2（文档级）</b>：官方概念文档（网络总览、RPC、属性复制、休眠、Iris 四篇、
+Replication Graph、Oodle Network 等 14 页）——可证概念/模型/术语存在，
+不作签名证据。</li>
+<li><b>不可核</b>：<code>UIpNetDriver</code> / <code>UIpConnection</code> 在 API 参考的三个候选
+路径全部 soft-404；<code>FFastArraySerializer</code> 同样不在 API 参考索引内
+（仅文档级证据）；<code>FNetSerializer</code> 的类页存在且头文件可核，但其页内
+签名表抽取为 0，方法级不可核。三者均已在分类表中如实登记，不补写签名。</li>
+<li><b>Iris 的成熟度</b>：官方 Iris 组件文档自述为 Experimental 功能并提示出货谨慎，
+本页的 Iris 结论按「UE5 新架构、仍在演进」理解。</li>
+<li><b>SA 侧计数口径</b>：<code>.sai</code> 取 <code>@extern</code> 声明，<code>.sa/.sal/.sla</code> 取
+<code>sa_*</code> 符号 token，按文件组去重；是符号面口径，不声称语义逐项对拍。</li>
+</ul>
+
+<h2>双边清单规模</h2>
+<table>
+<tr><th>侧</th><th>口径</th><th>规模</th></tr>
+<tr><td>UE 签名级</td><td>21 个旗舰类深抽（签名候选数）</td>
+<td>Sockets 三件 104（ISocketSubsystem 40 / FSocket 42 / FInternetAddr 22）；
+NetDriver 族 727（UNetDriver 238 / UNetConnection 199 / UActorChannel 61 /
+UChannel 32 / UDemoNetDriver 146 / FNetGUIDCache 51）；PacketHandler 40；
+FRepLayout 40；AActor 全类 610（其中复制相关子集 103）、UActorComponent 全类 228
+（复制相关子集 32）；UReplicationGraph 65；Iris 两件 149（UReplicationSystem 106 /
+UReplicationBridge 43，FNetSerializer 方法级不可核）；Online 两件 202
+（IOnlineSubsystem 74 / IOnlineSession 128，仅作边界登记）</td></tr>
+<tr><td>UE 类级盘点</td><td>5 个模块索引页的类链接数</td>
+<td>Sockets 36 / PacketHandler 13 / IrisCore 402 / ReplicationGraph 54 /
+OnlineSubsystem 277</td></tr>
+<tr><td>SA</td><td>网络相关符号（按组去重）</td>
+<td>传输（net+netx）231 / HTTP 118 / TLS·WS·QUIC·DTLS·SSH 111 /
+编码与压缩 102；（组,文件,符号）明细 888 行，见 <code>sa_net_surface.tsv</code></td></tr>
+</table>
+
+<h2>分类总表</h2>
+<p>分类四档同批统一口径：<b>已有等价</b>（sa_std 已覆盖，含形态不同的对应）、
+<b>可直接对应</b>（语义可直接落 sa_std、只是没做）、<b>需建模</b>（要句柄/状态机/
+宿主对象模型等建模前提）、<b>模型不合</b>（引擎专用或平台服务面，通用 std 不应吸收，
+逐条给原因）。另有<b>不可核</b> 1 条单列、不进四档分母。总计 36 条，
+其中归档分类 35 条：已有等价 5（14%）、可直接对应 8（23%）、需建模 18（51%）、
+模型不合 4（11%）。结构一目了然：<b>传输层基本对齐，缺口集中且小；
+NetDriver 以上几乎全部是「需建模」——它们不是缺函数，而是缺一整个宿主
+对象模型</b>。</p>
+<table>
+<tr><th>子系统</th><th>条目</th><th>已有等价</th><th>可直接对应</th><th>需建模</th><th>模型不合</th><th>不可核</th></tr>
+<tr><td>Sockets 子系统（低层传输）</td><td>12</td><td>5</td><td>5</td><td>0</td><td>2</td><td>0</td></tr>
+<tr><td>NetDriver 体系</td><td>5</td><td>0</td><td>1</td><td>2</td><td>1</td><td>1</td></tr>
+<tr><td>PacketHandler</td><td>4</td><td>0</td><td>0</td><td>4</td><td>0</td><td>0</td></tr>
+<tr><td>复制（Replication）</td><td>8</td><td>0</td><td>0</td><td>8</td><td>0</td><td>0</td></tr>
+<tr><td>Iris</td><td>3</td><td>0</td><td>0</td><td>3</td><td>0</td><td>0</td></tr>
+<tr><td>序列化</td><td>3</td><td>0</td><td>2</td><td>1</td><td>0</td><td>0</td></tr>
+<tr><td>OnlineSubsystem</td><td>1</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td></tr>
+<tr><td><b>合计</b></td><td><b>36</b></td><td><b>5</b></td><td><b>8</b></td><td><b>18</b></td><td><b>4</b></td><td><b>1</b></td></tr>
+</table>
+
+<h2>缺口分类表</h2>
+<h3>Sockets 子系统（低层传输）</h3>
+<table>
+<tr><th>条目</th><th>UE 侧证据</th><th>sa_std 现状</th><th>分类</th></tr>
+<tr><td>TCP 流套接字全套（connect/listen/accept/send/recv/选项）</td><td>FSocket API 页 42 个签名候选（Connect/Listen/Accept/Send/Recv/SetNoDelay/SetLinger/...）</td><td>sa_std net.sai/net.sa：tcp 相关符号 125 个（sa_std_net_tcp_* + sa_net_tcp_*）<br><span>注：SA 侧为句柄+状态码形态，UE 为 C++ 类形态，能力面对应</span></td><td>已有等价</td></tr>
+<tr><td>UDP 数据报（bind/send_to/recv_from/广播/已连接 UDP）</td><td>FSocket SendTo/RecvFrom/SetBroadcast</td><td>sa_net_udp_* / sa_std_net_udp_* 全套（含 broadcast、connect_addr）<br><span>注：含 vectored 变体（udp_recv_from_vectored 等）</span></td><td>已有等价</td></tr>
+<tr><td>UDP 组播（join/leave/loopback/ttl/接口选择）</td><td>FSocket JoinMulticastGroup/LeaveMulticastGroup/SetMulticastInterface/SetMulticastLoopback/SetMulticastTtl</td><td>sa_net_udp_join_multicast_v4/v6、leave、set_multicast_loop、set_multicast_ttl、multicast_if<br><span>注：v4/v6 双栈均覆盖</span></td><td>已有等价</td></tr>
+<tr><td>就绪等待与连接状态查询（Wait/HasPendingData/GetConnectionState）</td><td>FSocket Wait/WaitForPendingConnection/HasPendingConnection/GetConnectionState</td><td>SA 非阻塞开关 + 读/写超时 + netx io_uring 反应器<br><span>注：形态不同：SA 以超时与反应器代 poll 式等待，未提供同名轮询面</span></td><td>已有等价</td></tr>
+<tr><td>地址值对象（FInternetAddr：克隆/比较/任意/广播/回环/平台端口序）</td><td>FInternetAddr API 页 22 个签名候选</td><td>owned NetAddr 句柄 + v4/v6 parse/format ascii + unix addr 对象<br><span>注：差异：SA 地址是 owned 句柄而非可拷贝值；平台端口序助手无独立面（解析时内含）</span></td><td>已有等价</td></tr>
+<tr><td>独立 DNS 解析面（同步/异步解析、结果对象、主机名缓存）</td><td>ISocketSubsystem GetAddressInfo/GetAddressInfoAsync/GetHostByName/CreateResolveInfoCached + FResolveInfo/FResolveInfoAsync/FResolveInfoCached（Sockets 索引）</td><td>仅 connect/listen 内嵌解析 + sa_std_net_addr_reverse_lookup + SA_NET_ERR_DNS 错误码；无独立解析 API<br><span>注：与 AT（Android）线普查的 dns 命中 0 结论互相印证；解析面与传输解耦是多家 std 共有面</span></td><td>可直接对应</td></tr>
+<tr><td>批量数据报接收 RecvMulti（单调用多包+多源地址）</td><td>ISocketSubsystem CreateRecvMulti/IsSocketRecvMultiSupported + FRecvMulti（索引）+ FSocket RecvMulti</td><td>SA 有 udp vectored（单包多缓冲）但无多包单调用接收<br><span>注：recvmmsg 式批量接收，高吞吐数据报场景</span></td><td>可直接对应</td></tr>
+<tr><td>每包信息 pktinfo（RecvFromWithPktInfo：目的地址/接口随包返回）</td><td>FSocket RecvFromWithPktInfo/SetIpPktInfo</td><td>sa recv_from 仅回源地址与数据<br><span>注：多宿主/多网卡服务端的包归属判定需要</span></td><td>可直接对应</td></tr>
+<tr><td>数据包时间戳（SetRetrieveTimestamp/TranslatePacketTimestamp）</td><td>FSocket SetRetrieveTimestamp + ISocketSubsystem TranslatePacketTimestamp</td><td>SA 网络面无时间戳符号<br><span>注：RTT/抖动测量与时间同步类协议需要</span></td><td>可直接对应</td></tr>
+<tr><td>本地适配器与多宿主枚举（GetLocalAdapterAddresses/GetMultihomeAddress）</td><td>ISocketSubsystem 签名</td><td>仅 sa_std_net_hostname + listener_local_addr<br><span>注：本机网络信息面（与 AT 线「本机网络信息+路由表」建议同向）</span></td><td>可直接对应</td></tr>
+<tr><td>平台套接字子系统抽象（ISocketSubsystem 可插拔后端：EOS/Steam 实现类）</td><td>ISocketSubsystem API 页 Derived Classes（FSocketSubsystemEOS/FSocketSubsystemSteam）</td><td>SA 直连 OS socket、无子系统注册层<br><span>注：EOS/Steam 后端是平台联机服务，其注册层属 Online 平台层而非通用 std；SA 的平台差异由运行时内定</span></td><td>模型不合</td></tr>
+<tr><td>网络文件系统 NFS（编辑器资产串流：FNetworkFileArchive/FServerTOC/FNFSMessageHeader）</td><td>Sockets 模块索引</td><td>无<br><span>注：编辑器开发期工具面，非运行时标准库职责</span></td><td>模型不合</td></tr>
+</table>
+<h3>NetDriver 体系</h3>
+<table>
+<tr><th>条目</th><th>UE 侧证据</th><th>sa_std 现状</th><th>分类</th></tr>
+<tr><td>连接层可靠通道（UNetConnection bunch 队列：分片/ack/重排/发送缓冲位管理）</td><td>UNetConnection API 页 199 个签名候选（WriteBitsToSendBuffer/GetMaxSingleBunchSizeBits/IsInternalAck/SendRawBunch/FlushNet...）</td><td>netx 是 io_uring 反应器（不管可靠性）；传输层无可靠数据报通道<br><span>注：UE 的 bunch 协议与 Actor 通道绑定；可移植的内核是「分片/重组+选择性 ack」机制层，需独立建模而非照搬</span></td><td>需建模</td></tr>
+<tr><td>NetGUID 对象标识映射（FNetGUIDCache/PackageMap：对象与资产包 ↔ 网络 GUID）</td><td>FNetGUIDCache API 页 51 个签名候选（头文件 PackageMapClient.h）</td><td>无<br><span>注：前提是宿主对象模型与资产包概念；通用 std 无此前提，只登记模型</span></td><td>需建模</td></tr>
+<tr><td>演示/回放 NetDriver（UDemoNetDriver：网络流录制与回放）</td><td>UDemoNetDriver API 页 146 个签名候选</td><td>无<br><span>注：游戏回放系统的一部分，依赖关卡/Actor 序列化全栈</span></td><td>模型不合</td></tr>
+<tr><td>网络故障模拟（NetDriver 层 emulation 设置：丢包/延迟/抖动注入开关）</td><td>UNetDriver API 页含 bNeverApplyNetworkEmulationSettings；原始页载荷含 Pkt 族设置项</td><td>无<br><span>注：签名级不可核（设置项在页内 JSON 载荷、未进签名表），按文档/API 混合级证据登记；可落为测试用 impairment 垫片</span></td><td>可直接对应</td></tr>
+<tr><td>具体 IP 驱动（UIpNetDriver/UIpConnection：NetDriver 的 UDP 实现类）</td><td>官方 API 参考索引三处候选路径全部 soft-404</td><td>—<br><span>注：类的存在由 NetDriver 文档体系确立，但签名面在官方 API 参考中不可核；按红线不补写，登记为不可核</span></td><td>不可核</td></tr>
+</table>
+<h3>PacketHandler</h3>
+<table>
+<tr><th>条目</th><th>UE 侧证据</th><th>sa_std 现状</th><th>分类</th></tr>
+<tr><td>包处理组件链（PacketHandler + HandlerComponent：收发双向链式变换、Profile 配置）</td><td>PacketHandler API 页 40 个签名候选（AddHandler/Incoming/Outgoing/GetComponentByName/InitFaultRecovery...）+ 模块索引 13 类</td><td>无链式包变换层<br><span>注：是 UE 网络的扩展点架构（压缩/加密/校验以组件插入）；通用 std 若做应是独立的包管道模型</span></td><td>需建模</td></tr>
+<tr><td>加密组件槽（FEncryptionComponent：会话加密接入点）</td><td>PacketHandler 索引含 FEncryptionComponent；PacketHandler.GetEncryptionComponent 签名</td><td>SA 有 TLS 客户端/服务端与 DTLS（记录层整体加密），无「任意传输的会话加密组件」面<br><span>注：主要用途（连 TLS 化通道）已有等价；UE 槽位面向的是裸 UDP 上的 AES 会话加密，属另一模型</span></td><td>需建模</td></tr>
+<tr><td>状态化包压缩（Oodle Network：训练字典的 PacketHandler 压缩组件）</td><td>Epic 官方文档 oodle-network 页（PacketHandler 提及 9 次、Oodle 71 次）</td><td>compress.sai 通用压缩（无训练字典/会话状态压缩）<br><span>注：Oodle 的价值在训练字典+有状态流压缩，与通用无状态压缩不是一面</span></td><td>需建模</td></tr>
+<tr><td>DDoS 检测与无连接包处理（GetDDoS/IncomingConnectionless）</td><td>PacketHandler 签名（GetDDoS/IncomingConnectionless/GetQueuedConnectionlessPacket）</td><td>无<br><span>注：游戏服务器防护面；通用 std 可借鉴其「握手前限流/质询」模型，不直接对应</span></td><td>需建模</td></tr>
+</table>
+<h3>复制（Replication）</h3>
+<table>
+<tr><th>条目</th><th>UE 侧证据</th><th>sa_std 现状</th><th>分类</th></tr>
+<tr><td>属性复制布局引擎（FRepLayout：属性增量 diff、shadow buffer、校验和、RepNotify 触发）</td><td>FRepLayout API 页 40 个签名候选（DiffProperties/CreateShadowBuffer/CallRepNotifies/GenerateChecksum/ValidateWithChecksum...）</td><td>无<br><span>注：前提：反射属性元数据 + 对象生命周期宿主模型；是 UE 复制的心脏，与 sa_std 的关系是「上层框架模型」而非缺失函数</span></td><td>需建模</td></tr>
+<tr><td>RPC 三类与远程调用分发（Server/Client/NetMulticast；ProcessRemoteFunction）</td><td>官方 RPC 文档页（RPC 提及 124 次、Multicast 10 次、Reliability 4 次）+ UNetDriver InternalProcessRemoteFunction/ProcessRemoteFunction 签名</td><td>无<br><span>注：前提是 UObject 函数分发与类元数据；RPC 语义（可靠性标志、验证函数）已在文档面核实</span></td><td>需建模</td></tr>
+<tr><td>RepNotify 变更通知（OnRep_ 回调族：属性到达客户端时触发）</td><td>属性复制文档页（RepNotify 提及 32 次、OnRep_ 45 次）+ AActor 签名含 OnRep_AttachmentReplication/OnRep_ReplicatedMovement 等</td><td>无<br><span>注：应用可见面：与属性复制引擎同前提；SA/SLA 侧将来若做复制框架须先有属性元数据层</span></td><td>需建模</td></tr>
+<tr><td>复制条件与休眠（COND_* 条件族 + NetDormancy 状态机）</td><td>休眠文档页（Dormancy 提及 68 次）+ AActor SetNetDormancy/FlushNetDormancy/GetNetDormancy 签名</td><td>无<br><span>注：条件族（OwnerOnly/SimulatedOnly/InitialOnly 等）依赖所有权/模拟代理模型</span></td><td>需建模</td></tr>
+<tr><td>相关性剔除与优先度（IsNetRelevantFor/NetCullDistanceSquared/NetPriority/更新频率）</td><td>AActor 复制相关签名子集（全类 610 个签名候选中筛得 103 个复制相关）</td><td>无<br><span>注：前提是世界/关卡空间模型与观察者概念；Replication Graph 是其扩展（单列）</span></td><td>需建模</td></tr>
+<tr><td>Fast Array 复制（FFastArraySerializer：数组增量 add/remove delta 同步）</td><td>官方 API 参考索引 soft-404（不可核）；Iris 迁移文档提及 FastArray 2 次、Iris 术语表有 Fast Array Replication Fragment 条目</td><td>无<br><span>注：证据等级为文档级：类的存在与用途可核、签名面不可核；模型本身（数组增量协议）值得登记</span></td><td>需建模</td></tr>
+<tr><td>子对象复制（Replicated SubObjects 注册/销毁/撕裂）</td><td>AActor 与 UActorComponent 签名子集（AddReplicatedSubObject/TearOffReplicatedSubObjectOnRemotePeers 等；组件侧复制相关 32 个）</td><td>无<br><span>注：前提是组件/子对象所有权树</span></td><td>需建模</td></tr>
+<tr><td>Replication Graph（空间分区驱动的相关性计算图）</td><td>UReplicationGraph API 页 65 个签名候选 + 插件模块索引 54 类 + 官方 Replication Graph 文档页</td><td>无<br><span>注：把相关性从逐 Actor 判断改为预计算图；前提是世界分区与观察者集合</span></td><td>需建模</td></tr>
+</table>
+<h3>Iris</h3>
+<table>
+<tr><th>条目</th><th>UE 侧证据</th><th>sa_std 现状</th><th>分类</th></tr>
+<tr><td>Iris 复制系统核心（UReplicationSystem：状态量化副本独立存储、Fragment 模型、数据流）</td><td>UReplicationSystem API 页 106 个签名候选 + Iris 组件文档（量化副本/去耦设计自述）+ IrisCore 模块索引 402 类</td><td>无<br><span>注：UE5 新复制架构：与经典复制同前提但更强（序列化注册表 + 状态所有权转移）；sa_std 层只登记模型与术语对照</span></td><td>需建模</td></tr>
+<tr><td>Iris 桥接层（UReplicationBridge：游戏对象 ↔ NetObject 映射、过滤集）</td><td>UReplicationBridge API 页 43 个签名候选</td><td>无<br><span>注：桥接的过滤/优先级模型是 Iris 相对经典复制的主要应用面差异</span></td><td>需建模</td></tr>
+<tr><td>Iris 序列化体系（FNetSerializer + NetSerialize 特征：类型注册的量化序列化器）</td><td>FNetSerializer API 页存在（头文件 Net/Iris/Public/Iris/Serialization/NetSerializer.h）但签名抽取为 0（方法级不可核）；迁移文档 NetSerialize 提及 6 次</td><td>无<br><span>注：其「每类型一个双向序列化器 + 量化变体」注册模型与位级打包地基相关；地基层已在 serialization 域单列</span></td><td>需建模</td></tr>
+</table>
+<h3>序列化</h3>
+<table>
+<tr><th>条目</th><th>UE 侧证据</th><th>sa_std 现状</th><th>分类</th></tr>
+<tr><td>位级打包流（bit writer/reader：非字节对齐的紧凑编码）</td><td>Iris 术语表 "Net Bit Stream Reader" 条目 + UNetConnection WriteBitsToSendBuffer/GetFreeSendBufferBits 签名</td><td>sa_std 网络/编码面无 bit 级读写符号（全表面检索 bit* 零命中于 net 域）<br><span>注：复制与游戏协议的地基件，也是通用协议编解码可复用件；小面、明确、应优先补</span></td><td>可直接对应</td></tr>
+<tr><td>NetQuantize 量化族（向量按精度量化：FVector_NetQuantize/10/100）</td><td>三页 API 参考（头文件 Engine/NetSerialization.h，每页抽得 Serialize 相关签名）</td><td>无量化编解码面<br><span>注：固定点/量化浮点编解码是通用编码件，不依赖游戏对象模型</span></td><td>可直接对应</td></tr>
+<tr><td>结构体 NetSerialize 自定义序列化特征（UScriptStruct 的 NetSerialize trait）</td><td>Iris 迁移文档 NetSerialize 提及 6 次（文档级证据）</td><td>无<br><span>注：前提是结构体反射/注册；与 Iris 序列化体系同族，单列因经典复制亦使用</span></td><td>需建模</td></tr>
+</table>
+<h3>OnlineSubsystem</h3>
+<table>
+<tr><th>条目</th><th>UE 侧证据</th><th>sa_std 现状</th><th>分类</th></tr>
+<tr><td>OnlineSubsystem 平台服务接口层（会话/身份/好友/成就/语音等）</td><td>插件模块索引 277 类 + IOnlineSubsystem 74 / IOnlineSession 128 个签名候选</td><td>无（sa_std 不含平台服务面）<br><span>注：平台服务 SDK 的接口抽象层；按既有学说应由插件/桥接承接，不进 sa_std 核心。本线只登记边界，不深挖</span></td><td>模型不合</td></tr>
+</table>
+
+<h2>复制模型专节（只登记，不进补齐名单）</h2>
+<p>UE 经典复制的工作单元是「对象 + 反射属性表」。服务端为每个被复制对象维护一份
+<b>影子状态（shadow buffer）</b>，每帧由 <code>FRepLayout</code> 对当前值与影子值做
+增量 diff（其实测签名含 <code>DiffProperties</code>、<code>CreateShadowBuffer</code>、
+<code>GenerateChecksum</code>），只把变化的属性按<b>复制条件</b>（COND_* 条件族：
+所有者限定、仅初始、模拟端限定等）与<b>相关性</b>（观察者距离剔除、优先度、
+更新频率、休眠状态机）筛选后，经 <code>UNetConnection</code> 的 bunch 队列
+（分片、ack、重排，实测签名含 <code>WriteBitsToSendBuffer</code>、
+<code>GetMaxSingleBunchSizeBits</code>、<code>IsInternalAck</code>）发往各客户端；
+客户端落值后触发 <code>OnRep_</code> 回调（RepNotify，文档页提及 45 次）。
+函数调用走 RPC 三类（Server / Client / NetMulticast，带可靠性标志与验证函数），
+对象身份由 <code>FNetGUIDCache</code>（PackageMap）维护的 NetGUID 映射锚定，
+数组有专用的 Fast Array 增量协议，空间相关性可由 Replication Graph 预计算。</p>
+<p>这套模型的前提是：<b>反射属性元数据、UObject 生命周期与所有权树、关卡/世界
+空间模型</b>。sa_std 是无宿主对象的通用标准库，三者皆无。因此复制框架整体
+归「需建模」并只登记：将来若在 SA 生态做复制框架，它应是一个建在 std 之上的
+框架层（类比插件分层），其设计输入正是本节登记的模型件——RepLayout 式
+diff+影子状态、条件族、休眠、相关性分级、GUID 映射、Fast Array 增量。
+其中唯一沉到 std 层的地基件是<b>位级打包</b>，已列入短名单。</p>
+
+<h2>Iris 专节</h2>
+<p>Iris 是 UE5 的新复制系统（官方自述 Experimental）。与经典复制最大的不同在
+状态所有权：Iris 在复制系统内部保存<b>全部被复制状态的量化副本</b>（组件文档
+自述为 "a full copy of all replicated state data in a quantized form"），
+游戏层对象经 <code>UReplicationBridge</code> 映射为内部 Net Object，以
+<b>Net Ref Handle</b>（与 NetGUID 同概念的句柄）标识；状态按
+<b>Replication Fragment</b> 组织、经 <b>Data Stream</b>（对应经典复制的 channel）
+序列化下发；序列化走按类型注册的 <code>FNetSerializer</code> 体系
+（头文件 <code>Net/Iris/Public/Iris/Serialization/NetSerializer.h</code> 实证），
+术语表另有 Net Bit Stream Reader、Net Blob、Fast Array Replication Fragment 等条目。
+IrisCore 模块索引达 402 个类，是 UE 网络面扩张最快的部分。</p>
+<p>对 sa_std 的含义与经典复制相同：模型登记、不进补齐名单。但 Iris 的两个设计
+取向值得上层框架设计时参考——<b>状态副本与游戏对象解耦</b>（复制系统不反查
+游戏对象内存）、<b>序列化器按类型注册且自带量化变体</b>。前者与 SA 的句柄/
+所有权模型天然相容，后者与本页短名单的位级打包 + 量化编解码正好接续。</p>
+
+<h2>反向注记：SA 已有而 UE 核心网络面没有的</h2>
+<p>比对是单向的（以 UE 为参照找 SA 缺口），但须如实记录反向事实：sa_std 内置的
+应用层协议面——HTTP/1.1 与 HTTP/2 的客户端与服务端、WebSocket、TLS 客户端与
+服务端、QUIC 能力面、SSH 声明面，以及 netx 的 io_uring 反应器与广播——
+在 UE <b>核心</b>网络体系中没有对应物；UE 的对应能力位于插件层
+（HTTP 模块、OnlineSubsystem 及其后端服务）。即在「无插件即可用」的口径下，
+sa_std 的内置网络面比 UE 核心网络栈更全；UE 的领先只在复制体系，而那是
+框架层而非 std 层。</p>
+
+<h2>优先补齐短名单</h2>
+<ol>
+<li><b>位级打包读写（bit writer/reader）</b>：非字节对齐的紧凑编码原语。
+UE 侧从 bunch 发送缓冲到 Iris 的 Net Bit Stream 都以它为地基；sa_std 的
+网络/编码面全表面检索 bit 级符号零命中。小面、语义明确、通用协议编解码
+同样可复用——本批最优先。</li>
+<li><b>独立 DNS 解析面</b>：同步/异步解析 + 结果对象 + 主机名缓存，与传输解耦。
+UE 侧 ISocketSubsystem 有 GetAddressInfo/GetAddressInfoAsync/FResolveInfo 族；
+SA 目前只有 connect 内嵌解析与一次反向查询。与 Android 线普查的
+「dns 命中 0」结论互相印证，是多家 std 对照下共同缺的一面。</li>
+<li><b>NetQuantize 式量化编解码族</b>：向量/旋转量/标量按可配精度（位宽）
+量化打包，对应 FVector_NetQuantize/10/100 的分级思想。纯编码件，
+不依赖任何游戏对象模型。</li>
+<li><b>数据报增强三件</b>：RecvMulti 式批量收包、pktinfo 随包信息
+（目的地址/接口）、数据包时间戳。SA 的 UDP 面已很完整（组播/vectored 都在），
+这三件是高吞吐与多宿主数据报服务仅剩的细粒度缺口。</li>
+<li><b>本机网络信息面</b>：本地适配器枚举、多宿主地址、（与 AT 线建议合并的）
+路由信息。UE 侧 GetLocalAdapterAddresses/GetMultihomeAddress 可核；
+SA 只有 hostname 与监听本地地址两点。</li>
+<li><b>网络故障注入垫片</b>：丢包/延迟/抖动/乱序的可编程注入，供协议与
+可靠性层测试。UE 在 NetDriver 层有成套 emulation 设置（签名级部分不可核，
+按混合级证据登记）。实现小、测试价值高。</li>
+</ol>
+<p>短名单之外的一切 UE 面——复制框架、Iris、Replication Graph、PacketHandler
+组件链、NetGUID 映射、OnlineSubsystem——均只登记模型，不进 sa_std 补齐计划。</p>
+
+<h2>复跑方法</h2>
+<p>脚本与清单在 <code>tools/unreal_net_census/</code>：<code>fetch_ue_pages.py</code>
+（来源说明与抓取清单，含门控仓实测记录）、<code>extract_ue_api.py</code>
+（API 参考页与模块索引抽取，产出 <code>ue_api_surface.tsv</code> /
+<code>ue_module_index.tsv</code> / <code>ue_doc_keywords.tsv</code>）、
+<code>extract_sa_net.py</code>（SA 侧抽取，产出 <code>sa_net_surface.tsv</code>）、
+<code>ue_gap_items.tsv</code>（36 条分类条目，逐条带证据与注记）、
+<code>gen_gap_table.py</code>（由条目表生成 <code>summary.json</code> 与本页表格）。
+抓取的原始 HTML 不入库（体积与再分发考虑），按 fetch 脚本可重取；
+dev.epicgames.com 的页面内容随版本演进，复跑数字可能小幅漂移。</p>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

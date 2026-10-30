@@ -279,6 +279,39 @@
       "parent": null
     },
     {
+      "id": "android-net-census",
+      "title": "Android net 表面 × sa_std 缺口普查",
+      "file": "21_android_net_census.html",
+      "keywords": [
+        "Android",
+        "android.net",
+        "API 36",
+        "DnsResolver",
+        "NetworkCapabilities",
+        "libcore",
+        "普查"
+      ],
+      "parent": null
+    },
+    {
+        "id": "java-net-census",
+        "title": "跨语言 std 普查：Java（OpenJDK）net × sa_std",
+        "file": "21_java_net_census.html",
+        "keywords": [
+            "java",
+            "openjdk",
+            "jdk",
+            "普查",
+            "net",
+            "nio",
+            "httpclient",
+            "ssl",
+            "缺口",
+            "census"
+        ],
+        "parent": "net"
+    },
+    {
       "id": "go-net-census",
       "title": "Go net 标准库 × sa_std 缺口普查",
       "file": "22_go_net_census.html",
@@ -293,6 +326,73 @@
         "缺口"
       ],
       "parent": "net"
+    },
+    {
+      "id": "unreal-net-census",
+      "title": "Unreal Engine 网络体系 × sa_std 网络面普查与缺口表",
+      "file": "23_unreal_net_census.html",
+      "keywords": [
+        "Unreal Engine",
+        "UE5",
+        "网络普查",
+        "Replication",
+        "Iris",
+        "NetDriver",
+        "Sockets",
+        "PacketHandler",
+        "NetQuantize",
+        "位级打包",
+        "sa_std",
+        "缺口表"
+      ],
+      "parent": null
+    },
+    {
+      "id": "python-net-census",
+      "title": "跨语言普查：Python (CPython) net 标准库 × sa_std 缺口",
+      "file": "24_python_net_census.html",
+      "keywords": [
+        "Python",
+        "CPython",
+        "net",
+        "socket",
+        "ssl",
+        "asyncio",
+        "urllib",
+        "跨语言普查",
+        "缺口"
+      ],
+      "parent": null
+    },
+    {
+      "id": "ios-net-census",
+      "title": "iOS net 表面 × sa_std 缺口普查",
+      "file": "25_ios_net_census.html",
+      "keywords": [
+        "iOS",
+        "Network.framework",
+        "URLSession",
+        "NWConnection",
+        "NWPath",
+        "ATS",
+        "普查"
+      ],
+      "parent": null
+    },
+    {
+      "id": "dotnet-net-census",
+      "title": ".NET net 表面 × sa_std 缺口普查",
+      "file": "26_dotnet_net_census.html",
+      "keywords": [
+        ".NET",
+        "System.Net",
+        "HttpClient",
+        "Sockets",
+        "QUIC",
+        "普查",
+        "缺口"
+      ],
+      "parent": null
     }
   ]
 }

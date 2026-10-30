@@ -43,6 +43,18 @@
 <tr><td><code>STR_AS_BYTES %out_slice, %slice_reg</code></td><td>转字节视图</td></tr>
 </table>
 
+<h2>字节 / 文本口径（TS-9，2026-10-29 落字）</h2>
+<p>SLA 的 <code>String</code> 是 <code>{ptr, len}</code> <strong>字节柄</strong>：类型层<strong>不强制
+UTF-8 有效性不变式</strong>，可以装任意字节。需要文本保证的构造须走校验入口
+<code>str_from_utf8</code>（先 <code>STR_IS_UTF8</code> 校验、后构造）；另有名称自明的 unchecked
+构造路存在，调用方自担。字符串字面量由源码 UTF-8 天然成立。</p>
+<p>string 域 25 个 extern 的字节 / 文本分工如下：<code>*_ascii</code> 族与字节操作族
+（concat、index_of、starts_with、ends_with、replace、pad、repeat）是<strong>纯字节语义</strong>；
+<code>utf8_*</code> 族按标量解码——<code>sa_str_utf8_validate</code> 显式校验合法性、
+<code>sa_str_utf8_char_at</code> 出错返回状态码、<code>sa_str_utf8_char_count</code> 遇非法序列
+返回 0、<code>sa_str_utf8_lossy_next</code> 对非法序列宽容推进。</p>
+<p>（注记：String 在 SLA 层的 <code>Ord</code> 提供点尚待查清（登记 TS-10），本节不下结论。）</p>
+
 <h2>Sla 侧示例</h2>
 <p>字符串比较在 Sla 里通过 <code>str_eq</code> 使用。摘自
 <code>demos/rosetta/01_hello_world/main.sla</code> 的测试：</p>

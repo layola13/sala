@@ -123,6 +123,216 @@
         "SAX"
       ],
       "parent": null
+    },
+    {
+      "id": "nginx-rebuild-roadmap",
+      "title": "sangx：自研 Web 服务器（nginx 重构）规划",
+      "file": "09_nginx_rebuild_roadmap.html",
+      "keywords": [
+        "nginx",
+        "sangx",
+        "Web 服务器",
+        "重构",
+        "反向代理",
+        "VM 插件",
+        "配置即代码",
+        "phase",
+        "路线图"
+      ],
+      "parent": null
+    },
+    {
+      "id": "backend-coverage",
+      "title": "后台服务覆盖图：已有、立项与缺口",
+      "file": "10_backend_coverage.html",
+      "keywords": [
+        "后台服务",
+        "覆盖图",
+        "缺口",
+        "Raft",
+        "共识",
+        "sangx",
+        "sardis",
+        "消息队列",
+        "全文搜索",
+        "对象存储"
+      ],
+      "parent": null
+    },
+    {
+      "id": "sardis-roadmap",
+      "title": "sardis（暂名）：Redis 重构规划",
+      "file": "11_sardis_roadmap.html",
+      "keywords": [
+        "sardis",
+        "Redis",
+        "KV",
+        "缓存",
+        "RESP",
+        "紧凑编码",
+        "复制",
+        "路线图"
+      ],
+      "parent": null
+    },
+    {
+      "id": "haxe-backend",
+      "title": "Haxe 编译后端：SA 作为 Haxe 的底层目标",
+      "file": "12_haxe_backend.html",
+      "keywords": [
+        "Haxe",
+        "HashLink",
+        "hl2sa",
+        "编译后端",
+        "GC",
+        "底层目标"
+      ],
+      "parent": null
+    },
+    {
+      "id": "goroutine-runtime",
+      "title": "goroutine 运行时：引入 sa_std 的设计讨论",
+      "file": "13_goroutine_runtime.html",
+      "keywords": [
+        "goroutine",
+        "协程",
+        "调度器",
+        "channel",
+        "sa_std",
+        "运行时",
+        "M:N"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cpp-go-frontends",
+      "title": "cpp2sa 与 go2sa：两个新前端的立项讨论",
+      "file": "14_cpp2sa_go2sa.html",
+      "keywords": [
+        "cpp2sa",
+        "go2sa",
+        "C++",
+        "Go",
+        "bc2sa",
+        "前端",
+        "转换器",
+        "TinyGo"
+      ],
+      "parent": null
+    },
+    {
+      "id": "go-feature-candidates",
+      "title": "Go 生态候选语法与底层成套引入",
+      "file": "15_go_feature_candidates.html",
+      "keywords": [
+        "Go",
+        "goroutine",
+        "defer",
+        "recover",
+        "go:embed",
+        "隐式接口",
+        "候选语法",
+        "成套引入"
+      ],
+      "parent": null
+    },
+    {
+      "id": "erlang-verse-candidates",
+      "title": "Erlang 并发候选与 Verse 事务调研评估",
+      "file": "16_erlang_verse.html",
+      "keywords": [
+        "Erlang",
+        "BEAM",
+        "监督树",
+        "monitor",
+        "OTP",
+        "Verse",
+        "事务",
+        "STM",
+        "效应标注"
+      ],
+      "parent": null
+    },
+    {
+      "id": "verse-game-profile",
+      "title": "Verse 游戏向吸纳与插件承载",
+      "file": "17_verse_game_profile.html",
+      "keywords": [
+        "Verse",
+        "游戏",
+        "插件",
+        "语言前端",
+        "方言",
+        "事务推测",
+        "预测回滚",
+        "netcode",
+        "sla_ecs"
+      ],
+      "parent": null
+    },
+    {
+      "id": "mobile-transpile",
+      "title": "移动端转译：sla2swift 与 sla2kotlin",
+      "file": "18_mobile_transpile.html",
+      "keywords": [
+        "Android",
+        "iOS",
+        "Swift",
+        "Kotlin",
+        "sla2swift",
+        "sla2kotlin",
+        "移动端",
+        "转译",
+        "交付客户"
+      ],
+      "parent": null
+    },
+    {
+      "id": "side-tracks-foundation-gaps",
+      "title": "支线研究与底层不足登记",
+      "file": "19_side_tracks_foundation_gaps.html",
+      "keywords": [
+        "支线",
+        "底层不足",
+        "登记册",
+        "sla2ts",
+        "SAX",
+        "跨平台",
+        "std 修复优先",
+        "内存模型",
+        "整数溢出"
+      ],
+      "parent": null
+    },
+    {
+      "id": "gaokao-unified-engine",
+      "title": "高考统一引擎「衡 · Heng」（生化核心演算先行）：开发计划",
+      "file": "20_biochem_education_language.html",
+      "keywords": [
+        "衡",
+        "Heng",
+        "高考",
+        "统一引擎",
+        "四科一体",
+        "数学",
+        "物理",
+        "化学",
+        "生物",
+        "教育",
+        "分级教学",
+        "反应网络",
+        "热力学",
+        "守恒",
+        "检查器",
+        "核心演算",
+        "CTMC",
+        "three.js",
+        "ECS",
+        "sla_ecs",
+        "全覆盖验证",
+        "SLA 实现"
+      ],
+      "parent": null
     }
   ]
 }
