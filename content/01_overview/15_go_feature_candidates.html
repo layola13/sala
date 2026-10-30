@@ -24,14 +24,15 @@
 <li><strong>隐式接口：0.29（末位）</strong>——先普查 SLA 既有泛型 / trait 面再单独裁定。</li>
 </ul>
 <p><strong>打包裁定</strong>：defer + recover 随 SLA goroutine 语法批<strong>同批设计交付</strong>（0.73）。embed 为独立小批，随时可插。</p>
+<p><strong>落地状态（2026-10-30）</strong>：defer、goroutine 边界 recover / 监督语义与 context 式取消约定已随 SLA 语法批落地并集成关闭（sa_plugin_sla master <code>6004af4</code> / sci main <code>e7c18568</code>），使用例见 <a href="13_goroutine_runtime.html">13 号文档</a>第十五节（例 4 defer、例 5 监督重启、例 6 monitor、例 7 Done 取消）。go:embed 未随本批落地（本地小批已完工、未集成，维持独立排期）；隐式接口维持第七节裁定（不采纳，D 登记不排期）。</p>
 
 <h2>三、各候选的设计要点</h2>
 <ul>
-<li><strong>defer</strong>：作用域退出时按 LIFO 执行登记的清理动作——是<strong>任意动作、不止 drop</strong>（owned 值的自动释放已有 drop 机制，defer 覆盖的是 drop 之外的清理）；与 sync 原语的 <code>lock(); defer unlock()</code> idiom 配套交付。</li>
-<li><strong>recover</strong>：仅在 <strong>goroutine 边界</strong>承接 trap——记日志、重启或降级，使单条连接的故障不拖死整个进程。<strong>明示：不是通用异常系统、不替代 Result 错误处理</strong>，普通代码的错误仍走 Result + 传播符。</li>
+<li><strong>defer</strong>：作用域退出时按 LIFO 执行登记的清理动作——是<strong>任意动作、不止 drop</strong>（owned 值的自动释放已有 drop 机制，defer 覆盖的是 drop 之外的清理）；与 sync 原语的 <code>lock(); defer unlock()</code> idiom 配套交付。（已落地：块作用域 LIFO + 参数快照，见 13 号文档第十五节例 4。）</li>
+<li><strong>recover</strong>：仅在 <strong>goroutine 边界</strong>承接 trap——记日志、重启或降级，使单条连接的故障不拖死整个进程。<strong>明示：不是通用异常系统、不替代 Result 错误处理</strong>，普通代码的错误仍走 Result + 传播符。（已落地：边界 trap + <code>supervisor.sla</code> 监督重启，见 13 号文档第十五节例 5、例 6。）</li>
 <li><strong>编译期嵌入（embed）</strong>：编译期读文件、落数据段，供单二进制部署携带静态资源/模板；路径纪律与构建可复现性待该批设计时处理，不预设。</li>
 <li><strong>隐式接口</strong>：结构满足（有方法集即实现）+ 消费方定义小接口。是<strong>语言级承诺</strong>，须普查先行（SLA 既有泛型 / trait 面的对齐盘点），普查后再单独裁定，不阻塞 goroutine 程序。</li>
-<li><strong>context 式取消约定</strong>：不是语法，是 std 规范——一个可 select 的 Done 通道（或等价形态）沿调用链传递取消信号，随通道批一起立规范。</li>
+<li><strong>context 式取消约定</strong>：不是语法，是 std 规范——一个可 select 的 Done 通道（或等价形态）沿调用链传递取消信号，随通道批一起立规范。（已落地：<code>sa_std/ctx.sla</code> 惯用法，见 13 号文档第十五节例 7。）</li>
 </ul>
 
 <h2>四、落选记录</h2>
@@ -42,7 +43,7 @@
 </ul>
 
 <h2>五、状态与排程</h2>
-<p>本页为候选与排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准：运行时一期 → SLA 语法批（扩围含 defer 与 recover/监督）→ 三台改造。embed 小批可插队；隐式接口候普查后裁定。</p>
+<p>本页为候选与排序的登记处；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准。现状（2026-10-30）：运行时一期与 SLA 语法批（扩围含 defer 与 recover / 监督、Done 取消约定）均已完工并集成关闭；下一步为定序二三台 goroutine 改造（预备与 Jev 三裁已就绪）。embed 小批维持独立排期（本地完工、未集成）；隐式接口已普查并裁定不采纳（见第七节）。</p>
 
 <h2>六、对三台目标项目的帮助评估（主会话评估，2026-10-29）</h2>
 <p><strong>总纲</strong>：帮助主要在并发结构、健壮性与开发速度，不在单机吞吐数字。三台的 99% 缺口此前归因都不在并发模型，goroutine 不直接抬性能数字。</p>

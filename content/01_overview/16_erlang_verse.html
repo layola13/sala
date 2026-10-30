@@ -8,15 +8,15 @@
 <body>
 <div class="topic-header">入门指南 &gt; Erlang 并发候选与 Verse 事务调研评估</div>
 
-<div class="note">状态：评估记录（2026-10-29）。本页登记 Erlang 并发候选与 Verse 事务调研的评估结论及 Jev 裁定；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链与 <a href="15_go_feature_candidates.html">15 号文档</a>为准。</div>
+<div class="note">状态：评估记录（2026-10-29）；Erlang 面现状已同步（2026-10-30）。本页登记 Erlang 并发候选与 Verse 事务调研的评估结论及 Jev 裁定；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链与 <a href="15_go_feature_candidates.html">15 号文档</a>为准。<strong>现状：监督结构与 monitor 已随定序一落地并集成关闭（2026-10-30，sci main <code>e7c18568</code> / sa_plugin_sla master <code>6004af4</code>，见第一节与第五节）；OTP 骨架的家已裁定为 sci sa_std 的 .sla 惯用法、随定序二落地；预算式让出仍为 goroutine v2 登记项。Verse / STM 仍属定序三，未动。</strong></div>
 
 <h2>一、Erlang 候选（主会话评估）</h2>
 <p>Erlang 的强处在 BEAM 虚拟机上的<strong>故障架构</strong>：Actor 模型零共享状态、按归约计数预算的真抢占调度、链接/监视加监督树构成的容错体系，外加分布与热升级。它的进程首先是故障隔离域，并行只是副产品。从中取四项候选：</p>
 <ul>
-<li><strong>监督结构升格 std 一等件</strong>：承 <a href="15_go_feature_candidates.html">15 号文档</a>已采的 goroutine 边界 recover 之上，把重启策略做成声明式 std 件（一组 goroutine 挂在监督者下，写明 one-for-one / 全组重启 / 重启强度上限），而不是每个服务器各自手写 recover 循环。</li>
-<li><strong>monitor：死亡通知即消息</strong>：goroutine 退出或崩溃时，向监视方投递一条可经通道 / select 接收的信号，把「等对方死」从轮询变成事件。运行时侧只是一个小原语，与已定的通道 + select 表面严丝合缝。</li>
-<li><strong>预算式让出检查</strong>：Erlang 归约计数的静态版——编译器在循环回边 / 调用点插入计数检查，预算耗尽即让出。这是治「CPU 型 goroutine 不让出饿死同伴」的正解，但要动编译器发射，登记为 goroutine 二期候选。</li>
-<li><strong>OTP 式服务器骨架作 std 库惯用法</strong>：gen_server 形的标准服务器骨架（init / handle / 状态循环）是纯库层模式，等语法批落地后做成 SLA std 惯用法，不动语言。</li>
+<li><strong>监督结构升格 std 一等件</strong>：承 <a href="15_go_feature_candidates.html">15 号文档</a>已采的 goroutine 边界 recover 之上，把重启策略做成声明式 std 件（一组 goroutine 挂在监督者下，写明 one-for-one / 全组重启 / 重启强度上限），而不是每个服务器各自手写 recover 循环。——<strong>已落地（2026-10-30）</strong>：std 一等件 <code>sa_std/supervisor.sla</code>（<code>supervise</code> / <code>supervise_policy</code>，one-for-one + 重启预算）与 <code>go supervised</code> 边界 spawn 随语法批集成关闭；使用例见 <a href="13_goroutine_runtime.html">13 号文档</a>第十五节例 5。</li>
+<li><strong>monitor：死亡通知即消息</strong>：goroutine 退出或崩溃时，向监视方投递一条可经通道 / select 接收的信号，把「等对方死」从轮询变成事件。运行时侧只是一个小原语，与已定的通道 + select 表面严丝合缝。——<strong>已落地（2026-10-30）</strong>：<code>monitor(handle)</code> 返回 <code>Chan&lt;(u64, i32)&gt;</code>，正常退出与边界 trap 均以 (handle, code) 消息投递、可经 select 接收，trap 记录另经 <code>sa_task_trap_info</code> 读回；运行时原语随 sci companion 落地。使用例见 13 号文档第十五节例 6。</li>
+<li><strong>预算式让出检查</strong>：Erlang 归约计数的静态版——编译器在循环回边 / 调用点插入计数检查，预算耗尽即让出。这是治「CPU 型 goroutine 不让出饿死同伴」的正解，但要动编译器发射，登记为 goroutine 二期候选。——<strong>未落地</strong>：仍为 goroutine v2 头条登记项，本批未动。</li>
+<li><strong>OTP 式服务器骨架作 std 库惯用法</strong>：gen_server 形的标准服务器骨架（init / handle / 状态循环）是纯库层模式，等语法批落地后做成 SLA std 惯用法，不动语言。——<strong>未落地，落点已裁定</strong>：Jev 裁定（2026-10-30，定序二预备）入 sci 的 sa_std 作 .sla 惯用法文件 + 测试（sa_std_idiom 1.0），随定序二三台 goroutine 改造一并落地。</li>
 </ul>
 <p><strong>不取三项</strong>：邮箱 + 选择性接收全套（单队列模式匹配接收语义复杂、扫描成本有名，通道 + select 已覆盖主要价值且所有权故事更干净）；不可变 + 拷贝语义（与所有权零拷贝正相反，我们在「无共享」上走通道传所有权这条静态更强的路，不换道）；分布与热升级（三台都是单机对标物，db 还明确拒网络监听面，与本生态无关）。</p>
 <p><strong>隔离对照</strong>：Erlang 进程的隔离性是靠「每进程 GC + 全拷贝」买的，这正是无 GC 模型付不起也不必付的——我们的监督走<strong>边界 trap + 所有权栈</strong>，隔离强度够服务器用，成本低一个量级。</p>
@@ -39,18 +39,18 @@
 <h2>四、Jev 评估与采纳处置（2026-10-29）</h2>
 <p>评估（2026-10-29，jev-1.14.0，逐项 noul，裁定文件 <code>~/workspace/jev-designs/erlang_verse_candidates.json</code>），默认同意、已采纳：</p>
 <ul>
-<li><strong>monitor 死亡通知（经通道 / select）：采纳 0.81</strong>。</li>
-<li><strong>OTP 式服务器骨架作 std 惯用法：采纳 0.77</strong>。</li>
-<li><strong>预算式让出检查：登记为 goroutine v2 头条 0.74</strong>。</li>
-<li><strong>监督结构 std 一等件：随 SLA 语法批采纳 0.72</strong>。</li>
-<li><strong>Verse 式效应标注：进 SLA 语法批的 async 互操作设计 0.66</strong>。</li>
-<li><strong>monitor 运行时半部预留进运行时 v1：0.58</strong>（温和肯定——留形不扩验收）。</li>
+<li><strong>monitor 死亡通知（经通道 / select）：采纳 0.81</strong>。（已落地，见第一节。）</li>
+<li><strong>OTP 式服务器骨架作 std 惯用法：采纳 0.77</strong>。（未落地；家已裁定为 sci sa_std .sla 惯用法，随定序二。）</li>
+<li><strong>预算式让出检查：登记为 goroutine v2 头条 0.74</strong>。（未落地。）</li>
+<li><strong>监督结构 std 一等件：随 SLA 语法批采纳 0.72</strong>。（已随语法批落地。）</li>
+<li><strong>Verse 式效应标注：进 SLA 语法批的 async 互操作设计 0.66</strong>。（已以效应规则 R2 形态随语法批落地，见 13 号文档第十一、十四节。）</li>
+<li><strong>monitor 运行时半部预留进运行时 v1：0.58</strong>（温和肯定——留形不扩验收）。（运行时 v1 已交付该面，并经语法批 companion 补全消费语义。）</li>
 <li><strong>Verse 隐式事务回滚不采纳：确认 0.86</strong>。</li>
 <li><strong>联机预测 / 并行 STM 只观察：确认 0.86</strong>。</li>
 </ul>
 
 <h2>五、状态与排程</h2>
-<p>本页为 Erlang / Verse 两路候选与评估的登记处。落地次序随既定定序链：monitor 的运行时半部在运行时一期留形；监督结构与效应标注随 SLA goroutine 语法批；OTP 骨架在语法批后作 std 惯用法；预算让出登记 goroutine 二期。Verse 隐式回滚与联机预测不立项。</p>
+<p>本页为 Erlang / Verse 两路候选与评估的登记处。<strong>现状（2026-10-30）：Erlang 面主体已落地并集成关闭</strong>——运行时一期（sci <code>870cda60</code>）交付 goroutine 边界 trap / recover、monitor 交付与监督原语、context 取消的 Done 通道；SLA 语法批（sa_plugin_sla <code>6004af4</code> + sci companion <code>e7c18568</code>）交付 <code>go supervised</code>、monitor 语法面、<code>supervisor.sla</code> std 一等件与 Verse 式效应规则 R2，关账见 <a href="13_goroutine_runtime.html">13 号文档</a>第十四节、使用例见第十五节。未落地两项：OTP 骨架（家 = sci sa_std .sla 惯用法文件，Jev 2026-10-30 裁定 sa_std_idiom 1.0，随定序二三台 goroutine 改造落地）；预算式让出（goroutine v2 头条，仍登记）。Verse 隐式回滚与联机预测不立项；STM 窄形态仍属定序三、双门未过（见第六节）。</p>
 
 <h2>六、STM 窄形态候选（Haskell 显式式，2026-10-29）</h2>
 <p><strong>区分在先</strong>：本节的 STM 指 <strong>Haskell 显式式</strong>——<code>atomically</code> 块圈定范围、读写走事务变量、冲突时自动重试，块与块可组合（含 <code>orElse</code> 的「试 A、不行试 B」）。它与第二节所述、第四节已否的 <strong>Verse 隐式回滚</strong>（写进失败上下文即自动暂定 / 撤销，不采纳确认 0.86）不是一物——<strong>否隐式式不等于否显式式</strong>，故本节单独裁定。</p>

@@ -8,7 +8,7 @@
 <body>
 <div class="topic-header">入门指南 &gt; goroutine 运行时：引入 sa_std 的设计讨论</div>
 
-<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收；SLA 内建语法面经 S3 重裁改为紧随运行时一期验收之后（见第八节）。<strong>运行时一期已完工并集成关闭（见第十节）；SLA 语法面一批已完工并集成关闭（见第十四节）。</strong></div>
+<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收；SLA 内建语法面经 S3 重裁改为紧随运行时一期验收之后（见第八节）。<strong>运行时一期已完工并集成关闭（见第十节）；SLA 语法面一批已完工并集成关闭（见第十四节）；七个可跑使用例（2026-10-30 盒上实测）见第十五节。</strong></div>
 
 <h2>一、命题与落点</h2>
 <p>命题：能否把 Go 的 goroutine 引入 SA。讨论收敛的落点是：<strong>不进 SA 规约</strong>——SA 底座冻结（寄存器 + 所有权/能力规约保持稳定，不为任何单一前端让路）；goroutine 本质是一个运行时能力，应落在 <strong>sa_std 运行时核心</strong>，上层语法面（SLA 的 spawn 面、go2sa 的 <code>go</code> 语句）只是表面糖。定位上它属于基础核心，合「一切基础核心 built-in sa_std、插件只做包装/框架层」的架构 doctrine：没有它，goroutine 语义的每个上层消费者都要各自造调度器轮子。</p>
@@ -143,5 +143,268 @@
 <p><strong>基点缺陷登记去向（遗留，均未修、不得作已修计）</strong>：FIXLOG 第四节停报清单 7 项去向如一——① text codegen 字符串字面量物化为 &amp;Slice 的 const 标签不一致（globals 同 key set/get 异键，阻断 go_spawn / go_defer / go_supervised 与 acc 一族的 text 面；SAB 全绿）；② Box::new 结构体字面量的 Chan 字段物化损坏（60912/60915/60916 家族，阻断 acc_chan_pingpong 与 acc_echo_server 全绿；栈结构体同形态正常）；③ <code>*p</code> 聚合解引用双后端段错误（lowering 已绕行，仅登记）；④ 宿主缺陷 <code>sa sla test</code> 在 zig cc 启动失败时 rc=0 假绿（本批全程以「rc ∧ test result 行 ∧ 名字集」判读即为此设）；⑤ 表达式位 go 未扩批，登记为后续候选（go 仅语句/let 初值位）；⑥ <code>176_result_flattening</code> 的 UseAfterMove 为基点宽口径下既有（pristine 基点同命令同签名复证），登记不修；⑦ 探针 e1（循环内 spawn + globals get 续跑）双后端 signal 11，未深挖、仅记录。另两项独立遗留：<strong>text async 机器缺陷</strong>——block_on 驱动使按值传入 async fn 的 Chan 句柄失效（驱动后 len/send/destroy 依次 60917/60912/60914、帧退出 segfault；无 select 的最小形同败，定性为既有 async 机器基点级缺陷，go_async_interop 的 text 面待 async 线处置）；<strong>go_supervised SAB 非确定性</strong>（trap_info 9717，时序性，语料轮次间双向翻转，只记不追）。曾登记者中两项已同批合上、不入遗留：SAB genMemForgetCall 镜像缺失（第十节收口笔修复）、select 落穿共同根（4fec60b / 6004af4 修复）。</p>
 <p><strong>HANG 根因订正（与段 6 判定并存）</strong>：段 6 的 104 条 HANG 后经定位线查实<strong>与编译管线无关</strong>——自家 <code>src/batch_test_runner.zig</code> 顶替 Zig 自带 runner 却从未初始化 <code>std.testing.io_instance</code>，凡触 <code>std.testing.tmpDir</code> / <code>io</code> 的测试在毒化 mutex 字（.data 初值 0xAAAAAAAA）上 futex 永等；静态扫描得引用 tmpDir/io 者恰 104 名，与 HANG 名单逐名相等（双向差集 0），四样本崩溃栈逐帧同根（HANG_LOCALIZE.md）。修复 <code>780d004</code>（逐测试体 init，承监督者补丁 dd625ee）已本地落地：四代表名转 PASS、切片 [0,80) 79 PASS / 1 FAIL / 0 HANG 且新浮出真实 FAIL = 0。两件事并存不悖：<strong>段 6 对照判定成立</strong>（双树同用一副坏 runner、PASS/FAIL 集为真），但 104 条从未得到真实判定，<strong>段 6 基线作废</strong>——全量 331 重定基线随 runner 批（dd625ee + 780d004）集成另行执行，浮出的真实 FAIL 归基线重定处理、不回溯本批判定。</p>
 <p><strong>关闭</strong>：语法批至此关闭。后续定序不变（第九节）：runner 批集成与套件重定基线 → 定序二三台 goroutine 改造 → 定序三吸纳；上列遗留缺陷各归其线（async 线、编译器线、宿主线）排期，不随本批关闭而销账。</p>
+<h2>十五、使用例（2026-10-30 盒上实测）</h2>
+<p>以下七例于 2026-10-30 在 Colab 盒上以当前 master 工具链实测通过：sa 0.1.8、sla 插件 @<code>6004af4</code>、sci @<code>e7c18568</code>；构建命令 <code>SA_PLUGIN_DEV=1 sa sla build-exe &lt;例&gt;.sla</code>（SAB 发射），下方输出为程序真实 stdout（每例至少连跑 3 次一致，例 3 连跑 10 次）。形态裁剪自已交付验收语料（gosyntax 验收集与 <code>test_unit_go_*</code> 语料），仅作规模缩减与 <code>main</code> + <code>println</code> 呈现化，语法形态逐字保留。<strong>口径注意</strong>：宿主按扩展名直调 <code>sa build-exe &lt;例&gt;.sla</code> 目前走 text 发射面，本节含 globals 字符串键的例子会命中第十四节遗留①（同 key set / get 异键、读回为 0），故统一以 <code>sa sla build-exe</code> 为准；两步式（<code>sa sla sab build</code> 产出 .sab 后再 <code>sa build-exe</code> 该 .sab）亦实测等价（例 1 验证）。</p>
+<h3>例 1 · go 出发与 join</h3>
+<pre><code>@import &quot;sa_std/io/print.sai&quot;
+@import &quot;sa_std/fmt.sai&quot;
+@import &quot;sa_std/globals.sai&quot;
+@import &quot;sa_std/task.sai&quot;
+fn bump(arg: u64) {
+    let out: u64 = 0;
+    let rc = sa_global_u64_add(&quot;acc_ctr&quot;, 8, 3, &amp;out);
+    if rc != 0 { panic(101); };
+}
+fn main() -&gt; i32 {
+    let rc0 = sa_global_u64_set(&quot;acc_ctr&quot;, 8, 0);
+    if rc0 != 0 { panic(102); };
+    let handles: [u64; 8] = [0; 8];
+    let i: u64 = 0;
+    while i &lt; 8 {
+        let h = go bump(0);
+        handles[i] = h;
+        i = i + 1;
+    }
+    let j: u64 = 0;
+    while j &lt; 8 {
+        let st = sa_task_join(handles[j]);
+        if st != 0 { panic(103); };
+        j = j + 1;
+    }
+    let v: u64 = 0;
+    let rc = sa_global_u64_get(&quot;acc_ctr&quot;, 8, &amp;v);
+    println(&quot;total = {}&quot;, v);
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre>total = 24</pre>
+<p>8 个 goroutine 各对共享原子格 +3；句柄收进数组后逐个 <code>sa_task_join</code>（返回 0 = 正常退出），总和 24 = 8 × 3。</p>
+<h3>例 2 · Chan 请求 / 应答（ping-pong）</h3>
+<pre><code>@import &quot;sa_std/io/print.sai&quot;
+@import &quot;sa_std/fmt.sai&quot;
+@import &quot;sa_std/task.sai&quot;
+fn pp_worker(ch: Chan&lt;u64&gt;) {
+    let (v1, closed1) = ch.recv();
+    if closed1 { panic(201); };
+    ch.send(v1 + 1);
+    let (v2, closed2) = ch.recv();
+    if closed2 { panic(202); };
+    ch.send(v2 + 1);
+}
+fn main() -&gt; i32 {
+    let ch: Chan&lt;u64&gt; = Chan::new(0);
+    let h = go pp_worker(ch);
+    ch.send(10);
+    let (r1, c1) = ch.recv();
+    if c1 { panic(203); };
+    println(&quot;reply = {}&quot;, r1);
+    ch.send(20);
+    let (r2, c2) = ch.recv();
+    if c2 { panic(204); };
+    println(&quot;reply = {}&quot;, r2);
+    let st = sa_task_join(h);
+    if st != 0 { panic(205); };
+    ch.destroy();
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre>reply = 11
+reply = 21</pre>
+<p>通道句柄按值传给 goroutine（句柄可拷贝，载荷所有权随 send 移动）；无缓冲通道上 send / recv 成对会合，worker 每轮回 +1。注：Chan 字段内嵌结构体再经 Box 物化的形态有已登记缺陷（第十四节遗留②），本例用直传句柄形态。</p>
+<h3>例 3 · select 多路收集</h3>
+<pre><code>@import &quot;sa_std/io/print.sai&quot;
+@import &quot;sa_std/fmt.sai&quot;
+@import &quot;sa_std/task.sai&quot;
+fn producer(ch: Chan&lt;u64&gt;) {
+    let i: u64 = 0;
+    while i &lt; 10 {
+        ch.send(1);
+        i = i + 1;
+    }
+}
+fn main() -&gt; i32 {
+    let a: Chan&lt;u64&gt; = Chan::new(16);
+    let b: Chan&lt;u64&gt; = Chan::new(16);
+    let h1 = go producer(a);
+    let h2 = go producer(b);
+    let total: u64 = 0;
+    let got: u64 = 0;
+    while got &lt; 20 {
+        select {
+            case let (v, closed) = a.recv() {
+                total = total + v;
+                got = got + 1;
+            }
+            case let (v, closed) = b.recv() {
+                total = total + v;
+                got = got + 1;
+            }
+            timeout(10000000000) { panic(301); }
+        }
+    }
+    let s1 = sa_task_join(h1);
+    let s2 = sa_task_join(h2);
+    println(&quot;collected = {}&quot;, total);
+    a.destroy();
+    b.destroy();
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre>collected = 20</pre>
+<p>两名生产者各送 10 个 1；select 每次在一路就绪时即收，跨通道到达顺序自由、总量确定。<code>timeout</code> 臂是 10 秒兜底；缓冲 16 使生产者不阻塞。</p>
+<h3>例 4 · defer 的 LIFO 与参数快照</h3>
+<pre><code>@import &quot;sa_std/io/print.sai&quot;
+@import &quot;sa_std/fmt.sai&quot;
+@import &quot;sa_std/globals.sai&quot;
+fn log_digit(v: i64) {
+    let cur: u64 = 0;
+    let rc1 = sa_global_u64_get(&quot;acc_dlog&quot;, 8, &amp;cur);
+    if rc1 != 0 { panic(401); };
+    let rc2 = sa_global_u64_set(&quot;acc_dlog&quot;, 8, cur * 10 + (v as u64));
+    if rc2 != 0 { panic(402); };
+}
+fn defer_fn() -&gt; i64 {
+    defer log_digit(1);
+    let x: i64 = 2;
+    defer log_digit(x);
+    x = 9;
+    {
+        defer log_digit(3);
+        log_digit(4);
+    }
+    if x == 9 {
+        defer log_digit(5);
+        return 7;
+    };
+    return 0;
+}
+fn main() -&gt; i32 {
+    let rc0 = sa_global_u64_set(&quot;acc_dlog&quot;, 8, 0);
+    let r = defer_fn();
+    let cur: u64 = 0;
+    let rc = sa_global_u64_get(&quot;acc_dlog&quot;, 8, &amp;cur);
+    println(&quot;order = {}&quot;, cur);
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre>order = 43521</pre>
+<p>输出数字串逐位即执行序：4（语句直执）→ 3（内层块退出）→ 5（早退路径的 if 块）→ 2（登记时 x 的快照，不是后改的 9）→ 1（最外层）。defer 为块作用域、后进先出。</p>
+<h3>例 5 · supervised：trap → recover → 重启</h3>
+<pre><code>@import &quot;sa_std/io/print.sai&quot;
+@import &quot;sa_std/fmt.sai&quot;
+@import &quot;sa_std/globals.sai&quot;
+@import &quot;sa_std/task.sai&quot;
+@import &quot;sa_std/supervisor.sla&quot;
+fn flaky(arg: u64) {
+    let n: u64 = 0;
+    let rc = sa_global_u64_add(&quot;acc_attempts&quot;, 8, 1, &amp;n);
+    if rc != 0 { panic(501); };
+    if n &lt;= 2 {
+        let ch: Chan&lt;u64&gt; = Chan::new(0);
+        ch.close();
+        ch.close();
+    };
+}
+fn main() -&gt; i32 {
+    let r0 = sa_global_u64_set(&quot;acc_attempts&quot;, 8, 0);
+    let notify: Chan&lt;(u64, i32)&gt; = Chan::new(8);
+    let policy = supervise_policy(3, 60000);
+    let result = supervise(flaky, 0, policy, notify);
+    if result != 0 { panic(502); };
+    let (m1, ok1) = notify.recv();
+    println(&quot;exit 1 code = {}&quot;, m1.1);
+    let (m2, ok2) = notify.recv();
+    println(&quot;exit 2 code = {}&quot;, m2.1);
+    let (m3, ok3) = notify.recv();
+    println(&quot;exit 3 code = {}&quot;, m3.1);
+    let attempts: u64 = 0;
+    let rc = sa_global_u64_get(&quot;acc_attempts&quot;, 8, &amp;attempts);
+    println(&quot;attempts = {}&quot;, attempts);
+    notify.destroy();
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre>exit 1 code = 4
+exit 2 code = 4
+exit 3 code = 0
+attempts = 3</pre>
+<p>flaky 前两次以双重 close 触发 goroutine 边界 trap（码 4）；std 监督者 <code>supervise</code> 读回 trap 记录、经 notify 通道投递 (handle, code)，并在重启预算内重启，第三次成功（码 0）。边界 recover 不是通用异常系统（见 15 号文档第三节）。</p>
+<h3>例 6 · monitor：退出通知即消息</h3>
+<pre><code>@import &quot;sa_std/io/print.sai&quot;
+@import &quot;sa_std/fmt.sai&quot;
+@import &quot;sa_std/task.sai&quot;
+fn mon_ok(arg: u64) {
+    let rc = sa_task_yield();
+    if rc != 0 { panic(601); };
+}
+fn mon_bad(arg: u64) {
+    let ch: Chan&lt;u64&gt; = Chan::new(0);
+    ch.close();
+    ch.close();
+}
+fn main() -&gt; i32 {
+    let h1 = go mon_ok(0);
+    let h2 = go supervised mon_bad(0);
+    let m1 = monitor(h1);
+    let m2 = monitor(h2);
+    let got: u64 = 0;
+    while got &lt; 2 {
+        select {
+            case let (msg, closed) = m1.recv() {
+                println(&quot;h1 exit code = {}&quot;, msg.1);
+                got = got + 1;
+            }
+            case let (msg, closed) = m2.recv() {
+                println(&quot;h2 exit code = {}&quot;, msg.1);
+                got = got + 1;
+            }
+            timeout(10000000000) { panic(602); }
+        }
+    }
+    let s1 = sa_task_join(h1);
+    let s2 = sa_task_join(h2);
+    m1.destroy();
+    m2.destroy();
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre>h1 exit code = 0
+h2 exit code = 4</pre>
+<p><code>monitor(handle)</code> 返回 <code>Chan&lt;(u64, i32)&gt;</code>：正常退出投递码 0、supervised 子的边界 trap 投递码 4，都可继续用 select 收。两条通知的到达顺序随调度，本例多次实测均为 h1 先行。</p>
+<h3>例 7 · Done 通道广播取消</h3>
+<pre><code>@import &quot;sa_std/io/print.sai&quot;
+@import &quot;sa_std/fmt.sai&quot;
+@import &quot;sa_std/task.sai&quot;
+@import &quot;sa_std/globals.sai&quot;
+@import &quot;sa_std/ctx.sla&quot;
+fn worker(done: Chan&lt;u64&gt;) {
+    while !is_done(done) {
+        let rc = sa_task_yield();
+        if rc != 0 { panic(701); };
+    }
+    let rc2 = sa_global_u64_set(&quot;doneflag&quot;, 8, 1);
+    if rc2 != 0 { panic(702); };
+}
+fn main() -&gt; i32 {
+    let rc0 = sa_global_u64_set(&quot;doneflag&quot;, 8, 0);
+    let done: Chan&lt;u64&gt; = done_new();
+    let h = go worker(done);
+    let i: u64 = 0;
+    while i &lt; 100 {
+        let y = sa_task_yield();
+        i = i + 1;
+    }
+    done_signal(done);
+    let st = sa_task_join(h);
+    if st != 0 { panic(703); };
+    let flag: u64 = 0;
+    let rc = sa_global_u64_get(&quot;doneflag&quot;, 8, &amp;flag);
+    println(&quot;cancelled = {}&quot;, flag);
+    done.destroy();
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre>cancelled = 1</pre>
+<p><code>sa_std/ctx.sla</code> 惯用法：Done 是一个只关不发的 <code>Chan&lt;u64&gt;</code>，<code>done_signal</code> 关闭即向全部 worker 广播，worker 以 <code>is_done</code> 非阻塞探测后退出并置旗。验收集的 echo 服务器例是同一惯用法的服务器形态。</p>
 </body>
 </html>
