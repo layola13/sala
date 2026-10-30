@@ -169,5 +169,30 @@
 </ul>
 
 <p>相关记录：<a href="18_mobile_transpile.html">移动端转译：sla2swift 与 sla2kotlin</a>（方向讨论记录）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（总定序与并发语义来源）、<a href="17_verse_game_profile.html">Verse 游戏向吸纳与插件承载</a>（定序三）。</p>
+
+<h2>六、语言演进：普通函数重载（extern 面，2026-10-30，已裁决、按裁应用中）</h2>
+<p>本节登记一则讨��及其裁决：用户 2026-10-30 问 SLA 的函数重载现状，经核实后当场拍板引入普通函数重载、限定在 extern 面，现状态为<strong>已裁决、按裁应用中（2026-10-30）</strong>。本节的用途是存下现状口径、拍板理由、解析纪律与应用状态，防将来重新论证一遍。</p>
+
+<h3>现状口径（主会话四出处核实）</h3>
+<ul>
+<li><strong>运算符重载早就有。</strong><code>@overload</code> 块是显式的静态运算符扩展层：块内声明如 <code>fn +(self: Vec2, other: Vec2) -&gt; Vec2</code>，前端将 <code>a + b</code> 改写为同类型静态函数调用，纯前端层、零运行时成本。语料在册：sa_plugin_sla <code>tests/test_unit_overload_add.sla</code>（「overload add rewrites to static dispatch」）、demos/rosetta 301（add）/ 302（neg）/ 303（scalar mul）/ 304（eq）/ 312（块形态）；裸写 <code>overload</code> 无 <code>@</code> 是错误（负例 <code>tests/test_error_bare_overload.sla</code>）。</li>
+<li><strong>普通函数同名则为重声明错误。</strong>同名函数不构成重载集——负例语料 <code>tests/test_error_redeclaration_function.sla</code> 即两份同名 <code>fn repeated</code>，预期报错；全部 tests 与 demos 经扫描无一例同名异签名函数的正面用例，sala 文档亦未载此能力。</li>
+<li><strong>其余同名需求由泛型与按类型方法覆盖。</strong>类型参数化靠泛型；同名方法挂在不同类型上是按接收者类型的命名空间解析，不是重载。</li>
+</ul>
+<p>即：重载面此前被刻意放在歧义不可能出现的地方（运算符按操作数类型解析），自由函数名保持唯一——这不是缺口长出来的洞，是当时的设计取舍。</p>
+
+<h3>用户拍板（2026-10-30）</h3>
+<p>用户裁定：<strong>普通函数也要重载，目的是方便和第三方语言交互。</strong>理由在绑定面：C++ 库、.d.ts 转换产物、.sai 声明这些源 API 普遍同名多签名，现行「唯一名」规矩迫使机械生成的绑定改人工名（<code>foo_i32</code> / <code>foo_f64</code> 之类），绑定与源 API 自此分叉、对照维护成本长期存在。绑定面是重载的真实需求来源；用户自写代码并不需要为同名付推断复杂度的账——这一分工正是下面裁决收窄范围的依据。</p>
+
+<h3>Jev 裁决</h3>
+<p>本议题按用户同日新规「缺口型改进 → 送 Jev 审核 → 通过即应用」执行，裁决存档于 <code>jev-designs/fn_overload_ruling.json</code>：</p>
+<ul>
+<li><strong>范围取仅 extern 面（extern_only）0.97</strong>，置信 0.96；落选为全开（full）0.02、不做（none）0.01。即：仅在 extern / 导入声明面（绑定 C++ 库、.d.ts 转换、.sai 声明）允许同名多签名，用户自写函数保持同名唯一——自写代码的推断与命名纪律不为绑定面让路，现有重声明负例对自写函数继续有效。</li>
+<li><strong>解析纪律取推断后精确匹配（exact_after_inference）1.0</strong>，置信 1.0；C++ 式转换排序（cpp_ranking）得 0.0，明确不采。即：类型推断完成后，按元数 + 实参具体类型在同名候选集中精确匹配，<strong>恰一候选命中才合法</strong>；零候选或多候选一律响亮报错并列出候选，不做隐式转换排序、不猜。同签名重复声明仍报错（不是重载，是重声明）；<strong>禁止仅返回值不同构成重载</strong>（返回值不参与解析）。</li>
+</ul>
+
+<h3>层位与应用状态</h3>
+<p>层位：<strong>纯 SLA 前端 / 检查器层</strong>——重载集在前端解析为互异的 SA 符号（按签名改名后降低），SA 底座冻结、不动，零运行时成本。</p>
+<p>实现线已派出：本机独立 worktree <code>~/workspace/fn-overload-local</code>，基点 sla master <code>d82270b2</code>；交付须带七件语料回归（基线树先证伪、双后端）、负例以独立 <code>sla check</code> 判读、插件套件 331 名字集门禁，形态止损线照常适用。由主会话串行集成，次序在 DEF 语料 <code>96a1657</code> 与 view types 一阶线之后。</p>
 </body>
 </html>
