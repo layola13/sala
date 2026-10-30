@@ -140,6 +140,30 @@
 <li>本表只登记「我方栈自身的不足」；目标平台特有问题（如 Kotlin panic 可捕获、Swift 语言模式钉版）属转译项目内部事项，随项目搁置，不入表。</li>
 </ul>
 
+<h2>五、支线讨论：view types / 部分借用（2026-10-30，未立项）</h2>
+<p>本节只登记一则讨论：用户 2026-10-30 问 SLA 是否考虑支持 view types。主会话评估为<strong>讨论级意见，未立项、未裁决</strong>，不排期；真到决策时按惯例送 Jev。本节的用途是存下特性本体、我方证据与评估，防将来重新论证一遍。</p>
+
+<h3>特性本体（Rust 侧事实）</h3>
+<p>view types（视图类型 / 部分借用）让函数签名声明「只借用结构体的这几个字段」，借用检查器据此<strong>跨函数边界</strong>追踪不相交的字段借用。它解决的老问题是：借用检查器在函数体内本能理解不同字段互不相交，一旦跨函数调用就只能整结构体借走——两个函数各借 <code>field_a</code>、<code>field_b</code>，明明不相交，仍报「cannot borrow as mutable more than once」。来源与状态：想法出自 Niko Matsakis 2021 年博客《View types for Rust》，社区诉求可溯至 RFC issue #1215（2015）；现为<strong>树内实验</strong>——nightly 以 <code>#![feature(view_types)]</code> 启用、跟踪 issue #155938，RFC 尚未正式批准、未排稳定化日程（已被接受为项目目标，目标完成时间 2027-04-01）；限制在册：<code>pub</code> / <code>pub(...)</code> 函数上使用是硬错误，view groups、与 pattern types 的交互暂未纳入考虑。stable 上的现成替代是 <code>borrow</code> crate 的 <code>#[derive(Partial)]</code>（宏生成不相交借用集，思路相同、零开销）。注意与 <code>core::sync::SyncView</code>（exclusive_wrapper 面，让非 <code>Sync</code> 类型获得 <code>Sync</code> 标记）无关，勿混。</p>
+
+<h3>我方需求证据（缺陷史，非假设）</h3>
+<ul>
+<li><strong>DEF-KB-1</strong>：句柄类型字段的视图在控制流合流点引发能力状态冲突——字段级视图没有独立记账，合流处置只能落到整对象粒度。</li>
+<li><strong>DEF-5</strong>：字段抽取语义最终经 Jev 裁定为 <strong>clone_on_extract（0.86）</strong>——抽取即深克隆、新绑定真拥有。「把字段拿出来」已有裁定语义。</li>
+<li><strong>(b) 面（DEF-6b 之前）</strong>：owned 结构体行内字段作实参（如 <code>STR_LEN(a.unit)</code>）双后端触发 BorrowConflict 1008，属 KB-1 机制家族。</li>
+</ul>
+<p>三例同族，指向同一缺位：字段粒度的借用记账。「拿出来」（抽取）已有裁定，「跨调用只借一部分字段」（view）是缺失的姊妹面——需求不是从 Rust 抄来的时髦，是自家缺陷史里长出来的。</p>
+
+<h3>层位判断</h3>
+<p>SA 底座冻结、不动：view types 不要求 SA 规约提供任何新东西——字段借用降低后即基指针 + 偏移，<strong>零运行时成本</strong>，它纯属 <strong>SLA 检查器层</strong>议题（字段粒度的借用记账）。slars 一期不纳入：其语法口径以 rustc stable 清单为准，view types 未稳定，不在首期清单内。</p>
+
+<h3>主会话评估（讨论级，未裁决）</h3>
+<ul>
+<li><strong>一阶：检查器级不相交字段借用。</strong>字段投影作实参 / 作局部借用时按字段粒度记账，不引入任何新签名语法。按缺陷史判断，这一阶即可覆盖已观察到的全部痛点。</li>
+<li><strong>二阶：签名级 view 注解。</strong>仅当一阶被实证不够——即真出现「须在 API 边界上声明只访问部分字段」的案例——时再设计；届时参考 Rust RFC 的进展定形，不照搬其未稳定语法。</li>
+<li>是否实施、何时实施未定。</li>
+</ul>
+
 <p>相关记录：<a href="18_mobile_transpile.html">移动端转译：sla2swift 与 sla2kotlin</a>（方向讨论记录）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（总定序与并发语义来源）、<a href="17_verse_game_profile.html">Verse 游戏向吸纳与插件承载</a>（定序三）。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
