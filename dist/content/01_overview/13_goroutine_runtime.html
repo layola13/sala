@@ -406,6 +406,13 @@ fn main() -&gt; i32 {
 <p>实测输出：</p>
 <pre>cancelled = 1</pre>
 <p><code>sa_std/ctx.sla</code> 惯用法：Done 是一个只关不发的 <code>Chan&lt;u64&gt;</code>，<code>done_signal</code> 关闭即向全部 worker 广播，worker 以 <code>is_done</code> 非阻塞探测后退出并置旗。验收集的 echo 服务器例是同一惯用法的服务器形态。</p>
+
+<h2>十六、外部评估结算（2026-10-30）</h2>
+<p>本节登记两份外部评估（Mistral、OpenAI，2026-10-30 经用户转来）与自家文档、语料逐项核对后的结算：只记核实成立者，未成立或属既有实现者不入册。</p>
+<p><strong>让出点集（缩水点，属实）。</strong>现状：SLA 编译器不插入任何让出——没有循环回边让出、没有调用点让出，仅阻塞运行时调用处让出（第十一节 TS-13 已落字）。此口径弱于第七节 S2 裁定原文，也弱于 Go 1.13（其函数入口有栈检查兼职抢占点）：不含阻塞调用的循环可以永久饿死载体线程。后果：预算式让出 v2 由舒适升级项升为必做项；是否提前至三台改造并行线，<strong>待用户裁定</strong>。未裁前，三台改造以手工插 <code>yield</code> 应对，预警已下达各线。</p>
+<p><strong>R2 效应规则深度（缩水点，属实）。</strong>R2 采纳口径为「suspends / traps 写进签名、编译器静态检查」；现交付为浅层句法规则：两个检查点、一个 <code>is_async</code> 布尔、闭包边界复位，不及传递调用、亦不及阻塞 extern 直调。「消除函数染色」的承诺目前只兑现句法层；传递着色附表候检查器新增分析 pass 另行排期，本节如实登记此差距。</p>
+<p><strong>拒绝语料证据（补引）。</strong>外部评估曾指「拒绝语料未见证据」——核对结论为语料实在、文档未引：编译期拒绝形态的语料在 sa_plugin_sla 仓 <code>tests/</code> 内，<code>test_error_*</code> 系列 39 个文件 + <code>diagnostics/</code> 16 个文件（其中 <code>go_diag_*</code> 9 个为本批并发面诊断），以独立前端 <code>sla check</code> 判拒绝为据。此前本页未引，此节补引。竞争形态的覆盖度仍可加强，属编译器线后续工作。</p>
+<p><strong>三台预警（已采纳下达）。</strong>外部评估对三台改造的预警中四条核实成立、已分别写入定序二各线章程：① TLS 握手等 CPU 密集循环在零插入让出下可饿死载体线程，须手工插 <code>yield</code> 或等预算让出 v2；② select 声明序偏置下，扇入收集循环须主动轮转臂序；③ globals 单互斥全序串行不得泄入三台热路径；④ 长驻进程的入口栈深须定义化（第十三节三面不一致为据）。slanginx、db 两线已带此四条开工，slaredis 线开工时同带。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>

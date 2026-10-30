@@ -24,6 +24,7 @@
 <ul>
 <li>首期范围：顺序子集 + 接口 + defer；接口以胖指针 + 方法表落地，defer 以作用域守卫落地。</li>
 <li>goroutine/channel：不自带运行时，直接落在 sa_std 的 goroutine 运行时上（见 <a href="13_goroutine_runtime.html">goroutine 运行时讨论页</a>），其一期范围由该页文末 S1–S6 裁定决定，本页不另立口径。</li>
+<li>语义分歧登记（select 公平性）：SLA 的 select 在多臂同时就绪时按 case 声明序取首个就绪者（确定性偏置），Go 为均匀伪随机选择（防饿死机制）；依赖选择公平性的 Go 代码迁移到 SLA 时须自行轮转臂序。此为已落字契约（见 <a href="13_goroutine_runtime.html">13 号</a>第十一节 TS-13 同源口径），非缺陷。</li>
 <li>GC/堆对象内存故事：独立未解项。候选（首期裁定）：类 TinyGo <code>-gc=leaking</code> 的短命豁免，或按模块 arena/引用计数——不许静默假装有 GC。</li>
 <li>panic/recover：首期只保证 recover-free 代码的 abort 语义，recover 的支持范围显式登记。</li>
 </ul>
