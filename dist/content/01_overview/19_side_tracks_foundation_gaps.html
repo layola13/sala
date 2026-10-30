@@ -140,8 +140,8 @@
 <li>本表只登记「我方栈自身的不足」；目标平台特有问题（如 Kotlin panic 可捕获、Swift 语言模式钉版）属转译项目内部事项，随项目搁置，不入表。</li>
 </ul>
 
-<h2>五、支线讨论：view types / 部分借用（2026-10-30，已裁决、按裁应用中）</h2>
-<p>本节登记一则讨论及其后续处置：用户 2026-10-30 问 SLA 是否考虑支持 view types，现状态为<strong>已裁决、按裁应用中（2026-10-30）</strong>。本节的用途是存下特性本体、我方证据、评估与裁决，防将来重新论证一遍。</p>
+<h2>五、支线讨论：view types / 部分借用（2026-10-30，一阶已落地）</h2>
+<p>本节登记一则讨论及其后续处置：用户 2026-10-30 问 SLA 是否考虑支持 view types，现状态为<strong>一阶（检查器级不相交字段借用）已实现并集成（2026-10-30）</strong>。本节的用途是存下特性本体、我方证据、评估与裁决，防将来重新论证一遍。</p>
 
 <h3>特性本体（Rust 侧事实）</h3>
 <p>view types（视图类型 / 部分借用）让函数签名声明「只借用结构体的这几个字段」，借用检查器据此<strong>跨函数边界</strong>追踪不相交的字段借用。它解决的老问题是：借用检查器在函数体内本能理解不同字段互不相交，一旦跨函数调用就只能整结构体借走——两个函数各借 <code>field_a</code>、<code>field_b</code>，明明不相交，仍报「cannot borrow as mutable more than once」。来源与状态：想法出自 Niko Matsakis 2021 年博客《View types for Rust》，社区诉求可溯至 RFC issue #1215（2015）；现为<strong>树内实验</strong>——nightly 以 <code>#![feature(view_types)]</code> 启用、跟踪 issue #155938，RFC 尚未正式批准、未排稳定化日程（已被接受为项目目标，目标完成时间 2027-04-01）；限制在册：<code>pub</code> / <code>pub(...)</code> 函数上使用是硬错误，view groups、与 pattern types 的交互暂未纳入考虑。stable 上的现成替代是 <code>borrow</code> crate 的 <code>#[derive(Partial)]</code>（宏生成不相交借用集，思路相同、零开销）。注意与 <code>core::sync::SyncView</code>（exclusive_wrapper 面，让非 <code>Sync</code> 类型获得 <code>Sync</code> 标记）无关，勿混。</p>
@@ -159,13 +159,19 @@
 
 <h3>流程与裁决</h3>
 <p>用户 2026-10-30 同日立下新规并已成常规：缺口型缺陷走「<strong>提出语言改进 → Jev 审核 → 通过即应用</strong>」，不许降级、绕道；纯实现 bug 仍直接修复。本议题即按此规送 Jev 并已裁决，裁决存档于 <code>jev-designs/view_types_ruling.json</code>：路线取<strong>分阶（staged_checker_first）0.94</strong>，置信 0.92；落选为只做检查器级 0.04、一步到位签名级 0.01、维持现状 0.01。将来二阶若引入签名注解，语法形态方向取 <strong>SLA 原生字段集（sla_native_fields）0.87</strong>，置信 0.80；落选为宏派生视图结构体 0.09、仿 Rust 实验语法 0.04。</p>
-<p>一阶实现线已派出，采用独立 worktree，由主会话串行集成：范围是<strong>检查器级不相交字段借用</strong>——字段投影作实参 / 作局部借用时按字段记账，不引入新签名语法；交付须带语料回归与 331 名字集门禁，形态止损线照常适用。</p>
+<p>一阶实现线采用独立 worktree、由主会话串行集成：范围是<strong>检查器级不相交字段借用</strong>——字段投影作实参 / 作局部借用时按字段记账，不引入新签名语法；交付带语料回归与 331 名字集门禁，形态止损线照常适用。<strong>该线已完工并集成（详见下「应用记录」）——本议题是同日新规「提出 → Jev 审核 → 通过即应用」的首个全程闭环案例。</strong></p>
+
+<h3>应用记录（一阶落地，2026-10-30）</h3>
+<p><strong>集成结果</strong>：sa_plugin_sla master 自 <code>96a1657</code> 推进至 <code>962544c9d4ea6b03dfb654101a163508f37db035</code>。线内提交两笔——<code>6fd7073</code>（实现）+ <code>ff9d030</code>（语料），主会话 cherry-pick 零冲突集成；集成树与线内验证树逐字等价，仅多 DEF-R3 语料一文件。全程闭环：新规提出语言改进 → Jev 裁分阶 0.94 → 一阶应用 → 语料与门禁验证 → 串行集成。</p>
+<p><strong>一阶内容</strong>：借用记账粒度由整根绑定改为<strong>字段 place（根绑定 + 字段路径）</strong>。此前基线双向有病——不相交字段借用被 SAB 整根锁<strong>过度拒绝</strong>（BorrowConflict 1008），而同字段双写参、前缀重叠、借后直写等重叠形态则检查器<strong>零记账、静默放行</strong>。一阶落地后两边都正：正例语料双后端 10/10 通过；8 件负例经 <code>sla check</code> 以 BorrowConflict 响亮拒绝；基线树上双向证伪成立（正例在基线被拒、负例在基线被放行）。</p>
+<p><strong>门禁</strong>：插件套件在共享的 331 个名字上判定<strong>零差异</strong>，FAIL 名集与基线完全相同——{idx54, idx105, idx106}，属 import-scan-prune 既有家族，非本批引入。修复树共跑 332 测，多出的 1 个即本批新增的负例诊断测试（PASS）。</p>
+<p><strong>二阶状态</strong>：本批<strong>未实证到一阶够不着的案例</strong>——缺陷史三大家族（DEF-KB-1 合流冲突、DEF-5 的抽取姊妹面、(b) 面行内字段作参）的形态在一阶全覆盖，二阶（签名级 view 注解）<strong>不自动启动</strong>。仅一处保守角登记备二阶：同一 place 双借作实参时，仅当被调用方<strong>可证只读</strong>才放行；extern / 仅声明的被调用方按可写处理、一律拒绝。解除点是签名级读写标注（按裁决的 sla_native_fields 方向），待真实需求触发再议。</p>
 
 <h3>主会话评估（已按裁决分阶应用）</h3>
 <ul>
 <li><strong>一阶：检查器级不相交字段借用。</strong>字段投影作实参 / 作局部借用时按字段粒度记账，不引入任何新签名语法。按缺陷史判断，这一阶即可覆盖已观察到的全部痛点。</li>
 <li><strong>二阶：签名级 view 注解。</strong>仅当一阶被实证不够——即真出现「须在 API 边界上声明只访问部分字段」的案例——时再设计；届时按裁决的 <strong>SLA 原生字段集</strong>方向定形，不绑 Rust 未稳定语法。</li>
-<li>实施状态已定：一阶按裁决先行应用，二阶以一阶实证为触发条件。</li>
+<li>实施状态：一阶已落地（见「应用记录」）；本批未实证到一阶够不着的案例，二阶不自动启动，以真实需求为触发条件。</li>
 </ul>
 
 <p>相关记录：<a href="18_mobile_transpile.html">移动端转译：sla2swift 与 sla2kotlin</a>（方向讨论记录）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（总定序与并发语义来源）、<a href="17_verse_game_profile.html">Verse 游戏向吸纳与插件承载</a>（定序三）。</p>
