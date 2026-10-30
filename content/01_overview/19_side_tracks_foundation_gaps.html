@@ -207,5 +207,39 @@
 <p><strong>边界（定版、明示）</strong>：① 导入 .sla 签名纳入同一机制（plain 名与 <code>namespace__name</code> 双登记、按成员键去重）；实作中修掉三处名字键控基础设施对同名签名的结构性盲区——SAB prune 可达性按名剪除成员、registry 函数体物化按名单选一体、候选跨源重复，均为本线范围内的必要修复。② 泛型 × 重载<strong>响亮拒绝</strong>（GenericOverloadConflict）——基线对此静默通过、rc=0，是本批最强证伪。③ impl 方法不在范围：方法键 <code>Type_method</code> 维持唯一、重复仍 Redeclaration。④ 函数值裸取引集名 → AmbiguousCall 列候选；成员符号（如 <code>pick__ov_i32</code>）可直接取引 / 调用，即定版补救（检查器无期望类型通道，「按期望签名选成员」无从落地，口径据实修订并由语料钉住）；go 入口按元数唯一选成员、多义报错。⑤ .sai 面：同签名跨文件声明恒静默去重（sa_std <code>io.sai</code> / <code>io/print.sai</code> 实据）；不同签名成集、按 ABI 拼写精确匹配；同参不同返回响亮报错。⑥ 借用实参只命中借用形参（指针成员不吃借用实参）；<code>int</code> 为 i64 的具体别名；未注记闭包字面量作实参经其自身的上下文推断错误响亮拒绝（明示边界，未入语料钉诊断）。</p>
 <p><strong>门禁</strong>：正例语料 6 件双后端全过，且在基线插件上全灭（5× Redeclaration、member_symbol 为 UndefinedVariable）；负例 4 件在修复版得定版诊断、合法对照 rc=0；既有 <code>test_error_redeclaration_function.sla</code> 仍报 Redeclaration，plugin_tests.zig L460 断言所在的 zig 测试（idx8）双树均 OK。插件 331 套件逐索引：基线 OK 328 / FAIL {54, 105, 106}，修复 OK 327 / FAIL {54, 105, 106} / HANG {159}——idx159 单跑在双树均通过（基线 24.1s / 修复 27.3s、user CPU 同为 21.1s），系 30s 门限下的并发 flake、非回归；<strong>失败名字集逐一相同，门禁通过</strong>。另登记一新缺陷（非本线所修）：基线检查器对嵌套调用 <code>outer(inner(v))</code> 重复 checkExpr，move 型 String 实参误报 UseAfterMove，已入 DEF 队列候分诊。</p>
 <p><strong>状态</strong>：实现完工、待主会话集成（摘入 <code>5eb7b59f</code> 之上、守卫推送）；集成后于本节补应用记录。</p>
+
+<h2>七、语言演进：extern 可变参数（2026-10-31，已定版、一批全量实现中）</h2>
+<p>本节登记一则支线讨论及其定版：用户 2026-10-31 问 SLA 有没有可变参数（<code>arg...</code>），四出处加探针核实为<strong>全无</strong>；用户当场令新增、<strong>仅限 extern 面</strong>。设计分叉送 Jev 裁决后，范围分期一项被用户推翻、定版为<strong>一批全量</strong>（声明 / 调用与定义同批、不分期）。现状态为<strong>已定版、实现线已派、未落地</strong>。</p>
+
+<h3>现状与证据（2026-10-31 核实）</h3>
+<ul>
+<li><strong>探针四写法全拒。</strong>以当前工具链对四种候选拼写跑 <code>sla check</code>（探针存本机 <code>~/workspace/vararg-probe/</code>）：<code>fn sum(...nums: i32)</code>、<code>fn sum(nums: ...i32)</code>、<code>fn sum(first: i32, ...rest: &amp;[i32])</code> 与 <code>extern "C" { fn printf(fmt: *u8, ...) -&gt; i32; }</code> 全部以 SyntaxError / UnexpectedTypeToken 被拒；对照的切片形参文件 check 通过。即：连声明一个 C 变参 extern 都写不出来。</li>
+<li><strong>实现层无此面。</strong><code>ast.Param</code> 只有 name / ty / is_borrow / is_move 四个字段，无 variadic 标记；parser、检查器与双 codegen 均无对应通道，不是「有语法未成文」，是整面缺失。</li>
+<li><strong>现行 surrogate 均非变参。</strong>切片形参（rosetta <code>116_va_list_variadic</code> 在总表中标 ❌，实为 slice-sum surrogate，不行真变参调用与 va_list 处理）、定长数组形参（demos/basic/85_rest 注释明文「SLA 暂无剩余参数语法」）、以及第六节的重载多定参版本（每成员仍定元数）——三者都是替代形状，不改变本节结论。</li>
+<li><strong>SA 宏层有变参、勿混。</strong>sci flattener 的 <code>[MACRO]</code> 支持尾随 <code>%args...</code>（有单元测试钉住）——那是 SA 汇编宏层的参数吸收，与 SLA 函数形参无关。</li>
+<li><strong>sci 侧两事实。</strong>LLVM 发射垫片调用 <code>LLVMFunctionType</code> 时 isVarArg 恒传 0——SA 函数类型从不以变参形态发射；<code>llvm2sa</code> 在导入 LLVM 声明时<strong>静默丢弃</strong> <code>...</code> 参数——变参性在该路是被丢失、而非被拒绝，属既存隐患，随本批表示路线一并收口（见下「定版口径」）。</li>
+</ul>
+
+<h3>Rust 参照事实</h3>
+<p>声明与调用 extern C 变参在 Rust 早已可用（printf 式绑定是老面孔）；Rust <strong>1.99.0（2026-10-01）</strong>稳定化的新面是<strong>定义</strong> C 变参函数：<code>unsafe extern "C" fn f(mut args: ...)</code>，其中 <code>...</code> 形参的类型为 <code>core::ffi::VaList</code>（与 C 的 <code>va_list</code> ABI 兼容）。该能力仅限 <code>"C"</code> / <code>"C-unwind"</code> ABI，普通 Rust ABI 函数至今仍不可变参。SLA 与之相比是<strong>两层皆缺</strong>：声明 / 调用面与定义面都没有——本批的范围正是对着这两层定的。</p>
+
+<h3>裁决链</h3>
+<ul>
+<li><strong>用户令（2026-10-31）</strong>：新增可变参数，<strong>仅限 extern 面</strong>；普通 SLA 函数保持定元数，既有重载 / 重声明纪律不动。</li>
+<li><strong>Jev 裁决</strong>（jev-1.14.0，存档于 <code>jev-designs/extern_variadic_ruling.json</code>，五问）：范围分期取 <strong>staged_decl_call_first 0.89</strong>（置信 0.83；decl_call_only 0.11、both_one_shot 0.0）<strong>【本项被用户推翻，见下】</strong>；尾参纪律取 <strong>c_promotions_typed 0.99</strong>（置信 0.98）；表示路线取 <strong>sa_decl_flag_shared 1.0</strong>（置信 1.0）；目标覆盖取 <strong>llvm_c_first_rest_loud 1.0</strong>（置信 1.0）；fn 指针面取 <strong>include_c_fnptr 0.55</strong>（置信仅 0.1、decls_only 0.45，近乎平局——全卷最弱的一项，定版采纳但明记可推翻，线内排在具名声明之后）。</li>
+<li><strong>用户推翻（2026-10-31）</strong>：范围分期一项被用户推翻，定版为 <strong>both_one_shot</strong>——声明 / 调用与定义（VaList）<strong>同批落地、不分期</strong>。与第六节同型：范围归用户、纪律归裁决；其余四项裁决全额采纳执行，不因分期被推翻而动。</li>
+</ul>
+
+<h3>定版口径</h3>
+<ul>
+<li><strong>语法面</strong>：extern 声明（.sla 的 extern 块与导入的 .sai 声明）尾随 <code>...</code>；定义面为在 SLA 中定义导出给 C 调用的变参函数，<code>...</code> 形参 + VaList 读参，对标 Rust 1.99 的形态。普通 fn、闭包与非 C ABI 的 fn 类型写 <code>...</code> 仍响亮拒绝（负例语料钉住）；<code>...</code> 不在末位同样拒绝。</li>
+<li><strong>尾参纪律（调用点）</strong>：C 默认参数提升——窄于 i32 的整型提升为 i32（无符号按 C 规则为 u32）、f32 提升为 f64；仅标量与裸指针可过；聚合体、String / Vec 句柄、借用与 owned 值一律响亮拒绝。这是唯一对真实 C 被调用方 ABI 正确的纪律（对方以 int / double 读 va_arg 时恰得所期），按值原样传递会在寄存器类别 / 宽度上静默错位，不采。</li>
+<li><strong>表示</strong>：SA 文本与 SAB 的 extern 声明共用尾随 <code>...</code> 标志，sci 解析并由发射器消费（LLVM isVarArg=1、C 发射器在原型与调用上打 <code>...</code>）；SA 的代码语义（寄存器 + 所有权 / 能力规约）不动，仅声明面加一个标志，底座冻结不破。<code>llvm2sa</code> 随本批改为保留 <code>...</code>，不再静默丢弃。</li>
+<li><strong>目标覆盖</strong>：LLVM native 与 C 发射器本批支持；wasm / JS 目标对变参声明与调用<strong>响亮 UNSUPPORTED</strong> 并登记缺口（该两目标无可表达的 C 变参 ABI），不许静默错编。</li>
+<li><strong>fn 指针面</strong>：C ABI 的 <code>fn(...)</code> 类型一并可带 <code>...</code>（include_c_fnptr），落地次序在具名声明之后。</li>
+</ul>
+
+<h3>应用状态</h3>
+<p><strong>实现线已派（2026-10-31）</strong>：工地 <code>~/workspace/vararg-extern-local/</code>，基点 sla master <code>5eb7b59f</code> / sci main <code>fcbb6858</code>；本机主本先行、<strong>未推送</strong>，交付经主会话串行集成。交付口径照常：语料须在独立纯净基线树先证伪、双后端四联判读、负例以独立 <code>sla check</code> 判读、失败名字集门禁、形态止损线适用。<strong>状态：已定版、实现中——未落地</strong>；集成与应用记录候实现线交付后补入本节。</p>
 </body>
 </html>
