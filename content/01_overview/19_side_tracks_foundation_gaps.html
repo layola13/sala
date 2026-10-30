@@ -140,8 +140,8 @@
 <li>本表只登记「我方栈自身的不足」；目标平台特有问题（如 Kotlin panic 可捕获、Swift 语言模式钉版）属转译项目内部事项，随项目搁置，不入表。</li>
 </ul>
 
-<h2>五、支线讨论：view types / 部分借用（2026-10-30，未立项）</h2>
-<p>本节只登记一则讨论：用户 2026-10-30 问 SLA 是否考虑支持 view types。主会话评估为<strong>讨论级意见，未立项、未裁决</strong>，不排期；真到决策时按惯例送 Jev。本节的用途是存下特性本体、我方证据与评估，防将来重新论证一遍。</p>
+<h2>五、支线讨论：view types / 部分借用（2026-10-30，已裁决、按裁应用中）</h2>
+<p>本节登记一则讨论及其后续处置：用户 2026-10-30 问 SLA 是否考虑支持 view types，现状态为<strong>已裁决、按裁应用中（2026-10-30）</strong>。本节的用途是存下特性本体、我方证据、评估与裁决，防将来重新论证一遍。</p>
 
 <h3>特性本体（Rust 侧事实）</h3>
 <p>view types（视图类型 / 部分借用）让函数签名声明「只借用结构体的这几个字段」，借用检查器据此<strong>跨函数边界</strong>追踪不相交的字段借用。它解决的老问题是：借用检查器在函数体内本能理解不同字段互不相交，一旦跨函数调用就只能整结构体借走——两个函数各借 <code>field_a</code>、<code>field_b</code>，明明不相交，仍报「cannot borrow as mutable more than once」。来源与状态：想法出自 Niko Matsakis 2021 年博客《View types for Rust》，社区诉求可溯至 RFC issue #1215（2015）；现为<strong>树内实验</strong>——nightly 以 <code>#![feature(view_types)]</code> 启用、跟踪 issue #155938，RFC 尚未正式批准、未排稳定化日程（已被接受为项目目标，目标完成时间 2027-04-01）；限制在册：<code>pub</code> / <code>pub(...)</code> 函数上使用是硬错误，view groups、与 pattern types 的交互暂未纳入考虑。stable 上的现成替代是 <code>borrow</code> crate 的 <code>#[derive(Partial)]</code>（宏生成不相交借用集，思路相同、零开销）。注意与 <code>core::sync::SyncView</code>（exclusive_wrapper 面，让非 <code>Sync</code> 类型获得 <code>Sync</code> 标记）无关，勿混。</p>
@@ -157,11 +157,15 @@
 <h3>层位判断</h3>
 <p>SA 底座冻结、不动：view types 不要求 SA 规约提供任何新东西——字段借用降低后即基指针 + 偏移，<strong>零运行时成本</strong>，它纯属 <strong>SLA 检查器层</strong>议题（字段粒度的借用记账）。slars 一期不纳入：其语法口径以 rustc stable 清单为准，view types 未稳定，不在首期清单内。</p>
 
-<h3>主会话评估（讨论级，未裁决）</h3>
+<h3>流程与裁决</h3>
+<p>用户 2026-10-30 同日立下新规并已成常规：缺口型缺陷走「<strong>提出语言改进 → Jev 审核 → 通过即应用</strong>」，不许降级、绕道；纯实现 bug 仍直接修复。本议题即按此规送 Jev 并已裁决，裁决存档于 <code>jev-designs/view_types_ruling.json</code>：路线取<strong>分阶（staged_checker_first）0.94</strong>，置信 0.92；落选为只做检查器级 0.04、一步到位签名级 0.01、维持现状 0.01。将来二阶若引入签名注解，语法形态方向取 <strong>SLA 原生字段集（sla_native_fields）0.87</strong>，置信 0.80；落选为宏派生视图结构体 0.09、仿 Rust 实验语法 0.04。</p>
+<p>一阶实现线已派出，采用独立 worktree，由主会话串行集成：范围是<strong>检查器级不相交字段借用</strong>——字段投影作实参 / 作局部借用时按字段记账，不引入新签名语法；交付须带语料回归与 331 名字集门禁，形态止损线照常适用。</p>
+
+<h3>主会话评估（已按裁决分阶应用）</h3>
 <ul>
 <li><strong>一阶：检查器级不相交字段借用。</strong>字段投影作实参 / 作局部借用时按字段粒度记账，不引入任何新签名语法。按缺陷史判断，这一阶即可覆盖已观察到的全部痛点。</li>
-<li><strong>二阶：签名级 view 注解。</strong>仅当一阶被实证不够——即真出现「须在 API 边界上声明只访问部分字段」的案例——时再设计；届时参考 Rust RFC 的进展定形，不照搬其未稳定语法。</li>
-<li>是否实施、何时实施未定。</li>
+<li><strong>二阶：签名级 view 注解。</strong>仅当一阶被实证不够——即真出现「须在 API 边界上声明只访问部分字段」的案例——时再设计；届时按裁决的 <strong>SLA 原生字段集</strong>方向定形，不绑 Rust 未稳定语法。</li>
+<li>实施状态已定：一阶按裁决先行应用，二阶以一阶实证为触发条件。</li>
 </ul>
 
 <p>相关记录：<a href="18_mobile_transpile.html">移动端转译：sla2swift 与 sla2kotlin</a>（方向讨论记录）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（总定序与并发语义来源）、<a href="17_verse_game_profile.html">Verse 游戏向吸纳与插件承载</a>（定序三）。</p>
