@@ -8,7 +8,7 @@
 <body>
 <div class="topic-header">入门指南 &gt; goroutine 运行时：引入 sa_std 的设计讨论</div>
 
-<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收；SLA 内建语法面经 S3 重裁改为紧随运行时一期验收之后（见第八节）。<strong>运行时一期已完工并集成关闭（见第十节）；SLA 语法面一批已完工并集成关闭（见第十四节）；七个可跑使用例（2026-10-30 盒上实测）见第十五节。定序二三台改造：slanginx、db 已落地，slaredis 进行中（2026-10-30，见 <a href="15_go_feature_candidates.html">15 号文档</a>第六节落地记录）。</strong></div>
+<div class="note">状态：讨论记录（2026-10-29）。命题由用户提出并定性为「非常亮点」；落点已收敛（见第一节），一期范围已由 Jev 裁定（见第七节）。实施定序（用户 2026-10-29 定）：cpp2sa / go2sa 暂缓、goroutine 先行；go2sa 暂缓期间一期表面形态为 sa_std extern 面 + SLA 直调 extern 验收；SLA 内建语法面经 S3 重裁改为紧随运行时一期验收之后（见第八节）。<strong>运行时一期已完工并集成关闭（见第十节）；SLA 语法面一批已完工并集成关闭（见第十四节）；七个可跑使用例（2026-10-30 盒上实测）见第十五节。定序二三台改造已全部落地（slanginx、db、slaredis，2026-10-30，见 <a href="15_go_feature_candidates.html">15 号文档</a>第六节落地记录）。</strong></div>
 
 <h2>一、命题与落点</h2>
 <p>命题：能否把 Go 的 goroutine 引入 SA。讨论收敛的落点是：<strong>不进 SA 规约</strong>——SA 底座冻结（寄存器 + 所有权/能力规约保持稳定，不为任何单一前端让路）；goroutine 本质是一个运行时能力，应落在 <strong>sa_std 运行时核心</strong>，上层语法面（SLA 的 spawn 面、go2sa 的 <code>go</code> 语句）只是表面糖。定位上它属于基础核心，合「一切基础核心 built-in sa_std、插件只做包装/框架层」的架构 doctrine：没有它，goroutine 语义的每个上层消费者都要各自造调度器轮子。</p>
