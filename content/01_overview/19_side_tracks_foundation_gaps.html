@@ -176,8 +176,8 @@
 
 <p>相关记录：<a href="18_mobile_transpile.html">移动端转译：sla2swift 与 sla2kotlin</a>（方向讨论记录）、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>（总定序与并发语义来源）、<a href="17_verse_game_profile.html">Verse 游戏向吸纳与插件承载</a>（定序三）。</p>
 
-<h2>六、语言演进：普通函数重载（extern 面，2026-10-30，已裁决、按裁应用中）</h2>
-<p>本节登记一则讨��及其裁决：用户 2026-10-30 问 SLA 的函数重载现状，经核实后当场拍板引入普通函数重载、限定在 extern 面，现状态为<strong>已裁决、按裁应用中（2026-10-30）</strong>。本节的用途是存下现状口径、拍板理由、解析纪律与应用状态，防将来重新论证一遍。</p>
+<h2>六、语言演进：普通函数重载（2026-10-30，用户推翻 Jev 范围裁、全量实现完成、待集成）</h2>
+<p>本节登记一则讨��及其裁决：用户 2026-10-30 问 SLA 的函数重载现状，经核实后当场拍板引入普通函数重载；范围经一轮「Jev 裁 extern_only → 用户推翻」后定版为<strong>全量</strong>（见下「用户推翻与定版口径」），实现已于 2026-10-30 完成，现状态为<strong>待主会话集成</strong>。本节的用途是存下现状口径、拍板理由、解析纪律与应用状态，防将来重新论证一遍。</p>
 
 <h3>现状口径（主会话四出处核实）</h3>
 <ul>
@@ -193,12 +193,19 @@
 <h3>Jev 裁决</h3>
 <p>本议题按用户同日新规「缺口型改进 → 送 Jev 审核 → 通过即应用」执行，裁决存档于 <code>jev-designs/fn_overload_ruling.json</code>：</p>
 <ul>
-<li><strong>范围取仅 extern 面（extern_only）0.97</strong>，置信 0.96；落选为全开（full）0.02、不做（none）0.01。即：仅在 extern / 导入声明面（绑定 C++ 库、.d.ts 转换、.sai 声明）允许同名多签名，用户自写函数保持同名唯一——自写代码的推断与命名纪律不为绑定面让路，现有重声明负例对自写函数继续有效。</li>
+<li><strong>范围取仅 extern 面（extern_only）0.97</strong>，置信 0.96；落选为全开（full）0.02、不做（none）0.01。即：仅在 extern / 导入声明面（绑定 C++ 库、.d.ts 转换、.sai 声明）允许同名多签名，用户自写函数保持同名唯一——自写代码的推断与命名纪律不为绑定面让路，现有重声明负例对自写函数继续有效。（<strong>本项其后被用户推翻、定版为全量</strong>，见下「用户推翻与定版口径」；此处原文保留为裁决存档。）</li>
 <li><strong>解析纪律取推断后精确匹配（exact_after_inference）1.0</strong>，置信 1.0；C++ 式转换排序（cpp_ranking）得 0.0，明确不采。即：类型推断完成后，按元数 + 实参具体类型在同名候选集中精确匹配，<strong>恰一候选命中才合法</strong>；零候选或多候选一律响亮报错并列出候选，不做隐式转换排序、不猜。同签名重复声明仍报错（不是重载，是重声明）；<strong>禁止仅返回值不同构成重载</strong>（返回值不参与解析）。</li>
 </ul>
 
+<h3>用户推翻与定版口径（2026-10-30 21:48）</h3>
+<p>用户同日 21:48 <strong>推翻 Jev 的范围裁决</strong>：重载定版为<strong>全量</strong>——普通用户自写函数与 extern 面同等纳入同名多签名。推翻的理由仍是互操作：第三方 API 的同名形态不只出现在声明面，SLA 侧包一层包装、或按源 API 形状组织自写代码时，同名需求同样成立，为绑定面收窄范围并不能真正隔离复杂度。<strong>被推翻的只有范围一项</strong>；解析纪律 exact_after_inference（1.0）全额保留执行——推断后精确匹配、恰一候选命中、无匹配 / 歧义响亮报错、禁止仅返回值不同构成重载，均不变。21:52 用户另行确认：DEF 线优先只定主会话的集成与汇报次序，不构成对本线的停工令，本线照常推进至完工。</p>
+
 <h3>层位与应用状态</h3>
 <p>层位：<strong>纯 SLA 前端 / 检查器层</strong>——重载集在前端解析为互异的 SA 符号（按签名改名后降低），SA 底座冻结、不动，零运行时成本。</p>
-<p>实现线已派出：本机独立 worktree <code>~/workspace/fn-overload-local</code>，基点 sla master <code>d82270b2</code>；交付须带七件语料回归（基线树先证伪、双后端）、负例以独立 <code>sla check</code> 判读、插件套件 331 名字集门禁，形态止损线照常适用。由主会话串行集成，次序在 DEF 语料 <code>96a1657</code> 与 view types 一阶线之后。</p>
+<p><strong>实现完成（2026-10-30）</strong>：提交 <code>209de6c</code>（分支 <code>fn-overload-batch</code>，基点 <code>d82270b2</code>；7 个源文件 +1144/−49，新增语料 10 件 + fixture 1 件），工地为本机独立 worktree <code>~/workspace/fn-overload-local</code>，完整证据见其 <code>REPORT.md</code> §8/§9。<strong>尚未集成、未推送</strong>——候主会话串行摘入 master <code>5eb7b59f</code>（本批文件与 master 其后的推进不相交）。</p>
+<p><strong>定版机制</strong>：注册期按参数签名改名，成员键 <code>&lt;name&gt;__ov_&lt;tag&gt;</code>（tag 语法覆盖原语、指针 <code>p</code>、借用 <code>r</code>、定长数组 <code>a{N}_</code>、元组 <code>t…e</code>、闭包 / fn_ptr <code>f…e</code>、future <code>fu</code>、用户类型 <code>u{len}{Name}</code> 与能力后缀）；单例不建集、保持旧符号（普通 fn → <code>sla__&lt;name&gt;</code>，extern / no_mangle → 原名）；多成员 extern 的对外符号即成员键本身——带 <code>__ov_&lt;tag&gt;</code> 后缀是同名多 C 符号在 SA 层的唯一诚实表达，绑定生成器按此命名对齐。源码函数名含 <code>__ov_</code> 定为保留段、登记期响亮拒绝。匹配用新写的严格相等（不用检查器既有的宽容整数 typesEqual）；无类型字面量按类（整数 / 浮点 / 字符串）适配，集内仅靠字面量位宽区分者判歧义。诊断定版四类：无匹配（列实参类型 + 全部候选）、歧义 AmbiguousCall、同签名 Redeclaration（沿基线文案）、仅返回值不同 Redeclaration 并注明「overloads may not differ by return type only」。</p>
+<p><strong>边界（定版、明示）</strong>：① 导入 .sla 签名纳入同一机制（plain 名与 <code>namespace__name</code> 双登记、按成员键去重）；实作中修掉三处名字键控基础设施对同名签名的结构性盲区——SAB prune 可达性按名剪除成员、registry 函数体物化按名单选一体、候选跨源重复，均为本线范围内的必要修复。② 泛型 × 重载<strong>响亮拒绝</strong>（GenericOverloadConflict）——基线对此静默通过、rc=0，是本批最强证伪。③ impl 方法不在范围：方法键 <code>Type_method</code> 维持唯一、重复仍 Redeclaration。④ 函数值裸取引集名 → AmbiguousCall 列候选；成员符号（如 <code>pick__ov_i32</code>）可直接取引 / 调用，即定版补救（检查器无期望类型通道，「按期望签名选成员」无从落地，口径据实修订并由语料钉住）；go 入口按元数唯一选成员、多义报错。⑤ .sai 面：同签名跨文件声明恒静默去重（sa_std <code>io.sai</code> / <code>io/print.sai</code> 实据）；不同签名成集、按 ABI 拼写精确匹配；同参不同返回响亮报错。⑥ 借用实参只命中借用形参（指针成员不吃借用实参）；<code>int</code> 为 i64 的具体别名；未注记闭包字面量作实参经其自身的上下文推断错误响亮拒绝（明示边界，未入语料钉诊断）。</p>
+<p><strong>门禁</strong>：正例语料 6 件双后端全过，且在基线插件上全灭（5× Redeclaration、member_symbol 为 UndefinedVariable）；负例 4 件在修复版得定版诊断、合法对照 rc=0；既有 <code>test_error_redeclaration_function.sla</code> 仍报 Redeclaration，plugin_tests.zig L460 断言所在的 zig 测试（idx8）双树均 OK。插件 331 套件逐索引：基线 OK 328 / FAIL {54, 105, 106}，修复 OK 327 / FAIL {54, 105, 106} / HANG {159}——idx159 单跑在双树均通过（基线 24.1s / 修复 27.3s、user CPU 同为 21.1s），系 30s 门限下的并发 flake、非回归；<strong>失败名字集逐一相同，门禁通过</strong>。另登记一新缺陷（非本线所修）：基线检查器对嵌套调用 <code>outer(inner(v))</code> 重复 checkExpr，move 型 String 实参误报 UseAfterMove，已入 DEF 队列候分诊。</p>
+<p><strong>状态</strong>：实现完工、待主会话集成（摘入 <code>5eb7b59f</code> 之上、守卫推送）；集成后于本节补应用记录。</p>
 </body>
 </html>
