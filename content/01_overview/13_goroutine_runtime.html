@@ -80,15 +80,16 @@
 </ul>
 <p>据此，第七节收敛句中「表面先供 go2sa，SLA 内建面二期」自本节起改为：运行时一期验收后紧接 SLA 语法面批，go2sa 恢复立项时直接继承已验证的表面。</p>
 
-<h2>九、优先级定序（用户 2026-10-29 定）</h2>
-<p>用户定 goroutine 为<strong>最高优先级</strong>，理由采主会话评估：三个 99% 目标项目（slanginx、slaredis、db）都在手工写并发，goroutine 落地后以它改进三台。</p>
-<p><strong>定序链</strong>：goroutine 运行时一期（在建）→ SLA 语法面一批（紧随验收）→ 三台改造：</p>
+<h2>九、优先级定序（用户 2026-10-29 定，2026-10-31 按主定序刷新）</h2>
+<p><strong>历史口径（已被下文主定序取代）</strong>：2026-10-29 用户定 goroutine 为最高优先级（三个 99% 目标项目都在手工写并发，goroutine 落地后以它改进三台），定序链为 goroutine 运行时一期 → SLA 语法面一批 → 三台改造（slanginx per-connection goroutine serve、slaredis 取代 poll 循环、db 在 epoch 引擎上长 goroutine 接入层）。该链已执行完毕：运行时一期与语法面关闭见第十、十四节，三台改造见 15 号文档与本页后续各节。</p>
+<p><strong>现行主定序（用户 2026-10-30 20:36 定）</strong>：</p>
 <ul>
-<li>slanginx：per-connection goroutine serve——即其 F2 项的原生答案；</li>
-<li>slaredis：以 per-connection goroutine 取代 poll 循环 + 分片等待集形态；</li>
-<li>db：不动 epoch 引擎，在其上长 SLA 级 goroutine 并发接入层。</li>
+<li>① <strong>SA/SLA 底座</strong>——DEF 编译器 / 运行时缺陷线收口（关账记录见第十七、十九、二十节）；</li>
+<li>② <strong>std 改进批</strong>——指纹项第一，其后对齐批、契约批，平台平价计划（第十八节）与基础缺口分诊在此统筹，Kubo 底层补充批低优先殿后于 std 阶段；</li>
+<li>③ <strong>三台</strong>——slanginx → slaredis → db；</li>
+<li>④ <strong>CXU 殿后</strong>。</li>
 </ul>
-<p>三台改造前后均以各自仓内 bench 同口径复测、对 99% 目标。已判毕的各集成批（sci / sla / slanginx / db / slaredis 改进版）为正交修复、照旧收尾，不受本定序影响。</p>
+<p><strong>并行口径（用户 2026-10-31 10:16 / 10:19 令）</strong>：三台优化与平台平价 CPS 原型于当日与 DEF 主线<strong>并行</strong>推进（三台全部要优化成功为当日令），不排队等 DEF 关账；但集成与汇报次序仍以 DEF 为主线、各仓集成串行经主会话。当日各项状态见第二十六节「计划状态」。</p>
 
 <h2>十、一期完工与关闭（2026-10-29）</h2>
 <p><strong>运行时实现完工</strong>（本机 staging <code>~/workspace/goroutine-local/sci</code>，分支 <code>goroutine</code>，基点 sci main <code>5509766b</code>，五笔逐期提交）：</p>
@@ -449,5 +450,58 @@ fn main() -&gt; i32 {
 <p><strong>第五批集成（主会话守卫推送、本机 ls-remote 双复核）</strong>：sci main <code>14a4177c</code> → <strong><code>fcbb68582d25e8bda3e45a3e96a5cd0e54c6b867</code></strong>（ff，diff 恰 sa_task.zig 一文件）；sla master <code>962544c9</code> → <strong><code>5eb7b59f8b2be1a9aa0c96e17bc4c9811556e88d</code></strong>（cherry-pick <code>606306d</code> 零冲突，语料 blob 与交付版逐字同哈希）。集成树复验四联全过：集成 sci 归档的 sa_task 符号集与交付树逐一相同（归档逐树放置，防静默链旧 std）、插件同轮 md5 在册、R2 语料在含 view types 检查器的集成树上 SAB + 文本双后端 rc=0 且结果行齐、失败名集空。</p>
 <p><strong>留尾（未关，不得作已验计）</strong>：<strong>validate_kb 自然案例仍未跑</strong>——蒸馏语料通过不等于自然案例通过，本节不作任何「已验证」表述。复跑配方已登记为集成线尾项：盒上同步本批 sci 并重建、重编 SAB exe（约 31.5 分钟）后以默认环境跑，预期 rc=0；现成脚本存 <code>~/workspace/integ-r2/work/kb_pipeline_box2.sh</code>（sha256 <code>5ee68ecc…</code>，改自 GitHub 克隆新头、逐级失败即停）。2026-10-30 23:40 起盒 SSH 中继被网关持续重置、其后 Colab 运行时被更换，新盒（<code>b405f3a897fb</code>）盘点结论为工具链缺失（无 zig / sa）——复跑候盒上工具链恢复后按配方执行。</p>
 <p><strong>余序更新</strong>：第十七节余序所列 DEF-R3、DEF-R2 两项已由本节关闭；其后第六批（DEF-R4，std accept 泵动停驻）已派，余序 R5（slaredis 登记 A）→ R6（登记 B，含 SAB 无缓冲五臂 select 楔死）→ DEF-5 余面（登记 D-1）→ R7（SIGPIPE 策略）不变；60901 盒上复跑与 validate_kb 复跑为两条在册尾项，均非阻断；DEF-R8 暂编与 DEF-4 的 C / JS 后端残余（归口第十八节平台平价计划）同在册。</p>
+
+<h2>二十、DEF 关账记录（六至十二批）与尾项关闭（2026-10-31）</h2>
+<p><strong>承接</strong>：第十七节记一至三批、第十九节记四至五批；本节记第六至十二批的关闭与集成。判读口径同前（四联判读、负例独立 <code>sla check</code>、修复带最小复现语料且在独立纯净基线树上先失败）。各批均经主会话串行集成 + 守卫推送 + 本机 <code>git ls-remote</code> 复核。</p>
+<p><strong>第六批（DEF-R4）关闭</strong>：std accept 泵动停驻——根因为 select 的 claim-before-move 顺序，修复在 sci <code>5fc27a86</code>，语料随 sla <code>74a76c0e</code>；自然案例 100,000 请求 0 错误。</p>
+<p><strong>第七批（DEF-R5）关闭</strong>：注册表互斥锁（registry_mutex）被跨阻塞系统调用持有，波及 <code>sa_std.zig</code> 读 / 写家族；修复在 sci <code>b877efea</code>，语料随 sla <code>e2555ac8</code>。</p>
+<p><strong>第八至十一批一链关闭</strong>：sci 集成至 <code>15f73ad9</code>、sla 集成至 <code>e01aaddc</code>。含 DEF-R7 的 SIGPIPE 面（Jev 两问均 1.0）与 sla 侧四件：DEF-R6 的 select 楔死修复、select 声明序偏置定为正式契约（非缺陷）、DEF-5 余面 D-1 的 deref-field 修复、MOVEVEC-1、嵌套调用 UseAfterMove 的批内修复面。留尾如实：DEF-R7 的非 Linux POSIX 面未覆盖，登记候后续批，不作已关计。</p>
+<p><strong>第十二批（DEF-9 + DEF-10）关闭</strong>：sla 集成至 <code>fc46620af49c7ca2c41eea5f3460b8f2c63b2507</code>；语料双后端四联通过；332 批量门禁失败集 {55, 106, 107} 与纯净基线<strong>逐名相同</strong>（import-scan prune 存量族）。本批集成教训在册：集成宿主必须以当前 sci 构建，否则门禁结论不可信。</p>
+<p><strong>尾项一关闭（validate_kb 运行时证明）</strong>：第十九节所记留尾已 discharged——按登记的 v2 配方逐字在盒上执行，<code>RUN_RC=0</code>、ALL PASS；配方勘误另存（integ-r2 工地 ERRATA）。至此 DEF-R2 的自然案例证明面补齐。</p>
+<p><strong>尾项二关闭（60901，reproduced-then-absent 口径）</strong>：该签名在 era 工具链上复现成立（跑至 2,900 万标记处死于 PANIC、rc=101）；在 R2 时代链与当前远端头上同探针跑满 7,000 万 / 7,000 万标记不现。关账口径为<strong>「复现过、现已消失」</strong>：修复区间未做二分定位，不宣称某一笔为其修复；后续若在新头复现，按新缺陷重新立案。</p>
+
+<h2>二十一、集成波落地：函数重载 + STRIDE-1（2026-10-31）</h2>
+<p><strong>落地头</strong>：sa_plugin_sla master <code>fc46620a</code> → <strong><code>c97fce9da7a6c1dc3ab03bdd3487e8e016a6eebf</code></strong>；sci main <code>bbd06f9e</code> → <strong><code>63a743693396f0afa76aff3aeedca47d30ba9d5b</code></strong>。守卫推送在册：sla 增量 bundle 28,442 B（sha256 <code>b60a1201…</code>、盒 / 本地双确认）、sci 增量 bundle 2,765 B（sha256 <code>42ec03a5…</code>），盒侧守卫核远端旧值后推送，本机 ls-remote 终核一致；未建任何远端新分支。</p>
+<p><strong>Part 1（函数重载集成）</strong>：重载交付（19 号文档第六节）摘入时与变参批在 <code>type_checker.zig</code> 相撞，主会话裁定合并：单例与重载两路共用同一 <code>checkExternContractCall</code> 助手——以 HEAD 现行内联 FFI 体为基重铸（变参元数下限、尾随实参检查、闭包拒绝都在助手体内），grep 核验三项变参行为在全文件各恰一份、助手定义恰 1 处、调用恰 2 处。</p>
+<p><strong>复核 (a) 变参 × 重载 arity——四联通过</strong>：新语料 <code>test_unit_overload_variadic_arity.sla</code>（5 集）在未修复合并树上先证伪出同一身份规则（成员签名 = 固定参数 + is_variadic）的六处缺口（F1–F6：extern 签名相等判定、成员键渲染、候选匹配、注册分班、签名调用点参数数、文本 codegen 元数守卫），同机制修复合为 sla <code>f897a351</code>。修复树正例双后端 rc=0 且结果行齐（5 passed 两后端）、负例独立 <code>sla check</code> 以期望诊断拒绝、合法对照通过；纯净基线 <code>fc46620a</code> 上正例双后端皆以 Redeclaration 失败，证伪成立。既有变参语料 5 件、重载语料 6 正 4 负在修复树零回归。</p>
+<p><strong>复核 (b)</strong>：嵌套调用 UseAfterMove 残留仍在（存量），登记见第二十三节。</p>
+<p><strong>Part 2（STRIDE-1 / DEF-8）</strong>：sci 侧以同 diff 落地为 <code>63a7436</code>（仅新增 <code>sa_std/vec_packed.sla</code>，blob 与交付版逐字同哈希）；sla 侧语料摘入为 <code>c97fce9d</code>（仅新增 DEF-8 语料）。DEF-8 语料双后端四联通过（8 passed 两后端）；sa-std-unit 失败名集与纯净 <code>bbd06f9e</code> 全等（pty 一名为时序 flake、同树重跑即平）；最终头 332 名集与基线逐索引全等 {55, 106, 107}。契约正文见第二十二节。</p>
+
+<h2>二十二、STRIDE-1 / DEF-8 契约与 DEF-11 登记（2026-10-31）</h2>
+<p><strong>契约（定案，助手文件头注释同文）</strong>：Vec 的元素槽恒为字大小——步长 = <code>max(元素 ABI 尺寸, 8)</code> 字节，此为全 std 宏面与双后端的共同内部设计，不作变更。<code>VEC_AS_PTR</code> / <code>VEC_AS_SLICE</code> 给出的原始数据指针是<strong>槽步长</strong>布局，不是 C 式 packed 数组（<code>Vec&lt;u8&gt; [104, 105]</code> 的原始 byte 1 是填充、第二个元素在 byte 8）；把原始指针直接交给按 packed 读取的 extern 是错误用法。需要 packed 字节镜像时，用 <code>sa_std/vec_packed.sla</code> 的 <code>sa_vec_export_packed_{u8,u16,i32,f64}</code>（纯 SLA 实现，无新 extern）：按元素 ABI 尺寸紧打包、小端，写入调用方缓冲，返回 <code>(status, bytes)</code>——status 0 = 镜像已写入、bytes 为字节数；status 1 = 缓冲容量不足、<strong>dst 一字不写</strong>、bytes = 所需容量（可据此扩容重试），绝不静默截断；空 Vec 返回 (0, 0)。实现形态经 Jev 裁定 = packed_export_helper 0.98；类型覆盖经二轮裁定为按需扩充（delimit_on_demand 0.54），四类型即本批收口状态。</p>
+<p><strong>DEF-11 登记（Vec&lt;f64&gt; 存储语义，独立批次）</strong>：<code>sa_vec_push</code> 的值形参为 u64，push 时 f64 被<strong>数值转换</strong>而非按位存储（sla 仓 <code>demos/basic/POTENTIAL_ISSUES.md</code> #24，2026-10-10 确认）；双后端症状分歧（SAB 下 push(1.5) 后槽 byte7 = 0、读回 ≠ 1.5；文本后端 byte7 = 0x3F、读回仍 ≠ 1.5），SLA 层无 bitcast 面。故 DEF-8 的 f64 导出目前只能钉契约级（status 与字节数）与 0.0 全零镜像，字节级正确性随 DEF-11 成立。Jev 已裁 separate_defect_line 0.98：DEF-11 独立成批修 Vec&lt;f64&gt; 按位存储语义，落地时给 vec_packed f64 语料补字节级断言行（1.5 → <code>00 00 00 00 00 00 F8 3F</code>）。</p>
+
+<h2>二十三、DEF-12 登记与修复交付；复核 (b) 残留登记（2026-10-31）</h2>
+<p><strong>DEF-12 立案</strong>：衡 validate_kb 与 json 自然案例被检查器 BorrowConflict 卡住的形态，经分诊定性为<strong>检查器实现层过度保守、非 view-types 二阶设计问题</strong>：同一调用内，一个实参是对某 place 的借用、另一实参是对 Copy 类型 place 的按值读（求值即拷贝、无别名风险），旧会计一律按 borrowed-vs-plain 冲突拒绝。修复面 = <code>checkCallArgPlaceOverlaps</code>（<code>type_checker.zig</code>）。危险钉先行钉死：借用 + 整 Vec 字段 move 的组合必须继续拒绝。</p>
+<p><strong>修复已交付（staging，集成以远端头为准）</strong>：提交 <code>21eea153</code>（分支 <code>def12-fix</code>，基点 <code>fc46620a</code>，7 文件 +252/−4：<code>src/type_checker.zig</code> 修复 + 6 件语料）。机制：plain 侧实参先过新判据 <code>plainArgIsCopyRead</code>——Copy 类型 place 的按值读不进入 borrowed-vs-plain 判定；非 Copy 的真 move 保持拒绝；类型求取走新增的无副作用 <code>placeExprType</code>（镜像 field/index/deref 类型规则，求不出即返回 null、按不豁免处理）；签名路径与两条宏路径共用同一分类。只读豁免路线未采。证据：蒸馏复现三形（参数转交、显式 <code>&amp;doc</code>、extern 同形）在纯净基线插件上 RC 1 → 修复 RC 0，合法对照双树 RC 0；<strong>危险钉双树同诊断 RC=1 保全</strong>；自然案例 <code>validate_kb.sla</code> 与 <code>json.sla</code> 的 <code>sla check</code> 均 RC 1 → 0（五处同模式调用点逐一交代、无剩余诊断）；332 批量门禁双树 329/3、失败集逐索引逐名恒等 {55, 106, 107}。未证面如实：宏路径组合（借用槽 + 同点 Copy 读）未单独构造语料、由共用函数体结构覆盖；<code>placeExprType</code> 对 Rc/Arc/Box 解引用返回 null、保持基线拒绝，为有意保守边界。本节落字时该提交的串行集成正在进行，落地头以远端为准。</p>
+<p><strong>复核 (b) 残留登记（存量，方案待裁）</strong>：嵌套调用 <code>outer(inner(v))</code> 的假 UseAfterMove 在批内修复后仍有残留面——非 chan 落空路径会对嵌套调用的按值实参二次检查。探针在 <code>integ-wave/work/probes_b/</code>：P2 <code>destroy(b_pass(s))</code>、P3 <code>len(b_mkvec(s))</code> 在集成树与纯净基线 <code>fc46620a</code> 上<strong>双树同现</strong>同诊断，定性为存量尾项、非集成波引入；P1/P4 的真 chan 形状检查器层与 SAB 均通过（批内修复对 chan 形状成立）；P4 另在文本后端现 MemoryLeak 存量签名（方法临时量层，与检查器残留不同层），一并在册。候选修复形态（以快照 / 恢复包裹探针，镜像重载探针机制）不在复核 (a) 的同机制授权内，本轮未动；失败语料不入 <code>tests/</code> 以免污染 332 名集，候主会话裁决立项。</p>
+
+<h2>二十四、DEF-R8 裁定与 DEF-R8-FIX 登记（2026-10-31）</h2>
+<p><strong>裁定：真泄漏，双根因。</strong>slanginx 形负载下 RSS 随请求线性增长（约 6.4–6.5 KB/req、不衰减）经 LD_PRELOAD 分配记账逐字节闭合，定性为我方代码真漏，非分配器保留（第十九节当时的暂编分类就此更正）：</p>
+<ul>
+<li><strong>根因一（sci）</strong>：native LLVM 后端从不释放 SA 级分配——<code>emit_llvm_llvmc.zig</code> 把 <code>.release</code> 的 <code>.ty</code> 硬编码为 <code>.void</code>，垫片的 free 路径不可达；解释器与 emit_c / emit_js 三面均为真释放。</li>
+<li><strong>根因二（sla）</strong>：值转移点的 release 误标——如 <code>Box::new</code> 实参在存入单元后仍被 emitRelease。</li>
+</ul>
+<p><strong>证据量级</strong>：蒸馏探针 h4 为 128 B/周期（恰 4 个具名块）、A2 为 64.0 B/周期、C 为约 31.5 B/周期，记账全闭合；slanginx 压测形态约 6.4–6.5 KB/req。修复形态经 Jev 裁定 = <strong>option_a_joint_batch 1.0</strong>（双根因同批修）。</p>
+<p><strong>DEF-R8-FIX 进行中登记</strong>：修复线已开（工地 <code>def-r8fix-local</code>）：sci 侧 F1 恢复 LLVM 后端 free + sla 侧值转移点全审计（调用实参、Vec/容器 push、结构体字段物化、元组返回、spawn 实参、chan send、闭包捕获，逐点探针 → 修复 → 语料），附解释器暴露面测试；验收门 = h4/A2/C 斜率归零、MALLOC_PERTURB_ 复跑、332 与 sa-std-unit 名集零漂移、slanginx ≥150k 请求耐力斜率 ≈0。止损线在册：若审计发现系统性发射规则缺口，停线重新打包送 Jev。</p>
+<p><strong>slaredis 载荷正比 RSS 缺陷并入本伞</strong>：slaredis 优化线实证——每次 SET 的 RSS 增长约为载荷的 ×57（poll 构建）/ ×91（goroutine 构建），线性、从不回收，AOF 关闭时同样复现（启动 11.5 MB → SET 4 MiB 后 524 MB → 一次干净 GET 后 1.09 GB）；纯 Vec 微探针健康、journal 已排除。同场景的可用性后果：4 MiB 回复遇客户端中途断连时进程被 OOM 击杀（SIGKILL 137）——R7 断连存活案在 64 KiB 回复下通过、在 4 MiB 下被本缺陷阻断，两口径分开登记。该形态与本节裁定同族互证，根因与修复归 DEF-R8 / DEF-R8-FIX，不另立号。</p>
+
+<h2>二十五、新缺陷登记（2026-10-31，三件）</h2>
+<p><strong>登记一：BorrowConflict 同容器双共享借用角落（检查器）</strong>。同一容器的两个元素以共享借用同现一次调用——如 <code>bytes_eq(&amp;args[k], &amp;args[j])</code>——被 BorrowConflict 拒绝（<code>args[_]</code> / <code>args[_]</code> 重叠）。共享 + 共享借用语义上永不冲突，属检查器 place 会计精度缺陷，与 view-types 一阶的 duck 双借用角注同族，但与 DEF-12 的 Copy 读形态不同形、单独登记。样本 4 处（slaredis 仓 <code>commands.sla</code> 的 HSET / SADD / ZADD 去重扫描、<code>zrows_before</code> 的成员比较，源证据在 <code>slaredis-opt-local/REPORT.md</code> §1）；slaredis 侧已以语义等价改形 <code>bytes_eq_elems</code>（单容器借用 + 下标读）绕行并入其构建修复提交，检查器本体的修复候 DEF 分诊。</p>
+<p><strong>登记二：宿主验证器 MemoryLeak 1012 模块上下文陷阱（验证器）</strong>。<code>(i32, AofConfig)</code> 元组返回的辅助函数 <code>@sla__aof_config_from_env</code> 在完整模块构建时被判 MemoryLeak 1012（寄存器在最终 return 仍 Active），而逐字相同的函数独立编译通过、两份降低产物在该函数上逐字同形——触发条件在模块尺度 / 上下文。证据对保全在 slaredis 工地：<code>work/main_failing_1012.sa</code>（失败）对 <code>work/repro2_aofcfg.sa</code>（通过）。本线按止损线未深挖；应用侧改形为结构体返回（<code>AofConfigResult</code>）后全量构建通过。验证器本体的定性与修复候立案分诊。</p>
+<p><strong>登记三：<code>sa_http_server_accept_v2</code> timeout 合一（sci 运行时）</strong>。位置 <code>src/runtime/sa_http_server.zig:2169</code>：同一 timeout 既作 readiness poll 切片、又作新鲜连接 head 解析的总预算（<code>acceptBounded</code> 把剩余预算同时传给 poll 与 <code>acceptFresh</code> 的 parse_timeout）。后果：负载下调度延迟超过 1 ms 即解析失败、连接被关（客户端见 Empty reply）。同窗梯测（负载约 19）：切片 1 / 50 / 250 ms → 顺序 50 连成功 33 / 48 / 50。对照先例：连接池路径已有独立的 <code>probe_parse_timeout_ms=50</code>，即解析预算本有与 poll 解耦的成例。应用层唯一旋钮就是切片本身，与 slanginx c1 的切片税直接冲突，无应用层解；修复方向 = 两预算解耦，归 sci 修复批。</p>
+
+<h2>二十六、计划状态（2026-10-31，用户裁定随 DEF 关账轮追加）</h2>
+<p>本节为全程序计划状态的当前快照（用户 2026-10-31 12:55 裁定随本关账轮追加于本页；定序口径见第九节刷新后正文）。逐项状态如下：</p>
+<ul>
+<li><strong>DEF 关账进度</strong>：batch 1–12 全部集成推送（第十七、十九、二十节）；尾项两件关闭（validate_kb 运行时证明、60901 reproduced-then-absent）；DEF-12 修复已交付、集成进行中（第二十三节）；DEF-R8-FIX 进行中（第二十四节）；DEF-11 已登记候独立批次（第二十二节）。</li>
+<li><strong>三台优化已交付（均 staging、待集成推送）</strong>：db 点查 c1 449 → 8,715 qps（19.4×，pin 池 + 同步快车道，验收 9/9）；slanginx 小文件 c1 约 2.1×（keep-alive 句柄释放顺序修复，交错 A/B 两对皆胜）；slaredis fsync=always group commit 同窗 A/B +67%（耐久点不变，209 名集逐名恒等、R7 断连案 PASS）。未决：db 的 pinned-session exec API（A 项，证据支持其必要性——剩余差距本质是「一次查询一次 goroutine 派发 vs 一次函数调用」）与 slaredis 架构级候选（批内借用执行、零拷贝回复、内联快路径）均<strong>待用户裁决</strong>；三台离原生 ≈99% 的差距按各自终报的实测归因在册，不作已达计。</li>
+<li><strong>CPS 原型已完工（staging、待集成）</strong>：平台平价第十八节的单目标原型落地——wasm32-wasi 语义面自「完全不支持」打通，6 件语料在 Node <code>node:wasi</code> 实跑 wasm 6/6、native 6/6，基线 wasm 6/6 构建失败证伪成立，双门禁失败名集 only-in-fixed = ∅。降低层落在 SLA 插件 lowering 层（双 codegen 共享，合 Jev CPS 共享降低 0.95）。集成排 DEF 串行序之后；C / JS 发射器上的 CPS 验证与并行层（Worker 多实例）仍为二期。</li>
+<li><strong>SLA 宏实现已完工（staging、待集成）</strong>：J-1 子语言注册、J-3 类型化宏参、J-4 前导输出表达式宏双后端、J-5 只读检查钩子四件落地，16 件语料正负齐备、332 名集零新增失败。集成排 sla 串行序第四；落地后解锁 SLASL 二期（J-7 std 库链接器 + SLASL 切片）。</li>
+<li><strong>SAX3D 已交付</strong>：格式实现 + 双向转换器验收全过（62/62 + 24/24），实测体积优于 GLB（见 21 号白皮书第十、十三节更新）。</li>
+<li><strong>std 批队列（DEF 后第二序）</strong>：指纹项第一（指纹仅入网络 UA、格式 <code>sa/&lt;版本号&gt;</code>），其后对齐批（TS 面）、契约批；HL-1…HL-4 随基础批分诊；sa image 候选 IMG-1 已登记候分诊；Kubo 底层补充批低优先、列 std 阶段最后。</li>
+<li><strong>CXU 殿后</strong>：按主定序在 std 批之后。</li>
+<li><strong>slabun</strong>：两轮评估已封存（平台层定位与 JSC 公共 C API 绑定的坑普查，B 档经修正采纳、引擎源码自建 JSCOnly 经裁定）——<strong>立项待用户发话</strong>；JSC 引入探雷支线已按令先行（以真实绑定暴露编译器 / std 缺口为目的），本页只记此状态。</li>
+</ul>
 </body>
 </html>

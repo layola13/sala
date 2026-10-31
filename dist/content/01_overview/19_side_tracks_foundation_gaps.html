@@ -207,6 +207,7 @@
 <p><strong>边界（定版、明示）</strong>：① 导入 .sla 签名纳入同一机制（plain 名与 <code>namespace__name</code> 双登记、按成员键去重）；实作中修掉三处名字键控基础设施对同名签名的结构性盲区——SAB prune 可达性按名剪除成员、registry 函数体物化按名单选一体、候选跨源重复，均为本线范围内的必要修复。② 泛型 × 重载<strong>响亮拒绝</strong>（GenericOverloadConflict）——基线对此静默通过、rc=0，是本批最强证伪。③ impl 方法不在范围：方法键 <code>Type_method</code> 维持唯一、重复仍 Redeclaration。④ 函数值裸取引集名 → AmbiguousCall 列候选；成员符号（如 <code>pick__ov_i32</code>）可直接取引 / 调用，即定版补救（检查器无期望类型通道，「按期望签名选成员」无从落地，口径据实修订并由语料钉住）；go 入口按元数唯一选成员、多义报错。⑤ .sai 面：同签名跨文件声明恒静默去重（sa_std <code>io.sai</code> / <code>io/print.sai</code> 实据）；不同签名成集、按 ABI 拼写精确匹配；同参不同返回响亮报错。⑥ 借用实参只命中借用形参（指针成员不吃借用实参）；<code>int</code> 为 i64 的具体别名；未注记闭包字面量作实参经其自身的上下文推断错误响亮拒绝（明示边界，未入语料钉诊断）。</p>
 <p><strong>门禁</strong>：正例语料 6 件双后端全过，且在基线插件上全灭（5× Redeclaration、member_symbol 为 UndefinedVariable）；负例 4 件在修复版得定版诊断、合法对照 rc=0；既有 <code>test_error_redeclaration_function.sla</code> 仍报 Redeclaration，plugin_tests.zig L460 断言所在的 zig 测试（idx8）双树均 OK。插件 331 套件逐索引：基线 OK 328 / FAIL {54, 105, 106}，修复 OK 327 / FAIL {54, 105, 106} / HANG {159}——idx159 单跑在双树均通过（基线 24.1s / 修复 27.3s、user CPU 同为 21.1s），系 30s 门限下的并发 flake、非回归；<strong>失败名字集逐一相同，门禁通过</strong>。另登记一新缺陷（非本线所修）：基线检查器对嵌套调用 <code>outer(inner(v))</code> 重复 checkExpr，move 型 String 实参误报 UseAfterMove，已入 DEF 队列候分诊。</p>
 <p><strong>状态</strong>：实现完工、待主会话集成（摘入 <code>5eb7b59f</code> 之上、守卫推送）；集成后于本节补应用记录。</p>
+<p><strong>应用记录（2026-10-31）</strong>：普通函数重载已随集成波落地——sa_plugin_sla master 推进至 <code>c97fce9da7a6c1dc3ab03bdd3487e8e016a6eebf</code>（含本批、变参集成与复核 (a) 同机制修复、STRIDE-1 语料），332 批量门禁失败名字集与纯净基线逐索引逐名全等 {55, 106, 107}。全量记录见 13 号文档第二十一节。</p>
 
 <h2>七、语言演进：extern 可变参数（2026-10-31，已定版、一批全量实现中）</h2>
 <p>本节登记一则支线讨论及其定版：用户 2026-10-31 问 SLA 有没有可变参数（<code>arg...</code>），四出处加探针核实为<strong>全无</strong>；用户当场令新增、<strong>仅限 extern 面</strong>。设计分叉送 Jev 裁决后，范围分期一项被用户推翻、定版为<strong>一批全量</strong>（声明 / 调用与定义同批、不分期）。现状态为<strong>已定版、实现线已派、未落地</strong>。</p>
@@ -241,6 +242,11 @@
 
 <h3>应用状态</h3>
 <p><strong>实现线已派（2026-10-31）</strong>：工地 <code>~/workspace/vararg-extern-local/</code>，基点 sla master <code>5eb7b59f</code> / sci main <code>fcbb6858</code>；本机主本先行、<strong>未推送</strong>，交付经主会话串行集成。交付口径照常：语料须在独立纯净基线树先证伪、双后端四联判读、负例以独立 <code>sla check</code> 判读、失败名字集门禁、形态止损线适用。<strong>状态：已定版、实现中——未落地</strong>；集成与应用记录候实现线交付后补入本节。</p>
+
+<h3>应用记录（2026-10-31 落地）</h3>
+<p><strong>已集成并守卫推送</strong>：sci main 落 <code>bbd06f9e7074033abb8b15292f965dbb61c6f949</code>、sa_plugin_sla master 落 <code>ccbffb2a</code>（cherry-pick 零冲突，主会话 <code>git ls-remote</code> 复核）。定版口径全额兑现：extern 声明（.sla extern 块、.sai、C-ABI fn 指针类型）尾随 <code>...</code>（至少一个固定参数；其余位置响亮 SyntaxError）；定义面经 <code>va_next_i32/i64/u32/u64/f64/ptr</code> 读参（VaList 不可拷贝）；<code>is_variadic</code> 标志贯通 AST、SA 文本、SAB（1 字节）与 sci，指令 <code>va_start/va_arg/va_end</code>（InstKind 36..38）；LLVM 发射 isVarArg=1，变参定义的 va_arg 展开为 x86_64 SysV clang 式内联展开。</p>
+<p><strong>证据</strong>：语料 <strong>14/14 双后端通过</strong>；C→SLA 交叉证明在册（<code>va_sum3 -&gt; 142</code>、<code>va_mix -&gt; 9999999999.25</code>）；负例 9/9 以定版诊断拒绝。变参与函数重载的组合面复核（同前缀定元/变参成员的 arity 竞争）已由集成波复核 (a) 四联通过，记录见 13 号文档第二十一节。</p>
+<p><strong>C 发射器口径（Jev accept_loud_register_followup 0.99）</strong>：C / wasm / JS 目标对变参模块以具名 <code>UnsupportedVariadic</code> 响亮拒绝，解释器以 <code>RunError.UnsupportedVariadic</code> 陷阱——不静默错编。C 发射器的真实变参支持立为<strong>后续批</strong>，与 C 后端工作同批排期；变参定义面目前仅 x86_64 SysV，其余目标响亮拒绝。此口径取代上文「定版口径」中目标覆盖一项的早期表述（彼时预期 C 发射器同批支持，实施定版为响亮拒绝 + 后续批）。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>

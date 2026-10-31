@@ -191,7 +191,7 @@ texture &lt;Name&gt; {
 <li>格式侧的责任止于：保证<strong>加载面契约完整</strong>——即第五节的解析清单（名→布局）随编译产出且为可哈希规范形，使任一上层加载器据此读出的布局一致。加载器写在哪一层、用什么语言，是上层自己的事。</li>
 </ul>
 
-<h2>十、体积理据（机制陈述，对拍进行中）</h2>
+<h2>十、体积理据（机制陈述 + 实测对拍，2026-10-31）</h2>
 <p>用户 2026-10-31 10:57 指出：「理论我们比 gltf、glb 格式小很多，因为我们不需要过多的 JSON 描述。」机制成立，逐项陈述如下——这是<strong>设计理据，不是测量结论</strong>：</p>
 <ul>
 <li>我方记录布局由<strong>共享的一份 SA schema 声明</strong>钉死、随规范分发，<strong>不随每份资产携带</strong>；glTF/GLB 则每份资产都背全套 JSON 描述——accessor / bufferView / 材质 / 节点诸对象的键名与结构逐项重复。</li>
@@ -199,6 +199,7 @@ texture &lt;Name&gt; {
 <li>诚实边界：几何载荷主导的大资产，两方载荷字节相同——省的是<strong>描述性开销</strong>；资产越小、对象越多，差距越大。</li>
 <li><strong>状态：实测对拍进行中</strong>——实现线在验收中以同一立方体例产出 glTF（.gltf+.bin）与 GLB 参照件，与 SAX3D 拆分形/合并形逐项比字节（总长 + 描述开销/几何载荷分列）。数字出来之前，本页不预印任何体积数值。</li>
 </ul>
+<p><strong>实测结果（2026-10-31，对拍已出）</strong>：同一立方体例——SAX3D 合并形 <strong>2,303 B</strong>、GLB <strong>2,584 B</strong>、glTF（.gltf+.bin）2,554 B：合并形总长小 <strong>10.9%</strong>，其中描述性开销量小 <strong>12.9%</strong>（几何载荷两方相同，省的正是机制陈述所指的描述开销）。拆分形 3,441 B，其中 1,300 B 以上为教学注释，非格式开销。先前「小很多」的量级预期不成立，本页以实测为准。</p>
 
 <h2>十一、裁定记录</h2>
 <h3>11.1 格式分叉（Jev，jev-1.14.0；F-5 除外）</h3>
@@ -245,8 +246,12 @@ texture &lt;Name&gt; {
 <ul>
 <li><strong>研究：完成。</strong>两条研究线终报在册（SAX3D 设计定形到字段级 + 校验器原型实证；SLASL 宏测绘 + GAP 登记 + 参考原型 8 金文件）。</li>
 <li><strong>裁定：全齐。</strong>格式分叉 F-1…F-7（Jev 六项 + F-5 用户亲裁）、宏分叉九项（Jev）、用户定名与边界诸令（11.3）均已落定。</li>
-<li><strong>实现：进行中。</strong>SAX3D 格式实现线在跑（schema 声明 + 块式组装解析/裁判校验 + 二进制写出 + 双形打包 + 体积对拍），<strong>SPEC 尚未冻结</strong>；SLA 宏实现线在跑（J-1 注册机制 / J-3 类型化宏参 / J-4 前导输出表达式宏 / J-5 只读检查钩子四件）；双向转换器排在 SPEC 冻结之后。</li>
-<li><strong>未证面（不得读作已完成）</strong>：GLSL/HLSL 真编译（本机无 glslangValidator/dxc）；Unity / Unreal / Blender 三家真编译；WebGPU 管线级验收未在本机实跑；体积优势目前是设计理据、对拍数字未出；两处原型证据（校验器段表、SLASL 金文件）均为参考实现级，不是生产工具。</li>
+<li><strong>实现：已交付（2026-10-31，staging 待集成）。</strong>SPEC 已冻结（偏离登记 D-1…D-8 在册）：schema 单源（<code>sax3d.sai</code> → 生成共享表）、块式解析 + 裁判校验器（文本 35 + 二进制 7 个诊断码，全响亮）、二进制写出（版本门头 + 段表 + 尾置名表）、确定性打包（拆分形与合并形的段内容逐字节等价）。验收 <code>tests/run_tests.sh</code> <strong>62/62</strong>；双向转换器随同交付，<code>tests/run_convert.sh</code> <strong>24/24</strong>，失败名集为空；立方体例的段偏移与设计 §8 逐项吻合，hero 蒙皮例通过，22 件负例首诊断精确命中。读回验证器为测试专用件，不构成随格式分发的加载器（第九节边界不变）。</li>
+<li><strong>真实样本往返</strong>：Khronos Fox.glb（162,852 B，24 关节、3 动画）全程往返成功、内部校验器首过；损耗台账 11 条（LOSS 1 / APPROX 1 / SYNTH 9）、等价面对拍 <strong>21/21</strong>，双向均零静默丢失。转换中上报三条格式事实：① v1 primitive 无索引区间，多 primitive 导出存在绘制重叠（SPEC 演进首位候选）；② raw-rgba16f 无无损 glTF 形，转换器响亮拒绝；③ 纹理槽由 shader 接口决定。</li>
+<li><strong>版本门（已核实）</strong>：二进制头 offset 8 为 <code>version_major: u16 = 1</code>、offset 10 为 <code>version_minor: u16 = 0</code>（由 <code>sax3d.sai</code> 钉死）；读者门对 major ≠ 1 响亮拒绝（<code>Sax3dUnsupportedVersion</code>）；文本形要求恰一条 <code>asset &lt;Name&gt; version 1;</code> 头。演进纪律：附加性变更 minor +1、语义重定义 major +1。</li>
+<li><strong>合并形 shader 记名分叉（设计 §6.4）已裁</strong>：Jev 裁定 <strong>keep_name_only 0.48</strong>（置信 0.22，明记可推翻）——合并形中 shader 只按名注册、不嵌源码，已按默认采纳执行；可选的源码嵌入批仅在归档需求出现时另立。</li>
+<li><strong>SLA 宏实现：已完工（staging、待集成）</strong>——J-1 / J-3 / J-4 / J-5 四件落地（见 13 号文档第二十六节）；其集成落地后解锁 SLASL 二期（J-7 std 库链接器 + SLASL 切片）与 SAM3D-GAP-1 的接口表 artefact 集成。</li>
+<li><strong>未证面（不得读作已完成）</strong>：GLSL/HLSL 真编译（本机无 glslangValidator/dxc）；Unity / Unreal / Blender 三家真编译；WebGPU 管线级验收未在本机实跑；两处原型证据（校验器段表、SLASL 金文件）均为参考实现级，不是生产工具。</li>
 </ul>
 
 </body>
