@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SAX3D 3D 资产格式与 SLASL 着色器语言白皮书</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; SAX3D 3D 资产格式与 SLASL 着色器语言白皮书</div>
+
+<div class="note">状态：<strong>设计白皮书</strong>（2026-10-31，用户令落字）。研究已完成、全部设计分叉已裁定（格式分叉 F-1…F-7 与 SLA 宏分叉 J-1…J-8/F-3，其中 F-5 由用户亲自裁，见第十一节裁定记录）；<strong>SAX3D 格式实现线与 SLA 宏实现线均在进行中，格式规范（SPEC）尚未冻结</strong>——本页是设计定版记录，不构成已交付格式。未证面先行声明：GLSL/HLSL 产物<strong>真编译未经验证</strong>（本机无 glslangValidator / dxc）；Unity / Unreal / Blender 三家均未真编译；体积对拍由实现线进行中，<strong>本页不给任何体积数字</strong>。事实源：本机研究档案 <code>~/workspace/sa3d-mesh-local/</code>（DESIGN / REPORT / 校验器原型）与 <code>~/workspace/sla-shader-local/</code>（DESIGN / REPORT / 参考原型），及四份引擎目标档案与 gpu-curtains、Shadertoy 两份生态档案。</div>
+
+<h2>一、定位：SAX3D 是什么、不是什么</h2>
+<p><strong>SAX3D</strong> 是我方自研的 3D 资产格式与组装语言（用户 2026-10-31 10:53 定名）：模型本体用 SA 的类型与布局纪律描述，mesh 与材质、贴图、shader 之间的关系用 SAX 式分层声明组装，动画从第一天就是格式的一层。它的参照物是 glTF——学其分层与生态位，不以兼容为目标；它与 shader 语言 <strong>SLASL</strong>（第六节）是一对：SLASL 管 shader 这一层，SAX3D 管资产这一层，材质的 shader 槽引用 SLASL、参数按名对 SLASL 的接口表绑定。</p>
+<ul>
+<li><strong>是</strong>：一套资产格式（文本组装面 + 二进制载荷面）、一份由 SA 声明钉死的二进制 schema、一个校验/编译工具链（裁判检查 + 解析清单产出），以及与 glTF/GLB 的双向转换器（第八节）。</li>
+<li><strong>不是</strong>：不是渲染器、不是引擎、不是场景运行时、不是动画播放器。沿 shader 线 2026-10-31 09:54 定界（「仅生产对应的 shader 文件、内核不要包括整个引擎」）类推并经用户同日裁定确认：<strong>交付物止于文件 + 工具链</strong>；加载（把文件读成内存结构）属上层，不进 sa_std（第九节）。</li>
+<li><strong>与存量的关系</strong>：不是另起词汇。sa_plugin_3dengines 里已经躺着材质描述符的完整字段布局（含按槽纹理引用与 vertex/fragment shader ref）、动画 clip/channel/sampler/player 全套词汇、scene 的 decl node 雏形、glTF asset label 与 accessor 布局校验的手写 SA 实现——缺的正是声明式格式 + 按名组装 + 编译期检查这一层；SAX3D 是给存量词汇补格式层。sa_std 图形面为零（已实测），three.js 试验台的资产处理是 JS 对象运行时拼装——两者都是反面基线。</li>
+</ul>
+
+<h2>二、SAX 纪律的迁移：五件与三条不迁移</h2>
+<p>用户原问（2026-10-31 10:38）是「模型用 SA 描述、关系参考 SAX 层次描述组装」。源码级测绘（sa_plugin_sax <code>1a88bf4</code> 的 parser / lowerer / sax_rules + sci 内 <code>docs/sax_syntax.md</code>）确认：<strong>SAX 式的本质是纪律五件，与 XML 语法外皮无关</strong>，本格式全盘采用：</p>
+<table>
+<tr><th>SAX 五件</th><th>在 SAX 中的实形</th><th>在 SAX3D 中的落点</th></tr>
+<tr><td>封闭词表</td><td>标签/属性/事件皆白名单，未知即具名错误 <code>SaxUnknownTag</code></td><td>每层声明种类与字段皆封闭集，未知字段/种类 = 具名错误</td></tr>
+<tr><td>声明树</td><td><code>&lt;Component&gt;</code> 内嵌元素树，树形即结构</td><td>装配层 scene 的 node 嵌套即父子关系（第四节）</td></tr>
+<tr><td>按名槽位</td><td><code>&lt;state&gt;</code> 具名状态槽，lowerer 分配确定偏移</td><td>一切跨层引用按名；名字在同类内唯一，重名 = 具名错误</td></tr>
+<tr><td>裁判具名检查</td><td>sax_rules 五条规则具名拦截越界</td><td>校验器对悬空引用、名/型不符、通道越界逐项具名诊断（第五节）</td></tr>
+<tr><td>解析产物（名→布局）</td><td>名字解析为确定的内存偏移表</td><td>编译产出解析清单：每个名 →（种类、索引、段、偏移、布局），可哈希规范形</td></tr>
+</table>
+<p>不迁移三条：XML 语法外皮（那是 DOM 宿主面的形状，不是装配纪律的本质）；<code>&lt;state&gt;</code> 的运行时可变语义（资产是静态描述，槽位对应声明项而非可变状态）；事件/handler 绑定（资产层无事件，其类比物是动画 clip 通道对节点的绑定）。改造后迁移一条：SAX 的 <code>{expr}</code> 插值在资产层对应<strong>字面参数值</strong>（材质参数、变换数值），同样受「只能引用已声明名 + 类型受检」约束。</p>
+
+<h2>三、几何用 SA 描述</h2>
+<p>「理论模型可以用 SA 描述」的字面落点：<strong>几何通道的元素类型就是 SA 类型</strong>（<code>f32</code>、<code>f32x2</code>、<code>f32x3</code>、<code>f32x4</code>、<code>u8x4</code>、<code>u16x4</code>、<code>u32</code> 等封闭元素类型集），二进制段就是该类型数组的 SA 内存镜像（f32x3 = 3×f32 小端、无 padding——SA 标量布局即如此）。全部记录布局由<strong>一份随格式规范分发的 SA 声明文件</strong>逐字钉死，作为 schema 的唯一真理源：任何语言的消费者都绑这份声明，不许各自手算偏移（3dengines 里手写的 accessor 布局数学证明手算可行，也证明它应当被收编为声明）。二进制头带版本，纪律沿 SAB 的版本门：字段只增不改义。（该声明文件在研究稿中暂名 sam3d.sai——彼时格式未定名；正式文件名随 SAX3D 定名由实现线在 SPEC 中定版。）</p>
+<ul>
+<li><strong>逻辑通道律</strong>（SLASL 逻辑槽律的同构，Jev 裁定 1.0，见第十一节 F-4）：格式内通道<strong>恒为独立紧密打包数组</strong>（stride = 元素大小，无 padding、无交错）；消费者需要的交错顶点布局由加载/编译期按目标派生，不回写格式。通道名即语义，物理布局不是作者的事。</li>
+<li><strong>通道规范名集</strong>：<code>position | normal | tangent | uv0..uv3 | color0 | joints0 | weights0</code>，另许 <code>attr &lt;name&gt;</code> 自定义通道（元素类型仍须在封闭集内）。通道到 shader <code>@input</code> 的规范映射由格式固定（position→position、uv&lt;i&gt;→uv/uv&lt;i&gt;、color0→color、joints0→joints、weights0→weights），校验器据此检查「shader 要的每个 input 都有通道喂」。</li>
+<li><strong>primitive 是绘制与材质绑定的单位</strong>，按名引用材质；mesh 可多 primitive（v1 约定 primitive 共享 mesh 全部通道，子集化登记为缺口）。索引可选；拓扑为封闭集（triangles 默认 | triangle-strip | lines | line-strip | points）。可选 bounds（position 通道的 min/max，glTF accessor min/max 的对应物）。</li>
+<li><strong>morph targets</strong>：几何层 <code>morph</code> 块声明增量通道（position/normal/tangent 的 delta）；权重不在几何层——权重是动画 path 或运行时量，morph 的名字集即权重向量的分量名序。</li>
+</ul>
+
+<h2>四、分层模型（六层，字段级）</h2>
+<p>词表总纪律：每层的声明种类与字段都是封闭集；所有跨层引用按名；采样器状态、颜色空间等代码外信息<strong>一律在声明里写死，永不从文件格式、扩展名或宿主默认值猜</strong>（Shadertoy 通道外部性的教训：代码外信息必须由声明补齐）。</p>
+<h3>4.1 几何层 mesh</h3>
+<pre>mesh &lt;Name&gt; {
+    vertices &lt;u32&gt;;                                   // 顶点数（通道计数的锚）
+    channel &lt;chan&gt; : &lt;elem-type&gt; @ &lt;section&gt;;         // 一条逻辑通道
+    indices &lt;u16|u32&gt; @ &lt;section&gt; count &lt;u32&gt;;        // 可选
+    primitive &lt;pname&gt; { material: &lt;MaterialName&gt;; }   // ≥1 个
+    morph &lt;mname&gt; { channel &lt;chan&gt; : &lt;elem-type&gt; @ &lt;section&gt;; ... }   // 可选，增量通道
+}</pre>
+<h3>4.2 骨骼层 skeleton</h3>
+<pre>skeleton &lt;Name&gt; {
+    joint &lt;JointName&gt; { parent: &lt;JointName&gt;|none; bind: { t: [..]; r: [..]; s: [..]; } }
+    ...
+    inverse_bind @ &lt;section&gt;;        // f32x4x4 × joint 数，按声明序
+}</pre>
+<p>关节<strong>就是装配树的节点</strong>（glTF 同形）：skeleton 只声明关节名<strong>序</strong>（序 = 蒙皮矩阵板的逻辑下标）与逆绑定矩阵段，关节的层级与变换在装配层由同名 node 承担；校验要求每个 joint 名在装配树中有同名 node、且祖先链与 parent 声明一致。mesh 的 <code>joints0</code> 通道元素是关节逻辑下标（u16x4，索引 skeleton 声明序），消费者按目标重映射——逻辑槽律再现。<code>weights0</code> 与 <code>joints0</code> 必须成对出现（校验项）。</p>
+<h3>4.3 材质层 material</h3>
+<pre>material &lt;Name&gt; {
+    shader: &lt;ShaderName&gt;;                        // SLASL 产物引用（第六节）
+    param &lt;name&gt; = &lt;literal&gt;;                    // 逐项按名对接口表 params 组
+    texture &lt;sampler-param-name&gt;: &lt;TextureName&gt;;   // 按名绑纹理到 sampler 参数
+    tex_transform &lt;sampler-param-name&gt; { offset: [u,v]; scale: [u,v]; rotation: f32; }  // 可选
+    state { alpha: opaque|mask|blend; cutoff: f32; double_sided: bool; depth_write: bool; }
+}</pre>
+<p>绑定检查是核心纪律，见第五节。<code>state</code> 是渲染状态声明（宿主消费、非 shader 语义），字段集对齐 3dengines 的 <code>SA3D_MATERIAL_DESC</code> 存量。材质<strong>不含</strong>管线/混合方程细节——那是宿主渲染器的事。</p>
+<h3>4.4 纹理层 image / texture</h3>
+<pre>image &lt;Name&gt; {
+    source "path.png" | @ &lt;section&gt;;            // 外部文件 或 内嵌段
+    format png|jpeg|ktx2|raw-rgba8|raw-rgba16f; // 载荷格式显式声明
+    size &lt;w&gt; &lt;h&gt;;                               // raw 必填；容器格式可校验对读
+    color_space srgb|linear;                    // 显式，永不猜
+}
+texture &lt;Name&gt; {
+    image: &lt;ImageName&gt;;
+    sampler { mag: nearest|linear; min: nearest|linear;
+              mipmap: none|nearest|linear;
+              wrap_u|wrap_v|wrap_w: clamp|repeat|mirror; }
+}</pre>
+<p>image / texture / sampler 三件分离（glTF 同构）。v1 纪律：image 载荷对格式层是<strong>不透明字节</strong>——PNG/JPEG 解码不在格式层（sa_std 图像 codec 缺位，缺口 SAM3D-GAP-2）；raw 格式则 size 与段长必须精确对算，校验器可验。</p>
+<h3>4.5 装配层 scene</h3>
+<pre>scene &lt;Name&gt; {
+    node &lt;NodeName&gt; {
+        transform { t: [x,y,z]; r: [x,y,z,w]; s: [x,y,z]; }   // 或 matrix: [16 f32]，二选一，混写报错
+        mesh: &lt;MeshName&gt;;
+        material: &lt;MaterialName&gt;;        // 可选覆盖：仅当 mesh 单 primitive 时合法
+        skin: &lt;SkeletonName&gt;;            // 可选
+        node &lt;ChildName&gt; { ... }         // 嵌套即树
+    }
+}</pre>
+<p>声明树即装配（SAX 的声明树同构）：嵌套 = 父子，名字全场唯一（关节名、动画 target 名都到这里解）。节点可选负载的封闭集（v1，Jev 裁定 F-7 core_only 0.77）：transform、mesh、material 覆盖、skin、子节点；相机/灯光等场景负载在 3dengines 的 decl kind 里已有存量（CAMERA/LIGHT/PARTICLE），v1 不进核心、登记为扩展候选。同一 mesh 被多 node 引用天然成立（引用按名、可多引）；GPU 实例化 v1 不收（缺口 SAM3D-GAP-5）。</p>
+<h3>4.6 动画层 clip——clip 即动作</h3>
+<pre>clip &lt;ClipName&gt; {                                // 一个 clip 即一个「动作」
+    sampler &lt;SName&gt; {
+        input:  f32 @ &lt;section&gt; count &lt;n&gt;;       // 时间轴（秒，单调不减，校验项）
+        output: &lt;elem-type&gt; @ &lt;section&gt; count &lt;n&gt;;
+        interpolation: step|linear|cubic-spline;
+    }
+    channel { node: &lt;NodeName&gt;; path: translation|rotation|scale|weights; sampler: &lt;SName&gt;; }
+}</pre>
+<p>channel/sampler 分工与 glTF 同构、与 3dengines 已落地的 <code>3d_animation</code> 词汇一致，改动只有三处：target 按<strong>节点名</strong>、sampler 按 clip 内名、input/output 是段数据引用；cubic-spline 的 output 沿 glTF 约定三元打包（in-tangent, value, out-tangent），校验器按 3n 查段长。<code>path: weights</code> 的 output 长度 = target mesh 的 morph 数、名序对应。<strong>格式只存 clip</strong>：混合、过渡、状态机、IK 全部是运行时事（3dengines 的 player 已是运行时件），明文划在格式之外，不许把播放语义偷渡进格式。clip 的名字即动作名，宿主以名取动作，clip 之间无顺序语义。</p>
+
+<h2>五、按名绑定与解析清单</h2>
+<ul>
+<li><strong>名为唯一主键</strong>（Jev 裁定 F-3 name_primary 1.0）：作者面只有名字；索引是编译产物。glTF 的「索引引用、name 只是可选装饰」与 SAX 式正面冲突，<strong>不采</strong>——索引引用重排即静默错位、无名可检，正是 SAX 式要消灭的东西。生态工具（Blender 导出器等）产索引更顺手，是转换器要消化的成本，不反过来改格式主键。</li>
+<li><strong>材质 → SLASL 绑定合同</strong>：材质的每个 <code>param</code> 必须按名 + 按型命中其 shader 接口表的 params 组（f32↔标量、vec2/3/4↔数组字面量、mat4↔16 元数组）；每个 <code>texture</code> 绑定的名字必须是接口表中的 sampler 参数名；接口表中的 sampler 参数<strong>不得漏绑，漏绑 = 具名错误</strong>（与 SAX 的未声明引用同级）。params 组中未被赋值的项：接口表带默认值者用默认，否则报错——<strong>不许静默零值</strong>（默认值契约本身登记为缺口 SAM3D-GAP-7，须与 SLASL 线对齐定形）。</li>
+<li><strong>资产层为此必须携带的东西</strong>：shader 引用不是文件路径字符串了事——编译期要拿到该 shader 的<strong>接口表 artefact</strong>（SLASL 编译器核心产出的清单，可哈希规范形、同源生成禁手写，见 6.4）；mesh 通道与 shader <code>@input</code> 的对应由格式固定的规范映射表给出。依赖方向：资产编译器<strong>消费</strong> SLASL 清单，不反向要求 SLASL 知道资产——与 SAX 的 lowerer 消费 state 槽表同构。</li>
+<li><strong>解析清单</strong>：编译产物之一是 asset manifest——每个名 →（种类、索引、段、偏移、布局）的可哈希规范形（宿主/上层加载方按其建缓存；gpu-curtains 与 SLASL 清单先例同源）。这份清单就是第九节所说的「加载面契约」：格式保证它完整，任何上层加载器据此读出的布局必然一致。</li>
+<li><strong>校验器原型证据</strong>（研究期参考实现，非生产校验器）：工作例（立方体 24 顶点、1 primitive、1 材质、1 纹理、1 个 SLASL shader 引用、1 个旋转 clip）实跑 <strong>VALIDATION OK</strong>，段偏移 256 / 544 / 832 / 1024 / 1096 / 1112 / 1120、文件总长 <strong>1152 B</strong> 与设计布局表逐项一致；负对照（注入未声明 param 与未声明纹理）产出两处具名错误并判 FAILED——检查不是摆设。原型窄化逐项登记在研究档案（单例文法子集、段长取自文本声明而非真实二进制、接口表以手工文件代演等），不冒充生产工具。</li>
+</ul>
+
+<h2>六、Shader：SLASL（SAX3D 的一等章节）</h2>
+<p>材质的 shader 槽不是一个引用了事——SAX3D 的材质语义有一半定义在 shader 侧。本节是 SLASL 的设计定版记录（用户 2026-10-31 11:13 补令：shader 作为一等章节完整纳入本白皮书）。SLASL 与已取消的 sla2haxe 方向（见 <a href="12_haxe_backend.html">12 号文档</a>）无关：那是把 SA 作 Haxe 的底层目标；SLASL 是为我方栈自研的、hxsl 式一源多 target 的 shader 语言。</p>
+
+<h3>6.1 SLASL 本体：一源多 target 的类型化编译</h3>
+<ul>
+<li><strong>形态</strong>（用户逐条定形）：09:56 一源多 target——作者写一份通用 shader（源码扩展名 <code>.slasl</code>，09:57 定名 SLASL），设定 target，生成该平台的 shader 文件，「类似 HLSL」的交叉编译；09:54 仅生产 shader 文件、内核不含整个引擎；09:47 Unity / Unreal / Blender 为一等发射目标；10:01 WebGPU 列一等 target。</li>
+<li><strong>管线</strong>（hxsl 同构、逐环有源码证据）：hxsl 在 Haxe 编译期把 <code>SRC</code> 块表达式（<strong>非字符串</strong>）经 MacroParser 解析为类型化 AST、Checker 检查，多片段按 priority 收集后经 Linker（路径合并 + 依赖图）→ Dce（分量掩码）→ Flatten（逻辑打包）→ 各 Out 独占平台细节。SLASL 照此分层：<strong>类型化 AST → 片段合并/链接（依赖序编织 init、同名同型变量统一）→ 分量级 DCE → uniform 逻辑打包 → 按 target 发射</strong>。合并、DCE、接口表生成全部在 target 无关层完成，target 层只做方言转写 + 约定包裹 + 槽位落定。</li>
+<li><strong>写面纪律</strong>：限定符沿 hxsl——<code>@global</code>（全片段共享的宿主级量，可成组声明、按组名限定访问）、<code>@input</code>（顶点输入）、<code>@param</code>（本材质参数）、<code>@const</code>（编译期常量，变体的唯一来源）、<code>@range</code>。采样写方法式 <code>tex.get(uv)</code>——AST 是采样操作节点，方言转写由后端独占；用户代码出现 <code>layout</code> / <code>binding</code> / <code>precision</code> / 版本号 / <code>register</code> 即具名检查错误——<strong>平台细节零泄漏</strong>（hxsl 铁律）。shader 不是字符串、不用运行时 builder 作主面（用户已定：字符串形态零编译期检查、合并只能文本拼贴）。</li>
+<li><strong>产物只有文件</strong>：编译器核心（AST schema、checker、linker、emitters）是 std/工具链的代码生产能力，由构建步骤/资产管线运行；渲染运行时（program/uniform/texture 句柄、上下文、窗口、材质系统、场景、驱动）明确排除在 std 之外。</li>
+</ul>
+
+<h3>6.2 target 注册表</h3>
+<p>注册表分两层：<strong>方言后端</strong>（AST→方言文本）与<strong>宿主约定层</strong>（包裹结构、同包文件、绑定落定、变体翻译）。新增 target = 加一层，不动写面与合并层。</p>
+<table>
+<tr><th>层</th><th>target</th><th>要点与硬契约</th></tr>
+<tr><td>方言</td><td>GLSL ES 3.00 / GLSL ES 1.00</td><td>原型已落（第八节证据）；std140 与 layout 槽落定 / texture2D 与 precision、attribute/varying、无 UBO</td></tr>
+<tr><td>方言</td><td>HLSL（SM5 形）</td><td>原型已落；cbuffer + register 落定、<code>.Sample()</code>、SV_* 语义</td></tr>
+<tr><td>方言</td><td>WGSL（WebGPU 一等）</td><td>方言 + 薄约定层，宿主即 WebGPU API 本身；六条定形见 6.4</td></tr>
+<tr><td>方言</td><td>MSL</td><td><strong>我方新增后端</strong>——事实更正：heaps master 只有 GlslOut/HlslOut/NXGlslOut，<strong>没有 MetalOut</strong>，不冒充复刻（登记 D-1）</td></tr>
+<tr><td>方言</td><td>SPIR-V</td><td>登记靠后：宿主（Vulkan/Blender Vulkan 路）多自带 GLSL→SPIR-V，我方直发收益最低</td></tr>
+<tr><td>约定</td><td>unity</td><td>发射单位 = 完整 ShaderLab 资产；全部材质属性进唯一 <code>CBUFFER_START(UnityPerMaterial)</code>、全 Pass 同一份；纹理走 <code>TEXTURE2D/SAMPLER</code> 宏三元组、CBUFFER 外；违反 SRP Batcher 是<strong>静默性能降级、编译查不出</strong>——生成器须以清单自检</td></tr>
+<tr><td>约定</td><td>unreal-global</td><td>交付定义 = <strong>成对（三件套）生产</strong>：<code>.usf</code> + 可选 <code>.ush</code> + C++ 胶水（FGlobalShader 子类、参数结构、注册宏四元绑定）；参数与 C++ 结构成员逐字同名、布局服从引擎宏反射打包，禁止自发 register()/手写 cbuffer；首落点 = global shader、compute 优先；材质面归引擎代码生成，我方不生成 mesh material</td></tr>
+<tr><td>约定</td><td>blender</td><td>产物两件套 = info 等价声明 + 方言源码；接口先行（槽位在 info 侧显式声明）；源码<strong>不得自带 #version</strong>（宿主注入）；借其声明/绑定契约，不依赖其文本拼图（Blender 自身无 AST 级合并）</td></tr>
+</table>
+
+<h3>6.3 逻辑槽律与变体分级（跨目标铁律）</h3>
+<ul>
+<li><strong>逻辑槽律</strong>：AST 层资源槽一律是逻辑槽——globals 组与 params 组各自拍平为逻辑布局（每字段记 (offset, size) 逻辑槽、纹理/采样器记逻辑槽号）；物理绑定（GLSL layout(binding)、HLSL register、WGSL @group/@binding、Metal 索引分区、Blender 的 Metal 重排分区）由 target 层落定。实证：同一逻辑槽在 Blender 的 GL/Vulkan/Metal 下物理排布不同；这正是 SAX3D 第三节逻辑通道律的同源纪律。</li>
+<li><strong>变体分级</strong>：变体的唯一来源是 <code>@const</code>，target 层只翻译、不发明新维度，且按 target 的变体预算分级——裸方言在链接期按变体键产出多份文件；WebGPU 无预处理可用，走 override / 拆模块（6.4 第 5 条）；Unity 分级为 shader_feature_local 等宿主档（关键字项目预算 256、local ≤64/shader，发射前做变体数审计并旁注产物）；Unreal 是 C++ 置换维度类（封闭取值集 + ShouldCompilePermutation 过滤 + 总数预算报警），维度类由我方生成、是文件产物的一部分。超出预算的 @const 组合必须降级为运行时分支或响亮报错，<strong>不许静默膨胀</strong>。</li>
+<li><strong>后端能力纪律</strong>：后端不支持的 AST 节点在发射期具名拒绝 <code>UnsupportedInBackend</code>，不许降级改写；采样/导数节点带控制流一致性标注，合并与 DCE 不得使采样点跨越一致性边界（WGSL 为硬门，其余方言为可移植性纪律）。</li>
+</ul>
+
+<h3>6.4 与 SAX3D 的绑定合同</h3>
+<ul>
+<li><strong>接口表是合并/DCE 后的产物</strong>：LinkedShader 带接口表——globals 组与 params 组的逻辑布局、纹理逻辑槽表、input 表、varying 表、变体键。DCE 消除项会从接口表<strong>同时消失</strong>（原型金文件 layout 对照即实例：Params 块含 base_color / tint 两字段，dead_weight 已不在表中）。SAX3D 材质的 param 按名+按型对这张表绑定、mesh 通道按规范名喂 <code>@input</code>、sampler 漏绑响亮报错——合同全条见第五节。</li>
+<li><strong>WebGPU 面的同包约束</strong>（六条定形之要者）：① 绑定是双边合同且有规范硬预算（bind group ≤4、uniform 12/阶段、storage 8/阶段、采样纹理/采样器各 16/阶段、单 uniform 绑定 ≤64KiB、偏移 256B 对齐等），超预算响亮失败并点名超限项；② 合并采样器在 WGSL 拆为纹理 + 采样器<strong>两个槽</strong>，配对关系进清单；③ 浏览器 JS 宿主<strong>零反射接口</strong>，故<strong>反射清单是强制同包件</strong>——随 .wgsl 一同发射（入口点静态访问集、buffer 字节布局表、overrides、required features/limits、采样器配对、入口 IO），与产物<strong>同源生成、禁手写维护</strong>，且设计为可哈希规范形供宿主建/缓存 pipeline layout；④ 接口元数据单源三生成（WGSL 声明段、绑定清单、布局偏移表同源派生，永不分别维护），成员布局偏离 WGSL 裸默认者发射器必发 <code>@align/@size</code> 钉死；⑤ 变体只有 override 一条路（标量条件走 override 并给 <code>@id</code> 稳定键名，改变资源接口/入口签名/阶段构成者拆多个 .wgsl 模块）；⑥ 隐式导数采样的一致性归属在 AST 层标注、合并后复核，违规编译期报错。验收真门 = <strong>按清单布局建管线</strong>（createShaderModule 永不抛错，不是验收门）。</li>
+</ul>
+
+<h3>6.5 双向生态：既有 shader 回转 SLASL</h3>
+<ul>
+<li><strong>形态通则</strong>（用户 2026-10-31 10:13 定）：importer 一律是<strong>本地转换工具、用户手动发起的单件转换</strong>——不做任何来源的 API 客户端、key 管理、批量抓取或索引服务（10:06 的双向扩围在此口径下执行）。用户自备 shader 代码（自行从站点等方式拿到），用工具逐个转换；转换发生在用户侧、针对用户自备代码，工具本身不承载内容许可。</li>
+<li><strong>架构对称</strong>：每个来源方言一个 importer 前端（解析 → 同一份类型化 AST + 接口表回收），与正向 target 后端共用 AST/接口表——AST 是双向枢纽。产物必须过 SLASL checker 同一规则集；子集外构造<strong>响亮拒绝</strong>（具名诊断 <code>UNSUPPORTED &lt;来源&gt;:&lt;构造&gt;</code> + 源码位置），不许静默近似。round-trip 纪律：源→SLASL→源 target 以声明集/接口表/计算图等价面逐项对照；验收须<strong>多帧 + 输入净化</strong>，数值判读只承诺无头 WebGL2 真渲染的<strong>容差像素比对，不承诺逐位等价</strong>。</li>
+<li><strong>Shadertoy 先行</strong>：其真实形态 = 一台 GLSL ES 前端 + 一层宿主契约垫片（契约层小而全机械，语言层是与正向编译器同量级的真前端：ES 3.00 文法为骨架 + ES 1.00 别名/宽容层）。头号机械约束是<strong>通道外部性</strong>：iChannel0..3 的采样器维度（2D/Cube/3D）、filter/wrap、pass 归属只在页面配置里、从代码不可判定——由<strong>用户在转换时以声明配置补齐</strong>（字段集以其 API JSON 的字段全集为参照），未声明的响亮标「未定型」、拒绝猜测。标准 uniform 全表入接口表作保留宿主项；Common 在链接期 AST 合并进每个消费者 pass；自反馈是 pass 图层的属性、不进单个 pass 的 AST；<code>mainSound</code> 是非片段入口种类，<strong>首版响亮不支持</strong>（入口种类缺口）。覆盖率<strong>工程估算</strong>（非普查）：Image-only 约 70–85%、带 Common 约 65–80%，前提含函数式 #define 宏的展开路线（J-8 裁定为分级混合，见 6.6）。</li>
+<li><strong>Blender 次之</strong>：create-info 自带接口元数据，导入时以其为准回收逻辑槽与参数表，与正向的 info 件同源双向；节点生成码是机器生成文本、导入价值低，后置登记。<strong>Unreal 自包含 USF 子集最后</strong>：只收参数结构显式、入口自包含者；依赖引擎 .ush 语义的代码在子集外、具名拒绝；置换 define 集封闭可枚举时映射 @const，不可枚举则拒绝该维度。分期纪律：先会写、再会读——导入方向排在正向 GLSL/HLSL 落产之后。</li>
+</ul>
+
+<h3>6.6 使能层：SLA 宏改进（SLASL 的地基，简述）</h3>
+<p>SLASL 的写面整体建立在 SLA 的宏等元编程支持之上——hxsl 的全部能力建立在 Haxe 的编译期宏（语法作为数据 + 类型化检查）之上，这是两边对照后的根基判断。测绘实证（源码 + 八探针语料）：SLA 现行有<strong>两套宏世界 + 一个定用途模板设施</strong>，能力边界截然不同——SLA 层用户宏的宏体是 AST 语句模板，但参数是<strong>已求值表达式</strong>、调用恒 void、无语法参数、不能在声明位置调用、宏体不能含声明、作者读不到实参类型；SA 层导入宏（<code>[MACRO]</code>）在文本层分析、可把标签作参数、借前导输出约定<strong>可以</strong>作表达式用（与用户宏形成明确不对称）；<code>@expand_tuple</code> 是唯一的声明生成设施，词表封闭、类型盲。据 hxsl 需求为标尺登记缺口 SLA-SHADER-GAP-1…7（语法作为数据 / 声明级生成 / 宏内类型可见性 / 表达式位置用户宏 / 编译期求值 / 标识符构造 / 检查器介入点）；分类结论：<strong>阻塞性缺口全部是语言设计缺席，不是实现 bug</strong>——现行宏机器对其既定设计是完备成品，故无可单方原型的纯实现缺口，全部打包送 Jev 裁定。</p>
+<p><strong>Jev 裁定九项</strong>（2026-10-31，jev-1.14.0；全文存 <code>~/workspace/jev-designs/slasl_macro_ruling.json</code>；宏实现线正按此实现）：J-1 语法作为数据 = <strong>声明级子语言注册 0.68</strong>（syntax 参数 0.07、属性变换钩子 0.01、syntax+注册组合 0.24）——新声明种类由注册的子解析器处理（如 shader 声明），是 SLASL 的最小面、且参考原型已独立验证此语义；J-2 声明级生成 = 并入 J-1（0.71）；J-3 宏内类型可见性 = 宏参可声明类型（0.75）；J-4 表达式位置用户宏 = 照搬导入宏的前导输出约定（0.77）；J-5 检查器介入点 = 独立只读 check 钩子（0.93）；J-7 链接执行点 = <strong>std 库生产为语义基准 0.99</strong>（链接器是普通 SLA 库代码、由构建/资产管线运行，插件内静态链接只作可选优化登记）；J-6 编译期求值 = 一般改进后置、不阻塞（0.80）；F-3 输出形态 = hxsl 式结构化 output 组（0.78，原型的特殊名只作过渡）；J-8 Shadertoy 函数式 #define 宏路线 = <strong>分级混合 0.68</strong>（对象式常量宏保结构映射、函数式宏首版展开并在产物留痕；保覆盖全展开 0.25、保结构全保真 0.07）。</p>
+
+<h3>6.7 原型证据与未证面（如实）</h3>
+<ul>
+<li><strong>参考原型实证</strong>（Zig 参考实现：前端子解析器 + checker 子集 + linker + GLSL ES 3.00 / ES 1.00 / HLSL 三发射器）：输入 base.slasl + tint.slasl 两片段，产出 <strong>8 个金文件逐字节一致</strong>（重建 + 重跑 + 逐文件 diff 全等才 PASS），四演示点逐项成立：① init 乱序书写、链接后依赖序纠正（tint_boost 先于 tint_pre）；② 同名同型 @param 跨片段统一进同一 Params 块；③ <strong>DCE 使 Params 布局 48 → 32 字节</strong>——dead_weight 与 scratch 从 AST、参数布局与全部后端产物中同时消失（grep 零命中），eliminated 段具名列出；④ 采样三译——<code>tex.get(v_uv)</code> → ES 3.00 <code>texture()</code> / ES 1.00 <code>texture2D()</code> / HLSL <code>tex.Sample(tex_sampler, v_uv)</code>；@const 条件已在链接期折叠（三产物无残 if）。宏测绘八探针复跑 8/8 与登记一致，是语言批的「改进前」基线语料。</li>
+<li><strong>原型窄化逐项登记、不冒充目标形</strong>：类型/语句子集，无 helper 函数与 let、无多渲染目标，init 编织只覆盖 var 依赖，DCE 分量掩码只到 swizzle 读集粒度，HLSL 只 SM5 形，output 用特殊名（F-3 已裁结构化组、待落形），导入方向全部不在原型内。</li>
+<li><strong>未证面</strong>：GLSL/HLSL 产物<strong>真编译未证</strong>（本机无 glslangValidator / dxc）；Unity 无编辑器真编译、Unreal 本机不可验（源码许可门控）、Blender 未构建二进制真验——三家验收口径按各自上限写明，不冒充已验；WebGPU 侧 headless Chrome 的模块级合法路径已由档案线实证，管线级（L3）验收未在本机实跑。</li>
+</ul>
+
+<h2>七、容器双形态：拆分、合并与外部引用</h2>
+<p>用户 2026-10-31 10:56 定：「我们要灵活，学 gltf，有文本也有二进制，可以拆分导入，比如 sa mesh、slasl 放到外部，sax 组装；也可以有一个合并后的二进制。」据此，容器<strong>双形态同为一等</strong>——同一资产的两种包装，不是两个格式（此裁定覆盖研究稿把合并形仅登记为后续候选的 F-2 旧形态；Jev 对拆分形的 1.0 裁定与拆分形为创作形不矛盾）：</p>
+<ul>
+<li><strong>拆分形（创作形）</strong>：组装文本在外部按名/路径引用独立文件——SA mesh 二进制（几何段文件）、<code>.slasl</code> shader 文件、贴图文件，组装层只做引用与绑定（glTF 的 .gltf 引用 .bin 与图片同理）。文本面受封闭词表 + 类型检查（二进制面的 schema 由 SA 声明钉死，见第三节）——这正是与 glTF「JSON 无 schema、校验靠外部 validator」的分界。</li>
+<li><strong>合并形（交付形）</strong>：单文件二进制（GLB 类比：头 + 段表 + 内嵌组装文本段 + 全部载荷段），版本门纪律沿 SAB：头部带版本、字段只增不改义。</li>
+<li><strong>打包器</strong>：拆分形 → 合并形是一个工具链件；双形等价是验收项——两例（立方体例与蒙皮动画例）双形各走一遍，合并形解开后的段集合与拆分形<strong>逐段等价</strong>（偏移可不同、内容逐字节同），校验器对两形给出同一裁判结论。shader 在合并形中以引用名入册为底线。</li>
+</ul>
+
+<h2>八、SAX3D ↔ glTF/GLB 双向转换器</h2>
+<p>用户 2026-10-31 11:04 令：「加多一个转换器，sax3d to gltf glb 互相转。」转换器排在<strong>格式定形（SPEC 冻结）之后的紧随一批</strong>（此令把 Jev F-6 的 right_after_format 0.58 落实为已定工作，并由单向导入扩为双向）；映射表先行——逐构造列明采 / 近似 / 响亮不支持，先表后码。</p>
+<ul>
+<li><strong>入向（glTF/GLB → SAX3D）</strong>：buffers/accessors → 独立紧密通道（交错布局在入向即拆回独立通道，逻辑通道律不让步）；索引引用改名为名主键；nodes/skins/animations/morph 按设计中的同构映射落名。glTF 材质无 shader 概念：其 PBR 参数集映射为 SAX3D 材质参数，shader 槽的处置（绑具名标准 PBR SLASL 材质 shader，或显式标未绑）须在映射文档中定明并给理由，<strong>不许静默</strong>。</li>
+<li><strong>出向（SAX3D → glTF/GLB）</strong>：产出 .gltf+.bin 与 .glb 两形。材质参数集按映射表近似为 glTF PBR；SLASL shader 引用在其一侧无对应物——连同其余一切无对应构造，必须逐项进入<strong>转换报告</strong>（近似了什么、为何；省略了什么、为何），<strong>零静默丢失是硬验收项</strong>。</li>
+<li><strong>验收</strong>：往返等价——glTF→SAX3D→glTF 语义等价（几何字节同、材质参数按映射表、动画通道同），SAX3D→glTF→SAX3D 对 SAX3D 可表达子集同理；资产集 = 两个工作例 + 至少一个真实世界 glTF 样本。转换若逼出格式缺陷，按缺陷登记并停报，不许在转换器里绕。</li>
+<li><strong>入向的存量</strong>：3dengines 的 <code>3d_gltf</code> 已有 accessor 布局数学的完整手写 SA 实现可复用；缺的是 JSON 解析 + 全量映射器（缺口 SAM3D-GAP-3）。</li>
+</ul>
+
+<h2>九、格式与加载的边界</h2>
+<p>用户 2026-10-31 10:53 亲自裁定（F-5，未送 Jev）：「不要，std 是底层，所有加载的东西是上层。」——sa_std <strong>不放</strong> SAX3D 参考加载库；一切加载件属上层（宿主/应用侧，上层插件层亦在其列）。10:54 补强理据：「glTF 也没有内置的加载器，我们参考即可」——参照物先例同向：glTF 只有格式规范，加载器全在生态上层；SAX3D 照此办理。</p>
+<ul>
+<li>此裁与「核心入 std、插件只做包装/框架」的既有教义同向：加载不是底层核心。注意与 SLASL 的分界不混淆——SLASL 编译器核心进 std/工具链，是因为它是<strong>代码生产能力</strong>（输入源码、输出文件）；加载器是<strong>运行时件</strong>（输入文件、输出内存结构供运行），两者在分层里分开。</li>
+<li>格式侧的责任止于：保证<strong>加载面契约完整</strong>——即第五节的解析清单（名→布局）随编译产出且为可哈希规范形，使任一上层加载器据此读出的布局一致。加载器写在哪一层、用什么语言，是上层自己的事。</li>
+</ul>
+
+<h2>十、体积理据（机制陈述，对拍进行中）</h2>
+<p>用户 2026-10-31 10:57 指出：「理论我们比 gltf、glb 格式小很多，因为我们不需要过多的 JSON 描述。」机制成立，逐项陈述如下——这是<strong>设计理据，不是测量结论</strong>：</p>
+<ul>
+<li>我方记录布局由<strong>共享的一份 SA schema 声明</strong>钉死、随规范分发，<strong>不随每份资产携带</strong>；glTF/GLB 则每份资产都背全套 JSON 描述——accessor / bufferView / 材质 / 节点诸对象的键名与结构逐项重复。</li>
+<li>合并形内部的引用是<strong>编译后的索引</strong>，名字只在名表中出现一次；文本创作形只在作者侧存在，不进交付载荷。</li>
+<li>诚实边界：几何载荷主导的大资产，两方载荷字节相同——省的是<strong>描述性开销</strong>；资产越小、对象越多，差距越大。</li>
+<li><strong>状态：实测对拍进行中</strong>——实现线在验收中以同一立方体例产出 glTF（.gltf+.bin）与 GLB 参照件，与 SAX3D 拆分形/合并形逐项比字节（总长 + 描述开销/几何载荷分列）。数字出来之前，本页不预印任何体积数值。</li>
+</ul>
+
+<h2>十一、裁定记录</h2>
+<h3>11.1 格式分叉（Jev，jev-1.14.0；F-5 除外）</h3>
+<table>
+<tr><th>分叉</th><th>裁定</th><th>概率与备注</th></tr>
+<tr><td>F-1 文法外皮</td><td><strong>SLA 块式</strong></td><td>0.48 对 XML 标签式 0.43——<strong>接近平局</strong>，已按裁定采用块式（与 .slasl 同气质、工作例所用）；用户如凭 SAX 手感改判标签式，一词可改</td></tr>
+<tr><td>F-2 容器形态</td><td>拆分形（文本 + 二进制分件）</td><td>1.0；其后用户 10:56 扩定双形态同为一等（第七节），拆分形为创作形的地位不变</td></tr>
+<tr><td>F-3 引用主键</td><td><strong>名为唯一主键</strong>、索引为编译产物</td><td>1.0（索引主键 0.0、双写互验 0.0）</td></tr>
+<tr><td>F-4 通道物理规范</td><td><strong>通道恒独立紧密打包</strong>、交错由消费者派生</td><td>1.0（作者交错 struct 0.0、两形并存 0.0）</td></tr>
+<tr><td>F-5 std 加载库</td><td><strong>不放</strong>（用户亲自裁，未送 Jev）</td><td>见第九节：std 是底层、加载属上层；glTF 无内建加载器为先例</td></tr>
+<tr><td>F-6 glTF 导入器时机</td><td>格式定形后紧随一批</td><td>0.58（v1 同批 0.12、待真实需求 0.30）；其后用户 11:04 令落实并扩为双向转换器（第八节）</td></tr>
+<tr><td>F-7 场景负载范围</td><td><strong>v1 只做核心</strong>（node/mesh/material/skin）</td><td>0.77（相机/灯光同批 0.14、具名扩展 0.09）</td></tr>
+</table>
+<h3>11.2 宏分叉（Jev，九项）</h3>
+<p>见 6.6：J-1 声明级子语言注册 0.68 为首，J-2 并入 J-1 0.71、J-3 宏参类型化 0.75、J-4 前导输出约定 0.77、J-5 独立只读检查钩子 0.93、J-7 std 库生产为基准 0.99、J-6 comptime 一般后置 0.80、F-3 结构化 output 组 0.78、J-8 分级混合 0.68。裁决文件存 <code>~/workspace/jev-designs/slasl_macro_ruling.json</code> 与 <code>sam3d_ruling.json</code>。</p>
+<h3>11.3 用户裁定链（2026-10-31）</h3>
+<ul>
+<li><strong>09:47–10:13 SLASL 定形链</strong>：后端通杀扩围（Unity/Unreal/Blender 一等）→ 仅生产 shader 文件、内核不含引擎 → 本线本质 = SLA 宏等支持改进 → 一源多 target 类 HLSL → 定名 SLASL → WebGPU 一等 → 双向（既有 shader 回转）→ 不做 API、本地手动转换。</li>
+<li><strong>10:38 SAX3D 开题</strong>：参考 SAX 定义我方专属 3D mesh——模型用 SA 描述、关系参考 SAX 层次组装；10:39 补：包括动画动作。</li>
+<li><strong>10:53 定名 SAX3D</strong>（候选 SAM3D / SAX3D / SAMESH 中选定）；同刻裁 F-5：std 不放加载库。</li>
+<li><strong>10:54</strong>：glTF 本身亦无内建加载器、我方参考即可（F-5 理据补强）。</li>
+<li><strong>10:56</strong>：容器灵活双形态——拆分导入（mesh、slasl 放外部、SAX 组装）与合并二进制同为一等。</li>
+<li><strong>10:57</strong>：体积理据——不需要过多的 JSON 描述（第十节）。</li>
+<li><strong>11:04</strong>：加 SAX3D ↔ glTF/GLB 双向转换器（第八节）。</li>
+<li><strong>11:13</strong>：本白皮书落字令；同刻补：shader 作为一等章节完整纳入（第六节）。</li>
+</ul>
+
+<h2>十二、缺口登记</h2>
+<p>编号沿研究档案的登记号（彼时格式未定名，登记号以 SAM3D-GAP 为前缀，跨引用不断链，此处不改号）：</p>
+<table>
+<tr><th>编号</th><th>缺口</th><th>咬合与处置</th></tr>
+<tr><td>SAM3D-GAP-1</td><td>shader 绑定检查依赖 SLASL 接口表 artefact 的定形与产出</td><td>实现前以手工 iface 文件代演（原型已如此）；与 SLA 宏实现线（J-1 注册机制）的落地状态联动</td></tr>
+<tr><td>SAM3D-GAP-2</td><td>sa_std 图像 codec 缺位（PNG/JPEG 解码）</td><td>格式不受影响（载荷不透明）；宿主/上层加载侧受影响；与 Duck 线 GAP-23 同源</td></tr>
+<tr><td>SAM3D-GAP-3</td><td>glTF 导入器缺位（生态存量上船口）</td><td>已由用户 11:04 令落实为双向转换器（第八节）；accessor 数学存量可复用，缺 JSON 解析 + 全量映射</td></tr>
+<tr><td>SAM3D-GAP-4</td><td>几何压缩（meshopt/Draco 类）无对应物</td><td>v1 载荷不压缩</td></tr>
+<tr><td>SAM3D-GAP-5</td><td>GPU 实例化、primitive 通道子集未定形</td><td>随 F-7 的场景负载扩展候选一并候排</td></tr>
+<tr><td>SAM3D-GAP-6</td><td>大资产流式/分页（accessor 级按需加载）未涉及</td><td>v1 全量载入假设</td></tr>
+<tr><td>SAM3D-GAP-7</td><td>材质 param 默认值契约（接口表须携带默认值标记）</td><td>须与 SLASL 线对齐定形；未定前未赋值 param 一律响亮报错、不许静默零值</td></tr>
+<tr><td>SAM3D-GAP-8</td><td>扩展机制纪律未定</td><td>封闭词表如何留扩展口：具名扩展声明 + 校验器可识别地拒绝/接受；不收 glTF extras 式无检查自由袋；与 USD 覆盖层问题相邻，须独立分叉，不许偷渡进 v1</td></tr>
+</table>
+<p>shader 侧缺口 SLA-SHADER-GAP-1…7 见 6.6（已全部经 Jev 裁定、由宏实现线承接）。另记两条对照结论备查：USD 的分层合成（后层意见覆盖前层）与 SAX 式「一份声明树定全貌」气质相反，v1 不采、覆盖层只登记为将来候选；FBX 的专有连接图只有反面对照价值（词表不封闭、格式不透明）。</p>
+
+<h2>十三、状态</h2>
+<ul>
+<li><strong>研究：完成。</strong>两条研究线终报在册（SAX3D 设计定形到字段级 + 校验器原型实证；SLASL 宏测绘 + GAP 登记 + 参考原型 8 金文件）。</li>
+<li><strong>裁定：全齐。</strong>格式分叉 F-1…F-7（Jev 六项 + F-5 用户亲裁）、宏分叉九项（Jev）、用户定名与边界诸令（11.3）均已落定。</li>
+<li><strong>实现：进行中。</strong>SAX3D 格式实现线在跑（schema 声明 + 块式组装解析/裁判校验 + 二进制写出 + 双形打包 + 体积对拍），<strong>SPEC 尚未冻结</strong>；SLA 宏实现线在跑（J-1 注册机制 / J-3 类型化宏参 / J-4 前导输出表达式宏 / J-5 只读检查钩子四件）；双向转换器排在 SPEC 冻结之后。</li>
+<li><strong>未证面（不得读作已完成）</strong>：GLSL/HLSL 真编译（本机无 glslangValidator/dxc）；Unity / Unreal / Blender 三家真编译；WebGPU 管线级验收未在本机实跑；体积优势目前是设计理据、对拍数字未出；两处原型证据（校验器段表、SLASL 金文件）均为参考实现级，不是生产工具。</li>
+</ul>
+
+</body>
+</html>

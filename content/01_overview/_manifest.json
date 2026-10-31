@@ -333,6 +333,34 @@
         "SLA 实现"
       ],
       "parent": null
+    },
+    {
+      "id": "sax3d-whitepaper",
+      "title": "SAX3D 3D 资产格式与 SLASL 着色器语言白皮书",
+      "file": "21_sax3d_whitepaper.html",
+      "keywords": [
+        "SAX3D",
+        "SLASL",
+        "3D 格式",
+        "白皮书",
+        "mesh",
+        "材质",
+        "纹理",
+        "shader",
+        "着色器",
+        "glTF",
+        "GLB",
+        "转换器",
+        "动画",
+        "clip",
+        "骨骼",
+        "蒙皮",
+        "SAX",
+        "接口表",
+        "逻辑通道",
+        "WebGPU"
+      ],
+      "parent": null
     }
   ]
 }

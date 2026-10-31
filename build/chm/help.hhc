@@ -173,6 +173,14 @@
 <param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SAX3D 3D 资产格式与 SLASL 着色器语言白皮书">
+<param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

@@ -102,6 +102,11 @@ var TOC = [
     "t": "高考统一引擎「衡 · Heng」（生化核心演算先行）：开发计划",
     "f": "content/01_overview/20_biochem_education_language.html",
     "c": []
+   },
+   {
+    "t": "SAX3D 3D 资产格式与 SLASL 着色器语言白皮书",
+    "f": "content/01_overview/21_sax3d_whitepaper.html",
+    "c": []
    }
   ]
  },

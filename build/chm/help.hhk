@@ -34,6 +34,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="0.14.1"><param name="Local" value="../dist/content/14_zig017_perf/01_zig017_vs_014.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="2x"><param name="Local" value="../dist/content/04_cli/13_bun_peer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="3d"><param name="Local" value="../dist/content/05_plugins/08_3dengines.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="3D 格式"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="3d_ecs.sal"><param name="Local" value="../dist/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="520"><param name="Local" value="../dist/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value=":memory:"><param name="Local" value="../dist/content/10_db/06_limits_perf.html"></OBJECT>
@@ -113,6 +114,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="className"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI"><param name="Local" value="../dist/content/10_db/02_cli.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI-only 插件"><param name="Local" value="../dist/content/12_vm/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="clip"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="codex"><param name="Local" value="../dist/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Codex Ultra"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="codex-react-ui"><param name="Local" value="../dist/content/01_overview/07_cxu_readiness.html"></OBJECT>
@@ -193,6 +195,8 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Gas"><param name="Local" value="../dist/content/15_sa2c/06_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="GC"><param name="Local" value="../dist/content/01_overview/12_haxe_backend.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="GitHub Release"><param name="Local" value="../dist/content/13_build/06_release_npm.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="GLB"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="glTF"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="gltf"><param name="Local" value="../dist/content/05_plugins/08_3dengines.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Go"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="go"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
@@ -278,6 +282,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Material UI"><param name="Local" value="../dist/content/05_plugins/04_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="material.sax"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="matmul"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="mesh"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="metadata"><param name="Local" value="../dist/content/06_stdlib/06_fs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="mitata"><param name="Local" value="../dist/content/04_cli/13_bun_peer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="mmap"><param name="Local" value="../dist/content/15_sa2c/04_extern.html"></OBJECT>
@@ -421,6 +426,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sardis"><param name="Local" value="../dist/content/01_overview/11_sardis_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SAX"><param name="Local" value="../dist/content/07_ui/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sax"><param name="Local" value="../dist/content/05_plugins/03_react.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SAX3D"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="scaffold"><param name="Local" value="../dist/content/05_plugins/15_http_server.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SCI_ROOT"><param name="Local" value="../dist/content/04_cli/10_env_vars.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="scodex-mini"><param name="Local" value="../dist/content/01_overview/06_scodex_mini.html"></OBJECT>
@@ -429,6 +435,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="serve"><param name="Local" value="../dist/content/05_plugins/15_http_server.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="settings 分区"><param name="Local" value="../dist/content/07_ui/03_project_structure.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sha256"><param name="Local" value="../dist/content/05_plugins/13_pkg.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="shader"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sidecar"><param name="Local" value="../dist/content/05_plugins/07_wgpu.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="signal"><param name="Local" value="../dist/content/06_stdlib/09_process.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="signed"><param name="Local" value="../dist/content/15_sa2c/03_semantics.html"></OBJECT>
@@ -451,6 +458,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA_SAB_NO_FALLBACK"><param name="Local" value="../dist/content/08_faq/02_compile_failures.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="slab"><param name="Local" value="../dist/content/04_cli/06_sab.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="slars"><param name="Local" value="../dist/content/09_rust_compare/10_std_census.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SLASL"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sleep"><param name="Local" value="../dist/content/06_stdlib/08_time.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="slot"><param name="Local" value="../dist/content/05_plugins/04_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Slot"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
@@ -608,6 +616,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="前端"><param name="Local" value="../dist/content/01_overview/14_cpp2sa_go2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="剩余问题"><param name="Local" value="../dist/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="动态库"><param name="Local" value="../dist/content/05_plugins/18_ffi_vs_bc2sa.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="动画"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="助记符"><param name="Local" value="../dist/content/03_sa_asm/02_sa_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="包管理"><param name="Local" value="../dist/content/05_plugins/13_pkg.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="化学"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
@@ -694,6 +703,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="指令分发"><param name="Local" value="../dist/content/12_vm/03_internals.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="指令集"><param name="Local" value="../dist/content/03_sa_asm/02_sa_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="排错"><param name="Local" value="../dist/content/13_build/05_verify_troubleshoot.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="接口表"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="插件"><param name="Local" value="../dist/content/05_plugins/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="插件安装"><param name="Local" value="../dist/content/07_ui/06_toolchain.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="插件系统"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
@@ -720,6 +730,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="最小示例"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="未标定"><param name="Local" value="../dist/content/10_db/06_limits_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="权限"><param name="Local" value="../dist/content/16_policy/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="材质"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="构建"><param name="Local" value="../dist/content/01_overview/02_install_build.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="枚举"><param name="Local" value="../dist/content/02_sla_lang/05_structs_enums.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="枚举 payload"><param name="Local" value="../dist/content/08_faq/05_limitations_roadmap.html"></OBJECT>
@@ -756,9 +767,11 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="环境变量"><param name="Local" value="../dist/content/06_stdlib/07_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="生物"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="登记册"><param name="Local" value="../dist/content/01_overview/19_side_tracks_foundation_gaps.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="白皮书"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="监督树"><param name="Local" value="../dist/content/01_overview/16_erlang_verse.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="目录"><param name="Local" value="../dist/content/06_stdlib/06_fs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="真实回归目标"><param name="Local" value="../dist/content/11_ecs/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="着色器"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="示例"><param name="Local" value="../dist/content/06_stdlib/14_recipes.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="移动端"><param name="Local" value="../dist/content/01_overview/18_mobile_transpile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="策略"><param name="Local" value="../dist/content/16_policy/01_overview.html"></OBJECT>
@@ -770,6 +783,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="索引"><param name="Local" value="../dist/content/10_db/03_api.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="紧凑编码"><param name="Local" value="../dist/content/01_overview/11_sardis_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="纯界面工程"><param name="Local" value="../dist/content/07_ui/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="纹理"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="线程策略"><param name="Local" value="../dist/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="组件"><param name="Local" value="../dist/content/05_plugins/03_react.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="组件库"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
@@ -794,6 +808,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="网络普查"><param name="Local" value="../dist/content/06_stdlib/23_unreal_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="能力掩码"><param name="Local" value="../dist/content/16_policy/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="自查清单"><param name="Local" value="../dist/content/07_ui/07_getting_started.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="蒙皮"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="虚表"><param name="Local" value="../dist/content/12_vm/06_examples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="衡"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="表层兼容"><param name="Local" value="../dist/content/09_rust_compare/06_surface_compat.html"></OBJECT>
@@ -819,7 +834,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="跨平台"><param name="Local" value="../dist/content/01_overview/19_side_tracks_foundation_gaps.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="跨语言普查"><param name="Local" value="../dist/content/06_stdlib/24_python_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="路线图"><param name="Local" value="../dist/content/08_faq/05_limitations_roadmap.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="转换器"><param name="Local" value="../dist/content/01_overview/14_cpp2sa_go2sa.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="转换器"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="转译"><param name="Local" value="../dist/content/01_overview/18_mobile_transpile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="输入"><param name="Local" value="../dist/content/05_plugins/06_tui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="边界"><param name="Local" value="../dist/content/15_sa2c/05_verify.html"></OBJECT>
@@ -832,6 +847,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="退出码表"><param name="Local" value="../dist/content/12_vm/05_limits.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="选型"><param name="Local" value="../dist/content/10_db/08_mysql_sqlite_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="透传参数"><param name="Local" value="../dist/content/04_cli/09_host_commands.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="逻辑通道"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="配方"><param name="Local" value="../dist/content/06_stdlib/14_recipes.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="配置即代码"><param name="Local" value="../dist/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="配置文件"><param name="Local" value="../dist/content/16_policy/01_overview.html"></OBJECT>
@@ -851,6 +867,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="首次加载确认"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="验证"><param name="Local" value="../dist/content/15_sa2c/05_verify.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="骨架"><param name="Local" value="../dist/content/04_cli/02_init.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="骨骼"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="高考"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
 </UL>
 </BODY>
