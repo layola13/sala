@@ -247,6 +247,31 @@
 <p><strong>已集成并守卫推送</strong>：sci main 落 <code>bbd06f9e7074033abb8b15292f965dbb61c6f949</code>、sa_plugin_sla master 落 <code>ccbffb2a</code>（cherry-pick 零冲突，主会话 <code>git ls-remote</code> 复核）。定版口径全额兑现：extern 声明（.sla extern 块、.sai、C-ABI fn 指针类型）尾随 <code>...</code>（至少一个固定参数；其余位置响亮 SyntaxError）；定义面经 <code>va_next_i32/i64/u32/u64/f64/ptr</code> 读参（VaList 不可拷贝）；<code>is_variadic</code> 标志贯通 AST、SA 文本、SAB（1 字节）与 sci，指令 <code>va_start/va_arg/va_end</code>（InstKind 36..38）；LLVM 发射 isVarArg=1，变参定义的 va_arg 展开为 x86_64 SysV clang 式内联展开。</p>
 <p><strong>证据</strong>：语料 <strong>14/14 双后端通过</strong>；C→SLA 交叉证明在册（<code>va_sum3 -&gt; 142</code>、<code>va_mix -&gt; 9999999999.25</code>）；负例 9/9 以定版诊断拒绝。变参与函数重载的组合面复核（同前缀定元/变参成员的 arity 竞争）已由集成波复核 (a) 四联通过，记录见 13 号文档第二十一节。</p>
 <p><strong>C 发射器口径（Jev accept_loud_register_followup 0.99）</strong>：C / wasm / JS 目标对变参模块以具名 <code>UnsupportedVariadic</code> 响亮拒绝，解释器以 <code>RunError.UnsupportedVariadic</code> 陷阱——不静默错编。C 发射器的真实变参支持立为<strong>后续批</strong>，与 C 后端工作同批排期；变参定义面目前仅 x86_64 SysV，其余目标响亮拒绝。此口径取代上文「定版口径」中目标覆盖一项的早期表述（彼时预期 C 发射器同批支持，实施定版为响亮拒绝 + 后续批）。</p>
+<h2>八、语言演进：GPU 编译（2026-11-01，用户定案入开发计划、主线任务跑完后开工）</h2>
+<p>本节登记一则用户定案：为 SA / SLA 增加 <strong>GPU 编译</strong>能力——用户长期想实现的功能。用户 2026-11-01 令将其<strong>正式写入开发计划</strong>（即本节），排期为<strong>现行主线任务全部跑完后开工</strong>；现状态为<strong>已入计划、未开工</strong>。设计要点源自同日对 Bend2 的源码研读与主会话定形，本节只定形态与边界，不含实现承诺。</p>
+
+<h3>参照实证（Bend2，2026-11-01 研读）</h3>
+<ul>
+<li><strong>参照对象</strong>：Bend2（<code>bendlang/bend</code>，Apache-2.0；原 HigherOrderCO/Bend2 仓已迁至该处），本机浅克隆 <code>~/workspace/bend-src</code>（<code>faeb02e</code>）；其编译器为 TypeScript（<code>bend2/comp.ts</code> 约 6,474 行），研读面为其 guide、SHADERS 文档与编译器结构。</li>
+<li><strong>语言面</strong>：平行调用 <code>a b = f(x) g(y)</code> 为 fork-join 形态（承诺各调用独立、时长大体均衡）；<strong>bang 调用</strong> <code>f!(args)</code> 把该调用及其内全部平行调用<strong>整体送 GPU</strong>；无 GPU 的机器上 bang 回落 CPU 池并行执行、JS 目标顺序执行——<strong>语义不变、机制随宿主</strong>。</li>
+<li><strong>调度</strong>：无争用的二元 fork-join 机，任务只分发一次、永不迁移；GPU 侧一次 bang 铺 16,384 条 lane（128×128 立方），fork 树广度展开填满 lane、每条 lane 跑到完，再 fork 的续体进下一轮 kernel 迭代。性能律：每 bang 以约 4^7 个叶为宜；分歧大的活（每 lane 走势不一）在 CPU 池反而更快。</li>
+<li><strong>编译诀窍</strong>：编译器只发<strong>一份 C 文件</strong>，该文件同时是 CPU 程序与 GPU 内核——clang 编 CPU、Metal（Apple）/ CUDA（NVIDIA）工具链编同一文件出 GPU 程序（<code>file.gpu</code>）；无 C 栈，每 def 编为扁平状态机一段、调用即跳转；无平行构造的 def 编为单个原生尾循环（flat 纪律）。</li>
+<li><strong>内存</strong>：64 位词项 + <strong>CPU / GPU 共享的单堆</strong>（Apple 统一内存；NVIDIA 为 CUDA managed 内存、按页 fault 迁移），值仿射、无 GC——数据上 GPU 近零成本是这套形态的前提之一。</li>
+</ul>
+
+<h3>定版口径（我方形态）</h3>
+<ul>
+<li><strong>语言面</strong>：SLA 加 <strong>bang 类标记</strong>，被标记的调用树整体送设备执行，形态对标 Bend2 的 <code>f!(args)</code>。</li>
+<li><strong>子集纪律（与参照的范围差，如实写明）</strong>：Bend2 靠全语言纯 + 仿射跑<strong>全语言</strong>；我方 SLA 为命令式 + 所有权，只许<strong>子集</strong>上 GPU——编译器做 flat / fork 分类与子集检查，bang 树内只许纯计算与平数据，<strong>无 IO、无宿主调用</strong>，越界<strong>响亮拒绝</strong>。此为范围降格、非语义打折。</li>
+<li><strong>发射路线</strong>：走 sci 既有 <strong>C 发射器</strong>的同源双编路线（同一份 C 产 CPU 与 GPU 两面），不新开独立 codegen。</li>
+<li><strong>运行时</strong>：新增 <strong>fork-join lane 调度器</strong>（sci 运行时 / sa_std 面新件）；无 GPU 时回落 CPU 池并行执行，语义不变——与 goroutine 全平台语义平价同构（Bend2 为该主义的独立旁证）。</li>
+<li><strong>目标次序</strong>：原生（CUDA / Metal）<strong>先行</strong>；WebGPU（浏览器面、无统一堆）为显式缓冲的<strong>适配形态随后</strong>，不与原生面同口径。</li>
+<li><strong>归属</strong>：语言线（sci / SLA）；slaengine 的 <code>sla_gpu</code> 座为消费者，不在本项内自建运行时。</li>
+<li><strong>量级</strong>：<strong>新构建目标级</strong>工程（运行时 + 发射器 + 检查子集三面），非补丁、非单批可完。</li>
+</ul>
+
+<h3>应用状态</h3>
+<p><strong>已入计划（2026-11-01）、未开工</strong>：开工条件为现行主线任务全部跑完；在此之前不动工、不派实现线。本节为排期与形态的登记面，开工时另立实现批次，并回本节补应用记录。</p>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
 </body>
 </html>
