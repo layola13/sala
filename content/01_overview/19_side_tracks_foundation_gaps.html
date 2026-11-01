@@ -247,8 +247,8 @@
 <p><strong>已集成并守卫推送</strong>：sci main 落 <code>bbd06f9e7074033abb8b15292f965dbb61c6f949</code>、sa_plugin_sla master 落 <code>ccbffb2a</code>（cherry-pick 零冲突，主会话 <code>git ls-remote</code> 复核）。定版口径全额兑现：extern 声明（.sla extern 块、.sai、C-ABI fn 指针类型）尾随 <code>...</code>（至少一个固定参数；其余位置响亮 SyntaxError）；定义面经 <code>va_next_i32/i64/u32/u64/f64/ptr</code> 读参（VaList 不可拷贝）；<code>is_variadic</code> 标志贯通 AST、SA 文本、SAB（1 字节）与 sci，指令 <code>va_start/va_arg/va_end</code>（InstKind 36..38）；LLVM 发射 isVarArg=1，变参定义的 va_arg 展开为 x86_64 SysV clang 式内联展开。</p>
 <p><strong>证据</strong>：语料 <strong>14/14 双后端通过</strong>；C→SLA 交叉证明在册（<code>va_sum3 -&gt; 142</code>、<code>va_mix -&gt; 9999999999.25</code>）；负例 9/9 以定版诊断拒绝。变参与函数重载的组合面复核（同前缀定元/变参成员的 arity 竞争）已由集成波复核 (a) 四联通过，记录见 13 号文档第二十一节。</p>
 <p><strong>C 发射器口径（Jev accept_loud_register_followup 0.99）</strong>：C / wasm / JS 目标对变参模块以具名 <code>UnsupportedVariadic</code> 响亮拒绝，解释器以 <code>RunError.UnsupportedVariadic</code> 陷阱——不静默错编。C 发射器的真实变参支持立为<strong>后续批</strong>，与 C 后端工作同批排期；变参定义面目前仅 x86_64 SysV，其余目标响亮拒绝。此口径取代上文「定版口径」中目标覆盖一项的早期表述（彼时预期 C 发射器同批支持，实施定版为响亮拒绝 + 后续批）。</p>
-<h2>八、语言演进：GPU 编译（2026-11-01，用户定案入开发计划、主线任务跑完后开工）</h2>
-<p>本节登记一则用户定案：为 SA / SLA 增加 <strong>GPU 编译</strong>能力——用户长期想实现的功能。用户 2026-11-01 令将其<strong>正式写入开发计划</strong>（即本节），排期为<strong>现行主线任务全部跑完后开工</strong>；现状态为<strong>已入计划、未开工</strong>。设计要点源自同日对 Bend2 的源码研读与主会话定形，本节只定形态与边界，不含实现承诺。</p>
+<h2>八、语言演进：GPU 编译（2026-11-01 定案入计划，同日落地——SA / SLA 已可用 GPU）</h2>
+<p>本节登记一则用户定案：为 SA / SLA 增加 <strong>GPU 编译</strong>能力——用户长期想实现的功能。用户 2026-11-01 令将其<strong>正式写入开发计划</strong>（即本节）；同日用户数次提前排期——先在本地实验分支完成尖峰实现与核实、再供 Colab T4 机器上机验证、再批多车道并行批提前开工（不等主线），并于同日批准尖峰成果<strong>提前提交推送、合并主分支</strong>。现状态：<strong>已落地</strong>——sci main <code>24be79a1f01b3e7a616f2cad70d856bae89c02df</code>，<strong>SA / SLA 已可用 GPU</strong>。定版形态见下「定版口径」，实证见「应用记录」，未完项与口径边界见「诚实边界」；设计源流为同日对 Bend2 的源码研读（见「参照实证」）。</p>
 
 <h3>参照实证（Bend2，2026-11-01 研读）</h3>
 <ul>
@@ -261,16 +261,29 @@
 
 <h3>定版口径（我方形态）</h3>
 <ul>
-<li><strong>语言面</strong>：SLA 加 <strong>bang 类标记</strong>，被标记的调用树整体送设备执行，形态对标 Bend2 的 <code>f!(args)</code>。</li>
-<li><strong>子集纪律（与参照的范围差，如实写明）</strong>：Bend2 靠全语言纯 + 仿射跑<strong>全语言</strong>；我方 SLA 为命令式 + 所有权，只许<strong>子集</strong>上 GPU——编译器做 flat / fork 分类与子集检查，bang 树内只许纯计算与平数据，<strong>无 IO、无宿主调用</strong>，越界<strong>响亮拒绝</strong>。此为范围降格、非语义打折。</li>
-<li><strong>发射路线</strong>：走 sci 既有 <strong>C 发射器</strong>的同源双编路线（同一份 C 产 CPU 与 GPU 两面），不新开独立 codegen。</li>
-<li><strong>运行时</strong>：新增 <strong>fork-join lane 调度器</strong>（sci 运行时 / sa_std 面新件）；无 GPU 时回落 CPU 池并行执行，语义不变——与 goroutine 全平台语义平价同构（Bend2 为该主义的独立旁证）。</li>
-<li><strong>目标次序</strong>：原生（CUDA / Metal）<strong>先行</strong>；WebGPU（浏览器面、无统一堆）为显式缓冲的<strong>适配形态随后</strong>，不与原生面同口径。</li>
-<li><strong>归属</strong>：语言线（sci / SLA）；slaengine 的 <code>sla_gpu</code> 座为消费者，不在本项内自建运行时。</li>
-<li><strong>量级</strong>：<strong>新构建目标级</strong>工程（运行时 + 发射器 + 检查子集三面），非补丁、非单批可完。</li>
+<li><strong>标记位置与符号（订正）</strong>：<code>@gpu</code> 是 <strong>SA 层的函数种类前缀</strong>，与 <code>@extern</code> / <code>@export</code> / <code>@ffi_wrapper</code> 同族，写在函数定义之前；<strong>不是</strong> SLA 面发明的调用标记。符号经 Jev 裁决（<code>@gpu</code> 0.51 胜出、<code>!!</code> 0.36 次席、<code>#</code> 与 <code>$</code> 各 0.05、<code>~</code> 0.03）并由用户确认定版。<strong>SA 与 SLA 拼写一致</strong>：SA 作 <code>@gpu pow2(n: u32) -&gt; u32:</code>，SLA 作 <code>@gpu fn pow2(n: u32) -&gt; u32 { … }</code>。<strong>本节初版「SLA 加 bang 类标记、形态对标 Bend2 的 <code>f!(args)</code>」的表述作废</strong>——bang 是 Bend2 的调用面语法，我方定版为 SA 层函数种类；函数体内独立的 <code>call</code> 即为分叉点、函数返回处隐含汇合（join）。</li>
+<li><strong>种类编码与 SAB 兼容</strong>：<code>FunctionKind</code> 尾部追加 <code>gpu = 5</code>；SAB 的函数签名种类字段为一字节，尾部追加<strong>不改编码长度、无 SAB 大版本升级</strong>；旧宿主读到未知种类值响亮报 <code>InvalidTag</code> 失败，<strong>不静默误读</strong>。</li>
+<li><strong>子集纪律与校验</strong>：我方为命令式 + 所有权，只许<strong>可证明子集</strong>上 GPU（与 Bend2 全语言可上设备的范围差，如实写明：此为范围降格、非语义打折）。校验由 Referee 以能力掩码执行：<code>@gpu</code> 函数体内<strong>拒绝</strong>指向非 gpu 函数的调用（含 extern / FFI / 宿主调用，不可解析者按宿主调用论）、<code>call_indirect</code>、原始指针降级 <code>raw_cast</code>（<code>*</code>）、native 逃逸（<code>$…$</code>）与 <code>panic</code>；违规诊断为 <strong><code>GpuSubsetViolation</code>（trap 1059，码 SA-VER-002）</strong>——越界响亮拒绝，不静默降级到 CPU 冒充设备执行。</li>
+<li><strong>发射路线</strong>：走 sci 既有 <strong>C 发射器</strong>的同源双编路线（同一份 C 既是 CPU 程序、又经提取规则转成设备翻译单元），不新开独立 codegen；手写部分只有设备运行时薄层。设备内存用 <strong>CUDA managed 统一内存</strong>（<code>cudaMallocManaged</code>）——SA 的 C 后端内存模型本就是单一扁平字节图（<code>sa_mem</code>，16 MiB）加偏移寻址，与 Bend2 的单堆同构。</li>
+<li><strong>回退语义</strong>：无 GPU 时，同一 <code>@gpu</code> 函数在 <strong>CPU 载体池</strong>上执行，语义与设备路<strong>逐位一致</strong>——机制随宿主、语义恒定，与 goroutine 全平台语义平价同构（平台平价教义向设备面的延伸）。</li>
+<li><strong>前端规则</strong>：能力在 SA 层，<strong>凡发射 SA 的工具自动继承</strong>，不需逐前端添加。编写型语言（SLA、slars）用同一 <code>@gpu</code> 源拼写；转换器（tsgosa、bc2sa）<strong>不发明源语法</strong>——其产物仅在转换器自身能证明子集时才可带 <code>@gpu</code>，常态不带、零损失。</li>
+<li><strong>目标次序</strong>：原生（CUDA 已实证）<strong>先行</strong>；Metal 随后；WebGPU（浏览器面、无统一堆）为显式缓冲的<strong>适配形态</strong>，不与原生面同口径。</li>
+<li><strong>归属</strong>：语言线（sci / SLA）；slaengine 的 <code>sla_gpu</code> 座为消费者（如渲染与物理类计算），不在本项内自建运行时。</li>
 </ul>
 
-<h3>应用状态</h3>
-<p><strong>已入计划（2026-11-01）、未开工</strong>：开工条件为现行主线任务全部跑完；在此之前不动工、不派实现线。本节为排期与形态的登记面，开工时另立实现批次，并回本节补应用记录。</p>
+<h3>应用记录（2026-11-01 落地）</h3>
+<p><strong>已集成并守卫推送</strong>：sci main 落 <code>24be79a1f01b3e7a616f2cad70d856bae89c02df</code>（尖峰提交经 cherry-pick 等价合入，13 文件、+162/−42，落在同日 select 快路与唤醒修复两笔之后；主会话试合并先证与主线零文件重叠，<code>git ls-remote</code> 独立复核）。集成判门：<code>zig build</code> rc=0、运行时测试 <strong>42/42</strong>、signature 测试 16/16、trap 测试 8/8；<code>@gpu</code> 语料正例 <code>sa check</code> rc=0，三条负例（宿主调用 / raw_cast / 普通调用）rc=1 且首诊断皆 <code>GpuSubsetViolation</code>；SAB 往返一致。本地实验分支已删，实验记录（语料 / 提取器 / 报告）留本机工地。</p>
+<p><strong>设备首验（Colab Tesla T4，CUDA 13.0，sm_75）</strong>：<code>pow2(20)</code> 设备路得 <code>1048576</code>、<code>brighten</code> 得 <code>[110 255 190 255]</code>，皆与期望及 CPU 对照<strong>逐位一致</strong>（v1 为单 lane 语义验证，启动开销主导、未作性能读数）。</p>
+<p><strong>复杂例正确性（六例）</strong>：bitonic 排序（4096 个 i32）、归约 + 前缀扫描（1M i32，未降规模）、矩阵乘（128×128）、分叉树折叠（1M 叶、叶宽 64、深 14）、2D 模板（256×256，clamp-to-edge）、定点光线追踪（192×192，Q16.16 定点以保两路舍入同规）——六例 CPU ↔ T4 结果<strong>逐位一致</strong>，并经独立第三方重算（Python / 宿主 qsort / C 镜像）对拍；子集校验零触发。</p>
+<p><strong>多车道实测（数据并行车道映射）</strong>：六例中 <strong>5/6</strong> 完成多车道形态，相对 v1 单 lane 内核的加速（单发口径）：光追 ≈<strong>623×</strong>、矩阵乘 ≈<strong>1231×</strong>、2D 模板 ≈<strong>189×</strong>、扫描 ≈<strong>121×</strong>（块分解三段式）、bitonic ≈<strong>229×</strong>（逐级元素核）；结果仍逐位对在案校验和。规模放大复跑：光追 512×512、矩阵乘 256×256、定点物理种子（65,536 粒子积分步 + 空间哈希宽相计数）三项 GPU 与双路 CPU 立值逐位一致；刚体小球数量阶梯（256 → 1M、恒定密度、撞墙归因）批进行中，判语候补记。</p>
+
+<h3>诚实边界（未完项与纪律）</h3>
+<ul>
+<li><strong>SLA 面拼写未落地</strong>：SA 面即刻可用（手写 SA 可直接写 <code>@gpu</code> 函数）；SLA 源面的 <code>@gpu fn</code> 拼写经 lowering 接入为<strong>下一批</strong>前端工作，本批未做，不含糊为已通。</li>
+<li><strong>@const 设备镜像未做</strong>：设备提取现不镜像常量初始化（提取规则 R6），现语料函数皆不读常量而未受影响；读常量的 <code>@gpu</code> 函数上设备前须先补此项。</li>
+<li><strong>分叉（fork）并行候发射器新形态</strong>：多车道第 0 步判读结论——现发射 C 中的分叉调用为<strong>深度优先原生递归</strong>，父续体即 C 栈帧，<strong>无 join 计数、无子任务枚举、无挂起点</strong>，寄存器不落 <code>sa_mem</code>；故分叉树折叠（treefold）的多车道未成（六例 5/6 的缺口在此）。缺口已定位为 sci C 发射器的<strong>任务化发射形态</strong>（帧记录入内存，call 改为帧分配 + 入队 + 挂起 + join 计数，即 Bend 形态），为正式批设计输入；未以 runner 手搓分解冒充机制成立。</li>
+<li><strong>Metal / WebGPU 形态后续</strong>：现设备实证仅 CUDA 一路；JS / wasm 发射面把 gpu 函数按普通函数走 CPU 路，语义平价、非设备执行。</li>
+<li><strong>多车道纪律（提取规则 R9）</strong>：多 lane 并发下，栈分配走的 bump 游标（<code>sa_brk</code>）读-改-写非原子会互踩——设备提取须把分配预留改为原子预留（atomicAdd）；单 lane 形态不受此限。</li>
+</ul>
 </body>
 </html>
