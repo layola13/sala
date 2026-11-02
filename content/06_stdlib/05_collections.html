@@ -62,5 +62,30 @@ fn imported_vec_sum() -&gt; i32 {
 <code>collections/linked_list.sa</code>、<code>vec_deque.sa</code>。这些没有专门的 Sla 方法面，
 需要通过导入宏在 SA 层使用。</div>
 
+<h2>甲类：几何增长批量面与池（2026-11-02）</h2>
+<div>GAP-BULKAPPEND 关闭。原生层新增三个几何增长原语（sa_std/alloc/vec.sa），
+增长序 <code>0&rarr;4</code> 起步、其后翻倍，与 <code>@sa_vec_push</code> 同序
+（push 的 0&rarr;1 起步已按裁决统一为 0&rarr;4）；<code>@sa_vec_reserve</code>
+保持精确一次性尺寸语义不变，精确预留的增量增长是 O(n&sup2;) 陷阱。</div>
+<table>
+<tr><th>原语</th><th>语义</th></tr>
+<tr><td><code>@sa_vec_reserve_grow</code></td><td>几何预留：容量不足时扩到 max(所需, 翻倍)，已足则零动作</td></tr>
+<tr><td><code>@sa_vec_extend</code></td><td>批量追加一段内存（几何扩容 + 一次 memcpy 级拷贝）</td></tr>
+<tr><td><code>@sa_vec_extend_vec</code></td><td>整 Vec 追加；自追加（源与目标同一缓冲）响亮 panic</td></tr>
+</table>
+<div>批量拷贝绑定 <code>@sa_mem_copy_nonoverlapping</code>（core/mem.sa，
+memcpy 面）；新原语不承诺 [len, cap) 零填（与 push 的历史行为一致，
+reserve/with_capacity 才零填整缓冲）。SLA 面见 vec_packed.sla 与
+vec_grow.sla：<code>sa_vec_grow_to</code>、几何 extend 家族（含
+u16/i32/f64 的 packed 变体）与 mark/rewind
+（<code>sa_vec_mark</code> / <code>sa_vec_rewind</code> /
+<code>sa_vec_rewind_bytes</code>）。</div>
+<div>池与链接模式库（SLA 层）：<code>slice_pool.sla</code> 字节段池
+（first-fit + 分裂 + 邻接合并，free 不匹配响亮 panic）；
+<code>slot_pool.sla</code> 定长槽池（freelist LIFO，double-free 响亮
+panic；深元素在 v1 契约外）；<code>rel_link.sla</code> 相对偏移链接
+（u32 偏移字段 + <code>REL_NIL</code>，整块搬迁后偏移仍可解析）。
+</div>
+
 </body>
 </html>

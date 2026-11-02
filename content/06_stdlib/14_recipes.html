@@ -281,5 +281,20 @@ runner 会把它解析成 <code>panic location</code>；失败时输出
 <a href="12_term_fd_thread.html">testing 一章</a>、
 <a href="15_api_index.html">API 总索引</a>可交叉查阅。</div>
 
+<h2>热路径暂存三诫（2026-11-02）</h2>
+<div>1. <b>不要在热路径按调用声明大栈数组。</b> <code>[0u8; N]</code> 每次
+声明按全尺寸逐字节重填（实测 &asymp;4 ns/字节，与实际写入量无关）：
+8192 字节的按调用暂存数组 &asymp; +33 &micro;s/op。4096 是已验证的安全侧；
+再大的暂存改持久字段（构造时零填一次）或堆分配。</div>
+<div>2. <b>不要按调用新建 Vec。</b> 一次建 Vec 的代价不止分配：作用域结束
+的深 drop 逐元素走访在实测中占服务时间的可观份额。批量追加走几何增长
+原语（<code>@sa_vec_reserve_grow</code> / <code>@sa_vec_extend</code>，
+0&rarr;4 翻倍），不要用精确预留增量增长。</div>
+<div>3. <b>持久缓冲 + mark/rewind。</b> 热路径持有一块持久 Vec：填充前
+<code>sa_vec_mark</code> 取标，处理完 <code>sa_vec_rewind</code> 截回
+（深元素逐个正规 drop；字节面用 <code>sa_vec_rewind_bytes</code> 快路）。
+容量留存、分配归零。实证（slaredis 第一刀）：持久 scratch + rewind 形态
+把 c1 SET 服务时间从 76.6 &micro;s 压到 40.9 &micro;s。</div>
+
 </body>
 </html>
