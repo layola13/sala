@@ -122,6 +122,14 @@ replace 落地后同一探针 20000 条全存活。判据实现于检查器 <cod
 </ul>
 
 
+<h2>追记：非消耗所有权转移点的深克隆（DEF-AOF-EXIT69）</h2>
+<p>检查器语义中，<b>从 owned 根提取字段</b>与<b>具名局部按值传参</b>都是<b>非消耗</b>转移：源绑定保持存活，并在作用域退出时照常深 drop 其堆句柄。由此产生一条实现义务（承 DEF-5 已裁定的 clone_on_extract）：这类转移点必须物化<b>独立拥有的深克隆</b>，不得把同一句柄别名给第二个所有者。此前文本与 SAB 两个代码生成器都把这两处物化为别名——字段提取直接绑定同一 Vec/String 句柄、按值传参逐字段浅拷贝记录共享全部句柄字段——同一分配被两个所有者各 drop 一次（<code>sa_vec_free</code> 同时释放 buffer 与句柄格）。该缺陷的可见症状在应用层：slaredis 在 store 建立之后的一切启动失败出口（AOF 打开失败 / corrupt AOF → 69、端口占用 → 66、LOOP_MODEL 非法 → 70）都在收尾深 drop 中段错误，而不是返回退出码。</p>
+<ul>
+<li><b>记录拷贝</b>（<code>genShallowCopyCallArgValue</code>，双后端）：拷贝记录时 Vec/String/GrowVec 字段改为真克隆，嵌套结构体递归同一例程；一处升级覆盖全部调用点——preserved-value 传参、SAB 移动路径浅拷贝、结构体字面量字段、容器元素拷贝、槽值加载。</li>
+<li><b>字段提取</b>（<code>cloneBorrowedHandleFieldValue</code>，双后端）：clone-on-extract 不再以「根为借用/deref」为限，owned 根同样克隆；提取结果为含 owned 句柄的结构体时经拷贝例程深克隆，纯 POD 结构体保持原位视图。</li>
+<li><b>登记残留</b>（行为不变、另案处理）：拷贝记录中<b>数组字段内的句柄</b>与 <b>Map/Set/Box/Rc 字段</b>仍按句柄拷贝；Vec 句柄元素的克隆仍是 buffer 级（与既有 Vec clone 同限）。</li>
+</ul>
+
 <h2>Rust → SLA 迁移速查</h2>
 <table>
 <tr><th>Rust 写法</th><th>SLA 当前等价写法</th></tr>
