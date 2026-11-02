@@ -80,6 +80,38 @@ let final_v = v.push(10).push(20);
 <li><code>let mut x = ...</code> 写法永久不引入——SLA 的 <code>let</code> 默认可变，<code>const</code> 不可变。</li>
 </ul>
 
+<h2>场所间赋值的 replace 语义</h2>
+<p>当赋值的右值是<b>从场所读出的深句柄值</b>（类型 drop 计划为 <code>.buffer</code>——String 或标量元素 Vec；
+或 <code>.deep_vec</code>——深元素 Vec），且同时满足：</p>
+<ul>
+<li>右值场所（剥除 move 包装后）为字段 / 下标 / 解引用场所；</li>
+<li>场所根为 <b>owned</b>（标识符根且其类型非借用型、裸指针解引用、owned 容器下标）；</li>
+<li>目标为<b>非标识符场所</b>（字段 / 下标 / 解引用目标）；</li>
+<li>源场所与目标场所不是同一场所；</li>
+</ul>
+<p>则该赋值是<b>转移（transfer）</b>，发射顺序在双后端（text / SAB）统一为：</p>
+<ol>
+<li>求值右值；</li>
+<li>深 drop 目标场所的旧值；</li>
+<li>存储新值进目标场所；</li>
+<li><b>把一个空句柄（Vec/String 的规范空值）写回源场所</b>——即 <code>mem::replace</code> 语义。</li>
+</ol>
+<p>转移后值恰有一个所有者（目标场所）；源场所持有空句柄，其后续 drop 退化为浅释放，
+不再触及已转移的缓冲。此规则封堵了「同一批 Vec 缓冲被两个所有者各深 drop 一次」的双重深释放：
+slaredis goroutine 模型中源场所 <code>(*req).batch</code> 在赋值后未置空，
+<code>(*st).cur_batch</code> 与连接侧的批次收尾先后深 drop 同一缓冲，进程在约 1.5k–3.5k 条回复内崩溃；
+replace 落地后同一探针 20000 条全存活。判据实现于检查器 <code>walkTaintAssign</code>
+（<code>assign_replace_src</code> 标注 + 退休源场所 drop taint），发射为双后端 <code>genAssign</code> 的统一尾序；
+源地址由既有 field/index/deref 地址式重算，同语句右值读已做过边界检查，故不重复检查。</p>
+<p>域外情形行为不变：</p>
+<ul>
+<li><b>标识符目标</b>：沿用现行 move / clone 规则，不走 replace；</li>
+<li><b>借用根源读</b>（<code>&amp;</code> / borrow 场所）：沿用 clone-on-extract，源不置空（借用不转移所有权）；</li>
+<li><b>新鲜构造右值</b>（<code>Vec::new()</code> 等）：不是场所读，不触发置空；</li>
+<li><b>下标同槽别名</b>：<code>v[i] = v[j]</code> 在运行期 i == j 时按 move-out 读（源槽被置空），静态同场所由检查器排除；此为文档化语义，非未定义行为；</li>
+<li><b><code>.deep_struct</code> 场所</b>（含 owned 字段的 struct 值）：<b>本节不覆盖</b>——struct 无规范空值可留置。已知孔、DEF 在案；定形为 <b>DS2 = 检查器响亮拒绝 + 显式 take API</b>，独立批实现。在 DS2 落地前，深 struct 场所间赋值保持现状语义，使用者不得依赖其所有权唯一性。</li>
+</ul>
+
 <h2>Rust → SLA 迁移速查</h2>
 <table>
 <tr><th>Rust 写法</th><th>SLA 当前等价写法</th></tr>
