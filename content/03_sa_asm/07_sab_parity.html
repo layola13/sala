@@ -515,6 +515,77 @@ pin 单测仍过，单测 <b>171/171</b>，strict sweep 129/129。</p>
 （<code>free(^h)</code> 与存活借用在 checker/verifier 双重要求下互斥）。
 验证：有 env 双后端 5/5；无 env 有序失败。</p>
 
+<h3>2026-11-02 追记(二十三)：深 drop 遍历器计数偏移根修 —— 静默兜底把 cap 偏移当 len（sa_plugin_sla@db15737f，已 push）</h3>
+<p><strong>现象</strong>：<code>Vec&lt;结构体&gt;</code> 深 drop 在 SAB 后端
+SIGSEGV（fault_addr=0x2b，垃圾指针被送进 <code>sa_vec_free</code>），
+SA-text 后端正常。触发条件经形状矩阵实证 ⟺ 任一层 Vec 在 drop 时刻
+<strong>cap&gt;len</strong>（内层 push 3 个、cap 涨到 4 即触发；
+cap==len 恒过，与「嵌套」本身无关）。语料
+<code>tests/test_unit_deep_drop_vec_struct_elems.sla</code> 的 SAB 腿
+即为最小复现。</p>
+<p><strong>真因</strong>：插件 <code>src/sab_codegen.zig</code> 的
+<code>emitVecElementDrops</code> 用 decl 式
+<code>fieldLayout(vec_ty, "len")</code> 算遍历器循环计数偏移；
+Vec 是 decl-less 句柄类型（检查器里没有 Vec 的 struct decl），
+<code>fieldLayout</code> 必报错，代码以 <code>else |_| 8</code>
+<strong>静默吞错、落字面量 8</strong>（ptr 侧同样落 0、恰好正确，
+故只有计数错）。而 sa_std 权威布局（<code>sa_std/alloc/vec.sal</code>）
+是 <strong>ptr@+0、cap@+8、len@+16</strong>——8 是 cap 的偏移。
+于是 SAB 遍历器按 cap 迭代，把 <code>[len, cap)</code>
+未初始化槽当装箱元素指针释放。插件内本有正确常量
+<code>lowering_rules.VecAbi</code>（0/8/16，其余 SAB Vec 发射点同源），
+该遍历器没有用；其旁注释甚至写着与 sa_std 事实不符的布局
+「ptr@0, len@8」。SA-text 后端免疫：它发射符号偏移
+<code>+Vec_len</code>，由 flattener 解析为 +16——双后端分叉的全部原因。</p>
+<p><strong>归因更正（如实记录）</strong>：本缺陷最初登记为
+「SAB 嵌套 walker 独立 DEF，疑 sci SAB 帧模型 / stack_alloc 索引格
+嵌套别名」，乙案集成记录亦按此归因。sci 侧分诊以决定性 A/B 证伪：
+解码插件产出的 <code>.sab</code>，仅把 3 个 drop 块 × 内外两层共
+<strong>6 处计数 load 偏移 8→16</strong>、其余字节语义不变，
+signal 11 即转 PASS；反汇编亦实证索引格读写正常、唯一错值就是
+两处计数 load 的 +8。<strong>sci 无辜</strong>，不需要也不应该在 sci
+做任何「修复」（在加载器里猜测修正发射偏移会破坏分层与 SA 冻结规约）；
+集成记录已追加更正节。</p>
+<p><strong>修复</strong>：<code>emitVecElementDrops</code> 的 ptr/len
+偏移直取 <code>lowering_rules.VecAbi.ptr_offset/len_offset</code>
+（0/16），删除 fieldLayout 吞错兜底路径。提交
+<code>db15737f9ae8e2072eee57037dfdea54b177197a</code>（现 master 头，
+变更面仅 <code>src/sab_codegen.zig</code> 一处 + 新增语料 4 件：
+cap/len 形状矩阵 <code>…_cap_both_spare</code> /
+<code>…_cap_outer_spare</code>（修复前 SAB 红、后绿）与
+<code>…_cap_inner_exact</code> / <code>…_cap_inner_single</code>
+（cap==len 对照组，修复前后皆绿））。<strong>同形态普查</strong>
+（句柄类型走 fieldLayout + 字面量兜底）<strong>全仓仅此一处</strong>：
+sab_codegen 其余约 15 个 <code>fieldLayout</code> 调用点全走
+<code>try</code>，句柄类型到那里响亮报
+<code>UnsupportedSabDirectFeature</code>、从不发射错误偏移；
+<code>emitStructFieldDrops</code> 对真 struct decl 的 skip-on-error
+是「跳过」形态、非字面量形态；<code>planValueDrop</code> 吞错落浅
+drop 属 drop 计划族，非布局偏移。</p>
+<p><strong>验收证据</strong>（规范口径：仓根 cwd、清
+<code>.sla-cache</code>/<code>.sa_cache</code>、
+<code>SLA_NO_FRESHNESS_CACHE=1</code>、fixture 仓内、独立 HOME
+装机 mtime+cmp 双确认）：修复前 SAB signal 11 共 3 个形态亲手复现；
+修复后深 drop 语料组 9 件 × 双后端 = <strong>18/18 全绿</strong>；
+<code>zig build test</code> 335/338，失败名集与基线三件组
+（import-scan #59/#110/#111）<strong>逐字相同</strong>、零新增；
+slaredis text 发射与集成线构建逐字节相同（SAB 侧改动不影响 text 面）；
+推送后从 GitHub 全新克隆新 master 冒烟，原红腿语料双后端全绿，
+装机 .so md5 <code>56c53a7a…</code> 双确认。</p>
+<p><strong>教训</strong>：</p>
+<ul>
+<li>布局/偏移计算处出现 <code>else |_| &lt;字面量&gt;</code>
+静默吞错兜底一律视为可疑点，缺陷分诊时优先普查——与
+<code>sa plugin install --dev</code> 吞 build 错同属
+「静默兜底掩盖真错」模式（与本页质量门禁「禁止静默回退」同源）。</li>
+<li>PASS 主张只认规范口径：分诊阶段的 rig 口径曾给出
+「新回归双后端已过」，在规范口径下不复现，该结论作废；
+口径外的绿色不算数。</li>
+<li>归因先证伪再定案：原登记把嫌疑记在 sci，若按原归因去 sci
+「修复」即是错位修复；最小 A/B（只改 6 处偏移）先行，
+才轮到修发射器。</li>
+</ul>
+
 <h3>2026-09-22 追记：新阻塞 —— if-else 双分支构造 Result 进结果槽泄漏（2026-09-24 已关闭，见追记(六)）</h3>
 <p>最小复现（<code>build-exe</code> 即现，SA-text/SAB test 后端均通过）：</p>
 <pre><code>@import "sa_std/core/result.sa"
