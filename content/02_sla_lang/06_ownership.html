@@ -112,6 +112,16 @@ replace 落地后同一探针 20000 条全存活。判据实现于检查器 <cod
 <li><b><code>.deep_struct</code> 场所</b>（含 owned 字段的 struct 值）：<b>本节不覆盖</b>——struct 无规范空值可留置。已知孔、DEF 在案；定形为 <b>DS2 = 检查器响亮拒绝 + 显式 take API</b>，独立批实现。在 DS2 落地前，深 struct 场所间赋值保持现状语义，使用者不得依赖其所有权唯一性。</li>
 </ul>
 
+<h2>追记：Vec 内联存储与 push 拷贝物化（乙类批）</h2>
+<p>元素为<b>恰 8 字节、全字段 primitive 的结构体</b>时，<code>Vec</code> 的元素存储模型由「槽存记录指针」改为<b>内联存储</b>：槽中直接放元素值本身（一字），句柄布局（ptr/cap/len）不变，步幅仍为 8。判据为 <code>structDeclIsInlinePod</code>（双后端共享）：非 opaque、非 union、非泛型、全字段 primitive 且 abi 尺寸恰为 8；小于或大于 8 字节、或含非 primitive 字段的结构体保持记录模型。</p>
+<ul>
+<li><b>字面量 push 走两阶段直存（DPS）</b>：字段先全部求值，再预留槽位、按布局偏移把字段直存进裸槽，最后发布 len——全程零记录分配；其余实参走整字 push（从源记录载一字入槽）。</li>
+<li><b><code>&amp;v[i]</code> 是槽地址</b>：内联元素的借用地址即槽地址本身（LEA 化，不穿透加载记录指针），经借用的字段读写直达槽内字段；索引读则物化出一份新记录。同一批把 <code>&amp;v[i]</code> 的语义在双后端统一为「第 i 个元素的地址」（记录型元素为槽中存放的记录指针），修复了此前存起的借用系统性差一元素。</li>
+<li><b>push 实参拷贝物化</b>：push 是 copy 消费者——标识符实参为记录型元素时，发射前先做浅拷贝物化，Vec 持有的是那份拷贝，源绑定在作用域退出时的释放不再触及 Vec 内的元素。此前 push 专用发射臂跳过了该物化：<code>let</code> 绑定的结构体字面量 push 后形成双重所有，绑定释放后元素被分配器回收复用，读回时全部元素互串。</li>
+<li><b>与 <code>vec_packed</code> 正交</b>：<code>vec_packed</code> 是显式导出边界上的字节镜像助手（供 C 形 extern 消费）；内联存储是 <code>Vec&lt;POD&gt;</code> 自身的存储模型，二者不互相替代。</li>
+</ul>
+
+
 <h2>Rust → SLA 迁移速查</h2>
 <table>
 <tr><th>Rust 写法</th><th>SLA 当前等价写法</th></tr>
