@@ -104,6 +104,9 @@ impl Meter {
 <div class="warning"><span class="label">警告</span>模块级 method-style 调用必须显式声明
 <code>using</code>；没有 <code>using</code> 时，对非 impl 方法的链式调用会在前端报“未找到方法”。</div>
 
+<p>方法调用的<b>解析定序</b>固定为：固有（impl）方法 → trait 方法 → <code>using</code> 静态扩展
+→ 响亮未定义；同一层内出现多个候选则报歧义错误（<code>Ambiguous static extension call</code>），不做兜底改道。</p>
+
 <h2>顶层 const 与初始化契约</h2>
 <p>SLA 没有顶层可变状态这一形态：顶层声明中只有 <code>const</code>，没有 var / global 声明节点。「顶层初始化」的契约因此分编译期 const 与运行时 globals 两面：</p>
 <ul>
