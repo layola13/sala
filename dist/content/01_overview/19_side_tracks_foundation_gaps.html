@@ -326,7 +326,39 @@
 <p>上文章程入册之后，用户同晚续裁两条，补记于此，与章程本体同等效力：</p>
 <p><strong>实现路线（用户 2026-11-01 20:18 裁定）</strong>：物理座走<strong>原生 SLA 洁净室重构</strong>——参照名单只供学架构（承上文洁净室纪律），实现本体以 SLA 自研落地；<strong>extern 绑定不作终态</strong>，至多在开发期用作<strong>差分对照的 oracle</strong>（同输入对表验行为），不得以绑定形态作为物理座的交付本体。</p>
 <p><strong>归宿（用户 2026-11-01 20:19 裁定）</strong>：物理座<strong>内嵌 slaengine</strong>——源码进 slaengine 仓内、与引擎本体同仓演进，不先行独立建仓；<strong>成熟后再考虑拆分</strong>，在此之前拆分不议。</p>
-<h2>九、编译速度（对比 Rust）：开发计划登记（2026-11-02 讨论，只登记、不启动）</h2>
+<h2>九、多目标计划：各家 GPU 与 TPU（2026-11-04 定案）</h2>
+<p>本节登记 <code>@gpu</code> 的下一步计划定案：把第八节已落地的单目标 GPU 能力，扩为<strong>各家 GPU 与 TPU 的多目标支持</strong>。出处链：<code>@gpu</code> 改进路线第二档「子集 v2 整体设计」（用户 2026-11-01 批准该路线）于 2026-11-04 经主会话机制复查与三家外部咨询面板（Gemini / GPT / Claude）复核后定形；目标形态（「一份代码、语义平价」、发布期选目标）为用户 2026-11-04 亲定。<strong>状态钉死：本节为设计定案，只落设计、不排期实施</strong>——现状只有第八节所载 <code>@gpu</code> v1 单目标（NVIDIA、整数逐元素 / tile 内核）已落地，本节一切多目标表述皆为计划，<strong>不得读作已支持</strong>。当前全线以修 bug、里程碑全绿为优先。</p>
+<h3>用户面：一份代码、语义平价</h3>
+<p>目标形态一句话：<strong>用户只写 <code>@gpu</code>，一份源码不为目标分叉；目标在构建 / 发布期以编译参数选择</strong>（如 <code>--tpu</code>），默认 GPU 家族。此为第八节「机制随宿主、语义恒定」平台平价教义在多目标面的续写：统一活在<strong>源码与语义层</strong>，不承诺底层机制统一（一份 IR、一条降低链喂遍 SIMT 与脉冲数据流）——后者经查实非任何一家所为（见下「参照事实」），不列为目标。</p>
+<h3>架构分层</h3>
+<ul>
+<li><strong>GPU 家族走内核层</strong>：内核形态承第八节定版（SA 层 <code>@gpu</code> 函数种类 + 可证明子集 + Referee 能力掩码）；目标后端按 LLVM 家族分发——NVIDIA 走 NVPTX、AMD 走 AMDGPU 后端，Apple 走 <strong>MSL 源码发射</strong>（LLVM 无 Metal 后端、AIR 未公开文档化，不作路径）。</li>
+<li><strong>TPU 走张量图层</strong>：在 SLA 层划定张量子集（张量算子级程序），发射 <strong>StableHLO</strong> 交 <strong>PJRT / XLA</strong> 执行；图作为不透明节点挂在宿主控制流旁，<strong>SA 内只留设备句柄</strong>——张量语义不降入 SA（降入即无法再升回图层）。</li>
+<li><strong>两层分开、SA 冻结不动</strong>：SA 规约（寄存器 + 所有权）不为设备面改动；张量层是 SLA 层的新增路径，不是内核层的迁移或替代。</li>
+</ul>
+<h3>可移植子集与响亮拒绝</h3>
+<p>「一份代码」成立的范围 = <strong>可移植子集</strong>：张量算子级、逐元素、归约形程序——同一份既是合法的设备内核输入、也是合法的张量图。超出此界的<strong>线程级构造</strong>（显式线程 / 块索引、屏障、共享内存操纵）在 <code>--tpu</code> 下<strong>响亮报错</strong>：不静默降级、不改走他路冒充、不模拟兜底——与 SAB 禁降级同规。写线程级构造即自选 GPU-only，界线由编译器划在明处。</p>
+<h3>数值契约分级</h3>
+<ul>
+<li><strong>整数 / 定点：跨目标逐位一致</strong>（承第八节 v1 政策；整数归约在模 2<sup>n</sup> 下与求和顺序无关，此档可守）。TPU 侧整数溢出回绕与移位语义按 StableHLO 定义逐条映射，不默认与本地一致。</li>
+<li><strong>strict 浮点窄子集</strong>：仅 + − × ÷ 与 sqrt，禁 FMA 收缩、显式 denormal 模式、超越函数走软件实现、归约顺序固定——同后端逐位、跨后端按此子集对拍。</li>
+<li><strong>relaxed 容差档</strong>：跨后端浮点只承诺容差内一致，容差随算子预先钉死，不许事后放宽。</li>
+<li><strong>TPU 只能落 relaxed 档</strong>：其 f32 矩阵乘默认经 bf16 多 pass，XLA 的融合与代数重写不保证跨版本逐位稳定；且 TPU 栈闭源——<strong>逐位一致在 TPU 上只能测试、不能证明</strong>，对外表述以此为界，不许把 TPU 写进逐位承诺。</li>
+</ul>
+<h3>所有权设备语义</h3>
+<p>设备面沿 SA 所有权规约延伸一条<strong>异步借用</strong>语义：buffer 借给设备后，借期持续到<strong>完成令牌</strong>（fence / event）为止，借期内宿主侧禁止触碰——把异步未完成即复用 buffer 一类偶发损坏拦在编译期，与宿主侧共用同一所有权检查器。适用范围如实标注：此保证落在<strong>手写内核路</strong>；<strong>图级路径不适用</strong>——图内中间值的生命周期由 XLA 在其内部规划，语言层借用检查看不进图内，二者错位，本计划不 claim 图级同有此保证。</p>
+<h3>优势口径（定案表述，不许放大）</h3>
+<ol>
+<li><strong>设备内存安全编译期检查</strong>：同一所有权检查器贯通 host 与 device 两侧（见上节）。</li>
+<li><strong>整数 / 定点确定性为合同级跨目标保证</strong>：游戏 lockstep 联机、物理复现、审计重放等场景的刚需；主流栈（CUDA / XLA / Mojo）均无此承诺。</li>
+<li><strong>一门通用语言打全栈</strong>：服务器 / 数据库 / wasm 前端 / 设备内核 / 张量程序同语言、同 std；部署可 AOT、无运行时编译器驻留、产物小。</li>
+</ol>
+<p><strong>不 claim 清单</strong>：峰值性能领先（内核库为人年积累，机制可抄、存量不可抄）、TPU 内核级能力（图级借道 XLA，内核级不做）、浮点确定性（仅整数 / 定点档）、生态广度。四项在任何对外表述中不得越界。</p>
+<h3>实施序</h3>
+<p>前提：<strong><code>@gpu</code> v1 收尾 + FS-10 形态裁定</strong>完成。其后定序（经外部咨询裁断）：① <strong>最小数值契约先行</strong>——只覆盖首批算子，先定「什么算对拍通过」；② <strong>StableHLO 整数版限额尖峰实验</strong>——在免费 TPU 场（Kaggle v5e）以一个整数张量程序实证图级双发，必带四件防自欺：<strong>独立 CPU 语义判定器</strong>（防两后端共享同一前端错误、互相对拍假通过）、<strong>负对照注入</strong>（故意注错、验证对拍抓得住）、<strong>宿主–设备交替控制流用例</strong>（不只测静态纯图）、<strong>预写放弃条件</strong>（超限额未过即停）；尖峰首轮限整数交集——v1 无设备浮点路，不得把浮点对拍藏进尖峰成本；③ <strong>AMD 最小闭环</strong>——检验自有 GPU 栈的可移植性；④ <strong>布局 / 参数化内核库最后</strong>——按双目标实测差异再抽象，不先验铺库。</p>
+<h3>参照事实（Mojo / MAX，参照、非我方实现）</h3>
+<p>Mojo / MAX 的可移植机制经查实为：<strong>参数化内核</strong>（编译期按目标特化）+ <strong>LayoutTensor 布局代数</strong> + <strong>运行时 JIT 按确切芯片现编</strong>；高性能内核靠按架构的特化变体（一份 API、多份实现），其自家口径即「给你造可移植抽象的工具，不假装硬件相同」。其 TPU 支持系<strong>外部团队 HTEC 经 MLIR → Mosaic 借道 Google 栈</strong>的早期 bring-up（Gemma 类模型端到端跑通 + matmul 对齐 JAX / Pallas 数字），并非其自家内核栈落到 TPU。此参照证明两件事：<strong>图级双发可行</strong>；<strong>机制统一非任何一家所为</strong>——本计划的双层形态与行业收敛形状一致。</p>
+<h2>十、编译速度（对比 Rust）：开发计划登记（2026-11-02 讨论，只登记、不启动）</h2>
 <p>本节来源：2026-11-02 主会话与用户就「我们的编译速度如何、对比 Rust」的一轮讨论。定位钉死：<strong>这是开发计划项，不是当前主线</strong>。用户 2026-11-02 定「暂时讨论、先主力完成主任务」——故本节只登记结构判断、计划顺序与验收判据，<strong>未经用户再令，不启动实测、不启动实现</strong>。</p>
 
 <h3>现状：无正式对拍数据，不许声称已胜</h3>
