@@ -240,6 +240,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="install.bat"><param name="Local" value="../dist/content/01_overview/02_install_build.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="install_bundle_windows.ps1"><param name="Local" value="../dist/content/01_overview/02_install_build.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Instant"><param name="Local" value="../dist/content/06_stdlib/08_time.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="InstKind"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="InvalidTextExpression"><param name="Local" value="../dist/content/07_ui/02_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="io"><param name="Local" value="../dist/content/06_stdlib/02_io_print.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="iOS"><param name="Local" value="../dist/content/06_stdlib/25_ios_net_census.html"></OBJECT>
@@ -256,6 +257,8 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="kind"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Kotlin"><param name="Local" value="../dist/content/01_overview/18_mobile_transpile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="KV"><param name="Local" value="../dist/content/01_overview/11_sardis_roadmap.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="L1"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="L2"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="language"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="let"><param name="Local" value="../dist/content/08_faq/01_faq.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="let else"><param name="Local" value="../dist/content/02_sla_lang/04_patterns.html"></OBJECT>
@@ -489,7 +492,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="string"><param name="Local" value="../dist/content/06_stdlib/04_string.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Swift"><param name="Local" value="../dist/content/01_overview/18_mobile_transpile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="switch"><param name="Local" value="../dist/content/02_sla_lang/04_patterns.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="symbol_pool"><param name="Local" value="../dist/content/03_sa_asm/03_sab_format.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="symbol_pool"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sysroot"><param name="Local" value="../dist/content/13_build/04_freebsd.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="system-param runner"><param name="Local" value="../dist/content/11_ecs/02_architecture.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="System.Net"><param name="Local" value="../dist/content/06_stdlib/26_dotnet_net_census.html"></OBJECT>
@@ -524,6 +527,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="udp"><param name="Local" value="../dist/content/06_stdlib/10_net.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="UE5"><param name="Local" value="../dist/content/06_stdlib/23_unreal_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="UI"><param name="Local" value="../dist/content/05_plugins/02_sax.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="ULEB128"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="uname"><param name="Local" value="../dist/content/13_build/04_freebsd.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Unreal Engine"><param name="Local" value="../dist/content/06_stdlib/23_unreal_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="unsafe"><param name="Local" value="../dist/content/05_plugins/18_ffi_vs_bc2sa.html"></OBJECT>
@@ -655,6 +659,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="委派"><param name="Local" value="../dist/content/04_cli/05_build_exe.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="子进程"><param name="Local" value="../dist/content/06_stdlib/09_process.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字典"><param name="Local" value="../dist/content/10_db/03_api.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="字节布局"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字节码"><param name="Local" value="../dist/content/10_db/07_vm_support.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字面量"><param name="Local" value="../dist/content/04_cli/13_bun_peer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="存储布局"><param name="Local" value="../dist/content/10_db/01_overview.html"></OBJECT>
@@ -691,6 +696,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="底层目标"><param name="Local" value="../dist/content/01_overview/12_haxe_backend.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="开发导航条"><param name="Local" value="../dist/content/07_ui/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="引擎"><param name="Local" value="../dist/content/05_plugins/08_3dengines.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="往返对称性"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="快速上手"><param name="Local" value="../dist/content/15_sa2c/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="性能"><param name="Local" value="../dist/content/15_sa2c/06_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="性能实测"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
@@ -763,11 +769,12 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="热力学"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="热重载"><param name="Local" value="../dist/content/07_ui/06_toolchain.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="燃料计量"><param name="Local" value="../dist/content/10_db/07_vm_support.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="版本兼容"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="物理"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="环境变量"><param name="Local" value="../dist/content/06_stdlib/07_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="生物"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="登记册"><param name="Local" value="../dist/content/01_overview/19_side_tracks_foundation_gaps.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="白皮书"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="白皮书"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="监督树"><param name="Local" value="../dist/content/01_overview/16_erlang_verse.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="目录"><param name="Local" value="../dist/content/06_stdlib/06_fs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="真实回归目标"><param name="Local" value="../dist/content/11_ecs/01_overview.html"></OBJECT>
@@ -818,6 +825,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="覆盖度"><param name="Local" value="../dist/content/05_plugins/19_bun.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="规划"><param name="Local" value="../dist/content/10_db/07_vm_support.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="规模"><param name="Local" value="../dist/content/11_ecs/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="规范"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="解释器"><param name="Local" value="../dist/content/15_sa2c/06_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="解释器虚拟机"><param name="Local" value="../dist/content/12_vm/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="设计哲学"><param name="Local" value="../dist/content/09_rust_compare/01_positioning.html"></OBJECT>
@@ -869,6 +877,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="骨架"><param name="Local" value="../dist/content/04_cli/02_init.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="骨骼"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="高考"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="黄金向量"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 </UL>
 </BODY>
 </HTML>

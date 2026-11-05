@@ -48,6 +48,13 @@
       "file": "07_sab_parity.html",
       "keywords": ["SAB", "SA-text", "一致性", "strict sweep", "direct", "剩余问题", "进展", "520"],
       "parent": null
+    },
+    {
+      "id": "sab-whitepaper",
+      "title": "SAB 格式白皮书（规范）",
+      "file": "08_sab_whitepaper.html",
+      "keywords": ["SAB", "白皮书", "规范", "字节布局", "往返对称性", "L1", "L2", "版本兼容", "ULEB128", "黄金向量", "symbol_pool", "InstKind"],
+      "parent": null
     }
   ]
 }

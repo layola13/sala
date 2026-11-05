@@ -260,6 +260,11 @@ var TOC = [
     "t": "SAB 与 SA-text 一致性进展",
     "f": "content/03_sa_asm/07_sab_parity.html",
     "c": []
+   },
+   {
+    "t": "SAB 格式白皮书（规范）",
+    "f": "content/03_sa_asm/08_sab_whitepaper.html",
+    "c": []
    }
   ]
  },

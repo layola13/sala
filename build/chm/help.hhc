@@ -421,6 +421,14 @@
 <param name="Local" value="../dist/content/03_sa_asm/07_sab_parity.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SAB 格式白皮书（规范）">
+<param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">
