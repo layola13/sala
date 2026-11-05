@@ -70,13 +70,19 @@ sa check --emit-sab /tmp/from_sab.sab /tmp/main.sab   # 输入也可以是 .sab<
 
 <div class="note"><span class="label">注意</span>SAB 已于 2026-09 扶正为一等格式，
 不再是 experimental。<code>sa build / run / test / build-exe / build-obj / build-wasm / check</code>
-全部接受 <code>.sab</code> 输入，与 <code>.sa</code> 功能对等。<strong>损坏的
+全部接受 <code>.sab</code> 输入；但入口齐备不等于功能对等——与 <code>.sa</code>
+等价是规范目标（白皮书 §4.1 的 L2 等价要求），当前执行面仍有已登记缺口，
+见 <a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a> §4.1。<strong>损坏的
 <code>.sab</code> 直接报 SAB 专用错误</strong>（截断 → <code>TruncatedSab</code>、
 非 SAB 文件 → <code>InvalidSabMagic</code>），<strong>不会静默回退到
 <code>.sa</code> 文本解析</strong>——拿到 SAB 错误就修文件，不要指望文本兜底。</div>
 
-<p>SA 侧由 <code>src/sab.zig</code> 的 <code>decodeModule</code> 解码，
-产出的结构与文本 Flattener 完全等价，Referee 和 Emitter 不感知输入来源。
+<p>SA 侧由 <code>src/sab.zig</code> 的 <code>decodeModule</code> 解码。
+解码产物与文本 Flattener 的结构等价是<strong>规范要求</strong>（白皮书 §4.1
+分 L1/L2 两级），当前尚未完全达成：解码出的 FlattenResult 中
+<code>loc_table</code> 全为 null、<code>layout_versions</code> 与
+<code>def_dict</code> 为空，与文本路的全信息表示不对称，差距与证据见
+<a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a> §4.1。
 SCI 的通用 SAB v4 encoder 覆盖全部 SA <code>InstKind</code> / <code>OpKind</code> /
 operand tag。</p>
 
