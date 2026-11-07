@@ -51,6 +51,14 @@ println("({}, {})", pair.0, pair.1);        // demos/rosetta/11_tuples
 fn head(t: (i32, i32, i32)) -&gt; i32 {
     return t.0;
 }</code></pre>
+<p><b>元组的 Copy 语义</b>：元组是 Copy 类型，当且仅当其全部元素都是
+Copy（按元素的 Copy 判定逐层递归，嵌套元组逐层展开）。全 Copy
+元组在 <code>let</code>、<code>const</code>、赋值与解构绑定处一律<b>按值物化拷贝</b>：
+绑定产生一份独立的新值，源绑定不被消费、其后仍可继续读用；
+解构绑定与普通 <code>let</code> 同规——Copy 类型的根不因解构被消费。
+只要含有一个非 Copy 元素，元组整体即非 Copy：绑定即移动，
+移动后再读源报 <code>UseAfterMove</code>。含数组的元组保持移动语义
+（数组不参与 Copy 判定），复用同样报 <code>UseAfterMove</code>。</p>
 
 <h2>借用类型 &amp;T 与解引用 *</h2>
 <p><code>&amp;T</code> 表示借用视图。当前版本中 <code>&amp;self</code>/<code>&amp;T</code> 同时覆盖读写约定，
