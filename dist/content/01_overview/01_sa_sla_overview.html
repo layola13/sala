@@ -43,10 +43,16 @@ Sla 使用编译器托管的生命周期清理。生成的 <code>.sa</code> 里�
 <table>
 <tr><th>组成部分</th><th>位置</th><th>角色</th></tr>
 <tr><td><code>sci</code></td><td>SA 编译器仓库</td><td>编译器、Referee、LLVM/WASM 发射器、<code>sa_std</code>、<code>sa</code> CLI</td></tr>
-<tr><td><code>sa_plugin_sla</code></td><td>独立插件仓库</td><td>Sla → SA/SAB 编译器插件，提供顶级 <code>sla …</code> 命令（亦可以 <code>sa sla …</code> 经宿主调用）</td></tr>
+<tr><td><code>sa_plugin_sla</code>（Zig 版）</td><td>独立插件仓库</td><td>Sla → SA/SAB 编译器插件，提供顶级 <code>sla …</code> 命令（亦可以 <code>sa sla …</code> 经宿主调用）。<strong>特性探索版本</strong>：新语言特性的探索与原型先在此落地验证</td></tr>
+<tr><td><code>sla</code>（Rust 版）</td><td><code>layola13/sla</code> 独立仓库</td><td>Sla 编译器的 Rust 实现，交付形态为独立二进制（自调用 SA 底层编译），命令面与 Zig 版同集。<strong>稳定版本</strong>：经探索版验证定形的特性在此收敛为稳定实现，是面向用户的产品线</td></tr>
 <tr><td><code>sa_std</code></td><td><code>sci/sa_std/</code></td><td>Sla 直接 <code>@import</code> 的标准库契约与实现</td></tr>
 <tr><td>其他插件</td><td><code>sa_plugin_*</code> 目录</td><td>sax/mui/react/vite/wgpu/db/http_*/vm/pkg/bc2sa/ts/deno/node/tui 等应用能力</td></tr>
 </table>
+<p><strong>双实现定位</strong>：Sla 编译器有两个实现，语义面以同一份语言规范与同一组验收
+语料为准。Zig 版（<code>sa_plugin_sla</code>）是<strong>特性探索版本</strong>——新特性的构想、
+原型与快速迭代先在它上面验证；Rust 版（<code>layola13/sla</code>）是<strong>稳定版本</strong>——
+探索定形的特性在此收敛为稳定实现。两个实现以差分对拍互相照出缺陷：探索版跑在前面，
+稳定版立得住。</p>
 <p>Sla 通过顶层导入直接使用 SA 标准库：</p>
 <pre><code>@import "sa_std/io/print.sai"</code></pre>
 <p>Sla 编译器在类型检查前加载这些 <code>.sai</code>/<code>.sal</code>/<code>.sa</code> 契约，
