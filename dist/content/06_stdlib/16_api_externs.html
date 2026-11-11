@@ -370,9 +370,9 @@
 <tr><td><code>sa_std_net_tcp_stream_set_keepalive_params(stream: u64, idle_secs: u32, intvl_secs: u32, cnt: u32) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_std_net_tcp_listener_set_reuseaddr(listener: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_std_net_tcp_listener_set_reuseport(listener: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
-<tr><td><code>sa_std_net_tcp_listener_set_only_v6(listener: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_tcp_listener_set_only_v6(listener: u64, enabled: i32) -&gt; i32</code></td><td>IPV6_V6ONLY toggle. Kernel pin: on a socket bound to a specific IPv6 address (e.g. ::1), bind() itself forces V6ONLY to 1 and a post-bind setsockopt returns EINVAL, so set-to-0 can only be honoured on the wildcard address (::). V6ONLY=0 is only semantically meaningful on :: — a ::1 socket cannot accept IPv4-mapped connections the way :: can.</td></tr>
 <tr><td><code>sa_std_net_tcp_listener_only_v6(listener: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
-<tr><td><code>sa_std_net_udp_set_only_v6(socket: u64, enabled: i32) -&gt; i32</code></td><td></td></tr>
+<tr><td><code>sa_std_net_udp_set_only_v6(socket: u64, enabled: i32) -&gt; i32</code></td><td>IPV6_V6ONLY toggle. Same kernel pin as the TCP listener setter: set-to-0 is honoured only on the wildcard address (::); on a ::1-bound socket the kernel pins the value to 1 at bind() and post-bind setsockopt returns EINVAL.</td></tr>
 <tr><td><code>sa_std_net_udp_only_v6(socket: u64, &amp;out_enabled: ptr) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_std_net_ja3_hash(&amp;ja3: ptr, ja3_len: u64, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td>TLS ClientHello fingerprint digests (JA3 = MD5 hex, JA4 segment = SHA256 first 12 hex chars).</td></tr>
 <tr><td><code>sa_std_net_ja4_hash12(&amp;data: ptr, data_len: u64, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
