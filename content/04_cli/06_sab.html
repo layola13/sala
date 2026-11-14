@@ -30,6 +30,7 @@ usage: sa sla sab disasm &lt;file.sab&gt; [--out &lt;file.sa&gt;]</code></pre>
 SA_PLUGIN_DEV=1 sa sla sab build tests/test_sab_direct.sla --out /tmp/test_sab_direct.sab
 SA_PLUGIN_DEV=1 sa slab build tests/test_sab_direct.sla --out /tmp/test_sab_direct.sab</code></pre>
 <p>成功输出形如 <code>Sla Compiler: Successfully compiled ... to SAB /tmp/test_sab_direct.sab (managed cache .sla-cache/sab/....sab).</code>；未给 <code>--out</code> 时为 <code>... to managed SAB .sla-cache/sab/....sab.</code></p>
+<div class="note"><span class="label">注意</span><code>sab build</code> 的文件路线不解析 <code>@test</code> 测试体：含 <code>@test</code> 的源文件经 <code>sab build</code> 编译后，各 <code>test_decl</code> 的函数体为空。因此把该产物交给 <code>sa test</code> 运行得到的 PASS 是空转结果，不构成测试证据；真正解析并执行测试体的 SAB 路径只有 <code>sa sla test</code> 的进程内 SAB 后端（<code>--test-backend auto</code>/<code>sab</code>）。普通（非 <code>@test</code>）函数体在各路线下均完整编译。</div>
 
 <h2>sab workspace</h2>
 <p>解析当前 <code>sa.mod</code> workspace 成员，走托管 SAB 编译后委派 <code>sa build-exe</code> 生成可执行文件。不接受源文件参数。</p>
