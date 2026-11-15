@@ -67,9 +67,11 @@ sla sab build src/main.sla --out /tmp/main.sab
 sla sab disasm /tmp/main.sab
 
 # 各命令的完整参数说明见「命令行参考」章节</code></pre>
-<p><code>build-exe</code> 走 direct SAB 主线：把 SAB 字节写到托管产物路径
-<code>.sla-cache/sab/…</code>，再用这些托管输入委派给底层的 <code>sa build-exe</code>。
-用户可见的 SAB 文件只在显式传 <code>--out</code> / <code>--sab-out</code> 时写出。</p>
+<p><code>build-exe</code> 默认走 SA 文本路（生产路径）：先发射同级
+<code>.sa</code> 中间产物，再委派给底层的 <code>sa build-exe</code>。
+显式加 <code>--test-backend sab</code> 时改走 SAB：把 SAB 字节写到托管
+产物路径 <code>.sla-cache/sab/…</code> 后再委派。用户可见的 SAB 文件
+只在显式传 <code>--out</code> / <code>--sab-out</code> 时写出。</p>
 
 <h2>用现成 demo 验证安装</h2>
 <pre><code># 运行目录：sa_plugin_sla 仓库根目录

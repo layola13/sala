@@ -793,6 +793,19 @@ sa_plugin_sla dyn registry单测SAB半段恢复（e96e6b3以“Box/dyn backlog�
 追记三十二的58缺口清单已撤回，系环境误报，见追记三十三；
 追记三十三的Box/dyn缺口已关闭，见追记三十四。</code></pre>
 
+<h3>2026-11-15 追记(三十五)：SAB 封存，一致性线关账</h3>
+<p>用户裁定（2026-11-15）：SAB 全部暂停并封存，封存 tag
+<code>sab-sealed-2026-11-15</code> 打在 sci <code>3d7e8042</code>、
+sa_plugin_sla <code>4f204e24</code>、sla（Rust）<code>5c24b828</code>
+三仓当时的头上。口径改定：生产路径是 SA 文本（所有前端一律只输出
+SA 文本；Zig 编译器默认后端已翻为 SA 文本，SAB 须显式
+<code>--test-backend sab</code> opt-in）；SAB 是优化方向、不是生产
+门槛。本页记录的 SAB 与 SA-text 一致性（parity）工作线随封存关账：
+其剩余格子降为优化队列，不再作为收官 / tag 的前置；本页头部
+「SA-text 是语义标准，SAB 是从属产物」的定位与新口径一致，予以
+保留。SAB 将来若解封，唯一形态是 SA 工具链内部的 text → SAB 单向
+转换（见白皮书 §1），不再恢复前端侧的平行 lowering 与平价维护。</p>
+
 <p>上一页：<a href="06_limitations.html">已知限制</a>。</p>
 </body>
 </html>

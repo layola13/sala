@@ -15,7 +15,7 @@
 
 <h2>direct 与 fallback 的差距</h2>
 
-<p>SAB 主线优先走 direct AST-&gt;SAB 编码器；遇到未覆盖特性时退回 SA 兼容降低 + SCI 展平器。两条路径的耗时差距可达一个数量级以上。以 roadmap_status_cn.md §6 记录的单文件测量为例：</p>
+<p>以下为历史测量快照（SAB 尚作主线、SA 兼容回退尚存的时期）：当时 SAB 路优先走 direct AST-&gt;SAB 编码器，遇到未覆盖特性时退回 SA 兼容降低 + SCI 展平器，两条路径的耗时差距可达一个数量级以上。以 roadmap_status_cn.md §6 记录的单文件测量为例：</p>
 
 <table>
 <tr><th>输入 / 路径</th><th>耗时</th><th>说明</th></tr>
@@ -26,7 +26,7 @@
 <tr><td><code>parallel_table_erased.sla</code> — sa test（宿主侧后端）</td><td>约 13.50s</td><td>SA 后端耗时</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>核心结论是：direct 路径本身很快（同一批记录中为 24-257ms 量级），慢的是「遇到不支持特性就整体走回退」。所以消除回退既是正确性目标也是性能目标。若某文件突然变慢，先怀疑它触发了回退，用本章节<a href="02_compile_failures.html">「编译失败排查」</a>中的 <code>SLA_SAB_TRACE_UNSUPPORTED=1</code> 定位。</div>
+<div class="note"><span class="label">注意</span>当时的核心结论是：direct 路径本身很快（同一批记录中为 24-257ms 量级），慢的是「遇到不支持特性就整体走回退」；回退已于 2026-09-28 拆除。现行口径（2026-11-15）：SAB 已封存为优化方向，且 SAB 不加速单次编译——冷编时间大头在宿主后端（同表末行 <code>sa test</code> 宿主侧耗时即为大头），与输入走文本还是 SAB 无关；热编 / 增量缓存是按源码哈希键控的独立机制，与 SAB 无关。若显式 SAB 路上某文件报错，用本章节<a href="02_compile_failures.html">「编译失败排查」</a>中的 <code>SLA_SAB_TRACE_UNSUPPORTED=1</code> 定位未覆盖点。</div>
 
 <h2>大数组初始化优化</h2>
 

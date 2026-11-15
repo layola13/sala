@@ -56,7 +56,7 @@
 <tr><td><code>sla build</code></td><td>.sa 文本主线路径。</td></tr>
 <tr><td><code>sla sab build</code> / <code>slab build</code></td><td>产出 SAB 工件，默认写在 <code>.sla-cache/sab/</code> 下。</td></tr>
 <tr><td><code>--out &lt;file.sab&gt;</code> / <code>-o</code></td><td>额外写出可见的 <code>.sab</code> 文件；workspace 用 <code>--sab-out</code>，<code>--emit-sab</code> 生成源文件同名的兄弟 <code>.sab</code>。</td></tr>
-<tr><td><code>sla test</code></td><td>默认 <code>--test-backend auto</code>：写托管 SAB 并交给 <code>sa test</code>，不回退到 <code>.test.sa</code>；需要旧文本路径时用 <code>--test-backend sa</code>。</td></tr>
+<tr><td><code>sla test</code></td><td>默认 <code>--test-backend auto</code>：走 SA 文本路（写 <code>.test.sa</code>）并交给 <code>sa test</code>；需要 SAB 时显式用 <code>--test-backend sab</code>（opt-in）。</td></tr>
 <tr><td><code>sla init [path]</code></td><td>脚手架最小二进制项目（<code>sa.mod</code>、<code>src/main.sla</code>，并把 <code>.sla-cache/</code> 写进 .gitignore）。</td></tr>
 </table>
 
@@ -65,7 +65,7 @@
 即 <code>sa sla sab build</code>。顶级 <code>sla.exe</code> 由全自动安装包或
 <code>install_windows.ps1</code> 提供。</div>
 
-<div class="warning"><span class="label">警告</span>当直接 AST-&gt;SAB 快速路径尚未覆盖某个特性时，插件会退回到内存中的 SA 兼容降低 + SCI 展平器来编码 SAB。这条回退路径明显更慢，定位方法见本章节<a href="02_compile_failures.html">「编译失败排查」</a>与<a href="04_performance.html">「性能与优化预期」</a>。</div>
+<div class="warning"><span class="label">警告</span>在显式选择的 SAB 路上，直接 AST-&gt;SAB 快速路径尚未覆盖某个特性时会响亮报错（<code>UnsupportedSabDirectFeature</code>）——SA 兼容回退已拆除，没有静默兜底；默认的 SA 文本路（生产路径）不受此限。定位方法见本章节<a href="02_compile_failures.html">「编译失败排查」</a>与<a href="04_performance.html">「性能与优化预期」</a>。</div>
 
 <p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/faq.md（快照 2026-06-22）、sci/docs/faq.md、rust_surface_compat_report_cn.md。</p>
 </body>

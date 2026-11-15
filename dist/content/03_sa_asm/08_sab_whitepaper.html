@@ -36,9 +36,34 @@ sci <code>2e67cc54</code>、sa_plugin_sla <code>0cc23855</code>
 插件与宿主共用同一份编解码源码」是当前工程事实，不是格式要求。</p>
 
 <h2>1. 定位与设计动机</h2>
-<p>SAB 是 SA 编译栈的<strong>生产路径交换格式</strong>：前端把程序
-lowering 为结构化指令流后，以 SAB 交付宿主验证与发射；SA 文本只保留
-教学与反编译调试镜像的定位。设计动机四点：</p>
+<div class="note"><span class="label">现行口径（2026-11-15 用户裁定）</span>
+<strong>生产优先：SLA 的生产路径是 SA 文本。</strong>所有前端（SLA、slars、
+Rust 实现及任何第三方前端）一律只输出 SA 文本。Zig 版 SLA 编译器的默认
+后端已改为 SA 文本，需要 SAB 必须显式加编译参数
+（<code>--test-backend sab</code>，opt-in）。<strong>SAB 已于 2026-11-15
+封存</strong>（封存 tag <code>sab-sealed-2026-11-15</code>，打在 sci /
+sa_plugin_sla / sla 三仓当时的头上）：SAB 是<strong>优化方向，不是生产
+门槛</strong>；本节旧定位「SAB 是生产路径交换格式、SA 文本只保留教学与
+反编译调试镜像」<strong>自此废止</strong>。SAB 将来若解封，唯一形态是
+SA 工具链内部的 <strong>text → SAB 单向转换</strong>（SA 指令集封闭且已
+冻结，转换器写一次即可）：前端永不发射 SAB、也不感知其存在；逆向转换
+（反汇编找回文本）没有必要——SAB 永远由 text 派生，text 永远是源头。
+两条实测口径同批钉死：其一，SAB <strong>不加速单次编译</strong>（冷编
+时间大头在宿主后端，与输入走文本还是 SAB 无关）；其二，热编 / 增量
+缓存是按源码哈希键控的<strong>独立机制，与 SAB 无关</strong>。SAB 唯一
+具体的残余用途是<strong>类 DLL 的客户交付</strong>：给客户
+<code>.sab</code> 而非源码，客户用 SA 编译器直接编译确认
+（<code>sa build</code> 接受 <code>.sab</code> 输入、文本侧经
+<code>--emit-sab</code> 产出）并验证行为，但拿不到源码；其保护强度与
+DLL 同级（指令流可被逆向还原，原文 / 命名 / 注释不随附），
+<strong>不得表述为源码级保密</strong>。诚实规则不变：任一后端缺失
+lowering 必须响亮报错，禁止静默回退——那是禁假绿，不是路线优先级。
+本白皮书余下章节是格式本身的规范（字节布局、编码与往返契约），
+不因封存而失效；§3 的生产者 / 消费者图景描述的是封存时点的实现状态。</div>
+<p>以下四点是 SAB 引入时的<strong>原始设计动机（历史）</strong>，保留以
+备查；其现状评估以本节开头口径为准（动机一的吞吐主张从未独立实测
+兑现，动机二的前后端二进制交接已随生产路改定退出，动机三的缓存与
+分布式未落地、且缓存已定性为与 SAB 无关的独立机制）：</p>
 <ol>
 <li><strong>编译吞吐</strong>：SAB 解码直达结构化 <code>Instruction[]</code>，
 跳过文本解析、宏展开与 <code>@import</code> 展开的体量放大
@@ -440,7 +465,10 @@ InvalidTag</code>），不存在静默误解，但目前也没有能力协商机
 差异：其一，SAB 的验证不止于类型/结构合法，还包括宿主 Referee 的
 所有权与状态语义校验；其二，SAB 同时是<strong>进程内</strong>交换
 格式（前端插件与宿主共用同一份编解码实现，见 §3.1）与<strong>文件
-</strong>交换格式，而非仅作分发或归档之用。</p>
+</strong>交换格式，而非仅作分发或归档之用。（2026-11-15 口径更新：
+进程内交换这一重角色已随 SAB 封存退出——前端与宿主之间现以 SA 文本
+交接；SAB 留下的只有文件格式本身，及其在 SA 工具链内部由 text 单向
+派生、作分发 / 预编译格式的残余角色，见 §1。）</p>
 
 <h2>6. 已知限制与未实现（观察口径逐项标注）</h2>
 <ol>

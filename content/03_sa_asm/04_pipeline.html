@@ -11,7 +11,9 @@
 
 <p>这一页描述从源码到原生可执行文件的完整路径：Y 形双输入架构、SLA 插件的
 direct SAB 快路径与 SA 兼容回退路径，以及两条路径各自的代价。读完可以判断一次慢编译
-慢在哪个阶段。</p>
+慢在哪个阶段。现行口径（2026-11-15）：编译默认走 SA 文本路（生产路径）；
+本页的 SAB 路径仅在显式 opt-in（<code>--test-backend sab</code> 或
+<code>sab</code> 按名命令）时适用，且 SAB 已封存为优化方向。</p>
 
 <h2>Y 形双输入架构</h2>
 <p>文本与二进制两条输入在扁平指令数组处汇合，之后所有阶段完全共享：</p>
@@ -28,6 +30,12 @@ direct SAB 快路径与 SA 兼容回退路径，以及两条路径各自的代�
 <code>AnnotatedInstruction[]</code>（可附带 Trap、Gas、upstream_loc）。</p>
 
 <h2>SLA 前端的两条 SAB 路径</h2>
+<div class="note"><span class="label">状态（2026-11-15）</span>本节描述的是
+显式选择 SAB 时的插件内部路径。默认路径是 SA 文本：前端经
+<code>compileSlaToSaString</code> 发射 <code>.sa</code> 文本，再由宿主
+Flattener 解析——这也是所有前端（SLA、slars、Rust 实现、第三方）统一的
+输出形态。SAB 已封存（tag <code>sab-sealed-2026-11-15</code>），其与
+文本路的平价维护不再推进。</div>
 <p><code>sa_plugin_sla</code> 的 direct 路径不经过 <code>.sa</code> 文本：</p>
 <pre><code>SLA source -> source_expand -> parser AST -> import expansion
            -> monomorphizer -> type checker

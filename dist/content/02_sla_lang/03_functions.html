@@ -64,7 +64,7 @@ Config {
 <h2>循环：while / for in / break / continue</h2>
 <p><code>while cond { ... }</code> 是基础循环；<code>break</code>/<code>continue</code> 可用于提前退出或跳过。
 数值区间循环 <code>for i in start..end</code> 直接支持；对集合的 <code>for x in collection</code>
-迭代在部分路径仍会回退（见「特性成熟度总表」）。真实示例：</p>
+迭代在部分路径仍未完全覆盖（见「特性成熟度总表」）。真实示例：</p>
 <pre><code>// demos/rosetta/103_labeled_break/main.sla（while + break）
 while done == false {
     inner = inner + 1;

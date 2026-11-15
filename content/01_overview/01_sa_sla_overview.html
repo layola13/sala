@@ -31,9 +31,13 @@
 不直接运行，而是编译成 SA：</p>
 <pre><code>SLA AST / 类型检查 ── 共享 lowering 规则 ──┬── SA 文本 emitter（.sa）
                                           └── SAB 结构化 emitter（.sab）</code></pre>
-<p>这就是「Y 型」架构：一条共享的前端主干，两条用户面输出主线（<code>.sa</code> 文本与 SAB 字节码）。
-SAB 路径是当前开发主线，优先走 direct AST→SAB 快路径；命中尚未覆盖的语言特性时才回落到
-SA 兼容 lowering 路径。</p>
+<p>这就是「Y 型」架构：一条共享的前端主干，两个 emitter。现行口径
+（2026-11-15）：<strong>用户面输出只有 SA 文本一条主线（生产路径）</strong>——
+SLA、slars、Rust 实现及任何第三方前端一律只输出 SA 文本，编译器默认
+后端也是 SA 文本。SAB 结构化 emitter 仍在，但已于 2026-11-15 封存
+（tag <code>sab-sealed-2026-11-15</code>），定位为优化方向：仅在显式
+opt-in（<code>--test-backend sab</code> 或 <code>sab</code> 按名命令）时
+启用，其未覆盖特性一律响亮报错、无静默回退。</p>
 <div class="note"><span class="label">注意</span>用户面 <code>.sla</code> 代码不需要手写释放：
 Sla 使用编译器托管的生命周期清理。生成的 <code>.sa</code> 里仍可能出现 <code>!</code> 指令，
 那是 SA 的所有权原语，不代表你需要在 Sla 里写它。另外 <code>&amp;mut T</code> /

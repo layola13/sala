@@ -23,7 +23,7 @@
 <tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>这条命令产出的是文本形式的 <code>.sa</code> 汇编，属于与 SAB 并行的另一条用户面主线。要产出 SAB 字节请用 <code>sa sla sab build</code>。</div>
+<div class="note"><span class="label">注意</span>这条命令产出的是文本形式的 <code>.sa</code> 汇编——这是 SLA 的生产路输出，所有前端统一只输出 SA 文本。要产出 SAB 字节（已封存的优化方向，仅显式 opt-in）请用 <code>sa sla sab build</code>。</div>
 
 <h2>示例</h2>
 <pre><code># 输出到 /tmp
@@ -40,7 +40,7 @@ SA_PLUGIN_DEV=1 sa sla build -p my_app --out /tmp/my_app.sa</code></pre>
 <ul>
 <li>显式指定 <code>--out</code>/<code>-o</code>：写到该绝对或相对路径，父目录必须已存在。</li>
 <li>未指定：写到源文件同目录下的 <code>&lt;stem&gt;.sa</code>。</li>
-<li>此命令不写 <code>.sla-cache/sab/</code>；SAB 托管产物只由 SAB 主线命令产生。</li>
+<li>此命令不写 <code>.sla-cache/sab/</code>；SAB 托管产物只由显式 SAB 命令产生。</li>
 </ul>
 <p>成功时 stdout 输出：</p>
 <pre><code>Sla Compiler: Successfully compiled main.sla to /tmp/main.sa.</code></pre>

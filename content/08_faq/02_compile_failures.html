@@ -9,7 +9,7 @@
 <div class="topic-header">FAQ 与故障排查 &gt; 编译失败排查</div>
 <h1>编译失败排查</h1>
 
-<p>这一页解决两类最常见的编译问题：<code>sa sla check</code> 通过但 <code>build-exe</code>/<code>test</code> 失败，以及 direct SAB 报「不支持特性」而回退。读完可以判断失败属于哪个阶段，并用环境变量定位触发回退的具体特性。</p>
+<p>这一页解决两类最常见的编译问题：<code>sa sla check</code> 通过但 <code>build-exe</code>/<code>test</code> 失败，以及显式 SAB 路（<code>--test-backend sab</code>，opt-in）报「不支持特性」。读完可以判断失败属于哪个阶段，并用环境变量定位 SAB 路未覆盖的具体特性。</p>
 
 <h2>check 过了，build/test 却失败</h2>
 
@@ -24,7 +24,7 @@
 
 <h2>识别失败的阶段与 Phase 归属</h2>
 
-<p>SAB 主线优先走 direct AST-&gt;SAB 编码器；当某特性未被覆盖时才退回内存中的 SA 兼容降低 + SCI 展平器。direct 路径的典型错误是：</p>
+<p>显式选择的 SAB 路走 direct AST-&gt;SAB 编码器；某特性未被覆盖时响亮失败、无回退（SA 兼容回退已于 2026-09-28 拆除）。默认的 SA 文本路不经 SAB，本节错误只在 SAB 路出现。direct 路径的典型错误是：</p>
 
 <pre><code>SAB Direct Error: direct SLA-to-SAB lowering failed without fallback: error.UnsupportedSabDirectFeature
 SAB Error: failed to encode SAB ... error.VerificationTrap</code></pre>
@@ -44,16 +44,16 @@ SAB Error: failed to encode SAB ... error.VerificationTrap</code></pre>
 
 <div class="note"><span class="label">注意</span>该清单是带日期的进度快照而非长期保证；direct_sab_historical_69_corpus.md 在 2026-07-12 记录本地 strict direct-SAB no-fallback 扫描已通过 134/134。以你本机的扫描结果为准。</div>
 
-<h2>定位回退原因</h2>
+<h2>定位 SAB 路的不支持点</h2>
 
-<p>默认情况下回退是静默的。要强制暴露它，用 no-fallback 模式跑单个文件（运行目录为插件仓库根）：</p>
+<p>SA 兼容回退已拆除：SAB 路遇到未覆盖特性默认即报错，不存在静默回退。要定位首个未覆盖点，用 trace 模式跑单个文件（运行目录为插件仓库根）：</p>
 
-<pre><code>SLA_SAB_NO_FALLBACK=1 timeout 120s ./zig-out/bin/sla-local-cli sla test tests/test_unit_xxx.sla \
+<pre><code>SLA_SAB_TRACE_UNSUPPORTED=1 timeout 120s ./zig-out/bin/sla-local-cli sla test tests/test_unit_xxx.sla \
     --test-backend sab --jobs 1 --trace-panic</code></pre>
 
 <ul>
-<li><code>SLA_SAB_NO_FALLBACK=1</code>：禁止回退到 SA 兼容编码器，不支持的特性直接报错而不是静默变慢。</li>
-<li><code>SLA_SAB_TRACE_UNSUPPORTED=1</code>：与上面组合使用，打印具体是哪些特性触发了回退。</li>
+<li><code>SLA_SAB_NO_FALLBACK=1</code>：历史严格开关；回退拆除后默认即无回退，保留它只为与旧脚本兼容。</li>
+<li><code>SLA_SAB_TRACE_UNSUPPORTED=1</code>：打印具体是哪些特性在 SAB 路未被覆盖。</li>
 <li><code>SLA_PROFILE=1</code>：输出各阶段计时（parse / import expand / type check / sab direct codegen 等），用于确认时间花在哪一段。</li>
 <li><code>--jobs 1</code> + <code>--trace-panic</code>：串行执行并保留 panic 追踪，便于复现。</li>
 </ul>

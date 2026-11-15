@@ -28,9 +28,9 @@
 <tr><td><code>sla init [path]</code></td><td>创建最小 SLA 二进制项目骨架</td></tr>
 <tr><td><code>sla check &lt;file&gt;</code></td><td>词法、语法、类型检查，不发射最终 SA 汇编</td></tr>
 <tr><td><code>sla build &lt;file&gt;</code></td><td>把 <code>.sla</code> 编译为经校验的 <code>.sa</code> 汇编文件</td></tr>
-<tr><td><code>sla build-exe &lt;file&gt;</code></td><td>走 direct SAB 路径编译为原生可执行文件</td></tr>
+<tr><td><code>sla build-exe &lt;file&gt;</code></td><td>编译为原生可执行文件；默认走 SA 文本路，SAB 路须显式 <code>--test-backend sab</code></td></tr>
 <tr><td><code>sla sab build</code> / <code>sab workspace</code> / <code>sab disasm</code></td><td>SAB 编译 / 按 workspace 成员编译 / 反汇编调试；短别名 <code>slab</code></td></tr>
-<tr><td><code>sla test &lt;file&gt;</code></td><td>编译为托管 SAB 并经 <code>sa test</code> 运行，默认 <code>auto</code> 后端</td></tr>
+<tr><td><code>sla test &lt;file&gt;</code></td><td>编译后经 <code>sa test</code> 运行；默认 <code>auto</code> 后端落 SA 文本路，SAB 须显式 <code>--test-backend sab</code></td></tr>
 <tr><td><code>sla skills [--json]</code></td><td>列出 SLA 插件能力；文本模式还会写入 skill 文件到当前目录</td></tr>
 </table>
 

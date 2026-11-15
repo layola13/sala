@@ -15,8 +15,9 @@
 见 <a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a>。</p>
 
 <h2>SAB 是结构化 IR，不是文本压缩包</h2>
-<p>SAB 是 SA 的二进制中间表示。<code>.sa</code> 与 <code>.sab</code> 是两条并列的用户面编译主线，
-但两者在扁平指令数组处汇合。SAB <strong>不</strong>是把 <code>.sa</code> 源码塞进某个
+<p>SAB 是 SA 的二进制中间表示。用户面编译主线只有 SA 文本一条
+（生产路径）；<code>.sa</code> 与 <code>.sab</code> 两种输入在宿主内部的
+扁平指令数组处汇合。SAB <strong>不</strong>是把 <code>.sa</code> 源码塞进某个
 section 的容器——v4 明确禁止出现完整 <code>.sa</code> source section，
 指令 payload 里也不再保留每条指令的原始文本（<code>raw_text</code> 为空），
 只保留结构化操作数和少量短字符串（如 call body、const literal 文本）。</p>
@@ -52,6 +53,13 @@ section*:
 <code>.sa</code> 源码。</div>
 
 <h2>生成与消费</h2>
+<div class="note"><span class="label">状态（2026-11-15）</span>SAB 已封存
+（tag <code>sab-sealed-2026-11-15</code>），定位为优化方向而非生产路径：
+SLA 等所有前端只输出 SA 文本，Zig 编译器默认后端也是 SA 文本，需要 SAB
+须显式 opt-in（<code>sab build</code> 等按名命令，或
+<code>--test-backend sab</code>）。本页余下内容是格式与命令面的事实说明，
+照常有效；口径全文见 <a href="08_sab_whitepaper.html">SAB 格式白皮书</a>
+§1。</div>
 <pre><code># SLA 源直接编译为 SAB（默认托管在 .sla-cache/sab/，--out 额外落盘一份）
 SA_PLUGIN_DEV=1 sa sla sab build src/main.sla --out /tmp/main.sab
 

@@ -41,7 +41,7 @@
 <tr><th>变量</th><th>作用</th></tr>
 <tr><td><code>SLA_PROFILE</code></td><td>设为非空且非 <code>0</code>/<code>false</code> 时，<code>check</code> 等命令按阶段向 stderr 输出耗时：<code>[sla-profile] check parse: 12ms</code>。</td></tr>
 <tr><td><code>SLA_PROFILE_CONTRACTS</code></td><td>契约加载阶段的细分计时开关，取值规则同上。</td></tr>
-<tr><td><code>SLA_SAB_NO_FALLBACK</code></td><td>设为非 <code>0</code>/<code>false</code> 的非空值时禁用 SA 兼容回退路径，用于验证 SAB 快路径覆盖（no-fallback sweep）。</td></tr>
+<tr><td><code>SLA_SAB_NO_FALLBACK</code></td><td>历史严格开关：SA 兼容回退已于 2026-09-28 拆除、现默认即无回退；SAB 已封存，该变量只对显式选择的 SAB 路的 no-fallback sweep 有意义。</td></tr>
 <tr><td><code>SLA_KEEP_TEST_SA</code></td><td><code>--test-backend sa</code> 运行后默认删除生成的 <code>.test.sa</code>;设置本变量（非空且非 <code>0</code>/<code>false</code>/<code>no</code>）可保留该中间产物供检查。</td></tr>
 </table>
 

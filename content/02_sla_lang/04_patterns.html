@@ -46,7 +46,7 @@ fn area(shape: Shape) -&gt; i32 {
 }</code></pre>
 
 <div class="note"><span class="label">注意</span>枚举 payload 的 match 提取在 direct SAB 快路径上尚未完全覆盖，
-命中时可能走 SA 兼容回退路径，详见「特性成熟度总表」。</div>
+命中时在 SAB 路响亮报错（无静默回退），详见「特性成熟度总表」。</div>
 
 <h2>switch 语句</h2>
 <p><code>switch</code> 用于对整数值做平坦分支（编译为 <code>eq</code> + <code>br</code> 分支梯）：</p>
