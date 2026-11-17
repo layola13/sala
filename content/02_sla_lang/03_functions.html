@@ -25,6 +25,44 @@ fn internal_value() -&gt; i32 {
     5
 }</code></pre>
 
+<h2>函数重载（同名多签名）</h2>
+<p>普通函数与 <code>extern</code> 声明都支持同名多签名：注册期按参数签名改名，成员键形如
+<code>&lt;name&gt;__ov_&lt;tag&gt;</code>（tag 编码参数类型），单例不建集、保持旧符号。
+匹配纪律为<strong>推断后精确匹配</strong>：先推断实参类型，恰一候选命中方可调用，无匹配或歧义
+（<code>AmbiguousCall</code>）响亮报错；禁止仅靠返回值不同构成重载。真实形态（取自
+<code>tests/test_unit_overload_variadic_arity.sla</code>）：</p>
+<pre><code>fn vsum(code: i32, extra: i32) -&gt; i64 { return 1000 + (code + extra) as i64; }
+extern "C" fn vsum(tag: ptr, args: ...) -&gt; i64 { let a = va_next_i32(args); return a as i64; }
+
+// 按实参类型选中对应成员
+let r = vsum(1, 2);       // 命中 i32/i32 定元成员
+let r2 = unsafe { vsum(tag_ptr, 7) };  // 命中 ptr/变参成员</code></pre>
+<div class="note"><span class="label">注意</span>泛型与重载组合（<code>GenericOverloadConflict</code>）、
+以及 <code>impl</code> 方法重名，均响亮拒绝；函数值裸取重载集名会报 <code>AmbiguousCall</code>（成员符号可直接取引）。
+该能力于 2026-10-30 落地（<code>sa_plugin_sla</code>）。</div>
+
+<h2>extern 变参（C 风格 <code>...</code>）</h2>
+<p>仅 <code>extern "C"</code> 面支持可变参数，普通 <code>fn</code>、闭包与非 C ABI 的 fn 类型写
+<code>...</code> 一律响亮拒绝。<code>...</code> 必须尾随且前面至少有一个固定参数。声明 / 调用形态
+（<code>tests/test_unit_variadic_extern_call.sla</code>）：</p>
+<pre><code>extern "C" {
+    fn sprintf(buf: ptr, fmt: ptr, ...) -&gt; i32;
+}
+let n = unsafe { sprintf(buf, STR_PTR("%u:%lld\0"), byte_val, -5000000000) };</code></pre>
+<p>定义面向 C 调用的变参函数时，用 <code>args: ...</code>（VaList）形参，并通过类型化的
+<code>va_next_i32 / i64 / u32 / u64 / f64 / ptr</code> 内建按序读取
+（<code>tests/test_unit_variadic_define.sla</code>）：</p>
+<pre><code>extern "C" fn va_sum3(fixed: i32, args: ...) -&gt; i64 {
+    let a = va_next_i32(args);
+    let b = va_next_i32(args);
+    return fixed as i64 + a as i64 + b as i64;
+}</code></pre>
+<div class="note"><span class="label">注意</span>调用点遵循 C 默认参数提升（窄于 i32 的整型提升为 i32/u32、f32 提升为 f64），
+仅标量与裸指针可过，聚合体 / String / Vec 句柄 / 借用一律响亮拒绝。C / wasm / JS 目标对变参
+<strong>响亮拒绝</strong>（<code>UnsupportedVariadic</code>），解释路以 <code>RunError.UnsupportedVariadic</code> 陷阱；
+变参定义面当前仅 x86_64 SysV。读取顺序是调用方协议责任——须与被调用方实际读取的类型逐一对应。
+该能力于 2026-10-31 落地（<code>sa_plugin_sla</code> + <code>sci</code>）。</div>
+
 <h2>方法、self 与 impl 块</h2>
 <p><code>impl 类型 { ... }</code> 内的方法第一个参数写作 <code>self</code> 或 <code>&amp;self</code>，
 调用走方法语法（UFCS 静态展开）。以下取自 <code>demos/rosetta/40_impl_block_state/main.sla</code>
