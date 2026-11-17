@@ -107,6 +107,11 @@ var TOC = [
     "t": "SAX3D 3D 资产格式与 SLASL 着色器语言白皮书",
     "f": "content/01_overview/21_sax3d_whitepaper.html",
     "c": []
+   },
+   {
+    "t": "静默失败面普查（2026-11-17）",
+    "f": "content/01_overview/22_silent_surface.html",
+    "c": []
    }
   ]
  },

@@ -181,6 +181,14 @@
 <param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="静默失败面普查（2026-11-17）">
+<param name="Local" value="../dist/content/01_overview/22_silent_surface.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

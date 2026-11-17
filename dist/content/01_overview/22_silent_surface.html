@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>静默失败面普查（2026-11-17）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; 静默失败面普查（2026-11-17）</div>
+
+<div class="note">状态：<strong>待用户审核</strong>（2026-11-17）。本页是静默失败面普查的归纳落字版：下列 9 条为<strong>建议登记候选</strong>，尚未入 CLAIMS.md、未派修复线；用户圈定后才逐条立 DEF、派线修复，未圈定的只留普查原件备查。普查原件与原始命中存本机 <code>~/workspace/silent-surface-census/RESULT.md</code>。</div>
+
+<h2>一、口径与方法</h2>
+<p>口径（2026-11-17 13:05，用户裁定）：把无声错误变响亮拒绝的修复算<strong>修 bug、不算新功能</strong>，不受新功能封存限制；普查结果先交用户审核，审核通过才立 DEF、派修复线。动因与 transfer 同族：静默兜底（吞错、字面量默认值、空臂跳过）会把本应编译期响亮拒绝的错误变成运行期泄漏、假绿证据或陈旧状态。</p>
+<p>方法：只读 grep 两仓 <code>src/*.zig</code> 五类形态——大 switch 空臂 <code>else =&gt; {}</code>、<code>catch {}</code>、带默认值的 <code>catch |_|</code>、字面量 <code>orelse</code>、emitter 隐式 no-op / rc=0 跳过工作；命中先计数，再对关键面（所有权 / 布局 / 偏移 / 能力位 / 发射 / 验证）逐条读上下文定性。钉版：sci <code>0c4cb7be</code> × sa_plugin_sla <code>42085bb9</code>（双树干净，tag 0.1.9 谱系）。全部定性基于静态阅读，无复现探针；标「潜伏 / 扩展性」者需辖区线探针定级后再决定是否修。</p>
+
+<h2>二、命中总量（src/*.zig）</h2>
+<table>
+<tr><th>形态</th><th>sci @0c4cb7be</th><th>sa_plugin_sla @42085bb9</th></tr>
+<tr><td><code>else =&gt; {}</code></td><td>125</td><td>159</td></tr>
+<tr><td><code>catch {}</code></td><td>566</td><td>195</td></tr>
+<tr><td><code>catch |</code>（全部）</td><td>1656</td><td>122</td></tr>
+<tr><td><code>orelse</code>（全部）</td><td>3929</td><td>1882</td></tr>
+</table>
+<p>绝大多数为合理默认：OOM-only 错误路径、I/O flush / cleanup、探测式解析、字符扫描跳过、掩码 <code>orelse 0</code> 恒等、ABI 宽度 <code>else =&gt; 8</code> / <code>"ptr"</code>、新鲜度缓存写失败只损性能、host_paths 环境回退链等——不登记。下文只列真坑候选。</p>
+
+<h2>三、建议登记的 9 条候选</h2>
+<table>
+<tr><th>建议编号</th><th>一句话</th><th>位置</th><th>备注</th></tr>
+<tr><td>DEF-SILENT-DROPPLAN-ELSE-ARM</td><td>TEXT 路 emitRelease 与 SAB 路 emitBalanceReleaseLocal 的 DropPlan switch 以 <code>else =&gt; {}</code> 收尾；新增带子所有权的 plan 种类将只获浅释放、子对象静默泄漏（transfer 同族，本页最像 transfer 的一条）</td><td>sla <code>src/codegen.zig:1478</code>、<code>src/sab_codegen.zig:4099</code></td><td>邻接面：<code>codegen.zig:1480</code> planValueDrop 的 <code>else |_| {}</code>、<code>codegen.zig:1755</code> emitDeepBindingElementsText 中 plan 失败 <code>catch return</code> 静默跳过整段深 drop、编译照常成功</td></tr>
+<tr><td>DEF-SILENT-DROPPLAN-RECURSIVE-CUT</td><td>planValueDrop 在递归展开触及防递归标记时返回 .none 单例 plan：递归 payload 在递归边无深 drop、堆泄漏且无任何诊断</td><td>sla <code>src/type_checker.zig:1517-1521</code></td><td>注释明示为有意截断；需裁定：接受并成文，还是缺陷</td></tr>
+<tr><td>DEF-SILENT-GENMACRO-STMT-DROP</td><td>genMacroStmt 只处理 let / assign / release / expr 四类语句，手写 SA 宏体里其他语句种类被静默丢弃、宏照常发射成功</td><td>sla <code>src/codegen.zig:10122</code></td><td>可达性未验，先做探针定级</td></tr>
+<tr><td>DEF-SILENT-RUNNER-JOURNAL-RC0</td><td>并行测试运行器 journal 恢复时 rc 解析失败默认记 0（通过）且不再重跑：损坏的 rc 记录可造假绿进入名集账</td><td>sla <code>src/batch_test_runner.zig:464</code></td><td>门禁证据面，普查自评最优先核</td></tr>
+<tr><td>DEF-SILENT-VERIFIER-CALLPARSE-SCOPE</td><td>verifier 三处作用域预扫吞掉 call 解析失败（<code>else |_| {}</code>），畸形 call 的 dest 寄存器静默缺席 scope 集，预扫与主验证口径分叉</td><td>sci <code>src/verifier.zig:2176/2283/2413/2525</code></td><td></td></tr>
+<tr><td>DEF-SILENT-EMIT-PROV-CALLPARSE</td><td>emit_c / emit_js 的 provenance 分析在 call 解析失败时跳过 dest 槽位失效处理，陈旧 provenance 可能被提升发射</td><td>sci <code>src/emit_c.zig:8122</code>、同族 <code>src/emit_c.zig:8704</code>、<code>src/emit_js.zig:6198</code></td><td>潜伏型</td></tr>
+<tr><td>DEF-SILENT-REACHABILITY-FACT-CLEAR</td><td>reachability 事实失效 walker 与 SAB 模板操作数 coerce 只覆盖已列形态，未覆盖形态下陈旧 known-field 事实可存活，pruneKnownFalseBranches 可能剪掉活分支</td><td>sla <code>src/plugin_reachability.zig:954</code>、<code>:1053</code>；<code>src/sab_codegen.zig:5907/5940</code></td><td>潜伏型，无现行复现</td></tr>
+<tr><td>DEF-SILENT-PLUGIN-LOCK-COPY</td><td>插件版本目录的 permissions.lock 副本拷贝失败被 <code>catch {}</code> 吞掉（当前目录副本走 try），命令仍打印已写入并返回 0</td><td>sci <code>src/plugins.zig:2982</code></td><td>弱</td></tr>
+<tr><td>DEF-SILENT-PLUGIN-WORKSPACE-COLLECT</td><td>workspace 插件文件收集失败被 <code>catch {}</code> 吞掉，staging / freshness 决策基于残缺文件集、无诊断</td><td>sci <code>src/plugins.zig:1066</code></td><td>弱</td></tr>
+</table>
+<p>另有一条低优先观察（未入上表）：<code>codegen.zig:1743-1744</code> emitStructFieldDropsText 中 fieldLayout / fieldTypeForType 查不到即 <code>orelse continue</code> 静默跳过该字段的 drop；plan 与 decl 同源时不可达，暂作 SLA-C6 备查。</p>
+
+<h2>四、已核为响亮 / 已修 / 合理（不登记）</h2>
+<ul>
+<li>sci verifier 主 switch 空臂（<code>src/verifier.zig:4234</code>）：即 transfer 已登记的那一面，transfer 实现已给 .transfer 臂完整语义。</li>
+<li>sab fieldLayout 前科 <code>else |_| 8</code> 静默吞错：已修——现返回错误型 <code>!FieldLayout</code> 响亮失败，Vec 偏移走 VecAbi / GrowVecAbi 常量（<code>src/sab_codegen.zig:2065</code> 一带）。</li>
+<li>sla fallible payload 静默映射：已修——契约边界有 <code>abiFalliblePayloadSupported</code> 响亮检查（<code>src/type_checker.zig:3914</code>，映射表在 <code>src/lowering_rules.zig:4017-4047</code>）。</li>
+<li>sci <code>layout.zig</code> 全面响亮；<code>trap.zig</code> / <code>trap_agent.zig</code> 零命中；各 emitter 顶层 Unsupported 体系完整（emit_c / emit_js 各 11 处、emit_llvm_llvmc 20 处 UnsupportedInstruction），emit_c 运行时还有 <code>sa_trap("unsupported call:…")</code> 兜底响亮陷阱；interp 有 RunError.UnsupportedInstruction。</li>
+<li>plugins.zig:1811 安装路径在本钉版已响亮；plugins.zig:1800 的 stamp <code>catch 0</code> 失效方向安全。</li>
+</ul>
+
+<h2>五、覆盖与局限</h2>
+<ul>
+<li>覆盖：两仓 src/ 全部 .zig 的五类字面形态计数 + 关键面逐条读上下文定性。</li>
+<li>未深查：sa_std 运行时 .zig（runtime/ 的 DynLib 探测 / 能力降级面）、sax / db 子目录、tests/ 内代码；如需可另开一线专查 runtime 降级面。</li>
+<li>全部定性基于静态阅读，无复现探针；潜伏项需辖区线探针定级后才谈修复形态。</li>
+</ul>
+
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

@@ -361,6 +361,23 @@
         "WebGPU"
       ],
       "parent": null
+    },
+    {
+      "id": "silent-surface-census",
+      "title": "静默失败面普查（2026-11-17）",
+      "file": "22_silent_surface.html",
+      "keywords": [
+        "静默失败",
+        "无声错误",
+        "兜底",
+        "else",
+        "catch",
+        "orelse",
+        "transfer",
+        "普查",
+        "待审核"
+      ],
+      "parent": null
     }
   ]
 }
