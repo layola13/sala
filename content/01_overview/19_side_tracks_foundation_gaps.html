@@ -209,8 +209,8 @@
 <p><strong>状态</strong>：实现完工、待主会话集成（摘入 <code>5eb7b59f</code> 之上、守卫推送）；集成后于本节补应用记录。</p>
 <p><strong>应用记录（2026-10-31）</strong>：普通函数重载已随集成波落地——sa_plugin_sla master 推进至 <code>c97fce9da7a6c1dc3ab03bdd3487e8e016a6eebf</code>（含本批、变参集成与复核 (a) 同机制修复、STRIDE-1 语料），332 批量门禁失败名字集与纯净基线逐索引逐名全等 {55, 106, 107}。全量记录见 13 号文档第二十一节。</p>
 
-<h2>七、语言演进：extern 可变参数（2026-10-31，已定版、一批全量实现中）</h2>
-<p>本节登记一则支线讨论及其定版：用户 2026-10-31 问 SLA 有没有可变参数（<code>arg...</code>），四出处加探针核实为<strong>全无</strong>；用户当场令新增、<strong>仅限 extern 面</strong>。设计分叉送 Jev 裁决后，范围分期一项被用户推翻、定版为<strong>一批全量</strong>（声明 / 调用与定义同批、不分期）。现状态为<strong>已定版、实现线已派、未落地</strong>。</p>
+<h2>七、语言演进：extern 可变参数（2026-10-31 定案并落地）</h2>
+<p>本节登记一则支线讨论及其定版：用户 2026-10-31 问 SLA 有没有可变参数（<code>arg...</code>），四出处加探针核实为<strong>全无</strong>；用户当场令新增、<strong>仅限 extern 面</strong>。设计分叉送 Jev 裁决后，范围分期一项被用户推翻、定版为<strong>一批全量</strong>（声明 / 调用与定义同批、不分期）。现状态：<strong>已落地</strong>（sci <code>bbd06f9e</code> / sa_plugin_sla <code>ccbffb2a</code>，详见本节末「应用记录（2026-10-31 落地）」）。下列「现状与证据」小节为定版前的历史探针快照。</p>
 
 <h3>现状与证据（2026-10-31 核实）</h3>
 <ul>
@@ -241,7 +241,7 @@
 </ul>
 
 <h3>应用状态</h3>
-<p><strong>实现线已派（2026-10-31）</strong>：工地 <code>~/workspace/vararg-extern-local/</code>，基点 sla master <code>5eb7b59f</code> / sci main <code>fcbb6858</code>；本机主本先行、<strong>未推送</strong>，交付经主会话串行集成。交付口径照常：语料须在独立纯净基线树先证伪、双后端四联判读、负例以独立 <code>sla check</code> 判读、失败名字集门禁、形态止损线适用。<strong>状态：已定版、实现中——未落地</strong>；集成与应用记录候实现线交付后补入本节。</p>
+<p><strong>已集成并守卫推送（2026-10-31）</strong>：原实现线（工地 <code>~/workspace/vararg-extern-local/</code>，基点 sla master <code>5eb7b59f</code> / sci main <code>fcbb6858</code>）已交付，经主会话串行集成——sci main <code>bbd06f9e</code> / sa_plugin_sla master <code>ccbffb2a</code>，cherry-pick 零冲突并 <code>git ls-remote</code> 复核。<strong>状态：已落地</strong>（语料 14/14 双后端、负例 9/9，见下「应用记录」）。交付口径照常：语料须在独立纯净基线树先证伪、双后端四联判读、负例以独立 <code>sla check</code> 判读、失败名字集门禁、形态止损线适用。</p>
 
 <h3>应用记录（2026-10-31 落地）</h3>
 <p><strong>已集成并守卫推送</strong>：sci main 落 <code>bbd06f9e7074033abb8b15292f965dbb61c6f949</code>、sa_plugin_sla master 落 <code>ccbffb2a</code>（cherry-pick 零冲突，主会话 <code>git ls-remote</code> 复核）。定版口径全额兑现：extern 声明（.sla extern 块、.sai、C-ABI fn 指针类型）尾随 <code>...</code>（至少一个固定参数；其余位置响亮 SyntaxError）；定义面经 <code>va_next_i32/i64/u32/u64/f64/ptr</code> 读参（VaList 不可拷贝）；<code>is_variadic</code> 标志贯通 AST、SA 文本、SAB（1 字节）与 sci，指令 <code>va_start/va_arg/va_end</code>（InstKind 36..38）；LLVM 发射 isVarArg=1，变参定义的 va_arg 展开为 x86_64 SysV clang 式内联展开。</p>
