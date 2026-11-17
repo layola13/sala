@@ -17,8 +17,9 @@ SLA 语言的语法、类型与所有权规则见「SLA 语言参考」章节，
 <h2>定位</h2>
 <ul>
 <li>能力段：<code>sla</code>；无插件依赖；权限为项目目录读写创建、<code>HOME</code>/<code>PATH</code>/<code>SA_*</code> 环境变量、允许 spawn <code>/opt/zig/zig</code>。</li>
-<li>项目处于 1.0 之前的活跃开发阶段，<strong>SAB 路径是主线</strong>：direct AST→SAB 快路径优先，
-未覆盖特性回退到 SA 兼容 flatten + SAB encode。</li>
+<li>项目处于 1.0 之前的活跃开发阶段。现行口径（2026-11-15）：<strong>SA 文本是唯一生产路径</strong>——
+前端发射 <code>.sa</code> 文本再由宿主 Flattener 解析；SAB 结构化产物已封存为优化方向
+（tag <code>sab-sealed-2026-11-15</code>），仅显式 opt-in。SAB 路无 SA 兼容回退（2026-09-28 起拆除），未覆盖特性显式报错。</li>
 <li>成熟度快照（2026-07-07 本地实测）：前端检查 <code>sa sla check</code> 通过 306/313 个 demo，
 端到端 <code>sa sla build-exe</code> 约 76%（239/313）；具体指标以仓库内 <code>docs/roadmap_status_cn.md</code> 为准。</li>
 <li>Sla 直接导入 SA 顶层 <code>sa_std</code> 包（如 <code>@import "sa_std/io/print.sai"</code>），
@@ -31,7 +32,7 @@ SLA 语言的语法、类型与所有权规则见「SLA 语言参考」章节，
 <tr><td><code>sa sla init [path]</code></td><td>创建最小项目骨架（<code>sa.mod</code> + <code>src/main.sla</code>）</td></tr>
 <tr><td><code>sa sla check &lt;file&gt;</code></td><td>词法/语法/类型检查，不发射 SA 汇编</td></tr>
 <tr><td><code>sa sla build &lt;file&gt;</code></td><td>编译为经校验的 <code>.sa</code> 文件</td></tr>
-<tr><td><code>sa sla build-exe &lt;file&gt; -o out</code></td><td>走 direct SAB 路径编译为原生可执行文件</td></tr>
+<tr><td><code>sa sla build-exe &lt;file&gt; -o out</code></td><td>默认走 SA 文本路发射 <code>.sa</code> 再编译为可执行文件；显式 <code>--test-backend sab</code> 才走 direct SAB 路</td></tr>
 <tr><td><code>sa sla sab build|workspace|disasm</code></td><td>SAB 直编译 / workspace 成员编译 / 反汇编（短别名 <code>slab ...</code>）</td></tr>
 <tr><td><code>sa sla test &lt;file&gt;</code></td><td>编译测试文件并在 <code>sa test</code> 下运行，后端可选 <code>auto/sab/sa</code></td></tr>
 </table>

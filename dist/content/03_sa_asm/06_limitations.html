@@ -31,8 +31,10 @@ borrow / move 类编译错误归类，便于对号入座。依据是 <code>SA_LI
 <ul>
 <li>成熟度实测：<code>sa sla check</code> 通过约 306/313，<code>sa sla build-exe</code> 约
 239/313（76%）——"前端能解析"和"后端 lowering 能落地"之间有约 22 个百分点缺口。</li>
-<li>direct-SAB 未覆盖的特性（枚举 payload/match 提取、<code>derive</code>、<code>for in</code> 协议、
-<code>async/await</code>、部分集合 std 元数据等）命中时会走 SA 兼容回退路径，编译时间显著上升。</li>
+<li>（历史，2026-07 快照）direct-SAB 未覆盖的特性（枚举 payload/match 提取、<code>derive</code>、
+<code>for in</code> 协议、<code>async/await</code>、部分集合 std 元数据等）当时会走 SA 兼容回退路径，
+编译时间显著上升；2026-09-28 起兼容回退已拆除、未覆盖即显式失败，且 2026-11-15 起 SAB 已封存为 opt-in
+优化路，默认生产路为 SA 文本，此条仅作历史说明。</li>
 <li><code>&amp;mut T</code> / <code>&amp;mut self</code> 尚未引入（Phase 2 计划）；
 当前 <code>&amp;self</code> 同时覆盖读写，由 SA Referee 兜底。</li>
 <li><code>demos/rosetta</code> 树并非全部端到端通过，请逐个验证。</li>

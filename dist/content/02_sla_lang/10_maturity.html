@@ -9,11 +9,16 @@
 <div class="topic-header">SLA 语言参考 &gt; 特性成熟度总表</div>
 <h1>特性成熟度总表</h1>
 
-<p>SLA 编译器有两条产出主线：<code>sa sla build</code> 输出 <code>.sa</code> 文本，
-<code>sa sla sab ...</code>/<code>sa sla build-exe</code> 直接输出 SAB 字节。SAB 路径只走
-direct AST→SAB 快路径；2026-09-28 起 SA 兼容回退已拆除（sa_plugin_sla@e96e6b3），
-未覆盖特性显式报 <code>UnsupportedSabDirectFeature</code> 大声失败，不再静默回退。
-这一页汇总哪些语言特性已在 direct 路径上、哪些尚未覆盖。</p>
+<p>现行口径（2026-11-15，<code>sa_plugin_sla@60d8bfc3</code>）：<strong>SA 文本是唯一生产路径</strong>——
+<code>sa sla build</code>、<code>sa sla build-exe</code>（默认 / <code>auto</code> /
+<code>--test-backend sa</code>）一律先发射 <code>.sa</code> 文本，再由宿主 Flattener 解析并完成后端。
+SAB 结构化产物已于 2026-11-15 封存（tag <code>sab-sealed-2026-11-15</code>），定位为优化方向：
+仅当显式 opt-in（<code>--test-backend sab</code> 或 <code>sa sla sab ...</code>）时才启用，其与文本路的
+等价维护不再推进。2026-09-28 起（<code>sa_plugin_sla@e96e6b3</code>）SAB 兼容回退已拆除，未覆盖特性
+显式报 <code>UnsupportedSabDirectFeature</code> 大声失败，不再静默回退。
+下面第一张表中 <code>sa sla check</code> / <code>sa sla build-exe</code> 两行是整体端到端成熟度（对默认
+文本路同样成立）；其余指标与「已进入 / 尚未进入 direct 路径」两表记录的则是这条封存优化路
+（direct SAB）的覆盖快照，供按需 opt-in 时参考，不代表默认生产路的能力上限。</p>
 
 <h2>整体指标（随版本变化，以仓库文档为准）</h2>
 <table>
