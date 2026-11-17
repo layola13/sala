@@ -76,8 +76,10 @@ SA_PLUGIN_DEV=1 sa sla sab disasm /tmp/main.sab --out /tmp/main.disasm.sa
 sa check --emit-sab /tmp/main.sab /tmp/main.sa
 sa check --emit-sab /tmp/from_sab.sab /tmp/main.sab   # 输入也可以是 .sab</code></pre>
 
-<div class="note"><span class="label">注意</span>SAB 已于 2026-09 扶正为一等格式，
-不再是 experimental。<code>sa build / run / test / build-exe / build-obj / build-wasm / check</code>
+<div class="note"><span class="label">注意</span>SAB 曾于 2026-09 扶正为一等格式（不再是 experimental），
+但已于 2026-11-15 封存为优化方向（tag <code>sab-sealed-2026-11-15</code>）：默认生产路为 SA 文本，SAB 仅显式 opt-in。
+下文的「一等格式 / 接受 <code>.sab</code> 输入」描述的是格式与命令面的事实能力，
+并非当前默认路径。<code>sa build / run / test / build-exe / build-obj / build-wasm / check</code>
 全部接受 <code>.sab</code> 输入；但入口齐备不等于功能对等——与 <code>.sa</code>
 等价是规范目标（白皮书 §4.1 的 L2 等价要求），当前执行面仍有已登记缺口，
 见 <a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a> §4.1。<strong>损坏的

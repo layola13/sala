@@ -38,7 +38,7 @@
 <tr><td><code>sla init [path]</code></td><td>创建最小 SLA 二进制项目骨架。</td></tr>
 <tr><td><code>sla check [file]</code></td><td>词法 / 语法 / 类型检查，不发射任何汇编或 SAB。</td></tr>
 <tr><td><code>sla build [file]</code></td><td>把一个 <code>.sla</code> 文件编译为经校验的 <code>.sa</code> 汇编文本。</td></tr>
-<tr><td><code>sla build-exe [file]</code></td><td>走 direct SAB 路径编译为原生可执行文件，委派给 <code>sa build-exe</code>。</td></tr>
+<tr><td><code>sla build-exe [file]</code></td><td>默认走 SA 文本路发射 <code>.sa</code> 再编译为原生可执行文件，委派给 <code>sa build-exe</code>；显式 <code>--test-backend sab</code> 时才走 direct SAB 路。</td></tr>
 <tr><td><code>sla build-workspace</code></td><td>按当前 <code>sa.mod</code> workspace 解析成员入口后编译为可执行文件。</td></tr>
 <tr><td><code>sla sab build [file]</code></td><td>把 <code>.sla</code> 编译为 SAB 字节，默认写入托管缓存目录。</td></tr>
 <tr><td><code>sla sab workspace</code></td><td>解析 workspace 成员并走托管 SAB 编译，再委派给 <code>sa build-exe</code>。</td></tr>
