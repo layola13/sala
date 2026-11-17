@@ -54,10 +54,11 @@
 <tr><td rowspan="3">语法 / 结构</td><td><code>ForbiddenSyntax</code></td><td>出现 <code>{}</code>、<code>if</code>、<code>while</code> 等禁用语法；宏/导入类错误也多映射到此</td></tr>
 <tr><td><code>DuplicateDef</code> / <code>DuplicateLabel</code></td><td>重复 <code>#def</code>；同一函数内重复 label</td></tr>
 <tr><td><code>FallthroughForbidden</code></td><td>基本块没有以终结指令结束</td></tr>
-<tr><td rowspan="4">所有权 / 借用</td><td><code>UseAfterMove</code></td><td>访问已被消费的寄存器（"moved value is no longer usable"）</td></tr>
+<tr><td rowspan="5">所有权 / 借用</td><td><code>UseAfterMove</code></td><td>访问已被消费的寄存器（"moved value is no longer usable"）</td></tr>
 <tr><td><code>BorrowConflict</code> / <code>DoubleMutableBorrow</code> / <code>ReadWriteConflict</code></td><td>对锁定中的源做冲突访问或二次独占借用</td></tr>
 <tr><td><code>MemoryLeak</code> / <code>EarlyReturnLeak</code></td><td>函数退出或 <code>?</code> 早返回路径上仍有活跃寄存器</td></tr>
 <tr><td><code>StackEscape</code> / <code>InteriorPtrEscape</code></td><td>栈分配逃逸原生边界；内部指针跨越 FFI 边界</td></tr>
+<tr><td><code>TransferIntoBorrow</code>（1061） / <code>TransferIntoImmutable</code>（1062）</td><td><code>transfer c, v</code> 的目标不是活跃 owned 根容器（借用/内部指针，或 <code>@const</code>/不可变绑定）</td></tr>
 <tr><td rowspan="3">契约</td><td><code>CapabilityMismatch</code></td><td>调用点前缀不满足被调用方契约</td></tr>
 <tr><td><code>FallibleContractMismatch</code></td><td>对非可失败值用 <code>?</code>，或可失败返回路径不匹配</td></tr>
 <tr><td><code>ConstMutation</code> / <code>FfiOwnershipViolation</code> / <code>IllegalUnsafeContext</code></td><td>改写 <code>@const</code>；对 FFI 视图做 <code>^</code>/<code>!</code>；气闸指令出现在 <code>@ffi_wrapper</code> 外</td></tr>

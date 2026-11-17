@@ -270,6 +270,11 @@ var TOC = [
     "t": "SAB 格式白皮书（规范）",
     "f": "content/03_sa_asm/08_sab_whitepaper.html",
     "c": []
+   },
+   {
+    "t": "transfer：可见的所有权转移",
+    "f": "content/03_sa_asm/09_ownership_transfer.html",
+    "c": []
    }
   ]
  },

@@ -54,6 +54,8 @@
 <tr><td><code>*</code></td><td>裸指针降级（rawcast），仅限气闸舱上下文</td><td><code>raw = *safe</code>、<code>@extern fd_open(*path: ptr)</code></td></tr>
 </table>
 
+<div class="note"><span class="label">延伸</span><code>^</code> 在"所有权交给确定容器"的场景下有一个可验证形态 <code>transfer &lt;container&gt;, &lt;value&gt;</code>：它让 Referee 能检查目标容器并记录所有权重载，弥补裸 <code>^</code> 看不到去处的缺口。详见 <a href="09_ownership_transfer.html">transfer：可见的所有权转移</a>。</div>
+
 <div class="note"><span class="label">注意</span>SA 语法层没有 <code>&amp;mut</code>；
 Referee 会根据借用之后是否出现 <code>store</code> 来推导独占写借用。SLA 语言层的
 <code>&amp;mut T</code> 也尚未引入，<code>&amp;self</code> 当前同时覆盖读写。</div>

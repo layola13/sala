@@ -437,6 +437,14 @@
 <param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="transfer：可见的所有权转移">
+<param name="Local" value="../dist/content/03_sa_asm/09_ownership_transfer.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

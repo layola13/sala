@@ -55,6 +55,13 @@
       "file": "08_sab_whitepaper.html",
       "keywords": ["SAB", "白皮书", "规范", "字节布局", "往返对称性", "L1", "L2", "版本兼容", "ULEB128", "黄金向量", "symbol_pool", "InstKind"],
       "parent": null
+    },
+    {
+      "id": "ownership-transfer",
+      "title": "transfer：可见的所有权转移",
+      "file": "09_ownership_transfer.html",
+      "keywords": ["transfer", "所有权转移", "owns_children", "TransferIntoBorrow", "TransferIntoImmutable", "move", "no-op", "Referee", "DropPlan"],
+      "parent": null
     }
   ]
 }
