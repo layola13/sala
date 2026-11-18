@@ -1,242 +1,242 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>http-server — 内嵌 HTTP 服务端</title>
+<title>http-server — Embedded HTTP Server</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">插件参考 &gt; http-server — 内嵌 HTTP 服务端</div>
-<h1>http-server — 内嵌 HTTP 服务端</h1>
-<div class="note"><span class="label">状态（2026-10-24）</span>HTTP 服务端<b>内核已内置 sa_std</b>：
-实现位于 sci <code>src/runtime/sa_http_server.zig</code>（随 <code>libsa_std.a</code> 发布，
-46 个 <code>sa_http_server_*</code> 符号），声明位于 <code>sa_std/http_server.sai</code>。
-<b>不需要安装本插件即可使用全部服务端能力</b>；<code>sa_plugin_http_server</code>（v0.3.0 起）
-现只保留框架层封装。插件只是封装接口使用习惯，不代表要将内涵下放到插件
-（见<a href="01_overview.html">总览</a>的架构原则）。</div>
-<div class="note"><span class="label">Zig 0.17</span>本插件使用 <b>Zig 0.17</b> 编译：<code>0.17</code> 分支以 Zig 0.17 构建通过并通过 Zig 单元测试；旧的 0.14.1 分支保留不动。</div>
+<div class="topic-header">Plugin Reference &gt; http-server — Embedded HTTP Server</div>
+<h1>http-server — Embedded HTTP Server</h1>
+<div class="note"><span class="label">Status (2026-10-24)</span>The HTTP server <b>kernel is now built into sa_std</b>:
+the implementation lives in sci <code>src/runtime/sa_http_server.zig</code> (shipped with <code>libsa_std.a</code>,
+46 <code>sa_http_server_*</code> symbols), and the declarations live in <code>sa_std/http_server.sai</code>.
+<b>You do not need to install this plugin to use the full server capability</b>; <code>sa_plugin_http_server</code> (since v0.3.0)
+now keeps only a framework-layer wrapper. A plugin is only a wrapper for interface usage habits, and does not mean the substance should be pushed down into a plugin
+(see the architecture principles in the <a href="01_overview.html">Plugin Reference Overview</a>).</div>
+<div class="note"><span class="label">Zig 0.17</span>This plugin is built with <b>Zig 0.17</b>: the <code>0.17</code> branch builds successfully with Zig 0.17 and passes the Zig unit tests; the old 0.14.1 branch is left untouched.</div>
 
-<p>本页给出 <code>sa_plugin_http_server</code> 的完整参考：安装策略下的 localhost-only 权限边界、
-安装验证、<code>sap.json</code> 权限模型、v1 与 v2 两套 ABI 的逐条签名与语义、
-<code>scaffold</code>/<code>serve</code> 命令的完整用法，以及取自真实仓库文件的端到端示例。
-读完本页你可以写出「accept → 读请求 → 发响应（一次性或流式）→ 关闭」的完整服务端循环，
-并清楚知道它<strong>不打算做什么</strong>。</p>
+<p>This page gives the complete reference for <code>sa_plugin_http_server</code>: the localhost-only permission boundary under the install policy,
+install verification, the <code>sap.json</code> permission model, the v1 and v2 ABIs' signatures and semantics item by item,
+the complete usage of the <code>scaffold</code>/<code>serve</code> commands, and end-to-end examples taken from real repository files.
+After reading this page you can write a complete server loop of “accept → read request → send response (one-shot or streaming) → close”,
+and know clearly what it <strong>does not intend to do</strong>.</p>
 
-<p><code>http-server</code> 提供 SA 程序内嵌的 HTTP/1.1 服务端：让 <code>.sa</code> 代码直接 accept 连接、
-读请求、发响应。该目录没有 README，权威资料是 <code>sap.json</code>、<code>sa_http_server.sai</code>、
-共享核心实现 <code>src/vite_api.zig</code> 与 <code>docs/plugin_evaluation_cn.md</code>
-（四插件合并评估文档的一份拷贝，评估日期 2026-06-15）。</p>
+<p><code>http-server</code> provides an HTTP/1.1 server embedded in an SA program: it lets <code>.sa</code> code accept connections directly,
+read requests, and send responses. This directory has no README; the authoritative sources are <code>sap.json</code>, <code>sa_http_server.sai</code>,
+the shared core implementation <code>src/vite_api.zig</code>, and <code>docs/plugin_evaluation_cn.md</code>
+(a copy of the four-plugin joint evaluation document, evaluation date 2026-06-15).</p>
 
-<h2>定位：安装权限是 localhost-only，源码 ABI 接受 IP host</h2>
+<h2>Positioning: Install Permissions Are localhost-only; the Source ABI Accepts IP Hosts</h2>
 <ul>
-<li><strong>sap.json 只声明两处监听目标</strong>：<code>http://localhost</code> 与
-<code>http://127.0.0.1</code>。在插件权限策略不变时，安装后的能力仍是 loopback-only，
-不能把它当成公开监听器。</li>
-<li><strong>源码 ABI 的实际边界不同</strong>：<code>sa_http_server_start(_v2)</code> 接收
-<code>host</code> 字符串和端口，核心通过 <code>std.net.Address.parseIp(host, port)</code>
-解析 IP；源码层并没有把 host 写死为 localhost，因此 <code>0.0.0.0</code> 等 IP 可以被
-解析并交给监听器。是否允许使用，仍由 <code>sap.json</code> 和宿主策略决定。</li>
-<li><strong>为什么这样是对的</strong>（评估文档 §1.3）：对内部 microservice、SAX dev server、
-localhost-only IPC 而言这是正确选择；同时「无 <code>https://</code> 监听」与声明一致——
-server 没有 TLS，但 sap.json 也没假装能做 TLS，属于诚实声明，TLS 由反向代理承担。</li>
-<li><strong>已知缺口</strong>：manifest 没有 IPv6/非回环 net 权限，因此策略控制下的
-<code>[::1]</code>、<code>0.0.0.0</code> 或其他公开地址仍不可依赖；此外本插件不提供 TLS。
-源码能解析地址不等于安装权限已经开放。评估文档明确指出「没有文档说清楚这个边界」
-是当时的不足，本页同时记录源码能力和 manifest 能力的区别。</li>
-<li><strong>host 参数必须是 IP 字面量</strong>：实现走 <code>std.net.Address.parseIp(host, port)</code>
-（<code>src/vite_api.zig</code> 的 <code>HttpServer.startWithOptions</code>），
-传主机名字符串不会解析。<code>start</code> 固定带 <code>reuse_address = true</code>。</li>
-<li>同一份核心也被 <a href="05_vite.html">vite</a> 复用：vite 的 <code>sap.json</code>
-钉死了 18 个 <code>sa_http_server_*</code> 符号做静态服务与 SSE 实时信号。</li>
-<li><a href="11_deno.html">deno</a> / <a href="12_node.html">node</a> 等应用门面同样按需引用
-少量符号（deno 引用 <code>sa_http_server_new</code> / <code>_resp_set_content_type</code> /
-<code>_resp_stream_write</code>）。</li>
+<li><strong>sap.json declares only two listening targets</strong>: <code>http://localhost</code> and
+<code>http://127.0.0.1</code>. While the plugin permission policy is unchanged, the installed capability remains loopback-only
+and cannot be treated as a public listener.</li>
+<li><strong>The source ABI's actual boundary differs</strong>: <code>sa_http_server_start(_v2)</code> takes
+a <code>host</code> string and a port, and the core parses the IP via <code>std.net.Address.parseIp(host, port)</code>;
+the source layer does not hardcode the host to localhost, so IPs such as <code>0.0.0.0</code> can be
+parsed and handed to the listener. Whether use is allowed is still decided by <code>sap.json</code> and host policy.</li>
+<li><strong>Why this is right</strong> (evaluation document §1.3): for internal microservices, the SAX dev server,
+and localhost-only IPC this is the correct choice; at the same time, “no <code>https://</code> listening” is consistent with the declaration —
+the server has no TLS, but sap.json does not pretend it can do TLS either, which is an honest declaration; TLS is borne by a reverse proxy.</li>
+<li><strong>Known gap</strong>: the manifest has no IPv6/non-loopback net permission, so under policy control
+<code>[::1]</code>, <code>0.0.0.0</code>, and other public addresses still cannot be relied on; in addition, this plugin provides no TLS.
+That the source can parse an address does not mean install permission has been opened. The evaluation document explicitly noted that “no documentation made this boundary clear”
+was a shortcoming at the time; this page records the distinction between source capability and manifest capability together.</li>
+<li><strong>The host argument must be an IP literal</strong>: the implementation goes through <code>std.net.Address.parseIp(host, port)</code>
+(<code>HttpServer.startWithOptions</code> in <code>src/vite_api.zig</code>),
+and a hostname string will not be resolved. <code>start</code> always carries <code>reuse_address = true</code>.</li>
+<li>The same core is also reused by <a href="05_vite.html">vite</a>: vite's <code>sap.json</code>
+pins 18 <code>sa_http_server_*</code> symbols for static serving and SSE live signals.</li>
+<li>Application facades such as <a href="11_deno.html">deno — Deno-Compatible API Plugin</a> / <a href="12_node.html">node — Node.js Compatibility Facade</a> likewise reference
+a small number of symbols as needed (deno references <code>sa_http_server_new</code> / <code>_resp_set_content_type</code> /
+<code>_resp_stream_write</code>).</li>
 </ul>
 
-<h2>基本事实与安装验证</h2>
+<h2>Basic Facts and Install Verification</h2>
 <table>
-<tr><th>项</th><th>值（摘自 <code>sap.json</code>）</th></tr>
-<tr><td>schema / 名称 / 版本</td><td><code>sa.plugin/1</code> / <code>http-server</code> / <code>0.1.0</code></td></tr>
-<tr><td>ABI</td><td><code>plugin: 1</code>，<code>saasm &gt;=0.4.0</code></td></tr>
-<tr><td>skills 能力段</td><td><code>http.server</code></td></tr>
-<tr><td>接口契约</td><td><code>sa_http_server.sai</code></td></tr>
-<tr><td>产物</td><td>linux-x86_64：<code>zig-out/lib/libhttp-server.so</code>；windows-x86_64：<code>zig-out/bin/http-server.dll</code></td></tr>
-<tr><td>dependencies</td><td><code>{}</code>（空对象；评估文档口径同样是零依赖，是依赖图里的叶子）</td></tr>
+<tr><th>Item</th><th>Value (taken from <code>sap.json</code>)</th></tr>
+<tr><td>schema / name / version</td><td><code>sa.plugin/1</code> / <code>http-server</code> / <code>0.1.0</code></td></tr>
+<tr><td>ABI</td><td><code>plugin: 1</code>, <code>saasm &gt;=0.4.0</code></td></tr>
+<tr><td>skills capability section</td><td><code>http.server</code></td></tr>
+<tr><td>Interface contract</td><td><code>sa_http_server.sai</code></td></tr>
+<tr><td>Artifacts</td><td>linux-x86_64: <code>zig-out/lib/libhttp-server.so</code>; windows-x86_64: <code>zig-out/bin/http-server.dll</code></td></tr>
+<tr><td>dependencies</td><td><code>{}</code> (empty object; the evaluation document's caliber is likewise zero dependencies — a leaf in the dependency graph)</td></tr>
 </table>
 
-<h3>权限模型（刻意最小）</h3>
+<h3>Permission Model (Deliberately Minimal)</h3>
 <table>
-<tr><th>类别</th><th>声明内容</th><th>说明</th></tr>
-<tr><td>fs</td><td>仅 <code>{"op":"metadata", "path":"$SA_PLUGINS_HOME/**"}</code></td><td>只读元数据用于发现自身共享资源；不允许读写任何项目文件</td></tr>
-<tr><td>net</td><td><code>http://localhost</code> 与 <code>http://127.0.0.1</code>，方法为 GET/POST/PUT/PATCH/DELETE/HEAD/OPTIONS</td><td>安装策略下仅本机回环；源码 ABI 可接收更宽的 IP host，但不会自动扩大 manifest 权限</td></tr>
-<tr><td>env</td><td><code>HOME</code>、<code>TMPDIR</code>、<code>TMP</code>、<code>TEMP</code>、<code>SA_*</code></td><td>基本环境变量</td></tr>
-<tr><td>process</td><td><code>{"spawn": false, "exec": []}</code></td><td>完全禁止派生子进程</td></tr>
+<tr><th>Category</th><th>Declared content</th><th>Notes</th></tr>
+<tr><td>fs</td><td>Only <code>{"op":"metadata", "path":"$SA_PLUGINS_HOME/**"}</code></td><td>Read-only metadata for discovering its own shared resources; reading or writing any project file is not allowed</td></tr>
+<tr><td>net</td><td><code>http://localhost</code> and <code>http://127.0.0.1</code>, with methods GET/POST/PUT/PATCH/DELETE/HEAD/OPTIONS</td><td>Local loopback only under the install policy; the source ABI can accept a wider IP host, but that does not automatically expand manifest permissions</td></tr>
+<tr><td>env</td><td><code>HOME</code>, <code>TMPDIR</code>, <code>TMP</code>, <code>TEMP</code>, <code>SA_*</code></td><td>Basic environment variables</td></tr>
+<tr><td>process</td><td><code>{"spawn": false, "exec": []}</code></td><td>Spawning child processes is completely forbidden</td></tr>
 </table>
-<p>评估文档把这套模型评为四插件里最干净的一个：「localhost-only + 零 spawn + 零 env 越权」。
-注意 fs 权限不含 <code>$PROJECT/**</code> —— 与 http-client 不同，server 不需要读用户文件。</p>
+<p>The evaluation document rates this model the cleanest of the four plugins: “localhost-only + zero spawn + zero env overreach”.
+Note that the fs permission does not include <code>$PROJECT/**</code> — unlike http-client, the server does not need to read user files.</p>
 
-<h3>构建与安装命令</h3>
-<p>本仓库没有 README 给出验证步骤，以下流程与同代插件的 README 一致，且与目录内的
-<code>build.zig</code> 完全对应（同样的 test step、同样的 SCI 依赖），在插件源码目录内执行：</p>
+<h3>Build and Install Commands</h3>
+<p>This repository's README gives no verification steps; the following flow matches the READMEs of same-generation plugins and corresponds exactly to the
+<code>build.zig</code> in the directory (the same test step, the same SCI dependency), executed inside the plugin source directory:</p>
 <pre><code># 在 D:/projects/sla/sa_plugin_http_server 目录内
 timeout 300s env SA_PLUGIN_DEV=1 zig build test     # tests/plugin_test.zig 全部测试
 timeout 300s env SA_PLUGIN_DEV=1 zig build          # 生成 zig-out/lib/libhttp-server.so
 timeout 120s env SA_PLUGIN_DEV=1 sa plugin install --dev .
 timeout 30s  env SA_PLUGIN_DEV=1 sa plugin list     # 验证已注册</code></pre>
 <ul>
-<li>Zig 构建默认使用同级 SCI checkout（<code>../../sci</code>），需要时用
-<code>-Dsci-root=/absolute/path/to/sci</code> 覆盖。</li>
-<li><code>build.zig</code> 在编译期读入 <code>sa_http_server.sai</code> 全文并注入为常量
-<code>interface_source</code> —— 这正是 <code>scaffold</code> 命令写出的接口文件来源，
-保证脚手架产物与真实契约逐字节一致（有测试断言）。</li>
-<li>运行时会安装 SIGPIPE 处理器，避免 SSE 客户端断开导致整个进程被信号杀死
-（测试名即 <code>http server runtime installs SIGPIPE handler for broken SSE sockets</code>）。</li>
+<li>The Zig build uses the sibling SCI checkout (<code>../../sci</code>) by default; override with
+<code>-Dsci-root=/absolute/path/to/sci</code> when needed.</li>
+<li>At compile time, <code>build.zig</code> reads in the full text of <code>sa_http_server.sai</code> and injects it as the constant
+<code>interface_source</code> — this is exactly the source of the interface file the <code>scaffold</code> command writes out,
+guaranteeing that scaffold output matches the real contract byte for byte (asserted by a test).</li>
+<li>At runtime a SIGPIPE handler is installed, so an SSE client disconnecting does not kill the whole process with a signal
+(the test is named <code>http server runtime installs SIGPIPE handler for broken SSE sockets</code>).</li>
 </ul>
 
-<h2>ABI 表面总览</h2>
+<h2>ABI Surface Overview</h2>
 <table>
-<tr><th>区块</th><th>数量</th><th>说明</th></tr>
-<tr><td>v1 核心（生命周期 + 请求 + 响应 + 流式）</td><td>18</td><td>评估文档口径下的完整 v1 面，分组见下表</td></tr>
-<tr><td>v1 遗留 WebSocket 导出</td><td>4</td><td><code>upgrade/read/write/free</code>，阻塞语义。评估文档（2026-06-15）记录当时「WebSocket 未做」，当前契约已含这四个导出与完整的 v2 WebSocket 面，属评估之后新增的能力</td></tr>
-<tr><td>v2 增量</td><td>21</td><td>带超时的 accept/send/write、任意响应头、WebSocket 轮询与协议关闭等</td></tr>
+<tr><th>Block</th><th>Count</th><th>Notes</th></tr>
+<tr><td>v1 core (lifecycle + request + response + streaming)</td><td>18</td><td>The complete v1 surface in the evaluation document's caliber; grouping in the table below</td></tr>
+<tr><td>v1 legacy WebSocket exports</td><td>4</td><td><code>upgrade/read/write/free</code>, with blocking semantics. The evaluation document (2026-06-15) recorded “WebSocket not done” at the time; the current contract includes these four exports and the complete v2 WebSocket surface, capabilities added after the evaluation</td></tr>
+<tr><td>v2 increments</td><td>21</td><td>accept/send/write with timeouts, arbitrary response headers, WebSocket polling and protocol close, etc.</td></tr>
 </table>
-<div class="note"><span class="label">注意</span>ABI 采用不透明 handle（<code>ptr</code>）
-加显式 <code>_free</code> 释放的所有权风格，符合 design.md §1.7.1 对插件 ABI 的约束；
-v1 返回值沿用宿主描述符 <code>AbiStatus</code>（<code>ok=0</code> / <code>failed=2</code> 等），
-v2 返回独立的七种网络状态码（详见 <a href="14_http_client.html">http-client 页</a>的状态码表，
-两个插件共用同一张表）。轮询关注位/事件位同为 readable=1、writable=2、closed=4。</div>
+<div class="note"><span class="label">Note</span>The ABI uses opaque handles (<code>ptr</code>)
+plus explicit <code>_free</code> release, an ownership style conforming to the plugin ABI constraints in design.md §1.7.1;
+v1 return values follow the host descriptor's <code>AbiStatus</code> (<code>ok=0</code> / <code>failed=2</code> etc.),
+while v2 returns the independent seven network status codes (see the status-code table on the <a href="14_http_client.html">http-client — HTTP Client page</a>;
+the two plugins share the same table). The polling interest/event bits are likewise readable=1, writable=2, closed=4.</div>
 
-<h2>v1 函数详表（18 个核心 extern，签名逐字摘录）</h2>
+<h2>v1 Function Detail Table (18 Core Externs, Signatures Excerpted Verbatim)</h2>
 
-<h3>Server 生命周期（4 个）</h3>
+<h3>Server Lifecycle (4)</h3>
 <table>
-<tr><th>签名</th><th>语义</th></tr>
-<tr><td><code>sa_http_server_new(&amp;out_server: ptr) -&gt; u32</code></td><td>创建服务器句柄（首次调用同时装好 SIGPIPE 处理器）</td></tr>
-<tr><td><code>sa_http_server_start(server: ptr, &amp;host: ptr, host_len: u64, port: u16) -&gt; u32</code></td><td>在 <code>host:port</code> 上开始监听；host 必须是 IP 字面量；重复 start 是 no-op（已有 listener 时直接返回）</td></tr>
-<tr><td><code>sa_http_server_accept(server: ptr, &amp;out_req: ptr) -&gt; u32</code></td><td>阻塞 accept 一个连接并把请求头解析完毕。默认请求体上限 <strong>2 MiB</strong>（超限报错）；请求头缓冲 4096 字节；body 按 content-length 一次读全</td></tr>
-<tr><td><code>sa_http_server_free(server: ptr) -&gt; u32</code></td><td>关闭监听 socket 并释放服务器</td></tr>
-</table>
-
-<h3>Request 读取（5 个）</h3>
-<table>
-<tr><th>签名</th><th>语义</th></tr>
-<tr><td><code>sa_http_server_req_get_method(req: ptr, &amp;out_method: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>借出方法字符串（如 <code>"POST"</code>）与其长度</td></tr>
-<tr><td><code>sa_http_server_req_get_path(req: ptr, &amp;out_path: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>借出路径；target 中第一个 <code>?</code> 之前的部分，即查询串已被剥掉</td></tr>
-<tr><td><code>sa_http_server_req_get_header(req: ptr, &amp;key: ptr, key_len: u64, &amp;out_val: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>按名查头（大小写不敏感）；找不到返回 failed</td></tr>
-<tr><td><code>sa_http_server_req_get_body(req: ptr, &amp;out_body: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>借出完整请求体（accept 阶段已读入内存）</td></tr>
-<tr><td><code>sa_http_server_req_free(req: ptr) -&gt; u32</code></td><td>释放请求（含其连接资源）。<strong>升级为 WebSocket 成功后会消费掉 request 句柄</strong>，此后不得再 free</td></tr>
+<tr><th>Signature</th><th>Semantics</th></tr>
+<tr><td><code>sa_http_server_new(&amp;out_server: ptr) -&gt; u32</code></td><td>Creates a server handle (the first call also installs the SIGPIPE handler)</td></tr>
+<tr><td><code>sa_http_server_start(server: ptr, &amp;host: ptr, host_len: u64, port: u16) -&gt; u32</code></td><td>Starts listening on <code>host:port</code>; the host must be an IP literal; a repeated start is a no-op (returns directly when a listener already exists)</td></tr>
+<tr><td><code>sa_http_server_accept(server: ptr, &amp;out_req: ptr) -&gt; u32</code></td><td>Blocking-accepts one connection and finishes parsing the request headers. The default request-body limit is <strong>2 MiB</strong> (over-limit is an error); the request-header buffer is 4096 bytes; the body is read in full by content-length in one go</td></tr>
+<tr><td><code>sa_http_server_free(server: ptr) -&gt; u32</code></td><td>Closes the listening socket and releases the server</td></tr>
 </table>
 
-<h3>Response 一次性形态（4 个）</h3>
+<h3>Request Reading (5)</h3>
 <table>
-<tr><th>签名</th><th>语义</th></tr>
-<tr><td><code>sa_http_server_resp_new(req: ptr, status: u16, &amp;out_resp: ptr) -&gt; u32</code></td><td>以给定状态码构造响应</td></tr>
-<tr><td><code>sa_http_server_resp_set_content_type(resp: ptr, &amp;content_type: ptr, content_type_len: u64) -&gt; u32</code></td><td>设置唯一的响应头 content-type</td></tr>
-<tr><td><code>sa_http_server_resp_send(resp: ptr, &amp;body: ptr, body_len: u64) -&gt; u32</code></td><td>发送完整响应体并收尾。长度为 0 时允许传空指针（测试覆盖 204 + <code>content-length: 0</code>）</td></tr>
-<tr><td><code>sa_http_server_resp_free(resp: ptr) -&gt; u32</code></td><td>释放响应对象</td></tr>
-</table>
-<p>状态码文本映射由核心提供：<code>200 OK</code>、<code>201 Created</code>、<code>204 No Content</code>、
-<code>400 Bad Request</code>、<code>401 Unauthorized</code>、<code>404 Not Found</code>、
-<code>500 Internal Server Error</code>，其余状态一律回落为 <code>OK</code>。</p>
-
-<h3>Response 流式形态（5 个）</h3>
-<table>
-<tr><th>签名</th><th>语义</th></tr>
-<tr><td><code>sa_http_server_resp_stream_new(req: ptr, status: u16, &amp;out_resp: ptr) -&gt; u32</code></td><td>立即发出流式响应头。默认头为 <code>content-type: text/event-stream</code>，并固定追加 <code>transfer-encoding: chunked</code> 与 <code>connection: close</code> —— 天然适配 SSE</td></tr>
-<tr><td><code>sa_http_server_resp_stream_write(resp: ptr, &amp;body: ptr, body_len: u64) -&gt; u32</code></td><td>写入一个 chunk：先写十六进制长度行，再写载荷与 <code>\r\n</code></td></tr>
-<tr><td><code>sa_http_server_resp_stream_flush(resp: ptr) -&gt; u32</code></td><td>刷新（当前实现为直写 socket，flush 是保持 ABI 形状的空操作）</td></tr>
-<tr><td><code>sa_http_server_resp_stream_end(resp: ptr) -&gt; u32</code></td><td>写出终结块 <code>0\r\n\r\n</code> 结束 chunked 传输；重复调用安全</td></tr>
-<tr><td><code>sa_http_server_resp_stream_free(resp: ptr) -&gt; u32</code></td><td>释放流式响应对象</td></tr>
-</table>
-<div class="note"><span class="label">注意</span>流式形态的头部一旦发出便不可更改（v1 只有
-content-type 可设）；需要额外响应头时应改用 v2 的 <code>_resp_stream_add_header_v2</code>，
-或在 v2 里用延迟发头的方式先加头再写体。</div>
-
-<h3>遗留 WebSocket 导出（4 个，阻塞语义）</h3>
-<table>
-<tr><th>签名</th><th>语义</th></tr>
-<tr><td><code>sa_http_server_websocket_upgrade(req: ptr, &amp;out_ws: ptr) -&gt; u32</code></td><td>校验 <code>upgrade: websocket</code>、<code>connection</code> 含 <code>Upgrade</code> token、存在 <code>sec-websocket-key</code>，计算 accept 值并回复 <code>101 Switching Protocols</code>；成功后 request 句柄被消费</td></tr>
-<tr><td><code>sa_http_server_websocket_read(ws: ptr, max_len: u64, &amp;out_opcode: ptr, &amp;out_data: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>读一帧（阻塞）</td></tr>
-<tr><td><code>sa_http_server_websocket_write(ws: ptr, opcode: u8, &amp;data: ptr, data_len: u64) -&gt; u32</code></td><td>写一帧（阻塞）</td></tr>
-<tr><td><code>sa_http_server_websocket_free(ws: ptr) -&gt; u32</code></td><td>关闭底层 stream 并释放句柄</td></tr>
+<tr><th>Signature</th><th>Semantics</th></tr>
+<tr><td><code>sa_http_server_req_get_method(req: ptr, &amp;out_method: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>Lends out the method string (e.g. <code>"POST"</code>) and its length</td></tr>
+<tr><td><code>sa_http_server_req_get_path(req: ptr, &amp;out_path: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>Lends out the path: the part of the target before the first <code>?</code>, i.e. the query string has been stripped</td></tr>
+<tr><td><code>sa_http_server_req_get_header(req: ptr, &amp;key: ptr, key_len: u64, &amp;out_val: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>Looks up a header by name (case-insensitive); returns failed when not found</td></tr>
+<tr><td><code>sa_http_server_req_get_body(req: ptr, &amp;out_body: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>Lends out the complete request body (already read into memory at the accept stage)</td></tr>
+<tr><td><code>sa_http_server_req_free(req: ptr) -&gt; u32</code></td><td>Releases the request (including its connection resources). <strong>A successful WebSocket upgrade consumes the request handle</strong>, after which it must not be freed again</td></tr>
 </table>
 
-<h2>v2 增量面（21 个 extern）</h2>
+<h3>One-Shot Response Form (4)</h3>
 <table>
-<tr><th>签名</th><th>相对 v1 的增量</th></tr>
-<tr><td><code>sa_http_server_new_v2(&amp;out_server: ptr) -&gt; u32</code> / <code>sa_http_server_start_v2(server, &amp;host, host_len, port)</code></td><td>同 v1 形状，返回网络状态码</td></tr>
-<tr><td><code>sa_http_server_accept_v2(server: ptr, timeout_ms: u32, &amp;out_req: ptr) -&gt; u32</code></td><td><strong>可轮询的 accept</strong>：<code>timeout_ms=0</code> 无连接时返回 <code>would_block(1)</code>；正超时到期返回 <code>timeout(3)</code>；半截请求（只发了部分头）同样按超时处理。请求体上限提升到 <code>max_v2_message_bytes</code>（16 MiB），接收超时按总预算扣除 poll 已耗时后的余量设置</td></tr>
-<tr><td><code>sa_http_server_resp_new_v2(req, status, &amp;out_resp)</code></td><td>状态码合法性校验：<code>100..599</code> 之外返回 <code>invalid(5)</code>（v1 无此校验）</td></tr>
-<tr><td><code>sa_http_server_req_free_v2(req: ptr) -&gt; u32</code></td><td>释放请求</td></tr>
-<tr><td><code>sa_http_server_resp_send_v2(resp: ptr, &amp;body: ptr, body_len: u64, timeout_ms: u32) -&gt; u32</code> / <code>sa_http_server_resp_free_v2(resp: ptr) -&gt; u32</code></td><td>发送带毫秒超时；响应体超过消息上限时拒绝发送并返回 <code>too_large(4)</code>（测试确认随后仍可正常发送小响应体）</td></tr>
-<tr><td><code>sa_http_server_resp_add_header_v2(resp, &amp;name, name_len, &amp;value, value_len) -&gt; u32</code></td><td><strong>任意响应头</strong>：值会被复制（调用方随后改写原缓冲不影响已存值）；同名头可重复出现（如两条 <code>set-cookie</code>）；含 CRLF 注入企图的头返回 <code>invalid(5)</code></td></tr>
-<tr><td><code>sa_http_server_resp_stream_new_v2</code> / <code>_add_header_v2</code> / <code>_write_v2(..., timeout_ms)</code> / <code>_flush_v2</code> / <code>_end_v2(..., timeout_ms)</code> / <code>_free_v2</code></td><td>流式形态获得「发头前可加任意头」与逐块写超时；其余行为同 v1 流式</td></tr>
-<tr><td><code>sa_http_server_free_v2(server: ptr) -&gt; u32</code></td><td>释放服务器</td></tr>
-<tr><td><code>sa_http_server_websocket_upgrade_v2(req: ptr, &amp;out_ws: ptr) -&gt; u32</code></td><td>在 v1 校验之上额外要求 <code>sec-websocket-version: 13</code> 与合法 key，然后把 socket 切到非阻塞模式；失败返回 <code>invalid(5)</code>；成功后 request 句柄被消费</td></tr>
-<tr><td><code>sa_http_server_websocket_poll_v2(ws, interests, timeout_ms, &amp;events)</code></td><td>按 readable/writable/closed 关注位轮询；零超时未就绪为 <code>would_block</code></td></tr>
-<tr><td><code>sa_http_server_websocket_read_v2(ws, max_len, &amp;opcode, &amp;data, &amp;len)</code></td><td>非阻塞读，重组分片消息，上限 <code>max_v2_message_bytes</code>（16 MiB）</td></tr>
-<tr><td><code>sa_http_server_websocket_write_v2(ws, opcode, &amp;data, data_len, &amp;written) -&gt; u32</code></td><td>非阻塞写：socket 发送缓冲打满时返回 <code>would_block(1)</code> 且 <code>written=0</code>（背压可观测）；超限返回 <code>too_large(4)</code>；关闭后再写返回 <code>closed(2)</code></td></tr>
-<tr><td><code>sa_http_server_websocket_close_v2(ws, code: u16, &amp;reason, reason_len) -&gt; u32</code></td><td>执行协议级关闭握手</td></tr>
-<tr><td><code>sa_http_server_websocket_free_v2(ws: ptr) -&gt; u32</code></td><td>关闭并释放</td></tr>
+<tr><th>Signature</th><th>Semantics</th></tr>
+<tr><td><code>sa_http_server_resp_new(req: ptr, status: u16, &amp;out_resp: ptr) -&gt; u32</code></td><td>Constructs a response with the given status code</td></tr>
+<tr><td><code>sa_http_server_resp_set_content_type(resp: ptr, &amp;content_type: ptr, content_type_len: u64) -&gt; u32</code></td><td>Sets the sole response header, content-type</td></tr>
+<tr><td><code>sa_http_server_resp_send(resp: ptr, &amp;body: ptr, body_len: u64) -&gt; u32</code></td><td>Sends the complete response body and finishes. A null pointer is allowed when the length is 0 (tests cover 204 + <code>content-length: 0</code>)</td></tr>
+<tr><td><code>sa_http_server_resp_free(resp: ptr) -&gt; u32</code></td><td>Releases the response object</td></tr>
 </table>
-<p>背压恢复路径：写满 → 收到 <code>would_block</code> → 用 <code>writable</code> 关注位 poll，
-就绪后继续写。该行为有专门测试
-（<code>http server v2 websocket reports and recovers from bounded backpressure</code>，
-其中把 SO_SNDBUF 压到 4096 字节来制造背压）。</p>
+<p>The status-code text mapping is provided by the core: <code>200 OK</code>, <code>201 Created</code>, <code>204 No Content</code>,
+<code>400 Bad Request</code>, <code>401 Unauthorized</code>, <code>404 Not Found</code>,
+<code>500 Internal Server Error</code>; every other status falls back to <code>OK</code>.</p>
 
-<h2>CLI 命令：scaffold 与 serve</h2>
+<h3>Streaming Response Form (5)</h3>
+<table>
+<tr><th>Signature</th><th>Semantics</th></tr>
+<tr><td><code>sa_http_server_resp_stream_new(req: ptr, status: u16, &amp;out_resp: ptr) -&gt; u32</code></td><td>Immediately sends the streaming response headers. The default header is <code>content-type: text/event-stream</code>, with <code>transfer-encoding: chunked</code> and <code>connection: close</code> always appended — naturally suited to SSE</td></tr>
+<tr><td><code>sa_http_server_resp_stream_write(resp: ptr, &amp;body: ptr, body_len: u64) -&gt; u32</code></td><td>Writes one chunk: first the hexadecimal length line, then the payload and <code>\r\n</code></td></tr>
+<tr><td><code>sa_http_server_resp_stream_flush(resp: ptr) -&gt; u32</code></td><td>Flushes (the current implementation writes straight to the socket, so flush is a no-op that keeps the ABI shape)</td></tr>
+<tr><td><code>sa_http_server_resp_stream_end(resp: ptr) -&gt; u32</code></td><td>Writes the terminating chunk <code>0\r\n\r\n</code> to end the chunked transfer; safe to call repeatedly</td></tr>
+<tr><td><code>sa_http_server_resp_stream_free(resp: ptr) -&gt; u32</code></td><td>Releases the streaming response object</td></tr>
+</table>
+<div class="note"><span class="label">Note</span>Once the streaming form's headers have been sent they cannot be changed (in v1 only
+content-type can be set); when extra response headers are needed, use v2's <code>_resp_stream_add_header_v2</code>,
+or use v2's delayed-header approach — add headers first, then write the body.</div>
+
+<h3>Legacy WebSocket Exports (4, Blocking Semantics)</h3>
+<table>
+<tr><th>Signature</th><th>Semantics</th></tr>
+<tr><td><code>sa_http_server_websocket_upgrade(req: ptr, &amp;out_ws: ptr) -&gt; u32</code></td><td>Validates <code>upgrade: websocket</code>, a <code>connection</code> containing the <code>Upgrade</code> token, and the presence of <code>sec-websocket-key</code>, computes the accept value, and replies <code>101 Switching Protocols</code>; on success the request handle is consumed</td></tr>
+<tr><td><code>sa_http_server_websocket_read(ws: ptr, max_len: u64, &amp;out_opcode: ptr, &amp;out_data: ptr, &amp;out_len: ptr) -&gt; u32</code></td><td>Reads one frame (blocking)</td></tr>
+<tr><td><code>sa_http_server_websocket_write(ws: ptr, opcode: u8, &amp;data: ptr, data_len: u64) -&gt; u32</code></td><td>Writes one frame (blocking)</td></tr>
+<tr><td><code>sa_http_server_websocket_free(ws: ptr) -&gt; u32</code></td><td>Closes the underlying stream and releases the handle</td></tr>
+</table>
+
+<h2>The v2 Increment Surface (21 Externs)</h2>
+<table>
+<tr><th>Signature</th><th>Increment over v1</th></tr>
+<tr><td><code>sa_http_server_new_v2(&amp;out_server: ptr) -&gt; u32</code> / <code>sa_http_server_start_v2(server, &amp;host, host_len, port)</code></td><td>Same shape as v1, returning network status codes</td></tr>
+<tr><td><code>sa_http_server_accept_v2(server: ptr, timeout_ms: u32, &amp;out_req: ptr) -&gt; u32</code></td><td><strong>Pollable accept</strong>: with <code>timeout_ms=0</code> and no connection it returns <code>would_block(1)</code>; a positive timeout expiring returns <code>timeout(3)</code>; a partial request (only part of the headers sent) is likewise treated as a timeout. The request-body limit is raised to <code>max_v2_message_bytes</code> (16 MiB), and the receive timeout is set from the remainder of the total budget after deducting time already spent in poll</td></tr>
+<tr><td><code>sa_http_server_resp_new_v2(req, status, &amp;out_resp)</code></td><td>Status-code validity check: outside <code>100..599</code> it returns <code>invalid(5)</code> (v1 has no such check)</td></tr>
+<tr><td><code>sa_http_server_req_free_v2(req: ptr) -&gt; u32</code></td><td>Releases the request</td></tr>
+<tr><td><code>sa_http_server_resp_send_v2(resp: ptr, &amp;body: ptr, body_len: u64, timeout_ms: u32) -&gt; u32</code> / <code>sa_http_server_resp_free_v2(resp: ptr) -&gt; u32</code></td><td>Sending with a millisecond timeout; when the response body exceeds the message limit, sending is refused with <code>too_large(4)</code> (tests confirm a small response body can still be sent normally afterwards)</td></tr>
+<tr><td><code>sa_http_server_resp_add_header_v2(resp, &amp;name, name_len, &amp;value, value_len) -&gt; u32</code></td><td><strong>Arbitrary response headers</strong>: the value is copied (the caller rewriting the original buffer afterwards does not affect the stored value); same-named headers may repeat (e.g. two <code>set-cookie</code> headers); a header with a CRLF injection attempt returns <code>invalid(5)</code></td></tr>
+<tr><td><code>sa_http_server_resp_stream_new_v2</code> / <code>_add_header_v2</code> / <code>_write_v2(..., timeout_ms)</code> / <code>_flush_v2</code> / <code>_end_v2(..., timeout_ms)</code> / <code>_free_v2</code></td><td>The streaming form gains “arbitrary headers can be added before headers are sent” and a per-chunk write timeout; the rest behaves as the v1 streaming form</td></tr>
+<tr><td><code>sa_http_server_free_v2(server: ptr) -&gt; u32</code></td><td>Releases the server</td></tr>
+<tr><td><code>sa_http_server_websocket_upgrade_v2(req: ptr, &amp;out_ws: ptr) -&gt; u32</code></td><td>On top of the v1 validation it additionally requires <code>sec-websocket-version: 13</code> and a legitimate key, then switches the socket to non-blocking mode; failure returns <code>invalid(5)</code>; on success the request handle is consumed</td></tr>
+<tr><td><code>sa_http_server_websocket_poll_v2(ws, interests, timeout_ms, &amp;events)</code></td><td>Polls by readable/writable/closed interest bits; zero-timeout not-ready is <code>would_block</code></td></tr>
+<tr><td><code>sa_http_server_websocket_read_v2(ws, max_len, &amp;opcode, &amp;data, &amp;len)</code></td><td>Non-blocking read, reassembling fragmented messages, with the limit <code>max_v2_message_bytes</code> (16 MiB)</td></tr>
+<tr><td><code>sa_http_server_websocket_write_v2(ws, opcode, &amp;data, data_len, &amp;written) -&gt; u32</code></td><td>Non-blocking write: when the socket send buffer fills it returns <code>would_block(1)</code> with <code>written=0</code> (backpressure is observable); over-limit returns <code>too_large(4)</code>; writing after close returns <code>closed(2)</code></td></tr>
+<tr><td><code>sa_http_server_websocket_close_v2(ws, code: u16, &amp;reason, reason_len) -&gt; u32</code></td><td>Performs the protocol-level close handshake</td></tr>
+<tr><td><code>sa_http_server_websocket_free_v2(ws: ptr) -&gt; u32</code></td><td>Closes and releases</td></tr>
+</table>
+<p>The backpressure recovery path: write fills → <code>would_block</code> is received → poll with the <code>writable</code> interest bit,
+and continue writing once ready. This behavior has a dedicated test
+(<code>http server v2 websocket reports and recovers from bounded backpressure</code>,
+in which SO_SNDBUF is squeezed to 4096 bytes to manufacture backpressure).</p>
+
+<h2>CLI Commands: scaffold and serve</h2>
 <h3><code>sa http-server scaffold &lt;dir&gt;</code></h3>
-<p>生成一个具体的 HubProxy 起步工程。参数只有一个目标目录；产物三个文件
-（实现见 <code>src/plugin.zig</code> 的 <code>runHttpServerCommand</code>）：</p>
+<p>Generates a concrete HubProxy starter project. There is a single argument, the target directory; three files are produced
+(the implementation is <code>runHttpServerCommand</code> in <code>src/plugin.zig</code>):</p>
 <table>
-<tr><th>产物</th><th>内容</th></tr>
-<tr><td><code>&lt;dir&gt;/sa_http_server.sai</code></td><td>编译期嵌入的 <code>interface_source</code>，与插件真实契约逐字节相同（有测试断言一致性）</td></tr>
-<tr><td><code>&lt;dir&gt;/main.sa</code></td><td>入口骨架 <code>@export hubproxy_main(): L_ENTRY: panic(102)</code></td></tr>
-<tr><td><code>&lt;dir&gt;/README.md</code></td><td>生成的说明文字：要求填好 HTTP handler 并接到 <code>sa_http_server</code>；并注明「<code>http-server serve</code> 是本插件的最小运行时冒烟测试」</td></tr>
+<tr><th>Output</th><th>Content</th></tr>
+<tr><td><code>&lt;dir&gt;/sa_http_server.sai</code></td><td>The compile-time embedded <code>interface_source</code>, byte-for-byte identical to the plugin's real contract (a test asserts the consistency)</td></tr>
+<tr><td><code>&lt;dir&gt;/main.sa</code></td><td>An entry skeleton <code>@export hubproxy_main(): L_ENTRY: panic(102)</code></td></tr>
+<tr><td><code>&lt;dir&gt;/README.md</code></td><td>Generated explanatory text: fill in the HTTP handler and connect it to <code>sa_http_server</code>; and noting that “<code>http-server serve</code> is this plugin's minimal runtime smoke test”</td></tr>
 </table>
-<p>成功时 stdout 打印目录名并以 0 退出；用法错误提示形如
-<code>usage: sa http-server scaffold &lt;dir&gt;</code>，未知子命令则提示
-「supported HTTP server subcommands are scaffold and serve」。CLI 错误统一带前缀
-<code>error[SA-HTTP-SERVER-CLI]:</code> 并附 <code>help:</code> 行。</p>
+<p>On success, stdout prints the directory name and exits with 0; a usage error hints in the form
+<code>usage: sa http-server scaffold &lt;dir&gt;</code>, and an unknown subcommand hints
+“supported HTTP server subcommands are scaffold and serve”. CLI errors uniformly carry the prefix
+<code>error[SA-HTTP-SERVER-CLI]:</code> plus a <code>help:</code> line.</p>
 
 <h3><code>sa http-server serve &lt;host&gt; &lt;port&gt; [max-requests]</code></h3>
 <pre><code>usage: sa http-server serve &lt;host&gt; &lt;port&gt; [max-requests]</code></pre>
 <ul>
-<li>第三个操作数之后可跟可选的<strong>最大请求数</strong>；不给则无限循环（poll 间隔 1000ms），
-给了则在处理完 N 个请求后以 0 退出（poll 间隔 100ms）。</li>
-<li>监听 socket 以 <code>reuse_address + force_nonblocking</code> 建立；每接受一个连接就把该连接
-切回阻塞模式并设 <strong>2000ms 接收超时</strong>。</li>
-<li>内置三条路由（<code>handleRoute</code>）：
+<li>After the third operand there may be an optional <strong>maximum request count</strong>; without it the loop is infinite (poll interval 1000ms),
+with it the process exits with 0 after handling N requests (poll interval 100ms).</li>
+<li>The listening socket is established with <code>reuse_address + force_nonblocking</code>; each accepted connection is
+switched back to blocking mode with a <strong>2000ms receive timeout</strong>.</li>
+<li>Three built-in routes (<code>handleRoute</code>):
 <ul>
-<li><code>/echo</code> —— 读入请求体并原样回发，附带请求的 <code>content-type</code>；stdout 记录
-<code>route=echo path=/echo body=&lt;n&gt;</code>。</li>
-<li><code>/stream</code> —— chunked SSE：依次推 <code>data: first\n\n</code>、<code>data: second\n\n</code>
-（块间 sleep 10ms），stdout 记录 <code>route=stream path=/stream</code>。</li>
-<li>其他路径 —— 回复 404 <code>not found\n</code>，stderr 打印 <code>error: unknown route &lt;path&gt;</code>。</li>
+<li><code>/echo</code> — reads in the request body and sends it back as-is, with the request's <code>content-type</code>; stdout records
+<code>route=echo path=/echo body=&lt;n&gt;</code>.</li>
+<li><code>/stream</code> — chunked SSE: pushes <code>data: first\n\n</code> then <code>data: second\n\n</code> in turn
+(sleeping 10ms between chunks); stdout records <code>route=stream path=/stream</code>.</li>
+<li>Other paths — replies 404 <code>not found\n</code>, and stderr prints <code>error: unknown route &lt;path&gt;</code>.</li>
 </ul></li>
-<li>端口与地址行为：host 必须能被 <code>parseIp</code> 解析（例如 <code>127.0.0.1</code>），
-端口是 <code>u16</code> 十进制。host 不是 IP 字面量或端口不是合法数字时，报
-<code>error[SA-HTTP-SERVER-CLI]: invalid HTTP server path or address</code> 并附 usage 行；
-端口已被占用等其它 listen 错误不在这条 CLI 诊断映射里，会以插件失败状态结束而不是带 help 行的诊断输出。</li>
-<li>serve 循环本身<strong>单线程串行处理</strong>请求：一个请求处理完才 accept 下一个。
-它是冒烟工具，不是并发服务器。</li>
+<li>Port and address behavior: the host must be parseable by <code>parseIp</code> (e.g. <code>127.0.0.1</code>),
+and the port is a decimal <code>u16</code>. When the host is not an IP literal or the port is not a legitimate number, it reports
+<code>error[SA-HTTP-SERVER-CLI]: invalid HTTP server path or address</code> plus a usage line;
+other listen errors, such as the port already being in use, are not in this CLI diagnostic mapping and end with a plugin failure status rather than diagnostic output with a help line.</li>
+<li>The serve loop itself handles requests <strong>serially on a single thread</strong>: one request is fully handled before the next is accepted.
+It is a smoke tool, not a concurrent server.</li>
 </ul>
 
-<h2>SSE / 流式特性小结</h2>
+<h2>SSE / Streaming Feature Summary</h2>
 <ul>
-<li>流式响应固定 <code>text/event-stream</code> + chunked + <code>connection: close</code>，
-无需手工拼头即可对接 EventSource。</li>
-<li>SIGPIPE 已在运行时层处理，客户端中途断开不会击杀进程。</li>
-<li>请求侧 body 上限 2 MiB（v1 默认 accept 行为），响应侧 v2 消息上限 16 MiB。</li>
-<li>真正的 SSE 消费端示例见 <a href="05_vite.html">vite 插件</a>：
-浏览器经 <code>/__sax_live</code> SSE 接收 reload/error 事件，其服务端正是本插件核心。</li>
+<li>Streaming responses are fixed to <code>text/event-stream</code> + chunked + <code>connection: close</code>,
+connecting to EventSource with no hand-assembled headers.</li>
+<li>SIGPIPE is already handled at the runtime layer, so a client disconnecting midway does not kill the process.</li>
+<li>The request-side body limit is 2 MiB (the v1 default accept behavior); the response-side v2 message limit is 16 MiB.</li>
+<li>For a real SSE consumer-side example, see the <a href="05_vite.html">vite plugin</a>:
+the browser receives reload/error events via the <code>/__sax_live</code> SSE channel, whose server side is exactly this plugin's core.</li>
 </ul>
 
-<h2>端到端示例（真实代码，路由注册 → 处理 → 响应 → 关闭）</h2>
-<h3>SA 源码级流式服务</h3>
-<p>出处：<code>D:/projects/sla/sci/demos/rosetta/302_http_server_saasm/main.sa</code>
-（监听 <code>127.0.0.1:18091</code>，accept 一个请求，读路径/头/体，再以流式形态推两块 SSE 数据）。
-摘录主干：</p>
+<h2>End-to-End Example (Real Code: Route Registration → Handling → Response → Close)</h2>
+<h3>SA Source-Level Streaming Service</h3>
+<p>Source: <code>D:/projects/sla/sci/demos/rosetta/302_http_server_saasm/main.sa</code>
+(listening on <code>127.0.0.1:18091</code>, accepting one request, reading path/headers/body, then pushing two SSE chunks in streaming form).
+The backbone is excerpted:</p>
 <pre><code>@extern sa_http_server_new(&amp;out_server: ptr) -> u32
 @extern sa_http_server_start(server: ptr, &amp;host: ptr, host_len: u64, port: u16) -> u32
 @extern sa_http_server_accept(server: ptr, &amp;out_req: ptr) -> u32
@@ -280,17 +280,17 @@ L_ENTRY:
     call @sa_http_server_resp_stream_free(^resp)
     call @sa_http_server_req_free(^req)
     call @sa_http_server_free(^server)</code></pre>
-<p>配套的出站调用方见 <a href="14_http_client.html">http-client 页</a>的 rosetta 301 示例，
-两者构成一对回环互测程序（301 打 <code>:18090/echo</code>，302 监听 <code>:18091/stream</code>）。</p>
-<div class="note"><span class="label">注意</span>上面两处 rosetta 摘录为了排版把原文件里的
-<code>#def XXX_LEN = n</code> 常量内联成了字面数字（如 <code>9</code> = <code>HOST_LEN</code>、
-<code>13</code> = <code>CHUNK_1_LEN</code>），并省略了部分状态槽声明；逐字可编译版本请以
-<code>sci/demos/rosetta/302_http_server_saasm/main.sa</code> 与
-<code>301_http_client_saasm/main.sa</code> 为准。demo 中形如 <code>!server_status</code> 的独立语句是
-SA 的<strong>所有权释放</strong>写法（「<code>!</code> 显式释放拥有的资源或结束借用」，出处
-<code>sci/docs/tutorial/beginner_guide.md</code>），不是断言；编译器不插入 drop，返回前须逐一释放。</div>
+<p>For the companion outbound caller, see the rosetta 301 example on the <a href="14_http_client.html">http-client — HTTP Client page</a>;
+together they form a pair of loopback mutual-test programs (301 hits <code>:18090/echo</code>, 302 listens on <code>:18091/stream</code>).</p>
+<div class="note"><span class="label">Note</span>For typesetting, the two rosetta excerpts above inline the original files'
+<code>#def XXX_LEN = n</code> constants as literal numbers (e.g. <code>9</code> = <code>HOST_LEN</code>,
+<code>13</code> = <code>CHUNK_1_LEN</code>) and omit some status-slot declarations; for the verbatim compilable versions, see
+<code>sci/demos/rosetta/302_http_server_saasm/main.sa</code> and
+<code>301_http_client_saasm/main.sa</code>. Standalone statements in the demo of the form <code>!server_status</code> are
+SA's <strong>ownership release</strong> form (“<code>!</code> explicitly releases an owned resource or ends a borrow”, source
+<code>sci/docs/tutorial/beginner_guide.md</code>), not assertions; the compiler inserts no drop, so each must be released one by one before returning.</div>
 
-<h3>CLI 会话示例</h3>
+<h3>CLI Session Example</h3>
 <pre><code># 先生成起步工程（产物目录名会被打印）
 sa http-server scaffold ./hubproxy-demo
 
@@ -301,15 +301,15 @@ sa http-server serve 127.0.0.1 18080 1
 
 sa http-server serve 127.0.0.1 18081 1
 # GET /stream 期望 stdout 输出：route=stream path=/stream</code></pre>
-<p>上述会话对应的断言来自
+<p>The assertions corresponding to the session above come from
 <code>D:/projects/sla/sa_plugin_http_server/tests/plugin_test.zig</code>
-（测试名分别为 <code>http server plugin serve responds on a local loopback socket</code> 与
-<code>http server plugin stream route returns chunked SSE body</code>）。</p>
+(the test names are <code>http server plugin serve responds on a local loopback socket</code> and
+<code>http server plugin stream route returns chunked SSE body</code>, respectively).</p>
 
-<h3>v2 WebSocket 服务端形态</h3>
-<p>仓库中暂无 v2 WebSocket 的 SA 源码级示例，只有 Zig 测试
-（<code>tests/plugin_test.zig</code> 的 <code>http server v2 websocket polls fragmented messages and performs protocol close</code>）。
-基于契约签名的调用顺序如下：</p>
+<h3>The v2 WebSocket Server Form</h3>
+<p>The repository has no SA source-level example for v2 WebSocket yet, only Zig tests
+(<code>http server v2 websocket polls fragmented messages and performs protocol close</code> in <code>tests/plugin_test.zig</code>).
+The call order based on the contract signatures is as follows:</p>
 <pre><code>srv = sa_http_server_new_v2()
 sa_http_server_start_v2(srv, "127.0.0.1", 18087)
 req = sa_http_server_accept_v2(srv, 1000)          ; would_block / timeout / ok
@@ -324,23 +324,24 @@ sa_http_server_websocket_close_v2(ws, 1000, "done")
 sa_http_server_websocket_free_v2(ws)
 sa_http_server_free_v2(srv)</code></pre>
 
-<h2>边界：明确不做的事</h2>
-<div class="warning"><span class="label">警告</span>以下各项以文档为准明确划出范围（评估文档 §1.4、§6.4）：
-<strong>不做 TLS/HTTPS 监听</strong>（定位明示靠 nginx/caddy 反向代理）；<strong>不做生产监听</strong>
-（不允许 <code>0.0.0.0</code> 或自定义端口范围）；<strong>无 IPv6 <code>[::1]</code></strong>；
-<strong>不做反向代理、mTLS、HTTP/2 / HTTP/3</strong>；<strong>无大文件 multipart 流式上传</strong>；
-<strong>无连接超时 / keep-alive 调优 API、access log、metrics hook</strong>；
-<strong>handler 路由与中间件抽象不在 native 层做</strong>（建议在 sa_std 加一层宏 facade）。
-完成度评分（2026-06-15 口径）：ABI 设计 95%、HTTP/1.1 子集 80%、TLS/WebSocket 当时均 0%、
-生产监听 0%、测试覆盖 30%、文档 10%、安全模型 100%，整体约 60-65% ——
-定位是 localhost dev / 内部 IPC server，而非生产级 HTTP 服务器。</div>
+<h2>Boundaries: What Is Explicitly Not Done</h2>
+<div class="warning"><span class="label">Warning</span>The following items are explicitly placed out of scope in the documentation (evaluation document §1.4, §6.4):
+<strong>no TLS/HTTPS listening</strong> (the positioning states it relies on an nginx/caddy reverse proxy); <strong>no production listening</strong>
+(<code>0.0.0.0</code> or custom port ranges are not allowed); <strong>no IPv6 <code>[::1]</code></strong>;
+<strong>no reverse proxy, mTLS, HTTP/2 / HTTP/3</strong>; <strong>no large-file multipart streaming upload</strong>;
+<strong>no connection-timeout / keep-alive tuning API, access log, or metrics hook</strong>;
+<strong>handler routing and middleware abstractions are not done at the native layer</strong> (a macro facade layer in sa_std is recommended).
+Completeness scores (2026-06-15 caliber): ABI design 95%, HTTP/1.1 subset 80%, TLS/WebSocket 0% at the time,
+production listening 0%, test coverage 30%, documentation 10%, security model 100%, overall about 60-65% —
+the positioning is a localhost dev / internal IPC server, not a production-grade HTTP server.</div>
 
-<blockquote>另一份资料需要区分口径：SCI 侧的 <code>docs/http_server_plugin.md</code> 把
-「路由分发、中间件流水线、多租户转发（Proxying）、io_uring 零拷贝」描述为<strong>目标架构方向</strong>，
-其示例 API（如 <code>sa_http_server_route</code>、<code>sa_http_req_from_ticket</code>、返回
-<code>-&gt; i32!</code>）与插件仓库真实的 <code>sa_http_server.sai</code> 并不一致；
-该文档自己也声明「真实实现以该工程源码和 smoke tests 为准」。因此判断当前能力时，
-以 <code>.sai</code> 契约与本页所引源码为准；反向代理等能力属于设计方向而非现状。</blockquote>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<blockquote>Another source needs its caliber distinguished: on the SCI side, <code>docs/http_server_plugin.md</code> describes
+“route dispatch, a middleware pipeline, multi-tenant forwarding (Proxying), and io_uring zero-copy” as <strong>target architecture directions</strong>,
+and its example APIs (such as <code>sa_http_server_route</code>, <code>sa_http_req_from_ticket</code>, returning
+<code>-&gt; i32!</code>) do not match the plugin repository's real <code>sa_http_server.sai</code>;
+that document itself also states that “the real implementation is defined by that project's source and smoke tests”. When judging current capability, therefore,
+take the <code>.sai</code> contract and the source cited on this page as authoritative; capabilities such as a reverse proxy belong to design direction, not the current state.</blockquote>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/05_plugins/15_http_server.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

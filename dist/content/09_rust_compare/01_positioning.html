@@ -1,52 +1,52 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>定位与设计哲学：SLA 不是 Rust 克隆</title>
+<title>Positioning and Design Philosophy: SLA Is Not a Rust Clone</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">与 Rust 对比 &gt; 定位与设计哲学</div>
-<h1>定位与设计哲学：SLA 不是 Rust 克隆</h1>
+<div class="topic-header">Comparison with Rust &gt; Positioning and Design Philosophy: SLA Is Not a Rust Clone</div>
+<h1>Positioning and Design Philosophy: SLA Is Not a Rust Clone</h1>
 
-<p>这一页回答最常见的第一个问题：SLA 和 Rust 到底是什么关系。结论先给出——SLA 不是 Rust 的
-简化版或克隆，而是 SA 平台的众多高级前端之一。读完这一页，你能判断手头项目适合哪个语言，
-并知道把 Rust 经验迁移过来时哪些预期需要修正。</p>
+<p>This page answers the most common first question: what exactly is the relationship between SLA and Rust? The conclusion up front — SLA is not a
+simplified version or clone of Rust, but one of many high-level frontends for the SA platform. After reading this page, you will be able to judge which language suits the project at hand,
+and know which expectations need correcting when you bring Rust experience over.</p>
 
-<div class="note"><span class="label">注意</span>本章数据取自
-<code>docs/rust_vs_sla_final_cn.md</code>（v0.2-纠错版，2026-06-15）与同日的表层兼容性评估报告，
-属于<b>点时间快照</b>：百分比、倍数与阶段划分反映当时的实测与规划，不是永久保证。</div>
+<div class="note"><span class="label">Note</span>The data in this chapter is taken from
+<code>docs/rust_vs_sla_final_cn.md</code> (v0.2 corrected edition, 2026-06-15) and the surface compatibility assessment report from the same day.
+It is a <b>point-in-time snapshot</b>: percentages, multiples, and phase divisions reflect the measurements and plans at that time, not permanent guarantees.</div>
 
-<h2>一句话结论</h2>
-<blockquote>Rust 是“全功能系统语言 + 庞大原生生态 + 成熟工具链”；SLA 是“SA 的 LLM 友好前端 +
-WASM 速度优化 + 零信任包管理 + bc2sa 多语言生态桥”。SLA 不是 Rust 替代品。</blockquote>
+<h2>One-Sentence Conclusion</h2>
+<blockquote>Rust is a “full-featured systems language + large native ecosystem + mature toolchain”; SLA is an “LLM-friendly frontend for SA +
+WASM speed optimization + zero-trust package management + bc2sa multi-language ecosystem bridge”. SLA is not a Rust replacement.</blockquote>
 
-<h2>定位差异</h2>
+<h2>Positioning Differences</h2>
 <table>
-<tr><th>维度</th><th>Rust</th><th>Sla</th></tr>
-<tr><td>设计目标</td><td>系统级安全语言 + 通用应用</td><td>LLM/工具友好的 SA 高级前端</td></tr>
-<tr><td>首选用户</td><td>系统工程师、应用开发者</td><td>LLM Agent、SA 工具链、ECS / WASM 场景</td></tr>
-<tr><td>底层产物</td><td>直接产 LLVM IR</td><td>产 SA IR → LLVM-C → wasm/native</td></tr>
-<tr><td>生态进入方式</td><td>crates.io 内生态</td><td><code>bc2sa</code> 桥接 Rust/C++/C/Swift/Zig 全生态 + Sla 原生包</td></tr>
-<tr><td>类别</td><td>通用编程语言</td><td>SA 平台多前端之一</td></tr>
-<tr><td>生态成熟度</td><td>10+ 年，130K+ crates</td><td>通过 bc2sa 间接继承 Rust/C++ 生态；原生 Sla 约 6 个月</td></tr>
+<tr><th>Dimension</th><th>Rust</th><th>SLA</th></tr>
+<tr><td>Design goal</td><td>Systems-level safe language + general-purpose applications</td><td>LLM/tool-friendly high-level frontend for SA</td></tr>
+<tr><td>Primary users</td><td>Systems engineers, application developers</td><td>LLM Agents, the SA toolchain, ECS / WASM scenarios</td></tr>
+<tr><td>Lower-level output</td><td>Produces LLVM IR directly</td><td>Produces SA IR → LLVM-C → wasm/native</td></tr>
+<tr><td>How the ecosystem is entered</td><td>Internal crates.io ecosystem</td><td><code>bc2sa</code> bridges the full Rust/C++/C/Swift/Zig ecosystem + native SLA packages</td></tr>
+<tr><td>Category</td><td>General-purpose programming language</td><td>One of many frontends for the SA platform</td></tr>
+<tr><td>Ecosystem maturity</td><td>10+ years, 130K+ crates</td><td>Indirectly inherits the Rust/C++ ecosystem via bc2sa; native SLA is about 6 months old</td></tr>
 </table>
-<p>关键认知：评估 Sla 时必须把它所在的平台一起算进来——它是 <b>SA 高级前端 + bc2sa 桥接器</b>的组合，
-不是孤立语言。bc2sa 是一条 LLVM bitcode → SA 的翻译通道，让 Sla 能间接调用任何能产出
-LLVM bitcode 的语言的成果（当前为受限子集，覆盖率数字见来源文档快照）。</p>
+<p>Key point: when you evaluate SLA you must count the platform it sits on — it is the combination of <b>SA high-level frontend + bc2sa bridge</b>,
+not an isolated language. bc2sa is an LLVM bitcode → SA translation channel that lets SLA indirectly call the results of any language
+that can produce LLVM bitcode (currently a restricted subset; see the source document snapshot for coverage figures).</p>
 
-<h2>设计哲学上的分叉</h2>
-<p>两者都做内存安全，但实现路径不同：</p>
+<h2>Forks in Design Philosophy</h2>
+<p>Both do memory safety, but by different implementation paths:</p>
 <ul>
-<li><b>所有权符号显式化</b>：SA 的五符号契约是 <code>= &amp; ^ ! *</code>。Sla 用户面主要接触其中两个：
-<code>&amp;x</code> 创建借用视图，<code>^x</code> 显式转移所有权；<code>!</code>（释放）由编译器隐式注入，用户不写。
-Rust 则是隐式 move 加 <code>Drop</code> trait。</li>
-<li><b>不做跨函数生命周期推断</b>：Rust 强制 <code>'a</code> 标注；Sla 解析但丢弃，跨函数借用安全走“前端责任制”。</li>
-<li><b>读/写不在语法层区分</b>：Rust 用 <code>&amp;T</code>/<code>&amp;mut T</code> 区分；Sla 只有 <code>&amp;</code>，
-由 SA Referee 动态判定（详见<a href="03_ownership.html">所有权与借用</a>）。</li>
-<li><b>验证器极小</b>：Rust 借用检查相关代码约 200K 行；SA Referee 目标 ≤2500 行，可形式化证明（Coq / FPGA 烧录为路线）。</li>
-<li><b>零信任包管理</b>：<code>sa pkg</code> 采用 URL 去中心命名空间、SHA-256 钉版、模块级 <code>grants</code>
-权限账本、严禁二进制分发、内建 X 光扫描与审判台确权；cargo 是中心化 SemVer + 进程级权限模型。</li>
+<li><b>Explicit ownership symbols</b>: SA's five-symbol contract is <code>= &amp; ^ ! *</code>. On the SLA user surface you mainly encounter two of them:
+<code>&amp;x</code> creates a borrowed view, <code>^x</code> explicitly transfers ownership; <code>!</code> (release) is implicitly injected by the compiler and is not written by the user.
+Rust, by contrast, uses implicit move plus the <code>Drop</code> trait.</li>
+<li><b>No cross-function lifetime inference</b>: Rust forces <code>'a</code> annotations; SLA parses but discards them, and cross-function borrowing safety follows a “frontend responsibility” model.</li>
+<li><b>Read/write are not distinguished at the syntax level</b>: Rust distinguishes them with <code>&amp;T</code>/<code>&amp;mut T</code>; SLA has only <code>&amp;</code>,
+decided dynamically by the SA Referee (see the <a href="03_ownership.html">Ownership and Borrowing: Referee vs the Borrow Checker</a> page).</li>
+<li><b>An extremely small verifier</b>: Rust's borrow-checking-related code is about 200K lines; the SA Referee targets ≤2500 lines and can be formally proven (Coq / FPGA programming is on the roadmap).</li>
+<li><b>Zero-trust package management</b>: <code>sa pkg</code> uses URL-based decentralized namespaces, SHA-256 pinning, module-level <code>grants</code>
+permission ledgers, a strict ban on binary distribution, and built-in X-ray scanning and tribunal-based rights confirmation; cargo uses a centralized SemVer + process-level permission model.</li>
 </ul>
 <pre><code>// Rust：赋值即隐式 move
 let a = make_value();
@@ -58,61 +58,62 @@ let a = make_value();
 let b = ^a;           // ^ 前缀显式声明 move
 // 此后再用 a 得到 UseAfterMove 编译错误</code></pre>
 
-<h2>各自独占的能力</h2>
-<h3>Rust 独占</h3>
+<h2>Capabilities Exclusive to Each</h2>
+<h3>Exclusive to Rust</h3>
 <ul>
-<li>130K+ crates 原生生态；rust-analyzer 第一梯队 IDE 体验</li>
-<li>生产级 async runtime（tokio）；完整 proc-macro + <code>macro_rules!</code></li>
-<li>生命周期跨函数推断；trait coherence 全求解</li>
-<li>多平台二进制分发成熟；十年生产验证；rustfmt + clippy 风格统一；教学资源丰富</li>
+<li>130K+ crates native ecosystem; first-tier IDE experience with rust-analyzer</li>
+<li>Production-grade async runtime (tokio); full proc-macro + <code>macro_rules!</code></li>
+<li>Cross-function lifetime inference; full trait coherence solving</li>
+<li>Mature multi-platform binary distribution; ten years of production validation; unified style with rustfmt + clippy; rich teaching resources</li>
 </ul>
-<h3>Sla 独占</h3>
+<h3>Exclusive to SLA</h3>
 <ul>
-<li>WASM 编译速度（早期目标 10-20×）与产物体积（早期目标约 5× 小）；2026-10-22 实测：编译速度未达成，
-双方体积最优配置下 WASM 典型负载约小 5×（matmul 例外），见<a href="09_performance.html">性能实测</a>；借用检查 O(1)</li>
-<li>验证器可形式化证明 / FPGA 烧录（路线）；Gas metering 内建</li>
-<li>零信任包管理（<code>grants</code> 模块级账本）、审判台 + 染色 CI、气闸舱 FFI（函数级隔离）</li>
-<li>极简关键字集：无生命周期标注、无 Send/Sync、无 coherence 求解</li>
-<li>LLM 自修复闭环（Trap 结构化 JSON 原生）；bc2sa 多语言生态桥；多前端架构</li>
+<li>WASM compilation speed (early target 10-20×) and output size (early target about 5× smaller); measured on 2026-10-22: the compilation speed target was not met,
+and with both sides in their size-optimal configurations typical WASM loads are about 5× smaller (matmul is an exception), see the <a href="09_performance.html">SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)</a> page; O(1) borrow checking</li>
+<li>Verifier can be formally proven / programmed onto FPGA (roadmap); built-in Gas metering</li>
+<li>Zero-trust package management (<code>grants</code> module-level ledger), tribunal + stained CI, airlock FFI (function-level isolation)</li>
+<li>Minimal keyword set: no lifetime annotations, no Send/Sync, no coherence solving</li>
+<li>LLM self-repair loop (native structured JSON Traps); bc2sa multi-language ecosystem bridge; multi-frontend architecture</li>
 </ul>
-<div class="note"><span class="label">注意</span>2026-10-22 的实测修正了旧口径：Release 模式下 Rust 的
-native/WASM 运行时中位数分别快约 1.47×/1.44×（不含 matmul 异常点），常规源码冷编译 Rust 更快；热编译在大型源码上 Rust 仍快，但小 WASM 项目差距消失甚至反转；
-但双方都取体积最优配置后，典型 SLA WASM 约为 Rust 的 1/5（matmul 例外，SLA 反而大约 1.76×）。
-详见<a href="09_performance.html">SLA vs Rust 性能实测</a>。</div>
+<div class="note"><span class="label">Note</span>Measurements on 2026-10-22 corrected the old framing: in Release mode, Rust's
+native/WASM runtime medians are about 1.47×/1.44× faster respectively (excluding the matmul outlier), Rust is faster for cold compilation of conventional source code; for hot compilation Rust is still faster on large source code, but the gap disappears or even reverses on small WASM projects;
+but with both sides in their size-optimal configurations, typical SLA WASM is about 1/5 the size of Rust's (matmul is an exception, where SLA is instead about 1.76×).
+See the <a href="09_performance.html">SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)</a> page for details.</div>
 
-<h2>场景怎么选</h2>
+<h2>Which to Choose by Scenario</h2>
 <table>
-<tr><th>场景</th><th>推荐</th></tr>
-<tr><td>桌面应用、重型 Web 后端、OS/驱动、大型多人协作项目、需要成熟 IDE</td><td>Rust</td></tr>
-<tr><td>需要 tokio / serde / bevy / wgpu 等生产级框架</td><td>Rust</td></tr>
-<tr><td>WASM 边缘计算、WASM 游戏、嵌入式 WASM/IoT 显示（体积通常占优，但需核对 CPU/延迟预算）</td><td>Sla</td></tr>
-<tr><td>LLM 沙盒 / Agent 执行环境、教学、教育性 ECS（sa3d）、安全/航空（Referee 可证明）</td><td>Sla</td></tr>
-<tr><td>想复用现有 Rust/C++ crate 并部署到 WASM（需实测体积是否可接受）</td><td>bc2sa 桥接 + Sla 调用</td></tr>
+<tr><th>Scenario</th><th>Recommendation</th></tr>
+<tr><td>Desktop applications, heavy Web backends, OS/drivers, large multi-person collaboration projects, need for a mature IDE</td><td>Rust</td></tr>
+<tr><td>Need production-grade frameworks such as tokio / serde / bevy / wgpu</td><td>Rust</td></tr>
+<tr><td>WASM edge computing, WASM games, embedded WASM/IoT displays (size is usually an advantage, but you need to check the CPU/latency budget)</td><td>SLA</td></tr>
+<tr><td>LLM sandboxes / Agent execution environments, teaching, educational ECS (sa3d), safety/aviation (provable Referee)</td><td>SLA</td></tr>
+<tr><td>Want to reuse an existing Rust/C++ crate and deploy to WASM (need to measure whether the size is acceptable)</td><td>bc2sa bridging + SLA calls</td></tr>
 </table>
 
-<h2>容易被误解的点</h2>
+<h2>Points That Are Easily Misunderstood</h2>
 <table>
-<tr><th>常见说法</th><th>实际情况</th></tr>
-<tr><td>“Sla 是 Rust 的简化版”</td><td>不是。Sla 是 SA 的高级前端，与 Rust 处在不同抽象层</td></tr>
-<tr><td>“Sla 生态要从 0 开始攒好几年”</td><td>bc2sa 让 Sla 可以消费 Rust/C++ 生态；覆盖率提升路线见来源文档快照</td></tr>
-<tr><td>“Sla 兼容 Rust 语法”</td><td>仅表层（Phase 1 约 70%）。语义层始终不同：可变性反向、<code>&amp;self</code> 涵盖读写、无 proc-macro</td></tr>
-<tr><td>“Sla 比 Rust 快”</td><td>不成立。Rust release 在多数负载上更快；SLA 只在 sort/hashmap 等少数场景领先。见<a href="09_performance.html">性能实测</a></td></tr>
-<tr><td>“Sla 的 async 不能用”</td><td>async/await 已实测可跑（<code>tests/test_unit_async_await.sla</code>）；缺的是 tokio 等价的 runtime 生态</td></tr>
-<tr><td>“Sla 没有增量编译”</td><td>SA 增量编译已落地（<code>sci/src/cli.zig</code>）</td></tr>
-<tr><td>“Sla 没有 DCE”</td><td>SA 层 DCE 已落地（commit <code>146c7db</code>）</td></tr>
+<tr><th>Common claim</th><th>Reality</th></tr>
+<tr><td>“SLA is a simplified version of Rust”</td><td>No. SLA is a high-level frontend for SA, at a different abstraction layer from Rust</td></tr>
+<tr><td>“The SLA ecosystem has to be built from 0 over several years”</td><td>bc2sa lets SLA consume the Rust/C++ ecosystem; see the source document snapshot for the coverage improvement roadmap</td></tr>
+<tr><td>“SLA is compatible with Rust syntax”</td><td>Only at the surface (Phase 1 about 70%). The semantic layer is always different: reversed mutability, <code>&amp;self</code> covers read and write, no proc-macro</td></tr>
+<tr><td>“SLA is faster than Rust”</td><td>Not true. Rust release is faster on most loads; SLA leads only in a few scenarios such as sort/hashmap. See the <a href="09_performance.html">SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)</a> page</td></tr>
+<tr><td>“SLA's async cannot be used”</td><td>async/await has been measured to run (<code>tests/test_unit_async_await.sla</code>); what is missing is a tokio-equivalent runtime ecosystem</td></tr>
+<tr><td>“SLA has no incremental compilation”</td><td>SA incremental compilation has landed (<code>sci/src/cli.zig</code>)</td></tr>
+<tr><td>“SLA has no DCE”</td><td>DCE at the SA layer has landed (commit <code>146c7db</code>)</td></tr>
 </table>
 
-<h2>本页要点</h2>
+<h2>Key Points of This Page</h2>
 <ul>
-<li>SLA 与 Rust 是不同抽象层的两种东西：一个是 SA 平台高级前端，一个是通用系统语言。</li>
-<li>生态差距靠 bc2sa 桥接缩小，而不是靠重写。</li>
-<li>性能不是 SLA 的全面优势：运行时与编译时间的实测不如 Rust release；WASM 体积在双方最优配置下典型负载占优（约 1/5），
-但 matmul 例外，且 native 体积仍约 33×。</li>
-<li>下一页看具体语法差多少：<a href="02_syntax_matrix.html">语法对照实测矩阵</a>；
-内存安全的逐项对比见<a href="03_ownership.html">所有权与借用</a>；
-宏与元编程的差异见<a href="04_macros.html">宏与元编程对比</a>；
-完整基准数据见<a href="09_performance.html">性能实测</a>。</li>
+<li>SLA and Rust are two different things at different abstraction layers: one is a high-level frontend for the SA platform, the other is a general-purpose systems language.</li>
+<li>The ecosystem gap is narrowed by bc2sa bridging, not by rewriting.</li>
+<li>Performance is not an across-the-board SLA advantage: measured runtime and compilation time are worse than Rust release; WASM size has the advantage on typical loads with both sides in their size-optimal configurations (about 1/5),
+but matmul is an exception, and native size is still about 33×.</li>
+<li>The next page looks at how much the concrete syntax differs: <a href="02_syntax_matrix.html">Syntax Comparison Matrix (Measured)</a>;
+for an item-by-item comparison of memory safety see the <a href="03_ownership.html">Ownership and Borrowing: Referee vs the Borrow Checker</a> page;
+for differences in macros and metaprogramming see the <a href="04_macros.html">Macros and Metaprogramming Compared</a> page;
+for full benchmark data see the <a href="09_performance.html">SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)</a> page.</li>
 </ul>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/09_rust_compare/01_positioning.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

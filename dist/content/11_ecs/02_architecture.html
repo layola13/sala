@@ -1,85 +1,65 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>架构与模块面</title>
+<title>Architecture and Module Surface</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">ECS 开发（sla_ecs） &gt; 架构与模块面</div>
-<h1>架构与模块面</h1>
+<div class="topic-header">ECS Development (sla_ecs) &gt; Architecture and Module Surface</div>
+<h1>Architecture and Module Surface</h1>
 
-<p>本页汇总从 <code>sa_plugin_sla</code> 回归与宏分析文档中提取到的 <code>sla_ecs</code> 真实模块名，
-以及 TableErased 查询组合族的展开形状。读完能对上回归记录里反复出现的文件名，
-理解它们各自承担什么。</p>
+<p>This page collects the real <code>sla_ecs</code> module names extracted from <code>sa_plugin_sla</code> regression and macro-analysis documents, and the expansion shapes of the TableErased query-combination family. After reading it you will be able to match the file names that recur in regression records and understand what each of them is responsible for.</p>
 
-<div class="note"><span class="label">注意</span><code>sla_ecs</code> 有 54 个 lib 模块
-（2026-07-01 口径），下表只列出帮助材料中实际出现过的文件，不是完整清单；
-「角色」一栏是各文档对它的用法描述，不是库自身的 API 文档。</div>
+<div class="note"><span class="label">Note</span><code>sla_ecs</code> has 54 lib modules (as of 2026-07-01); the table below only lists files that actually appear in the help materials, not a complete list; the “Role” column is each document’s description of its usage, not the library’s own API documentation.</div>
 
-<h2>lib 下的真实模块名</h2>
+<h2>Real Module Names under lib</h2>
 <table>
-<tr><th>模块</th><th>在文档中的角色</th></tr>
-<tr><td><code>lib/world_table_erased.sla</code></td><td>最大的 table-erased world 定义，TableErased 组合族主体；Module Table 复测中前端 check 崩溃的复现文件。2026-07-19 口径：展开后约 678KB / 571 个函数。</td></tr>
-<tr><td><code>lib/system_param_table_erased.sla</code></td><td>system-param runner 族所在文件；含 <code>table_erased_run_any_of$N_query_resource_system</code> 等生成函数。</td></tr>
-<tr><td><code>lib/parallel_table_erased.sla</code></td><td>table-erased 并行 runner（readonly/mut）；默认 SAB 路径 panic 8701 的复现文件。</td></tr>
-<tr><td><code>lib/parallel_iterator.sla</code></td><td>并行迭代器（chunk 切分、thread closure）；strict SAB PhiStateConflict 的复现文件。</td></tr>
-<tr><td><code>lib/parallel_runner.sla</code></td><td>并行 runner 入口之一；2026-07-19 记录其 check 传递有序模块数 ordered modules=16。</td></tr>
-<tr><td><code>lib/parallel.sla</code></td><td>编译器工作区规则指定的宿主回归目标（host regression target）。</td></tr>
-<tr><td><code>lib/task_pool_builder.sla</code></td><td>任务池构建；<code>EcsParallelTaskPool</code> 配置结构出现在编译器修复记录中。</td></tr>
-<tr><td><code>lib/task_scope_completion.sla</code></td><td>scope completion（pending 任务收尾）；issue038 的下游复现文件。</td></tr>
-<tr><td><code>lib/entity_set.sla</code></td><td>宏分析文档举例处：手动实现 <code>entity_hash</code> 等值类型 helper。</td></tr>
-<tr><td><code>lib/table_erased_access.sla</code>、<code>lib/schedule_table_erased.sla</code></td><td>2026-07-19 type-scan cache 优化前后 getOrParse 耗时对比的样本模块。</td></tr>
-<tr><td><code>lib/schedule_stepping.sla</code>、<code>lib/parallel_mut_writeback.sla</code>、<code>lib/entity_dynamic.sla</code></td><td>其他在编译器进度记录中作为下游验证目标出现的 lib 模块。</td></tr>
+<tr><th>Module</th><th>Role in the documents</th></tr>
+<tr><td><code>lib/world_table_erased.sla</code></td><td>The largest table-erased world definition, the main body of the TableErased combination family; the reproduction file for the frontend check crash in the Module Table retest. As of 2026-07-19: about 678KB / 571 functions after expansion.</td></tr>
+<tr><td><code>lib/system_param_table_erased.sla</code></td><td>The file containing the system-param runner family; contains generated functions such as <code>table_erased_run_any_of$N_query_resource_system</code>.</td></tr>
+<tr><td><code>lib/parallel_table_erased.sla</code></td><td>Table-erased parallel runners (readonly/mut); the reproduction file for the default SAB path panic 8701.</td></tr>
+<tr><td><code>lib/parallel_iterator.sla</code></td><td>Parallel iterator (chunk splitting, thread closure); the reproduction file for the strict SAB PhiStateConflict.</td></tr>
+<tr><td><code>lib/parallel_runner.sla</code></td><td>One of the parallel runner entry points; a 2026-07-19 record gives its check transitive ordered module count as ordered modules=16.</td></tr>
+<tr><td><code>lib/parallel.sla</code></td><td>The host regression target designated by the compiler workspace rules.</td></tr>
+<tr><td><code>lib/task_pool_builder.sla</code></td><td>Task pool building; the <code>EcsParallelTaskPool</code> configuration struct appears in compiler fix records.</td></tr>
+<tr><td><code>lib/task_scope_completion.sla</code></td><td>Scope completion (finishing pending tasks); the downstream reproduction file for issue038.</td></tr>
+<tr><td><code>lib/entity_set.sla</code></td><td>Cited in the macro analysis document: manually implements value-type helpers such as <code>entity_hash</code>.</td></tr>
+<tr><td><code>lib/table_erased_access.sla</code>, <code>lib/schedule_table_erased.sla</code></td><td>Sample modules for the before/after getOrParse timing comparison of the 2026-07-19 type-scan cache optimization.</td></tr>
+<tr><td><code>lib/schedule_stepping.sla</code>, <code>lib/parallel_mut_writeback.sla</code>, <code>lib/entity_dynamic.sla</code></td><td>Other lib modules that appear as downstream verification targets in compiler progress records.</td></tr>
 </table>
 
-<p>examples 与 tests 中被引用过的：</p>
+<p>Referenced in examples and tests:</p>
 <table>
-<tr><th>文件</th><th>用途</th></tr>
-<tr><td><code>examples/parallel_query.sla</code></td><td>性能 profile 基准用例（focused generated-SA）。</td></tr>
-<tr><td><code>tests/test_ecs_result_facades.sla</code></td><td>Result facade 相关整文件 check 样本。</td></tr>
-<tr><td><code>tests/test_ecs_lib_executor_multi_threaded_deep_isolated.sla</code></td><td>issue035 下游复现文件。</td></tr>
-<tr><td><code>tests/test_ecs_parallel_runner_scope_executor_isolated.sla</code>、<code>tests/test_ecs_mut_parallel.sla</code></td><td>issue044 下游复现文件。</td></tr>
+<tr><th>File</th><th>Use</th></tr>
+<tr><td><code>examples/parallel_query.sla</code></td><td>Performance profile benchmark case (focused generated-SA).</td></tr>
+<tr><td><code>tests/test_ecs_result_facades.sla</code></td><td>Whole-file check sample related to Result facades.</td></tr>
+<tr><td><code>tests/test_ecs_lib_executor_multi_threaded_deep_isolated.sla</code></td><td>Downstream reproduction file for issue035.</td></tr>
+<tr><td><code>tests/test_ecs_parallel_runner_scope_executor_isolated.sla</code>, <code>tests/test_ecs_mut_parallel.sla</code></td><td>Downstream reproduction files for issue044.</td></tr>
 </table>
 
-<h2>TableErased 查询组合族</h2>
-<p><code>@expand_tuple</code> 驱动的变长展开覆盖了查询组合的主要形状。
-下表为宏缺口分析文档（v0.1 / 2026-07-01）记录的范围与生成数量：</p>
+<h2>The TableErased Query-Combination Family</h2>
+<p>The variable-length expansion driven by <code>@expand_tuple</code> covers the main shapes of query combinations. The table below records the ranges and generated counts from the macro-gap analysis document (v0.1 / 2026-07-01):</p>
 <table>
-<tr><th>展开种类</th><th>范围</th><th>生成数量</th></tr>
-<tr><td><code>TableErasedAnyOf$N</code> 结构体</td><td>2..8</td><td>7 个结构体</td></tr>
-<tr><td><code>TableErasedWithAnyOf$N</code> 结构体</td><td>2..8</td><td>7 个结构体</td></tr>
-<tr><td><code>TableErasedPairWithAnyOf$N</code> 结构体</td><td>2..8</td><td>7 个结构体</td></tr>
-<tr><td><code>TableErasedCombination$N</code> 结构体</td><td>2..16</td><td>15 个结构体</td></tr>
-<tr><td><code>table_erased_query_combinations$N</code> 函数</td><td>2..16</td><td>15 个函数</td></tr>
-<tr><td><code>table_erased_query_pair_mut_combinations$N</code> 函数</td><td>2..16</td><td>15 个函数</td></tr>
-<tr><td><code>table_erased_world_query_any_of$N</code> 函数</td><td>2..8</td><td>7 × 3 世界路径</td></tr>
-<tr><td><code>table_erased_world_query_with_any_of$N</code> 函数</td><td>2..8</td><td>7 × 3 世界路径</td></tr>
-<tr><td><code>table_erased_world_query_pair_with_any_of$N</code> 函数</td><td>2..8</td><td>7 × 3 世界路径</td></tr>
+<tr><th>Expansion kind</th><th>Range</th><th>Generated count</th></tr>
+<tr><td><code>TableErasedAnyOf$N</code> structs</td><td>2..8</td><td>7 structs</td></tr>
+<tr><td><code>TableErasedWithAnyOf$N</code> structs</td><td>2..8</td><td>7 structs</td></tr>
+<tr><td><code>TableErasedPairWithAnyOf$N</code> structs</td><td>2..8</td><td>7 structs</td></tr>
+<tr><td><code>TableErasedCombination$N</code> structs</td><td>2..16</td><td>15 structs</td></tr>
+<tr><td><code>table_erased_query_combinations$N</code> functions</td><td>2..16</td><td>15 functions</td></tr>
+<tr><td><code>table_erased_query_pair_mut_combinations$N</code> functions</td><td>2..16</td><td>15 functions</td></tr>
+<tr><td><code>table_erased_world_query_any_of$N</code> functions</td><td>2..8</td><td>7 × 3 world paths</td></tr>
+<tr><td><code>table_erased_world_query_with_any_of$N</code> functions</td><td>2..8</td><td>7 × 3 world paths</td></tr>
+<tr><td><code>table_erased_world_query_pair_with_any_of$N</code> functions</td><td>2..8</td><td>7 × 3 world paths</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>这些范围不是固定不变的。AnyOf9 复测记录
-（发现日期 2026-07-06，fixed/verified 2026-07-19）记载：
-<code>world_table_erased.sla</code> 把 direct <code>TableErasedAnyOf</code> /
-<code>table_erased_world_query_any_of$N</code> 的生成范围从 <code>AnyOf5..8</code> 扩到
-<code>AnyOf5..9</code>；<code>system_param_table_erased.sla</code> 把
-<code>table_erased_run_any_of$N_query_resource_system</code> 扩到 <code>AnyOf9</code>，
-并把 relationship / observer wrapper 的 direct <code>AnyOf</code> 与嵌套
-<code>WithAnyOf</code>/<code>PairWithAnyOf</code> runner 一并扩到 <code>AnyOf9</code>。
-引用具体范围时应注明口径日期。</div>
+<div class="note"><span class="label">Note</span>These ranges are not fixed. The AnyOf9 retest record (discovered 2026-07-06, fixed/verified 2026-07-19) records: <code>world_table_erased.sla</code> expanded the generation range of the direct <code>TableErasedAnyOf</code> / <code>table_erased_world_query_any_of$N</code> from <code>AnyOf5..8</code> to <code>AnyOf5..9</code>; <code>system_param_table_erased.sla</code> expanded <code>table_erased_run_any_of$N_query_resource_system</code> to <code>AnyOf9</code>, and likewise expanded the direct <code>AnyOf</code> and nested <code>WithAnyOf</code>/<code>PairWithAnyOf</code> runners of the relationship / observer wrappers to <code>AnyOf9</code>. When citing a concrete range, note the date of the basis.</div>
 
-<h2>system-param runner 的三种类别</h2>
-<p>system-param 组合 runner 按 world 路径分成三种类别：
-<b>普通（ordinary）/ observer / relationship</b>。
-宏缺口分析给出的规模是「7 个函数 × 3 世界路径 × 3 种类」（范围 2..8）；
-同一文档在讨论组合生成时也把这三条路径表述为 ordinary/observer/relationship 三条路径。
-这类函数不是 arity 模板能直接表达的参数类型笛卡尔积——每个 runner 是基础参数
-（如 <code>Query</code>、<code>Commands</code>、<code>ResMut</code>、
-<code>MessageReader</code>、<code>MessageWriter</code>）中 1–5 个的组合，
-再乘上三种世界变体，因此形成了数百个手写函数（该文档估计 300+）。</p>
+<h2>Three Categories of system-param Runners</h2>
+<p>system-param combination runners are divided by world path into three categories: <b>ordinary / observer / relationship</b>. The scale given by the macro-gap analysis is “7 functions × 3 world paths × 3 categories” (range 2..8); the same document, when discussing combination generation, also describes these three paths as the ordinary/observer/relationship paths. These functions are not a Cartesian product of parameter types that an arity template can directly express — each runner is a combination of 1–5 base parameters (such as <code>Query</code>, <code>Commands</code>, <code>ResMut</code>, <code>MessageReader</code>, <code>MessageWriter</code>), multiplied by three world variants, thus forming hundreds of hand-written functions (the document estimates 300+).</p>
 
-<p>这也解释了为什么这一层的代码量对编译器的导入展开与可达性分析压力最大：
-<a href="05_status.html#perf">已知问题与回归史</a>中的耗时样本大多来自这几个文件。</p>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<p>This also explains why the code volume at this layer puts the greatest pressure on the compiler’s import expansion and reachability analysis: most of the timing samples in <a href="05_status.html#perf">Known Issues and Regression History</a> come from these few files.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/11_ecs/02_architecture.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

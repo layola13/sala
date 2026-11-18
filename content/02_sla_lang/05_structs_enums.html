@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>结构体与枚举</title>
+<title>Structs and Enums</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SLA 语言参考 &gt; 结构体与枚举</div>
-<h1>结构体与枚举</h1>
+<div class="topic-header">SLA Language Reference &gt; Structs and Enums</div>
+<h1>Structs and Enums</h1>
 
-<p>这一页介绍聚合类型的声明方式：命名字段结构体、类元组结构体、newtype、泛型结构体、
-带 payload 的枚举，以及 <code>trait</code>/<code>impl</code>/<code>dyn</code> 的静态与动态分发。
-读完这一页，你能为业务数据选择合适的聚合形式并组织方法。</p>
+<p>This page introduces how aggregate types are declared: named-field structs, tuple-like structs, newtypes, generic structs,
+enums with payloads, and static and dynamic dispatch via <code>trait</code>/<code>impl</code>/<code>dyn</code>.
+After reading this page, you can choose a suitable aggregate form for business data and organize its methods.</p>
 
-<h2>命名结构体</h2>
+<h2>Named structs</h2>
 <pre><code>// demos/rosetta/05_struct/main.sla
 struct Point {
     x: i32,
@@ -24,11 +24,11 @@ fn create_point(x: i32, y: i32) -&gt; Point {
     Point { x: x, y: y }
 }</code></pre>
 
-<p>字段访问用 <code>.</code>；结构体字面量要求列出全部字段（或使用 <code>..base</code> 更新语法，
-见「模式匹配」一页）。</p>
+<p>Fields are accessed with <code>.</code>; a struct literal must list all fields (or use the <code>..base</code> update syntax,
+see the Pattern Matching page).</p>
 
-<h2>类元组结构体与 newtype</h2>
-<p>字段按位置访问 <code>.0</code>/<code>.1</code>/…。单字段形式即 newtype 模式：</p>
+<h2>Tuple-like structs and newtypes</h2>
+<p>Fields are accessed by position: <code>.0</code>/<code>.1</code>/…. The single-field form is the newtype pattern:</p>
 <pre><code>// demos/rosetta/36_tuple_struct / 37_newtype
 struct Color(u8, u8, u8);
 struct UserId(u32);
@@ -39,9 +39,9 @@ let c0 = color.0 as i32;
 let user = UserId(42);
 println("{}", user.0);</code></pre>
 
-<h2>枚举与 payload</h2>
-<p><code>enum</code> 支持无 payload 变体、命名字段变体和类元组变体三种形态，
-分别见 demo 06、43：</p>
+<h2>Enums and payloads</h2>
+<p><code>enum</code> supports three forms: variants without payloads, named-field variants, and tuple-like variants,
+seen in demos 06 and 43 respectively:</p>
 <pre><code>enum Message {
     Quit,
     Move { x: i32, y: i32 },
@@ -54,10 +54,10 @@ enum Shape {
 
 // 构造：Message::Move { x: 10, y: 20 }、Shape::Square(6)</code></pre>
 
-<div class="note"><span class="label">注意</span>SLA 还有 <code>union</code> 关键字用于 FFI 场景的联合类型
-（rosetta 113_union_ffi_types），日常建模应优先使用 <code>enum</code>。</div>
+<div class="note"><span class="label">Note</span>SLA also has the <code>union</code> keyword for union types in FFI scenarios
+(rosetta 113_union_ffi_types); for everyday modeling, prefer <code>enum</code>.</div>
 
-<h2>泛型结构体</h2>
+<h2>Generic structs</h2>
 <pre><code>// demos/rosetta/10_generics_monomorph/main.sla
 struct OptionValue&lt;T&gt; {
     is_some: bool,
@@ -65,9 +65,9 @@ struct OptionValue&lt;T&gt; {
 }
 
 let opt = OptionValue&lt;i32&gt; { is_some: true, value: 42 };</code></pre>
-<p>每种类型实参组合在编译期单态化为独立布局，不产生运行时代价。</p>
+<p>Each combination of type arguments is monomorphized at compile time into an independent layout, at no runtime cost.</p>
 
-<h2>trait 与 impl：静态分发</h2>
+<h2>trait and impl: static dispatch</h2>
 <pre><code>// demos/rosetta/07_trait_vtable/main.sla
 trait Draw {
     fn draw(&amp;self) -&gt; i32;
@@ -79,8 +79,8 @@ impl Draw for Button {
     }
 }</code></pre>
 
-<h2>dyn Trait：动态分发</h2>
-<p><code>dyn Trait</code> 配合借用把不同具体类型放进同一个调用点，编译器生成 vtable：
+<h2>dyn Trait: dynamic dispatch</h2>
+<p><code>dyn Trait</code>, combined with borrowing, puts different concrete types at the same call site, and the compiler generates a vtable:
 </p>
 <pre><code>fn render(&amp;item: dyn Draw) -&gt; i32 {
     item.draw()
@@ -89,23 +89,23 @@ impl Draw for Button {
 let button = Button { id: 77 };
 let result = render(&amp;button);   // 77</code></pre>
 
-<h2>布局契约（TS-21，2026-10-29 落字）</h2>
-<p>聚合类型的内存布局有一般规则（双后端共享同一布局计划，
-<code>lowering_rules.structFieldLayout</code>），现成文如下：struct 字段按<strong>声明序排列、
-不重排</strong>；每个字段按其存储对齐对齐偏移；<code>union</code> 的全部字段都在偏移 0。
-enum 的判别标签（tag）是 <code>i64</code>、位于偏移 0，payload 自偏移 8 起。
-FFI 按值传结构体与序列化可依赖此契约。</p>
+<h2>Layout contract (TS-21, written 2026-10-29)</h2>
+<p>The memory layout of aggregate types has general rules (both backends share the same layout plan,
+<code>lowering_rules.structFieldLayout</code>), now written as follows: struct fields are laid out <strong>in declaration order, with
+no reordering</strong>; each field's offset is aligned to its storage alignment; all fields of a <code>union</code> are at offset 0.
+An enum's discriminant tag is an <code>i64</code> at offset 0, and the payload starts at offset 8.
+FFI by-value struct passing and serialization may rely on this contract.</p>
 
-<h2>标准库常用聚合</h2>
+<h2>Common standard-library aggregates</h2>
 <table>
-<tr><th>类型</th><th>来源契约</th><th>示例用法</th></tr>
-<tr><td><code>Option&lt;T&gt;</code></td><td><code>@import "sa_std/core/option.sa"</code></td><td><code>Some(9)</code>、<code>opt.unwrap_or(fallback)</code>（demo 46）</td></tr>
-<tr><td><code>Result&lt;T, E&gt;</code></td><td><code>@import "sa_std/core/result.sa"</code></td><td><code>Ok(7)</code>、<code>.unwrap()</code>、<code>.unwrap_or(-1)</code>（demo 50/309）</td></tr>
-<tr><td><code>Mutex&lt;T&gt;</code></td><td><code>@import "sa_std/sync/mutex.sa"</code></td><td><code>Mutex::new(0)</code>、<code>counter.lock().unwrap()</code>（demo 102）</td></tr>
-<tr><td><code>Cell&lt;i32&gt;</code></td><td><code>@import "sa_std/core/cell.sa"</code></td><td><code>Cell::new(3)</code>、<code>.get()/.set(v)</code>（demo 59）</td></tr>
-<tr><td><code>Ordering</code></td><td><code>@import "sla_std/cmp.sla"</code></td><td><code>a &lt;=&gt; b</code> 返回值：<code>.is_lt()/.is_eq()/.then(...)</code></td></tr>
+<tr><th>Type</th><th>Source contract</th><th>Example usage</th></tr>
+<tr><td><code>Option&lt;T&gt;</code></td><td><code>@import "sa_std/core/option.sa"</code></td><td><code>Some(9)</code>, <code>opt.unwrap_or(fallback)</code> (demo 46)</td></tr>
+<tr><td><code>Result&lt;T, E&gt;</code></td><td><code>@import "sa_std/core/result.sa"</code></td><td><code>Ok(7)</code>, <code>.unwrap()</code>, <code>.unwrap_or(-1)</code> (demos 50/309)</td></tr>
+<tr><td><code>Mutex&lt;T&gt;</code></td><td><code>@import "sa_std/sync/mutex.sa"</code></td><td><code>Mutex::new(0)</code>, <code>counter.lock().unwrap()</code> (demo 102)</td></tr>
+<tr><td><code>Cell&lt;i32&gt;</code></td><td><code>@import "sa_std/core/cell.sa"</code></td><td><code>Cell::new(3)</code>, <code>.get()/.set(v)</code> (demo 59)</td></tr>
+<tr><td><code>Ordering</code></td><td><code>@import "sla_std/cmp.sla"</code></td><td>The return value of <code>a &lt;=&gt; b</code>: <code>.is_lt()/.is_eq()/.then(...)</code></td></tr>
 </table>
 
-<p>相关页面：<a href="04_patterns.html">模式匹配</a>、<a href="08_extensions.html">扩展机制</a>。</p>
+<p>Related pages: <a href="04_patterns.html">Pattern Matching</a>, <a href="08_extensions.html">Extension Mechanisms</a>.</p>
 </body>
 </html>

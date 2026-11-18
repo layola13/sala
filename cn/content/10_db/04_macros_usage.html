@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>宏用法与完整示例</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">db 数据库插件 &gt; 宏用法与完整示例</div>
+<h1>宏用法与完整示例</h1>
+
+<p><code>db.sal</code> 是 native API 之上的宏 facade，共定义 <strong>338 个宏</strong>。
+它替你完成出参槽位的 <code>stack_alloc</code>、<code>call</code> 与结果 <code>load</code>，
+让 SA 程序不必手写指针算术。这一页先讲清宏的命名与展开规则，再给出三段取自仓库
+<code>benchmark_test/</code> 的真实端到端代码，覆盖建表、写入、查询、事务与关闭。
+为保证忠实，示例代码一律原样引用；仓库里的 <code>.sa</code> 文件本身不带行注释，
+因此每段代码前的编号说明写在正文里。</p>
+
+<h2 id="naming">命名规则与清单结构</h2>
+<ul>
+<li><strong>一一对应</strong>：<code>DB_INIT_SCHEMA</code> 包装 <code>sa_db_init_schema</code>，
+<code>DB_RANGE_U64_HANDLE</code> 包装 <code>sa_db_range_u64_handle</code>。
+把宏名转成 snake case 加上 <code>sa_db_</code> 前缀基本就是 native 名。</li>
+<li><strong>类型族展开</strong>：同一形态按类型复制，
+如 <code>DB_UPSERT_ROW_U64_KEY / _U32_KEY / _I32_KEY / _U8_KEY / _I8_KEY / _U16_KEY / _I16_KEY / _I64_KEY /
+_U64_PAIR_KEY / _U64_I64_PAIR_KEY / _BLOB_EQ_KEY</code>；
+读侧有 <code>DB_COUNT_*_CMP_HANDLE</code>、<code>DB_FIND_*_HANDLE</code>、<code>DB_RANGE_*_HANDLE</code>、
+<code>DB_GET_*_HANDLE</code>、<code>DB_MIN_*_HANDLE</code>、<code>DB_MAX_*_HANDLE</code>、
+<code>DB_SORT_ROWS_*_HANDLE</code>、<code>DB_FILTER_ROWS_*_RANGE_HANDLE</code> 等。</li>
+<li><strong>读句柄后缀</strong>：<code>_HANDLE</code> 表示作用在已打开的快照句柄上，
+不需要 root/表名前缀；无后缀的版本作用于当前表状态。</li>
+<li><strong>纯取值宏</strong>：一部分宏不调用 native，只从 info 结构体里 load 字段，
+例如 <code>DB_INFO_ROW_COUNT %out_rows, %info</code> 展开为
+<code>%out_rows = load %info+SaDbTableInfo_row_count as u64</code>。</li>
+</ul>
+
+<h3>常用辅助宏签名</h3>
+<p>下面五条取值/填充类宏的形参表原样摘自 <code>db.sal</code>，行尾中文是本页加的注解：</p>
+<pre><code>[MACRO] DB_COLUMN_INPUT_SET %columns, %index, %data, %len
+[MACRO] DB_BYTES_INPUT_SET   %inputs, %index, %data, %len
+[MACRO] DB_INFO_ROW_COUNT    %out_rows, %info
+
+[MACRO] DB_PLAN_INFO_WRITTEN          %out_written, %info
+[MACRO] DB_PLAN_INFO_TOTAL            %out_total, %info
+[MACRO] DB_PLAN_INFO_FIRST_PREDICATE  %out_first_predicate, %info
+[MACRO] DB_PLAN_INFO_FIRST_TOTAL      %out_first_total, %info
+[MACRO] DB_PLAN_INFO_SECOND_TOTAL     %out_second_total, %info</code></pre>
+<ul>
+<li><code>DB_COLUMN_INPUT_SET</code> / <code>DB_BYTES_INPUT_SET</code>：按 <code>%index * SIZE</code>
+偏移把「数据指针 + 字节数」写进 <code>SaDbColumnInput</code>/<code>SaDbBytesInput</code> 数组的第 <code>%index</code> 个元素。</li>
+<li><code>DB_INFO_ROW_COUNT</code>：从 <code>SaDbTableInfo</code> 里 load <code>row_count</code>，
+不产生任何 IO。</li>
+<li><code>DB_PLAN_INFO_*</code>：读取 <code>SaDbPlanInfo</code> 的五个字段。</li>
+</ul>
+<div class="note"><span class="label">注意</span><code>[MACRO]</code>/<code>[END_MACRO]</code> 是
+<strong>db.sal 文件里的定义形态</strong>；你自己的 <code>.sa</code> 源码里只写 <code>EXPAND …</code> 行。
+另外 <code>db.sal</code>/schema 文件支持 <code>//</code> 注释，但仓库的 <code>.sa</code> 示例源码里没有使用行注释。</div>
+
+<h2 id="expand">EXPAND 写法与内部机制</h2>
+<p>宏通过 <code>EXPAND &lt;宏名&gt; &lt;实参列表&gt;</code> 调用。以 <code>DB_INSERT_ROW</code> 为例：</p>
+<pre><code>// 定义（摘自 db.sal）
+[MACRO] DB_INSERT_ROW %out_status, %root, %root_len, %table_name, %table_name_len, %row, %row_len, %out_info
+    %out_status = call @sa_db_insert_row(&amp;%root, %root_len, &amp;%table_name, %table_name_len, &amp;%row, %row_len, &amp;%out_info)
+[END_MACRO]
+
+// 调用（摘自 benchmark_test/db_memory_smoke.sa）
+EXPAND DB_INSERT_ROW insert_a_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, row, ROW_BYTES, info</code></pre>
+<p>需要出参的宏会在展开处生成一个临时槽位并回读，例如 <code>DB_SUM_U64_HANDLE</code>：</p>
+<pre><code>[MACRO] DB_SUM_U64_HANDLE %out_status, %out_sum, %handle, %column_index
+    __db_handle_sum_slot_%out_sum = stack_alloc 8
+    ...call...(&amp;__db_handle_sum_slot_%out_sum)
+    %out_sum = load __db_handle_sum_slot_%out_sum+0 as u64
+[END_MACRO]</code></pre>
+<div class="note"><span class="label">注意</span>槽位名由出参变量名拼成，因此<strong>同一个宏在不同出参上多次展开互不冲突</strong>；
+但不要用会产生同名冲突的标识符作出参。所有状态码都应与 <code>SA_DB_OK</code> 比较后再继续。</div>
+
+<h3>字符串常量与长度</h3>
+<p>root、表名、schema 文本等参数都是「指针 + 字节长度」成对传入。真实示例统一这样声明：</p>
+<pre><code>@import "db.sal"
+
+@const ROOT = utf8:"."
+@const TABLE = utf8:"blob_key_write_smoke"
+@const SCHEMA_PATH = utf8:"blob_key_write_smoke.sadb-schema"
+@const SCHEMA = utf8:"#def MAX_ROWS = 8\n#def COL_ID_STRIDE = 8 // u64\n#def COL_CODE_STRIDE = 8 // blob_handle\n#def COL_POINTS_STRIDE = 8 // u64\n"
+
+#def ROOT_LEN = 1
+#def TABLE_LEN = 20
+#def SCHEMA_PATH_LEN = 32
+#def SCHEMA_LEN = 122
+#def ROW_BYTES = 24</code></pre>
+<p><code>*_LEN</code> 必须等于对应字符串的精确字节数（UTF-8），写错会导致读越界或匹配失败。
+注意 schema 文本里的 <code>// u64</code> 是 <strong>schema 的类型注解</strong>，不是 .sa 注释。</p>
+
+<h2 id="example1">示例一：内存根上的完整生命周期</h2>
+<p>来源：<code>benchmark_test/db_memory_smoke.sa</code>。它演示了 README 强调的正确顺序——
+<strong>在第一次写入之前建索引</strong>——以及 tx、coltx、读句柄、verify 四条主路径。
+以下保留全部关键步骤，省略了逐项断言链与结尾的所有权释放块。</p>
+
+<p><strong>声明区：</strong>内存根 <code>:memory:sa_smoke</code>，两列 u64 表，行宽 16 字节：</p>
+<pre><code>@import "db.sal"
+
+@const ROOT = utf8:":memory:sa_smoke"
+@const TABLE = utf8:"mem_sa_members"
+@const SCHEMA_PATH = utf8:"mem_sa_members.sadb-schema"
+@const SCHEMA = utf8:"#def MAX_ROWS = 8\n#def COL_ID_STRIDE = 8 // u64\n#def COL_POINTS_STRIDE = 8 // u64\n"
+
+#def ROOT_LEN = 16
+#def TABLE_LEN = 14
+#def SCHEMA_PATH_LEN = 26
+#def SCHEMA_LEN = 82
+#def ROW_BYTES = 16
+#def COL_BYTES = 8
+#def COLUMN_COUNT = 2
+#def COLUMNS_BYTES = 32
+
+@main() -&gt; i32:
+L_ENTRY:
+    info = stack_alloc SaDbTableInfo_SIZE
+    snapshot_info = stack_alloc SaDbSnapshotInfo_SIZE
+    columns = stack_alloc COLUMNS_BYTES
+    ids_col = alloc COL_BYTES
+    points_col = alloc COL_BYTES
+    row = alloc ROW_BYTES</code></pre>
+
+<p><strong>第一步，幂等清理 + 初始化 schema + 首次写入前建唯一索引：</strong></p>
+<pre><code>    EXPAND DB_REMOVE_TABLE remove_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, info
+    EXPAND DB_INIT_SCHEMA init_status, ROOT, ROOT_LEN, SCHEMA_PATH, SCHEMA_PATH_LEN, SCHEMA, SCHEMA_LEN, info
+    EXPAND DB_CREATE_U64_INDEX create_index_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, 0, 1, info</code></pre>
+
+<p><strong>第二步，单表事务：两条行插入后一次提交</strong>，随后读回行数应为 2：</p>
+<pre><code>    EXPAND DB_TX_BEGIN tx_begin_status, tx, ROOT, ROOT_LEN, TABLE, TABLE_LEN
+    store row+0, 1 as u64
+    store row+8, 10 as u64
+    EXPAND DB_TX_INSERT_ROW tx_insert1_status, tx, row, ROW_BYTES, info
+    store row+0, 2 as u64
+    store row+8, 20 as u64
+    EXPAND DB_TX_INSERT_ROW tx_insert2_status, tx, row, ROW_BYTES, info
+    EXPAND DB_TX_COMMIT tx_commit_status, tx, info
+    EXPAND DB_INFO_ROW_COUNT tx_rows, info</code></pre>
+
+<p><strong>第三步，coltx 列批量会话</strong>：按列组装一批数据（这里 1 行 2 列），提交后总行数为 3。
+注意 <code>DB_COLUMN_INPUT_SET</code> 按 <code>(数组, 列序号, 数据指针, 字节数)</code> 填充列描述数组：</p>
+<pre><code>    EXPAND DB_COLTX_BEGIN coltx_begin_status, coltx, ROOT, ROOT_LEN, TABLE, TABLE_LEN
+    store ids_col+0, 3 as u64
+    store points_col+0, 30 as u64
+    EXPAND DB_COLUMN_INPUT_SET columns, 0, ids_col, COL_BYTES
+    EXPAND DB_COLUMN_INPUT_SET columns, 1, points_col, COL_BYTES
+    EXPAND DB_COLTX_ADD_COLUMNS coltx_add_status, coltx, 1, columns, COLUMN_COUNT
+    EXPAND DB_COLTX_COMMIT coltx_commit_status, coltx, info
+    EXPAND DB_INFO_ROW_COUNT coltx_rows, info</code></pre>
+
+<p><strong>第四步，打开读句柄做查询</strong>：<code>sum_points</code> 应为 60，
+<code>found_id3</code> 为 1 表示找到且行号是 1，<code>points_id3</code> 为 30：</p>
+<pre><code>    EXPAND DB_OPEN_READ_TABLE open_status, read_handle, ROOT, ROOT_LEN, TABLE, TABLE_LEN
+    EXPAND DB_SNAPSHOT_INFO_HANDLE shape_status, read_handle, snapshot_info
+    EXPAND DB_SNAPSHOT_INFO_ROW_COUNT shape_rows, snapshot_info
+    EXPAND DB_SUM_U64_HANDLE sum_status, sum_points, read_handle, 1
+    EXPAND DB_FIND_U64_HANDLE find_status, found_id3, row_id3, read_handle, 0, 3
+    EXPAND DB_GET_U64_HANDLE get_status, points_id3, read_handle, 1, row_id3
+    EXPAND DB_CLOSE_READ_TABLE close_status, read_handle
+    EXPAND DB_VERIFY verify_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, info</code></pre>
+
+<p><strong>第五步，收尾</strong>：源文件把每一步的状态码与期望值逐一 <code>eq</code> 成布尔量，
+再用 <code>and</code> 链成一个总开关，最后统一释放所有权：</p>
+<pre><code>    ok_init = eq init_status, SA_DB_OK
+    ok_sum = eq sum_points, 60
+    ok01 = and ok_init, ok_sum
+    ok = and ok01, ok_verify
+
+    !remove_status
+    !init_status
+    !row
+    !ids_col
+    !points_col
+    br ok -&gt; L_OK, L_FAIL
+
+L_OK:
+    !ok
+    return 0
+
+L_FAIL:
+    !ok
+    panic(9003)</code></pre>
+
+<div class="note"><span class="label">注意</span>上面收尾块是为讲解而精简的版本，
+真实文件的断言链有二十多项、释放列表也完整得多。<code>L_OK</code>/<code>L_FAIL</code> 两个标签都要各自释放
+<code>ok</code>，这是扁平控制流下避免泄漏的标准写法。</div>
+
+<h2 id="example2">示例二：blob 业务键的写入与读取</h2>
+<p>来源：<code>benchmark_test/db_blob_key_write_smoke.sa</code>。表结构是
+<code>id:u64</code> + <code>code:blob_handle</code> + <code>points:u64</code>，以 blob 精确值作为业务键。</p>
+
+<p><strong>准备 blob store</strong>：向命名 store <code>codes</code> 追加客户编码，返回稳定的 1-based handle，
+第一个返回 1、第二个 2，以此类推：</p>
+<pre><code>    EXPAND DB_BLOB_PUT put_a_status, code_a_id, ROOT, ROOT_LEN, TABLE, TABLE_LEN,
+                       STORE, STORE_LEN, CODE_A, CODE_LEN, info
+    EXPAND DB_BLOB_PUT put_b_status, code_b_id, ROOT, ROOT_LEN, TABLE, TABLE_LEN,
+                       STORE, STORE_LEN, CODE_B, CODE_LEN, info
+    EXPAND DB_BLOB_PUT put_c_status, code_c_id, ROOT, ROOT_LEN, TABLE, TABLE_LEN,
+                       STORE, STORE_LEN, CODE_C, CODE_LEN, info</code></pre>
+
+<p><strong>组装一条 24 字节的行并插入</strong>，然后建立 <code>unique=1</code> 的 blob_eq 索引——
+没有这个索引就没有后面的按键写路径：</p>
+<pre><code>    store row+0, 1 as u64
+    store row+8, code_a_id as u64
+    store row+16, 100 as u64
+    EXPAND DB_INSERT_ROW insert_a_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, row, ROW_BYTES, info
+
+    store row+0, 2 as u64
+    store row+8, code_b_id as u64
+    store row+16, 200 as u64
+    EXPAND DB_INSERT_ROW insert_b_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, row, ROW_BYTES, info
+
+    EXPAND DB_CREATE_BLOB_EQ_INDEX index_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, 1, STORE, STORE_LEN, 1, info</code></pre>
+
+<p><strong>严格更新与 upsert</strong>。注意参数顺序：先两个 <code>1</code>
+（分别是 <code>unique</code> 标志位与列号位置的固定实参），再 store 名与键值：</p>
+<pre><code>    store row+0, 2 as u64
+    store row+8, code_b_id as u64
+    store row+16, 250 as u64
+    EXPAND DB_UPDATE_ROW_BLOB_EQ_KEY direct_update_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, 1,
+            STORE, STORE_LEN, CODE_B, CODE_LEN, row, ROW_BYTES, info
+
+    store row+0, 2 as u64
+    store row+8, code_b_id as u64
+    store row+16, 260 as u64
+    EXPAND DB_UPSERT_ROW_BLOB_EQ_KEY direct_upsert_existing_status, direct_upsert_existing_inserted,
+            ROOT, ROOT_LEN, TABLE, TABLE_LEN, 1, STORE, STORE_LEN, CODE_B, CODE_LEN, row, ROW_BYTES, info</code></pre>
+
+<p><strong>事务内混合操作后提交</strong>：事务里追加新 blob、upsert 新行、删除旧行，一次 commit 生效。
+对照组开启第二个事务做同样的事然后 rollback，所有改动不生效：
+</p>
+<pre><code>    EXPAND DB_TX_BEGIN tx_begin_status, tx, ROOT, ROOT_LEN, TABLE, TABLE_LEN
+    EXPAND DB_TX_BLOB_PUT tx_blob_d_status, code_d_id, tx, STORE, STORE_LEN, CODE_D, CODE_LEN, info
+    store row+0, 4 as u64
+    store row+8, code_d_id as u64
+    store row+16, 400 as u64
+    EXPAND DB_TX_UPSERT_ROW_BLOB_EQ_KEY tx_upsert_new_status, tx_upsert_new_inserted, tx, 1,
+            STORE, STORE_LEN, CODE_D, CODE_LEN, row, ROW_BYTES, info
+    EXPAND DB_TX_DELETE_BLOB_EQ_KEY tx_delete_status, tx, 1, STORE, STORE_LEN, CODE_B, CODE_LEN, info
+    EXPAND DB_TX_COMMIT tx_commit_status, tx, info
+    EXPAND DB_INFO_ROW_COUNT rows_after_commit, info
+
+    EXPAND DB_TX_BEGIN tx2_begin_status, tx2, ROOT, ROOT_LEN, TABLE, TABLE_LEN
+    EXPAND DB_TX_BLOB_PUT tx2_blob_f_status, code_f_id, tx2, STORE, STORE_LEN, CODE_F, CODE_LEN, info
+    EXPAND DB_TX_ROLLBACK tx2_rollback_status, tx2</code></pre>
+
+<p><strong>读句柄上按唯一 blob 键直接取整行</strong>，最后校验：</p>
+<pre><code>    EXPAND DB_OPEN_READ_TABLE open_status, read_handle, ROOT, ROOT_LEN, TABLE, TABLE_LEN
+    EXPAND DB_GET_ROW_BLOB_EQ_KEY_HANDLE get_c_status, read_handle, 1, STORE, STORE_LEN,
+            CODE_C, CODE_LEN, fetched_row, ROW_BYTES
+    fetched_c_id = load fetched_row+0 as u64
+    fetched_c_code = load fetched_row+8 as u64
+    fetched_c_points = load fetched_row+16 as u64
+    EXPAND DB_CLOSE_READ_TABLE close_status, read_handle
+    EXPAND DB_VERIFY verify_status, ROOT, ROOT_LEN, TABLE, TABLE_LEN, info</code></pre>
+
+<p>这段程序同时验证了三类失败路径的预期返回值，可以直接当作行为参考：</p>
+<table>
+<tr><th>操作</th><th>场景</th><th>预期返回</th></tr>
+<tr><td><code>DB_UPDATE_ROW_BLOB_EQ_KEY</code></td><td>键存在</td><td><code>SA_DB_OK</code></td></tr>
+<tr><td><code>DB_UPDATE_ROW_BLOB_EQ_KEY</code></td><td>键缺失</td><td><code>SA_DB_ERR_NOT_FOUND</code>，不追加</td></tr>
+<tr><td><code>DB_UPDATE_ROW_BLOB_EQ_KEY</code></td><td>行的 <code>blob_handle</code> 与 key 参数字节不一致</td><td><code>SA_DB_ERR_INVALID_FORMAT</code></td></tr>
+<tr><td><code>DB_UPSERT_ROW_BLOB_EQ_KEY</code> 的 <code>out_inserted</code></td><td>已存在的键</td><td><code>0</code></td></tr>
+<tr><td><code>DB_UPSERT_ROW_BLOB_EQ_KEY</code> 的 <code>out_inserted</code></td><td>新键</td><td><code>1</code></td></tr>
+<tr><td><code>DB_DELETE_BLOB_EQ_KEY</code></td><td>已删除的键再删一次</td><td><code>SA_DB_ERR_NOT_FOUND</code></td></tr>
+<tr><td><code>DB_GET_ROW_BLOB_EQ_KEY_HANDLE</code></td><td>被 rollback 的键</td><td><code>SA_DB_ERR_NOT_FOUND</code></td></tr>
+</table>
+
+<h2 id="example3">示例三：planner 两谓词查询</h2>
+<p>来源：<code>benchmark_test/db_planner_smoke.sa</code>。表结构带逻辑注解：
+<code>#def COL_STATUS_STRIDE = 8 // u64</code>、
+<code>#def COL_DUE_DAY_STRIDE = 8 // i64 date</code>、
+<code>#def COL_AMOUNT_CENTS_STRIDE = 8 // i64 decimal(2)</code>。
+planner 会估算两个谓词各自的候选规模并先扫较小的一侧：</p>
+<pre><code>    plan_info = stack_alloc SaDbPlanInfo_SIZE
+    plan_rows = alloc ROWS_BYTES
+
+    EXPAND DB_PLAN_U64_I64_RANGES_HANDLE tie_plan_status, plan_rows, ROWS_CAP, plan_info,
+            read_handle, 1, 2, 2, 3, 1500, 5500, 0, ROWS_CAP
+
+    EXPAND DB_PLAN_INFO_WRITTEN tie_written, plan_info
+    EXPAND DB_PLAN_INFO_TOTAL tie_total, plan_info
+    EXPAND DB_PLAN_INFO_FIRST_PREDICATE tie_first_predicate, plan_info
+    EXPAND DB_PLAN_INFO_FIRST_TOTAL tie_first_total, plan_info
+    EXPAND DB_PLAN_INFO_SECOND_TOTAL tie_second_total, plan_info
+
+    EXPAND DB_PLAN_U64_I64_RANGES_HANDLE page_plan_status, plan_rows, ROWS_CAP, plan_info,
+            read_handle, 1, 2, 2, 3, 1500, 5500, 1, 1</code></pre>
+<p>第一组调用是全量匹配（<code>offset=0</code>，<code>limit=ROWS_CAP</code>），
+第二组只翻一页（<code>offset=1</code>，<code>limit=1</code>），用于验证分页契约。
+谓词顺序是「u64 范围 (列1: 2..2) + i64 范围 (列3: 1500..5500)」；
+<code>first_predicate</code> 返回 1 或 2 表示 planner 实际先扫了哪一侧，平局时取 1。</p>
+
+<div class="warning"><span class="label">警告</span>传给 range/planner 的是<strong>已编码后的整数值</strong>：
+日期要先用 <code>DB_DATE_FROM_YMD</code> 转成 epoch days，金额要先用 <code>DB_DECIMAL_FROM_PARTS</code>
+转成分级整数，时间戳要用 <code>DB_TIMESTAMP_MS_FROM_PARTS</code>/<code>DB_TIMESTAMP_US_FROM_PARTS</code>。
+<code>i64 date</code> / <code>decimal(2)</code> 只是元数据注解，物理字节仍是普通 i64。</div>
+
+<h2 id="checklist">自查清单</h2>
+<ol>
+<li><code>@import "db.sal"</code> 是否在最顶部？宏与常量（含 <code>SA_DB_OK</code>）都来自它。</li>
+<li>每个字符串常量是否有配对的 <code>*_LEN</code> 且字节数正确？</li>
+<li>唯一键写路径之前是否已经建立了对应类型的<strong>唯一</strong>索引？</li>
+<li>批量并发导入是否用了 <code>coltx</code> 而不是裸 <code>ingest_columns</code>？</li>
+<li>每个出参是否都检查过状态码？失败是否集中到一个失败标签？</li>
+<li>读句柄用完是否 <code>DB_CLOSE_READ_TABLE</code>？收尾是否跑了 <code>DB_VERIFY</code>？</li>
+<li>每个中间值是否都有对应的 <code>!</code> 释放？这是 SA 的通用纪律，不是 db 插件特有要求。</li>
+</ol>
+
+<p>各宏背后的 native 语义见 <a href="03_api.html">SA API 八大分组</a>；
+命令行侧的等价操作见 <a href="02_cli.html">CLI 命令详解</a>；
+性能与限制见 <a href="06_limits_perf.html">边界、性能与最佳实践</a>。</p>
+</body>
+</html>

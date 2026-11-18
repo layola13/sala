@@ -1,77 +1,78 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>transfer：可见的所有权转移</title>
+<title>transfer: Visible Ownership Transfer</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SA 汇编与 SAB &gt; transfer：可见的所有权转移</div>
-<h1>transfer：可见的所有权转移</h1>
+<div class="topic-header">SA Assembly and SAB &gt; transfer: Visible Ownership Transfer</div>
+<h1>transfer: Visible Ownership Transfer</h1>
 
-<div class="note"><span class="label">状态</span>本页描述 <code>transfer</code> 指令，2026-11-17 经 sci <code>bcafc71f</code> 与 sa_plugin_sla <code>ac2e2486</code> 落地。它是 SA 汇编的一条新原语，也是成熟化中的所有权基础设施：先被 Sla 编译器内部采用，普通手写 <code>.sa</code> 一般不需要直接用它。</div>
+<div class="note"><span class="label">Status</span>This page describes the <code>transfer</code> instruction, landed on 2026-11-17 via sci <code>bcafc71f</code> and sa_plugin_sla <code>ac2e2486</code>. It is a new primitive of SA assembly, and also ownership infrastructure that is maturing: it was first adopted internally by the Sla compiler, and hand-written <code>.sa</code> generally does not need to use it directly.</div>
 
-<h2>为什么需要 transfer</h2>
-<p>在它之前，把值的所有权交给容器（例如把一个结构体元素塞进 VecDeque）在发射层只能写成一条<strong>无目标的 <code>^</code>（move-out）</strong>：<code>^tmp</code>。这条指令只把源寄存器从 <code>Active</code> 改成 <code>Consumed</code>，Referee 看不出所有权<strong>去了哪里</strong>。后果是：</p>
+<h2>Why transfer Is Needed</h2>
+<p>Before it, handing ownership of a value to a container (for example, pushing a struct element into a VecDeque) could only be written at the emission layer as a <strong>targetless <code>^</code> (move-out)</strong>: <code>^tmp</code>. That instruction only changes the source register from <code>Active</code> to <code>Consumed</code>, and the Referee cannot see where the ownership <strong>went</strong>. The consequences are:</p>
 <ul>
-<li>验证器无法检查目标是否真是一个能接收所有权的活跃容器（把值塞进借来的视图、不可变绑定、内部指针，旧写法一律察觉不到）。</li>
-<li>"值转移到哪里"这件事只存在于编译器前端的元数据里，和实际发射的 SA 指令之间存在裂缝。发射点一旦漏写 <code>^</code>，源寄存器就留在 <code>Active</code>，到函数出口触发 <code>MemoryLeak</code>（典型码 1012）——错误定位在出口，而非真正的遗漏处。DEF-TEXT31-VECDEQUE-STRUCT-TEMP 就是这一类缺陷。</li>
+<li>The verifier cannot check whether the target really is a live container that can receive ownership (pushing a value into a borrowed view, an immutable binding, or an interior pointer was undetectable in the old spelling).</li>
+<li>The fact of “where the value was transferred to” existed only in the compiler frontend's metadata, leaving a gap between it and the SA instructions actually emitted. Once an emission point omits the <code>^</code>, the source register stays <code>Active</code> and triggers <code>MemoryLeak</code> at the function exit (typical code 1012) — the error is located at the exit, not at the real omission. DEF-TEXT31-VECDEQUE-STRUCT-TEMP is exactly this class of defect.</li>
 </ul>
-<p><code>transfer</code> 把这次转移变成<strong>验证器可见的一等事实</strong>：指令里带上目标容器，Referee 当场检查合法性并记录所有权重载。</p>
+<p><code>transfer</code> turns this transfer into a <strong>first-class fact visible to the verifier</strong>: the instruction carries the target container, and the Referee checks its legality on the spot and records the ownership transfer.</p>
 
-<h2>指令形态</h2>
+<h2>Instruction Form</h2>
 <pre><code>transfer &lt;container&gt;, &lt;value&gt;</code></pre>
-<p><code>container</code> 与 <code>value</code> 都是寄存器。<code>value</code> 的所有权移入 <code>container</code>；真正的字节搬移由<strong>前一条 <code>store</code></strong> 完成，<code>transfer</code> 本身是<strong>运行时 no-op</strong>——LLVM / WASM / JS / 解释器 / C 五个后端都不为它生成机器码。它只有验证语义。一个最小例子：</p>
+<p>Both <code>container</code> and <code>value</code> are registers. Ownership of <code>value</code> moves into <code>container</code>; the actual byte move is performed by the <strong>preceding <code>store</code></strong>, and <code>transfer</code> itself is a <strong>runtime no-op</strong> — none of the five backends (LLVM / WASM / JS / interpreter / C) generates machine code for it. It has only verification semantics. A minimal example:</p>
 <pre><code>    v = alloc 64
     tmp = alloc 8
     store v+0, tmp
     transfer v, tmp        # 所有权进入 v；tmp 转为 Consumed
     !v</code></pre>
-<p>对照：同样的程序若<strong>只写 <code>store</code> 不写 <code>transfer</code></strong>，<code>tmp</code> 到出口仍是 <code>Active</code>，报 <code>MemoryLeak</code>。这正说明<strong>让源寄存器退役的是 <code>transfer</code>，不是 <code>store</code></strong>。</p>
+<p>Contrast: if the same program <strong>writes only the <code>store</code> and not the <code>transfer</code></strong>, <code>tmp</code> is still <code>Active</code> at the exit and reports <code>MemoryLeak</code>. This shows precisely that <strong>what retires the source register is the <code>transfer</code>, not the <code>store</code></strong>.</p>
 
-<h2>Referee 的检查</h2>
-<p>遇到 <code>transfer c, v</code>，Referee 按以下顺序判定：</p>
+<h2>Referee Checks</h2>
+<p>On encountering <code>transfer c, v</code>, the Referee decides in the following order:</p>
 <table>
-<tr><th>侧</th><th>规则</th><th>违例 Trap</th></tr>
-<tr><td>目标容器 c</td><td>必须是活跃的 owned 根：栈分配根或 <code>Active</code> 寄存器</td><td><code>TransferIntoBorrow</code>（1061）</td></tr>
-<tr><td>目标容器 c</td><td>不能是 <code>borrow_view</code> / <code>ffi_borrow</code> / <code>interior_ptr</code>，也不能挂有内部指针子树</td><td><code>TransferIntoBorrow</code>（1061）</td></tr>
-<tr><td>目标容器 c</td><td>不能是 <code>@const</code> 数据，也不能是 Rust 风格不可变绑定（能力位 <code>immutable</code>）</td><td><code>TransferIntoImmutable</code>（1062）</td></tr>
-<tr><td>目标容器 c</td><td>不能已被消费，且不能持有活跃借用</td><td><code>UseAfterMove</code> / <code>BorrowConflict</code></td></tr>
-<tr><td>来源 value</td><td>按 <code>^</code> 的规则读检查后转为 <code>Consumed</code>（<code>0x08</code>）；重复转移同一值触发 <code>UseAfterMove</code></td><td><code>UseAfterMove</code>（1009）</td></tr>
+<tr><th>Side</th><th>Rule</th><th>Violation trap</th></tr>
+<tr><td>Target container c</td><td>Must be a live owned root: a stack-allocation root or an <code>Active</code> register</td><td><code>TransferIntoBorrow</code> (1061)</td></tr>
+<tr><td>Target container c</td><td>Must not be a <code>borrow_view</code> / <code>ffi_borrow</code> / <code>interior_ptr</code>, and must not have an interior-pointer subtree attached</td><td><code>TransferIntoBorrow</code> (1061)</td></tr>
+<tr><td>Target container c</td><td>Must not be <code>@const</code> data, and must not be a Rust-style immutable binding (the <code>immutable</code> capability bit)</td><td><code>TransferIntoImmutable</code> (1062)</td></tr>
+<tr><td>Target container c</td><td>Must not already be consumed, and must not hold a live borrow</td><td><code>UseAfterMove</code> / <code>BorrowConflict</code></td></tr>
+<tr><td>Source value</td><td>Checked by the <code>^</code> read rules and then turned to <code>Consumed</code> (<code>0x08</code>); transferring the same value twice triggers <code>UseAfterMove</code></td><td><code>UseAfterMove</code> (1009)</td></tr>
 </table>
-<p>通过后，目标容器被打上新的能力位 <code>owns_children = 0x0400</code>，表示"这个容器收到了转移进来的 owned 值"。</p>
-<div class="note"><span class="label">注意</span><code>owns_children</code> 是一个<strong>布尔记账位</strong>，不是子对象计数器，Referee <strong>不做深 drop 配对验证</strong>。深 drop 序列由 Sla 编译器按 <code>DropPlan</code> 发射、藏在 <code>sa_std</code> 宏里，其寄存器级效果 Referee 观测不到，因此配对属于编译器层的职责，不是验证器的检查范围。</div>
+<p>After passing, the target container is stamped with a new capability bit <code>owns_children = 0x0400</code>, meaning “this container received an owned value transferred into it”.</p>
+<div class="note"><span class="label">Note</span><code>owns_children</code> is a <strong>boolean bookkeeping bit</strong>, not a child-object counter, and the Referee <strong>does not perform deep-drop pairing verification</strong>. The deep-drop sequence is emitted by the Sla compiler according to its <code>DropPlan</code> and hidden inside <code>sa_std</code> macros; its register-level effects are not observable by the Referee, so pairing is the compiler layer's responsibility, not within the verifier's checking scope.</div>
 
-<h2>与五符号契约的关系</h2>
-<p><code>transfer</code> 不是第六个符号，而是 <code>^</code>（转移所有权）在"有明确接收方"场景下的<strong>可验证形态</strong>：</p>
+<h2>Relationship to the Five-Symbol Contract</h2>
+<p><code>transfer</code> is not a sixth symbol, but the <strong>verifiable form</strong> of <code>^</code> (transfer ownership) in the “there is a definite receiver” scenario:</p>
 <ul>
-<li><code>^x</code> —— 把 <code>x</code> 移出并消费，不关心去向（如把值丢弃、或调用约定已由函数签名表达）。</li>
-<li><code>transfer c, x</code> —— 把 <code>x</code> 移入<strong>确定的容器</strong> <code>c</code>，让验证器能检查目标并记录所有权重载。</li>
+<li><code>^x</code> — moves <code>x</code> out and consumes it, without caring where it goes (for example, discarding a value, or when the calling convention is already expressed by the function signature).</li>
+<li><code>transfer c, x</code> — moves <code>x</code> into the <strong>definite container</strong> <code>c</code>, letting the verifier check the target and record the ownership transfer.</li>
 </ul>
-<p>两条路径都让 <code>x</code> 转为 <code>Consumed</code>，因此都满足函数出口的无泄漏检查；区别只在<strong>目标是否可见、可查</strong>。旧的裸 <code>^</code> 继续有效，本指令是追加能力，不破坏已有 <code>.sa</code> 产物。</p>
+<p>Both paths turn <code>x</code> to <code>Consumed</code>, so both satisfy the no-leak check at the function exit; the only difference is <strong>whether the target is visible and checkable</strong>. The old bare <code>^</code> remains valid; this instruction is an added capability and does not break existing <code>.sa</code> artifacts.</p>
 
-<h2>由 Sla 编译器自动发射</h2>
-<p>手写 SA 很少直接使用 <code>transfer</code>；主要生产者是 Sla 编译器。当 SLA 源码把带 owned 字段的结构体元素推入 <code>VecDeque</code> 时：</p>
+<h2>Emitted Automatically by the Sla Compiler</h2>
+<p>Hand-written SA rarely uses <code>transfer</code> directly; its main producer is the Sla compiler. When SLA source pushes a struct element with owned fields into a <code>VecDeque</code>:</p>
 <pre><code>q.push_back(VdJob { id: 7, cost: 3 });</code></pre>
-<p>编译器现在发射 <code>transfer q, tmp_1</code>（此前是裸 <code>^tmp_1</code> 或干脆漏掉）。已覆盖两个入口：<code>VecDeque::push_back</code> 与 <code>VecDeque::from([...])</code>。指令是运行时 no-op，不改变生成程序的运行结果（端到端编译执行已验证）。</p>
+<p>The compiler now emits <code>transfer q, tmp_1</code> (previously a bare <code>^tmp_1</code>, or omitted entirely). Two entry points are covered: <code>VecDeque::push_back</code> and <code>VecDeque::from([...])</code>. The instruction is a runtime no-op and does not change the runtime result of the generated program (verified by end-to-end compile-and-run).</p>
 
-<h2>诊断与退出码</h2>
+<h2>Diagnostics and Exit Codes</h2>
 <table>
-<tr><th>Trap</th><th>码</th><th>稳定码</th><th>含义</th></tr>
-<tr><td><code>TransferIntoBorrow</code></td><td>1061</td><td>SA-REF-100</td><td>所有权被转移到借用视图 / 内部指针容器</td></tr>
-<tr><td><code>TransferIntoImmutable</code></td><td>1062</td><td>SA-REF-101</td><td>所有权被转移到 <code>@const</code> 或不可变绑定容器</td></tr>
+<tr><th>Trap</th><th>Code</th><th>Stable code</th><th>Meaning</th></tr>
+<tr><td><code>TransferIntoBorrow</code></td><td>1061</td><td>SA-REF-100</td><td>Ownership transferred into a borrow view / interior-pointer container</td></tr>
+<tr><td><code>TransferIntoImmutable</code></td><td>1062</td><td>SA-REF-101</td><td>Ownership transferred into an <code>@const</code> or immutable-binding container</td></tr>
 </table>
-<p>结构化 JSON 诊断中，这两类 trap 带 <code>expected_mask=Active</code> 与实际的 <code>actual_mask</code>（如 <code>0x11</code>=Active|BorrowView），便于定位是哪个容器前缀出了问题。错误码全表见 <a href="05_diagnostics.html">错误码与诊断</a>。</p>
+<p>In structured JSON diagnostics, these two trap kinds carry <code>expected_mask=Active</code> and the actual <code>actual_mask</code> (such as <code>0x11</code> = Active|BorrowView), making it easy to locate which container prefix is at fault. See the <a href="05_diagnostics.html">Error Codes and Diagnostics</a> page for the full error-code table.</p>
 
-<h2>设计边界</h2>
+<h2>Design Boundaries</h2>
 <ul>
-<li><strong>运行时零开销</strong>：五个后端均为 no-op；字节搬移归前序 <code>store</code>。</li>
-<li><strong>不检查深 drop 配对</strong>：见上文的 <code>owns_children</code> 说明。这是刻意的职责划分。</li>
-<li><strong>SAB 编码兼容</strong>：新 <code>InstKind</code> 追加在枚举末尾，不改已有值，保留 SAB 原始字节编码的稳定性。</li>
-<li><strong>向后兼容</strong>：旧 <code>^</code> 永久有效，Sla 侧迁移按容器族逐步推进。</li>
+<li><strong>Zero runtime cost</strong>: a no-op in all five backends; the byte move belongs to the preceding <code>store</code>.</li>
+<li><strong>No deep-drop pairing check</strong>: see the <code>owns_children</code> explanation above. This is a deliberate division of responsibility.</li>
+<li><strong>SAB encoding compatibility</strong>: the new <code>InstKind</code> is appended at the end of the enum, without changing existing values, preserving the stability of SAB's raw byte encoding.</li>
+<li><strong>Backward compatibility</strong>: the old <code>^</code> remains valid forever, and migration on the Sla side proceeds container family by container family.</li>
 </ul>
 
-<p>上一页：<a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a>。</p>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<p>Previous page: <a href="08_sab_whitepaper.html">SAB Format Whitepaper (Specification)</a>.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/03_sa_asm/09_ownership_transfer.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

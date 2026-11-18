@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>sa→C 总览与快速上手</title>
+<title>sa→C Overview and Quick Start</title>
 <link rel="stylesheet" href="../../assets/help.css">
 <style>
 table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
@@ -13,41 +13,41 @@ pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-
 </style>
 </head>
 <body class="topic">
-<div class="topic-header">sa→C &gt; 总览与快速上手</div>
-<h1>sa→C 总览与快速上手</h1>
+<div class="topic-header">sa→C Backend &gt; sa→C Overview and Quick Start</div>
+<h1>sa→C Overview and Quick Start</h1>
 
-<p><code>sa build-c</code> 把 SA 程序编译成单文件、可审计的 C99 程序
-（实现：<code>sci/src/emit_c.zig</code>，Zig 0.17 构建）。
-设计目标是<strong>安全可审计的 C</strong>：确定性输出、无隐藏依赖、
-<code>gcc -Wall -Wextra</code> 零警告，配合 Gas 计量与线性内存越界检查，
-适合把 SA 程序嵌入 checkout 规则、审计流水线等对 C 代码有静态检查要求的场景。</p>
+<p><code>sa build-c</code> compiles an SA program into a single-file, auditable C99 program
+(implementation: <code>sci/src/emit_c.zig</code>, built with Zig 0.17).
+The design goal is <strong>safe, auditable C</strong>: deterministic output, no hidden dependencies,
+zero warnings under <code>gcc -Wall -Wextra</code>, combined with Gas metering and linear-memory bounds checks,
+which suits embedding SA programs in scenarios with static-checking requirements on C code, such as checkout rules and audit pipelines.</p>
 
-<h2>1. 基本用法</h2>
+<h2>1. Basic Usage</h2>
 <pre>sa build-c demos/c/01_hello_world/main.sa -o sa_program.c --project-root .
 cc -Wall -Wextra -std=c99 -O2 sa_program.c -o sa_program
 ./sa_program   # hello, saasm</pre>
 <ul>
-<li><code>--project-root</code> 用于包解析（<code>sa_std</code> 导入与 <code>.sa_cache</code>）。</li>
-<li>输出是单个 <code>.c</code> 文件：头部注释标明生成器，之后依次是
-includes/类型、线性内存、<code>sa_trap</code>、Gas、按需发射的运行时 helper、
-const 定义、函数前向声明、函数体、（可选）间接分发表、<code>main</code>。</li>
-<li><code>hello_world</code> 的完整输出约 43 行，仅含
-<code>sa_trap + sa_gas + sa_addr + sa_print_bytes</code> 四个运行时符号。</li>
+<li><code>--project-root</code> is used for package resolution (<code>sa_std</code> imports and <code>.sa_cache</code>).</li>
+<li>The output is a single <code>.c</code> file: a header comment identifies the generator, followed in order by
+includes/types, linear memory, <code>sa_trap</code>, Gas, the on-demand runtime helpers,
+const definitions, function forward declarations, function bodies, an (optional) indirect dispatch table, and <code>main</code>.</li>
+<li>The complete output for <code>hello_world</code> is about 43 lines, containing only
+the four runtime symbols <code>sa_trap + sa_gas + sa_addr + sa_print_bytes</code>.</li>
 </ul>
 
-<h2>2. 本章结构</h2>
+<h2>2. Structure of This Chapter</h2>
 <table>
-<tr><th>页</th><th>内容</th></tr>
-<tr><td><a href="02_runtime.html">运行时与 Gas</a></td><td>helper 按需发射、线性内存、<code>SA_GAS_CHECK</code> 插桩与 <code>SA_GAS_LIMIT</code> 覆盖</td></tr>
-<tr><td><a href="03_semantics.html">语义对齐</a></td><td>兼容别名（div/rem/gt/lt/shr）的 kind 选择、f32 domain、间接调用分发与修复史</td></tr>
-<tr><td><a href="04_extern.html">extern 宿主绑定</a></td><td>staged 模拟语义、已支持家族（fd/mmap/signal/npm/pthread/dlopen/sqlite/http）与未知 extern 回退</td></tr>
-<tr><td><a href="05_verify.html">验证矩阵</a></td><td>961 demos 全量结论、仓库套件、<code>-Wall -Wextra</code> 门禁与已知边界</td></tr>
-<tr><td><a href="06_perf.html">性能对比</a></td><td>C(-O2) vs JS vs 解释器、新旧编译产物大小、Gas 注记</td></tr>
+<tr><th>Page</th><th>Contents</th></tr>
+<tr><td><a href="02_runtime.html">Runtime: On-Demand Helpers, Memory, and Gas</a></td><td>On-demand helper emission, linear memory, <code>SA_GAS_CHECK</code> instrumentation, and the <code>SA_GAS_LIMIT</code> override</td></tr>
+<tr><td><a href="03_semantics.html">Semantic Alignment: Aliasing, f32, and Indirect Calls</a></td><td>Kind selection for the compatibility aliases (div/rem/gt/lt/shr), the f32 domain, indirect-call dispatch, and fix history</td></tr>
+<tr><td><a href="04_extern.html">extern Host Bindings (Staged Simulation)</a></td><td>Staged simulation semantics, the supported families (fd/mmap/signal/npm/pthread/dlopen/sqlite/http), and the fallback for unknown externs</td></tr>
+<tr><td><a href="05_verify.html">Verification Matrix and Known Boundaries</a></td><td>Full conclusions for the 961 demos, the repository suite, the <code>-Wall -Wextra</code> gate, and known boundaries</td></tr>
+<tr><td><a href="06_perf.html">sa2c Performance Comparison: C / JS / Interpreter</a></td><td>C(-O2) vs JS vs the interpreter, old vs new compiled product sizes, and Gas notes</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>sa→C 发射的是<strong>可执行程序</strong>
-（含 <code>int main</code>），不是库：未被调用的 export/test 函数会被裁掉；
-<code>#npm_bind</code> 仍是 JS-only，C 端对 npm 系 extern 用原生 staged 实现代替
-（见 <a href="04_extern.html">extern 章</a>）。</div>
+<div class="note"><span class="label">Note</span>sa→C emits an <strong>executable program</strong>
+(containing <code>int main</code>), not a library: export/test functions that are never called are trimmed away;
+<code>#npm_bind</code> is still JS-only, and on the C side npm-family externs are replaced by native staged implementations
+(see the <a href="04_extern.html">extern Host Bindings (Staged Simulation)</a> page).</div>
 </body>
 </html>

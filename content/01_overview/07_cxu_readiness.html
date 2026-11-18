@@ -1,58 +1,58 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>CXU 前后端 SLA 重构就绪度审核</title>
+<title>CXU Frontend/Backend SLA Rewrite Readiness Audit</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">入门指南 &gt; CXU 前后端 SLA 重构就绪度审核</div>
-<h1>CXU 前后端 SLA 重构就绪度审核</h1>
+<div class="topic-header">Getting Started &gt; CXU Frontend/Backend SLA Rewrite Readiness Audit</div>
+<h1>CXU Frontend/Backend SLA Rewrite Readiness Audit</h1>
 
-<div class="note"><span class="label">状态</span>审核稿（2026-10-25，源码实证）。问题：以当前 SLA / sa_std / 插件生态，能否重构 CXU（codex-react-ui：服务端约 5.9 万行 TS、Web 前端约 8.8 万行 TSX、各 CLI 桥约 6.5 万行 TS，另有 Electron 桌面壳）的前端与后端。结论分前后端两说：<b>后端地基基本齐，差三块硬缺口与一个成熟度前提；前端不具备。</b>网络层已在 2026-10-24 单独审计过（CXU 用到的 9 项协议依赖全部内置），本页审网络之外的面。</div>
+<div class="note"><span class="label">Status</span>Audit draft (2026-10-25, proven from source). The question: with the current SLA / sa_std / plugin ecosystem, can we rewrite the frontend and backend of CXU (codex-react-ui: about 59k lines of TS on the server side, about 88k lines of TSX in the Web frontend, about 65k lines of TS in the various CLI bridges, plus an Electron desktop shell)? The conclusion is split between frontend and backend: <b>the backend foundation is basically complete, lacking three hard gaps and one maturity prerequisite; the frontend is not ready.</b> The network layer was audited separately on 2026-10-24 (all 9 protocol dependencies CXU uses are built in); this page audits the surfaces outside networking.</div>
 
-<h2>后端：已齐备的面</h2>
+<h2>Backend: Surfaces Already Complete</h2>
 <ul>
-<li><strong>进程管理（CXU 的核心动作）</strong>：process.sai 54 个导出——spawn 家族带 cwd / arg0 / 进程组 / setsid / pidfd / uid / gid / 补充组 / chroot 变体，wait / try_wait / kill / 进程组信号 / pidfd 全套，stdout/stderr 管道读取与 exec_capture。各 CLI 子进程的生命周期管理不缺原语。</li>
-<li><strong>数据与文本</strong>：JSON 独立模块 51 个导出；string 25、fmt 14、regex（text/regex）、集合齐全（hashmap/hashset、btree_map/set、vec、vec_deque、binary_heap、sort、iter）。</li>
-<li><strong>文件与环境</strong>：fs 120 个导出、env 22、time 19、path 模块独立。</li>
-<li><strong>并发</strong>：thread 9 个导出 + sync 全套（mutex / rwlock / mpsc / condvar / barrier / atomic / once）与 Arc/Rc/Cell/RefCell 核心库。多会话并发可走线程模型。</li>
-<li><strong>协议与存储</strong>：HTTP/1.1 服务器与客户端、WebSocket 双向、SSE、TLS 客户端（含 ClientHello 指纹整形，对应 CXU 的 fetch-impersonate）与 TLS 服务端、QUIC/HTTP3、SSH、compress、multipart、DNS 公开 API 均已内置（见 06_stdlib 与既往审计）；SQLite 入口是 node 插件的 sqlite 门面（sa_node_plugin_sqlite_*，sci 的 plugin_sqlite.sa 宏包装；订正：sa_plugin_db 是自研列存引擎、并非 SQLite），D3 演示已实证（2026-10-25）。</li>
-<li><strong>存在性证据</strong>：scodex-mini 已用 SLA 写成单轮 agent CLI（HTTPS POST + 工具循环 + shell_exec 捕获输出），证明 agent 骨架类程序今天就能表达。</li>
+<li><strong>Process management (CXU's core action)</strong>: process.sai has 54 exports — the spawn family with cwd / arg0 / process group / setsid / pidfd / uid / gid / supplementary groups / chroot variants, the full set of wait / try_wait / kill / process-group signals / pidfd, stdout/stderr pipe reading, and exec_capture. Managing the lifecycles of the various CLI child processes lacks no primitives.</li>
+<li><strong>Data and text</strong>: a standalone JSON module with 51 exports; string 25, fmt 14, regex (text/regex), and a complete set of collections (hashmap/hashset, btree_map/set, vec, vec_deque, binary_heap, sort, iter).</li>
+<li><strong>Files and environment</strong>: fs with 120 exports, env 22, time 19, and a standalone path module.</li>
+<li><strong>Concurrency</strong>: thread with 9 exports + the full sync set (mutex / rwlock / mpsc / condvar / barrier / atomic / once) and the Arc/Rc/Cell/RefCell core libraries. Multi-session concurrency can follow the thread model.</li>
+<li><strong>Protocols and storage</strong>: an HTTP/1.1 server and client, bidirectional WebSocket, SSE, a TLS client (including ClientHello fingerprint shaping, corresponding to CXU's fetch-impersonate) and a TLS server, QUIC/HTTP3, SSH, compress, multipart, and the DNS public API are all built in (see 06_stdlib and the earlier audit); the SQLite entry point is the node plugin's sqlite facade (sa_node_plugin_sqlite_*, wrapped by sci's plugin_sqlite.sa macros; correction: sa_plugin_db is a home-grown columnar engine, not SQLite), as proven by the D3 demonstration (2026-10-25).</li>
+<li><strong>Existence proof</strong>: scodex-mini has already been written in SLA as a single-turn agent CLI (HTTPS POST + tool loop + shell_exec output capture), proving that agent-skeleton programs can be expressed today.</li>
 </ul>
 
-<h2>后端：硬缺口（按阻塞程度排序）</h2>
+<h2>Backend: Hard Gaps (Ordered by How Blocking They Are)</h2>
 <ul>
-<li><strong>① 子进程 stdin 不可写（头号阻塞）</strong>：std 的 spawn 实现只为子进程建 stdout/stderr 两条管道（spawnProcessConfiguredCwd 源码实证），SpawnResult 只有 process/stdout/stderr 三个句柄，<b>没有 stdin 管道</b>。而 CXU 桥的核心回路是双向 stdio：把 JSON-RPC 请求与提示写进 CLI 的 stdin、读它的 stdout。补法明确：给 std 加双向 spawn 变体（stdin 管 + 写/关句柄），属 sa_std 增量而非架构问题。</li>
-<li><strong>② PTY 缺失</strong>：term.sai 只有终端 raw 模式、窗口尺寸与 epoll 辅助，没有 openpty/forkpty。CXU 的 terminalPty（node-pty）功能无从落地。补法：基于 posix_openpt/grantpt 或 forkpty 在 std 内建 PTY 主从端 + resize + 读写。</li>
-<li><strong>③ fs watch 缺失</strong>：fs 面没有 inotify/目录监听封装（CXU 有 18 处 fs.watch 用法）。可先以轮询替代，正式补法是 inotify 封装进 std。</li>
-<li><strong>④ 小件缺失</strong>：TOML 解析（codex 的 config.toml 是刚需）、bcrypt 口令哈希、OS keyring——std 均无现成件。量级都不大：要么经 FFI 链系统库，要么在 std/SLA 层自写（TOML 解析器、bcrypt 均为有界工作量）。</li>
+<li><strong>① A child process's stdin is not writable (the number-one blocker)</strong>: std's spawn implementation creates only stdout/stderr pipes for the child (proven in the spawnProcessConfiguredCwd source); SpawnResult has only the three handles process/stdout/stderr and <b>no stdin pipe</b>. Yet the CXU bridges' core loop is bidirectional stdio: write JSON-RPC requests and prompts into the CLI's stdin and read its stdout. The fix is clear: add a bidirectional spawn variant to std (a stdin pipe + write/close handles); this is a sa_std increment, not an architecture problem.</li>
+<li><strong>② PTY is missing</strong>: term.sai has only terminal raw mode, window size, and epoll helpers; there is no openpty/forkpty. CXU's terminalPty (node-pty) functionality has no way to land. The fix: build a PTY master/slave pair + resize + read/write into std based on posix_openpt/grantpt or forkpty.</li>
+<li><strong>③ fs watch is missing</strong>: the fs surface has no inotify/directory-watching wrapper (CXU has 18 uses of fs.watch). Polling can substitute initially; the proper fix is to wrap inotify into std.</li>
+<li><strong>④ Small missing pieces</strong>: TOML parsing (codex's config.toml is a hard requirement), bcrypt password hashing, and the OS keyring — std has no ready-made piece for any of them. None is large in magnitude: either link a system library via FFI, or write it at the std/SLA layer (a TOML parser and bcrypt are both bounded workloads).</li>
 </ul>
 
-<h2>后端：成熟度前提</h2>
-<p>编译器本身还在收敛（见 <a href="../02_sla_lang/10_maturity.html">特性成熟度总表</a>，撰写时快照）：<code>sa sla check</code> 306/313、<code>sa sla build-exe</code> 239/313（约 76%）。未进入 direct 路径的日常特性包括 for-in 集合迭代（Phase 6）、枚举 payload / match 提取与 @derive（Phase 5）；async/await 状态机只覆盖线性 await 序列，跨 async fn 边界的嵌套 await 双后端同挂（Phase 8 部分完成），executor 仍是轮询宏。含义：以后端十万行级的规模写 SLA，会在长尾特性上反复撞 UnsupportedSabDirectFeature（大声失败、不静默回退，这点是好的）；且并发设计应定死线程 + mpsc 模型，不要押注 async。另：SLA 尚无 &amp;mut（&amp;self 兼读写、SA Referee 兜底），大型工程的借用纪律与 Rust 不同，需要在试点里验证人体工学。</p>
+<h2>Backend: The Maturity Prerequisite</h2>
+<p>The compiler itself is still converging (see the <a href="../02_sla_lang/10_maturity.html">Feature Maturity Matrix</a>, a snapshot at the time of writing): <code>sa sla check</code> 306/313, <code>sa sla build-exe</code> 239/313 (about 76%). Everyday features not yet on the direct path include for-in collection iteration (Phase 6), enum payloads / match extraction and @derive (Phase 5); the async/await state machine covers only linear await sequences, nested awaits across async fn boundaries fail on both backends (Phase 8 partially complete), and the executor is still a polling macro. The implication: writing SLA at the backend's scale of hundreds of thousands of lines will repeatedly run into UnsupportedSabDirectFeature on long-tail features (loud failure with no silent fallback, which is a good thing); and the concurrency design should be fixed on the thread + mpsc model rather than betting on async. Also: SLA does not yet have &amp;mut (&amp;self covers both reading and writing, with the SA Referee as the backstop), so the borrowing discipline of a large project differs from Rust's and its ergonomics need validating in a pilot.</p>
 
-<h2>前端：不具备</h2>
-<p>SA 生态的前端故事是 SAX（见 <a href="../07_ui/01_overview.html">SAX 是什么与开发模型</a>）：.sax 编译为 app.wasm + airlock.js（WASM↔DOM 桥）+ index.html，react 插件给 React 风格写法、mui 插件给 Material 组件库。其官方定位是<b>纯界面工程</b>：静态占位数据、交互只做状态切换，样本 codex_ui 是把一个 React 界面用 SAX 重画界面皮，不含业务逻辑。而 CXU 前端是真应用：Monaco 代码编辑器、xterm 终端渲染、three.js、marked、git-diff 视图、虚拟化列表、53 处 WebSocket 流式状态机、localStorage 持久化、Web Worker、canvas——这些在 SAX/WASM 生态里没有对应物，airlock 桥在 token 流式高频更新下的表现也未经验证。前端重构的前提是先把 SAX 从「界面方言」长成「应用框架」（状态管理、路由、编辑器/终端级重组件、组件生态），那是独立于补 std 的另一个数量级工程。<b>裁决：前端不排期；SAX 只适合新界面实验。</b></p>
+<h2>Frontend: Not Ready</h2>
+<p>The SA ecosystem's frontend story is SAX (see <a href="../07_ui/01_overview.html">What SAX Is and Its Development Model</a>): .sax compiles to app.wasm + airlock.js (the WASM↔DOM bridge) + index.html, the react plugin provides a React-style way of writing, and the mui plugin provides a Material component library. Its official positioning is <b>pure interface engineering</b>: static placeholder data, interactions that only switch state; the sample codex_ui redraws one React interface's skin in SAX and contains no business logic. The CXU frontend, by contrast, is a real application: the Monaco code editor, xterm terminal rendering, three.js, marked, git-diff views, virtualized lists, 53 WebSocket streaming state machines, localStorage persistence, Web Workers, canvas — none of these has a counterpart in the SAX/WASM ecosystem, and the airlock bridge's behavior under high-frequency token-streaming updates is also unverified. The prerequisite for a frontend rewrite is first growing SAX from an "interface dialect" into an "application framework" (state management, routing, editor/terminal-grade heavy components, a component ecosystem), which is another order-of-magnitude project, independent of completing std. <b>Ruling: the frontend is not scheduled; SAX is only suitable for new-interface experiments.</b></p>
 
-<h2>桌面壳</h2>
-<p>CXU 的 Electron 桌面壳（打包、node-pty 原生重建、混淆、Windows 安装包）不在 SLA 射程内。若后端先行重构，桌面壳可暂时保留、只把页面产物换成后端新供的静态文件；纯 Web 形态则不需要壳。这一项不构成后端重构的阻塞，但要在立项时明确取舍。</p>
+<h2>The Desktop Shell</h2>
+<p>CXU's Electron desktop shell (packaging, node-pty native rebuilds, obfuscation, the Windows installation bundle) is outside SLA's range. If the backend is rewritten first, the desktop shell can be kept for the time being, with only the page artifacts swapped for static files newly served by the backend; a pure Web form needs no shell at all. This item is not a blocker for the backend rewrite, but the trade-off must be made explicit when the project is proposed.</p>
 
-<h2>建议路径（若将来立项后端重构）</h2>
+<h2>Suggested Path (If a Backend Rewrite Is Proposed in the Future)</h2>
 <ol>
-<li>先补 std 两块：双向 spawn（stdin 管）与 PTY，均按「基础核心内置 sa_std」的既有方针落地并配测试。</li>
-<li>拿一个真实 CLI 桥做试点纵切（建议 codex 桥）：双向 stdio JSON-RPC + HTTP/WS/SSE 转发 + 配置 TOML + 会话持久化，全程 SLA，量化撞 Unsupported 的次数与绕行成本。</li>
-<li>试点通过后再评估全面迁移的排期；前端维持 React 不动。</li>
+<li>First complete two std pieces: bidirectional spawn (a stdin pipe) and PTY, both landed following the established "basic cores built into sa_std" policy and accompanied by tests.</li>
+<li>Take one real CLI bridge as a pilot vertical slice (the codex bridge is suggested): bidirectional stdio JSON-RPC + HTTP/WS/SSE forwarding + configuration TOML + session persistence, all in SLA, quantifying how many times it hits Unsupported and what the detours cost.</li>
+<li>Only after the pilot passes, evaluate the schedule for a full migration; the frontend stays on React, untouched.</li>
 </ol>
 
-<h2>附：tree-sitter 的接入路径</h2>
-<p>CXU 的代码智能层（saVmTreeSitter.ts 约 2700 行 + saVmCodeGraph.ts 约 1300 行：文件大纲、定义查找、代码图谱）建立在 tree-sitter 上（当前用 web-tree-sitter + tree-sitter-wasms 的 WASM 构建）。SA 生态目前零 tree-sitter 痕迹。接入的关键事实：<b>tree-sitter 的核心是 C 库</b>（tree_sitter/api.h），Rust 的 tree_sitter crate 只是对同一 C ABI 的封装；每个语法（grammar）导出一个 C 符号 <code>tree_sitter_&lt;lang&gt;()</code>，其 parser.c 是生成的 C 代码。故不需要 Rust ABI（它也不稳定、不可直接链），按 SA 既有的第三方 C 库接入范式走即可——与 SSH（dlopen libssh2/libssh）、QUIC（dlopen ngtcp2/nghttp3）、brotli 完全同形。</p>
+<h2>Appendix: The tree-sitter Integration Path</h2>
+<p>CXU's code intelligence layer (saVmTreeSitter.ts, about 2700 lines, + saVmCodeGraph.ts, about 1300 lines: file outlines, definition lookup, code graphs) is built on tree-sitter (currently using the WASM builds of web-tree-sitter + tree-sitter-wasms). The SA ecosystem currently has zero trace of tree-sitter. The key fact for integration: <b>tree-sitter's core is a C library</b> (tree_sitter/api.h); Rust's tree_sitter crate is only a wrapper over the same C ABI; each grammar exports one C symbol, <code>tree_sitter_&lt;lang&gt;()</code>, and its parser.c is generated C code. So no Rust ABI is needed (it is neither stable nor directly linkable); just follow SA's established pattern for integrating third-party C libraries — exactly the same shape as SSH (dlopen libssh2/libssh), QUIC (dlopen ngtcp2/nghttp3), and brotli.</p>
 <ul>
-<li><strong>落点（按「基础核心内置」方针）</strong>：sci 新增 runtime 模块 sa_tree_sitter.zig 进 sa_std，dlopen libtree-sitter 核心库，对外 <code>sa_ts_*</code> extern + 随 sci 发布 tree_sitter.sai 声明（与 ssh.sai 26 导出的形态一致）；库缺失时显式 UNSUPPORTED（同 SSH 在 js/c/wasm 的处理），不静默降级。</li>
-<li><strong>API 面</strong>：extern 层薄封装 C API——parser 构造/析构、set_language、parse（字符串与回调两种输入）、tree/root、节点导航（type/text/child/named_child/start_byte/行列点）、query 编译与 captures（大纲/定义查找靠它）；SLA 层再包成托管句柄（Tree 存活期管住 Node 读用，与 sa_http 流句柄同纪律）。增量解析（ts_tree_edit + 重解析）列二期，一期全量解析对齐 CXU 当前用法。</li>
-<li><strong>语法供应链</strong>：每个语言的 parser.c（+ 可选 scanner.c）编成 libtree-sitter-&lt;lang&gt;.so，宿主按需 dlopen 其入口符号；CXU 在用的 tree-sitter-wasms 是同一 parser.c 的 WASM 构建，原生侧不能复用、须走原生 .so 构建管线（语法仓都提交了生成的 parser.c，一次管线建成后逐语言只是加条目）。语法 ABI 版本（LANGUAGE_VERSION）与核心库支持区间不匹配必须显式报错（ts_language_version 可查）。核心内置、语法按文件加载：CXU 首批需要的语言随 std 出，更多语言放文件即可扩展，不必重编 std。</li>
-<li><strong>不选的路</strong>：把 tree-sitter CLI（Rust 二进制）当子进程调——今天就能用（process spawn 已齐），但每次解析起进程 + S 表达式文本回解析，只配做临时验证，不作正式接入。</li>
-<li><strong>工作量参照</strong>：与 SSH 接入同量级（一个 runtime 模块 + 数十 extern + 声明文件 + 回环测试），语法构建管线另计。</li>
+<li><strong>Landing point (following the "basic cores built in" policy)</strong>: sci adds a runtime module sa_tree_sitter.zig into sa_std, dlopens the libtree-sitter core library, and exposes <code>sa_ts_*</code> externs + a tree_sitter.sai declaration shipped with sci (in the same form as ssh.sai's 26 exports); when the library is missing it is explicitly UNSUPPORTED (the same handling as SSH on js/c/wasm), never silently degraded.</li>
+<li><strong>API surface</strong>: the extern layer thinly wraps the C API — parser construction/destruction, set_language, parse (both string and callback inputs), tree/root, node navigation (type/text/child/named_child/start_byte/row-column points), query compilation and captures (outlines/definition lookup rely on it); the SLA layer then wraps it in managed handles (a Tree's lifetime governs Node reads, the same discipline as sa_http stream handles). Incremental parsing (ts_tree_edit + reparse) is listed for phase two; phase one does full parsing, aligned with CXU's current usage.</li>
+<li><strong>The grammar supply chain</strong>: each language's parser.c (+ an optional scanner.c) is compiled into libtree-sitter-&lt;lang&gt;.so, and the host dlopens its entry symbol on demand; the tree-sitter-wasms CXU uses are WASM builds of the same parser.c, which cannot be reused on the native side — a native .so build pipeline is required (grammar repositories all commit the generated parser.c, so once the pipeline is built, adding a language is just adding an entry). A mismatch between a grammar's ABI version (LANGUAGE_VERSION) and the core library's supported range must produce an explicit error (queryable via ts_language_version). Cores built in, grammars loaded by file: the first batch of languages CXU needs ships with std, and more languages can be added as files without recompiling std.</li>
+<li><strong>The road not taken</strong>: invoking the tree-sitter CLI (a Rust binary) as a child process — usable today (process spawn is complete), but starting a process for every parse + parsing S-expression text back is fit only for temporary verification, not for a formal integration.</li>
+<li><strong>Workload reference</strong>: the same magnitude as the SSH integration (one runtime module + dozens of externs + a declaration file + loopback tests); the grammar build pipeline is counted separately.</li>
 </ul>
 
 </body>

@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>模块与 @import</title>
+<title>Modules and @import</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SLA 语言参考 &gt; 模块与 @import</div>
-<h1>模块与 @import</h1>
+<div class="topic-header">SLA Language Reference &gt; Modules and @import</div>
+<h1>Modules and @import</h1>
 
-<p>这一页介绍 SLA 的代码组织单元：<code>mod</code> 模块、<code>pub</code> 可见性、
-<code>@import</code> 对 SLA 源文件与 SA 契约（<code>.sai</code>/<code>.sal</code>/<code>.sa</code>）的导入，
-以及 <code>using</code> 静态扩展。读完这一页，你能把代码拆成多文件并正确引用 sa_std。</p>
+<p>This page introduces SLA's code organization units: <code>mod</code> modules, <code>pub</code> visibility,
+<code>@import</code> imports of SLA source files and SA contracts (<code>.sai</code>/<code>.sal</code>/<code>.sa</code>),
+and <code>using</code> static extensions. After reading this page, you can split code across multiple files and reference sa_std correctly.</p>
 
-<h2>mod 与 pub</h2>
-<p><code>mod 名称 { ... }</code> 在文件内定义命名空间，成员用 <code>::</code> 路径访问；
-只有标注 <code>pub</code> 的项对外可见
-（<code>demos/rosetta/41_module_imports/main.sla</code>）：</p>
+<h2>mod and pub</h2>
+<p><code>mod 名称 { ... }</code> defines a namespace inside a file, and members are accessed via <code>::</code> paths;
+only items marked <code>pub</code> are visible externally
+(<code>demos/rosetta/41_module_imports/main.sla</code>):</p>
 <pre><code>mod math {
     pub fn double(x: i32) -&gt; i32 {
         x * 2
@@ -25,16 +25,16 @@
 
 let value = math::double(21);   // 42</code></pre>
 
-<h2>@import 的三种目标</h2>
+<h2>The three @import targets</h2>
 <table>
-<tr><th>目标</th><th>示例（真实源码）</th><th>说明</th></tr>
-<tr><td>SA 契约 <code>.sai</code></td><td><code>@import "sa_std/io/print.sai"</code></td><td>读取 extern 函数签名，注册为强类型函数</td></tr>
-<tr><td>布局契约 <code>.sal</code></td><td><code>@import "sa_std/rc.sal"</code></td><td>读取外部结构体布局偏移，保证 ABI 兼容</td></tr>
-<tr><td>SLA / SA 源文件</td><td><code>@import "score_math.sla"</code>、<code>@import "sa_std/string.sa"</code></td><td>引入其中定义的模块、函数与宏</td></tr>
+<tr><th>Target</th><th>Example (real source)</th><th>Description</th></tr>
+<tr><td>SA contract <code>.sai</code></td><td><code>@import "sa_std/io/print.sai"</code></td><td>Reads extern function signatures and registers them as strongly typed functions</td></tr>
+<tr><td>Layout contract <code>.sal</code></td><td><code>@import "sa_std/rc.sal"</code></td><td>Reads external struct layout offsets, guaranteeing ABI compatibility</td></tr>
+<tr><td>SLA / SA source file</td><td><code>@import "score_math.sla"</code>, <code>@import "sa_std/string.sa"</code></td><td>Brings in the modules, functions, and macros defined there</td></tr>
 </table>
 
-<p>多文件项目的真实写法（<code>demos/syntax_sugar/combined/main.sla</code> 及其配套文件
-<code>score_math.sla</code>）：</p>
+<p>The real spelling in a multi-file project (<code>demos/syntax_sugar/combined/main.sla</code> and its companion file
+<code>score_math.sla</code>):</p>
 <pre><code>@import "sla_std/cmp.sla"
 @import "../using_module_import/score_math.sla"
 
@@ -47,16 +47,16 @@ mod score_math {
     }
 }</code></pre>
 
-<div class="note"><span class="label">注意</span>SLA 直接复用 sa_std 的契约文件，
-前端内置了 <code>.sai</code>/<code>.sal</code> 解析器，因此类型和 ABI 与底层验证器共享同一份数据源，
-不会出现双重声明漂移。带标准契约的第三方插件可一行 <code>@import</code> 即可强类型调用。</div>
+<div class="note"><span class="label">Note</span>SLA directly reuses sa_std's contract files;
+the frontend has built-in <code>.sai</code>/<code>.sal</code> parsers, so types and ABI share the same data source as the low-level verifier,
+with no dual-declaration drift. A third-party plugin with standard contracts can be called in a strongly typed way with a single <code>@import</code> line.</div>
 
-<h2>sa_std 的解析位置</h2>
-<p><code>sa_std/...</code> 形式的路径默认从环境变量 <code>SA_STD_DIR</code>（已设置时）解析，
-否则回退到本机约定的 <code>sci/sa_std</code> 目录。编译器在类型检查之前加载全部导入契约，
-因此 extern 函数对 SLA 代码直接可用。</p>
+<h2>Where sa_std is resolved</h2>
+<p>Paths of the form <code>sa_std/...</code> are resolved by default from the environment variable <code>SA_STD_DIR</code> (when set),
+and otherwise fall back to the local conventional <code>sci/sa_std</code> directory. The compiler loads all imported contracts before type checking,
+so extern functions are directly usable from SLA code.</p>
 
-<h3>常用导入速查</h3>
+<h3>Common imports quick reference</h3>
 <pre><code>@import "sa_std/io/print.sai"     // 基础输出契约
 @import "sa_std/fmt.sai"          // println / 格式化相关
 @import "sa_std/core/option.sa"
@@ -70,10 +70,10 @@ mod score_math {
 @import "sa_std/future.sa"
 @import "sla_std/cmp.sla"         // Ordering 与 &lt;=&gt; 比较</code></pre>
 
-<h2>using：静态扩展</h2>
-<p><code>using 模块名;</code> 把该模块中可见函数注册为<b>静态扩展方法</b>：
-第一个参数类型匹配的值即可链式调用这些函数。这是纯前端的调用改写，不引入运行时分发
-（<code>demos/syntax_sugar/using_module/main.sla</code>）：</p>
+<h2>using: static extensions</h2>
+<p><code>using 模块名;</code> registers the visible functions of that module as <b>static extension methods</b>:
+a value whose first parameter type matches can call these functions in chained form. This is a pure frontend call rewrite and introduces no runtime dispatch
+(<code>demos/syntax_sugar/using_module/main.sla</code>):</p>
 <pre><code>mod score_math {
     pub fn add_bonus(value: i32, bonus: i32) -&gt; i32 {
         return value + bonus;
@@ -91,8 +91,8 @@ using score_math;
     if score != 30 { panic(34000); };
 }</code></pre>
 
-<p><code>using</code> 也作用于通过 <code>@import</code> 引入的模块
-（<code>demos/syntax_sugar/using_module_import/main.sla</code>），并可与 impl 方法叠加使用：</p>
+<p><code>using</code> also acts on modules brought in via <code>@import</code>
+(<code>demos/syntax_sugar/using_module_import/main.sla</code>), and can be layered with impl methods:</p>
 <pre><code>using math;
 
 impl Meter {
@@ -101,22 +101,22 @@ impl Meter {
     }
 }</code></pre>
 
-<div class="warning"><span class="label">警告</span>模块级 method-style 调用必须显式声明
-<code>using</code>；没有 <code>using</code> 时，对非 impl 方法的链式调用会在前端报“未找到方法”。</div>
+<div class="warning"><span class="label">Warning</span>Module-level method-style calls must explicitly declare
+<code>using</code>; without <code>using</code>, a chained call to a non-impl method reports "method not found" in the frontend.</div>
 
-<p>方法调用的<b>解析定序</b>固定为：固有（impl）方法 → trait 方法 → <code>using</code> 静态扩展
-→ 响亮未定义；同一层内出现多个候选则报歧义错误（<code>Ambiguous static extension call</code>），不做兜底改道。</p>
+<p>The <b>resolution order</b> of method calls is fixed: inherent (impl) methods → trait methods → <code>using</code> static extensions
+→ loudly undefined; multiple candidates within the same layer report an ambiguity error (<code>Ambiguous static extension call</code>), with no fallback rerouting.</p>
 
-<h2>顶层 const 与初始化契约</h2>
-<p>SLA 没有顶层可变状态这一形态：顶层声明中只有 <code>const</code>，没有 var / global 声明节点。「顶层初始化」的契约因此分编译期 const 与运行时 globals 两面：</p>
+<h2>Top-level const and the initialization contract</h2>
+<p>SLA has no top-level mutable state form: top-level declarations contain only <code>const</code>, with no var / global declaration node. The "top-level initialization" contract therefore splits into a compile-time const side and a runtime globals side:</p>
 <ul>
-<li><strong>const 是编译期构造、无运行时求值序</strong>：检查器在查函数之前设专门 pass，按展开后声明的顺序逐个登记顶层 const，登记时即检查初值并定义符号。引用只能及于已登记者：引用排在其后的 const 在代码路径上以 <code>UndefinedVariable</code> 失败（<strong>此失败形态系代码路径推定，未做探针实证</strong>）；别名环（<code>const A = B; const B = A;</code>）同理由此失败——响亮，但诊断名是未定义变量，没有专门的循环诊断。</li>
-<li><strong>codegen 的折叠与声明序无关</strong>：标量 const（字面量、标量别名、标量二元式）以迭代不动点逐跳折叠、在使用点内联，不生成任何运行时代码。这与检查器登记序构成一处名实不符的形态事实：折叠器本可处理前向引用，检查器先拒——现状如此，写程序时以登记序为准。</li>
-<li><strong>非标量 const 是静态数据</strong>：字符串 / 数组 / 结构体字面量、vtable 形（含 @embed 脱糖产物）发为 SA <code>@const</code> 静态数据进数据段，程序启动时没有求值动作、无顺序可言。</li>
-<li><strong>import 展开序</strong>：深度优先、依赖先行、每模块只展开一次；import 环由去重自然终止（不报错、不重复展开）。展开序即 const 登记序的跨模块部分。</li>
-<li><strong>运行时 globals（<code>sa_global_*</code>）无静态初始化</strong>：没有先于 main 的初始化段；条目由运行期的首个 <code>set</code> / <code>add</code> / <code>set_once</code> 在执行点惰性创建，<code>get</code> 未建键返回状态码 <code>NOT_FOUND=3</code> 且<strong>不写出参</strong>。故 globals 的「初始化顺序」就是程序执行顺序本身。对未建键 get 期望得到 0 值的写法与本契约不符（语法批签名 D 的落差即出于此）。globals 的同步纪律见 <a href="../01_overview/13_goroutine_runtime.html">goroutine 运行时页</a>第十二节内存模型。</li>
+<li><strong>const is compile-time constructed, with no runtime evaluation order</strong>: the checker runs a dedicated pass before examining functions, registering top-level consts one by one in expanded declaration order, checking the initializer and defining the symbol at registration time. A reference can only reach what is already registered: referencing a const that comes later fails on the code path with <code>UndefinedVariable</code> (<strong>this failure form is inferred from the code path and has not been probe-verified</strong>); alias cycles (<code>const A = B; const B = A;</code>) fail the same way — loudly, but the diagnostic name is undefined variable, with no dedicated cycle diagnostic.</li>
+<li><strong>Codegen folding is independent of declaration order</strong>: scalar consts (literals, scalar aliases, scalar binary expressions) are folded hop by hop with an iterative fixed point and inlined at use sites, generating no runtime code. This forms a name/reality mismatch with the checker's registration order: the folder could handle forward references, but the checker rejects first — that is the current state; when writing programs, go by registration order.</li>
+<li><strong>Non-scalar consts are static data</strong>: string / array / struct literals and vtable forms (including @embed desugaring products) are emitted as SA <code>@const</code> static data into the data section; there is no evaluation action at program start and no order to speak of.</li>
+<li><strong>Import expansion order</strong>: depth-first, dependencies first, each module expanded only once; import cycles terminate naturally through deduplication (no error, no repeated expansion). The expansion order is the cross-module part of the const registration order.</li>
+<li><strong>Runtime globals (<code>sa_global_*</code>) have no static initialization</strong>: there is no initialization section before main; entries are created lazily at the execution point by the first runtime <code>set</code> / <code>add</code> / <code>set_once</code>, and a <code>get</code> on an unbuilt key returns the status code <code>NOT_FOUND=3</code> and <strong>does not write the out-parameter</strong>. Hence the "initialization order" of globals is the program execution order itself. Spellings that expect a 0 value from a get on an unbuilt key do not conform to this contract (the gap in the syntax batch's signature D came from this). For the synchronization discipline of globals, see section 12, the memory model, of the <a href="../01_overview/13_goroutine_runtime.html">goroutine runtime page</a>.</li>
 </ul>
 
-<p>相关页面：<a href="08_extensions.html">扩展机制</a>、<a href="06_ownership.html">所有权与生命周期</a>。</p>
+<p>Related pages: <a href="08_extensions.html">Extension Mechanisms</a>, <a href="06_ownership.html">Ownership and Lifetimes</a>.</p>
 </body>
 </html>

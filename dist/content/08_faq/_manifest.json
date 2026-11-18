@@ -2,37 +2,72 @@
   "topics": [
     {
       "id": "faq",
-      "title": "常见问题 FAQ",
+      "title": "Frequently Asked Questions (FAQ)",
       "file": "01_faq.html",
-      "keywords": ["FAQ", "常见问题", "所有权", "let", "const", "panic", "SAB"],
+      "keywords": [
+        "FAQ",
+        "ownership",
+        "let",
+        "const",
+        "panic",
+        "SAB"
+      ],
       "parent": null
     },
     {
       "id": "compile-troubleshooting",
-      "title": "编译失败排查",
+      "title": "Troubleshooting Build Failures",
       "file": "02_compile_failures.html",
-      "keywords": ["编译失败", "check", "build-exe", "回退", "UseAfterMove", "SLA_SAB_NO_FALLBACK"],
+      "keywords": [
+        "build failures",
+        "check",
+        "build-exe",
+        "fallback",
+        "UseAfterMove",
+        "SLA_SAB_NO_FALLBACK"
+      ],
       "parent": null
     },
     {
       "id": "runtime-env",
-      "title": "运行与环境问题排查",
+      "title": "Troubleshooting Runtime and Environment Issues",
       "file": "03_runtime_env.html",
-      "keywords": ["乱码", "UTF-8", "PATH", "LLVM", "dumpbin", "NoDefaultCurrentDirectoryInExePath"],
+      "keywords": [
+        "garbled text",
+        "UTF-8",
+        "PATH",
+        "LLVM",
+        "dumpbin",
+        "NoDefaultCurrentDirectoryInExePath"
+      ],
       "parent": null
     },
     {
       "id": "performance",
-      "title": "性能与优化预期",
+      "title": "Performance and Optimization Expectations",
       "file": "04_performance.html",
-      "keywords": ["性能", "direct SAB", "fallback", "宏模板缓存", "大数组初始化", "benchmark"],
+      "keywords": [
+        "performance",
+        "direct SAB",
+        "fallback",
+        "macro template cache",
+        "large array initialization",
+        "benchmark"
+      ],
       "parent": null
     },
     {
       "id": "limitations-roadmap",
-      "title": "当前局限与路线图状态",
+      "title": "Current Limitations and Roadmap Status",
       "file": "05_limitations_roadmap.html",
-      "keywords": ["局限", "路线图", "&mut", "no-fallback", "枚举 payload", "rosetta"],
+      "keywords": [
+        "limitations",
+        "roadmap",
+        "&mut",
+        "no-fallback",
+        "enum payloads",
+        "rosetta"
+      ],
       "parent": null
     }
   ]

@@ -1,74 +1,75 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>性能与优化预期</title>
+<title>Performance and Optimization Expectations</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">FAQ 与故障排查 &gt; 性能与优化预期</div>
-<h1>性能与优化预期</h1>
+<div class="topic-header">FAQ and Troubleshooting &gt; Performance and Optimization Expectations</div>
+<h1>Performance and Optimization Expectations</h1>
 
-<p>这一页说明 SLA 编译管线的耗时量级：direct 路径与回退路径差多少、宏模板缓存带来什么、大数组初始化优化解决了什么。读完可以对「编译为什么这么慢」建立合理预期，并知道用哪个工具测量。</p>
+<p>This page explains the time scale of the SLA compilation pipeline: how much the direct path and the fallback path differ, what the macro-template cache brings, and what the large-array initialization optimization solved. After reading it, you can form reasonable expectations about “why is compilation so slow” and know which tool to measure it with.</p>
 
-<div class="warning"><span class="label">警告</span>下文数字均来自开发仓库的内部文档（roadmap_status_cn.md §6、compilation_optimization_cn.md），属于<b>未标定的微观测量</b>：单机、单文件、特定版本。它们只用于说明数量级差异，不构成任何性能保证。</div>
+<div class="warning"><span class="label">Warning</span>All numbers below come from internal documents in the development repository (roadmap_status_cn.md §6, compilation_optimization_cn.md) and are <b>uncalibrated micro-measurements</b>: a single machine, single files, specific versions. They only illustrate orders-of-magnitude differences and do not constitute any performance guarantee.</div>
 
-<h2>direct 与 fallback 的差距</h2>
+<h2>The Gap Between direct and fallback</h2>
 
-<p>以下为历史测量快照（SAB 尚作主线、SA 兼容回退尚存的时期）：当时 SAB 路优先走 direct AST-&gt;SAB 编码器，遇到未覆盖特性时退回 SA 兼容降低 + SCI 展平器，两条路径的耗时差距可达一个数量级以上。以 roadmap_status_cn.md §6 记录的单文件测量为例：</p>
+<p>The following is a historical measurement snapshot (from the period when SAB was still the mainline and the SA compatibility fallback still existed): at that time the SAB path preferred the direct AST-&gt;SAB encoder, and on meeting an uncovered feature it fell back to SA compatibility lowering + the SCI flattener; the time gap between the two paths could exceed an order of magnitude. Taking the single-file measurements recorded in roadmap_status_cn.md §6 as an example:</p>
 
 <table>
-<tr><th>输入 / 路径</th><th>耗时</th><th>说明</th></tr>
-<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB（带宏模板缓存）</td><td>约 257ms</td><td>记录中标注为 16 倍加速</td></tr>
-<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB（无缓存）</td><td>约 4094ms</td><td>当时的瓶颈点</td></tr>
-<tr><td><code>parallel_table_erased.sla</code> — SA 兼容展平（回退）</td><td>约 4.04s</td><td>回退路径瓶颈</td></tr>
-<tr><td><code>parallel_table_erased.sla</code> — SAB encode</td><td>约 5.22s</td><td>当时最大单一瓶颈</td></tr>
-<tr><td><code>parallel_table_erased.sla</code> — sa test（宿主侧后端）</td><td>约 13.50s</td><td>SA 后端耗时</td></tr>
+<tr><th>Input / path</th><th>Time</th><th>Notes</th></tr>
+<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB (with macro-template cache)</td><td>About 257ms</td><td>Annotated in the record as a 16× speedup</td></tr>
+<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB (no cache)</td><td>About 4094ms</td><td>The bottleneck point at the time</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — SA compatibility flattening (fallback)</td><td>About 4.04s</td><td>Fallback-path bottleneck</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — SAB encode</td><td>About 5.22s</td><td>The largest single bottleneck at the time</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — sa test (host-side backend)</td><td>About 13.50s</td><td>SA backend time</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>当时的核心结论是：direct 路径本身很快（同一批记录中为 24-257ms 量级），慢的是「遇到不支持特性就整体走回退」；回退已于 2026-09-28 拆除。现行口径（2026-11-15）：SAB 已封存为优化方向，且 SAB 不加速单次编译——冷编时间大头在宿主后端（同表末行 <code>sa test</code> 宿主侧耗时即为大头），与输入走文本还是 SAB 无关；热编 / 增量缓存是按源码哈希键控的独立机制，与 SAB 无关。若显式 SAB 路上某文件报错，用本章节<a href="02_compile_failures.html">「编译失败排查」</a>中的 <code>SLA_SAB_TRACE_UNSUPPORTED=1</code> 定位未覆盖点。</div>
+<div class="note"><span class="label">Note</span>The core conclusion at the time was: the direct path itself is fast (in the same batch of records, on the order of 24-257ms); what was slow was “falling back wholesale on meeting an unsupported feature”; the fallback was removed on 2026-09-28. The current position (2026-11-15): SAB has been sealed as an optimization direction, and SAB does not speed up a single compilation — the bulk of cold-compile time is in the host backend (the host-side <code>sa test</code> time in the last row of the table above is that bulk), regardless of whether the input is text or SAB; hot compilation / incremental caching is an independent mechanism keyed by source hash and has nothing to do with SAB. If a file errors on the explicit SAB path, use <code>SLA_SAB_TRACE_UNSUPPORTED=1</code> from the <a href="02_compile_failures.html">“Troubleshooting Build Failures”</a> page in this chapter to locate the uncovered point.</div>
 
-<h2>大数组初始化优化</h2>
+<h2>The Large-Array Initialization Optimization</h2>
 
-<p>针对包含大量常量数组的源码（例如 Lua VM 重构中的 16384 长度指令缓冲区），sci 编译器的 LLVM 常量生成引入了 <code>.repeat</code> 重复常量优化：检测到大面积重复默认值时，用 <code>@memset</code> 一次性填充字节流并直接发射 LLVM 聚合常量，避免逐元素生成。compilation_optimization_cn.md 记录的效果：</p>
+<p>For sources containing large numbers of constant arrays (for example, the 16384-length instruction buffer in the Lua VM rebuild), the sci compiler's LLVM constant generation introduced a <code>.repeat</code> repeated-constant optimization: when it detects large areas of repeated default values, it fills the byte stream in one go with <code>@memset</code> and emits the LLVM aggregate constant directly, avoiding per-element generation. The effect recorded in compilation_optimization_cn.md:</p>
 
 <ul>
-<li><code>lvm.test.sa</code> 干净重构编译时间从 <b>&gt;5 分钟</b>缩短到约 <b>4.6 秒</b>；</li>
-<li><code>lparser.test.sa</code> 缩短到约 <b>6.6 秒</b>；</li>
-<li>同时解决了单元测试和增量编译卡死/终端超时的问题。</li>
+<li>The clean-rebuild compile time of <code>lvm.test.sa</code> dropped from <b>&gt;5 minutes</b> to about <b>4.6 seconds</b>;</li>
+<li><code>lparser.test.sa</code> dropped to about <b>6.6 seconds</b>;</li>
+<li>It also solved unit tests and incremental compilation hanging / terminal timeouts.</li>
 </ul>
 
-<h2>重复构建：零变更不再全量重编</h2>
+<h2>Repeated Builds: Zero Changes No Longer Recompile Everything</h2>
 
-<p>早期版本有一个严重的增量构建缺陷：<b>源码零变更时，<code>sla build-exe</code> 每次都等于全量重新编译</b>。根因有两层。SA 侧 <code>build-exe</code> 的项目缓存（<code>.sa_cache</code>）只在串行发射路径写回；显式传 <code>--jobs</code> 且函数数 ≥ 100 时走的 CGU 并行路径从不写缓存，编完即弃。SLA 侧则无条件给委托的 SA 命令追加 <code>--jobs auto</code>，于是每一次 <code>sla</code> 驱动的构建都被推进那条不写缓存的路径。</p>
+<p>Early versions had a serious incremental-build defect: <b>with zero source changes, every <code>sla build-exe</code> amounted to a full recompilation</b>. The root cause had two layers. On the SA side, the <code>build-exe</code> project cache (<code>.sa_cache</code>) was written back only on the serial emission path; the CGU parallel path taken when <code>--jobs</code> was passed explicitly and the function count was ≥ 100 never wrote the cache — it compiled and discarded. On the SLA side, <code>--jobs auto</code> was appended unconditionally to the delegated SA command, so every <code>sla</code>-driven build was pushed onto that cache-less path.</p>
 
-<p>修复后的缓存分工：</p>
+<p>The cache division of labor after the fix:</p>
 <ul>
-<li><b>SA build-exe 缓存</b>：所有发射路径（含 CGU 并行）都会写回 <code>.sa_cache</code> 条目，命中时直接恢复产物，跳过原生编译；缓存键与 <code>--jobs</code> 无关，串行与并行构建互相命中同一条目。</li>
-<li><b>sla 不再强加 <code>--jobs auto</code></b>：委托的 SA 命令默认走串行 + 缓存路径；用户显式传入的 <code>--jobs</code> 仍原样透传。</li>
-<li><b>SLA 前端新鲜度门</b>：前端把每次编译的依赖闭包（根文件、全部导入模块、契约导入文件、同级 <code>sa.mod</code>）连同产物存入 <code>.sla-cache/fresh/</code>，逐文件记录内容哈希。之后闭包哈希全部一致就直接复用产物，解析、导入展开、单态化、类型检查、编码整条管线跳过；任一文件内容变化都会未命中并正常重编，不会发出过期产物。环境变量 <code>SLA_NO_FRESHNESS_CACHE=1</code> 可禁用该门。<code>sla check</code> 走独立的内联管线，目前未接入。</li>
+<li><b>SA build-exe cache</b>: all emission paths (including CGU parallel) write back <code>.sa_cache</code> entries; on a hit the product is restored directly and native compilation is skipped; the cache key is independent of <code>--jobs</code>, so serial and parallel builds hit the same entry as each other.</li>
+<li><b>sla no longer forces <code>--jobs auto</code></b>: the delegated SA command takes the serial + cache path by default; a <code>--jobs</code> passed explicitly by the user is still forwarded as-is.</li>
+<li><b>SLA frontend freshness gate</b>: the frontend stores each compilation's dependency closure (the root file, all imported modules, contract import files, the sibling <code>sa.mod</code>) together with the product in <code>.sla-cache/fresh/</code>, recording a content hash per file. Afterwards, if all closure hashes match, the product is reused directly and the whole pipeline — parsing, import expansion, monomorphization, type checking, encoding — is skipped; any file whose content changes misses and recompiles normally, and no stale product is ever emitted. The environment variable <code>SLA_NO_FRESHNESS_CACHE=1</code> can disable this gate. <code>sla check</code> uses a separate inline pipeline and is not yet connected to it.</li>
 </ul>
 
-<p>量级参考（288 模块合成项目、共享主机，未标定）：零变更 <code>sla build-exe</code> 由约 0.70s 降到约 0.05s 量级（前端命中后只剩进程启动与 SA 缓存恢复）。只改注释时新鲜度门正确未命中、前端重跑，但生成的 SAB 字节不变，SA 缓存仍然命中；改函数体则产出新 SAB 与新可执行文件。</p>
+<p>Order-of-magnitude reference (a 288-module synthetic project, shared host, uncalibrated): a zero-change <code>sla build-exe</code> dropped from about 0.70s to the order of about 0.05s (after a frontend hit, only process startup and SA cache restoration remain). When only a comment changes, the freshness gate correctly misses and the frontend reruns, but the generated SAB bytes do not change, so the SA cache still hits; changing a function body produces a new SAB and a new executable.</p>
 
-<h2>如何测量自己的管线</h2>
+<h2>How to Measure Your Own Pipeline</h2>
 
-<p>插件仓库自带 benchmark harness，输出 JSONL 计时（运行目录为插件仓库根）：</p>
+<p>The plugin repository ships a benchmark harness that outputs JSONL timings (with the working directory at the plugin repository root):</p>
 
 <pre><code>tools/bench_sla_pipeline.sh --runs 3 --out /tmp/sla_pipeline_bench.jsonl</code></pre>
 
-<p>内置项目包括 <code>sla_to_sab_cold</code>（清空托管 SAB 缓存后计时）、<code>sla_to_sab_warm</code>（保留缓存）、<code>sla_to_native</code>（build-exe 主链路）、<code>sab_test_fallback_allowed</code> 与 <code>sab_test_direct_no_fallback</code>（对比允许回退与 no-fallback 的测试路径）。也可以在单次命令上加 <code>SLA_PROFILE=1</code> 查看各阶段计时：</p>
+<p>Built-in projects include <code>sla_to_sab_cold</code> (timed after clearing the managed SAB cache), <code>sla_to_sab_warm</code> (keeping the cache), <code>sla_to_native</code> (the build-exe main chain), and <code>sab_test_fallback_allowed</code> and <code>sab_test_direct_no_fallback</code> (comparing the test paths with fallback allowed vs no-fallback). You can also add <code>SLA_PROFILE=1</code> to a single command to see the per-stage timings:</p>
 
 <pre><code>[sla-profile] parse: 12ms
 [sla-profile] import expand: 45ms
 [sla-profile] type check: 15ms
 [sla-profile] sab direct codegen: 24ms</code></pre>
 
-<h2>已知的结构性压力</h2>
+<h2>Known Structural Pressure</h2>
 
-<p>SLA 前端在 <code>@import</code> 时目前采取「全展开合并」模式：多个模块会被合并进单个 <code>.sa</code>/<code>.sab</code>，真实项目里出现过展开后上万条 SA 指令的单文件，这给展平器、验证器和后端都带来压力。按模块拆分输出、复用 SA 原生 <code>@import</code> 链接的模块化编译方案在设计文档中有规划，尚未成为当前行为——不要假设现在就是按模块缓存编译的。上文的新鲜度门是整编译粒度：零变更时整段跳过，但闭包内任一文件变化仍是全展开重编，产物形态不变。</p>
+<p>At <code>@import</code> time the SLA frontend currently uses a “fully expand and merge” model: multiple modules are merged into a single <code>.sa</code>/<code>.sab</code>, and real projects have seen single files with tens of thousands of SA instructions after expansion, which puts pressure on the flattener, the verifier, and the backend. A modular compilation scheme that splits output by module and reuses SA's native <code>@import</code> linking is planned in the design documents but is not yet the current behavior — do not assume compilation is cached per module today. The freshness gate above works at whole-compilation granularity: with zero changes the whole thing is skipped, but a change to any file in the closure is still a full-expansion rebuild, and the product form does not change.</p>
 
-<p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/roadmap_status_cn.md §6、compilation_optimization_cn.md、benchmarking_cn.md、testing_and_verification_cn.md §6。</p>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<p style="margin-top:24px;font-size:90%;opacity:.75">Sources: sa_plugin_sla/docs/roadmap_status_cn.md §6, compilation_optimization_cn.md, benchmarking_cn.md, testing_and_verification_cn.md §6.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/08_faq/04_performance.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

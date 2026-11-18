@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>env：环境变量与目录</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; env：环境变量与目录</div>
+<h1>env：环境变量与目录</h1>
+
+<p>这一页列出 <code>sa_std/env.sai</code> 导出的 extern 函数：读写环境变量、获取工作目录 /
+home / 临时目录、以 JSON 形式批量读取参数与环境，以及 XDG 目录族。
+读完即可在程序里处理配置来源与路径列表。</p>
+
+<h2>环境变量</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_env_get(key: ptr, key_len: u64) -&gt; u64</code></td><td>取变量值，返回 owned 缓冲句柄（未设置时为空句柄）</td></tr>
+<tr><td><code>sa_env_has(key: ptr, key_len: u64) -&gt; i32</code></td><td>变量是否存在</td></tr>
+<tr><td><code>sa_env_set_var(key: ptr, key_len: u64, value: ptr, value_len: u64) -&gt; i32</code></td><td>设置变量</td></tr>
+<tr><td><code>sa_env_remove_var(key: ptr, key_len: u64) -&gt; i32</code></td><td>移除变量</td></tr>
+<tr><td><code>sa_env_args_json() -&gt; u64</code></td><td>命令行参数，JSON 数组缓冲</td></tr>
+<tr><td><code>sa_env_vars_json() -&gt; u64</code></td><td>全部环境变量，JSON 对象缓冲</td></tr>
+</table>
+
+<h2>目录与路径</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_env_current_dir() -&gt; u64</code> / <code>sa_env_set_current_dir(path: ptr, path_len: u64) -&gt; i32</code></td><td>查询 / 设置当前目录</td></tr>
+<tr><td><code>sa_env_temp_dir() -&gt; u64</code> / <code>sa_env_home_dir() -&gt; u64</code> / <code>sa_env_current_exe() -&gt; u64</code></td><td>临时目录 / home 目录 / 当前可执行文件路径</td></tr>
+<tr><td><code>sa_env_split_paths_json(path_list: ptr, path_list_len: u64) -&gt; u64</code></td><td>按平台分隔符切分 PATH 型字符串，返回 JSON 数组</td></tr>
+<tr><td><code>sa_env_join_paths_json(paths_json: ptr, paths_json_len: u64) -&gt; u64</code></td><td>把 JSON 路径数组拼回 PATH 字符串</td></tr>
+<tr><td><code>sa_env_xdg_data_home_dir() / _config_home_dir() / _state_home_dir() / _cache_home_dir() / _data_dirs() / _config_dirs()</code></td><td>XDG 规范目录族，均返回 owned 缓冲句柄</td></tr>
+</table>
+
+<h2>缓冲三件套</h2>
+<pre><code>@extern sa_env_buffer_data(buffer: u64) -&gt; &amp;ptr
+@extern sa_env_buffer_len(buffer: u64) -&gt; u64
+@extern sa_env_buffer_free(^buffer: u64) -&gt; i32</code></pre>
+<p>所有返回 <code>u64</code> 的 env 函数都遵循这一约定：先 <code>_data</code>/<code>_len</code>
+读内容，再用 <code>_free</code> 释放。</p>
+
+<h2>SA 层调用形式</h2>
+<p>契约中的 extern 直接对应运行时符号，例如判断变量存在并取值的调用形如：</p>
+<pre><code>%has = call @sa_env_has(&amp;%key, %key_len)
+%buf = call @sa_env_get(&amp;%key, %key_len)
+%ptr = call @sa_env_buffer_data(%buf)
+%len = call @sa_env_buffer_len(%buf)</code></pre>
+<div class="note"><span class="label">注意</span>Sla 代码需先
+<code>@import "sa_std/env.sai"</code> 才能使用这些函数；
+<code>sa_env_get</code> 返回的句柄必须释放。</div>
+
+</body>
+</html>

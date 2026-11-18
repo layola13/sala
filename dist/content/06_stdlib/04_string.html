@@ -1,63 +1,63 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>string：ASCII / UTF-8 字符串</title>
+<title>string: ASCII / UTF-8 Strings</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">标准库 &gt; string：ASCII / UTF-8 字符串</div>
-<h1>string：ASCII / UTF-8 字符串</h1>
+<div class="topic-header">Standard Library &gt; string: ASCII / UTF-8 Strings</div>
+<h1>string: ASCII / UTF-8 Strings</h1>
 
-<p>这一页列出 <code>sa_std/string.sai</code> 的 extern 函数，以及 <code>sa_std/string.sa</code>
-提供的字符串宏族。读完即可判断字符串是否 ASCII、统计与遍历 UTF-8 字符、做大小写无关比较和拼接。</p>
+<p>This page lists the extern functions in <code>sa_std/string.sai</code>, and the string macro family provided by <code>sa_std/string.sa</code>.
+After reading it, you will be able to tell whether a string is ASCII, count and traverse UTF-8 characters, and do case-insensitive comparison and concatenation.</p>
 
-<h2>extern 函数（摘自 string.sai）</h2>
+<h2>extern Functions (from string.sai)</h2>
 <table>
-<tr><th>签名</th><th>说明</th></tr>
-<tr><td><code>sa_str_is_ascii(ptr: ptr, len: u64) -&gt; i32</code></td><td>字节序列是否全为 ASCII</td></tr>
-<tr><td><code>sa_str_eq_ignore_ascii_case(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; i32</code></td><td>忽略 ASCII 大小写比较</td></tr>
-<tr><td><code>sa_str_trim_ascii_start_index(ptr: ptr, len: u64) -&gt; u64</code></td><td>计算去除首部空白后的起始下标</td></tr>
-<tr><td><code>sa_str_trim_ascii_end_len(ptr: ptr, len: u64) -&gt; u64</code></td><td>计算去除尾部空白后的长度</td></tr>
-<tr><td><code>sa_str_utf8_char_count(ptr: ptr, len: u64) -&gt; u64</code></td><td>统计 UTF-8 字符数</td></tr>
-<tr><td><code>sa_str_utf8_validate(ptr: ptr, len: u64) -&gt; i32</code></td><td>校验 UTF-8 合法性</td></tr>
-<tr><td><code>sa_str_utf8_char_at(ptr: ptr, len: u64, char_index: u64, out_codepoint: ptr) -&gt; i32</code></td><td>按字符下标取码点</td></tr>
-<tr><td><code>sa_str_utf8_char_at_byte(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td>按字节下标取字符（码点 + 编码长度）</td></tr>
-<tr><td><code>sa_str_utf8_lossy_next(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td>从字节下标起取下一个字符，非法序列按 lossy 处理</td></tr>
-<tr><td><code>sa_str_utf8_char_range_at(ptr: ptr, len: u64, char_index: u64, out_start: ptr, out_len: ptr) -&gt; i32</code></td><td>取第 n 个字符的字节范围</td></tr>
-<tr><td><code>sa_string_concat(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; u64</code></td><td>拼接两段字节，返回 owned 缓冲句柄</td></tr>
+<tr><th>Signature</th><th>Description</th></tr>
+<tr><td><code>sa_str_is_ascii(ptr: ptr, len: u64) -&gt; i32</code></td><td>Whether a byte sequence is entirely ASCII</td></tr>
+<tr><td><code>sa_str_eq_ignore_ascii_case(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; i32</code></td><td>Compare ignoring ASCII case</td></tr>
+<tr><td><code>sa_str_trim_ascii_start_index(ptr: ptr, len: u64) -&gt; u64</code></td><td>Compute the starting index after trimming leading whitespace</td></tr>
+<tr><td><code>sa_str_trim_ascii_end_len(ptr: ptr, len: u64) -&gt; u64</code></td><td>Compute the length after trimming trailing whitespace</td></tr>
+<tr><td><code>sa_str_utf8_char_count(ptr: ptr, len: u64) -&gt; u64</code></td><td>Count UTF-8 characters</td></tr>
+<tr><td><code>sa_str_utf8_validate(ptr: ptr, len: u64) -&gt; i32</code></td><td>Validate UTF-8 well-formedness</td></tr>
+<tr><td><code>sa_str_utf8_char_at(ptr: ptr, len: u64, char_index: u64, out_codepoint: ptr) -&gt; i32</code></td><td>Get a code point by character index</td></tr>
+<tr><td><code>sa_str_utf8_char_at_byte(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td>Get a character by byte index (code point + encoding length)</td></tr>
+<tr><td><code>sa_str_utf8_lossy_next(ptr: ptr, len: u64, byte_index: u64, out_codepoint: ptr, out_len: ptr) -&gt; i32</code></td><td>Get the next character starting at a byte index, treating invalid sequences lossily</td></tr>
+<tr><td><code>sa_str_utf8_char_range_at(ptr: ptr, len: u64, char_index: u64, out_start: ptr, out_len: ptr) -&gt; i32</code></td><td>Get the byte range of the nth character</td></tr>
+<tr><td><code>sa_string_concat(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; u64</code></td><td>Concatenate two byte spans, returning an owned buffer handle</td></tr>
 </table>
 
-<h2>SA 宏（string.sa，节选）</h2>
-<p><code>string.sa</code> 是 Sla <code>String</code>/<code>str</code> 方法面的实现载体，
-常用宏包括：</p>
+<h2>SA Macros (string.sa, Excerpt)</h2>
+<p><code>string.sa</code> is the implementation carrier for the Sla <code>String</code>/<code>str</code> method surface;
+common macros include:</p>
 <table>
-<tr><th>宏</th><th>说明</th></tr>
-<tr><td><code>STR_LEN %out_len, %slice_reg</code></td><td>取长度</td></tr>
-<tr><td><code>STR_PTR / STR_AS_PTR %out_ptr, %slice_reg</code></td><td>取数据指针</td></tr>
-<tr><td><code>STR_IS_EMPTY %out_bool, %slice_reg</code></td><td>是否为空</td></tr>
-<tr><td><code>STR_FROM_PARTS %out_slice, %data_ptr, %length</code></td><td>由指针 + 长度构造切片</td></tr>
-<tr><td><code>STR_FROM_CONST %out_slice, %const_label, %const_len</code></td><td>由常量标签构造切片（alloc/string.sa）</td></tr>
-<tr><td><code>STRING_NEW %out_slice</code></td><td>新建可变 String</td></tr>
-<tr><td><code>STR_TRY_FROM_UTF8 / STR_FROM_UTF8 %out_ok, %out_slice, %bytes_slice</code></td><td>从字节数组构造，带校验/不带校验</td></tr>
-<tr><td><code>STR_AS_BYTES %out_slice, %slice_reg</code></td><td>转字节视图</td></tr>
+<tr><th>Macro</th><th>Description</th></tr>
+<tr><td><code>STR_LEN %out_len, %slice_reg</code></td><td>Get the length</td></tr>
+<tr><td><code>STR_PTR / STR_AS_PTR %out_ptr, %slice_reg</code></td><td>Get the data pointer</td></tr>
+<tr><td><code>STR_IS_EMPTY %out_bool, %slice_reg</code></td><td>Whether it is empty</td></tr>
+<tr><td><code>STR_FROM_PARTS %out_slice, %data_ptr, %length</code></td><td>Build a slice from a pointer + length</td></tr>
+<tr><td><code>STR_FROM_CONST %out_slice, %const_label, %const_len</code></td><td>Build a slice from a constant label (alloc/string.sa)</td></tr>
+<tr><td><code>STRING_NEW %out_slice</code></td><td>Create a new mutable String</td></tr>
+<tr><td><code>STR_TRY_FROM_UTF8 / STR_FROM_UTF8 %out_ok, %out_slice, %bytes_slice</code></td><td>Build from a byte array, with validation / without validation</td></tr>
+<tr><td><code>STR_AS_BYTES %out_slice, %slice_reg</code></td><td>Convert to a byte view</td></tr>
 </table>
 
-<h2>字节 / 文本口径（TS-9，2026-10-29 落字）</h2>
-<p>SLA 的 <code>String</code> 是 <code>{ptr, len}</code> <strong>字节柄</strong>：类型层<strong>不强制
-UTF-8 有效性不变式</strong>，可以装任意字节。需要文本保证的构造须走校验入口
-<code>str_from_utf8</code>（先 <code>STR_IS_UTF8</code> 校验、后构造）；另有名称自明的 unchecked
-构造路存在，调用方自担。字符串字面量由源码 UTF-8 天然成立。</p>
-<p>string 域 25 个 extern 的字节 / 文本分工如下：<code>*_ascii</code> 族与字节操作族
-（concat、index_of、starts_with、ends_with、replace、pad、repeat）是<strong>纯字节语义</strong>；
-<code>utf8_*</code> 族按标量解码——<code>sa_str_utf8_validate</code> 显式校验合法性、
-<code>sa_str_utf8_char_at</code> 出错返回状态码、<code>sa_str_utf8_char_count</code> 遇非法序列
-返回 0、<code>sa_str_utf8_lossy_next</code> 对非法序列宽容推进。</p>
-<p>（注记：String 在 SLA 层的 <code>Ord</code> 提供点尚待查清（登记 TS-10），本节不下结论。）</p>
+<h2>Byte / Text Conventions (TS-9, Written 2026-10-29)</h2>
+<p>SLA's <code>String</code> is a <code>{ptr, len}</code> <strong>byte handle</strong>: the type layer <strong>does not enforce
+a UTF-8 validity invariant</strong>, and it can hold arbitrary bytes. Construction that needs a text guarantee must go through the validating entry point
+<code>str_from_utf8</code> (first validate with <code>STR_IS_UTF8</code>, then construct); there is also a self-describing unchecked
+construction path, which the caller uses at its own risk. String literals are naturally valid because the source is UTF-8.</p>
+<p>The division of labour between bytes and text for the 25 externs in the string domain is as follows: the <code>*_ascii</code> family and the byte-operation family
+(concat, index_of, starts_with, ends_with, replace, pad, repeat) have <strong>pure byte semantics</strong>;
+the <code>utf8_*</code> family decodes by scalar — <code>sa_str_utf8_validate</code> explicitly validates well-formedness,
+<code>sa_str_utf8_char_at</code> returns a status code on error, <code>sa_str_utf8_char_count</code> returns 0 on an invalid sequence,
+and <code>sa_str_utf8_lossy_next</code> advances tolerantly over invalid sequences.</p>
+<p>(Note: where <code>Ord</code> is provided for String at the SLA layer is still to be clarified (registered as TS-10); this section draws no conclusion.)</p>
 
-<h2>Sla 侧示例</h2>
-<p>字符串比较在 Sla 里通过 <code>str_eq</code> 使用。摘自
-<code>demos/rosetta/01_hello_world/main.sla</code> 的测试：</p>
+<h2>Example on the Sla Side</h2>
+<p>String comparison is used in Sla through <code>str_eq</code>. From the test in
+<code>demos/rosetta/01_hello_world/main.sla</code>:</p>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 @import "sa_std/string.sa"
@@ -68,10 +68,11 @@ UTF-8 有效性不变式</strong>，可以装任意字节。需要文本保证�
     };
 };</code></pre>
 
-<div class="note"><span class="label">注意</span><code>sa_str_*</code> 函数都接受
-裸的 <code>(ptr, len)</code> 而不是字符串对象；<code>sa_string_concat</code> 返回的
-owned 缓冲句柄需要显式释放。</div>
+<div class="note"><span class="label">Note</span>All <code>sa_str_*</code> functions accept
+a raw <code>(ptr, len)</code> rather than a string object; the owned buffer handle returned by
+<code>sa_string_concat</code> needs to be released explicitly.</div>
 
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/06_stdlib/04_string.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

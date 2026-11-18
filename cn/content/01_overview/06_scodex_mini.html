@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>scodex-mini：SLA 写成的 Codex 最小单元</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; scodex-mini：SLA 写成的 Codex 最小单元</div>
+<h1>scodex-mini：SLA 写成的 Codex 最小单元</h1>
+
+<p><code>scodex-mini</code> 是用 SLA 写成的 Codex 最小可运行单元：单轮 agent CLI，行为对标
+Rust 版 <code>codex-min</code>。它的意义是证明 SLA 工具链已经能写出真实联网、有状态、
+带工具调用循环的 agent 程序——prompt 进去，POST 模型 API，打印文本，执行
+<code>shell_exec</code> 工具调用，循环直到模型收尾（最多 8 轮）。源码在
+<code>~/workspace/scodex-mini</code>（独立仓库 <code>layola13/codexmini</code>）。</p>
+
+<h2>运行形态</h2>
+<pre><code>export PATH="$HOME/.sa/bin:$PATH" SA_STD_DIR="$HOME/.sa/std" SA_PLUGIN_DEV=1
+
+# 新会话：每轮落库
+OPENAI_API_KEY=... ./scodex-mini "帮我看看这个目录"
+
+# 列出会话（不需要 API key）
+./scodex-mini --list
+#   session id=1 msgs=4 updated_ms=1789744779005
+
+# 带着后续问题恢复会话 1
+OPENAI_API_KEY=... ./scodex-mini --resume 1 "继续"</code></pre>
+
+<h2>双 API 模式</h2>
+<table>
+<tr><th>环境变量</th><th>API</th><th>说明</th></tr>
+<tr><td>未设置（默认）</td><td>Responses API</td><td><code>/v1/responses</code>，<code>function_call</code> / <code>function_call_output</code> 按 <code>call_id</code> 配对</td></tr>
+<tr><td><code>SCODEX_API_MODE=chat</code></td><td>Chat Completions API</td><td><code>/v1/chat/completions</code>，工具调用按 <code>index</code> 路由</td></tr>
+</table>
+<p>两种模式都走同一套 SSE 与重试入口（见下）。</p>
+
+<h2>SSE 流式输出</h2>
+<p>请求带 <code>stream:true</code>，经 http-client 插件的原生高层 API
+<code>sa_http_client_sse_turn</code> 完成一轮流式 turn：</p>
+<ul>
+<li>文本增量实时输出到 stdout；工具调用分片（arguments 碎片）按
+<code>call_id</code>（Responses）或 <code>index</code>（Chat）路由重组，支持多工具并行/乱序分片；</li>
+<li>返回值：<code>0</code> = 文本完成，<code>1</code> = 有工具调用（本地执行后发起第二轮请求），<code>2</code> = 错误；</li>
+<li>重试只作用于初始 POST（429/5xx/短暂网络错误，最多 5 次，指数退避 1/2/4/8/16 秒，尊重 <code>Retry-After</code> 上限 5 分钟）；流开始后不再重试。</li>
+</ul>
+
+<h2>会话持久化</h2>
+<p>会话经 <code>sa_plugin_db</code>（非 SQLite）存在 <code>$HOME/.scodex-mini/db</code>，
+两张表：<code>sessions(id, created_ms, updated_ms, msg_count, title_blob)</code>、
+<code>messages(session_id, seq, role, body_blob)</code>。role 编码：
+<code>0</code>=user、<code>1</code>=assistant、<code>2</code>=function_call
+（<code>{"call_id","name","args"}</code>）、<code>3</code>=function_call_output
+（<code>{"call_id","output"}</code>）。<code>--resume</code> 按 <code>seq</code>
+重放历史；损坏的工具调用记录会显式报错中止，而不是静默丢历史。</p>
+
+<h2>多模态与文件输入</h2>
+<ul>
+<li>图片理解：本地图片路径作为输入传给模型（image view）；</li>
+<li>文件/文档/图片路径输入：把本地文件内容作为上下文传给模型；</li>
+<li>Skills 与 MCP：<code>--mcp</code> 支持外部 MCP server 的工具。</li>
+</ul>
+
+<h2>源码布局</h2>
+<pre><code>packages/codex-mini/src/
+  config.sla      OPENAI_API_KEY 与 SCODEX_API_MODE 配置
+  protocol.sla    MiniEventKind / MiniToolCall / MiniTurnOutcome
+  http.sla        sa_http_client.sai 适配 + HTTPS POST
+  model.sla       双 API 请求构建/响应解析/turn 循环/会话 DB
+  tools.sla       shell_exec：sh -c 执行并捕获 stdout
+  main.sla        CLI：argv → prompt / --list / --resume
+  sessionx.sa     会话 DB 宏（DB 路径、行编码）</code></pre>
+<p>构建：<code>sa sla build-exe --release-fast -o scodex-mini</code>，产物约 1.1MB。
+本地联调可用 <code>e2e/mock_responses.py</code>（纯 HTTP 的 Responses API mock，
+打 <code>127.0.0.1:8080</code>）先跑通工具循环再换真实 key。</p>
+
+<div class="note"><span class="label">注意</span>网络层走 http-client 插件的 curl 子进程方案
+（proxy + TLS 最稳定，见<a href="../05_plugins/14_http_client.html">http-client 插件页</a>）；
+<code>Accept-Encoding: identity</code> 固定发送，服务端若强制压缩需要另行处理。</div>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：scodex-mini 仓库 README.md（2026-09-19 版）、
+<code>sa_http_client.sai</code>、http-client 插件 <code>src/http_saasm_api.zig</code>
+<code>sa_http_client_sse_turn</code> 注释。</p>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>组件库 mui 概览</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SAX / MUI 界面开发 &gt; 组件库 mui 概览</div>
+<h1>组件库 mui 概览</h1>
+
+<p>这一页介绍 <code>sa_plugin_mui</code> 提供的 SAX 版 Material 组件库：它的源码形态、如何在编译时引入，
+以及在 <code>.sax</code> 文件里使用这些组件的写法。</p>
+
+<h2>SA-first 的源码库</h2>
+<p><code>sa_plugin_mui</code> 是 SA/SAX 的 Material UI 组件库，实现方向是 SA-first：
+组件本体写在 SAX 源码 <code>mui/material.sax</code> 里，React/SAX 编译链通过通用的
+<code>--include</code> 组件源码组合机制消费它。插件的 Zig 部分只负责插件描述与共享资产安装，
+不实现任何组件行为、主题逻辑或类名生成。上游 material-ui 仅作为 React 模型的参考
+（默认 props 归入 ownerState、slots、工具类、主题令牌），不是运行时依赖。</p>
+<ul>
+<li><code>mui/material.sax</code> —— 全部核心 Material 组件（v1 清单锁定为 <code>@mui/material</code> 默认导出，不含 hooks/helper）以及 Lab 风格组件（<code>LoadingButton</code>、<code>Timeline</code>、<code>Masonry</code>、<code>TabContext</code>/<code>TabList</code>/<code>TabPanel</code>、<code>SimpleTreeView</code>/<code>TreeItem</code>、<code>SpeedDial</code> 系列等）。</li>
+<li><code>mui/icons_material.sax</code> —— 纯 SAX 的图标封装，依赖同一 <code>SvgIcon</code> 表面；当前覆盖仪表盘/导航与常见动作，如 <code>SearchIcon</code>、<code>NotificationsIcon</code>、<code>SettingsIcon</code>、<code>MenuIcon</code>、<code>CloseIcon</code>、<code>AddIcon</code>、<code>EditIcon</code>、<code>DeleteIcon</code>、<code>HomeIcon</code>、<code>LogoutIcon</code> 等 30 个左右。</li>
+<li>常用布局/数据组件包括：<code>Button</code>、<code>IconButton</code>、<code>Chip</code>、<code>Paper</code>、<code>Typography</code>、<code>Stack</code>、<code>Grid</code>、<code>AppBar</code>、<code>Tabs</code>/<code>Tab</code>、<code>Select</code>/<code>MenuItem</code>、<code>List</code>/<code>ListItemButton</code>、<code>Table</code> 系列、<code>Switch</code>、<code>TextField</code>、<code>Alert</code>、<code>Dialog</code> 系列、<code>Avatar</code>、<code>CssBaseline</code>、<code>InitColorSchemeScript</code>、<code>GlobalStyles</code> 等。</li>
+</ul>
+
+<h2>引入方式</h2>
+<p>MUI 库文件不参与你的工程目录，而是在编译命令里用两个 <code>--include</code> 挂进来（路径指向插件仓库）：</p>
+<pre><code>MUI=D:/projects/sla/sa_plugin_mui
+
+sa vite dev app.sax --react \
+  --include $MUI/mui/material.sax \
+  --include $MUI/mui/icons_material.sax \
+  ...其余 include... \
+  --title "Codex UI" --css app.css --out-dir .zig-cache/dev --port 5173</code></pre>
+<p>include 解析顺序：先相对入口 <code>.sax</code> 文件，其次 <code>SA_REACT_INCLUDE_PATH</code>、
+由 <code>SA_PLUGINS_PATH</code> 推断的共享目录、已安装插件的 share 目录（<code>$SA_PLUGINS_HOME/installed/&lt;plugin&gt;/current/share</code>）。
+因此也可以只传 <code>--include mui/material.sax</code> 让它从已安装的 mui 插件共享目录解析。</p>
+
+<h2>在 .sax 中使用</h2>
+<p>MUI 组件就是大写标签，与自己的组件混用在同一命名空间。典型用法是给它们挂全局 CSS 类和静态属性：</p>
+<pre><code>&lt;Chip color="warning"&gt;⚡ Fast&lt;/Chip&gt;
+
+&lt;Select value="full-access"&gt;
+  &lt;MenuItem selected&gt;完全访问&lt;/MenuItem&gt;
+  &lt;MenuItem&gt;自动批准&lt;/MenuItem&gt;
+&lt;/Select&gt;
+
+&lt;Paper className="cxu-dock-menu{menu_open ? '' : ' cxu-hidden'}"&gt;
+  &lt;List dense&gt;
+    &lt;ListItemButton onClick={close_menu}&gt;&lt;span&gt;📎 上传文件&lt;/span&gt;&lt;/ListItemButton&gt;
+  &lt;/List&gt;
+&lt;/Paper&gt;</code></pre>
+<ul>
+<li>根节点 <code>className</code> 会合并到生成的工具类之后（对 Button、Paper、Card、Chip、Alert、Dialog 等常见根槽组件生效）。</li>
+<li>外观基线由工程的 <code>theme.css</code> 手工定义（如 <code>.MuiButton-contained</code>、<code>.MuiChip-colorSuccess</code>），见<a href="04_styling.html">样式体系</a>一页。</li>
+<li>包装/布局类组件可用 <code>&lt;Slot contextProps="..." /&gt;</code> 把默认值投影给直接子组件；需要穿透透明包装层的 Provider 用 <code>contextScope="descendants"</code> 显式声明。</li>
+<li>当前 <code>className</code> 支持是增量的：静态对象 props（如 <code>classes=&#123;&#123; root: "..." &#125;&#125;</code>）与
+<code>slotProps</code> 会被投影成同名状态；动态对象值、自定义 slot 组件替换、styleOverrides、portal、焦点陷阱仍是后续工作。</li>
+</ul>
+
+<h2>安装与构建</h2>
+<pre><code># 在插件目录构建出 DLL 后安装（privileged 插件需 --dev 跳过 TTY 确认）
+cd D:/projects/sla/sa_plugin_mui &amp;&amp; zig build -Doptimize=Debug
+sa plugin install --dev D:/projects/sla/sa_plugin_mui
+sa plugin list          # 查看已安装插件</code></pre>
+<div class="note"><span class="label">注意</span>运行 privileged 插件（react、mui 依赖链等）需设置环境变量 <code>SA_PLUGIN_DEV=1</code>，
+否则报 "privileged plugin ... is blocked in formal runtime mode"。工具链细节见<a href="06_toolchain.html">react/vite 插件集成与本地预览</a>。</div>
+</body>
+</html>

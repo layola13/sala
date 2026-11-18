@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>sax — SA UI 方言插件</title>
+<title>sax — SA UI Dialect Plugin</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">插件参考 &gt; sax — SA UI 方言插件</div>
-<h1>sax — SA UI 方言插件</h1>
-<div class="note"><span class="label">Zig 0.17</span>本插件使用 <b>Zig 0.17</b> 编译：<code>0.17</code> 分支以 Zig 0.17 构建通过并通过 Zig 单元测试；旧的 0.14.1 分支保留不动。</div>
+<div class="topic-header">Plugin Reference &gt; sax — SA UI Dialect Plugin</div>
+<h1>sax — SA UI Dialect Plugin</h1>
+<div class="note"><span class="label">Zig 0.17</span>This plugin is built with <b>Zig 0.17</b>: the <code>0.17</code> branch builds with Zig 0.17 and passes the Zig unit tests; the old 0.14.1 branch is kept unchanged.</div>
 
-<p><code>sa_plugin_sax</code> 是 SA 的 UI 方言插件：把一个 <code>.sax</code> 组件源文件编译成浏览器可直接打开的产物包，
-生成的是真实工件而不是占位 stub。本页只介绍它能做什么与怎么启用；组件语法与界面开发流程见「SAX / MUI 界面开发」章节。</p>
+<p><code>sa_plugin_sax</code> is SA's UI dialect plugin: it compiles a <code>.sax</code> component source file into an artifact package that a browser can open directly,
+producing real artifacts rather than placeholder stubs. This page only introduces what it can do and how to enable it; for component syntax and the UI development workflow, see the "SAX / MUI UI Development" chapter.</p>
 
-<h2>基本事实</h2>
+<h2>Basic facts</h2>
 <ul>
-<li>能力段：<code>sax</code>；版本 <code>0.1.0</code>；无插件依赖。</li>
-<li>权限：项目目录读写创建、环境变量 <code>HOME</code>/<code>PATH</code>/<code>SA_*</code>、允许 spawn <code>/opt/zig/zig</code>。</li>
-<li>命令：<code>sa sax build &lt;file&gt; [--out-dir dir]</code>（生成产物包）、<code>sa sax check &lt;file&gt;</code>（解析与 trap 校验）、
-<code>sa sax dev &lt;file&gt; [--out-dir dir]</code>、<code>sa sax new &lt;name&gt;</code>（新建项目）。</li>
+<li>Capability segment: <code>sax</code>; version <code>0.1.0</code>; no plugin dependencies.</li>
+<li>Permissions: read/write/create in the project directory, environment variables <code>HOME</code>/<code>PATH</code>/<code>SA_*</code>, allowed to spawn <code>/opt/zig/zig</code>.</li>
+<li>Commands: <code>sa sax build &lt;file&gt; [--out-dir dir]</code> (generate the artifact package), <code>sa sax check &lt;file&gt;</code> (parsing and trap checking),
+<code>sa sax dev &lt;file&gt; [--out-dir dir]</code>, <code>sa sax new &lt;name&gt;</code> (create a new project).</li>
 </ul>
 
-<h2>构建产物</h2>
-<p>对输入如 <code>demos/counter.sax</code>，<code>sa sax build</code> 生成：</p>
+<h2>Build artifacts</h2>
+<p>For an input such as <code>demos/counter.sax</code>, <code>sa sax build</code> generates:</p>
 <ul>
-<li><code>app.wasm</code> —— 组件逻辑（WASM）；</li>
-<li><code>airlock.js</code> —— DOM 桥（WASM ↔ DOM 的最小胶水）；</li>
-<li><code>index.html</code> —— 加载上述两者的入口页；</li>
-<li><code>app.sa</code> —— 中间 SA 汇编。</li>
+<li><code>app.wasm</code> — the component logic (WASM);</li>
+<li><code>airlock.js</code> — the DOM bridge (the minimal glue between WASM and the DOM);</li>
+<li><code>index.html</code> — the entry page that loads the two above;</li>
+<li><code>app.sa</code> — the intermediate SA assembly.</li>
 </ul>
-<p>生成的 HTML 带 CSP，仅允许 WebAssembly 启动，DOM 访问被限制在 Airlock 边界内；
-Airlock 会拒绝 <code>&lt;script&gt;</code>、<code>innerHTML</code> 与内联 <code>eval</code>。</p>
+<p>The generated HTML carries a CSP that only allows WebAssembly to start, and DOM access is confined within the Airlock boundary;
+Airlock rejects <code>&lt;script&gt;</code>, <code>innerHTML</code>, and inline <code>eval</code>.</p>
 
-<h2>启用方式</h2>
-<p>本地开发 checkout 下（在 <code>sa_plugin_sax</code> 目录内执行）：</p>
+<h2>How to enable it</h2>
+<p>Under a local development checkout (run inside the <code>sa_plugin_sax</code> directory):</p>
 <pre><code>zig build test
 SA_PLUGIN_DEV=1 SA_PLUGINS_PATH=$PWD/zig-out/lib/libsax.so \
   sa sax build demos/counter.sax --out-dir /tmp/sax-counter</code></pre>
 
-<p>若组件声明了浏览器 sidecar 渲染器，构建时还会把对应 broker 复制到输出目录：</p>
+<p>If a component declares a browser sidecar renderer, the build also copies the corresponding broker into the output directory:</p>
 <table>
-<tr><th>渲染器标记</th><th>复制的文件</th></tr>
+<tr><th>Renderer marker</th><th>Copied file</th></tr>
 <tr><td><code>renderer="wgpu"</code> / <code>sa_wgpu_</code> / <code>WGPU_CUBE_</code></td><td><code>wgpu_airlock.js</code></td></tr>
 <tr><td><code>renderer="sa3d"</code> / <code>sa3d_</code> / <code>SA3D_</code></td><td><code>sa3d_airlock.js</code></td></tr>
 </table>
 
-<p>SAX 还接受可选的 Sla 事件处理器（普通函数语法，经 <code>sa_plugin_sla</code> 编译），并保留原有 SA label 处理器写法：</p>
+<p>SAX also accepts optional Sla event handlers (ordinary function syntax, compiled via <code>sa_plugin_sla</code>), and keeps the original SA label handler style:</p>
 <pre><code>fn inc() {
   count = count + 1;
   last = sax_get_time();
   render();
 }</code></pre>
-<p>使用 Sla 处理器的组件在 destroy 阶段自动释放状态，无需显式 <code>!state_name</code> 行。</p>
+<p>Components using Sla handlers release their state automatically in the destroy phase, with no need for an explicit <code>!state_name</code> line.</p>
 
-<div class="note"><span class="label">注意</span>浏览器冒烟验证可用仓库自带脚本：
-<code>node tools/verify_sax_browser.mjs &lt;dist&gt; chromium</code>（可用
-<code>SAX_BROWSER_EXECUTABLE</code> / <code>SAX_BROWSER_SCREENSHOT</code> 指定浏览器与截图输出）。</div>
+<div class="note"><span class="label">Note</span>For browser smoke verification you can use the repository's bundled script:
+<code>node tools/verify_sax_browser.mjs &lt;dist&gt; chromium</code> (you can specify the browser and screenshot output with
+<code>SAX_BROWSER_EXECUTABLE</code> / <code>SAX_BROWSER_SCREENSHOT</code>).</div>
 </body>
 </html>

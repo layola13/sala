@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>Rust 表层兼容性：哪些代码能原样解析</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">与 Rust 对比 &gt; Rust 表层兼容性：哪些代码能原样解析</div>
+<h1>Rust 表层兼容性：哪些代码能原样解析</h1>
+
+<p>这一页回答一个很具体的问题：把一段 Rust 代码粘进 <code>.sla</code>，哪些东西能直接过、
+哪些会被静默吸收、哪些必须手改。依据是
+<code>docs/rust_surface_compat_report_cn.md</code>（评估日期 2026-06-15）——该文档自我定位为一份
+<b>点时间快照</b>，具体阶段状态以 roadmap 为准。</p>
+
+<h2>目标定位：不是「变成 Rust」，而是「表层兼容子集」</h2>
+<p>报告给出的目标是：</p>
+<blockquote>让大量 Rust 代码能在 Sla 中原样解析通过，编译器在 lowering 期把 Rust 表面的冗余声明
+（lifetime / pub / where）静默吸收成 SA 的隐式行为。</blockquote>
+<p>也就是说，SLA 编译器扮演「翻译器 + 智能筛选器」的角色：LLM 或人类可以直接粘贴 Rust 风格代码，
+SA 侧拿到的仍然是干净扁平的所有权指令流，安全约束一条不少。</p>
+
+<h3>两条红线（对应 SA 设计原则）</h3>
+<table>
+<tr><th>红线</th><th>对应原则</th></tr>
+<tr><td>不放弃 <code>^</code></td><td>「五符号契约」（<code>= &amp; ^ ! *</code>）+ 仿射状态机的核心物理输入</td></tr>
+<tr><td>不引入 <code>mut</code> 写法</td><td>共享读 vs 独占写由 Referee 在运行时上下文动态决定，不在语法层区分；
+Referee 已经在 <code>&amp;</code> 一种语法下自动区分 <code>Locked_Read</code> / <code>Locked_Mut</code>（看借用视图后面有没有 <code>store</code>）</td></tr>
+</table>
+<p><code>let mut</code> 被判为「沉默误导」的根源在于：<b>SLA 与 Rust 的默认可变性正好相反</b>——
+SLA 的 <code>let</code> 默认可变，<code>const</code> 才是不可变。而 SLA 的 <code>^</code> 前缀一元（Move）
+与 Rust 的中缀二元 XOR 分属 parser 不同上下文，并不冲突。</p>
+
+<h2>第一类：静默吸收型（解析后语义置空）</h2>
+<p>这类写法对 SA 设计零侵入，属于纯前端语法 ingestion。</p>
+<table>
+<tr><th>Rust 语法</th><th>SLA 的处理</th><th>理由</th></tr>
+<tr><td><code>let mut x = ...</code></td><td><b>永久不接受</b>（<code>let</code> 已默认可变）</td><td>与 SLA 现状反向，<code>mut</code> 反而误导</td></tr>
+<tr><td><code>&amp;mut T</code> 借用类型</td><td>Phase 1 不引入；Phase 2（sa3d ECS 之前）引入</td><td>当前 <code>&amp;T</code> 已涵盖读写</td></tr>
+<tr><td><code>fn foo(&amp;mut self)</code></td><td>Phase 1 未识别（需手工去 <code>mut</code>）；Phase 2 作为独立独占借用契约引入</td><td>同上</td></tr>
+<tr><td><code>'a</code> / <code>'static</code> lifetime</td><td>解析但不落到语义</td><td>SA 不做跨函数借用图</td></tr>
+<tr><td><code>pub</code> / <code>pub(crate)</code></td><td>解析丢弃</td><td>SA 默认全部链接器可见</td></tr>
+<tr><td><code>unsafe { ... }</code> / <code>unsafe fn</code></td><td>解析丢弃；涉及裸指针时要求包在 <code>@ffi_wrapper</code> 内</td><td>用函数级隔离替代块级 unsafe</td></tr>
+<tr><td><code>where T: Bound</code></td><td>解析；约束只在单态化做 trait 方法查找时使用</td><td>不引入约束求解</td></tr>
+<tr><td><code>#[derive(...)]</code> / <code>#[inline]</code></td><td>映射到现有 <code>@</code> / <code>inline</code> 语法</td><td>同语义换皮</td></tr>
+</table>
+
+<h2>第二类：直接同义映射</h2>
+<p>这些是「Rust 写法 ↔ SLA/SA 既有概念」的双轨对应，文档建议优先推 Rust 风格拼写。</p>
+<table>
+<tr><th>Rust</th><th>SLA</th><th>说明</th></tr>
+<tr><td><code>use std::foo::bar</code></td><td><code>@import "sa_std/foo/bar.sai"</code></td><td>双轨接受</td></tr>
+<tr><td><code>extern "C" fn ...</code></td><td><code>@extern fn ...</code></td><td>双轨</td></tr>
+<tr><td><code>#[test]</code></td><td><code>@test</code></td><td>双轨</td></tr>
+<tr><td><code>println!("...")</code> 等宏调用</td><td><code>println("...")</code> 无 <code>!</code> 后缀的函数调用，桥到 sa_std 的 print 路径</td><td>短期不引入 <code>!</code> 宏后缀；parser 对紧贴标识符的 <code>!</code> 做「容错降级」剥离重写</td></tr>
+<tr><td><code>format! / vec! / panic! / assert!</code></td><td>当普通函数 / 内建 intrinsic 处理</td><td>不发射 macro-suffix <code>!</code></td></tr>
+<tr><td><code>i8..i64 / u8..u64 / f32 / f64 / usize / isize</code></td><td>加入类型表，<code>int</code> 保留作 <code>i64</code> 别名</td><td>—</td></tr>
+<tr><td><code>bool</code> / <code>true</code> / <code>false</code></td><td>已有 / 新增</td><td>—</td></tr>
+<tr><td><code>as</code> 强制转换</td><td>新增，与 <code>.sa</code> 的 <code>as</code> 一致</td><td>—</td></tr>
+<tr><td><code>+= -= *= /= %= &amp;= |= ^= &lt;&lt;= &gt;&gt;=</code></td><td>复合赋值，desugar 成 <code>x = x op y</code></td><td>—</td></tr>
+<tr><td><code>&amp;&amp; || ! &lt;&lt; &gt;&gt; | ~</code></td><td>位运算补齐；<code>!</code> 仍是逻辑非，中缀 <code>^</code> 是 XOR</td><td>—</td></tr>
+<tr><td><code>_</code></td><td>解构/绑定丢弃槽，进入前端即消耗值</td><td>—</td></tr>
+<tr><td><code>..</code> 结构体更新、<code>[a, b, ..rest]</code> 切片解构</td><td>纯 AST/lowering，无运行时隐藏开销</td><td>—</td></tr>
+<tr><td><code>loop / break / continue / 'label:</code></td><td>降到 <code>jmp/br</code>，与 <code>for/while</code> 同一套展平器</td><td>—</td></tr>
+<tr><td><code>if let</code> / <code>while let</code> / <code>let else</code></td><td>desugar 到 <code>match</code></td><td>—</td></tr>
+<tr><td><code>match</code> 多枝 <code>|</code>、守卫、<code>@</code> 绑定、<code>..=</code>、<code>..</code> 通配</td><td>扩展现有 match</td><td>—</td></tr>
+<tr><td><code>impl Trait for T</code> + <code>trait</code></td><td>只做单态化静态分发 + vtable 宏</td><td>不做 trait coherence、不做 GAT</td></tr>
+<tr><td><code>using module</code> 静态扩展</td><td>显式启用模块级 method-style 调用</td><td>只在 <code>using</code> 作用域内生效，歧义直接报错</td></tr>
+<tr><td><code>type Alias = A &amp; B &amp; { ... }</code></td><td>展开为扁平字段布局</td><td>纯前端别名</td></tr>
+<tr><td><code>@overload</code> 操作符块</td><td>限定 <code>+ - * /</code> 的静态分发</td><td>只在 <code>@overload</code> 作用域内生效</td></tr>
+<tr><td><code>Self / self / &amp;self</code></td><td>已可用；UFCS 已有</td><td>当前 <code>&amp;self</code> 同时覆盖读写，由 Referee 兜底</td></tr>
+<tr><td><code>enum Variant { A, B(T), C{x:int} }</code></td><td>sum-type，match 解构按 <code>[tag|payload]</code> lowering</td><td>—</td></tr>
+<tr><td>字符字面量 <code>'a'</code>、数字后缀 <code>1u32 / 1.5f64</code></td><td>加入词法</td><td>字符与 lifetime 用 lexer lookahead 区分</td></tr>
+<tr><td>字符串字面量 → <code>&amp;str</code> / <code>String</code></td><td>需 sa_std 给出胖指针布局</td><td>—</td></tr>
+</table>
+
+<h2>第三类：看似 Rust、实则 SLA 的语义差异</h2>
+<p>这一类最危险：代码能解析、看起来也对，但语义与 Rust 不同。<b>必须记住这四条。</b></p>
+<table>
+<tr><th>表面</th><th>实际语义</th></tr>
+<tr><td><code>let mut x</code></td><td><b>永久不接受</b>；SLA 的 <code>let</code> 默认可变</td></tr>
+<tr><td><code>&amp;T</code></td><td><b>当前涵盖读和写两种用途</b>；lowered 之后始终是 SA 的 <code>&amp;</code>，物理层由 Referee 兜底。
+Phase 2 引入 <code>&amp;mut T</code> 后才区分</td></tr>
+<tr><td><code>Drop</code> trait</td><td><b>不支持</b>，用户不能写 <code>impl Drop</code>；释放仍由编译器隐式注入</td></tr>
+<tr><td><code>'a</code> 标注</td><td>仅解析；跨函数借用安全走前端责任制，不做检查</td></tr>
+<tr><td><code>unsafe</code> 块</td><td>退化为「声明意图」；真正的裸指针下行只允许 <code>@ffi_wrapper</code> 函数级，
+否则编译期报错</td></tr>
+<tr><td><code>panic!("字符串")</code></td><td><code>panic(数值码)</code>；字符串变体经 <code>sa_std</code> 走 <code>panic_msg</code></td></tr>
+<tr><td><code>Send / Sync</code></td><td>可解析；实际语义由 Referee 的仿射掩码 + 跨核校验兜底，不暴露 trait 求解</td></tr>
+</table>
+
+<h2>第四类：明确拒绝引入</h2>
+<ul>
+<li><code>let mut x</code> 写法（永久拒绝）</li>
+<li><code>&amp;mut</code> 作为独立类型——<b>v0.2 已修正</b>：Phase 2（sa3d ECS 启动前）会引入
+    <code>&amp;mut T</code> / <code>&amp;mut self</code>，用于 ECS 调度器的静态 read/write 集</li>
+<li><code>Drop</code> trait</li>
+<li>隐式 GC / unwind / panic catch</li>
+<li>完整 NLL / Polonius lifetime 推断</li>
+<li>proc-macro / <code>macro_rules!</code> 的任意复杂展开（保留 SLA 自己的 <code>macro</code> 卫生宏）</li>
+</ul>
+
+<h2><code>^</code> 与 <code>!</code> 的精确 parser 规则</h2>
+<p>两个符号在「Rust 兼容模式」下的分流规则如下（报告 §四，建议写进 parser 测试）：</p>
+<pre><code>prefix  '^' expr          → Move（Sla 既有）
+expr   '^' expr           → XOR（Rust 风）
+'^' 出现在 type 位置       → 非法
+
+prefix '!' expr           → 逻辑非（唯一接受的语义）
+ident '!' (...)           → 短期不引入（与 SA 的 ! 释放原语在 lexer/视觉上易混淆）
+单独 '!' 后跟寄存器        → SA 释放原语，但 .sla 用户层禁止显式书写</code></pre>
+<p><code>^</code> 的判别法：token 出现时看左侧是否有可作为操作数的表达式结尾
+（identifier / literal / <code>)</code> / <code>]</code>）。有 → 中缀 XOR；没有 → 前缀 Move。</p>
+<div class="note"><span class="label">注意</span><code>!</code> 宏后缀是<b>短期不引入</b>而非永远拒绝：
+等 SA 侧的 <code>!</code> 彻底从 <code>.sla</code> 用户面消失之后可以重新评估。在那之前，
+报告建议 parser 把紧贴标识符的 <code>!</code> 当作「语法噪音」剥离、重写为
+<code>println("...")</code> 后继续解析，以此兑现表层兼容承诺，同时不污染 SLA 自己的 <code>!</code> 语义。</div>
+
+<h2>兼容度目标与阶段路线</h2>
+<p>报告给出的务实目标（2026-06-15 快照口径，非承诺）：</p>
+<table>
+<tr><th>阶段</th><th>Rust 表层兼容度</th><th>关键动作</th></tr>
+<tr><td>Phase 1（当时当前）</td><td>≈ <b>70%</b></td><td><code>let mut x</code> / <code>&amp;mut T</code> / <code>&amp;mut self</code> 都需手工去 <code>mut</code>；约定 <code>&amp;self</code> 涵盖读写</td></tr>
+<tr><td>Phase 2（sa3d ECS 启动前）</td><td>≈ <b>85%</b></td><td>引入 <code>&amp;mut T</code> / <code>&amp;mut self</code>；<code>let mut</code> 仍永久不引入</td></tr>
+<tr><td>语义层（长期）</td><td colspan="2">≈ Rust safe 单线程子集 − Drop trait − 完整生命周期 − proc-macro</td></tr>
+</table>
+<p>对应的实施顺序按 ROI 排为六个 Phase：① 词法/类型表扩容 → ② 静默吸收型语法 +
+<code>use</code>/<code>mod</code> 双轨 → ③ 控制流补齐（loop/labeled break/as/复合赋值/if let/while let/let else）→
+④ match 扩展 + 真 enum → ⑤ trait 静态分发 → ⑥ 标准库表面
+（<code>println</code>/<code>print</code>/<code>format</code>/<code>panic</code>/<code>assert</code> 无 <code>!</code> 后缀桥接，
+<code>Vec/Box/Rc/Arc/Option/Result/String/&amp;str</code> 走 <code>@extern</code> + <code>.sal</code> 桥接并命名对齐 Rust）。</p>
+<div class="warning"><span class="label">警告</span>「70% / 85%」是设计目标值而不是实测通过率。
+实测对照数据请看 rosetta 树的逐条登记（见<a href="07_rosetta_bc2sa.html">下一页</a>）：
+demo.md 里 114 行标 ✅ 直接 1:1、90 行标 ❌ 替代或子集实现，其中还明确记录了本地 checked 路径
+失败的样例（如 <code>09_async_await</code>）；入门章节也提示这棵树并非全部都能端到端跑通。</div>
+
+<h2>下一步</h2>
+<ul>
+<li>看真实代码对照与 bitcode 桥接现状：<a href="07_rosetta_bc2sa.html">rosetta 对照集与 bc2sa 桥接生态</a></li>
+<li>把这些差异转成可执行的改写步骤：<a href="08_migration.html">从 Rust 迁移到 SLA：改写清单与场景选择</a></li>
+<li>错误处理 / async / 标准库表面的细节：<a href="05_stdlib_errors_async.html">标准库、错误处理与 async 对照</a></li>
+<li><code>&amp;</code>/<code>&amp;mut</code> 与所有权语义为什么这样定：
+    <a href="03_ownership.html">所有权与借用：Referee 对比 borrow checker</a></li>
+<li>宏与 <code>!</code> 后缀背后的取舍：<a href="04_macros.html">宏与元编程对比</a></li>
+</ul>
+</body>
+</html>

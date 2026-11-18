@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>后台服务覆盖图：已有、立项与缺口</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; 后台服务覆盖图：已有、立项与缺口</div>
+<h1>后台服务覆盖图：已有、立项与缺口</h1>
+
+<div class="note"><span class="label">状态</span>2026-10-28 盘点（用户问「后台服务基本能覆盖大部分应用了吧？还漏哪些」后的成案记录）。结论先行：<strong>单机到小规模应用的后端积木基本齐备；缺口集中在「分布式」与「对接存量生态」两个方向。</strong>本页滚动销项：每补齐一项即更新状态并注明出处页。</div>
+
+<h2>已覆盖（建成或已立项在途）</h2>
+<ul>
+<li><strong>Web 与 API</strong>：<a href="09_nginx_rebuild_roadmap.html">sangx</a>（HTTP/1.1/2/3、WebSocket、反向代理，规划成案）；SLA 原生应用后端已由 CXU 全量重构实证。</li>
+<li><strong>缓存 / KV</strong>：sardis（Redis 重构，候选名待定）规划成案——RESP、五大类型、过期、持久化与复制分期；进程内集合现成。</li>
+<li><strong>关系存储</strong>：SQLite 经 std 接入面使用（CXU 的 thread 存储即此类）。</li>
+<li><strong>列式存储</strong>：<a href="../10_db/01_overview.html">sa_plugin_db</a>（编译期 schema、读句柄扫描），其 <a href="../10_db/07_vm_support.html">VM 可编程查询层</a> 已规划。</li>
+<li><strong>文件与传输</strong>：fs 全面；SSH 服务端 + SFTP 在 std 内（跨语言普查判定为反超面）。</li>
+<li><strong>网络周边</strong>：DNS 记录型查询（解析侧）、SMTP 客户端（STD 第二波在制）、代理面、SSE 解析、IP/CIDR 值层、TLS 配置面——均已落地或在制。</li>
+<li><strong>基础件</strong>：定时器 + 进程 spawn（任务调度）、crypto/HMAC/bcrypt（认证库面）、WebSocket + SSE（实时推送）、位级打包（协议编解码原语）。</li>
+</ul>
+
+<h2>缺口清单（按补齐价值排序）</h2>
+<ol>
+<li><strong>分布式共识（Raft 类）——最大漏项</strong>。当前全部服务均为单机形态：sardis 的 Cluster、sangx 的跨节点共享状态、db 插件的复制，三者共同卡在没有共识协议与复制日志原语上。它是地基缺件而非产品缺件：补上它，三个在册产品同时解锁多节点形态。</li>
+<li><strong>外部数据库客户端驱动（PostgreSQL / MySQL 线协议）</strong>。自家存储已齐，但真实应用常需对接存量 PG/MySQL；无驱动只能绕道。纯协议活，量级与 SMTP 客户端相当。</li>
+<li><strong>日志型消息队列 + MQTT</strong>。sardis 的 Pub/Sub 与 Streams 只覆盖轻量场景；带消费组、回放、堆积能力的 Kafka 类队列是另一物种；MQTT 是物联网场景的独立门类（broker 与客户端均无）。</li>
+<li><strong>全文搜索</strong>。倒排索引 + BM25 + 分词的搜索服务未立项；可直接长在 db 列存之上（列存 + VM 查询层是现成底座），SQLite FTS 只算应急。</li>
+<li><strong>对象存储（S3 兼容）</strong>。fs 已有，但 S3 API、对象版本、生命周期均无；单机网关版可骑 sangx 实现，分片纠删码的分布式版不在当前射程。</li>
+</ol>
+
+<h2>小件缺口（场景驱动，不单独排期）</h2>
+<ul>
+<li>protobuf / gRPC 编解码：机械活，HTTP/2 底座已有。</li>
+<li>权威 DNS 服务器：只有解析客户端，服务端为小活（UDP 面现成）。</li>
+<li>IMAP 邮件全套：只有 SMTP 发送，收件与邮箱存储没有。</li>
+<li>时序数据库：db 列存半适配，差时间分区与降采样策略。</li>
+</ul>
+
+<h2>补漏顺序（建议）</h2>
+<ol>
+<li><strong>Raft 共识</strong>——一次解锁 sangx / sardis / db 三个产品的多节点形态。</li>
+<li><strong>PG / MySQL 客户端驱动</strong>——存量生态的集成面，决定 SA 应用能否进入既有系统。</li>
+<li><strong>全文搜索</strong>——骑 db 列存的现成底座，边际成本最低。</li>
+<li>MQTT、S3、其余小件——有具体场景再开，不预先投入。</li>
+</ol>
+
+</body>
+</html>

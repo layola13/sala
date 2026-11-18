@@ -4,9 +4,9 @@ Compiled file=..\..\SA_SLDA_Help.chm
 Contents file=help.hhc
 Index file=help.hhk
 Default Topic=..\dist\content\01_overview\01_sa_sla_overview.html
-Title=SA / SLA 帮助文档
-Language=0x804 中文(中华人民共和国)
-Default Font=微软雅黑,9,0
+Title=SA / SLA Help Documentation
+Language=0x409 英语(美国)
+Default Font=Segoe UI,9,0
 
 [FILES]
 ../dist/content/01_overview/01_sa_sla_overview.html

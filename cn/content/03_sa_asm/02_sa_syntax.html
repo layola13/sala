@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SA 文本汇编速览</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SA 汇编与 SAB &gt; SA 文本汇编速览</div>
+<h1>SA 文本汇编速览</h1>
+
+<p>这一页给出 <code>.sa</code> 文本汇编的行形态与指令形状，全部例子取自仓库
+<code>demos/rosetta/</code> 下的真实文件。读完可以读懂一份现成的 <code>.sa</code>，
+也能照着写一个最小程序。</p>
+
+<h2>顶层结构</h2>
+<p>每个顶层元素占一行或一段，主要形态有（见设计文档 §3.1 源码文本协议）：</p>
+<table>
+<tr><th>形态</th><th>示例</th></tr>
+<tr><td>导入 / 常量</td><td><code>@import "sa_std/io/print.sai"</code>、<code>@const HELLO_MSG = utf8:"hello\n"</code></td></tr>
+<tr><td>偏移常量</td><td><code>#def Point_x = +0</code>、<code>#loc "main.rs":42:7</code>（上游位置伪指令）</td></tr>
+<tr><td>函数定义</td><td><code>@main() -&gt; i32:</code>；可失败加 <code>!</code>：<code>@compute() -&gt; i32!:</code></td></tr>
+<tr><td>借用 / 所有权参数</td><td><code>@fill_zero(&amp;arr: ptr) -&gt; void:</code>、<code>@process_msg(^msg: ptr) -&gt; i32:</code></td></tr>
+<tr><td>外部声明 / 导出</td><td><code>@extern fd_open(*path: ptr) -&gt; i32</code>、<code>@export add_pair(a: i32, b: i32) -&gt; i32:</code></td></tr>
+<tr><td>气闸函数</td><td><code>@ffi_wrapper mmap_view(fd: i32, len: i32) -&gt; &amp;ptr:</code></td></tr>
+<tr><td>标签 / 宏 / 原生逃逸</td><td><code>L_ENTRY:</code>、<code>[MACRO]…[END_MACRO]</code>、<code>[REP 8]</code> + <code>EXPAND 名字 …</code>、<code>$ … $</code></td></tr>
+</table>
+
+<h2>一个完整的最小程序</h2>
+<p>来自 <code>demos/rosetta/01_hello_world/main.sa</code>：</p>
+<pre><code>@import "sa_std/io/print.sai"
+
+@const HELLO_MSG = utf8:"hello, saasm\n"
+
+@main() -> i32:
+L_ENTRY:
+    call @sa_print_bytes(&HELLO_MSG, 13)
+    return 0</code></pre>
+
+<h2>内存与控制流的典型形状</h2>
+<p>来自 <code>demos/rosetta/02_mutability/main.sa</code>，展示 alloc/borrow/store 与分支：</p>
+<pre><code>    x = alloc 8
+    store x+0, 10 as i64
+
+    r1 = &x
+    before = load r1+0 as i64
+    !r1
+
+    r2 = &x
+    store r2+0, 20 as i64
+    !r2
+
+    ok_before = eq before, 10
+    ok_after = eq after, 20
+    ok = and ok_before, ok_after
+    br ok -> L_OK, L_ERR
+
+L_OK:
+    !ok
+    call @sa_print_bytes(&RESULT_OK, 3)
+    return 0</code></pre>
+<div class="note"><span class="label">注意</span>SA 没有 if/else/while 关键字——源码里出现
+<code>{}</code>、<code>if</code>、<code>while</code>、<code>a.b.c</code> 等形态会直接触发
+<code>ForbiddenSyntax</code>。所有分支都用 <code>br</code> + 标签表达。</div>
+
+<h3>循环：手写 goto 状态机</h3>
+<p>来自 <code>demos/rosetta/04_loop/main.sa</code>：</p>
+<pre><code>@fill_zero(&arr: ptr) -> void:
+L_ENTRY:
+    i_slot = stack_alloc 8
+    store i_slot+0, 0 as u64
+    jmp L_COND
+
+L_COND:
+    i = load i_slot+0 as u64
+    more = ult i, 4
+    br more -> L_BODY, L_END
+
+L_BODY:
+    slot = ptr_add arr, i
+    store slot+0, 0 as u8
+    next = add i, 1
+    store i_slot+0, next as u64
+    !slot
+    !next
+    !i
+    !more
+    jmp L_COND
+
+L_END:
+    !i
+    !more
+    !arr
+    return</code></pre>
+
+<h3>虚表与间接调用</h3>
+<p>来自 <code>demos/rosetta/07_trait_vtable/main.sa</code>：</p>
+<pre><code>@const BUTTON_VT = vtable { draw = @button_draw }
+
+@render(&item: ptr) -> i32:
+L_ENTRY:
+    data_ptr = load item+DynDraw_DATA as ptr
+    vtable_ptr = load item+DynDraw_VTABLE as ptr
+    draw_fn = load vtable_ptr+VTable_draw as ptr
+    result = call_indirect draw_fn(&data_ptr)
+    !draw_fn
+    !vtable_ptr
+    !data_ptr
+    !item
+    return result</code></pre>
+
+<h3>错误传播与原子操作</h3>
+<p><code>?</code> 早返回（<code>demos/rosetta/19_result_question/main.sa</code>）：</p>
+<pre><code>@compute() -> i32!:
+L_ENTRY:
+    tripled_res = call @triple_ok(7)
+    value = ? tripled_res
+    return value</code></pre>
+<p>原子 RMW / load（<code>demos/rosetta/109_atomic_fetch_add/main.sa</code>）：</p>
+<pre><code>    old = atomic_rmw_add node+Atomic_value, 3 as i32 seq_cst
+    new = atomic_load node+Atomic_value as i32 seq_cst</code></pre>
+<p>序只允许 <code>relaxed</code> / <code>acquire</code> / <code>release</code> /
+<code>acq_rel</code> / <code>seq_cst</code> 五种；<code>cmpxchg</code> 的失败序强于成功序会在 flattener 阶段报
+<code>InvalidAtomicOrdering</code>。</p>
+
+<h2>常用指令速查（均出自真实 .sa 或官方 EBNF）</h2>
+<table>
+<tr><th>类别</th><th>助记符 / 形态</th><th>说明</th></tr>
+<tr><td>内存</td><td><code>alloc N</code>、<code>stack_alloc N</code>、<code>load r+off as T</code>、<code>store r+off, v as T</code>、<code>ptr_add base, i</code></td><td>堆分配 / 栈槽 / 读写 / 指针推进</td></tr>
+<tr><td>算术与比较</td><td><code>add sub mul sdiv udiv srem urem neg and or xor shl lshr ashr not eq ne slt sle sgt sge ult ule ugt uge fadd fsub fmul fdiv fcmp_*</code> 及 <code>trunc zext sext fptosi sitofp bitcast</code> 等转换</td><td>统一写作 <code>r = op a, b</code></td></tr>
+<tr><td>控制流</td><td><code>jmp L</code>、<code>br c -&gt; L1, L2</code>、<code>call @f(...)</code>、<code>call_indirect fn(...)</code>、<code>return [v]</code></td><td>基本块必须以终结指令结束，否则 <code>FallthroughForbidden</code></td></tr>
+<tr><td>错误传播</td><td><code>v = ? res</code>、<code>panic(code)</code></td><td>仅可用于 <code>-&gt; T!</code> 函数</td></tr>
+<tr><td>原子</td><td><code>atomic_load</code>、<code>atomic_store</code>、<code>cmpxchg</code>、<code>fence</code>、<code>atomic_rmw_{add,sub,and,or,xor,xchg,smin,smax,umin,umax}</code></td><td>同地址 RMW 序冲突触发 <code>AtomicOrderingMismatch</code></td></tr>
+<tr><td>所有权</td><td><code>!r</code>、参数前缀 <code>&amp;</code> <code>^</code> <code>*</code></td><td>释放 / 借用 / move / 裸指针</td></tr>
+<tr><td>气闸舱专用</td><td><code>v = *raw</code>（rawcast）、<code>v = assume_safe r</code>、<code>v = assume_borrow r[, mut]</code></td><td>只能在 <code>@ffi_wrapper</code> 内使用</td></tr>
+<tr><td>EBNF 中保留</td><td><code>take</code>、<code>release</code>、<code>move</code>、<code>borrow</code></td><td>出现在官方 EBNF 的 inst 规则中，demo 语料未直接用到</td></tr>
+</table>
+
+<h2>类型</h2>
+<p>类型注解限定为标量与指针族：<code>i8</code>…<code>i64</code>、
+<code>u8</code>…<code>u64</code>、<code>f32</code>/<code>f64</code>、<code>ptr</code>、<code>v128</code>
+（demo 语料中最常见的是 <code>i32</code>、<code>i64</code>、<code>u8</code>、<code>u32</code>、<code>ptr</code>）；
+使用其他标注会得到 <code>UnsupportedType</code>。常量字面量带类型前缀，如
+<code>utf8:"text\n"</code>、<code>vtable { draw = @button_draw }</code>。</p>
+
+<p>下一页：<a href="03_sab_format.html">SAB 字节码格式概览</a>。</p>
+</body>
+</html>

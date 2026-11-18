@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>ws_client：WebSocket 客户端</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; ws_client：WebSocket 客户端</div>
+<h1><code>ws_client.sai</code>：WebSocket 客户端</h1>
+
+<p>纯 Zig 实现的 RFC 6455 WebSocket 客户端（源码
+<code>src/runtime/sa_ws_client.zig</code>，sci 仓库 <code>cross-platform</code>
+分支）。连接是不透明 <code>u64</code> 句柄（<code>0</code> = 无效），
+<code>connect()</code> 一次完成传输层 + HTTP Upgrade 握手：
+<code>ws://</code> 走 TCP 直连，<code>wss://</code> 直接复用
+<a href="19_tls_client.html"><code>sa_tls_client</code></a> 做 TLS（没有第二套 TLS 实现，
+验证策略与 TLS client 完全一致：SNI + hostname 核对 + 系统 CA，无关闭开关）。</p>
+
+<h2>握手与帧规则</h2>
+<ul>
+<li>Upgrade 请求带随机 <code>Sec-WebSocket-Key</code>，并校验服务端返回的
+<code>Sec-WebSocket-Accept</code>；</li>
+<li>客户端发出的帧强制 mask（RFC 6455 §5.3）；</li>
+<li>分片消息由 <code>recv()</code> 自动重组；ping 自动回 pong，非请求的 pong 忽略；</li>
+<li>对端 close 表现为 opcode 8 的空载荷消息，之后调用 <code>close()</code> 释放句柄。</li>
+</ul>
+
+<h2>函数表（逐字摘自 <code>sa_std/ws_client.sai</code>）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_std_ws_client_supported(&amp;out_supported: ptr) -&gt; i32</code></td><td>后端是否可用</td></tr>
+<tr><td><code>sa_std_ws_client_connect(&amp;url: ptr, url_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td><code>ws://</code> / <code>wss://</code> URL 一次建连（含 Upgrade）</td></tr>
+<tr><td><code>sa_std_ws_client_add_ca_file(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td>为 <code>wss://</code> 追加 CA（first-wins 规则同 TLS client）</td></tr>
+<tr><td><code>sa_std_ws_client_send_text(handle: u64, &amp;buf: ptr, len: u64) -&gt; i32</code> / <code>_send_binary(...)</code></td><td>发送单帧 text / binary 消息</td></tr>
+<tr><td><code>sa_std_ws_client_ping(handle: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td>主动 ping</td></tr>
+<tr><td><code>sa_std_ws_client_recv(handle: u64, &amp;out_opcode: ptr, &amp;out_buf_handle: ptr) -&gt; i32</code></td><td>收一条完整消息；opcode：<code>1</code>=text、<code>2</code>=binary、<code>8</code>=close</td></tr>
+<tr><td><code>sa_std_ws_client_close(handle: u64, code: u16, &amp;reason: ptr, reason_len: u64) -&gt; i32</code></td><td>close 握手并消费句柄</td></tr>
+<tr><td><code>sa_std_ws_client_status_json(&amp;out_handle: ptr) -&gt; i32</code></td><td>能力/状态 JSON</td></tr>
+<tr><td><code>sa_std_ws_client_buffer_data(buffer: u64) -&gt; &amp;ptr</code> / <code>_buffer_len(buffer: u64) -&gt; u64</code> / <code>_buffer_free(^buffer: u64) -&gt; i32</code></td><td>消息载荷 buffer 三件套</td></tr>
+</table>
+
+<h2>协议违规检测</h2>
+<p>以下服务端违规会使 <code>recv()</code> 返回 <code>-5</code>（I/O 错误）：</p>
+<ul>
+<li>服务端发来的帧带 mask（§5.1）；</li>
+<li>RSV1/2/3 非零（未协商扩展，§5.2）；</li>
+<li>控制帧非 FIN 或载荷超 125 字节（§5.5）；close 帧载荷恰为 1 字节；</li>
+<li>text 消息载荷不是合法 UTF-8（§5.6）。</li>
+</ul>
+
+<h2>错误码</h2>
+<p>与 TLS client 相同：<code>0</code>=OK、<code>-1</code>=unsupported、
+<code>-5</code>=I/O（含协议违规）、<code>-12</code>=OOM、<code>-22</code>=非法参数、
+<code>-100</code>=<code>wss://</code> 的 TLS 证书验证失败。</p>
+
+<div class="note"><span class="label">注意</span>IPv6 开箱即用：底层走 <code>tcpConnectToHost</code>，
+URL 里的 <code>[::1]:port</code> 形式已被 loopback 实测连通。</div>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：<code>~/projects/sci/sa_std/ws_client.sai</code>、
+<code>src/runtime/sa_ws_client.zig</code>（2026-09-19，已验证：IPv4/IPv6 loopback echo、
+ping/pong、close、wss 自签证书 + CA pinning、未 pin 的 wss 返回 <code>-100</code>、
+4 种协议违规）。</p>
+</body>
+</html>

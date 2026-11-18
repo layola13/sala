@@ -1,111 +1,111 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>边界、性能与最佳实践</title>
+<title>Limits, Performance, and Best Practices</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">db 数据库插件 &gt; 边界、性能与最佳实践</div>
-<h1>边界、性能与最佳实践</h1>
+<div class="topic-header">db Database Plugin &gt; Limits, Performance, and Best Practices</div>
+<h1>Limits, Performance, and Best Practices</h1>
 
-<p>这一页汇总三件写代码前必须知道的事：插件当前<strong>明确不做</strong>什么、它的性能数字该怎么读、
-以及从仓库 <code>benchmark_test/</code> 的真实用例里能提炼出哪些可操作的写法。
-读完这一页你应该能避开常见的误用，并知道如何自己复现一次测量。</p>
+<p>This page brings together three things you must know before writing code: what the plugin currently <strong>expressly does not do</strong>, how its performance numbers should be read,
+and what actionable writing styles can be distilled from the real use cases in the repository's <code>benchmark_test/</code>.
+After reading this page you should be able to avoid common misuses, and know how to reproduce a measurement yourself.</p>
 
-<h2 id="limits">已知限制清单</h2>
+<h2 id="limits">Known limitations list</h2>
 
-<h3>数据模型</h3>
+<h3>Data model</h3>
 <ul>
-<li><strong>没有 SQL，也没有通用查询优化器。</strong>README 对 plan 家族的定性是
-"a planner building block rather than a SQL optimizer"，超出已实现形状的过滤要显式组合构件完成。</li>
-<li><strong>schema 锁定后不可变。</strong>新增列需要开新表；<code>database.md</code> §15 明确列为 Non-Goal。
-列注解必须与 primitive 匹配，例如 <code>// u64 decimal(2)</code> 会在编译期被拒绝。</li>
-<li><strong>没有变长字符串列。</strong>低基数标签走命名字典（存 1-based <code>u64</code> ID），
-一般文本/字节走 blob store（行内存 8 字节 <code>blob_handle</code>）。</li>
-<li><strong>ID 0 保留。</strong>字典 ID 与 blob handle 的 <code>0</code> 都预留给调用方的 null/missing 语义，
-不要拿来存业务数据。</li>
-<li><strong>blob store 不去重。</strong>重复写入相同字节会得到不同的 handle——这条路径面向 varchar/blob 数据，
-不是去重容器；要去重请用字典。空值合法。</li>
-<li><strong>decimal scale 上限 18。</strong>超过返回 <code>InvalidFormat</code>。</li>
-<li><strong>float 索引拒绝 NaN 与 ±Inf</strong>，返回 <code>SA_DB_ERR_INVALID_FORMAT</code>；
-金额等精确值应改用 scaled <code>i64</code>。</li>
-<li><strong>物理容量上限</strong>：<code>MAX_ROWS * ROW_BYTES ≤ 64 GB</code>，编译 schema 时即校验。</li>
+<li><strong>No SQL, and no general query optimizer.</strong> The README characterizes the plan family as
+"a planner building block rather than a SQL optimizer"; filtering beyond the implemented shapes must be completed by explicitly composing building blocks.</li>
+<li><strong>The schema is immutable once locked.</strong> Adding a column requires a new table; <code>database.md</code> §15 expressly lists this as a Non-Goal.
+A column annotation must match its primitive; for example, <code>// u64 decimal(2)</code> is rejected at compile time.</li>
+<li><strong>No variable-length string columns.</strong> Low-cardinality labels go through a named dictionary (storing a 1-based <code>u64</code> ID),
+and general text/bytes go through a blob store (an 8-byte <code>blob_handle</code> in the row).</li>
+<li><strong>ID 0 is reserved.</strong> Both dictionary IDs and blob handles reserve <code>0</code> for the caller's null/missing semantics;
+do not use it to store business data.</li>
+<li><strong>The blob store does not deduplicate.</strong> Writing the same bytes again yields a different handle — this path is aimed at varchar/blob data,
+not a deduplication container; use a dictionary for deduplication. Empty values are legal.</li>
+<li><strong>The decimal scale limit is 18.</strong> Exceeding it returns <code>InvalidFormat</code>.</li>
+<li><strong>Float indexes reject NaN and ±Inf</strong>, returning <code>SA_DB_ERR_INVALID_FORMAT</code>;
+exact values such as amounts should use a scaled <code>i64</code> instead.</li>
+<li><strong>Physical capacity limit</strong>: <code>MAX_ROWS * ROW_BYTES ≤ 64 GB</code>, verified when the schema is compiled.</li>
 </ul>
 
-<h3>索引与文本搜索</h3>
+<h3>Indexes and text search</h3>
 <ul>
-<li>range 类读取<strong>要求目标列已有持久化索引</strong>，否则无法二分分页。</li>
-<li><code>blob_contains</code> 走三元组候选索引，<strong>needle 至少 3 字节</strong>才启用索引；
-空串与 1–2 字节保持快照扫描以维持精确语义。</li>
-<li><code>blob_prefix</code> 前缀最长 <strong>64 字节</strong>，且只在 token 起始处匹配，不做任意子串。</li>
-<li>token/prefix 的分词模型限定为 <strong>ASCII 字母、数字与下划线</strong>；大小写不敏感。</li>
-<li>所有 blob 索引命中后都会回到快照里的真实字节做二次确认，哈希碰撞不会造成误匹配——代价是多一次字节比对。</li>
-<li>唯一索引约束的是真实值：创建时拒绝已有重复，后续写入引入重复返回 <code>SA_DB_ERR_CONSTRAINT</code>
-且 active manifest 停留在上一个 epoch。</li>
+<li>Range-type reads <strong>require the target column to already have a persisted index</strong>, otherwise binary-search paging is impossible.</li>
+<li><code>blob_contains</code> goes through a trigram candidate index, and the index is enabled only when the <strong>needle is at least 3 bytes</strong>;
+empty strings and 1–2 bytes stay on a snapshot scan to maintain exact semantics.</li>
+<li>A <code>blob_prefix</code> prefix is at most <strong>64 bytes</strong>, and matches only at a token start, not as an arbitrary substring.</li>
+<li>The tokenization model for token/prefix is limited to <strong>ASCII letters, digits, and underscores</strong>; it is case-insensitive.</li>
+<li>After any blob index hit, the real bytes in the snapshot are re-checked for confirmation, so a hash collision cannot cause a false match — at the cost of one extra byte comparison.</li>
+<li>A unique index constrains the real value: creation rejects existing duplicates, and a later write introducing a duplicate returns <code>SA_DB_ERR_CONSTRAINT</code>
+with the active manifest staying at the previous epoch.</li>
 </ul>
 
-<h3>事务、并发与一致性</h3>
+<h3>Transactions, concurrency, and consistency</h3>
 <ul>
-<li><strong>单表、单写者事务。</strong>没有跨表事务，也没有多表隔离。</li>
-<li><strong>没有 WAL。</strong>README 把 optional WAL 列入 roadmap，属未来工作。</li>
-<li><strong>读句柄是快照。</strong>打开之后发生的任何写入（包括新 blob）对已打开句柄不可见，
-要看新数据必须重新 open。这是特性而非缺陷，但容易踩坑。</li>
-<li><strong>commit 失败会关闭事务句柄</strong>，旧 manifest 保持可见；不能对同一个 handle 重试 commit。</li>
-<li><strong>写锁文件 <code>&lt;table&gt;.write.lock</code> 在删除表时刻意保留</strong>，
-以保证后续写者继续在同一 inode 路径上协调。手工清理目录时不要把它当作垃圾删掉后再依赖锁语义。</li>
-<li>进程内互斥只保证同进程正确性，<strong>不等同于跨进程事务隔离或 ACID</strong>
-（<code>sci/docs/db_comparison.md</code> 原话）。</li>
+<li><strong>Single-table, single-writer transactions.</strong> No cross-table transactions, and no multi-table isolation.</li>
+<li><strong>No WAL.</strong> The README lists an optional WAL in the roadmap; it is future work.</li>
+<li><strong>A read handle is a snapshot.</strong> Any write that happens after it is opened (including new blobs) is invisible to the already-open handle;
+to see new data you must reopen. This is a feature, not a defect, but it is easy to trip over.</li>
+<li><strong>A failed commit closes the transaction handle</strong>, and the old manifest stays visible; you cannot retry a commit on the same handle.</li>
+<li><strong>The write lock file <code>&lt;table&gt;.write.lock</code> is deliberately kept when a table is deleted</strong>,
+to ensure later writers keep coordinating on the same inode path. When cleaning a directory by hand, do not delete it as garbage and then still rely on the lock semantics.</li>
+<li>An in-process mutex guarantees only same-process correctness; it is <strong>not equivalent to cross-process transaction isolation or ACID</strong>
+(in the words of <code>sci/docs/db_comparison.md</code>).</li>
 </ul>
 
-<h3>内存根 <code>:memory:</code> 的特殊行为</h3>
-<p>内存根让整张表留在进程内，但它的运维语义与磁盘表不完全相同：</p>
+<h3>Special behavior of the in-memory root <code>:memory:</code></h3>
+<p>An in-memory root keeps a whole table inside the process, but its operations semantics are not exactly the same as a disk table's:</p>
 <ul>
-<li>snapshot/restore 产物留在同一 in-memory 命名空间，<strong>不会</strong>创建真实的 <code>:memory:*</code> 目录。</li>
-<li><code>:memory:name</code> 是共享的命名根；精确写作 <code>:memory:</code> 解析到当前线程本地的匿名根，
-两者互相隔离。</li>
-<li>已打开的读句柄持有自己的 artifact 字节，移除或复用同名表不会污染旧快照。</li>
-<li><code>recover</code> 只验证并重新发布当前 in-memory 元数据，<strong>不会</strong>扫描宿主文件系统；
-缺失的内存表返回 <code>NotFound</code>。</li>
-<li>lock/unlock/compact 同样只作用于内存 artifact。</li>
+<li>snapshot/restore artifacts stay in the same in-memory namespace and do <strong>not</strong> create a real <code>:memory:*</code> directory.</li>
+<li><code>:memory:name</code> is a shared named root; writing exactly <code>:memory:</code> resolves to the current thread's local anonymous root,
+and the two are isolated from each other.</li>
+<li>An already-open read handle holds its own artifact bytes; removing or reusing a table of the same name does not pollute an old snapshot.</li>
+<li><code>recover</code> only verifies and republishes the current in-memory metadata; it does <strong>not</strong> scan the host file system;
+a missing in-memory table returns <code>NotFound</code>.</li>
+<li>lock/unlock/compact likewise act only on in-memory artifacts.</li>
 </ul>
 
-<h2 id="perf">性能数据怎么读</h2>
+<h2 id="perf">How to read the performance data</h2>
 
-<div class="warning"><span class="label">警告</span><strong>本节所有数字都是未标定的微观测量</strong>：
-单机、小样本（多为 3–7 轮取中位数）、负载仅两种合成场景（50k 会员库与固定规模的 ERP 工作流），
-其中 2026-06-27 的两组更是在 <code>SA_DB_UNSAFE_NO_SYNC=1</code> 的 unsafe/no-sync 模式下测得。
-README 自己的措辞是 "Scope is still limited to this benchmark"。这些数字只能用于<strong>判断相对趋势</strong>，
-不能作为容量规划或 SLA 依据，也不应外推到你的真实负载。</div>
+<div class="warning"><span class="label">Warning</span><strong>All numbers in this section are uncalibrated micro-measurements</strong>:
+a single machine, small samples (mostly medians of 3–7 rounds), and only two synthetic workload scenarios (a 50k member database and a fixed-scale ERP workflow),
+with the two 2026-06-27 sets, moreover, measured in the unsafe/no-sync mode <code>SA_DB_UNSAFE_NO_SYNC=1</code>.
+The README's own wording is "Scope is still limited to this benchmark". These numbers can be used only to <strong>judge relative trends</strong>;
+they cannot serve as a basis for capacity planning or an SLA, and should not be extrapolated to your real workload.</div>
 
-<h3>测量口径</h3>
+<h3>Measurement scope</h3>
 <table>
-<tr><th>组别</th><th>样本量</th><th>日期与备注</th></tr>
-<tr><td>会员库单线程</td><td>5 轮中位数</td><td>2026-06；50,000 行 × 4 个 u64 列</td></tr>
-<tr><td>并发读写复测</td><td>3 轮中位数</td><td>2026-06-18；每个基准使用独立 root</td></tr>
-<tr><td>ERP workflow 查询</td><td>7 轮中位数</td><td>1024 客户 / 512 产品 / 8192 订单 / 32768 明细 / 16384 库存流水 / 8192 发票</td></tr>
-<tr><td>ERP 索引化写入（磁盘）</td><td>5 轮区间+中位</td><td>2026-06-27；unsafe/no-sync 模式</td></tr>
-<tr><td>ERP 索引化写入（<code>:memory:</code>）</td><td>5 轮区间+中位</td><td>2026-06-27；unsafe/no-sync 模式，对照 SQLite <code>:memory:</code></td></tr>
+<tr><th>Group</th><th>Sample size</th><th>Date and remarks</th></tr>
+<tr><td>Member database, single-threaded</td><td>Median of 5 rounds</td><td>2026-06; 50,000 rows × 4 u64 columns</td></tr>
+<tr><td>Concurrent read/write retest</td><td>Median of 3 rounds</td><td>2026-06-18; each benchmark uses an independent root</td></tr>
+<tr><td>ERP workflow queries</td><td>Median of 7 rounds</td><td>1024 customers / 512 products / 8192 orders / 32768 line items / 16384 inventory movements / 8192 invoices</td></tr>
+<tr><td>ERP indexed writes (disk)</td><td>Range + median of 5 rounds</td><td>2026-06-27; unsafe/no-sync mode</td></tr>
+<tr><td>ERP indexed writes (<code>:memory:</code>)</td><td>Range + median of 5 rounds</td><td>2026-06-27; unsafe/no-sync mode, compared against SQLite <code>:memory:</code></td></tr>
 </table>
-<p>基准内置了正确性断言，不只是计时：单线程要求 <code>rows=50000</code>、
-<code>sum_before=12500250000</code>、<code>sum_after=12500500000</code>、
-<code>plan_one_count=12500</code>、<code>updated_rows=50000</code>；
-ERP 组要求两侧 row count 一致。因此「跑完」本身包含了一次语义校验。</p>
+<p>The benchmarks have built-in correctness assertions, not just timing: the single-threaded one requires <code>rows=50000</code>,
+<code>sum_before=12500250000</code>, <code>sum_after=12500500000</code>,
+<code>plan_one_count=12500</code>, and <code>updated_rows=50000</code>;
+the ERP group requires the row counts on both sides to agree. So “it ran to completion” itself includes a semantic verification.</p>
 
-<h3>db 插件侧的关键锚点</h3>
-<p>与 SQLite 的逐项对照见 <a href="05_vs_sqlite.html#bench">vs SQLite：实测数据对照</a>。
-这里只列 db 插件自身值得记住的几个量级：</p>
+<h3>Key anchors on the db plugin side</h3>
+<p>For the item-by-item comparison with SQLite, see <a href="05_vs_sqlite.html#bench">vs SQLite: Choosing Between Them</a>.
+Here we list only the magnitudes of the db plugin itself that are worth remembering:</p>
 <ul>
-<li>50k 行 × 4 列的批量列式导入约 <strong>19 ms</strong>；coltx 并发插入约 <strong>72 ms</strong>（4 worker 共 50k 行）。</li>
-<li>复用读句柄的全表 SUM 约 <strong>1.7 ms/次</strong>（serial 100 次 167 ms）；首次打开快照另有一次性成本，
-所以<strong>单次</strong>查询可能反而输给 SQLite——这是 read-handle 模型最重要的性能特征。</li>
-<li>ERP 索引化列表/投影查询在微秒级（0.005–0.019 ms），比 init/index 构建低三个数量级以上；
-也就是说<strong>构建成本一次性，查询收益按次数累积</strong>。</li>
-<li>verify 在磁盘模式下明显偏慢（147 ms vs 38.9 ms），但在 unsafe/no-sync 的 ERP 组里反而最快（1.2 ms）——
-差异主要来自 sync 行为，这正是 unsafe 模式数字不可外推的直接例证。</li>
+<li>A bulk columnar import of 50k rows × 4 columns is about <strong>19 ms</strong>; coltx concurrent insertion is about <strong>72 ms</strong> (4 workers, 50k rows in total).</li>
+<li>A full-table SUM reusing a read handle is about <strong>1.7 ms per call</strong> (serial 100 calls, 167 ms); opening the snapshot the first time has an additional one-off cost,
+so a <strong>single</strong> query can actually lose to SQLite — this is the most important performance characteristic of the read-handle model.</li>
+<li>ERP indexed list/projection queries are at the microsecond level (0.005–0.019 ms), more than three orders of magnitude below the init/index build cost;
+that is, <strong>the build cost is one-off, and the query benefit accumulates per call</strong>.</li>
+<li>verify is markedly slower in disk mode (147 ms vs 38.9 ms), but in the unsafe/no-sync ERP group it is the fastest instead (1.2 ms) —
+the difference comes mainly from sync behavior, which is a direct illustration of why unsafe-mode numbers cannot be extrapolated.</li>
 </ul>
 
-<h3>README 结论原文（照录）</h3>
+<h3>README conclusions, verbatim</h3>
 <ul>
 <li>Reused read-handle queries are still faster than SQLite in this benchmark.</li>
 <li>The isolated-root rerun removed the earlier benchmark cross-contamination and kept db ahead of SQLite on serial and concurrent read-handle SUM.</li>
@@ -116,8 +116,8 @@ ERP 组要求两侧 row count 一致。因此「跑完」本身包含了一次�
 <li>SQLite remains stronger for SQL, index creation, ACID, WAL, crash recovery, compact/vacuum, and integrity checks.</li>
 </ul>
 
-<h3>自己复现测量</h3>
-<p>推荐用构建系统入口而不是手敲命令，它会自动处理插件安装与 SQLite 链接准备（来源：<code>benchmark_test/RESULTS.md</code>）：</p>
+<h3>Reproducing a measurement yourself</h3>
+<p>We recommend using the build-system entry points rather than typing commands by hand; they automatically handle plugin installation and SQLite linking preparation (source: <code>benchmark_test/RESULTS.md</code>):</p>
 <pre><code>zig build bench                       # 同时构建 db 与 SQLite control
 zig build bench-compare               # 默认对照 gate：disk/memory ERP + concurrent 三组
 zig build bench-compare-proof         # 推荐的宽证明入口，默认 runs=7
@@ -128,40 +128,40 @@ zig build bench-compare-concurrent    # 四条 SUM 路径分别作硬门禁
 # 可调参数（必须是正奇数，避免中位数来自插值）
 zig build bench-compare-proof -Dbench-compare-proof-runs=9
 zig build bench-compare-concurrent -Dbench-compare-strict-concurrent-insert=true</code></pre>
-<div class="note"><span class="label">注意</span>两个容易忽略的点：
-其一，benchmark 可执行文件链接的是<strong>已安装</strong>的 <code>libdb.so</code>，
-改完源码只跑 <code>zig build</code> 不重新 <code>sa plugin install --dev …</code>，测到的仍是旧二进制；
-其二，<code>-Dbench-compare-*-runs=N</code> 必须是正奇数，否则中位数由两次运行插值而成而非真实样本。
-原始输出记录在各 <code>*_runs.txt</code>，详细结果在 <code>benchmark_test/RESULTS.md</code>。</div>
+<div class="note"><span class="label">Note</span>Two points that are easy to overlook:
+first, the benchmark executable links against the <strong>installed</strong> <code>libdb.so</code>;
+if you change the source and only run <code>zig build</code> without redoing <code>sa plugin install --dev …</code>, you are still measuring the old binary;
+second, <code>-Dbench-compare-*-runs=N</code> must be a positive odd number, otherwise the median comes from interpolating two runs rather than a real sample.
+The raw output is recorded in each <code>*_runs.txt</code>, and the detailed results are in <code>benchmark_test/RESULTS.md</code>.</div>
 
-<h2 id="practice">来自 benchmark_test 的实践建议</h2>
-<p>以下每一条都能在仓库的 <code>.sa</code> 用例里找到对应写法。</p>
+<h2 id="practice">Practice recommendations from benchmark_test</h2>
+<p>Every item below has a corresponding writing style in the repository's <code>.sa</code> use cases.</p>
 
-<h3>1. 先建索引，再做第一次写入</h3>
-<p><code>db_memory_smoke.sa</code> 的顺序是 <code>DB_REMOVE_TABLE</code> → <code>DB_INIT_SCHEMA</code> →
-<code>DB_CREATE_U64_INDEX(unique=1)</code> → 才开始 <code>DB_TX_INSERT_ROW</code>。
-README 也专门提到该用例覆盖 "index creation before first write"。
-先建索引可以让首批数据在写入时就进入索引维护路径，避免事后重建大索引。</p>
+<h3>1. Build indexes first, then do the first write</h3>
+<p>The order in <code>db_memory_smoke.sa</code> is <code>DB_REMOVE_TABLE</code> → <code>DB_INIT_SCHEMA</code> →
+<code>DB_CREATE_U64_INDEX(unique=1)</code> → only then <code>DB_TX_INSERT_ROW</code>.
+The README also specifically mentions that this use case covers "index creation before first write".
+Building the index first lets the first batch of data enter the index-maintenance path as it is written, avoiding rebuilding a large index afterwards.</p>
 
-<h3>2. 并发批量导入一律用 coltx，不要裸调 ingest_columns</h3>
-<p>这是 README 的直接建议（"the preferred write path over raw concurrent <code>sa_db_ingest_columns</code> calls"），
-也是当前基准里最快的写路径（72.192 ms vs 95.736 ms）。
-原因是 coltx 的暂存阶段不持全局互斥，多个会话可以并行 <code>add_columns</code>，
-commit 时才取一次表写锁统一发布。</p>
+<h3>2. Always use coltx for concurrent bulk imports; do not call ingest_columns bare</h3>
+<p>This is the README's direct recommendation ("the preferred write path over raw concurrent <code>sa_db_ingest_columns</code> calls"),
+and it is also the fastest write path in the current benchmark (72.192 ms vs 95.736 ms).
+The reason is that coltx's staging phase does not hold the global mutex, so multiple sessions can <code>add_columns</code> in parallel,
+and only at commit time does it take the table write lock once to publish uniformly.</p>
 
-<h3>3. 多行原子追加用批量形态</h3>
-<p><code>db_tx_smoke.sa</code> 专门覆盖了 <code>DB_TX_INSERT_ROWS</code>（一次传整个行缓冲加行数），
-而不是循环调用 <code>DB_TX_INSERT_ROW</code>。批量形态减少宏展开与调用次数，
-且仍然只在 commit 时推进一次 epoch。</p>
+<h3>3. Use the batch form for multi-row atomic appends</h3>
+<p><code>db_tx_smoke.sa</code> specifically covers <code>DB_TX_INSERT_ROWS</code> (passing a whole row buffer plus a row count at once),
+rather than calling <code>DB_TX_INSERT_ROW</code> in a loop. The batch form reduces macro expansions and call counts,
+and still advances the epoch only once, at commit.</p>
 
-<h3>4. 打开一次读句柄，复用它做完所有查询</h3>
-<p>这是性能模型的核心。句柄打开时复制不可变快照，之后所有 <code>*_handle</code> 调用都不再碰 metadata 或列文件。
-<code>db_memory_smoke.sa</code> 在一个句柄上连续做了 snapshot_info、SUM、FIND、GET 四类查询才 close。
-反模式是为每个查询 open/close 一次。</p>
+<h3>4. Open a read handle once and reuse it for all queries</h3>
+<p>This is the core of the performance model. When a handle is opened it copies an immutable snapshot, and afterwards no <code>*_handle</code> call touches metadata or column files again.
+<code>db_memory_smoke.sa</code> performs four kinds of query — snapshot_info, SUM, FIND, and GET — consecutively on one handle before closing it.
+The anti-pattern is opening/closing once per query.</p>
 
-<h3>5. 先高选择性过滤，再收窄候选行集，最后投影</h3>
-<p>典型编排是三层漏斗，全部在插件内完成、不把行数据搬回 SA。
-下面是各层的代表性宏（省略实参）：</p>
+<h3>5. Filter with high selectivity first, then narrow the candidate row set, and project last</h3>
+<p>The typical orchestration is a three-layer funnel, all completed inside the plugin without moving row data back into SA.
+Below are the representative macros of each layer (arguments omitted):</p>
 <pre><code>EXPAND DB_RANGE_U64_I64_PAIR_HANDLE ...
 EXPAND DB_FILTER_U64_I64_PAIR_KEY1_HANDLE ...
 
@@ -177,47 +177,47 @@ EXPAND DB_EXCEPT_ROWS_HANDLE ...
 EXPAND DB_SORT_ROWS_U64_HANDLE ...
 EXPAND DB_PROJECT_ROWS_HANDLE ...
 EXPAND DB_GET_ROW_HANDLE ...</code></pre>
-<p>四组宏自上而下分别是：<strong>索引层</strong>（用持久化索引拿第一批候选行号，
-组合键可按固定首键 + 第二键范围取子表）；<strong>收窄层</strong>（在既有行号列表上追加
-bool/字典/decimal 范围/blob 包含等谓词，保持输入顺序与分页契约）；<strong>组合层</strong>
-（把两条独立过滤出的行号列表做 AND/OR/排除）；<strong>物化层</strong>（排序翻页、只复制需要的列、
-或按键取整行）。</p>
-<p><code>db_candidate_filter_smoke.sa</code>、<code>db_compact_candidate_filter_smoke.sa</code>
-与 <code>db_erp_workflow_bench.sa</code> 都是这个形状——ERP 工作流基准里「投影订单明细」
-正是先按 order_id 取行号再 <code>DB_PROJECT_ROWS_HANDLE</code> 只复制需要的列。
-只有两个常见谓词时可以直接交给 plan 家族自动选边，并读
-<code>SaDbPlanInfo.first_predicate</code> 审计它选了哪一侧。</p>
+<p>The four macro groups, top to bottom, are: the <strong>index layer</strong> (use a persisted index to get the first batch of candidate row numbers;
+a composite key can fetch a sub-table by a fixed first key + a second-key range); the <strong>narrowing layer</strong> (append predicates such as
+bool/dictionary/decimal range/blob contains to an existing row-number list, preserving the input order and the paging contract); the <strong>composition layer</strong>
+(AND/OR/exclude two independently filtered row-number lists); and the <strong>materialization layer</strong> (sort and page, copy only the needed columns,
+or fetch a whole row by key).</p>
+<p><code>db_candidate_filter_smoke.sa</code>, <code>db_compact_candidate_filter_smoke.sa</code>,
+and <code>db_erp_workflow_bench.sa</code> all have this shape — the ERP workflow benchmark's “project order details”
+is exactly fetching row numbers by order_id first and then using <code>DB_PROJECT_ROWS_HANDLE</code> to copy only the needed columns.
+When there are only two common predicates, you can hand them directly to the plan family to choose a side automatically, and read
+<code>SaDbPlanInfo.first_predicate</code> to audit which side it chose.</p>
 
-<h3>6. 每个基准/每张表用独立的 root 目录</h3>
-<p>这是本轮复测最重要的教训：三套并发基准曾共享 root，历史工件与 SQLite 的 WAL/SHM 侧文件互相污染，
-既产生了过好看的假数字，也产生过间歇性失败。现在拆成
-<code>.bench_raw</code> / <code>.bench_coltx</code> / <code>.bench_sqlite</code> 后结果才稳定。
-自己做压测时也应遵循同样的隔离原则。</p>
+<h3>6. Use an independent root directory for each benchmark / each table</h3>
+<p>This is the most important lesson of this retest round: three concurrent benchmark sets once shared a root, and historical artifacts and SQLite's WAL/SHM side files contaminated each other,
+producing both too-good-looking fake numbers and intermittent failures. Only after splitting into
+<code>.bench_raw</code> / <code>.bench_coltx</code> / <code>.bench_sqlite</code> did the results stabilize.
+You should follow the same isolation principle in your own stress tests.</p>
 
-<h3>7. 区分测量模式与生产模式</h3>
+<h3>7. Distinguish measurement mode from production mode</h3>
 <pre><code>env SA_DB_UNSAFE_NO_SYNC=1 ./db_erp_indexed_memory_bench.out   # 仅用于测量</code></pre>
-<p><code>SA_DB_UNSAFE_NO_SYNC=1</code> 会跳过同步，用来放大写路径的结构性差异。
-它带来的数字（例如 ERP 磁盘组里 verify 从 147 ms 变成 1.2 ms）<strong>绝不能</strong>当作生产行为预期。</p>
+<p><code>SA_DB_UNSAFE_NO_SYNC=1</code> skips synchronization, to amplify the structural differences of the write path.
+The numbers it produces (for example, verify in the ERP disk group going from 147 ms to 1.2 ms) must <strong>never</strong> be taken as expected production behavior.</p>
 
-<h3>8. 严格的状态码检查与所有权释放</h3>
-<p>所有冒烟用例都遵循同一个模板：每步状态码与期望值逐一 <code>eq</code> 成布尔量，
-用 <code>and</code> 链成一个总开关，最后 <code>br ok -&gt; L_OK, L_FAIL</code>，
-失败分支 <code>panic(错误码)</code>。同时每个中间值都有配对的 <code>!</code> 释放，
-两个出口标签各自释放共享变量。写自己的业务代码时建议沿用这个模板，
-它能把问题定位到具体某一步。</p>
+<h3>8. Strict status-code checking and ownership release</h3>
+<p>All the smoke use cases follow the same template: each step's status code is <code>eq</code>d against its expected value into a boolean one by one,
+chained with <code>and</code> into a master switch, and finally <code>br ok -&gt; L_OK, L_FAIL</code>,
+with the failure branch doing <code>panic(错误码)</code>. At the same time, every intermediate value has a paired <code>!</code> release,
+and the two exit labels each release the shared variables. We recommend following this template in your own business code;
+it can localize a problem to a specific step.</p>
 
-<h3>9. 用 CLI 冒烟而不是只跑单元测试</h3>
-<p>插件的 <code>tests/smoke_installed.sh</code> 针对<strong>已安装</strong>的插件验证命令面行为，
-包括注册后取 hash 再 exec 的完整链路。这能抓到「源码对了但安装的是旧版」这类问题。</p>
+<h3>9. Smoke-test with the CLI rather than only running unit tests</h3>
+<p>The plugin's <code>tests/smoke_installed.sh</code> verifies the command surface's behavior against the <strong>installed</strong> plugin,
+including the full chain of registering, taking the hash, and then exec-ing. This catches problems like “the source is right but what is installed is an old version”.</p>
 
-<h2 id="summary">小结</h2>
+<h2 id="summary">Summary</h2>
 <ul>
-<li>把它当<strong>嵌入式列式引擎</strong>用：schema 定死、索引先行、批量写、复用读句柄。</li>
-<li>不要期待它提供 ACID、WAL、跨表事务或 SQL——README 已把这些列为非目标或后续工作。</li>
-<li>引用任何性能数字时带上出处与「未标定微观测量」的限定语。</li>
+<li>Use it as an <strong>embedded columnar engine</strong>: schema fixed, indexes first, bulk writes, reused read handles.</li>
+<li>Do not expect it to provide ACID, WAL, cross-table transactions, or SQL — the README has listed these as non-goals or follow-up work.</li>
+<li>When citing any performance number, include its source and the qualifier “uncalibrated micro-measurement”.</li>
 </ul>
 
-<p>延伸阅读：<a href="05_vs_sqlite.html">vs SQLite：选型对比</a> 有完整的对照表与全部实测数字；
-<a href="03_api.html">SA API 八大分组</a> 解释了上面提到的每个 API 的语义。</p>
+<p>Further reading: <a href="05_vs_sqlite.html">vs SQLite: Choosing Between Them</a> has the complete comparison tables and all the measured numbers;
+<a href="03_api.html">The Eight SA API Groups</a> explains the semantics of every API mentioned above.</p>
 </body>
 </html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>bun官方bench对等测试（buffer-read-write）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:right}
+th{background:#f3f4f6}td:first-child,th:first-child{text-align:left}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; 宿主侧命令 &gt; sa build-js &gt; bun官方bench对等测试</div>
+<h1>bun 官方 bench 对等测试（buffer-read-write）</h1>
+
+<p>对标方法：bun 原题 <code>bench/snippets/buffer-read-write.mjs</code> <b>零改动</b>运行（mitata 数字为外部参照）；
+SA 对等程序只用 SA 写（FILL 4096 字节模式 <code>(i*37+11)&amp;0xff</code>＋5000 次全扫描求和校验，
+校验值 522240），<code>sa build-js</code> 编译后在 node / bun 双跑。所有被测 JS 产物均为 SA 生成，无手写 mjs。</p>
+
+<h2>1. bun 原题数字（本机实测，bun 1.4.3，mitata）</h2>
+<table>
+<tr><th>bench</th><th>avg</th></tr>
+<tr><td>readUInt8（4096B 全扫）</td><td>3159ns（≈0.77ns/B）</td></tr>
+<tr><td>readInt8（4096B 全扫）</td><td>3333ns</td></tr>
+<tr><td>readInt32LE（1024次）</td><td>3286ns</td></tr>
+<tr><td>readBigInt64LE</td><td>14669ns</td></tr>
+<tr><td>writeUInt8</td><td>6395ns</td></tr>
+</table>
+
+<h2>2. SA 对等程序数字（20.5M 字节扫描＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（字面量修复前）</th><th>耗时（修复后）</th><th>结果</th></tr>
+<tr><td>sa2js+node（u64 累加）</td><td>2590ms</td><td>3091ms（混合转换税，见 §3）</td><td>PEER OK</td></tr>
+<tr><td>sa2js+bun（u64 累加）</td><td>11361ms</td><td>11303ms</td><td>PEER OK</td></tr>
+<tr><td>sa2js+node（u32 槽版）</td><td>3108ms</td><td><b>1252ms（2.5x↑）</b></td><td>PEER32 OK</td></tr>
+<tr><td>sa2js+bun（u32 槽版）</td><td>5242ms</td><td><b>589ms（8.9x↑）</b></td><td>PEER32 OK</td></tr>
+</table>
+<p>u32 求和（9.3M 次，46340×200）：node 1286→<b>409ms（3.1x↑）</b>，bun 2402→<b>247ms（9.7x↑）</b>；
+u64 求和（10M）node 保持 505ms 无回归。bun 自编译 1.4.4 与系统 1.4.3 数字一致（瓶颈在生成代码，不在 bun 版本）。</p>
+
+<h2>3. 核心发现：无类型整数字面量域污染（已实证）</h2>
+<ul>
+<li>u32 槽版在 node 反而比 u64 版慢（3108ms vs 2590ms）。profiler 显示 u32 版 <code>__sa_BU</code> 占 18.8%、<code>__sa_add</code> 17.8%（全是 BigInt 路径）。</li>
+<li>查生成代码：<code>r3 = __sa_ult(r2, 4096n)</code>——SA 里无类型字面量 <code>4096/1/37/522240</code> 一律按 u64（BigInt）发射，
+u32 寄存器 × BigInt 字面量 = 每次迭代全走混合慢路径＋转制（megamorphic，不可内联）。u64 版反而因全 BigInt 单态更快。</li>
+<li><b>已修复</b>（<code>src/emit_js.zig resolveValueToJs</code>）：幅值在 32 位内的 <code>imm_i64/imm_u64</code> 改发 Number，
+超范围才发 BigInt。运行时 helper 按 <code>typeof</code> 分派，任一操作数为 BigInt 即走 64 位路径，语义不变；
+全 32 位表达式则保持 Number 单态、可内联。u32 循环 node 3.1x / bun 9.7x，u64 求和无回归。
+u64 累加 peer 在 node 微升（2590→3091ms）是字面量 Number→BigInt 转换税，属预期内小代价。</li>
+<li>SA 口径的域代价（同一 SA workload，只换累加域）：bun 下 u64 累加 11303ms vs u32 累加 589ms（<b>19.2x</b>）；
+按每触点约 8 个 helper 调用折算，bun 下 Number 域单调用约 3~4ns。2x 路线的主入口是继续消减每元素调用数。</li>
+<li>bun 的 BigInt 慢是 SA 实测结论（非手写微测）：i64 求和 bun 5274ms vs node 505ms（10.4x）；
+发射器据此加 <code>__sa_use_dv64</code> 开关（bun 走 DataView，node 保持类型数组），SA 的 i64 循环 bun 5274→4088ms。</li>
+</ul>
+
+<h2>4. buffer-fill 对等（256KB 填充＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（fill＋verify 单遍，含冷启动）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>108ms</td><td>FILL OK</td></tr>
+<tr><td>sa2js+bun</td><td>96ms</td><td>FILL OK</td></tr>
+</table>
+<p>bun 原题参照：fill 16KB ≈ 335ns（0.02ns/B），fill 2MB ≈ 93µs（0.044ns/B，单次 memset）。
+SA 版每字节约 7 个 helper 调用（ptr_add＋store＋slot 存取＋比较），差距约 3 个数量级——bulk 内存操作的下个优化点是
+slot→局部变量提升（循环计数器不经内存槽），与字面量修复正交。</p>
+
+<h2>5. buffer-slice 对等（64KB 真拷贝＋校验）＋ DCE 实锤</h2>
+<table>
+<tr><th>组合</th><th>耗时（fill＋copy＋verify 单遍）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>112ms</td><td>SLICE OK</td></tr>
+<tr><td>sa2js+bun</td><td>65ms</td><td>SLICE OK</td></tr>
+</table>
+<p>bun 原题 slice(1M) 显示 61ns——1MB 拷贝不可能 61ns 完成，<b>证实为死码消除</b>（结果被丢弃，拷贝被整个优化掉；
+64B/1KB/1M 全是同一 55~75ns 调用开销）。因此 bun slice 数字只能作调用开销参照，不能作拷贝带宽参照。
+SA 版做的是带校验的真拷贝（65~112ms/64KB）。按内存带宽估算引擎真拷贝 64KB 约 3~10µs，SA 差距约 4 个数量级，
+与 §4 同一优化方向（逐元素 helper 调用 → 批量内存语义）。</p>
+
+<h2>6. array-indexOf 对等（1024 u32 线性查找 ×10000 ＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（2500轮×4 needle×1024全扫描）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>466ms（45ns/元素）</td><td>FIND OK</td></tr>
+<tr><td>sa2js+bun</td><td>439ms（43ns/元素）</td><td>FIND OK</td></tr>
+</table>
+<p>bun 原题参照：<code>includes (1024 ints)</code> 245ns/次（needle 轮转防 hoist，平均深度约 890，折合约 0.3ns/元素）；
+<code>indexOf (1024 ints)</code> 显示 3.31ns——单次 1024 搜索不可能 3ns，属 DCE，不可作参照（slice 同类问题再现）。
+SA 版是全扫描＋分支记录（与 indexOf 提前退出略有差异，已注明），分支密集的整数代码 node/bun 打平。
+差距约 150x，仍是每元素 helper 调用数问题（本循环约 10 个/元素）。</p>
+
+<h2>7. buffer-base64-decode 对等（查表解码 1.5MB＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（500轮×1024组×4字符）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>269ms（179ns/解码字节）</td><td>B64 OK</td></tr>
+<tr><td>sa2js+bun</td><td>213ms（142ns/解码字节）</td><td>B64 OK</td></tr>
+</table>
+<p>bun 原题参照：1MiB base64 解码约 250µs（0.24ns/B，SIMD 级原生 codec，可信为真工作）；
+64KiB 含 1% 垃圾约 25µs；512B 小输入 734ns（调用开销主导）。
+SA 版是纯 SA 查表解码（256B 解码表运行时构造＋逐组 shl/or/lshr/and＋3 字节存回＋校验和），
+每组约 35 个 helper 调用。差距约 750x，仍是调用密度问题；解码表把每字符 6 路分支压成 1 次查表，
+证明“数据结构代替分支”在 SA 里有效。</p>
+<p>SA 编程附带发现（已实证）：位或助记符是 <code>or</code> 不是 <code>bor</code>（后者污染 flattener 且报错行误导）；
+<code>shl/lshr</code> 的位移量必须是寄存器（立即数非法）；<code>and/or</code> 的（寄存器，寄存器）形式合法；
+const 地址不能直接取（<code>ptr_add &amp;B64</code> 非法），输入向量应在运行时构造。</p>
+
+<h2>8. string-includes 对等（4096B 朴素子串查找“jumps”×500＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（早退命中 @2000）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>124ms（124ns/起始位）</td><td>STR OK</td></tr>
+<tr><td>sa2js+bun</td><td>110ms（110ns/起始位）</td><td>STR OK</td></tr>
+</table>
+<p>bun 原题参照：short 系列全是 0.11ns——haystack 和 needle 都是编译期常量，属常量折叠，全部不可作参照；
+只有 <code>long, miss</code> 9.45ns（4300B） plausibly 真实（约 0.002ns/B，SIMD memchr 级）。
+SA 版是逐起始位 5 字节比较＋首字节失配快路＋命中早退（三层嵌套＋菱形汇合，汇合点规则：被 br 消费的条件在各路径须同为 Untracked，不可再 <code>!</code>）。
+差距约 3 个数量级，调用密度问题依旧。</p>
+
+<h2>9. buffer-from-hex 对等（查表解码 2MB＋校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（500轮×4096字节）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>471ms（235ns/解码字节）</td><td>HEX OK</td></tr>
+<tr><td>sa2js+bun</td><td>401ms（200ns/解码字节，RSS  spike 184MB 待观察）</td><td>HEX OK</td></tr>
+</table>
+<p>bun 原题参照：64KB→18.4µs（0.28ns/B），512KB→152µs（0.29ns/B），8MB→3.7ms（0.44ns/B），
+原生 codec 带宽，可信；16~512B 为调用开销主导（384~600ns）。
+SA 版是 2 字符→1 字节查表解码（与 base64 同模式：表＋shl/or＋存回＋校验和），差距约 700~800x，同为调用密度问题。</p>
+
+<h2>10. escapeHTML 对等（4KB×200 变长转义＋全字节校验）</h2>
+<table>
+<tr><th>组合</th><th>耗时（输入 819KB→输出约 1.1MB）</th><th>结果</th></tr>
+<tr><td>sa2js+node</td><td>1431ms（1.75µs/输入字节）</td><td>ESC OK</td></tr>
+<tr><td>sa2js+bun</td><td>294ms（359ns/输入字节）</td><td>ESC OK</td></tr>
+</table>
+<p>bun 原题参照（<code>Bun.escapeHTML</code>，bun 私有 API，node 无此函数）：57KB 含转义约 69µs（1.2ns/B，SIMD）；
+56KB 纯直通约 3.3µs（0.06ns/B，零拷贝快路）；短输入 25~150ns 全是调用开销。
+SA 版自实现 5 字符转义（&lt;/&gt;/&amp;/&quot;/&amp;#39;，6 路分支＋变长输出＋全输出字节校验和），
+分支密集代码 bun 反超 node 近 5x（294 vs 1431ms，JSC 分支优化占优）。差距约 300x，同为调用密度问题。</p>
+<p>对等清单现状（8/8 第一类）：read-write、fill、slice、indexOf、base64-decode、string-includes、from-hex、escapeHTML。
+排序类（array-sort/typed-array-sort）暂缺：SA 无 O(n log n) 原语，O(n²) 循环无法在 bun 的 N 下对等，待定。</p>
+
+<h2>11. 柱状图总览（对数轴）</h2>
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Slowdown factor vs reference (log)</text>
+<line x1="90" y1="210.0" x2="864" y2="210.0" stroke="#e5e7eb"/><text x="82" y="214.0" text-anchor="end" font-size="11" fill="#555">3.5</text>
+<line x1="90" y1="176.8" x2="864" y2="176.8" stroke="#e5e7eb"/><text x="82" y="180.8" text-anchor="end" font-size="11" fill="#555">21.7</text>
+<line x1="90" y1="143.6" x2="864" y2="143.6" stroke="#e5e7eb"/><text x="82" y="147.6" text-anchor="end" font-size="11" fill="#555">136</text>
+<line x1="90" y1="110.4" x2="864" y2="110.4" stroke="#e5e7eb"/><text x="82" y="114.4" text-anchor="end" font-size="11" fill="#555">846</text>
+<line x1="90" y1="77.2" x2="864" y2="77.2" stroke="#e5e7eb"/><text x="82" y="81.2" text-anchor="end" font-size="11" fill="#555">5276</text>
+<line x1="90" y1="44.0" x2="864" y2="44.0" stroke="#e5e7eb"/><text x="82" y="48.0" text-anchor="end" font-size="11" fill="#555">32910</text>
+<text x="16" y="127.0" font-size="12" fill="#333" transform="rotate(-90 16 127.0)" text-anchor="middle">x</text>
+<rect x="98.0" y="153.4" width="5.8" height="56.6" fill="#16a34a" rx="1"><title>read-write
+(vs bun) sa2js+node: 79.0x</title></rect>
+<rect x="105.8" y="167.2" width="5.8" height="42.8" fill="#ea580c" rx="1"><title>read-write
+(vs bun) sa2js+bun: 37.0x</title></rect>
+<text x="133.0" y="236" text-anchor="middle" font-size="10" fill="#333">read-write</text>
+<text x="133.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="184.0" y="66.8" width="5.8" height="143.2" fill="#16a34a" rx="1"><title>fill
+(vs bun) sa2js+node: 9364.0x</title></rect>
+<rect x="191.8" y="68.9" width="5.8" height="141.1" fill="#ea580c" rx="1"><title>fill
+(vs bun) sa2js+bun: 8318.0x</title></rect>
+<text x="219.0" y="236" text-anchor="middle" font-size="10" fill="#333">fill</text>
+<text x="219.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="270.0" y="56.0" width="5.8" height="154.0" fill="#16a34a" rx="1"><title>slice-copy
+(vs 带宽估算) sa2js+node: 17000.0x</title></rect>
+<rect x="277.8" y="65.6" width="5.8" height="144.4" fill="#ea580c" rx="1"><title>slice-copy
+(vs 带宽估算) sa2js+bun: 10000.0x</title></rect>
+<text x="305.0" y="236" text-anchor="middle" font-size="10" fill="#333">slice-copy</text>
+<text x="305.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs 带宽估算)</text>
+<rect x="356.0" y="140.5" width="5.8" height="69.5" fill="#16a34a" rx="1"><title>indexOf
+(vs bun) sa2js+node: 161.0x</title></rect>
+<rect x="363.8" y="141.3" width="5.8" height="68.7" fill="#ea580c" rx="1"><title>indexOf
+(vs bun) sa2js+bun: 154.0x</title></rect>
+<text x="391.0" y="236" text-anchor="middle" font-size="10" fill="#333">indexOf</text>
+<text x="391.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="442.0" y="113.1" width="5.8" height="96.9" fill="#16a34a" rx="1"><title>base64
+(vs bun) sa2js+node: 728.0x</title></rect>
+<rect x="449.8" y="117.4" width="5.8" height="92.6" fill="#ea580c" rx="1"><title>base64
+(vs bun) sa2js+bun: 575.0x</title></rect>
+<text x="477.0" y="236" text-anchor="middle" font-size="10" fill="#333">base64</text>
+<text x="477.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="528.0" y="110.9" width="5.8" height="99.1" fill="#16a34a" rx="1"><title>from-hex
+(vs bun) sa2js+node: 821.0x</title></rect>
+<rect x="535.8" y="113.9" width="5.8" height="96.1" fill="#ea580c" rx="1"><title>from-hex
+(vs bun) sa2js+bun: 698.0x</title></rect>
+<text x="563.0" y="236" text-anchor="middle" font-size="10" fill="#333">from-hex</text>
+<text x="563.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="614.0" y="100.6" width="5.8" height="109.4" fill="#16a34a" rx="1"><title>escapeHTML
+(vs bun) sa2js+node: 1455.0x</title></rect>
+<rect x="621.8" y="129.3" width="5.8" height="80.7" fill="#ea580c" rx="1"><title>escapeHTML
+(vs bun) sa2js+bun: 299.0x</title></rect>
+<text x="649.0" y="236" text-anchor="middle" font-size="10" fill="#333">escapeHTML</text>
+<text x="649.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="700.0" y="48.0" width="5.8" height="162.0" fill="#16a34a" rx="1"><title>includes
+(vs bun) sa2js+node: 26328.0x</title></rect>
+<rect x="707.8" y="50.4" width="5.8" height="159.6" fill="#ea580c" rx="1"><title>includes
+(vs bun) sa2js+bun: 23175.0x</title></rect>
+<text x="735.0" y="236" text-anchor="middle" font-size="10" fill="#333">includes</text>
+<text x="735.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs bun)</text>
+<rect x="786.0" y="197.6" width="5.8" height="12.4" fill="#16a34a" rx="1"><title>sum32
+(vs native) sa2js+node: 6.9x</title></rect>
+<rect x="793.8" y="207.1" width="5.8" height="2.9" fill="#ea580c" rx="1"><title>sum32
+(vs native) sa2js+bun: 4.1x</title></rect>
+<text x="821.0" y="236" text-anchor="middle" font-size="10" fill="#333">sum32</text>
+<text x="821.0" y="249" text-anchor="middle" font-size="10" fill="#333">(vs native)</text>
+<rect x="90" y="290" width="12" height="12" fill="#16a34a"/><text x="106" y="300" font-size="11" fill="#333">sa2js+node</text>
+<rect x="260" y="290" width="12" height="12" fill="#ea580c"/><text x="276" y="300" font-size="11" fill="#333">sa2js+bun</text>
+</svg>
+<p>slowdown = SA耗时 / 参照耗时。slice-copy 的参照为内存带宽估算（bun原题被DCE）；sum32 的参照为 native（59.6ms），其余为 bun 原题 mitata 数字。全部 SA 侧数字出自 SA 源码编译产物。</p>
+<svg viewBox="0 0 880 320" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">ns per byte by peer (log)</text>
+<line x1="90" y1="210.0" x2="864" y2="210.0" stroke="#e5e7eb"/><text x="82" y="214.0" text-anchor="end" font-size="11" fill="#555">0.037</text>
+<line x1="90" y1="176.8" x2="864" y2="176.8" stroke="#e5e7eb"/><text x="82" y="180.8" text-anchor="end" font-size="11" fill="#555">0.336</text>
+<line x1="90" y1="143.6" x2="864" y2="143.6" stroke="#e5e7eb"/><text x="82" y="147.6" text-anchor="end" font-size="11" fill="#555">3.0</text>
+<line x1="90" y1="110.4" x2="864" y2="110.4" stroke="#e5e7eb"/><text x="82" y="114.4" text-anchor="end" font-size="11" fill="#555">27.1</text>
+<line x1="90" y1="77.2" x2="864" y2="77.2" stroke="#e5e7eb"/><text x="82" y="81.2" text-anchor="end" font-size="11" fill="#555">243</text>
+<line x1="90" y1="44.0" x2="864" y2="44.0" stroke="#e5e7eb"/><text x="82" y="48.0" text-anchor="end" font-size="11" fill="#555">2182</text>
+<text x="16" y="127.0" font-size="12" fill="#333" transform="rotate(-90 16 127.0)" text-anchor="middle">ns/B</text>
+<rect x="98.0" y="164.2" width="16.8" height="45.8" fill="#2563eb" rx="1"><title>read-write bun原题: 0.770ns</title></rect>
+<rect x="116.8" y="98.1" width="16.8" height="111.9" fill="#16a34a" rx="1"><title>read-write sa2js+node: 61.100ns</title></rect>
+<rect x="135.7" y="109.5" width="16.8" height="100.5" fill="#ea580c" rx="1"><title>read-write sa2js+bun: 28.800ns</title></rect>
+<text x="154.5" y="236" text-anchor="middle" font-size="10" fill="#333">read-write</text>
+<rect x="227.0" y="207.5" width="16.8" height="2.5" fill="#2563eb" rx="1"><title>fill bun原题: 0.044ns</title></rect>
+<rect x="245.8" y="69.2" width="16.8" height="140.8" fill="#16a34a" rx="1"><title>fill sa2js+node: 412.000ns</title></rect>
+<rect x="264.7" y="71.0" width="16.8" height="139.0" fill="#ea580c" rx="1"><title>fill sa2js+bun: 366.000ns</title></rect>
+<text x="283.5" y="236" text-anchor="middle" font-size="10" fill="#333">fill</text>
+<rect x="356.0" y="195.1" width="16.8" height="14.9" fill="#2563eb" rx="1"><title>slice-copy bun原题: 0.100ns</title></rect>
+<rect x="374.8" y="47.6" width="16.8" height="162.4" fill="#16a34a" rx="1"><title>slice-copy sa2js+node: 1715.000ns</title></rect>
+<rect x="393.7" y="56.0" width="16.8" height="154.0" fill="#ea580c" rx="1"><title>slice-copy sa2js+bun: 987.000ns</title></rect>
+<text x="412.5" y="236" text-anchor="middle" font-size="10" fill="#333">slice-copy</text>
+<rect x="485.0" y="181.9" width="16.8" height="28.1" fill="#2563eb" rx="1"><title>base64-dec bun原题: 0.240ns</title></rect>
+<rect x="503.8" y="82.2" width="16.8" height="127.8" fill="#16a34a" rx="1"><title>base64-dec sa2js+node: 174.800ns</title></rect>
+<rect x="522.7" y="85.8" width="16.8" height="124.2" fill="#ea580c" rx="1"><title>base64-dec sa2js+bun: 138.000ns</title></rect>
+<text x="541.5" y="236" text-anchor="middle" font-size="10" fill="#333">base64-dec</text>
+<rect x="614.0" y="179.5" width="16.8" height="30.5" fill="#2563eb" rx="1"><title>from-hex bun原题: 0.280ns</title></rect>
+<rect x="632.8" y="78.0" width="16.8" height="132.0" fill="#16a34a" rx="1"><title>from-hex sa2js+node: 230.000ns</title></rect>
+<rect x="651.7" y="80.5" width="16.8" height="129.5" fill="#ea580c" rx="1"><title>from-hex sa2js+bun: 195.500ns</title></rect>
+<text x="670.5" y="236" text-anchor="middle" font-size="10" fill="#333">from-hex</text>
+<rect x="743.0" y="157.5" width="16.8" height="52.5" fill="#2563eb" rx="1"><title>escapeHTML bun原题: 1.200ns</title></rect>
+<rect x="761.8" y="47.4" width="16.8" height="162.6" fill="#16a34a" rx="1"><title>escapeHTML sa2js+node: 1746.000ns</title></rect>
+<rect x="780.7" y="71.3" width="16.8" height="138.7" fill="#ea580c" rx="1"><title>escapeHTML sa2js+bun: 359.000ns</title></rect>
+<text x="799.5" y="236" text-anchor="middle" font-size="10" fill="#333">escapeHTML</text>
+<rect x="90" y="290" width="12" height="12" fill="#2563eb"/><text x="106" y="300" font-size="11" fill="#333">bun原题</text>
+<rect x="260" y="290" width="12" height="12" fill="#16a34a"/><text x="276" y="300" font-size="11" fill="#333">sa2js+node</text>
+<rect x="430" y="290" width="12" height="12" fill="#ea580c"/><text x="446" y="300" font-size="11" fill="#333">sa2js+bun</text>
+</svg>
+<p>每输入字节绝对耗时。byte 系列 6 个 peer；indexOf/includes 为每元素/每次查找，单位不同，见上图倍数对比。</p>
+<h2>12. 热点分布（字面量修复后，peer_rw32 node profiler）</h2>
+<svg viewBox="0 0 880 240" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">CPU samples by function (linear, %)</text>
+<text x="180" y="52" font-size="12" fill="#333">main（已内联的加/存＋循环） 55.0%</text><rect x="180" y="58" width="642" height="14" fill="#2563eb" rx="1"/>
+<text x="180" y="92" font-size="12" fill="#333">__sa_load_u32（acc/槽重载） 12.3%</text><rect x="180" y="98" width="144" height="14" fill="#16a34a" rx="1"/>
+<text x="180" y="122" font-size="12" fill="#333">__sa_ult（循环条件） 10.8%</text><rect x="180" y="128" width="126" height="14" fill="#7c3aed" rx="1"/>
+<text x="180" y="152" font-size="12" fill="#333">__sa_ptr_add（寻址） 10.4%</text><rect x="180" y="158" width="121" height="14" fill="#ea580c" rx="1"/>
+<text x="180" y="182" font-size="12" fill="#333">__sa_load_u8（元素装载） 8.3%</text><rect x="180" y="188" width="97" height="14" fill="#0d9488" rx="1"/>
+<text x="180" y="212" font-size="12" fill="#333">其余 3.2%（__sa_add/store 已完全内联，__sa_BU 消失）</text><rect x="180" y="218" width="37" height="14" fill="#64748b" rx="1"/>
+</svg>
+<p>修复前同位置是 <code>__sa_BU</code> 18.8%＋<code>__sa_add</code> 17.8%（BigInt 慢路径）；
+修复后 ALU 内联进 main，剩余 4 个调用皆为语义必需（装载／比较／寻址／槽重载）。
+槽提升（acc/计数器进局部变量）仅能省约 12%，不动；2x 仍需批量内存语义或证明式全内联。</p>
+
+<h2>13. 融合批量原语反超（slope 口径，启动/预热对消后）</h2>
+<p>逐元素 helper 在 bulk 操作上永远追不上原生 codec，于是发射器新增 9 个融合原语
+（<code>sa_mfill/sa_mcopy/sa_msum_u8/sa_msum_u32/sa_mwrite_u8/sa_mfind_u32/sa_b64dec/sa_hexdec/sa_esc_html</code>，
+一次宿主调用执行紧凑循环或引擎 intrinsic，与 bun 的 Buffer 底层同级；全部 SA 可调，
+零手写 mjs）。方法论：单次 wall 含 30~90ms 启动＋JIT 预热（fill0 假象、find 单次/斜率差 7x），
+一律用双点斜率（REPS 与 2×REPS 差分）报告稳态。</p>
+<table>
+<tr><th>peer（slope）</th><th>bun 原题</th><th>sa2js+node</th><th>sa2js+bun</th><th>结论</th></tr>
+<tr><td>u32sum 4KB（vs readInt32LE 3.29µs）</td><td>3.29µs</td><td>1.31µs <b>WIN 2.5x</b></td><td>1.66µs <b>WIN 2.0x</b></td><td>融合胜逐个 C++ 调用</td></tr>
+<tr><td>fill 2MB（vs fill 93µs）</td><td>93µs</td><td>87.5µs <b>WIN 1.06x</b></td><td>108µs 1.16x</td><td>同 memset，扯平</td></tr>
+<tr><td>write-u8 4KB（vs writeUInt8 6.4µs）</td><td>6.4µs</td><td>10.8µs 1.7x</td><td>6.2µs ≈1.0x 扯平</td><td>wr－rw2 双斜率相减（两端皆每rep可观测，DSE-proof）；边界检查墙</td></tr>
+<tr><td>find-u32（vs includes 245ns）</td><td>245ns</td><td>~1.1µs 约4.5x</td><td>~0.7µs 约2.9x</td><td>对齐时走 TypedArray.indexOf 宿主 intrinsic（与 includes 同级调用），比首字节过滤版再快约三成；余量是 wrapper＋SA 开销，原生 memchr 仍是墙</td></tr>
+<tr><td>includes-fused 4KB（vs long-miss 9.45ns）</td><td>9.45ns</td><td>6.8µs 720x</td><td>4.5µs 470x</td><td>首字节过滤＋memcmp 单调用，比逐元素版好约 36x（26000x→700x）；余量是朴素逐位 vs SIMD memchr</td></tr>
+<tr><td>base64-host 64KB（vs 1MB 250µs）</td><td>0.24ns/B</td><td>1.2ns/B 5x</td><td>0.73ns/B 3x</td><td>走 host Buffer，比纯 SA 查表版好 150x；4KB→64KB 从 7.1x/5.4x 收敛到 5x/3x，余量是链税</td></tr>
+<tr><td>hex-host 64KB（vs 18.4µs，同尺寸）</td><td>0.28ns/B</td><td>3.6ns/B 12.9x</td><td>1.0ns/B 3.7x</td><td>4KB→16KB→64KB三档测 flatline：链税是 throughput（TextDecoder＋parse＋拷出三遍）非固定成本；再压需单遍融合解码（立项）。比纯 SA 版好 50~140x</td></tr>
+<tr><td>escape-fused 4KB（vs 57KB 69µs）</td><td>1.2ns/B</td><td>6.1ns/B 5.1x</td><td>5.1ns/B 4.3x</td><td>单调用紧凑循环，比逐元素版好 70~285x（1455x→5.1x）；无 host intrinsic，余量是分支标量 vs SIMD</td></tr>
+</table>
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Fused peer slowdown vs bun original (log, &lt;1 = WIN)</text>
+<line x1="90" y1="179.6" x2="864" y2="179.6" stroke="#e5e7eb"/><text x="82" y="183.6" text-anchor="end" font-size="11" fill="#555">0.5</text>
+<line x1="90" y1="152.0" x2="864" y2="152.0" stroke-dasharray="5,3" stroke="#dc2626"/><text x="82" y="156.0" text-anchor="end" font-size="11" fill="#dc2626">1.0</text>
+<line x1="90" y1="124.3" x2="864" y2="124.3" stroke="#e5e7eb"/><text x="82" y="128.3" text-anchor="end" font-size="11" fill="#555">2</text>
+<line x1="90" y1="87.8" x2="864" y2="87.8" stroke="#e5e7eb"/><text x="82" y="91.8" text-anchor="end" font-size="11" fill="#555">5</text>
+<line x1="90" y1="60.2" x2="864" y2="60.2" stroke="#e5e7eb"/><text x="82" y="64.2" text-anchor="end" font-size="11" fill="#555">10</text>
+<rect x="96.0" y="188.5" width="28" height="11.5" fill="#16a34a" rx="1"><title>u32sum sa2js+node: 0.40x</title></rect>
+<rect x="126.0" y="178.8" width="28" height="21.2" fill="#ea580c" rx="1"><title>u32sum sa2js+bun: 0.51x</title></rect>
+<text x="128.0" y="215" text-anchor="middle" font-size="10" fill="#333">u32sum</text>
+<rect x="206.6" y="154.0" width="28" height="46.0" fill="#16a34a" rx="1"><title>fill-2M sa2js+node: 0.95x</title></rect>
+<rect x="236.6" y="146.1" width="28" height="53.9" fill="#ea580c" rx="1"><title>fill-2M sa2js+bun: 1.16x</title></rect>
+<text x="238.57142857142856" y="215" text-anchor="middle" font-size="10" fill="#333">fill-2M</text>
+<rect x="317.1" y="130.8" width="28" height="69.2" fill="#16a34a" rx="1"><title>write-u8 sa2js+node: 1.70x</title></rect>
+<rect x="347.1" y="152.0" width="28" height="48.0" fill="#ea580c" rx="1"><title>write-u8 sa2js+bun: 1.00x</title></rect>
+<text x="349.1428571428571" y="215" text-anchor="middle" font-size="10" fill="#333">write-u8</text>
+<rect x="427.7" y="92.0" width="28" height="108.0" fill="#16a34a" rx="1"><title>find-u32 sa2js+node: 4.50x</title></rect>
+<rect x="457.7" y="109.5" width="28" height="90.5" fill="#ea580c" rx="1"><title>find-u32 sa2js+bun: 2.90x</title></rect>
+<text x="459.7142857142857" y="215" text-anchor="middle" font-size="10" fill="#333">find-u32</text>
+<rect x="538.3" y="87.8" width="28" height="112.2" fill="#16a34a" rx="1"><title>b64-host sa2js+node: 5.00x</title></rect>
+<rect x="568.3" y="108.2" width="28" height="91.8" fill="#ea580c" rx="1"><title>b64-host sa2js+bun: 3.00x</title></rect>
+<text x="570.2857142857142" y="215" text-anchor="middle" font-size="10" fill="#333">b64-host</text>
+<rect x="648.9" y="50.0" width="28" height="150.0" fill="#16a34a" rx="1"><title>hex-host sa2js+node: 12.90x</title></rect>
+<rect x="678.9" y="99.8" width="28" height="100.2" fill="#ea580c" rx="1"><title>hex-host sa2js+bun: 3.70x</title></rect>
+<text x="680.8571428571429" y="215" text-anchor="middle" font-size="10" fill="#333">hex-host</text>
+<rect x="759.4" y="87.0" width="28" height="113.0" fill="#16a34a" rx="1"><title>esc-fused sa2js+node: 5.10x</title></rect>
+<rect x="789.4" y="93.8" width="28" height="106.2" fill="#ea580c" rx="1"><title>esc-fused sa2js+bun: 4.30x</title></rect>
+<text x="791.4285714285714" y="215" text-anchor="middle" font-size="10" fill="#333">esc-fused</text>
+<rect x="90" y="250" width="12" height="12" fill="#16a34a"/><text x="106" y="260" font-size="11" fill="#333">sa2js+node</text>
+<rect x="230" y="250" width="12" height="12" fill="#ea580c"/><text x="246" y="260" font-size="11" fill="#333">sa2js+bun</text>
+<text x="380" y="260" font-size="11" fill="#dc2626">红色虚线 = bun 原题水平（1.0x），柱低于线即反超</text>
+</svg>
+<p>附带：64 位正确性。融合开发中 rw3-batch（u64 累加 8.8e12）曾翻红，定位到发射器字面量 Number 化与
+运行时 <code>|0</code> 截断的交互——解释器是 64 位语义，Number 路径 32 位。已修复：
+add/sub 去截断（double 精确到 2^53）、mul/div/shift/位运算/比较动态提升（小值快路，大值 BigInt）、
+slt/sdiv 等 BigInt 路径按解释器补符号扩展、extern 大返回 BigInt。20 个 peer＋探针全绿回执。
+残余已知边界：double 精确上限 2^53（16MB 内存内实际和远小于此）。赢的代价是发射器多了约 130 行，
+全部加法式（新 shim＋helper 分支），无既有行为改动。</p>
+
+<h2>14. native/wasm 四路全景（同 workload，SA-only）</h2>
+<p>应要求把 <code>sa build</code>（native）与 <code>sa build-wasm</code>（wasmtime 25.0.2 跑，无手写驱动）
+并入对比：8 个 per-element peer 全部直编直跑通过。融合 peer 因 shim 是 JS 私有实现，无 native/wasm 版本
+（native 本来就赢，此处只列纯 SA 部分）。小 workload（fill/slice/str，耗时 &lt;20ms）数字以启动为主，
+只列不比；大 workload 计 slowdown。</p>
+<table>
+<tr><th>peer</th><th>sa→native</th><th>sa→wasm</th><th>sa2js+node</th><th>sa2js+bun</th><th>bun 原题</th></tr>
+<tr><td>read-write 20.5M</td><td>2.4ms (0.05ns/B, WIN 14x, fast)</td><td>126ms (6.1ns/B, 7.9x)</td><td>1252ms (79x)</td><td>589ms (37x)</td><td>0.77ns/B</td></tr>
+<tr><td>fill 256KB×2</td><td>1.4ms（启动主导，fast）</td><td>18.1ms（启动主导）</td><td>108ms</td><td>96ms</td><td>0.044ns/B</td></tr>
+<tr><td>slice 64KB×3</td><td>1.3ms（启动主导，fast）</td><td>17.6ms（启动主导）</td><td>112ms</td><td>65ms</td><td>DCE，不比</td></tr>
+<tr><td>indexOf 10.2M</td><td>5.6ms (0.42ns/el, 1.5x, fast)</td><td>69.9ms (6.8ns/el, 24x)</td><td>466ms (161x)</td><td>439ms (154x)</td><td>0.28ns/el</td></tr>
+<tr><td>includes 500×2K</td><td>1.8ms（约1µs/search, ~100x, fast）</td><td>20.6ms（启动主导）</td><td>124ms</td><td>110ms</td><td>9.45ns/search</td></tr>
+<tr><td>base64 1.5MB</td><td>2.2ms (0.6ns/B, 2.5x, fast)</td><td>26.1ms (17ns/B, 71x)</td><td>269ms (746x)</td><td>213ms (592x)</td><td>0.24ns/B</td></tr>
+<tr><td>hex 2MB</td><td>3.1ms (0.9ns/B, 3.2x, fast)</td><td>38.7ms (19ns/B, 67x)</td><td>471ms (821x)</td><td>401ms (698x)</td><td>0.28ns/B</td></tr>
+<tr><td>escape 819KB</td><td>1.8ms (0.6ns/B, WIN 2x, fast; 64KB同缓存复测约1.5x)</td><td>28.9ms (35ns/B, 29x)</td><td>1431ms (1455x)</td><td>294ms (299x)</td><td>1.2ns/B</td></tr>
+</table>
+<svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
+<text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Slowdown vs bun original by target (log)</text>
+<line x1="90" y1="189.6" x2="864" y2="189.6" stroke="#e5e7eb"/><text x="82" y="193.6" text-anchor="end" font-size="11" fill="#555">0.1</text>
+<line x1="90" y1="154.9" x2="864" y2="154.9" stroke-dasharray="5,3" stroke="#dc2626"/><text x="82" y="158.9" text-anchor="end" font-size="11" fill="#dc2626">1</text>
+<line x1="90" y1="120.3" x2="864" y2="120.3" stroke="#e5e7eb"/><text x="82" y="124.3" text-anchor="end" font-size="11" fill="#555">10</text>
+<line x1="90" y1="85.7" x2="864" y2="85.7" stroke="#e5e7eb"/><text x="82" y="89.7" text-anchor="end" font-size="11" fill="#555">100</text>
+<line x1="90" y1="51.1" x2="864" y2="51.1" stroke="#e5e7eb"/><text x="82" y="55.1" text-anchor="end" font-size="11" fill="#555">1000</text>
+<rect x="98.0" y="194.9" width="32" height="5.1" fill="#2563eb" rx="1"><title>read-write native: 0.07x</title></rect>
+<rect x="132.0" y="123.9" width="32" height="76.1" fill="#7c3aed" rx="1"><title>read-write wasm: 7.9x</title></rect>
+<rect x="166.0" y="89.2" width="32" height="110.8" fill="#16a34a" rx="1"><title>read-write node: 79.0x</title></rect>
+<rect x="200.0" y="100.6" width="32" height="99.4" fill="#ea580c" rx="1"><title>read-write bun: 37.0x</title></rect>
+<text x="166.0" y="215" text-anchor="middle" font-size="11" fill="#333">read-write</text>
+<rect x="252.8" y="148.9" width="32" height="51.1" fill="#2563eb" rx="1"><title>indexOf native: 1.5x</title></rect>
+<rect x="286.8" y="107.2" width="32" height="92.8" fill="#7c3aed" rx="1"><title>indexOf wasm: 24.0x</title></rect>
+<rect x="320.8" y="78.5" width="32" height="121.5" fill="#16a34a" rx="1"><title>indexOf node: 161.0x</title></rect>
+<rect x="354.8" y="79.2" width="32" height="120.8" fill="#ea580c" rx="1"><title>indexOf bun: 154.0x</title></rect>
+<text x="320.8" y="215" text-anchor="middle" font-size="11" fill="#333">indexOf</text>
+<rect x="407.6" y="141.2" width="32" height="58.8" fill="#2563eb" rx="1"><title>base64 native: 2.5x</title></rect>
+<rect x="441.6" y="90.8" width="32" height="109.2" fill="#7c3aed" rx="1"><title>base64 wasm: 71.0x</title></rect>
+<rect x="475.6" y="55.5" width="32" height="144.5" fill="#16a34a" rx="1"><title>base64 node: 746.0x</title></rect>
+<rect x="509.6" y="59.0" width="32" height="141.0" fill="#ea580c" rx="1"><title>base64 bun: 592.0x</title></rect>
+<text x="475.6" y="215" text-anchor="middle" font-size="11" fill="#333">base64</text>
+<rect x="562.4" y="137.5" width="32" height="62.5" fill="#2563eb" rx="1"><title>hex native: 3.2x</title></rect>
+<rect x="596.4" y="91.7" width="32" height="108.3" fill="#7c3aed" rx="1"><title>hex wasm: 67.0x</title></rect>
+<rect x="630.4" y="54.0" width="32" height="146.0" fill="#16a34a" rx="1"><title>hex node: 821.0x</title></rect>
+<rect x="664.4" y="56.5" width="32" height="143.5" fill="#ea580c" rx="1"><title>hex bun: 698.0x</title></rect>
+<text x="630.4000000000001" y="215" text-anchor="middle" font-size="11" fill="#333">hex</text>
+<rect x="717.2" y="161.4" width="32" height="38.6" fill="#2563eb" rx="1"><title>escape native: 0.65x</title></rect>
+<rect x="751.2" y="104.3" width="32" height="95.7" fill="#7c3aed" rx="1"><title>escape wasm: 29.0x</title></rect>
+<rect x="785.2" y="45.4" width="32" height="154.6" fill="#16a34a" rx="1"><title>escape node: 1455.0x</title></rect>
+<rect x="819.2" y="69.2" width="32" height="130.8" fill="#ea580c" rx="1"><title>escape bun: 299.0x</title></rect>
+<text x="785.2" y="215" text-anchor="middle" font-size="11" fill="#333">escape</text>
+<rect x="90" y="252" width="12" height="12" fill="#2563eb"/><text x="106" y="262" font-size="11" fill="#333">sa→native</text>
+<rect x="220" y="252" width="12" height="12" fill="#7c3aed"/><text x="236" y="262" font-size="11" fill="#333">sa→wasm</text>
+<rect x="350" y="252" width="12" height="12" fill="#16a34a"/><text x="366" y="262" font-size="11" fill="#333">sa2js+node</text>
+<rect x="480" y="252" width="12" height="12" fill="#ea580c"/><text x="496" y="262" font-size="11" fill="#333">sa2js+bun</text>
+</svg>
+<p>注：wasm 曾在 read-write/indexOf 上反超 native，实测系默认 <code>sa build</code> 优化等级保守所致
+（非 wasmtime 更强）——改 <code>--release-fast</code> 重编后 native 直接反杀 20~50x：
+read-write 20.5M 扫描 <b>3.3ms（0.16ns/B，比 bun 原题 0.77ns/B 快约 5x）</b>，
+find 10.2M 查找 <b>5.6ms（0.55ns/元素）</b>（LLVM 向量化全开；校验和全过，非 DCE）。
+结论：默认构建偏保守是主因，要峰值请加 <code>--release-fast</code>；
+native 离 SIMD codec 仍有距离（bulk codec 另见融合节），但循环密集负载 native 已全面领先。</p>
+
+<h2>15. 口径与下一步</h2>
+<ul>
+<li>本页全部 SA 侧数字出自 SA 源码编译产物；DCE 声明：mitata 单表达式 bench 有死码消除嫌疑，绝对值以带 sink 的刻度为准，相对排序一致。</li>
+<li>2x 的剩余路径是<b>前端字面量按语境定型</b>（u32 语境的字面量发 Number），涉及全部后端，需 native/wasm 矩阵联测，单独立项。</li>
+<li>下一步 peer 清单（第一类可 peer）：buffer-fill、buffer-slice、buffer-compare、array-map、array-sort、string-includes、typed-array-sort、base64-decode、escapeHTML；内存侧 <code>bun --heapStats</code> 流式 RSS 对比随后补。</li>
+</ul>
+
+<h2>16. 主机 codec 两遍 in-place（2026-10-12实测）</h2>
+<p>旧链 <code>TextDecoder().decode(subarray)＋Buffer.from＋set</code> 三遍＋两次分配；
+新链 <code>__sa_buf.toString('latin1')＋__sa_buf.write(in-place)</code> 两遍零临时分配
+（<code>emit_js.zig sa_b64dec/sa_hexdec</code>）。clean-ASCII 全等等价；短输出（垃圾输入/越界）改 trap，
+杜绝静默截断。证据 peer：<code>sci/demos/compare/peer_hex.sa(+5000)/peer_b64.sa(+5000)</code>，
+双点斜率（500→5000次×64KB），校验和全过（HEX 480000/4800000，B64 85000/850000）。</p>
+<table>
+<tr><th>peer（slope ns/B）</th><th>bun 原题（同机）</th><th>旧链 node</th><th>新链 node</th><th>旧链 bun</th><th>新链 bun</th></tr>
+<tr><td>hex 64KB</td><td>0.11~0.15</td><td>0.90</td><td>0.72（1.25x↑，与 node 原题 0.95 持平）</td><td>0.26</td><td>0.22（1.2x↑，余 1.5~2x）</td></tr>
+<tr><td>base64 64KB</td><td>0.149</td><td>0.51</td><td>0.21（2.4x↑）</td><td>0.36</td><td>0.25（1.4x↑，余 1.7x）</td></tr>
+</table>
+<p>余量 = latin1 快照一遍＋单调用开销；bun 单 intrinsic 调用即最终形态，继续压需批量调用形状
+（一次解码更大块）或 SIMD。hex 融合项自此解冻（纯标量路线仍冻结）。</p>
+
+<h2>17. escape 表驱动（2026-10-12实测）</h2>
+<p>旧链每字节 6 连分支；新链 256B 长度表 fast-path（普通字节单分支）＋1536B 序列 rare-path
+（<code>emit_js.zig sa_esc_html</code>）。逐字节输出与旧链同构，peer 长度＋首尾字节锁定。
+证据 peer：<code>sci/demos/compare/peer_esc.sa(+500)</code>，64KB/8% 转义密度，双点斜率：</p>
+<table>
+<tr><th>escape 64KB slope</th><th>旧链 node</th><th>新链 node</th><th>旧链 bun</th><th>新链 bun</th></tr>
+<tr><td>ns/B</td><td>3.09</td><td>~3.1（持平，噪声内；500 点复测反快约 10%）</td><td>2.37</td><td>1.68（1.4x↑）</td></tr>
+</table>
+<p>V8 分支预测已打平旧链（94% 直通），表加载无收益；JSC 得 1.4x。分支 codec 要继续压仍需 SIMD（见 §13/§16）。</p>
+
+<h2>18. native 显式 SIMD 双核（2026-10-12实测）</h2>
+<p><code>sa_std.zig sa_hexdec_simd</code>（32 字符→16 字节向量＋标量尾，3 单测同体）与
+<code>sa_b64dec_simd</code>（32→24 Mula 交织，2 单测同体），ABI 经
+<code>sa_std.h</code> 声明＋<code>windows_unsupported</code> 注记，
+<code>runtime_abi_check --platform both</code> 全绿（594 符号）。
+证据 peer（native默认档，双点斜率，校验和全过）：
+<code>sci/demos/compare/peer_hexn.sa(+5000)</code> HEXN OK，
+<code>peer_b64n.sa(+5000)</code> B64N OK。</p>
+<table>
+<tr><th>native slope ns/B</th><th>bun 原题（同机）</th><th>SIMD 核</th></tr>
+<tr><td>hex 64KB</td><td>0.11~0.15</td><td>0.085（反超约 1.3~1.8x）</td></tr>
+<tr><td>base64 64KB</td><td>0.149</td><td><b>0.068（WIN 2.2x，§30 swizzle 落地）</b></td></tr>
+</table>
+<p>工具链坑：本工具链 <code>-OReleaseFast</code> 误编译负掩码 <code>@shuffle</code>
+（零定位报错 <code>Assigned value does not match type of forward declaration</code>），
+已绕行 concat 中转＋单源正掩码并在代码注记；探针复现＋修复验证。</p>
+<p><b>裁决（2026-10-13，native b64 余 1.5x 为标量视界终点）</b>：<code>/tmp</code> 纯核探针
+（无 SA 调用开销）证实 unroll×2 零收益（0.236→0.236ns/B，后端-bound）；
+反汇编已见 128 条 SIMD（pshufb/paddb/movups 类）密集，9 shuffle/port5 为结构地板；
+u32 字 trick 仍需交织，省不出余下约 35%。要进 2x 须 swizzle 查找路线
+（SSSE3 门控 C 内核＋穷举差分，<code>std.x86</code> 本工具链不存在），已单独立项，
+验收线为 bun 同日 0.14ns/B。标量侧不再投入。</p>
+<p><b>追裁（2026-10-12 swizzle 项目关闭，lookup-ceiling）</b>：可行性探针三项实锤——
+①LUT 分类三式（直接加／符号翻转／异或）经程序验证全部无解，死结是
+<code>'+'</code>/<code>'/'</code> 共高半字节导致的约束环冲突；
+②反汇编热循环 15 条 <code>pshufb</code>＋5 条 <code>pcmpeqb</code>，port5 已饱和，
+LUT 要再加 2 条 shuffle，只会加压甚至反退化；
+③core 斜率 0.203 vs bun 同日 0.149，差 33%，而分类仅占循环约 25%——
+免费分类最多 1.33x，现实 LUT 至多省 ~12% 到 0.19，数学到不了验收线。
+结论：native b64 1.5x 是双重地板（标量＋查找），除非汇编级整核重写（出口径），
+否则永久锁定；探针全在 <code>/tmp</code>，零代码改动。</p>
+
+<h2>19. wasm SIMD128 内联核（2026-10-13实测）</h2>
+<p>wasm 链只认模块内 bitcode（extern 悬空 <code>wasm-ld: undefined symbol</code>），
+故 <code>emit_llvm_llvmc_shim.c</code> 内联发射 v128 核（hex 16→8、b64 32→24＋标量尾），
+仅当模块引用时定义（<code>wasm_compat</code> 内）。
+<code>+simd128</code> 自证对标量循环无效（247 vs 266ms），遂驱动默认
+<code>-mcpu=generic+simd128</code>（无此 flag 向量核标量退化反更慢：2.4ns/B）。
+证据 peer（wasmtime 25.0.2，<code>--release-fast --no-incremental</code>）：</p>
+<table>
+<tr><th>wasm slope ns/B</th><th>标量环</th><th>核＋simd128</th><th>bun 原题</th></tr>
+<tr><td>hex 64KB</td><td>0.76</td><td>0.17（4.5x↑，余 1.2~1.5x）</td><td>0.11~0.15</td></tr>
+<tr><td>base64 64KB</td><td>—（此前链接失败）</td><td>0.40（§36 dot-pack后，余 ~2.7x；此前 1.0）</td><td>0.149</td></tr>
+</table>
+<p><code>peer_b64t</code>（B64T OK，尾过渡）/<code>peer_b64bad</code>（B64B OK，非法截停）
+覆盖向量外路径；强制标量对照抓出标量尾 sextet 偏置误用 hex 值（48/55/87→4/65/71），已修正。
+循环负载另记：rw peer wasm-fast 仅 21ms（默认档 97ms，4.6x↑），远胜 node（1.35s）。
+注：项目增量缓存不感知 driver 变更，测速须带 <code>--no-incremental</code>。</p>
+
+<h2>20. JS 未逃逸槽提升（2026-10-13实测）</h2>
+<p><code>emit_js.zig collectPromotableSlots</code>：单 <code>stack_alloc</code> 定义、
+全引用零偏移 plain load/store 基址、类型一致（32 位内联窄化，64 位镜像
+<code>asIntN</code>）、<code>&</code>/调用/重赋值一票否决；分配点原位 load 初始化，
+存储保留 <code>provKill</code>。手改四格试验证伪 sala §12“12%”结论
+（node 3.5x / bun 1.4x，双双 PEER32 OK）。编译器落地后：</p>
+<table>
+<tr><th>rw peer（同负载）</th><th>改前 node</th><th>改后 node</th><th>改前 bun</th><th>改后 bun</th></tr>
+<tr><td>u32 域</td><td>1.42s</td><td>0.46s（3.1x↑）</td><td>0.45s</td><td>0.34s（1.35x↑）</td></tr>
+<tr><td>u64 域</td><td>3.93s</td><td>2.39s（1.6x↑，BigInt 墙）</td><td>12.2s</td><td>12.0s（持平）</td></tr>
+</table>
+<p><code>peer_promo_edge.sa</code> 覆盖 u32 回绕/i8/i16/i32 负数/u16/混合跳过，
+9 peer 双端＋12 demo 三端（解释器/node/bun）差分全绿；12 demo 中仅 04_loop 触发
+（其余被保守规则正确跳过），无误伤回归。</p>
+
+<h2>21. native 子串查找桥接（2026-10-13实测）</h2>
+<p>纯 SA 标量循环 miss 形（4KB haystack＋64B needle，首字节过滤＋逐位比对）
+native 默认档 28µs/次（6.8ns/B）；新 extern <code>sa_mfind_u8</code>（Zig
+<code>std.mem.indexOf</code> 直调，miss 返 <code>hay_len</code> 哨兵以避开 u64max
+字面量上溢）同形 0.35µs/次（0.085ns/B），<b>85x↑</b>。
+证据 peer：<code>sci/demos/compare/peer_findn.sa(+5000)</code>（FIND OK，
+标量基线）/<code>peer_findm.sa(+5000/+100k)</code>（FINDM OK），
+Zig 单测 1 则同体，ABI 三件套同步。</p>
+<table>
+<tr><th>find 4KB-miss 每次</th><th>SA 标量</th><th>sa_mfind_u8</th><th>node Buffer.indexOf</th><th>bun Buffer.indexOf</th></tr>
+<tr><td>µs</td><td>28</td><td>0.35（85x↑，胜 node 约 8x）</td><td>2.9（诚实值，累加防 DCE）</td><td>0.0004（不可采信：4KB/0.4ns≈10TB/s，引擎消除了 bench）</td></tr>
+</table>
+<p>诚实声明：bun 黑盒数在该形状下不可测（引擎证明 miss 后跳过扫描），故以 libc memmem
+类（node）为可比基准，我方胜约 8x；另记 u64max 字面量致解释器 <code>Overflow</code>，
+哨兵改 one-past-end 规避。</p>
+
+<h2>22. wasm hex 反超（2026-10-13实测）</h2>
+<p>case-fold 分类（<code>c|0x20</code> 后单 digit＋单 alpha 测试）替代三区间菱形，
+向量/标量同构；<code>peer_hexn20000.sa</code>（20000 点，±1% 稳定）＋
+<code>peer_hext.sa</code>（尾过渡）/<code>peer_hexbad.sa</code>（非法截停）锁正确性。
+同日背靠背：我方斜率 10.03µs/64KB（0.153ns/B）对 bun mitata 10.73µs（0.164ns/B），
+<b>0.93x 反超</b>。另记方法论教训：朴素手写计时循环（无 warmup）曾测出 bun 39µs
+（4x 虚高），口径必须以 mitata 为准、同日对比。</p>
+
+<h2>23. find 双桥接＋escape 桥接否决（2026-10-13实测）</h2>
+<p><code>sa_mfind_u8</code> 标量首字节环改单 <code>__sa_buf.indexOf(subarray)</code>
+调用（越界命中守卫，无 Buffer 回落标量环）：node 8.5µs→1.5µs（5.6x↑，与 node 原题
+2.9µs 持平偏胜）、bun 4µs→1.5µs（2.6x↑）；
+<code>sa_mfind_u32</code> 去 <code>subarray</code> 分配一版曾实测爆炸——miss 时
+<code>indexOf</code> 扫到视窗末尾（整个 16MB 线性内存，425µs/次），已回退有界版
+（8.5s→73ms，约 100x 恢复）：<code>subarray</code> 是负载语义（定界）而非可省
+分配。教训：<code>mfind_u8</code> 桥能快全靠 SA bump 分配使 needle 常在 hay 附近
+自终止（另经 node 直验 16MB 全扫行为），正确性则全靠越界守卫，与速度无关。
+证据 <code>peer_findj.sa(+5000)</code>/<code>peer_findjh.sa</code>（命中路径）、
+<code>peer_findu32.sa(+5000)</code>、<code>peer_findr.sa</code>（rotating needles
+1000/512/1023/2048，三命中一 miss，防引擎 hoisting），守卫逻辑另经 node 直验。</p>
+<p><b>否决项</b>：<code>Bun.escapeHTML</code> 桥接经完整审计（0~255 唯一差异是单引号
+风格，已有归一方案）后实测被否——其 string-in/string-out 形态每调用分配 3 大串，
+GC 税超 SIMD 收益（bridge 342µs vs 表环 155µs 斜率）。零分配原地表环胜出；
+另纠正一则误测：latin1 快照在代表性输入上预热平均仅 18~22µs/64KB，反比 utf8
+（验证地狱，420µs＋）快一个数量级——早期单次冷测得出的反向 10x 结论作废；
+codec 侧 latin1 既对（垃圾字节 1:1 可见、可 trap）又快，无需动。
+教训有二：小粒度下分配税压倒一切（与 Buffer.write 胜因同构）；单次冷测数字
+一律作废，以预热平均＋双点斜率为准。</p>
+
+<h2>24. wasm 子串查找 memmem 桥（2026-10-13实测）</h2>
+<p>wasm 链不认 libsa（悬空符号），故 <code>emit_sa_mfind_u8_wasm</code> 内联发射
+memmem 薄包装（空 needle→0、超长→miss、前向声明缺失时才定义；另修一处支配性
+bug：zext 须落 diffblk 而非 ret，LLVM verifier 当场抓住）。
+证据 <code>peer_findm100k.sa</code>（FINDM OK，10 万次）＋
+<code>peer_findjh.sa</code>（FINDH OK，命中路径覆盖 diffblk）：单次 4KB-miss
+约 0.5µs（0.12ns/B），与 native 版同级，相对 node-memmem（2.9µs）胜约 6x；
+bun 黑盒数同前不可比。</p>
+<h2>25. u32-find rotating 形持平（2026-10-13实测）</h2>
+<p>旧 4.5x/2.9x 出自老形状；新 peer <code>peer_findr.sa(+20000)</code> 照抄 bun 原题
+rotating needles（1000/512/1023/2048，三命中一 miss，防 hoisting），校验和
+3559/rep。同日背靠背每 rep（4 搜）：我方 node/bun 双端 0.93µs，对 bun 诚实 harness
+0.91µs、node 1.87µs——<b>与 bun 持平、胜 node 2x</b>（bun 原题 mitata 1.3ns 系 DCE
+假象：4KB 扫描不可能 1.3ns；同页 includes 147ns 倒是真的）。find 项至此在全部
+诚实形状下持平或反超。</p>
+<h2>26. b64 高精度斜率锁定＋本轮确认集（2026-10-13实测）</h2>
+<p>证据 peer（native <code>--release-fast</code>，校验和全过）：
+<code>sci/demos/compare/peer_b64nbig.sa</code>（B64BIG OK，单次 4MB 解码核率约 1ns/B，
+证实调用开销非主因）/<code>peer_b64n20000.sa</code>（B64N OK，20000 点双点斜率，
+b64 锁定 <b>1.13ns/B±2%</b>）。本机复验：两 peer 重新构建后均一次通过
+（B64N OK / B64BIG OK），与提交记录一致。</p>
+<p>本轮确认集（树干净 cd910356，全部一次通过）：JS
+<code>peer_esc.sa</code> node/bun 双端 ESC OK、<code>peer_findj.sa</code> 双端 FINDJ OK；
+wasm（node WASI）<code>peer_hexbad.sa</code> HEXB OK；
+native <code>peer_rw_u64.sa</code> PEER OK。</p>
+<h2>27. wasm b64 节食 1.00→0.70ns/B（2026-10-12实测）</h2>
+<p>jev ROI 裁决（#1）后动刀 <code>emit_sa_b64dec_simd_wasm</code>（<code>src/emit_llvm_llvmc_shim.c</code>），
+四连击（node WASI 双点斜率 <code>peer_b64n5000/peer_b64n20000</code>，278/966ms 与复测 982ms，Δ983MB）：
+v32→v16（去 legalizer 对半拆分，1.00→1.00 无效，证伪拆分主因说）→
+合并改全宽 shuffle（7 奇宽→3 全宽＋掩码拼装，→0.86）→
+select 链拍平（4-deep 嵌套→并行或树，→0.77）→
+unroll×2＋双半块共享检查（→<b>0.70ns/B，余 4.7x，总 1.43x↑</b>）。直接加法双表分类经程序验证无解
+（<code>'+'</code>/<code>'/'</code> 共高半字节，约束图冲突），未采用。</p>
+<p>附带修两处正确性（此前无覆盖）：①向量块内非法曾被跳过且留垃圾（与 native 语义分叉），
+现倒回标量重解、与 native 对齐，新 peer <code>peer_b64mid.sa</code>（32B、坏字符在 offset 5，
+期望 n==3、首量子校验和 85）wasm/native 双端 B64M OK 锁定；
+②unroll 初版把双半块 validity 按 lane 或合并（A 坏 lane 被 B 好 lane 掩盖，全过），
+改各自归一后 AND，探针当场抓住。回归：<code>peer_b64t</code> B64T OK、
+<code>peer_b64bad</code> B64B OK、<code>peer_b64n5000</code> B64N OK、
+<code>llvmc-test</code> 102/102。判断：余量为 Cranelift 翻译质量地板（手写 LLVM 经 wasm 落地约当 C++ SIMD 的 1/5 密度），
+继续压需另一量级手段，本轮锁定 0.70。</p>
+<h2>28. JS codec 快照税地板裁决（2026-10-12实测）</h2>
+<p>jev #2 攻关结论：<b>无代码改动，地板实锤</b>。peer 调用粒度已是单调用 64KB（<code>peer_hex.sa:61</code>，
+无批量空间）。对照实验（手写 <code>/tmp</code> 紧循环，64KB×2000，3 样本中位数，只定方向不作口径）：
+快照编码 <code>latin1/ascii/utf8</code> 在 node 为 0.841/0.804/0.901ns/B，
+在 bun 为 0.199/0.253/0.233——latin1 在 bun 侧最优，ascii 分化（node +4%、bun -27%）否决，
+维持统一 latin1。决定性拆分（同 harness）：bun hex 全链 0.221→去快照 0.054、
+b64 全链 0.249→去快照 0.085——<b>快照独占约 0.165ns/B，恰等于全部余量；
+去快照后 parse+write 反超 bun 原题</b>（0.11~0.15/0.149）。快照不可省：
+host <code>write/from</code> 只要 string，node/bun 无 bytes-in 解码 API；
+快照本身已是 memcpy 速度。peer 斜率本轮复测（500/5000 双点、3 样本中位数）：
+hex node 0.82、bun ~0.2~0.3（小端启动敏感抖动大），b64 node 0.21、bun ~0.29，
+与历史记录（0.72/0.22、0.21/0.25）在噪声内一致。裁决：JS host 链到结构地板，
+与 native 标量终点同 pattern，不再投入；b64/hex 的 1.5~1.7x 即该路线终点线。
+回读校验补记：去快照写入后逐字节回读求和，node/bun 双端同值（hex 3932160、b64 1392640），
+写确执行、非 DCE；自检脚本一处比对 bug 系 b64 输出覆盖 hex 区所致，不影响结论。</p>
+<h2>29. 阶段A审计：三点回归＋hex倒回修复＋bun-WASI（2026-10-12实测）</h2>
+<p>外部审计要求先自证，结论：<b>verdict 由“待统计复核”转“已复核”，数字全部复现</b>。
+三点回归（500/5000/20000×64KB，4 轮转序、去首轮预热、余下中位数，独立进程）：
+hex node 截距 46.6ms、<b>斜率 0.684、R²=1.0000</b>；
+hex bun 截距 37.3ms、<b>0.228、R²=1.0000</b>；
+b64 node 截距 48.6ms、<b>0.194、R²=0.9993</b>；
+b64 bun 截距 43.3ms、<b>0.229、R²=0.9973</b>；
+wasm b64（node WASI）截距 29.1ms、<b>0.663、R²=1.0000</b>（节食 0.70 在严格口径下成立）。
+线性假设成立，两点斜率无系统偏。</p>
+<p>hex 倒回修复：新 peer <code>peer_hexmid.sa</code>（32B、坏字符 offset 5，期望 n==2、首两字节 0xaa）
+抓出 wasm hex 与 native 分叉——native HEXM OK，wasm 跳过留垃圾返 16。
+起因与 b64 同源（向量块无效即跳过），同法倒回标量重解后 wasm/native 双端 HEXM OK，
+<code>peer_hexbad</code>/<code>peer_hext</code> 回归全过。</p>
+<p>bun-WASI 对照：同 wasm 模块在 bun 下（<code>wasi.wasiImport</code>，
+bun 1.4.3 的 <code>node:wasi</code> 无 <code>getImportObject</code>）B64N OK，
+三点斜率 <b>0.796、R²=0.9960</b>——同模块在 JSC 下比 V8 慢约 20%，截距 50.6ms。
+跨引擎比较口径不变（仍以 node-WASI 为准），差距方向对我方不利，属诚实口径。</p>
+<p>新鲜度审计：<code>zig-out/bin/sa</code>（09:14）新于 <code>src/emit_llvm_llvmc_shim.c</code>（09:12）；
+全部测速 wasm 构建均带 <code>--no-incremental</code>；
+<code>libsa_std.a</code>（07:53）早于 shim 改动但 shim 只进 sa 主二进制、不进 libsa，无污染。
+“6 赢 5 平 4 输”仍表述为已测样本结果，不外推；全量矩阵未跑。</p>
+<h2>30. native b64 swizzle 落地反超 2.2x（2026-10-12实测，订正§18双地板）</h2>
+<p>§18 的“标量终点”＋“lookup-ceiling”两 verdict 在此**一并订正为范围过窄**：
+前者只覆盖标量微调，后者只证伪了 4 种 naive 查表形式——真正的 Mula/aqrit scheme
+一直存在，只是不在我搜索的函数族里。转折点来自用户建议“直接看 bun 怎么写”：
+Bun 的 Buffer base64 就是 <b>simdutf</b>（Apache-2.0，Bun 本体 MIT），
+克隆回仓后在 <code>src/haswell/avx2_base64.cpp</code> 找到真核并合法移植（署名保留）：
+饱和压缩索引＋hash 查表翻译（32B 约 9 ops）＋<code>maddubs/madd</code> 打包（3 ops），
+把工作从 port5 搬走——这正是我方 15-shuffle 结构的死穴。</p>
+<p>门控探针（<code>/tmp</code> 独立文件）：64 字母×32 lane 穷举 2048/2048 精确、
+192 非法字节全检出、斜率 <b>0.043ns/B</b>（同条件现核 0.203 的 4.7x）。
+落地 <code>src/runtime/sa_b64_swizzle.c</code>（函数级 <code>target("avx2")</code>、
+裸 <code>cpuid+xgetbv</code> 门控、零 libgcc 依赖、精确 24B 存储无越界、标量尾），
+<code>sa_b64dec_simd</code> 内 AVX2 分发、非 x86_64 桩回退；
+公共 ABI 不变（两新符号是 lib 内部实现，不进 <code>sa_std.h</code>），
+<code>runtime-abi-check --platform both</code> 全绿（595 符号）。
+证据：Zig 3 单测全过（含新 <code>avx2 block invalid rewinds</code>）、
+native peer <code>b64n/b64mid/b64bad/b64nbig</code> 全过、
+双点斜率（n5000/n20000）<b>0.068ns/B，对 bun 同日 0.149 反超 2.2x</b>。
+复测备注：有负载机器（load ~0.9）复测 0.082（约 1.8x），安静机器 0.067~0.068；
+斜率随负载抖动 ±20%，WIN 在两种负载下成立；wasm b64 同期复测 0.656（前值 0.642~0.663一致）。
+教训：《无解》结论必须注明搜索边界；“抄”只抄算法（simdutf），Bun 的 Rust 胶水与我们无关；
+JS/wasm 靶点不受影响（host 形态 / 无 madd），§27/§28 地板维持。</p>
+<h2>31. wasm b64 hashXL 1.00→0.64（2026-10-12实测，三 bug 连环）</h2>
+<p>simdutf 无 wasm 后端，但 aqrit 翻译四件套（swizzle/avgr/addsat/bitmask）在 v128 全有映射
+（<code>llc</code> 离线验证单指令 lowering 后才动手）。分类 16 ops→~9 ops，
+双点斜率（n5000/n20000，3 样本中位数）<b>0.642ns/B，余 4.3x，总 1.56x↑</b>；
+回归 <code>b64t/bad/mid/hexbad/hext/hexmid</code> 全过、<code>llvmc-test</code> 102/102。
+路上连踩三坑，记为后车之鉴：
+①定签名 intrinsic 不可用 <code>GetIntrinsicDeclaration+类型表</code>（会造出不存在的
+<code>.v16i8</code> 后缀，链接期 undefined），须空类型表拿裸名；
+②有效性须按符号位（<code>SLT 0</code>，movemask 语义），<code>!=0</code> 把干净块全判非法
+（对但慢到标量级）；
+③也是最贵的一课：<b>WASM swizzle 索引≥16 直接归零</b>（pshufb 取低 4 位），四个查表索引须先
+<code>&amp;15</code>（掩码下 64 字母精确、192 非法全检出，经程序重验）。
+另：首次全挂时误判多时，实为一批掩码编辑未落盘——现每次改完必 <code>grep</code>＋读 <code>.bc</code> 反汇编确认；
+<code>--no-incremental</code> 旁还有按函数对象缓存（<code>.sa_cache</code>），测速前必清。
+地板判断维持（Cranelift 翻译质量），合并阶段不动（无 madd）。</p>
+<h2>32. wasm hex unroll 无收益＋引擎差备注（2026-10-12实测）</h2>
+<p>hex unroll×2（照抄 b64 的双半块＋共享检查）：node-WASI 同 harness A/B，
+单 16B 基线 <b>0.438</b> vs unroll 后 <b>0.463</b>——持平偏噪，无收益，已回退，
+零代码残留（正确性探针 <code>hexmid</code> 双端仍过）。hex 循环本已小，
+省不出循环开销。</p>
+<p>附带诚实备注：wasm hex 的 0.17（§19/§22）出自 <b>wasmtime</b>，
+node-WASI（V8）下从来是 0.44——引擎差约 2.6x。对 bun 原题（原生 C++ 0.11~0.15）
+的口径仍以 wasmtime 数为准（余 1.2~1.5x）；node-WASI 侧差距（约 3~4x）另记，
+不混用。 hext/hexbad 回归全过。</p>
+<h2>33. 专家审计请求备案＋三处本地核实（2026-10-12）</h2>
+<p>身份澄清：sala 即 sahelp（SA/SLA 帮助文档仓），是文档仓本名，非笔误。</p>
+<p><b>核实一（Q2 引擎差，我方亲测）</b>：装回 wasmtime 25.0.2（与§19 同版本），
+同模块双点斜率（n5000/n20000，3 样本中位数）<b>0.197ns/B</b>——历史 0.17 在噪声内复现；
+同模块 node-WASI 0.438。引擎差 2.2x 为我方实测事实，非转述。追问 Cranelift ISLE
+vs TurboFan 的归因仍抛给专家。</p>
+<p><b>核实二（Q1 dot 可用性，llc 实证）</b>：通用 <code>llvm.sdot</code> 在 LLVM 14
+wasm 后端<b>不 lowering</b>（原样 call 出去，链接即炸）；专用
+<code>llvm.wasm.dot</code> 单指令落到 <code>i32x4.dot_i16x8_s</code>。
+即 dot 原语可用，但能否拼成更优 pack 仍是开放设计问题，照常抛给专家。</p>
+<p><b>核实三（Q3 快照税）</b>：本地可验证的部分已验证（node 无 bytes-in 解码通道，
+见§28 拆分）；ExternalString 是否经 WASI/JS 可达，本地无 V8 头验证不了，
+照常抛给专家。</p>
+<p><b>审计请求正文（三问＋翻转条件＋已闭环备案）</b>已定稿，见本轮工作记录：
+Q1 pack 是否存在更优式、Q2 2.2x 引擎差归因、Q3 快照税是否为物理极限，
+每问附现状证据与“什么结果改变 verdict”。英文 GitHub 版待用户确认后再出。</p>
+<h2>34. Bun源码抄尽复盘：三输项各有归宿（2026-10-12）</h2>
+<p>用户问“抄了源码还找不到方案吗”——答案是找全了，且找全的结果恰恰是三处“无可抄”，各有实证：</p>
+<p>①native b64：<b>已抄中</b>（simdutf AVX2，0.068 反超 2.2x，§30）。这是唯一形态对得上的。</p>
+<p>②JS hex/b64：Bun 的 Buffer 编解码（simdutf＋Highway C++）直接吃 <b>string</b>（见
+<code>encoding.rs:construct_from_*</code> 取 string 切片），单遍、无中间物；
+我们的输入住在线性内存 bytes 里，host <code>write/from</code> 只要 string，
+快照强制——<b>抄的是形态，而形态我们够不着</b>。Bun 自家 bench（from 0.163/write 0.088）
+与§28 拆分互证。floor 立。</p>
+<p>③wasm b64：simdutf 内核清单实证（arm64/fallback/generic/haswell/icelake/lasx/lsx/ppc64/rvv/westmere）
+<b>无 wasm 后端</b>；能抄的翻译表已抄完（§31，0.64），pack 的 madd 在 v128 不存在。
+余 4.3x，合并重构预期仅 ~5%。</p>
+<p>④wasm hex：Bun 侧是 <b>Google-Highway SIMD</b>（<code>bun_core::strings</code> 经
+<code>highway_decode_hex8</code>，≥16 pairs，同 truncate 语义；Highway 同 Apache-2.0）。
+但 Highway 核是 x86/ARM dispatch，不可移植到 v128；算法层 hex 的 case-fold
+（2 compares）已是最优形，无可抄。wasmtime 1.2~1.5x 维持，node 侧差距归引擎（§32）。</p>
+<p>结论：clone 覆盖 <code>src/base64、src/simdutf_sys、src/runtime/webcore</code>＋simdutf 全核清单，
+可抄的已抄尽；三输的剩余杠杆只剩专家回音（Q1~Q3）、全量矩阵（待放行）、wasm b64 合并 ~5%。</p>
+<h2>35. 专家三回执＋术语订正：地板收回，改称当前实现实测结果（2026-10-12）</h2>
+<p><b>术语订正（必读）</b>：此前§27/§28/§30/§32 的“地板/终点线”表述一律收回，
+改称 <b>当前实现的实测结果</b>——数字与证据不变，但不再断言不可突破。
+低收益重构照停，专家回音亦不作为结项前置。</p>
+<p><b>Q1（pack）有候选，不保证更快</b>：两级 dot——先按权重 <code>[64,1]</code> 合 sextet 对
+（sextet 放 i7 侧），再按 <code>[4096,1]</code> 合 24 位，最后 shuffle 压成 12 字节；
+是否比 gather＋shift＋or 便宜取决于引擎机器码。结论：Q1 不必外发；
+dot-pack 列为未来理论尝试（预期 ~10%，按 ROI 门槛默认不上）。</p>
+<p><b>Q2（2.2x）本地补证</b>：<code>node --no-liftoff</code> 同 harness 复测 wasm b64
+斜率 <b>0.676</b>（默认 0.663）——分层编译不移动斜率（固定开销在双点差分中抵消），
+预热假设本地关闭。结论：差距确为逐字节执行成本差；要归因到具体热点须反汇编，
+ROI 不够，不开 V8 issue。</p>
+<p><b>Q3（快照税）关闭</b>：标准 JS 无通用 bytes→string 零拷贝；external string 需 native
+addon 且交出字节所有权、保证不可变——纯 JS/wasm 靶点够不着。附带新 peer 预告：
+<code>Uint8Array.prototype.toBase64/fromBase64</code>（TC39）在 bun 1.4.3 已存在、
+node 20 缺席——未来 bun 侧对标物，建议建新 peer 跟踪，见§34-Bun-bench 注释。
+<b>实测跟进</b>：同 harness 下 bun <code>fromBase64</code> 0.384 vs
+<code>Buffer.from</code> 0.279（回读同值 1392640，防 DCE）——新 API 当前更慢，
+参照系维持 <code>Buffer.from</code> 不变，球门未动。</p>
+<p><b>全量矩阵</b>：当前可不跑；一切结论限定已测范围（§26/§29 原话维持）。
+<b>英文版</b>：三问皆已在中文通道实质答复，无需外发，英文版不再出。</p>
+<h2>36. wasm b64 dot-pack 0.64→0.40（2026-10-12实测，Q1实证回答）</h2>
+<p>专家 Q1 配方落地：零扩展交织（2 shuffle）＋两级 dot（<code>[64,1]</code>→12bit，
+<code>[4096,1]</code>→24bit）＋字节拾取＋压缩（9 ops 代 16），semtest 先验 MATCH
+（变化 sextet 全对）再进 shim。双点斜率 <b>0.403ns/B，余 2.7x</b>——超预期
+（预估 ~0.54），合并与翻译一样吃调度红利。三级连跳 1.00→0.64→0.40，
+总 <b>2.5x↑</b>。回归 b64t/bad/mid＋hex 系全过，llvmc 102/102。
+Q1 就此实证 closed：dot-pack 可行且显著，4.3x→2.7x；余量组成为翻译＋合并各半，
+再压需另一量级手段。</p>
+</body>
+</html>

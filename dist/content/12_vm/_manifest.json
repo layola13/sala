@@ -2,21 +2,21 @@
   "topics": [
     {
       "id": "overview",
-      "title": "vm 总览：定位与架构",
+      "title": "vm Overview: Positioning and Architecture",
       "file": "01_overview.html",
       "keywords": [
         "vm",
-        "解释器虚拟机",
+        "interpreter virtual machine",
         "sa_plugin_vm",
-        "build-exe 分工",
-        "架构",
-        "CLI-only 插件"
+        "build-exe division of labor",
+        "architecture",
+        "CLI-only plugin"
       ],
       "parent": null
     },
     {
       "id": "cli",
-      "title": "CLI 用法详解",
+      "title": "CLI Usage in Detail",
       "file": "02_cli.html",
       "keywords": [
         "sa vm run",
@@ -25,37 +25,37 @@
         "--profile",
         "--allow-ffi",
         "--sandboxed",
-        "环境变量",
-        "退出码"
+        "environment variables",
+        "exit codes"
       ],
       "parent": "overview"
     },
     {
       "id": "internals",
-      "title": "解释器内部机制",
+      "title": "Interpreter Internals",
       "file": "03_internals.html",
       "keywords": [
-        "两遍预处理",
-        "栈帧",
-        "指令分发",
+        "two-pass preprocessing",
+        "stack frame",
+        "instruction dispatch",
         "quickening",
         "[MACRO]",
         "[REP]",
-        "SAB 字节码",
-        "--stats 计数器"
+        "SAB bytecode",
+        "--stats counters"
       ],
       "parent": "overview"
     },
     {
       "id": "ffi-bridge",
-      "title": "FFI 桥与宿主互操作",
+      "title": "The FFI Bridge and Host Interop",
       "file": "04_ffi_bridge.html",
       "keywords": [
         "FFI",
         "@extern",
         "libffi",
         "dlopen",
-        "内置 shim",
+        "built-in shim",
         "pthread_*",
         "extern.allow"
       ],
@@ -63,7 +63,7 @@
     },
     {
       "id": "limits",
-      "title": "资源限制与退出码",
+      "title": "Resource Limits and Exit Codes",
       "file": "05_limits.html",
       "keywords": [
         "--fuel",
@@ -73,38 +73,38 @@
         "sa.vm.policy/1",
         "E_FUEL_EXHAUSTED",
         "sa-vm-event",
-        "退出码表"
+        "exit code table"
       ],
       "parent": "overview"
     },
     {
       "id": "examples",
-      "title": "端到端示例",
+      "title": "End-to-End Examples",
       "file": "06_examples.html",
       "keywords": [
-        "示例",
+        "examples",
         "hello_world",
         "fibonacci",
-        "@test 模式",
-        "虚表",
-        "卫生宏",
-        "沙箱夹具"
+        "@test mode",
+        "vtable",
+        "hygienic macros",
+        "sandbox fixture"
       ],
       "parent": "overview"
     },
     {
       "id": "codex-ultra",
-      "title": "Codex Ultra 集成与 SLA 速查",
+      "title": "Codex Ultra Integration and SLA Quick Reference",
       "file": "07_codex_ultra.html",
       "keywords": [
         "Codex Ultra",
         "sa_vm_run",
-        "SLA 语法",
+        "SLA syntax",
         "apply_patch",
         "sa_fs_edit_file",
         "sa_fs_find_files_to_stdout",
         "sa_fs_read_lines_to_stdout",
-        "线程策略"
+        "threading policy"
       ],
       "parent": "overview"
     }

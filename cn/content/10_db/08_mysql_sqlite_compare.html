@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>三角对比与漏洞统计：MySQL / SQLite / db 插件</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">db 数据库插件 &gt; 三角对比与漏洞统计：MySQL / SQLite / db 插件</div>
+<h1>三角对比与漏洞统计：MySQL / SQLite / db 插件</h1>
+
+<div class="note"><span class="label">出处</span>对比部分综合本章 <a href="05_vs_sqlite.html">vs SQLite 专页</a> 与插件 README 的自述口径；漏洞统计为 2026-10-28 的公开数据研究读数（来源：Vulners、stack.watch、CVE Details、Oracle CPU 公告、sqlite.org 的 cves 页），类别区间系按披露描述归类、非官方 CWE 普查。本页回答两个问题：三者怎么选型；MySQL 与 SQLite 的已知漏洞史里，db 插件会不会重犯。</div>
+
+<h2>三角对比</h2>
+<ul>
+<li><strong>形态</strong>：MySQL 是服务端进程（网络协议、多客户端、要运维）；SQLite 是嵌入式库（单文件、零运维）；db 插件是 SA 程序的本地存储层（项目内文件，权限只有本地文件系统，无网络面）。</li>
+<li><strong>存储与查询</strong>：MySQL/SQLite 均为行存 B-Tree + 完整 SQL + 优化器，临时查询与 join 灵活；db 插件是列存 + 编译期 schema，投影查询与批量列写占优（仓内实测 compact 快约 3.6 倍、verify 快约 3.3 倍），但查询形状必须在编译期想好，运行时无 SQL 可扔。</li>
+<li><strong>事务与并发</strong>：MySQL 是三者中唯一真多写并发（InnoDB MVCC、binlog 复制）；SQLite 的 ACID 完整但单写者，崩溃恢复与 WAL 打磨二十年；db 插件是单表、单写者事务，无 WAL、无崩溃恢复承诺——README 自述选型原话：需要 SQL、索引、事务、崩溃恢复选 SQLite，生产级长期存储 SQLite 仍明显更稳。</li>
+<li><strong>类型与安全</strong>：MySQL 类型严格、权限体系完整，但攻击面是网络服务；SQLite 弱类型、文件即数据库；db 插件 schema 编译期定死、类型最静态，且无 SQL 字符串解析——SQL 注入构造上不存在，代价是灵活性。</li>
+<li><strong>选型结论</strong>：多用户、多写、网络服务与主从复制 → MySQL；单机应用要可靠关系存储 → SQLite；SA 程序内部本就是列式数据、要批量写 + 反复扫描投影（遥测、代码图谱、ERP 列表）→ db 插件。它是为 SA 数据形状定制的存储引擎，不是通用数据库。</li>
+</ul>
+
+<h2>漏洞统计（公开 CVE）</h2>
+<h3>MySQL Server</h3>
+<ul>
+<li>累计约 <strong>1,003</strong> 个 CVE（Vulners 产品计数）。年度长期高位：2018 年 108、2019 年 147、2021 年峰值 179、2023 年 85、2024/2025 年各约 103（stack.watch 的 Oracle MySQL 家族口径；CVE Details 只算 Server 本体，2025 年为 57，差异在统计范围）。</li>
+<li>Oracle 季度 CPU 节奏：2025 年共 140 个补丁，其中仅 16 个（约 11%）未授权远程可利用；平均 CVSS 约 5 分，严重级常混捆绑组件（curl/Kerberos/OpenSSL）的洞。</li>
+<li>类别构成（按披露描述归类）：DoS 最大（约 50–65%，多为认证后挂死/崩溃）；明确写明的内存破坏约 10–20%（CPU 条目大多只写「未指明」）；权限/认证约 5–10%（代表作 CVE-2012-2122：memcmp 返回值误判、约 1/256 概率任意口令登录、未授权远程；CVE-2016-6662 配置链 root RCE）；信息泄露约 10–15%；服务端本体 SQL 注入不到 2%。</li>
+</ul>
+<h3>SQLite</h3>
+<ul>
+<li>累计 <strong>65</strong> 个 CVE（Vulners 与 SynScan 两口径独立同数），其中近年约三分之一被 sqlite.org 官方标注「Not a bug」。年度为尖峰型：2019 年 18 个（Magellan 2.0 批量披露），其余年份多为个位数，2024 年仅 1 个。</li>
+<li>官方立场：全部历史漏洞都需要「能执行任意 SQL」或「打开攻击者构造的数据库文件」两个前提之一；不少条目只涉及特定扩展（FTS3/FTS5/session）、特定编译选项或命令行工具。</li>
+<li>类别构成：真核心漏洞的约 75–85% 是内存破坏（整数溢出/UAF/越界）；权限类约等于零（无账号体系）；核心 SQL 注入为零（官方划为应用方 bug）。代表作：Magellan（CVE-2018-20346，FTS3）、CVE-2022-35737 大字符串溢出（仅 C API 可达，SQL 与坏文件都够不着）、CVE-2025-6965 整数溢出越界读（Google Big Sleep 报告，前提仍是先有注入点）。其低计数是极小攻击面 + dbsqlfuzz 与近乎全覆盖测试纪律的产物，不是运气。</li>
+</ul>
+
+<h2>db 插件会不会重犯：逐类裁定</h2>
+<ul>
+<li><strong>认证/网络类（MySQL 招牌）：整类不存在。</strong>插件没有账号、没有协议、没有网络面；访问控制在宿主插件权限层（本地文件 capability）。没有可绕过的门，因为没有门。</li>
+<li><strong>SQL 触发的内存破坏（SQLite 主类）：触发器消失大半。</strong>无 SQL 引擎使「任意 SQL」前提归零；「构造文件」前提有对应物——<strong>段文件 / manifest / meta 解析器即本插件的构造文件攻击面</strong>（应用打开不可信表目录时同构于打开坏 .db 文件）。缓解：插件以 Zig 实现、读路径显式边界，后果自内存破坏降为 trap；决定性因素是纪律——解析器必须自第一天挂 fuzz 常设，此条应写入插件验收。</li>
+<li><strong>整数溢出类（35737/6965 型）：面显著更小。</strong>schema 为编译期定宽列，无变长字符串格式化路径；剩余风险在段读取的长度算术，属纪律问题而非架构问题。</li>
+<li><strong>DoS 类（MySQL 最大类）：形状完全不同。</strong>本地单写者、无远程面，最坏是坏文件使宿主进程崩溃/挂死，且打开哪个目录是应用自己的选择。</li>
+<li><strong>本插件自有账（两家都没有的）</strong>：无 WAL 的崩溃一致性靠 manifest epoch 原子推进兜底（提交点之前的文件皆孤儿段，verify 命令已有）；advisory 锁是协作锁，不配合的写者能写坏表——此点必须在文档中写明（如同 SQLite 对某些文件系统的声明）。</li>
+<li><strong>总账</strong>：MySQL 的一千个是「网络化大型 C++ 服务 + 季度批量披露」的产物，SQLite 的 65 个是「极小攻击面 + 变态测试纪律」的产物。db 插件的先天面比 SQLite 还小（无 SQL、无网络、无认证），其未来漏洞数不取决于架构，取决于 fuzz 与解析器审计是否成为常设工程——架构给出下限，纪律决定上限。</li>
+</ul>
+
+</body>
+</html>

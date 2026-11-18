@@ -1,49 +1,49 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>.NET net 表面 × sa_std 缺口普查</title>
+<title>.NET net Surface × sa_std Gap Census</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">标准库 &gt; .NET net 表面 × sa_std 缺口普查</div>
-<h1>.NET net 表面 × sa_std 缺口普查</h1>
+<div class="topic-header">Standard Library &gt; .NET net Surface × sa_std Gap Census</div>
+<h1>.NET net Surface × sa_std Gap Census</h1>
 
-<p>本页是跨语言 std 普查批的一份（同批：Rust 全 std、Go net、Python net、Java net、Android net、iOS net）。
-.NET 的网络标准库分两层：现代核心（Sockets / HttpClient / SslStream / QUIC / WebSockets）与
-一整层 WebRequest 时代的旧模型（WebClient / HttpWebRequest / ServicePoint / 缓存策略），
-后者连 .NET 自己都在持续标 Obsolete。本页把 <code>System.Net.*</code> 全部 19 个程序集的公共面
-与 sa_std 网络面逐类型比对、四分类，并给出优先补齐短名单。</p>
+<p>This page is one volume of the cross-language std census batch (same batch: Rust full std, Go net, Python net, Java net, Android net, iOS net).
+.NET's network standard library has two layers: the modern core (Sockets / HttpClient / SslStream / QUIC / WebSockets) and
+a whole layer of old models from the WebRequest era (WebClient / HttpWebRequest / ServicePoint / caching policies),
+the latter of which even .NET itself keeps marking Obsolete. This page compares the public surface of all 19 <code>System.Net.*</code> assemblies
+against the sa_std network surface type by type, in four categories, and gives a priority shortlist for closing gaps.</p>
 
-<h2>来源与版本</h2>
+<h2>Sources and Versions</h2>
 <table>
-<tr><th>侧</th><th>来源</th></tr>
-<tr><td>.NET 公共面</td><td>dotnet/runtime 最新 GA tag <code>v10.0.14</code>（.NET 10 servicing，
-commit <code>6aa72daa</code>），稀疏克隆 <code>src/libraries/System.Net.*</code> 共 19 个程序集，
-解析各程序集的 <code>ref/*.cs</code> 参考源码——即公共 API 契约面本身。</td></tr>
-<tr><td>SA 侧基线</td><td>sci main <code>8a943911</code> 的 <code>sa_std</code> 网络面：
-12 个 .sai 契约文件共 <strong>475</strong> 个 extern（net 222、http_client 57、http_server 46、
-quic 29、ssh 26、tls_client 22、multipart 18、http2 14、ws_client 12、tls_server 11、dtls 11、netx 7；
-同批 Android 页按不含 multipart 的 11 文件口径计 457），另 .sal 常量 225、.sa 宏 583、
-<code>sa_std.h</code> 声明 208，全表面抽取 1,491 行。</td></tr>
+<tr><th>Side</th><th>Source</th></tr>
+<tr><td>.NET public surface</td><td>dotnet/runtime's latest GA tag <code>v10.0.14</code> (.NET 10 servicing,
+commit <code>6aa72daa</code>), sparse clone of <code>src/libraries/System.Net.*</code>, 19 assemblies in total,
+parsing each assembly's <code>ref/*.cs</code> reference source — that is, the public API contract surface itself.</td></tr>
+<tr><td>SA-side baseline</td><td>The <code>sa_std</code> network surface of sci main <code>8a943911</code>:
+12 .sai contract files with <strong>475</strong> externs in total (net 222, http_client 57, http_server 46,
+quic 29, ssh 26, tls_client 22, multipart 18, http2 14, ws_client 12, tls_server 11, dtls 11, netx 7;
+the Android page in the same batch counts 457 by the 11-file methodology excluding multipart), plus .sal constants 225, .sa macros 583,
+and <code>sa_std.h</code> declarations 208; 1,491 rows extracted across the full surface.</td></tr>
 </table>
 
-<h2>方法与清单规模</h2>
-<p>双边机械抽取（脚本与产物在 <code>tools/dotnet_net_census/</code>，可复跑）：
-.NET 侧解析 ref 源码的类型与成员声明及 <code>[Obsolete]</code> 标记；SA 侧解析
-<code>@extern</code> / <code>#def</code> / <code>[MACRO]</code> 与 C 头声明。
-.NET 侧共抽得 <strong>337 条类型记录（归并同名后 334 个类型）/ 4,194 个成员</strong>
-（method 1,355、property 1,214、enum_member 1,134、ctor 374、field 100、event 17）。
-分类粒度为类型级，逐类型结果在 <code>gap_classification.tsv</code>；
-头部类型的成员级差异写在注记里。四分类口径与同批一致。</p>
-<p>总结果：<strong>已有等价 32（9.6%）/ 可直接对应 140（41.9%）/ 需建模 62（18.6%）/ 模型不合 100（29.9%）</strong>。
-按成员加权：671 / 1,927 / 915 / 681。模型不合的构成并不神秘：异常类型 17、委托 24、事件参数 14、
-类型级已被 .NET 自己标 Obsolete 的 12，其余 33 为平台专属件（Windows 控制码、PAC 脚本、ExtendedProtection 等）。
-剔除类型级 Obsolete 后看现代表面（322 个类型）：32 / 139 / 62 / 89。</p>
+<h2>Method and Inventory Scale</h2>
+<p>Two-side mechanical extraction (scripts and artifacts in <code>tools/dotnet_net_census/</code>, re-runnable):
+the .NET side parses type and member declarations and <code>[Obsolete]</code> marks in the ref source; the SA side parses
+<code>@extern</code> / <code>#def</code> / <code>[MACRO]</code> and C header declarations.
+The .NET side extracted <strong>337 type records (334 types after merging same names) / 4,194 members</strong> in total
+(method 1,355, property 1,214, enum_member 1,134, ctor 374, field 100, event 17).
+The classification granularity is type level; per-type results are in <code>gap_classification.tsv</code>;
+member-level differences for head types are written in the notes. The four categories use the same methodology as the rest of the batch.</p>
+<p>Overall result: <strong>existing equivalent 32 (9.6%) / directly mappable 140 (41.9%) / needs modeling 62 (18.6%) / model mismatch 100 (29.9%)</strong>.
+Weighted by members: 671 / 1,927 / 915 / 681. The composition of model mismatch is no mystery: exception types 17, delegates 24, event arguments 14,
+12 types already marked Obsolete by .NET itself at type level, and the remaining 33 are platform-specific items (Windows control codes, PAC scripts, ExtendedProtection, etc.).
+Looking at the modern surface after removing type-level Obsolete (322 types): 32 / 139 / 62 / 89.</p>
 
-<h2>按命名空间计数</h2>
+<h2>Counts by Namespace</h2>
 <table>
-<tr><th>命名空间</th><th>类型</th><th>成员</th><th>已有等价</th><th>可直接对应</th><th>需建模</th><th>模型不合</th></tr>
+<tr><th>Namespace</th><th>Types</th><th>Members</th><th>Existing equivalent</th><th>Directly mappable</th><th>Needs modeling</th><th>Model mismatch</th></tr>
 <tr><td><code>System.Net</code></td><td>87</td><td>1020</td><td>5</td><td>19</td><td>17</td><td>46</td></tr>
 <tr><td><code>System.Net.Sockets</code></td><td>34</td><td>730</td><td>14</td><td>10</td><td>1</td><td>9</td></tr>
 <tr><td><code>System.Net.NetworkInformation</code></td><td>44</td><td>438</td><td>0</td><td>36</td><td>0</td><td>8</td></tr>
@@ -60,144 +60,144 @@ quic 29、ssh 26、tls_client 22、multipart 18、http2 14、ws_client 12、tls_
 <tr><td><code>System.Net.ServerSentEvents</code></td><td>4</td><td>14</td><td>0</td><td>3</td><td>0</td><td>1</td></tr>
 <tr><td><code>System.Net.Http.Json</code></td><td>3</td><td>67</td><td>0</td><td>3</td><td>0</td><td>0</td></tr>
 <tr><td><code>System.Net.Http.Metrics</code></td><td>1</td><td>5</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
-<tr><td><strong>合计</strong></td><td><strong>334</strong></td><td><strong>4194</strong></td><td><strong>32</strong></td><td><strong>140</strong></td><td><strong>62</strong></td><td><strong>100</strong></td></tr>
+<tr><td><strong>Total</strong></td><td><strong>334</strong></td><td><strong>4194</strong></td><td><strong>32</strong></td><td><strong>140</strong></td><td><strong>62</strong></td><td><strong>100</strong></td></tr>
 </table>
 
-<h2>分类口径</h2>
+<h2>Classification Methodology</h2>
 <ul>
-<li><strong>已有等价</strong>：功能已被 sa_std 现有面覆盖（形态可不同：句柄 vs 对象、状态码 vs 异常）。</li>
-<li><strong>可直接对应</strong>：sa_std 没有，但可直译补齐——纯函数、命名常量、参数袋、协议直译型客户端。
-「只是没做」是这一类的全部含义。</li>
-<li><strong>需建模</strong>：概念成立、底座原语多已备，但需要一层状态/对象模型（句柄表、配置对象、回调注册）。</li>
-<li><strong>模型不合</strong>：依赖 SA 模型外的东西，或 .NET 自己已弃置的旧模型。家族规则：
-异常类型（SA 以状态码 + <code>SA_NET_ERROR_CODE_*</code> + 错误码名建模，无异常对象）、
-委托与 EventArgs（SA 以句柄 + poll/回调注册建模，无事件订阅）、平台专属件。</li>
+<li><strong>Existing equivalent</strong>: the functionality is already covered by sa_std's existing surface (the shape may differ: handles vs objects, status codes vs exceptions).</li>
+<li><strong>Directly mappable</strong>: sa_std does not have it, but it can be filled in by direct translation — pure functions, named constants, parameter bags, protocol clients of the direct-translation kind.
+“Simply not done yet” is the whole meaning of this category.</li>
+<li><strong>Needs modeling</strong>: the concept is valid and the underlying primitives are mostly ready, but a layer of state/object model is needed (handle tables, configuration objects, callback registration).</li>
+<li><strong>Model mismatch</strong>: depends on things outside the SA model, or is an old model .NET itself has abandoned. Family rules:
+exception types (SA models with status codes + <code>SA_NET_ERROR_CODE_*</code> + error code names, no exception objects),
+delegates and EventArgs (SA models with handles + poll/callback registration, no event subscription), platform-specific items.</li>
 </ul>
 
-<h2>套接字：核心已备，长尾在平台件</h2>
-<p><code>Socket</code>（191 个成员）的核心与 sa 的 <a href="10_net.html">net 面</a>逐项对得上：
-connect/listen/accept、read/write/peek/vectored、选项族（nodelay、keepalive、TTL、收发缓冲、
-linger、quickack、defer-accept 的 set/get 双向）、UDP send_to/recv_from 与组播加入/离开、
-Unix 域（地址对象族 144 个符号含 abstract/unnamed 形态）——<code>TcpClient / TcpListener /
-UdpClient / NetworkStream</code> 同为已有等价。差异集中在 .NET 的三套异步形态
-（APM / <code>SocketAsyncEventArgs</code> / Task 扩展，sa 以 netx 反应器与 poll 建模）
-与 Windows 专属件（<code>IOControlCode</code> 34 值 WSAIoctl 码、TransmitFile、SendPackets）。</p>
-<div class="warning"><span class="label">警告</span>
-地址族命名存在<strong>双定义陷阱</strong>（AJ2 普查已登记）：.sal 里 <code>SA_NET_AF_IPV4=4 / IPV6=6</code>
-是 std 内部编号，而 <code>sa_net_addr_family</code> 返回 OS 值（AF_INET=2 / AF_INET6=10）。
-<code>AddressFamily / ProtocolFamily</code> 因此只计「可直接对应」并注明须先解陷阱，不计已有等价。</div>
+<h2>Sockets: the Core Is Ready, the Long Tail Is Platform Items</h2>
+<p>The core of <code>Socket</code> (191 members) lines up item by item with sa's <a href="10_net.html">net surface</a>:
+connect/listen/accept, read/write/peek/vectored, the option family (nodelay, keepalive, TTL, send/receive buffers,
+linger, quickack, defer-accept, both set and get), UDP send_to/recv_from and multicast join/leave,
+the Unix domain (the address object family, 144 symbols including abstract/unnamed shapes) — <code>TcpClient / TcpListener /
+UdpClient / NetworkStream</code> are likewise existing equivalents. The differences are concentrated in .NET's three async shapes
+(APM / <code>SocketAsyncEventArgs</code> / Task extensions; sa models with the netx reactor and poll)
+and Windows-specific items (<code>IOControlCode</code>'s 34 WSAIoctl code values, TransmitFile, SendPackets).</p>
+<div class="warning"><span class="label">Warning</span>
+There is a <strong>double-definition trap</strong> in address family naming (already registered by the AJ2 census): in .sal, <code>SA_NET_AF_IPV4=4 / IPV6=6</code>
+are std-internal numbers, while <code>sa_net_addr_family</code> returns OS values (AF_INET=2 / AF_INET6=10).
+<code>AddressFamily / ProtocolFamily</code> are therefore counted only as “directly mappable” with a note that the trap must be resolved first, not as existing equivalents.</div>
 
-<h2>HTTP 客户端：传输齐备，handler 层是最大建模块</h2>
-<p><code>sa_http_client_*</code> 57 个符号覆盖建连、请求构造、头、体、同步/异步发送
-（async + poll + take_response）、响应状态/头/体（含流式 body_reader）、SSE 与 WebSocket 升级连接。
-但 .NET 的 <code>HttpClient</code> 真正的体量在 handler 层：<code>SocketsHttpHandler</code>（连接池、
-池生命周期、ConnectCallback、明文流过滤）与 <code>HttpClientHandler</code> 的配置面里，
-<strong>cookie、proxy、重定向、自动解压四项在 sa 网络全表面关键词命中为 0</strong>。
-<code>System.Net.Http</code> 的需建模 15 个类型几乎全属这一组——这是本普查第一优先的建模对象。
-请求/响应对象（<code>HttpRequestMessage / HttpResponseMessage</code>）原语齐全、对象层需拼装；
-内容族则多为已有等价（内存体由 <code>req_set_body</code> 覆盖、multipart 有 <code>multipart.sai</code>），
-例外是请求体流式写（<code>StreamContent</code>）在 sa http client 符号中未见。</p>
+<h2>HTTP Client: Transport Complete, the Handler Layer Is the Largest Modeling Block</h2>
+<p><code>sa_http_client_*</code>'s 57 symbols cover connection setup, request construction, headers, body, synchronous/asynchronous sending
+(async + poll + take_response), response status/headers/body (including the streaming body_reader), SSE and WebSocket upgrade connections.
+But the real bulk of .NET's <code>HttpClient</code> is in the handler layer: <code>SocketsHttpHandler</code> (connection pools,
+pool lifetimes, ConnectCallback, plaintext stream filtering) and <code>HttpClientHandler</code>'s configuration surface,
+where <strong>cookies, proxy, redirects, and automatic decompression all have 0 keyword hits across sa's whole network surface</strong>.
+Almost all of <code>System.Net.Http</code>'s 15 needs-modeling types belong to this group — this is the census's first-priority modeling target.
+The request/response object primitives (<code>HttpRequestMessage / HttpResponseMessage</code>) are complete; the object layer needs assembly;
+the content family is mostly existing equivalents (in-memory bodies are covered by <code>req_set_body</code>, multipart has <code>multipart.sai</code>),
+the exception being streaming request body writing (<code>StreamContent</code>), which is not seen among the sa http client symbols.</p>
 
-<h2>HTTP 服务端与 SSE</h2>
-<p>sa 的 <code>http_server</code> 面（46 extern，含 v2 的 accept / resp_send / stream_write 与
-<code>sa_http_server_websocket_upgrade</code>）是 accept 循环形态；.NET 的 <code>HttpListener</code>
-是前缀路由 + 上下文队列 + 认证的对象模型——传输能力已备、对象层需建模，故 HttpListener
-及其 Context/Request/Response 一组 8 个类型计需建模。
-SSE 方向相反：sa 有 <code>sa_http_client_sse_*</code> 的 turn 型客户端（为 LLM 流式而建），
-.NET 的 <code>System.Net.ServerSentEvents</code> 是通用增量解析器 <code>SseParser</code>——
-sa 没有独立解析器面；解析器是纯状态机，计可直接对应。</p>
+<h2>HTTP Server and SSE</h2>
+<p>sa's <code>http_server</code> surface (46 externs, including v2's accept / resp_send / stream_write and
+<code>sa_http_server_websocket_upgrade</code>) is in accept-loop shape; .NET's <code>HttpListener</code>
+is an object model of prefix routing + context queues + authentication — the transport capability is ready and the object layer needs modeling, so HttpListener
+and its Context/Request/Response group of 8 types are counted as needs modeling.
+SSE goes the other way: sa has the turn-style client <code>sa_http_client_sse_*</code> (built for LLM streaming),
+while .NET's <code>System.Net.ServerSentEvents</code> is a general incremental parser, <code>SseParser</code> —
+sa has no standalone parser surface; a parser is a pure state machine and is counted as directly mappable.</p>
 
-<h2>TLS 与证书：传输已备，证书面为零</h2>
-<p><a href="19_tls_client.html">tls_client</a> / tls_server / dtls 的传输面齐全（连接、读写、
-ctx、accept、add_ca_file），另有 .NET 完全没有的 shaped 面（见下）。
-但 <code>SslStream</code> 的对象层——把 TLS 包装到任意流上、协商选项、证书校验/选择回调、
-<code>SslCertificateTrust</code> 信任库、密码套件策略——在 sa 侧无对应物：
-全表面 <code>cert|x509</code> 关键词命中为 0（仅有 CA 文件一项配置）。
-<code>TlsCipherSuite</code> 一个枚举就有 337 个值（本次抽取最大的单个枚举），
-sa tls 没有任何套件命名面；ALPN 同理只有 shaped 协商结果 JSON、无命名常量。
-这一组计：传输相关已有等价在 SslStream 行以建模注记呈现，选项/回调 8 个类型需建模，
-命名面 11 个类型可直接对应。</p>
+<h2>TLS and Certificates: Transport Ready, the Certificate Surface Is Zero</h2>
+<p>The transport surface of <a href="19_tls_client.html">tls_client</a> / tls_server / dtls is complete (connections, reading/writing,
+ctx, accept, add_ca_file), plus a shaped surface that .NET does not have at all (see below).
+But <code>SslStream</code>'s object layer — wrapping TLS onto an arbitrary stream, negotiation options, certificate validation/selection callbacks,
+the <code>SslCertificateTrust</code> trust store, cipher suite policies — has no counterpart on the sa side:
+<code>cert|x509</code> keyword hits across the full surface are 0 (only the CA file as a single configuration item).
+The single <code>TlsCipherSuite</code> enum has 337 values (the largest single enum in this extraction),
+and sa tls has no suite naming surface at all; ALPN likewise has only the shaped negotiation result JSON, no named constants.
+This group is counted as: transport-related existing equivalents are presented in the SslStream row with modeling notes, 8 option/callback types need modeling,
+and 11 naming-surface types are directly mappable.</p>
 
-<h2>QUIC 专节</h2>
-<p>.NET 的 QUIC 面（<code>System.Net.Quic</code>，13 个类型）与 sa 的对应是全普查最齐整的一组，
-因为 sa_std 把 QUIC 传输与 HTTP/3 会话两层都做成了公开面：</p>
+<h2>QUIC Dedicated Section</h2>
+<p>The correspondence between .NET's QUIC surface (<code>System.Net.Quic</code>, 13 types) and sa's is the neatest group in the whole census,
+because sa_std made both the QUIC transport and the HTTP/3 session layers public surfaces:</p>
 <table>
-<tr><th>.NET</th><th>sa_std 对应</th><th>分类</th></tr>
-<tr><td><code>QuicListener</code></td><td><code>sa_std_quic_server_listen / _accept / _poll</code></td><td>已有等价</td></tr>
-<tr><td><code>QuicConnection</code></td><td><code>sa_std_quic_client_connect / _server_accept / _conn_poll / _conn_close / _stream_open</code></td><td>已有等价</td></tr>
-<tr><td><code>QuicStream</code></td><td><code>sa_std_quic_stream_open / _read / _write</code></td><td>已有等价（Stream 对象语义以句柄读写替代）</td></tr>
-<tr><td><code>QuicConnectionOptions</code> 等参数袋</td><td>connect/accept 的参数结构</td><td>可直接对应</td></tr>
-<tr><td><code>QuicListenerOptions</code></td><td>含 ConnectionOptionsCallback 协商委托</td><td>需建模</td></tr>
-<tr><td><code>QuicError</code>（12 值）</td><td><code>SA_QUIC_ERR_*</code> 仅 3 值</td><td>可直接对应（细粒度命名）</td></tr>
+<tr><th>.NET</th><th>sa_std counterpart</th><th>Category</th></tr>
+<tr><td><code>QuicListener</code></td><td><code>sa_std_quic_server_listen / _accept / _poll</code></td><td>Existing equivalent</td></tr>
+<tr><td><code>QuicConnection</code></td><td><code>sa_std_quic_client_connect / _server_accept / _conn_poll / _conn_close / _stream_open</code></td><td>Existing equivalent</td></tr>
+<tr><td><code>QuicStream</code></td><td><code>sa_std_quic_stream_open / _read / _write</code></td><td>Existing equivalent (Stream object semantics replaced by handle reads/writes)</td></tr>
+<tr><td>Parameter bags such as <code>QuicConnectionOptions</code></td><td>The parameter structures of connect/accept</td><td>Directly mappable</td></tr>
+<tr><td><code>QuicListenerOptions</code></td><td>Contains the ConnectionOptionsCallback negotiation delegate</td><td>Needs modeling</td></tr>
+<tr><td><code>QuicError</code> (12 values)</td><td><code>SA_QUIC_ERR_*</code> has only 3 values</td><td>Directly mappable (fine-grained naming)</td></tr>
 </table>
-<p>形态差异两点：.NET 的 QUIC 依赖 MsQuic 原生库，sa quic 是 std 内置；
-.NET 的 HTTP/3 只经 HttpClient 内部消费 QUIC、不公开会话 API，
-sa 反而把 <code>sa_std_http3_session_create / _submit_request / _server_next_request</code>
-等 HTTP/3 会话层做成公开面——这一块是 sa 的多出面，不是缺口。</p>
+<p>Two shape differences: .NET's QUIC depends on the MsQuic native library, while sa quic is built into std;
+.NET's HTTP/3 consumes QUIC only internally through HttpClient and does not expose a session API,
+whereas sa makes the HTTP/3 session layer, such as <code>sa_std_http3_session_create / _submit_request / _server_next_request</code>,
+a public surface — this block is sa's extra surface, not a gap.</p>
 
-<h2>WebSocket、DNS、网络信息、邮件</h2>
-<p><strong>WebSocket</strong>：客户端（<a href="20_ws_client.html">ws_client</a>：connect/send/recv/ping/close、
-wss 继承 TLS 策略、add_ca_file）与服务端升级（http_server 的 upgrade 入口）均为已有等价；
-缺的是选项层（<code>ClientWebSocketOptions</code> 含代理与证书回调，需建模）与命名常量
-（opcode 与 <code>WebSocketCloseStatus</code> 无命名组——AJ2 已登记过 ws opcode 同类缺口）。
-<strong>DNS</strong>：sa 只有反向查询 <code>sa_std_net_addr_reverse_lookup</code> 与错误码，
-正向解析隐含在 connect 的主机名字符串里，没有 <code>Dns</code> 式的独立查询面与结果集
-（<code>IPHostEntry</code>）——与 Android 线的短名单第一项是同一个跨语言一致缺口。
-<strong>网络信息</strong>：<code>System.Net.NetworkInformation</code> 整域 44 个类型里 36 个可直接对应——
-网卡枚举、接口属性、统计快照、ICMP <code>Ping</code> 在 sa 侧全部为 0，但都是系统查询直译，无模型障碍。
-<strong>邮件</strong>：sa 侧 SMTP/MIME 均为 0。<code>SmtpClient</code> 是协议直译型（计可直接对应，
-STARTTLS 复用 tls_client），<code>MailMessage</code> 及其附件/视图聚合 9 个类型需先建数据模型；
-FTP 同理（<code>FtpWebRequest</code> 协议直译可对应，sa 只有 SSH 的 SFTP）。</p>
+<h2>WebSocket, DNS, Network Information, Mail</h2>
+<p><strong>WebSocket</strong>: the client (<a href="20_ws_client.html">ws_client</a>: connect/send/recv/ping/close,
+wss inheriting TLS policy, add_ca_file) and the server upgrade (http_server's upgrade entry point) are both existing equivalents;
+what is missing is the options layer (<code>ClientWebSocketOptions</code> including proxy and certificate callbacks, needs modeling) and named constants
+(opcodes and <code>WebSocketCloseStatus</code> have no named group — AJ2 already registered a similar ws opcode gap).
+<strong>DNS</strong>: sa has only the reverse query <code>sa_std_net_addr_reverse_lookup</code> and error codes;
+forward resolution is implicit in the host name string of connect, with no <code>Dns</code>-style standalone query surface or result set
+(<code>IPHostEntry</code>) — the same cross-language consistent gap as the first item on the Android line's shortlist.
+<strong>Network information</strong>: of the whole <code>System.Net.NetworkInformation</code> domain's 44 types, 36 are directly mappable —
+network interface enumeration, interface properties, statistics snapshots, and ICMP <code>Ping</code> are all 0 on the sa side, but all are direct translations of system queries, with no model obstacle.
+<strong>Mail</strong>: both SMTP and MIME are 0 on the sa side. <code>SmtpClient</code> is of the protocol direct-translation kind (counted as directly mappable,
+STARTTLS reuses tls_client), while <code>MailMessage</code> and its attachment/view aggregation of 9 types need a data model first;
+FTP is similar (<code>FtpWebRequest</code> can correspond by protocol direct translation; sa only has SSH's SFTP).</p>
 
-<h2>旧模型登记（不进补齐名单）</h2>
-<p>模型不合 100 个里的大头是 .NET 自己正在弃置的东西，如实登记、不移植：
-<code>WebRequest / HttpWebRequest / WebResponse</code> 可插拔协议模型、<code>WebClient</code>
-（官方 SYSLIB0014 不推荐；ref 中成员级 Obsolete 7 处）、<code>ServicePointManager</code>、
-<code>System.Net.Cache</code> 的缓存策略 5 个类型、ExtendedProtection 6 个类型，
-以及 WebClient 的事件/委托家族 18 个。计量上：类型级标 Obsolete 的 12 个、
-成员级标 Obsolete 的 84 个（其中 Requests 程序集 24 个）。</p>
+<h2>Old Model Registration (Not Entering the Closing Shortlist)</h2>
+<p>The bulk of the 100 model mismatches is what .NET itself is abandoning; registered honestly, not ported:
+the pluggable protocol model of <code>WebRequest / HttpWebRequest / WebResponse</code>, <code>WebClient</code>
+(officially not recommended, SYSLIB0014; 7 member-level Obsolete marks in ref), <code>ServicePointManager</code>,
+the 5 caching policy types of <code>System.Net.Cache</code>, the 6 ExtendedProtection types,
+and WebClient's event/delegate family of 18. In numbers: 12 types marked Obsolete at type level,
+84 marked Obsolete at member level (24 of them in the Requests assembly).</p>
 
-<h2>sa 侧独有面（.NET 无对应）</h2>
+<h2>Surfaces Unique to the sa Side (.NET Has No Counterpart)</h2>
 <ul>
-<li><strong>SSH</strong>：客户端 + 服务端 + SFTP（<code>ssh.sai</code> 26 个 extern）——.NET 核心库至今无 SSH。</li>
-<li><strong>TLS 指纹面</strong>：<code>sa_std_tls_shaped_*</code> 的 JA3/JA4 ClientHello 塑形与协商结果导出。</li>
-<li><strong>DTLS 服务端、netx io_uring 反应器、WebSocket over Unix socket、HTTP/3 会话公开 API</strong>（见 QUIC 节）。</li>
+<li><strong>SSH</strong>: client + server + SFTP (<code>ssh.sai</code>, 26 externs) — .NET's core library still has no SSH.</li>
+<li><strong>TLS fingerprint surface</strong>: JA3/JA4 ClientHello shaping and negotiation result export of <code>sa_std_tls_shaped_*</code>.</li>
+<li><strong>DTLS server, the netx io_uring reactor, WebSocket over Unix socket, the public HTTP/3 session API</strong> (see the QUIC section).</li>
 </ul>
 
-<h2>优先补齐短名单</h2>
+<h2>Priority Shortlist for Closing Gaps</h2>
 <ol>
-<li><strong>HTTP 客户端 handler 组建模</strong>（<code>SocketsHttpHandler / HttpClientHandler / HttpClient</code> 门面）：
-cookie、proxy、重定向、自动解压四项从 0 到有 + 连接池语义。本普查需建模的最大块，也是 CXU 与代理场景的高频面。</li>
-<li><strong>DNS 正向解析独立面</strong>（<code>Dns / IPHostEntry / DnsEndPoint</code>）：地址与记录查询 + 结果集句柄；
-与 Android 线短名单第一项跨语言互证。</li>
-<li><strong>TLS 配置与证书面</strong>（<code>SslClientAuthenticationOptions / SslServerAuthenticationOptions /
-SslCertificateTrust / CipherSuitesPolicy</code> + 校验回调）：传输已备、配置为零，是 HTTPS 可信面的关键缺口。</li>
-<li><strong>命名常量批</strong>：<code>HttpStatusCode</code>（67）、请求/响应头名（41+30）、<code>HttpMethod</code> 补全、
-WebSocket opcode 与 <code>WebSocketCloseStatus</code>、<code>QuicError</code>（12）、<code>TlsCipherSuite</code>（337）、
-<code>SocketOptionName</code>（50）；动手前先解 <code>AddressFamily</code> 双定义陷阱。便宜、与既有常量补齐（AJ/AJ2）同轨。</li>
-<li><strong>Cookie 三件套</strong>（<code>Cookie / CookieCollection / CookieContainer</code>）：
-解析/格式化纯逻辑可先行，jar 状态随第 1 项落地。</li>
-<li><strong>本机网络信息面</strong>（NetworkInformation 的 36 个可直接对应类型）+ <strong>ICMP Ping</strong>：
-getifaddrs 与系统计数直译，运维/诊断场景。</li>
-<li><strong>通用 SSE 解析器</strong>（<code>SseParser / SseItem / SseFormatter</code>）：小而独立，
-把现有 turn 专用 SSE 客户端泛化。</li>
-<li><strong>头值解析族 + CIDR</strong>：<code>System.Net.Http.Headers</code> 的 20 个结构化头值类型与
-<code>IPNetwork</code>，全是纯函数，适合批处理。</li>
+<li><strong>Modeling the HTTP client handler group</strong> (<code>SocketsHttpHandler / HttpClientHandler / HttpClient</code> facade):
+cookies, proxy, redirects, automatic decompression from 0 to present + connection pool semantics. The largest needs-modeling block in this census, and a high-frequency surface for CXU and proxy scenarios.</li>
+<li><strong>A standalone DNS forward resolution surface</strong> (<code>Dns / IPHostEntry / DnsEndPoint</code>): address and record queries + result-set handles;
+cross-language corroboration with the first item on the Android line's shortlist.</li>
+<li><strong>The TLS configuration and certificate surface</strong> (<code>SslClientAuthenticationOptions / SslServerAuthenticationOptions /
+SslCertificateTrust / CipherSuitesPolicy</code> + validation callbacks): transport is ready, configuration is zero — a key gap in the HTTPS trust surface.</li>
+<li><strong>The named constant batch</strong>: <code>HttpStatusCode</code> (67), request/response header names (41+30), <code>HttpMethod</code> completion,
+WebSocket opcodes and <code>WebSocketCloseStatus</code>, <code>QuicError</code> (12), <code>TlsCipherSuite</code> (337),
+<code>SocketOptionName</code> (50); resolve the <code>AddressFamily</code> double-definition trap before starting. Cheap, and on the same track as the existing constant fill-ins (AJ/AJ2).</li>
+<li><strong>The Cookie trio</strong> (<code>Cookie / CookieCollection / CookieContainer</code>):
+the parsing/formatting pure logic can go first; the jar state lands with item 1.</li>
+<li><strong>The local network information surface</strong> (NetworkInformation's 36 directly mappable types) + <strong>ICMP Ping</strong>:
+direct translation of getifaddrs and system counters, for operations/diagnostics scenarios.</li>
+<li><strong>A general SSE parser</strong> (<code>SseParser / SseItem / SseFormatter</code>): small and standalone,
+generalizing the existing turn-specific SSE client.</li>
+<li><strong>The header value parsing family + CIDR</strong>: <code>System.Net.Http.Headers</code>' 20 structured header value types and
+<code>IPNetwork</code> — all pure functions, suitable for batch processing.</li>
 </ol>
 
-<h2>覆盖边界</h2>
+<h2>Coverage Boundaries</h2>
 <ul>
-<li>以 ref 源码为公共面权威来源；仅存在于 src 实现、未进 ref 的表面不在普查内。</li>
-<li>嵌套类型按（命名空间，类型名）归并：337 条记录 → 334 个类型（Enumerator / JsonContent / SseParser 各一组同名重复）。</li>
-<li>泛型委托的抽取伪影 2 个（<code>T</code>、<code>TContext</code>）已在分类表中按伪影登记为模型不合，不假装是真实类型。</li>
-<li><code>System.Net.Http.WinHttpHandler</code> 程序集在普查范围内（Windows 平台 handler，归模型不合）；
-<code>System.Net.Http.Json</code> 的 JSON 扩展按组合胶水计可直接对应。</li>
-<li>分类为类型级；如 <code>Socket</code> 的长尾成员差异、<code>SslStream</code> 的传输/对象层之分，
-以分类表注记为准，不另拆成员级计数。</li>
+<li>The ref source is the authoritative source for the public surface; surfaces that exist only in src implementations and never entered ref are outside the census.</li>
+<li>Nested types are merged by (namespace, type name): 337 records → 334 types (Enumerator / JsonContent / SseParser each have one group of same-name duplicates).</li>
+<li>Two extraction artifacts of generic delegates (<code>T</code>, <code>TContext</code>) are registered as model mismatch artifacts in the classification table, not pretending to be real types.</li>
+<li>The <code>System.Net.Http.WinHttpHandler</code> assembly is within census scope (a Windows platform handler, classified as model mismatch);
+<code>System.Net.Http.Json</code>'s JSON extensions are counted as directly mappable composition glue.</li>
+<li>Classification is at type level; long-tail member differences such as <code>Socket</code>'s, and <code>SslStream</code>'s transport/object layer split,
+are governed by the classification table notes, with no separate member-level counts.</li>
 </ul>
-<p>同批其他页面：<a href="21_android_net_census.html">Android net 表面 × sa_std 缺口普查</a>；
-sa 网络面总览见 <a href="10_net.html">net：TCP / UDP / Unix 套接字与 HTTP/2</a>。
-复跑方法与全部清单在 <code>tools/dotnet_net_census/</code>。</p>
+<p>Other pages in the same batch: <a href="21_android_net_census.html">Android net Surface × sa_std Gap Census</a>;
+for an overview of the sa network surface, see <a href="10_net.html">net: TCP / UDP / Unix Sockets and HTTP/2</a>.
+The re-run method and all inventories are in <code>tools/dotnet_net_census/</code>.</p>
 
 </body>
 </html>

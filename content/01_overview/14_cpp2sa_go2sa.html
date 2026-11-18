@@ -1,38 +1,38 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>cpp2sa 与 go2sa：两个新前端的立项讨论</title>
+<title>cpp2sa and go2sa: Proposal Discussion for Two New Frontends</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body>
-<div class="topic-header">入门指南 &gt; cpp2sa 与 go2sa：两个新前端的立项讨论</div>
+<div class="topic-header">Getting Started &gt; cpp2sa and go2sa: Proposal Discussion for Two New Frontends</div>
 
-<div class="note">状态：讨论记录（2026-10-29）。两条路线性质完全不同：cpp2sa 是「借道」——做成 bc2sa 的一个档位工程；go2sa 必须「新造」——写源码转换器，且其并发语义依 <a href="13_goroutine_runtime.html">goroutine 运行时</a>的裁定结果。两者均属上层前端/转换器，不动 SA 底座。立项暂缓（用户 2026-10-29 定）：goroutine 运行时先行，本文保留为两前端恢复立项时的路线依据。</div>
+<div class="note">Status: discussion record (2026-10-29). The two routes are completely different in nature: cpp2sa is a "detour" — built as a tier project of bc2sa; go2sa must be "built new" — a source converter, whose concurrency semantics depend on the ruling outcome for the <a href="13_goroutine_runtime.html">goroutine runtime</a>. Both belong to the upper-layer frontends/converters and do not touch the SA base. Project proposals are postponed (decided by the user on 2026-10-29): the goroutine runtime goes first, and this document is kept as the route basis for when the two frontends' proposals resume.</div>
 
-<h2>一、cpp2sa：走 bc2sa 档位，不写源码前端</h2>
-<p>C++ 源码面是主流语言里最大的（模板实例化、重载决议、异常、RTTI），手写源码前端等于重写半个 clang，不取。bc2sa 已端到端打通（传输墙、phi 墙已拆，三缺口在补强线落地，真 crate 函数运行对拍过），clang++ <code>-emit-llvm-bc</code> 把模板与重载决议整个语言面免费做完——cpp2sa 只需做成 bc2sa 的<strong>档位工程</strong>：驱动 + 旗标集 + 覆盖普查 + 回归语料，仓可独立、实现与 bc2sa 共享。</p>
+<h2>1. cpp2sa: Take the bc2sa Tier; Do Not Write a Source Frontend</h2>
+<p>The C++ source surface is the largest among mainstream languages (template instantiation, overload resolution, exceptions, RTTI); a hand-written source frontend would amount to rewriting half of clang, so it is not taken. bc2sa is already connected end to end (the transport wall and the phi wall have been dismantled, the three gaps are being landed by the strengthening line, and real crate functions have been run and compared), and clang++ <code>-emit-llvm-bc</code> does the entire language surface of templates and overload resolution for free — cpp2sa only needs to be built as bc2sa's <strong>tier project</strong>: a driver + a flag set + a coverage census + regression corpora; the repository can be standalone, with the implementation shared with bc2sa.</p>
 <ul>
-<li>首期甜点区：<code>-fno-exceptions -fno-rtti</code>，类比 Rust 路线的 panic=abort 甜点区，先绕开异常与 RTTI。</li>
-<li>预期新 unsupported 类（按 Rust 探针经验应是集中几类、非长尾）：<code>invoke</code>/landingpad（异常）、可变参数、内联汇编、TLS、全局构造顺序、虚表与多重继承的 thunk——按普查逐类机械补齐，不预先写大翻译器。</li>
-<li>STL 的 string/vector/map 是头文件模板，在 bitcode 里已单态化，机械可过；extern 面落在 libc/libc++abi 的少数族上。</li>
-<li>首期验收照 bc2sa 三档：核心子集（类/虚函数/RAII）→ STL 容器档 → 一个真 C++ 小库的纯逻辑函数与原生运行对拍。</li>
+<li>First-phase sweet spot: <code>-fno-exceptions -fno-rtti</code>, analogous to the Rust route's panic=abort sweet spot, initially sidestepping exceptions and RTTI.</li>
+<li>Expected new unsupported classes (by the Rust probe's experience, they should be a few concentrated classes, not a long tail): <code>invoke</code>/landingpad (exceptions), variadic arguments, inline assembly, TLS, global construction order, and thunks for vtables and multiple inheritance — to be filled in mechanically class by class per the census, without writing a big translator in advance.</li>
+<li>The STL's string/vector/map are header templates, already monomorphized in the bitcode, and pass mechanically; the extern surface lands on a few families of libc/libc++abi.</li>
+<li>First-phase acceptance follows bc2sa's three tiers: the core subset (classes/virtual functions/RAII) → the STL container tier → a pure-logic function from one real small C++ library, compared against a native run.</li>
 </ul>
 
-<h2>二、go2sa：源码转换器，难在运行时不在语法</h2>
-<p>Go 语法小而规整，且官方工具链自带 parser 与类型检查器（<code>go/ast</code>、<code>go/types</code>），转换器<strong>以 Go 写、直接吃 go/types 的具体类型</strong>，前端成本远低于 TS 那条线。真正的成本在语义与运行时模型：goroutine/通道要调度器、接口要动态派发、defer/panic/recover 是控制流、堆对象要内存故事。</p>
+<h2>2. go2sa: A Source Converter; the Difficulty Is the Runtime, Not the Syntax</h2>
+<p>Go's syntax is small and regular, and the official toolchain ships a parser and type checker (<code>go/ast</code>, <code>go/types</code>), so the converter is <strong>written in Go and directly consumes the concrete types from go/types</strong>, at a frontend cost far below the TS line. The real cost is in the semantics and the runtime model: goroutines/channels need a scheduler, interfaces need dynamic dispatch, defer/panic/recover are control flow, and heap objects need a memory story.</p>
 <ul>
-<li>首期范围：顺序子集 + 接口 + defer；接口以胖指针 + 方法表落地，defer 以作用域守卫落地。</li>
-<li>goroutine/channel：不自带运行时，直接落在 sa_std 的 goroutine 运行时上（见 <a href="13_goroutine_runtime.html">goroutine 运行时讨论页</a>），其一期范围由该页文末 S1–S6 裁定决定，本页不另立口径。</li>
-<li>语义分歧登记（select 公平性）：SLA 的 select 在多臂同时就绪时按 case 声明序取首个就绪者（确定性偏置），Go 为均匀伪随机选择（防饿死机制）；依赖选择公平性的 Go 代码迁移到 SLA 时须自行轮转臂序。此为已落字契约（见 <a href="13_goroutine_runtime.html">13 号</a>第十一节 TS-13 同源口径），非缺陷。</li>
-<li>GC/堆对象内存故事：独立未解项。候选（首期裁定）：类 TinyGo <code>-gc=leaking</code> 的短命豁免，或按模块 arena/引用计数——不许静默假装有 GC。</li>
-<li>panic/recover：首期只保证 recover-free 代码的 abort 语义，recover 的支持范围显式登记。</li>
+<li>First-phase scope: the sequential subset + interfaces + defer; interfaces land as fat pointers + method tables, and defer lands as scope guards.</li>
+<li>goroutine/channel: it does not bring its own runtime, but lands directly on sa_std's goroutine runtime (see the <a href="13_goroutine_runtime.html">goroutine runtime discussion page</a>); its phase-one scope is decided by the S1–S6 rulings at the end of that page, and this page sets no separate criteria.</li>
+<li>Semantic divergence register (select fairness): when multiple arms are ready at once, SLA's select takes the first ready arm in case declaration order (a deterministic bias), while Go chooses uniformly pseudorandomly (a starvation-prevention mechanism); Go code that depends on selection fairness must rotate the arm order itself when migrated to SLA. This is an already-written contract (see the TS-13 same-origin criteria in section eleven of <a href="13_goroutine_runtime.html">document 13</a>), not a defect.</li>
+<li>The GC/heap-object memory story: a standalone unresolved item. Candidates (to be ruled in phase one): a short-lived exemption like TinyGo's <code>-gc=leaking</code>, or per-module arenas/reference counting — it must not silently pretend there is a GC.</li>
+<li>panic/recover: phase one guarantees only the abort semantics of recover-free code; the scope of recover support is explicitly registered.</li>
 </ul>
 
-<h2>三、TinyGo 路线：只作探针档</h2>
-<p>TinyGo 能发 LLVM bitcode 喂 bc2sa，几乎零新代码，值得做一档探针小样、用普查数据说话。但 TinyGo 的 std 子集与反射限制会把「转真 Go 工程」的承诺打折——与 slars 首期范围裁定的教训同型：差异清单必须由普查决定，不能拍脑袋删。故定位为探针/快速通道候选，不作 go2sa 主路线。</p>
+<h2>3. The TinyGo Route: Only a Probe Tier</h2>
+<p>TinyGo can emit LLVM bitcode to feed bc2sa with almost zero new code, so it is worth making a small probe sample and letting census data speak. But TinyGo's std subset and reflection limits would discount the promise of "converting real Go projects" — the same shape as the lesson from slars's phase-one scope ruling: the difference list must be decided by a census, not deleted by gut feeling. So it is positioned as a probe/fast-track candidate, not as go2sa's main route.</p>
 
-<h2>四、定位与分工</h2>
-<p>与现有前端家族的分工：slars 是人写的自有前端，bc2sa 是机器转换真 Rust 的通道，tsgosa 是 TS 转换器，cpp2sa 是 bc2sa 的 C++ 档位，go2sa 是新写的 Go 源码转换器。五者都属上层演进，SA 规约不动。本页仅为讨论记录：立项与否、以及 go2sa 与 goroutine 运行时的排期先后，归用户与 Jev 裁定。</p>
+<h2>4. Positioning and Division of Labor</h2>
+<p>Division of labor with the existing frontend family: slars is our own hand-written frontend, bc2sa is the channel for machine-converting real Rust, tsgosa is the TS converter, cpp2sa is bc2sa's C++ tier, and go2sa is the newly written Go source converter. All five belong to upper-layer evolution; the SA specification does not move. This page is only a discussion record: whether to propose the projects, and the scheduling order of go2sa versus the goroutine runtime, are for the user and Jev to rule on.</p>
 </body>
 </html>

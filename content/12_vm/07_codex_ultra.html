@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Codex Ultra 集成与 SLA 速查</title>
+<title>Codex Ultra Integration and SLA Quick Reference</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">vm 虚拟机 &gt; Codex Ultra 集成与 SLA 速查</div>
-<h1>Codex Ultra 集成与 SLA 速查</h1>
+<div class="topic-header">vm Virtual Machine &gt; Codex Ultra Integration and SLA Quick Reference</div>
+<h1>Codex Ultra Integration and SLA Quick Reference</h1>
 
-<div class="note"><span class="label">友情提示</span>SA-VM 不支持直接调用 JavaScript 或 Python 执行系统操作。请不要生成 <code>node</code>、<code>python</code>、<code>bun</code>、PowerShell、cmd 或 shell 命令来读写文件、运行 Git 或访问网络；这些请求会被拒绝。需要执行时，请先阅读本页示例，再使用 <code>sa_vm_run(language: "sla")</code>；普通 JS/Python 代码如果只是说明或展示，可以作为文本输出，但不能直接执行。</div>
-<div class="warning"><span class="label">给模型的第一条规则</span>在 Codex Ultra 的 SA-VM 对话中，不要猜 SLA 语法。先阅读本帮助页和“<a href="../02_sla_lang/01_lexical.html">SLA 语言参考</a>”，再生成完整的 <code>language: "sla"</code> 源码并调用 <code>sa_vm_run</code>。如果不确定函数签名，先查看对应标准库页面，不要改用宿主 shell。</div>
+<div class="note"><span class="label">Friendly note</span>SA-VM does not support directly calling JavaScript or Python to perform system operations. Please do not generate <code>node</code>, <code>python</code>, <code>bun</code>, PowerShell, cmd, or shell commands to read/write files, run Git, or access the network; such requests will be rejected. When execution is needed, first read the examples on this page, then use <code>sa_vm_run(language: "sla")</code>; ordinary JS/Python code that is only for explanation or display may be output as text, but must not be executed directly.</div>
+<div class="warning"><span class="label">First rule for the model</span>In Codex Ultra SA-VM conversations, do not guess SLA syntax. First read this help page and the “<a href="../02_sla_lang/01_lexical.html">SLA Language Reference</a>”, then generate complete <code>language: "sla"</code> source code and call <code>sa_vm_run</code>. If you are unsure of a function signature, first check the corresponding standard library page; do not switch to the host shell instead.</div>
 
-<h2>一、调用约定</h2>
-<p>VM 对话只允许通过动态工具 <code>sa_vm_run</code> 执行自动化。请求使用 <code>language: "sla"</code> 和完整的 <code>source</code>；文件、网络、环境变量和进程能力在 <code>requested_caps</code> 中最小化声明，并由当前对话 policy 二次检查。</p>
+<h2>1. Calling Convention</h2>
+<p>VM conversations may only execute automation through the dynamic tool <code>sa_vm_run</code>. A request uses <code>language: "sla"</code> and a complete <code>source</code>; file, network, environment variable, and process capabilities are declared minimally in <code>requested_caps</code>, and are checked a second time by the current conversation’s policy.</p>
 <pre><code>{
   "language": "sla",
   "source": "@import \\\"sa_std/io/print.sai\\\"\\n\\nfn main() -&gt; i32 {\\n    println(\\\"hello from SLA\\\");\\n    return 0;\\n}",
@@ -21,25 +21,25 @@
   "limits": { "deadline_ms": 5000 }
 }</code></pre>
 <ul>
-<li><code>source</code> 必须是完整程序，通常包含 <code>fn main() -&gt; i32</code>。</li>
-<li>字符串是切片值；传给指针参数时使用 <code>STR_PTR(value)</code>，长度使用 <code>STR_LEN(value)</code>。</li>
-<li>extern 函数一般返回状态码：<code>0</code> 表示成功，非零表示失败。</li>
-<li>不要把 JavaScript、Python、PowerShell、cmd 或 shell 字符串放进 SLA；那不是 SLA 语法。</li>
+<li><code>source</code> must be a complete program, usually containing <code>fn main() -&gt; i32</code>.</li>
+<li>Strings are slice values; when passing them to a pointer parameter use <code>STR_PTR(value)</code>, and for the length use <code>STR_LEN(value)</code>.</li>
+<li>extern functions generally return a status code: <code>0</code> means success, non-zero means failure.</li>
+<li>Do not put JavaScript, Python, PowerShell, cmd, or shell strings into SLA; that is not SLA syntax.</li>
 </ul>
 
-<h2>二、先读帮助，再写程序</h2>
-<p>生成 SLA 前按下面顺序查阅安装包中的离线文档：</p>
+<h2>2. Read the Help First, Then Write the Program</h2>
+<p>Before generating SLA, consult the offline documentation in the installation package in the following order:</p>
 <ol>
-<li><code>resources/sa-vm/sala/dist/index.html</code>：打开帮助查看器。</li>
-<li><code>resources/sa-vm/sala/dist/content/12_vm/07_codex_ultra.html</code>：本页，包含 Codex Ultra 工具组合。</li>
-<li><code>resources/sa-vm/sala/dist/content/02_sla_lang/</code>：词法、类型、函数、所有权、模块。</li>
-<li><code>resources/sa-vm/sala/dist/content/06_stdlib/06_fs.html</code>：文件系统签名和宏。</li>
-<li><code>resources/sa-vm/sala/dist/content/06_stdlib/09_process.html</code>：argv 进程 API。</li>
+<li><code>resources/sa-vm/sala/dist/index.html</code>: open the help viewer.</li>
+<li><code>resources/sa-vm/sala/dist/content/12_vm/07_codex_ultra.html</code>: this page, containing the Codex Ultra tool combinations.</li>
+<li><code>resources/sa-vm/sala/dist/content/02_sla_lang/</code>: lexical structure, types, functions, ownership, modules.</li>
+<li><code>resources/sa-vm/sala/dist/content/06_stdlib/06_fs.html</code>: filesystem signatures and macros.</li>
+<li><code>resources/sa-vm/sala/dist/content/06_stdlib/09_process.html</code>: the argv process API.</li>
 </ol>
-<p>推荐做法是复制一个完整示例，只替换路径、参数和 capability；如果帮助文件缺失，应报告缺失，不要自行发明 API。</p>
+<p>The recommended approach is to copy a complete example and only replace the paths, parameters, and capabilities; if a help file is missing, report the absence — do not invent an API yourself.</p>
 
-<h2>三、读取文件</h2>
-<h3>3.1 读取指定行（最常用）</h3>
+<h2>3. Reading Files</h2>
+<h3>3.1 Reading Specified Lines (Most Common)</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -53,9 +53,9 @@ fn main() -&gt; i32 {
 <pre><code>"requested_caps": {
   "fs": [{ "op": "read", "path": "E:/workspace/src/main.ts" }]
 }</code></pre>
-<p>行号是从 1 开始且包含首尾；<code>start_line == 0</code> 或 <code>end_line &lt; start_line</code> 会失败。</p>
+<p>Line numbers are 1-based and inclusive of both ends; <code>start_line == 0</code> or <code>end_line &lt; start_line</code> will fail.</p>
 
-<h3>3.2 搜索文件名</h3>
+<h3>3.2 Searching for File Names</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -71,9 +71,9 @@ fn main() -&gt; i32 {
 <pre><code>"requested_caps": {
   "fs": [{ "op": "read", "path": "E:/workspace" }]
 }</code></pre>
-<p>搜索只在允许读取的根目录中进行；始终设置有限的 <code>max_entries</code> 和 <code>max_depth</code>。</p>
+<p>Searching is only performed within root directories that are allowed to be read; always set a finite <code>max_entries</code> and <code>max_depth</code>.</p>
 
-<h3>3.3 读取元数据</h3>
+<h3>3.3 Reading Metadata</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -85,9 +85,9 @@ fn main() -&gt; i32 {
     println("bytes={}", size);
     return sa_fs_metadata_free(metadata);
 }</code></pre>
-<p>元数据请求声明 <code>{ "op": "metadata", "path": "..." }</code>；拥有的 metadata 句柄必须调用 <code>sa_fs_metadata_free</code>。</p>
+<p>A metadata request declares <code>{ "op": "metadata", "path": "..." }</code>; an owned metadata handle must call <code>sa_fs_metadata_free</code>.</p>
 
-<h3>3.4 读取完整文件并释放句柄</h3>
+<h3>3.4 Reading a Complete File and Releasing the Handle</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -99,10 +99,10 @@ fn main() -&gt; i32 {
     println("read={}", length);
     return sa_fs_read_buffer_free(^buffer);
 }</code></pre>
-<p>整文件读取必须设置 <code>max_bytes</code>，并在所有成功路径释放 owned buffer；否则会产生 VM 句柄泄漏。</p>
+<p>A whole-file read must set <code>max_bytes</code>, and must release the owned buffer on all success paths; otherwise a VM handle leak will occur.</p>
 
-<h3>3.5 相对路径（推荐，减少重复 token）</h3>
-<p>文件和目录路径可以相对于当前对话确认的 workspace（VM 的 <code>cwd</code>）书写。broker 会在 capability 检查时自动拼接并规范化相对路径；<code>.</code> 表示 workspace 根目录，<code>..</code> 不能越过 policy 允许的根。SLA 源码中的相对路径也由 VM 进程以该 workspace 为当前目录解析。</p>
+<h3>3.5 Relative Paths (Recommended, Reduces Repeated Tokens)</h3>
+<p>File and directory paths may be written relative to the workspace confirmed for the current conversation (the VM’s <code>cwd</code>). The broker automatically joins and normalizes relative paths at capability-check time; <code>.</code> denotes the workspace root, and <code>..</code> cannot escape the root allowed by the policy. Relative paths in SLA source code are also resolved by the VM process with that workspace as the current directory.</p>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -121,13 +121,13 @@ fn main() -&gt; i32 {
   ]
 }</code></pre>
 <ul>
-<li>目录读取/搜索使用目录相对路径，例如 <code>src</code>、<code>tests/fixtures</code>；目录创建使用 <code>create</code>，文件覆盖写使用 <code>write</code>。</li>
-<li>读、写、复制、移动的每一个源和目标仍分别检查；相对路径不会放宽 policy。</li>
-<li>不要在同一请求中反复写完整盘符路径；只有跨 workspace 的已批准 additional root 才使用绝对路径或明确根路径。</li>
+<li>For directory reads/searches use a directory relative path, e.g. <code>src</code>, <code>tests/fixtures</code>; directory creation uses <code>create</code>, file overwrite writes use <code>write</code>.</li>
+<li>Every source and target of a read, write, copy, or move is still checked separately; relative paths do not loosen the policy.</li>
+<li>Do not repeatedly write full drive-letter paths in the same request; only use an absolute path or an explicit root path for an approved additional root outside the workspace.</li>
 </ul>
 
-<h2>四、写入、追加和原子编辑</h2>
-<h3>4.1 覆盖写入</h3>
+<h2>4. Writing, Appending, and Atomic Editing</h2>
+<h3>4.1 Overwrite Write</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -143,7 +143,7 @@ fn main() -&gt; i32 {
   "fs": [{ "op": "write", "path": "E:/workspace/out.txt" }]
 }</code></pre>
 
-<h3>4.2 追加日志</h3>
+<h3>4.2 Appending a Log</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -155,9 +155,9 @@ fn main() -&gt; i32 {
         STR_PTR(line), STR_LEN(line)
     );
 }</code></pre>
-<p>追加声明 <code>{ "op": "append", "path": "E:/workspace/logs/run.log" }</code>；不要用覆盖写入模拟追加。</p>
+<p>An append declares <code>{ "op": "append", "path": "E:/workspace/logs/run.log" }</code>; do not simulate appending with an overwrite write.</p>
 
-<h3>4.3 读取-匹配-原子替换</h3>
+<h3>4.3 Read–Match–Atomic Replace</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -173,13 +173,13 @@ fn main() -&gt; i32 {
     );
 }</code></pre>
 <ul>
-<li><code>expected_mtime_ms = -1</code>：没有快照时使用；有快照时传入真实 mtime 启用 CAS。</li>
-<li><code>replace_all = 0</code>：要求只匹配一处；需要全部替换时才使用 <code>1</code>。</li>
-<li>helper 会拒绝过期 mtime、歧义匹配，并保留 UTF-8/BOM/UTF-16 和 CRLF 风格。</li>
+<li><code>expected_mtime_ms = -1</code>: use when there is no snapshot; when there is a snapshot, pass the real mtime to enable CAS.</li>
+<li><code>replace_all = 0</code>: requires exactly one match; only use <code>1</code> when all occurrences need to be replaced.</li>
+<li>The helper rejects stale mtimes and ambiguous matches, and preserves the UTF-8/BOM/UTF-16 and CRLF style.</li>
 </ul>
 
-<h2>五、目录、复制、移动和删除</h2>
-<h3>5.1 创建目录后写文件</h3>
+<h2>5. Directories, Copying, Moving, and Deleting</h2>
+<h3>5.1 Create a Directory, Then Write a File</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -191,9 +191,9 @@ fn main() -&gt; i32 {
     if status != 0 { return status; }
     return sa_fs_write_file(STR_PTR(path), STR_LEN(path), STR_PTR(data), STR_LEN(data));
 }</code></pre>
-<p>目录创建声明 <code>op: "create"</code>；文件写入仍要单独声明 <code>op: "write"</code>。</p>
+<p>Directory creation declares <code>op: "create"</code>; a file write still needs its own <code>op: "write"</code> declaration.</p>
 
-<h3>5.2 复制文件</h3>
+<h3>5.2 Copying a File</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -205,9 +205,9 @@ fn main() -&gt; i32 {
         STR_PTR(destination), STR_LEN(destination)
     );
 }</code></pre>
-<p>复制同时需要源的 <code>read</code> capability 和目标的 <code>write</code> capability；两边都必须通过 policy。</p>
+<p>Copying requires both the source’s <code>read</code> capability and the target’s <code>write</code> capability; both sides must pass the policy.</p>
 
-<h3>5.3 移动或重命名</h3>
+<h3>5.3 Moving or Renaming</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -219,9 +219,9 @@ fn main() -&gt; i32 {
         STR_PTR(to), STR_LEN(to)
     );
 }</code></pre>
-<p>移动需要源的 <code>rename/transfer</code> 和目标的 <code>rename/write</code>。跨越线程根目录的移动会被拒绝。</p>
+<p>Moving requires the source’s <code>rename/transfer</code> and the target’s <code>rename/write</code>. A move across thread roots is rejected.</p>
 
-<h3>5.4 删除</h3>
+<h3>5.4 Deleting</h3>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -229,10 +229,10 @@ fn main() -&gt; i32 {
     let path = "E:/workspace/generated/old.txt";
     return sa_fs_remove_path(STR_PTR(path), STR_LEN(path));
 }</code></pre>
-<p>删除不是无条件允许的：当当前对话 policy 是 <code>delete: deny</code> 时必定失败；当 policy 是 <code>rename</code>/<code>move</code> 时，Codex Ultra 的 <code>apply_patch</code> 会改为移动到 <code>backupDir</code>。不要用删除绕过备份规则。</p>
+<p>Deletion is not unconditionally allowed: when the current conversation’s policy is <code>delete: deny</code> it will definitely fail; when the policy is <code>rename</code>/<code>move</code>, Codex Ultra’s <code>apply_patch</code> instead moves the file to <code>backupDir</code>. Do not use deletion to bypass the backup rules.</p>
 
-<h2>六、官方 apply_patch 组合</h2>
-<p>VM 模式保留官方 <code>apply_patch</code> 工具。模型可以直接提交 patch，不要把 patch 包进 shell 或 PowerShell 命令。</p>
+<h2>6. The Official apply_patch Combination</h2>
+<p>VM mode retains the official <code>apply_patch</code> tool. The model may submit a patch directly; do not wrap a patch in a shell or PowerShell command.</p>
 <pre><code>*** Begin Patch
 *** Add File: src/new.ts
 +export const enabled = true
@@ -244,16 +244,16 @@ fn main() -&gt; i32 {
 *** Move to: src/archive/legacy.ts
 *** Delete File: src/obsolete.ts
 *** End Patch</code></pre>
-<p>broker 会：</p>
+<p>The broker will:</p>
 <ol>
-<li>解析 Add/Update/Delete/Move 和多个 hunk；</li>
-<li>检查每个读路径、写路径、删除源路径、移动源路径和目标路径；</li>
-<li>把操作转换为 VM 内的 <code>sa_fs_write_file</code>、<code>sa_fs_edit_file</code>、<code>sa_fs_rename</code>；</li>
-<li>返回结构化结果，不直接调用宿主机文件 API。</li>
+<li>Parse Add/Update/Delete/Move and multiple hunks;</li>
+<li>Check every read path, write path, delete source path, move source path, and target path;</li>
+<li>Convert the operations into <code>sa_fs_write_file</code>, <code>sa_fs_edit_file</code>, <code>sa_fs_rename</code> inside the VM;</li>
+<li>Return a structured result, without directly calling host file APIs.</li>
 </ol>
-<p>patch 被拒绝时不要重试同一个请求。修正边界、hunk 或 policy 后再提交；原生命令拒绝和越权 patch 拒绝都是终止性的。</p>
+<p>When a patch is rejected, do not retry the same request. Fix the boundaries, hunks, or policy and then submit again; both native-command rejections and out-of-authority patch rejections are terminal.</p>
 
-<h2>七、一次 SLA 完成多个文件操作</h2>
+<h2>7. Completing Multiple File Operations in One SLA Program</h2>
 <pre><code>@import "sa_std/fs.sai"
 @import "sa_std/string.sa"
 
@@ -272,10 +272,10 @@ fn main() -&gt; i32 {
     { "op": "write", "path": "E:/workspace/generated/report.txt" }
   ]
 }</code></pre>
-<p>多文件任务应在一次 VM 调用中完成，并声明完整但最小的 capability 集合；不要为每个文件改用宿主命令。</p>
+<p>A multi-file task should be completed in a single VM invocation, declaring a complete but minimal capability set; do not switch to host commands for each file.</p>
 
-<h2>八、并行任务</h2>
-<p>互不依赖的只读任务可以通过 <code>parallel</code> 批量运行。每个任务仍是独立 SLA VM，结果按输入顺序返回。</p>
+<h2>8. Parallel Tasks</h2>
+<p>Independent read-only tasks can be run in batch via <code>parallel</code>. Each task is still an independent SLA VM, and results are returned in input order.</p>
 <pre><code>{
   "parallel": [
     {
@@ -291,10 +291,10 @@ fn main() -&gt; i32 {
   ],
   "concurrency": 2
 }</code></pre>
-<p><code>parallel</code> 最多 32 个任务，<code>concurrency</code> 最多 8；有写入依赖时不要并行，改为单个 SLA 程序按顺序执行。</p>
+<p><code>parallel</code> allows at most 32 tasks, <code>concurrency</code> at most 8; when there are write dependencies, do not parallelize — instead execute sequentially in a single SLA program.</p>
 
-<h2>九、进程与 Git</h2>
-<p>进程执行使用 argv 数组，不使用 shell 拼接。必须声明 <code>requested_caps.process: true</code>，且可执行文件和参数匹配 policy allowlist。</p>
+<h2>9. Processes and Git</h2>
+<p>Process execution uses an argv array, not shell concatenation. You must declare <code>requested_caps.process: true</code>, and the executable and arguments must match the policy allowlist.</p>
 <pre><code>@import "sa_std/process.sai"
 
 fn main() -&gt; i32 {
@@ -305,44 +305,44 @@ fn main() -&gt; i32 {
 }</code></pre>
 <pre><code>"requested_caps": { "process": true }</code></pre>
 <ul>
-<li>不要调用 <code>cmd /c</code>、<code>powershell -Command</code>、<code>bash -lc</code> 或 shell 管道。</li>
-<li>Git 仍受进程 executable/args allowlist 和工作区读写 policy 双重限制。</li>
-<li>捕获句柄使用完必须 <code>sa_std_close</code> 或对应 close helper。</li>
+<li>Do not call <code>cmd /c</code>, <code>powershell -Command</code>, <code>bash -lc</code>, or shell pipelines.</li>
+<li>Git is still doubly restricted by the process executable/args allowlist and the workspace read/write policy.</li>
+<li>Capture handles must be closed with <code>sa_std_close</code> or the corresponding close helper after use.</li>
 </ul>
 
-<h2>十、环境变量与 HTTPS</h2>
+<h2>10. Environment Variables and HTTPS</h2>
 <ul>
-<li>环境变量只能读取 policy <code>env.allow</code> 中列出的名称；不要请求整个环境。</li>
-<li>网络仅允许 HTTPS，主机、路径和方法必须匹配 <code>policy.http.allow</code>；不要用 HTTP、账号密码或任意 URL。</li>
-<li>文件、网络、环境变量和进程 capability 只声明当前任务需要的最小集合。</li>
+<li>Environment variables may only read names listed in the policy’s <code>env.allow</code>; do not request the entire environment.</li>
+<li>Networking only allows HTTPS; the host, path, and method must match <code>policy.http.allow</code>; do not use HTTP, account passwords, or arbitrary URLs.</li>
+<li>File, network, environment variable, and process capabilities should only declare the minimal set needed for the current task.</li>
 </ul>
 
-<h2>十一、常见组合清单</h2>
+<h2>11. Common Combination Checklist</h2>
 <table>
-<tr><th>任务</th><th>SLA API</th><th>requested_caps</th><th>额外要求</th></tr>
-<tr><td>看某文件 1–100 行</td><td><code>sa_fs_read_lines_to_stdout</code></td><td><code>read</code></td><td>限制行数和字节数</td></tr>
-<tr><td>搜索源码文件</td><td><code>sa_fs_find_files_to_stdout</code></td><td>根目录 <code>read</code></td><td>限制深度和条数</td></tr>
-<tr><td>覆盖写文件</td><td><code>sa_fs_write_file</code></td><td><code>write</code></td><td>确认目标允许写入</td></tr>
-<tr><td>追加日志</td><td><code>sa_fs_append_file</code></td><td><code>append</code></td><td>不要模拟 shell 重定向</td></tr>
-<tr><td>精确修改文本</td><td><code>sa_fs_edit_file</code></td><td><code>read</code> + <code>write</code> / <code>edit</code></td><td>优先传 mtime CAS</td></tr>
-<tr><td>复制</td><td><code>sa_fs_copy_file</code></td><td>源 <code>read</code> + 目标 <code>write</code></td><td>两边都检查</td></tr>
-<tr><td>移动/重命名</td><td><code>sa_fs_rename</code></td><td>源 <code>rename</code> + 目标 <code>rename</code></td><td>不可跨根</td></tr>
-<tr><td>删除</td><td><code>sa_fs_remove_path</code></td><td><code>delete</code></td><td>服从 deny/rename/move</td></tr>
-<tr><td>执行 Git</td><td><code>sa_std_process_exec_capture</code></td><td><code>process: true</code></td><td>argv-only，无 shell</td></tr>
-<tr><td>多只读任务</td><td><code>parallel</code> + SLA</td><td>每任务独立声明</td><td>并发上限 8</td></tr>
-<tr><td>复杂多文件 patch</td><td>官方 <code>apply_patch</code></td><td>broker 自动展开</td><td>所有路径逐一检查</td></tr>
+<tr><th>Task</th><th>SLA API</th><th>requested_caps</th><th>Extra requirements</th></tr>
+<tr><td>View lines 1–100 of a file</td><td><code>sa_fs_read_lines_to_stdout</code></td><td><code>read</code></td><td>Limit line count and byte count</td></tr>
+<tr><td>Search source files</td><td><code>sa_fs_find_files_to_stdout</code></td><td>Root directory <code>read</code></td><td>Limit depth and entry count</td></tr>
+<tr><td>Overwrite-write a file</td><td><code>sa_fs_write_file</code></td><td><code>write</code></td><td>Confirm the target allows writing</td></tr>
+<tr><td>Append a log</td><td><code>sa_fs_append_file</code></td><td><code>append</code></td><td>Do not simulate shell redirection</td></tr>
+<tr><td>Precisely edit text</td><td><code>sa_fs_edit_file</code></td><td><code>read</code> + <code>write</code> / <code>edit</code></td><td>Prefer passing an mtime CAS</td></tr>
+<tr><td>Copy</td><td><code>sa_fs_copy_file</code></td><td>Source <code>read</code> + target <code>write</code></td><td>Check both sides</td></tr>
+<tr><td>Move/rename</td><td><code>sa_fs_rename</code></td><td>Source <code>rename</code> + target <code>rename</code></td><td>Must not cross roots</td></tr>
+<tr><td>Delete</td><td><code>sa_fs_remove_path</code></td><td><code>delete</code></td><td>Obey deny/rename/move</td></tr>
+<tr><td>Execute Git</td><td><code>sa_std_process_exec_capture</code></td><td><code>process: true</code></td><td>argv-only, no shell</td></tr>
+<tr><td>Multiple read-only tasks</td><td><code>parallel</code> + SLA</td><td>Declared independently per task</td><td>Concurrency limit 8</td></tr>
+<tr><td>Complex multi-file patch</td><td>Official <code>apply_patch</code></td><td>Broker expands automatically</td><td>Every path checked one by one</td></tr>
 </table>
 
-<h2>十二、失败处理与防死循环</h2>
+<h2>12. Failure Handling and Infinite-Loop Prevention</h2>
 <ul>
-<li><code>policy_invalid</code>：修复 policy JSON schema。</li>
-<li><code>capability_denied</code>：缩小 capability 或让用户修改当前对话 policy。</li>
-<li><code>timeout</code>、<code>fuel_exhausted</code>、<code>mem_quota</code>：降低任务规模或调整明确限制。</li>
-<li><code>SymbolNotFound</code>、<code>unavailable</code>：检查安装包内 sidecar、插件 DLL、<code>sa_std</code> 和 Sala 帮助资源。</li>
-<li>原生命令被拒绝后不要换语言、不要重复相同请求、不要调用宿主工具；一次性改写成 SLA。</li>
-<li>patch 被拒绝后只修正 patch 格式或路径；不要把 patch 放进 shell。</li>
+<li><code>policy_invalid</code>: fix the policy JSON schema.</li>
+<li><code>capability_denied</code>: narrow the capability or have the user modify the current conversation’s policy.</li>
+<li><code>timeout</code>, <code>fuel_exhausted</code>, <code>mem_quota</code>: reduce the task scale or adjust the explicit limits.</li>
+<li><code>SymbolNotFound</code>, <code>unavailable</code>: check the sidecar, plugin DLLs, <code>sa_std</code>, and Sala help resources in the installation package.</li>
+<li>After a native command is rejected, do not switch languages, do not repeat the same request, and do not call host tools; rewrite it once into SLA.</li>
+<li>After a patch is rejected, only fix the patch format or paths; do not put the patch into a shell.</li>
 </ul>
 
-<p class="note"><span class="label">推荐工作流</span>读本页和对应 API 页 → 复制完整示例 → 只声明所需 capability → 调用一次 <code>sa_vm_run</code> → 检查结构化结果 → 必要时用新输入修复，而不是重试同一个被拒绝请求。</p>
+<p class="note"><span class="label">Recommended workflow</span>Read this page and the corresponding API page → copy a complete example → declare only the needed capabilities → call <code>sa_vm_run</code> once → check the structured result → if necessary, fix with new input rather than retrying the same rejected request.</p>
 </body>
 </html>

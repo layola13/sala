@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
-"""sahelp 构建脚本。
+"""sahelp 构建脚本（双语）。
 
-扫描 content/<section>/_manifest.json，生成：
-  dist/                     — CHM 风格 HTML 帮助查看器（default.html + 主题页）
-  build/chm/help.hhc|.hhk|.hhp — HTML Help Workshop 工程文件（可用 hhc.exe 编译为 .chm）
+扫描各语言源的 <section>/_manifest.json，生成：
+  dist/                     — 英文版（主版本）CHM 风格 HTML 帮助查看器（default.html + 主题页）
+  dist/cn/                  — 中文版查看器（结构同上）
+  build/chm/                — 英文版 HTML Help Workshop 工程文件（hhc.exe 可编译为 .chm）
+  build/chm-cn/             — 中文版 HTML Help Workshop 工程文件
+
+语言源：英文 = content/，中文 = cn/content/。
 
 用法：
-  python build.py            # 构建
-  python build.py --serve    # 构建后启动本地 HTTP 服务预览
+  python build.py            # 构建（双语）
+  python build.py --serve    # 构建后启动本地 HTTP 服务预览（英文版）
 """
 import json
 import os
@@ -18,38 +22,66 @@ from html import escape
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-CONTENT = ROOT / "content"
-DIST = ROOT / "dist"
-CHM = ROOT / "build" / "chm"
 
-HELP_TITLE = "SA / SLA 帮助文档"
-
-# 章节顺序与标题；dir 必须与 content/ 下目录名一致。
+# 章节顺序与标题（双语）；dir 必须与各语言源 content/ 下的目录名一致。
 SECTIONS = [
-    {"dir": "01_overview",   "title": "入门指南"},
-    {"dir": "02_sla_lang",   "title": "SLA 语言参考"},
-    {"dir": "09_rust_compare", "title": "与 Rust 对比"},
-    {"dir": "03_sa_asm",     "title": "SA 汇编与 SAB"},
-    {"dir": "04_cli",        "title": "命令行参考"},
-    {"dir": "05_plugins",    "title": "插件参考"},
-    {"dir": "10_db",         "title": "db 数据库插件"},
-    {"dir": "11_ecs",         "title": "ECS 开发（sla_ecs）"},
-    {"dir": "12_vm",          "title": "vm 虚拟机"},
-    {"dir": "13_build",       "title": "多平台编译"},
-    {"dir": "06_stdlib",     "title": "标准库"},
-    {"dir": "07_ui",         "title": "SAX / MUI 界面开发"},
-    {"dir": "08_faq",         "title": "FAQ 与故障排查"},
-    {"dir": "14_zig017_perf", "title": "Zig 0.17 升级对比"},
-    {"dir": "15_sa2c", "title": "sa→C 后端"},
-    {"dir": "16_policy", "title": "运行时权限与审计"},
+    {"dir": "01_overview",   "title": {"en": "Getting Started", "cn": "入门指南"}},
+    {"dir": "02_sla_lang",   "title": {"en": "SLA Language Reference", "cn": "SLA 语言参考"}},
+    {"dir": "09_rust_compare", "title": {"en": "Comparison with Rust", "cn": "与 Rust 对比"}},
+    {"dir": "03_sa_asm",     "title": {"en": "SA Assembly and SAB", "cn": "SA 汇编与 SAB"}},
+    {"dir": "04_cli",        "title": {"en": "Command-Line Reference", "cn": "命令行参考"}},
+    {"dir": "05_plugins",    "title": {"en": "Plugin Reference", "cn": "插件参考"}},
+    {"dir": "10_db",         "title": {"en": "db Database Plugin", "cn": "db 数据库插件"}},
+    {"dir": "11_ecs",        "title": {"en": "ECS Development (sla_ecs)", "cn": "ECS 开发（sla_ecs）"}},
+    {"dir": "12_vm",         "title": {"en": "vm Virtual Machine", "cn": "vm 虚拟机"}},
+    {"dir": "13_build",      "title": {"en": "Cross-Platform Builds", "cn": "多平台编译"}},
+    {"dir": "06_stdlib",     "title": {"en": "Standard Library", "cn": "标准库"}},
+    {"dir": "07_ui",         "title": {"en": "SAX / MUI UI Development", "cn": "SAX / MUI 界面开发"}},
+    {"dir": "08_faq",        "title": {"en": "FAQ and Troubleshooting", "cn": "FAQ 与故障排查"}},
+    {"dir": "14_zig017_perf", "title": {"en": "Zig 0.17 Upgrade Comparison", "cn": "Zig 0.17 升级对比"}},
+    {"dir": "15_sa2c", "title": {"en": "sa→C Backend", "cn": "sa→C 后端"}},
+    {"dir": "16_policy", "title": {"en": "Runtime Permissions and Auditing", "cn": "运行时权限与审计"}},
+]
+
+# 双语构建配置：英文为主版本（content/ → dist/），中文版在 cn/ 下（cn/content/ → dist/cn/）。
+# viewer_switch = 查看器工具栏的语言切换链接（相对当前语言 dist 根目录）；
+# topic_switch = 主题页页脚的语言切换链接前缀（相对 dist/content/<sec>/ 页）与文案。
+LANGS = [
+    {
+        "code": "en",
+        "content": ROOT / "content",
+        "dist": ROOT / "dist",
+        "chm": ROOT / "build" / "chm",
+        "help_title": "SA / SLA Help Documentation",
+        "chm_dist_rel": "../dist",
+        "chm_compiled": "SA_SLDA_Help.chm",
+        "chm_language": "0x409 英语(美国)",
+        "chm_font": "Segoe UI,9,0",
+        "viewer_switch": ("cn/default.html", "中文版"),
+        "topic_switch": ("../../cn/content/", "中文版"),
+    },
+    {
+        "code": "cn",
+        "content": ROOT / "cn" / "content",
+        "dist": ROOT / "dist" / "cn",
+        "chm": ROOT / "build" / "chm-cn",
+        "help_title": "SA / SLA 帮助文档",
+        "chm_dist_rel": "../../dist/cn",
+        "chm_compiled": "SA_SLDA_Help_CN.chm",
+        "chm_language": "0x804 中文(中华人民共和国)",
+        "chm_font": "微软雅黑,9,0",
+        "viewer_switch": ("../default.html", "English"),
+        "topic_switch": ("../../../content/", "English version"),
+    },
 ]
 
 
-def load_manifests():
+def load_manifests(lang):
     """返回 (sections, all_topics)。topic 增加 section_title / relpath 字段。"""
+    content = lang["content"]
     sections, all_topics = [], []
     for sec in SECTIONS:
-        mfile = CONTENT / sec["dir"] / "_manifest.json"
+        mfile = content / sec["dir"] / "_manifest.json"
         if not mfile.exists():
             print(f"[warn] 缺少清单: {mfile.relative_to(ROOT)}")
             continue
@@ -58,10 +90,10 @@ def load_manifests():
         for t in data.get("topics", []):
             t = dict(t)
             t["section"] = sec["dir"]
-            t["section_title"] = sec["title"]
+            t["section_title"] = sec["title"][lang["code"]]
             t["relpath"] = f"{sec['dir']}/{t['file']}"
             topics.append(t)
-        sections.append({**sec, "topics": topics})
+        sections.append({**sec, "title": sec["title"][lang["code"]], "topics": topics})
         all_topics.extend(topics)
     return sections, all_topics
 
@@ -73,53 +105,90 @@ def extract_text(html: str) -> str:
     return re.sub(r"\s+", " ", txt)
 
 
-def check_links(all_topics):
-    """检查主题页内相对链接是否指向存在的文件。"""
+def check_links(lang, all_topics):
+    """检查主题页内相对链接在 dist 布局下是否可达。
+
+    主题页在 dist 中位于 content/<relpath>，故按该虚拟位置解析相对 href：
+    落在 content/ 下的映射回语言源 content/ 查存在性，落在 assets/ 下的查仓库
+    assets/，查看器框架页（default/index.html）由构建生成、视为存在。
+    """
+    content = lang["content"]
     problems = []
     for t in all_topics:
-        page = CONTENT / t["relpath"]
+        page = content / t["relpath"]
         for m in re.finditer(r'href="([^"#]+?)(?:#[^"]*)?"', page.read_text(encoding="utf-8")):
             href = m.group(1)
             if re.match(r"^[a-z]+:", href):  # http:// mailto: 等
                 continue
-            target = (page.parent / href).resolve()
-            if not target.exists():
+            target = Path(os.path.normpath((Path("content") / t["relpath"]).parent / href))
+            parts = target.parts
+            if parts and parts[0] == "content":
+                ok = (content / Path(*parts[1:])).exists()
+            elif parts and parts[0] == "assets":
+                ok = (ROOT / target).exists()
+            elif len(parts) == 1 and parts[0] in ("default.html", "index.html"):
+                ok = True
+            else:
+                ok = False
+            if not ok:
                 problems.append(f"{t['relpath']} -> {href} (不存在)")
     return problems
 
 
 # ---------------------------------------------------------------- dist 输出
 
-COPYRIGHT_HTML = (
+COPYRIGHT_HTML_CN = (
     '<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>'
     'SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 '
     '授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>'
 )
 
 
-def _inject_copyright(html: str) -> str:
+def _inject_copyright(html: str, lang_code: str) -> str:
     if "class=\"copyright\"" in html:
         return html
-    return html.replace("</body>", COPYRIGHT_HTML + "\n</body>")
+    return html.replace("</body>", COPYRIGHT_HTML[lang_code] + "\n</body>")
 
 
-def write_dist(sections, all_topics):
-    if DIST.exists():
-        shutil.rmtree(DIST)
-    DIST.mkdir(parents=True)
+COPYRIGHT_HTML_EN = (
+    '<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>'
+    'The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, '
+    'with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this '
+    'documentation remain under their respective original licenses.</footer>'
+)
+
+COPYRIGHT_HTML = {"cn": COPYRIGHT_HTML_CN, "en": COPYRIGHT_HTML_EN}
+
+
+def _inject_lang_switch(html: str, lang, relpath: str) -> str:
+    if "class=\"lang-switch\"" in html:
+        return html
+    prefix, label = lang["topic_switch"]
+    link = (f'<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;">'
+            f'<a href="{prefix}{relpath}">{label}</a></div>')
+    return html.replace("</body>", link + "\n</body>")
+
+
+def write_dist(lang, sections, all_topics):
+    content, dist = lang["content"], lang["dist"]
+    if dist.exists():
+        shutil.rmtree(dist)
+    dist.mkdir(parents=True)
 
     # 1. 复制内容页（保持 content/<sec>/<page>.html 结构），并注入版权页脚
-    for src_dir, dirs, files in os.walk(CONTENT):
-        rel = os.path.relpath(src_dir, CONTENT)
-        dest = DIST / "content" if rel == "." else DIST / "content" / rel
+    for src_dir, dirs, files in os.walk(content):
+        rel = os.path.relpath(src_dir, content)
+        dest = dist / "content" if rel == "." else dist / "content" / rel
         dest.mkdir(parents=True, exist_ok=True)
         for fn in files:
             data = (Path(src_dir) / fn).read_text(encoding="utf-8")
             if fn.endswith(".html"):
-                data = _inject_copyright(data)
+                relpath = fn if rel == "." else f"{rel.replace(os.sep, '/')}/{fn}"
+                data = _inject_lang_switch(data, lang, relpath)
+                data = _inject_copyright(data, lang["code"])
             (dest / fn).write_text(data, encoding="utf-8")
     # 2. 资源
-    shutil.copytree(ROOT / "assets", DIST / "assets")
+    shutil.copytree(ROOT / "assets", dist / "assets")
 
     # 3. TOC 数据（嵌套树）+ 扁平索引 + 搜索数据
     tree = []
@@ -154,19 +223,20 @@ def write_dist(sections, all_topics):
 
     pages_js = "var PAGES = " + json.dumps(
         [{"t": t["title"], "f": "content/" + t["relpath"],
-          "txt": extract_text((CONTENT / t["relpath"]).read_text(encoding="utf-8"))}
+          "txt": extract_text((content / t["relpath"]).read_text(encoding="utf-8"))}
          for t in all_topics], ensure_ascii=False) + ";"
 
-    (DIST / "toc_data.js").write_text(toc_js, encoding="utf-8")
-    (DIST / "index_data.js").write_text(index_js, encoding="utf-8")
-    (DIST / "search_data.js").write_text(pages_js, encoding="utf-8")
+    (dist / "toc_data.js").write_text(toc_js, encoding="utf-8")
+    (dist / "index_data.js").write_text(index_js, encoding="utf-8")
+    (dist / "search_data.js").write_text(pages_js, encoding="utf-8")
 
     # 4. 查看器框架页
-    (DIST / "default.html").write_text(VIEWER_HTML.replace("__TITLE__", HELP_TITLE), encoding="utf-8")
+    viewer = viewer_html(lang)
+    (dist / "default.html").write_text(viewer, encoding="utf-8")
     # GitHub Pages 等静态托管以 index.html 为入口
-    (DIST / "index.html").write_text(VIEWER_HTML.replace("__TITLE__", HELP_TITLE), encoding="utf-8")
+    (dist / "index.html").write_text(viewer, encoding="utf-8")
 
-    print(f"[ok] dist/ 已生成：{len(all_topics)} 个主题，"
+    print(f"[ok] dist({lang['code']}) 已生成：{len(all_topics)} 个主题，"
           f"{sum(len(s['topics']) for s in sections)} 条目")
 
 
@@ -195,10 +265,12 @@ def _hhc_node(title, file=None, children=None):
     return out
 
 
-def write_chm_project(sections, all_topics):
-    if CHM.exists():
-        shutil.rmtree(CHM)
-    CHM.mkdir(parents=True)
+def write_chm_project(lang, sections, all_topics):
+    chm = lang["chm"]
+    dist_rel = lang["chm_dist_rel"]
+    if chm.exists():
+        shutil.rmtree(chm)
+    chm.mkdir(parents=True)
 
     # .hhc 目录文件
     lines = ["<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">",
@@ -207,7 +279,7 @@ def write_chm_project(sections, all_topics):
              "<param name=\"Explain\" value=\"Menuhelp\">", "</OBJECT>", "<UL>"]
     def _topic_node(t, by_parent):
         kids = [_topic_node(c, by_parent) for c in by_parent.get(t["id"], [])]
-        return {"title": t["title"], "file": "../dist/content/" + t["relpath"],
+        return {"title": t["title"], "file": dist_rel + "/content/" + t["relpath"],
                 "children": kids}
 
     for s in sections:
@@ -218,45 +290,45 @@ def write_chm_project(sections, all_topics):
         if not tops:
             tops = s["topics"][:1]          # 兜底：无显式 overview 时挂第一个
         # 章节节点指向其首个主题页，子树完整收录全部层级
-        chapter = {"title": s["title"], "file": "../dist/content/" + tops[0]["relpath"],
+        chapter = {"title": s["title"], "file": dist_rel + "/content/" + tops[0]["relpath"],
                    "children": [_topic_node(t, by_parent) for t in tops]}
         lines.append("<UL>")
         lines.extend(_hhc_node(**chapter))
         lines.append("</UL>")
     lines += ["</UL>", "</BODY>", "</HTML>"]
-    _write_chm_text(CHM / "help.hhc", "\n".join(lines))
+    _write_chm_text(chm / "help.hhc", "\n".join(lines))
 
     # .hhk 关键字索引
     kl = ["<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML//EN\">",
           "<HTML>", "<BODY>", "<UL>"]
     for e in sorted(({(e["k"]): e for t in all_topics for e in
-                      ({"k": kw, "f": "../dist/content/" + t["relpath"]} for kw in t.get("keywords", []))}
+                      ({"k": kw, "f": dist_rel + "/content/" + t["relpath"]} for kw in t.get("keywords", []))}
                      ).values(), key=lambda x: x["k"].lower()):
         kl.append(f"<LI> <OBJECT type=\"text/sitemap\">"
                   f"<param name=\"Name\" value=\"{escape(e['k'])}\">"
                   f"<param name=\"Local\" value=\"{e['f']}\"></OBJECT>")
     kl += ["</UL>", "</BODY>", "</HTML>"]
-    _write_chm_text(CHM / "help.hhk", "\n".join(kl))
+    _write_chm_text(chm / "help.hhk", "\n".join(kl))
 
     # .hhp 工程文件
-    topics = "\n".join("../dist/content/" + t["relpath"] for t in all_topics)
-    css = "../dist/assets/help.css"
+    topics = "\n".join(dist_rel + "/content/" + t["relpath"] for t in all_topics)
+    css = dist_rel + "/assets/help.css"
     hhp = f"""[OPTIONS]
 Compatibility=1.1 or later
-Compiled file=..\\..\\SA_SLDA_Help.chm
+Compiled file=..\\..\\{lang['chm_compiled']}
 Contents file=help.hhc
 Index file=help.hhk
-Default Topic=..\\dist\\content\\{sections[0]['topics'][0]['relpath'].replace('/', '\\') if sections and sections[0]['topics'] else 'index.html'}
-Title={HELP_TITLE}
-Language=0x804 中文(中华人民共和国)
-Default Font=微软雅黑,9,0
+Default Topic={dist_rel.replace('/', '\\')}\\content\\{sections[0]['topics'][0]['relpath'].replace('/', '\\') if sections and sections[0]['topics'] else 'index.html'}
+Title={lang['help_title']}
+Language={lang['chm_language']}
+Default Font={lang['chm_font']}
 
 [FILES]
 {topics}
 {css}
 """
-    _write_chm_text(CHM / "help.hhp", hhp)
-    print("[ok] build/chm/ 已生成 hhc/hhk/hhp（用 HTML Help Workshop 的 hhc.exe 编译为 .chm）")
+    _write_chm_text(chm / "help.hhp", hhp)
+    print(f"[ok] {chm.relative_to(ROOT)}/ 已生成 hhc/hhk/hhp（用 HTML Help Workshop 的 hhc.exe 编译为 .chm）")
 
 
 VIEWER_HTML = r"""<!DOCTYPE html>
@@ -457,27 +529,67 @@ VIEWER_HTML = r"""<!DOCTYPE html>
 """
 
 
+# 英文版查看器：VIEWER_HTML 为中文原版，英文版按下列对照替换界面文案。
+VIEWER_EN_REPLACEMENTS = [
+    ('<html lang="zh-CN">', '<html lang="en">'),
+    ('title="显示/隐藏导航窗格">▤ 导航<', 'title="Show/hide navigation pane">▤ Navigation<'),
+    ('title="后退">&lt;&lt; 后退<', 'title="Back">&lt;&lt; Back<'),
+    ('title="前进">前进 &gt;&gt;<', 'title="Forward">Forward &gt;&gt;<'),
+    ('title="回到首页">⌂ 首页<', 'title="Home">⌂ Home<'),
+    ('title="打印当前主题">🖨 打印<', 'title="Print current topic">🖨 Print<'),
+    ('data-tab="toc">目录<', 'data-tab="toc">Contents<'),
+    ('data-tab="idx">索引<', 'data-tab="idx">Index<'),
+    ('data-tab="search">搜索<', 'data-tab="search">Search<'),
+    ('placeholder="键入关键字查找…"', 'placeholder="Type a keyword to search…"'),
+    ('placeholder="输入要查找的文字…"', 'placeholder="Type the text to find…"'),
+    ('id="search-go">列出主题<', 'id="search-go">List topics<'),
+    ('<div class="statusbar" id="statusbar">就绪</div>', '<div class="statusbar" id="statusbar">Ready</div>'),
+    ("e.data.text || '就绪'", "e.data.text || 'Ready'"),
+    ("'…'+snip+'…（'+h.count+' 处匹配）'", "'…'+snip+'… ('+h.count+' matches)'"),
+    ("未找到包含 “'+q+'” 的主题。", "No topics contain \"'+q+'\"."),
+    ("'找到 '+hits.length+' 个主题'", "'Found '+hits.length+' topic(s)'"),
+    ('// ---- 目录树 ----', '// ---- TOC tree ----'),
+    ('// ---- 索引 ----', '// ---- Index ----'),
+    ('// ---- 搜索 ----', '// ---- Search ----'),
+    ('// 初始页', '// Initial page'),
+]
+
+
+def viewer_html(lang):
+    """按语言生成查看器框架页，并注入工具栏的语言切换链接。"""
+    html = VIEWER_HTML.replace("__TITLE__", lang["help_title"])
+    if lang["code"] == "en":
+        for cn, en in VIEWER_EN_REPLACEMENTS:
+            html = html.replace(cn, en)
+    href, label = lang["viewer_switch"]
+    html = html.replace(
+        '<span class="copyright">© 2026 layola13</span>',
+        '<span class="copyright">© 2026 layola13</span>'
+        f'<span class="sep"></span><a href="{href}" style="color:#fff;">{label}</a>')
+    return html
+
+
 def main():
     serve = "--serve" in sys.argv
-    sections, all_topics = load_manifests()
-    if not all_topics:
-        print("没有找到任何主题。请先在 content/<章节>/_manifest.json 中登记主题。")
-        return 1
+    for lang in LANGS:
+        sections, all_topics = load_manifests(lang)
+        if not all_topics:
+            print(f"没有找到任何主题（{lang['code']}）。请先在对应语言源的 <章节>/_manifest.json 中登记主题。")
+            return 1
 
-    problems = check_links(all_topics)
-    for p in problems:
-        print(f"[warn] 死链: {p}")
+        problems = check_links(lang, all_topics)
+        for p in problems:
+            print(f"[warn] 死链({lang['code']}): {p}")
 
-    write_dist(sections, all_topics)
-    write_chm_project(sections, all_topics)
+        write_dist(lang, sections, all_topics)
+        write_chm_project(lang, sections, all_topics)
 
     if serve:
         import http.server
-        os.chdir(DIST) if False else None
         handler = http.server.SimpleHTTPRequestHandler
         with http.server.HTTPServer(("127.0.0.1", 8765), handler) as httpd:
             import os
-            os.chdir(DIST)
+            os.chdir(LANGS[0]["dist"])
             print("预览地址: http://127.0.0.1:8765/default.html  (Ctrl+C 退出)")
             httpd.serve_forever()
     return 0

@@ -1,34 +1,34 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>sa sla test</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">命令行参考 &gt; sa sla test</div>
+<div class="topic-header">Command-Line Reference &gt; sa sla test</div>
 <h1>sa sla test</h1>
 
-<p><code>sa sla test</code> 把 <code>.sla</code> 测试文件编译后交给宿主 <code>sa test</code> 运行。默认后端 <code>auto</code> 落 SA 文本路（生产路径）；SAB 须显式 <code>--test-backend sab</code>（opt-in，SAB 已封存）。读完本页可以选择编译后端、按名字过滤测试，并知道测试产物落在哪里。</p>
+<p><code>sa sla test</code> compiles a <code>.sla</code> test file, then hands it to the host <code>sa test</code> to run. The default backend <code>auto</code> lands on the SA text path (the production path); SAB requires an explicit <code>--test-backend sab</code> (opt-in, SAB is sealed). After reading this page you can select the compilation backend, filter tests by name, and know where the test artifacts land.</p>
 
-<h2>语法</h2>
+<h2>Syntax</h2>
 <pre><code>usage: sa sla test [file] [-p &lt;package&gt;] [--test-backend auto|sab|sa] [sa-test-options...]</code></pre>
 
-<h2>参数</h2>
+<h2>Parameters</h2>
 <table>
-<tr><th>名称</th><th>说明</th></tr>
-<tr><td><code>file</code></td><td>测试所在的 <code>.sla</code> 源文件；省略时按 workspace 解析成员入口。</td></tr>
-<tr><td><code>-p</code>, <code>--package</code></td><td>选择 workspace 成员包。</td></tr>
-<tr><td><code>--test-backend auto|sab|sa</code></td><td>选择测试编译后端。默认 <code>auto</code> 落 SA 文本路（生产路径），<code>sa</code> 与之同路；<code>sab</code> 显式指定 SAB（已封存的优化方向，opt-in）。也接受等号写法 <code>--test-backend=sab</code>。这是全套命令唯一的后端选择拼写，build-exe 一族同样认它。</td></tr>
-<tr><td><code>--filter &lt;name&gt;</code></td><td>只运行名字匹配的测试；同时决定托管产物的 filter-scoped 缓存路径，不覆盖全量测试的产物。等号写法 <code>--filter=name</code> 同样支持。</td></tr>
-<tr><td><code>--emit-sab</code></td><td>额外在源文件旁写同级 <code>.sab</code>。</td></tr>
-<tr><td>其余参数</td><td>透传给委派的 <code>sa test</code>（如 <code>--trace-panic</code>、<code>--skip</code>、<code>--list</code>）；<code>--test-backend</code> 与 <code>--filter</code> 由插件消费后剥离。缺省自动追加 <code>--jobs auto</code>。</td></tr>
-<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+<tr><th>Name</th><th>Description</th></tr>
+<tr><td><code>file</code></td><td>The <code>.sla</code> source file containing the tests; when omitted, the member entry point is resolved via the workspace.</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>Select the workspace member package.</td></tr>
+<tr><td><code>--test-backend auto|sab|sa</code></td><td>Select the test compilation backend. The default <code>auto</code> lands on the SA text path (the production path), and <code>sa</code> takes the same path; <code>sab</code> explicitly specifies SAB (a sealed optimization direction, opt-in). The equals form <code>--test-backend=sab</code> is also accepted. This is the only backend-selection spelling in the whole command set, and the build-exe family recognizes it too.</td></tr>
+<tr><td><code>--filter &lt;name&gt;</code></td><td>Run only tests whose names match; it also determines the filter-scoped cache path of the managed artifact and does not overwrite the artifacts of a full test run. The equals form <code>--filter=name</code> is also supported.</td></tr>
+<tr><td><code>--emit-sab</code></td><td>Additionally write a sibling <code>.sab</code> next to the source file.</td></tr>
+<tr><td>Remaining arguments</td><td>Passed through to the delegated <code>sa test</code> (such as <code>--trace-panic</code>, <code>--skip</code>, <code>--list</code>); <code>--test-backend</code> and <code>--filter</code> are consumed by the plugin and then stripped. <code>--jobs auto</code> is appended automatically by default.</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>Show usage and return 0.</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>如果过滤器一个测试都选不中，命令不会启动子进程，直接输出空的通过结果（<code>0 passed; 0 failed; 0 skipped</code>）并返回 0。</div>
+<div class="note"><span class="label">Note</span>If the filter selects no tests at all, the command does not start a child process; it directly outputs an empty passing result (<code>0 passed; 0 failed; 0 skipped</code>) and returns 0.</div>
 
-<h2>示例</h2>
+<h2>Examples</h2>
 <pre><code># 默认 auto 后端（SA 文本路，生产路径）
 SA_PLUGIN_DEV=1 sa sla test tests/test_unit_basic.sla
 
@@ -44,11 +44,11 @@ SA_PLUGIN_DEV=1 sa sla test src/main.sla --filter vec_basics --trace-panic
 # Rosetta demo
 SA_PLUGIN_DEV=1 sa sla test demos/rosetta/01_hello_world/main.sla</code></pre>
 
-<h2>产物位置</h2>
+<h2>Output locations</h2>
 <ul>
-<li>SAB 后端（仅 <code>sab</code>）：托管产物在 <code>.sla-cache/sab/&lt;stem&gt;-&lt;hash&gt;.sab</code>，带 <code>--filter</code> 时哈希额外混入过滤器值形成独立变体路径；不会生成也不覆盖普通 build/workspace 的 SAB 产物。</li>
-<li>SA 文本后端（<code>auto</code>/<code>sa</code>，默认）：写出源文件旁的 <code>&lt;stem&gt;.test.sa</code>，运行结束后默认删除；设置环境变量 <code>SLA_KEEP_TEST_SA</code> 可保留以便检查。</li>
-<li>退出码取自委派 <code>sa test</code> 的返回值。</li>
+<li>SAB backend (<code>sab</code> only): the managed artifact is in <code>.sla-cache/sab/&lt;stem&gt;-&lt;hash&gt;.sab</code>; with <code>--filter</code>, the filter value is additionally mixed into the hash to form an independent variant path; it neither generates nor overwrites the SAB artifacts of ordinary build/workspace.</li>
+<li>SA text backend (<code>auto</code>/<code>sa</code>, the default): writes a sibling <code>&lt;stem&gt;.test.sa</code> next to the source file, deleted by default after the run finishes; setting the environment variable <code>SLA_KEEP_TEST_SA</code> keeps it for inspection.</li>
+<li>The exit code is taken from the return value of the delegated <code>sa test</code>.</li>
 </ul>
 </body>
 </html>

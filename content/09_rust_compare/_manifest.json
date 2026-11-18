@@ -2,26 +2,26 @@
   "topics": [
     {
       "id": "positioning",
-      "title": "定位与设计哲学：SLA 不是 Rust 克隆",
+      "title": "Positioning and Design Philosophy: SLA Is Not a Rust Clone",
       "file": "01_positioning.html",
       "keywords": [
-        "定位",
-        "设计哲学",
-        "SA 前端",
+        "positioning",
+        "design philosophy",
+        "SA frontend",
         "bc2sa",
-        "场景选型",
-        "常见误解"
+        "scenario selection",
+        "common misconceptions"
       ],
       "parent": null
     },
     {
       "id": "syntax-matrix",
-      "title": "语法对照实测矩阵",
+      "title": "Syntax Comparison Matrix (Measured)",
       "file": "02_syntax_matrix.html",
       "keywords": [
-        "语法对照",
-        "表层兼容子集",
-        "静默吸收",
+        "syntax comparison",
+        "surface compatibility subset",
+        "silent absorption",
         "let mut",
         "^ XOR",
         "@overload"
@@ -30,41 +30,41 @@
     },
     {
       "id": "ownership",
-      "title": "所有权与借用：Referee 对比 borrow checker",
+      "title": "Ownership and Borrowing: Referee vs the Borrow Checker",
       "file": "03_ownership.html",
       "keywords": [
-        "所有权",
-        "借用",
+        "ownership",
+        "borrowing",
         "Referee",
         "borrow checker",
-        "显式 move",
-        "可变性阶段",
-        "内存安全保证"
+        "explicit move",
+        "mutability phases",
+        "memory safety guarantees"
       ],
       "parent": null
     },
     {
       "id": "macros",
-      "title": "宏与元编程对比",
+      "title": "Macros and Metaprogramming Compared",
       "file": "04_macros.html",
       "keywords": [
-        "宏",
-        "元编程",
+        "macros",
+        "metaprogramming",
         "macro_rules",
         "proc-macro",
         "@derive",
         "@overload",
-        "Bevy 移植",
-        "! 后缀"
+        "Bevy port",
+        "! suffix"
       ],
       "parent": null
     },
     {
       "id": "stdlib-errors-async",
-      "title": "标准库、错误处理与 async 对照",
+      "title": "Standard Library, Error Handling, and async Compared",
       "file": "05_stdlib_errors_async.html",
       "keywords": [
-        "标准库",
+        "standard library",
         "Result",
         "Option",
         "panic_msg",
@@ -77,10 +77,10 @@
     },
     {
       "id": "surface-compat",
-      "title": "Rust 表层兼容性：哪些代码能原样解析",
+      "title": "Rust Surface Compatibility: What Code Parses As-Is",
       "file": "06_surface_compat.html",
       "keywords": [
-        "表层兼容",
+        "surface compatibility",
         "let mut",
         "&mut",
         "lifetime",
@@ -93,11 +93,11 @@
     },
     {
       "id": "rosetta-bc2sa",
-      "title": "rosetta 对照集与 bc2sa 桥接生态",
+      "title": "The rosetta Comparison Set and the bc2sa Bridge Ecosystem",
       "file": "07_rosetta_bc2sa.html",
       "keywords": [
         "rosetta",
-        "demo 对照",
+        "demo comparison",
         "bc2sa",
         "LLVM bitcode",
         "phi",
@@ -108,52 +108,52 @@
     },
     {
       "id": "migration",
-      "title": "从 Rust 迁移到 SLA：改写清单与场景选择",
+      "title": "Migrating from Rust to SLA: Rewrite Checklist and Scenario Guide",
       "file": "08_migration.html",
       "keywords": [
-        "迁移",
-        "改写清单",
-        "Cell 内部可变性",
+        "migration",
+        "rewrite checklist",
+        "Cell interior mutability",
         "impl Drop",
-        "场景选择",
-        "客观打分"
+        "scenario selection",
+        "objective scoring"
       ],
       "parent": null
     },
     {
       "id": "performance",
-      "title": "SLA vs Rust vs Go 性能实测（native / WASM / 编译 / 网络）",
+      "title": "SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)",
       "file": "09_performance.html",
       "keywords": [
-        "性能实测",
+        "performance measurements",
         "benchmark",
         "native",
         "WASM",
-        "编译时间",
-        "产物体积",
+        "compile time",
+        "artifact size",
         "RSS",
         "release-fast",
         "matmul",
         "HTTP",
-        "网络并发",
+        "network concurrency",
         "Go"
       ],
       "parent": null
     },
     {
       "id": "std-census",
-      "title": "Rust std × sa_std 表面普查与缺口表",
+      "title": "Rust std × sa_std Surface Census and Gap Table",
       "file": "10_std_census.html",
       "keywords": [
-        "普查",
-        "缺口",
+        "census",
+        "gaps",
         "sa_std",
-        "标准库表面",
+        "standard library surface",
         "bc2sa",
         "slars",
         "extern",
-        "迭代器",
-        "格式化"
+        "iterators",
+        "formatting"
       ],
       "parent": null
     }

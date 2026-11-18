@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SA / SLA 帮助文档</title>
+<title>SA / SLA Help Documentation</title>
 <link rel="stylesheet" href="assets/help.css">
 <style>
   html,body,#viewer{height:100%;}
@@ -11,42 +11,42 @@
 <body>
 <div id="viewer">
   <div class="toolbar">
-    <button id="btn-toc" title="显示/隐藏导航窗格">▤ 导航</button>
+    <button id="btn-toc" title="Show/hide navigation pane">▤ Navigation</button>
     <span class="sep"></span>
-    <button id="btn-back" title="后退">&lt;&lt; 后退</button>
-    <button id="btn-fwd" title="前进">前进 &gt;&gt;</button>
-    <button id="btn-home" title="回到首页">⌂ 首页</button>
-    <button id="btn-print" title="打印当前主题">🖨 打印</button>
+    <button id="btn-back" title="Back">&lt;&lt; Back</button>
+    <button id="btn-fwd" title="Forward">Forward &gt;&gt;</button>
+    <button id="btn-home" title="Home">⌂ Home</button>
+    <button id="btn-print" title="Print current topic">🖨 Print</button>
     <span class="spacer"></span>
-    <span class="title">SA / SLA 帮助文档</span>
+    <span class="title">SA / SLA Help Documentation</span>
     <span class="sep"></span>
-    <span class="copyright">© 2026 layola13</span>
+    <span class="copyright">© 2026 layola13</span><span class="sep"></span><a href="cn/default.html" style="color:#fff;">中文版</a>
   </div>
   <div class="main">
     <div class="navpane" id="navpane">
       <div class="tabs">
-        <button class="tab active" data-tab="toc">目录</button>
-        <button class="tab" data-tab="idx">索引</button>
-        <button class="tab" data-tab="search">搜索</button>
+        <button class="tab active" data-tab="toc">Contents</button>
+        <button class="tab" data-tab="idx">Index</button>
+        <button class="tab" data-tab="search">Search</button>
       </div>
 
       <div class="tabpage" id="tab-toc"><div class="tree" id="tree"></div></div>
 
       <div class="tabpage hidden" id="tab-idx">
-        <input id="index-input" placeholder="键入关键字查找…" autocomplete="off">
+        <input id="index-input" placeholder="Type a keyword to search…" autocomplete="off">
         <ul class="index-list" id="index-list"></ul>
       </div>
 
       <div class="tabpage hidden" id="tab-search">
-        <input id="search-input" placeholder="输入要查找的文字…" autocomplete="off">
-        <button class="tab" style="flex:none;margin-top:6px;padding:3px 12px;" id="search-go">列出主题</button>
+        <input id="search-input" placeholder="Type the text to find…" autocomplete="off">
+        <button class="tab" style="flex:none;margin-top:6px;padding:3px 12px;" id="search-go">List topics</button>
         <div id="search-results"></div>
       </div>
     </div>
 
     <iframe class="contentpane" name="content" id="contentframe"></iframe>
   </div>
-  <div class="statusbar" id="statusbar">就绪</div>
+  <div class="statusbar" id="statusbar">Ready</div>
 </div>
 
 <script src="toc_data.js"></script>
@@ -75,7 +75,7 @@
   }
   window.addEventListener('message', function(e){
     if(e.data && e.data.type==='nav') show(e.data.url);
-    else if(e.data && e.data.type==='status') statusbar.textContent = e.data.text || '就绪';
+    else if(e.data && e.data.type==='status') statusbar.textContent = e.data.text || 'Ready';
   });
   document.getElementById('btn-back').onclick = function(){ if(histPos>0){histPos--; show(historyStack[histPos], false);} };
   document.getElementById('btn-fwd').onclick = function(){ if(histPos<historyStack.length-1){histPos++; show(historyStack[histPos], false);} };
@@ -86,7 +86,7 @@
     np.style.display = np.style.display === 'none' ? '' : 'none';
   };
 
-  // ---- 目录树 ----
+  // ---- TOC tree ----
   function firstPage(){
     var a = document.querySelector('#tree a');
     return a ? a.getAttribute('href') : '';
@@ -126,7 +126,7 @@
   var treeRoot = document.getElementById('tree');
   var ul = document.createElement('ul'); treeRoot.appendChild(ul); buildTree(TOC, ul);
 
-  // ---- 索引 ----
+  // ---- Index ----
   var idxInput = document.getElementById('index-input'), idxList = document.getElementById('index-list');
   function renderIndex(prefix){
     idxList.innerHTML = '';
@@ -143,7 +143,7 @@
   idxInput.addEventListener('input', function(){ renderIndex(idxInput.value.trim()); });
   renderIndex('');
 
-  // ---- 搜索 ----
+  // ---- Search ----
   function switchTab(name){
     document.querySelectorAll('.tabs .tab').forEach(function(b){
       b.classList.toggle('active', b.dataset.tab === name);
@@ -176,17 +176,17 @@
       a.onclick = function(ev){ ev.preventDefault(); switchTab('toc'); show(h.p.f); };
       div.appendChild(a);
       var s = document.createElement('div'); s.className='snippet';
-      s.innerHTML = '…'+snip+'…（'+h.count+' 处匹配）';
+      s.innerHTML = '…'+snip+'… ('+h.count+' matches)';
       div.appendChild(s);
       box.appendChild(div);
     });
-    if(!hits.length) box.innerHTML = '<p style="color:#888">未找到包含 “'+q+'” 的主题。</p>';
-    statusbar.textContent = '找到 '+hits.length+' 个主题';
+    if(!hits.length) box.innerHTML = '<p style="color:#888">No topics contain "'+q+'".</p>';
+    statusbar.textContent = 'Found '+hits.length+' topic(s)';
   }
   document.getElementById('search-go').onclick = doSearch;
   document.getElementById('search-input').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
 
-  // 初始页
+  // Initial page
   var init = firstPage();
   if(init) show(init);
 })();

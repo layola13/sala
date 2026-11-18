@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>语义对齐：别名、f32 与间接调用</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:left}
+th{background:#f3f4f6}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">sa→C &gt; 语义对齐：别名、f32 与间接调用</div>
+<h1>语义对齐：别名、f32 与间接调用</h1>
+<p>以下规则全部与解释器及 JS 后端（<code>combinedKind/aliasCallee</code>）镜像，
+JS 即 oracle；unknown 形状保持历史强制 signed lowering，只有静态可知的形状会变行为。</p>
+
+<h2>1. 兼容别名 div/rem/gt/lt/shr 的 kind 选择</h2>
+<p>按操作数 kind 决策：float 优先，其次 signed，否则 unsigned：</p>
+<table>
+<tr><th>别名</th><th>float</th><th>unsigned</th><th>其他（含 unknown）</th></tr>
+<tr><td><code>div</code></td><td><code>sa_fdiv</code></td><td><code>sa_udiv</code></td><td><code>sa_sdiv</code></td></tr>
+<tr><td><code>rem</code></td><td><code>sa_srem</code>（同 JS）</td><td><code>sa_urem</code></td><td><code>sa_srem</code></td></tr>
+<tr><td><code>gt / lt</code></td><td><code>sa_fcmp_gt / sa_fcmp_lt</code></td><td><code>sa_ugt / sa_ult</code></td><td><code>sa_sgt / sa_slt</code></td></tr>
+<tr><td><code>shr</code></td><td><code>sa_lshr</code></td><td><code>sa_lshr</code></td><td>signed→<code>sa_ashr</code>，否则 <code>sa_lshr</code></td></tr>
+</table>
+<p>结果 width 跟随所选 helper（<code>udiv/urem/lshr</code>→无符号 64，
+<code>fcmp</code>→1），链式别名能正确传播解析后的 domain。
+文本立即数同样参与 kind 判定（i64→signed，u64→unsigned，可解析 float→float）。</p>
+
+<h2>2. f32 domain</h2>
+<ul>
+<li><code>fadd/fsub/fmul/fdiv</code> 与 <code>fcmp_*</code>：两侧静态 f32→32 位 helper；
+一侧 f32、另一侧非确证 f64→32 位 helper + 未确证边截断（verifier 保证 domain 一致，
+截断即 identity；典型来源是间接调用返回值）；其余走 f64（f32 边提升）。</li>
+<li>f32 结果的 width 记录与发射严格同步，否则下游 fcmp 选错 domain。</li>
+<li>32 位显式 <code>lshr</code> 窄化：<code>sa_lshr(sa_srcmask(v,W,0), sa_band(b,31))</code>，
+i32 0xFFFFFFFF 按 u32 移位（demo 347 类）。<code>ashr</code> 因符号扩展与算术移位可交换，无需处理。</li>
+<li>ftable 返回 domain 全体一致时，间接调用结果 width 被精确播种
+（如单回调 f32 表），<code>fneg32/both32</code> 得以选中；非一致保持 unknown。</li>
+</ul>
+
+<h2>3. 间接调用分发（含修复史）</h2>
+<p>统一签名使函数指针表精确（下标与 <code>fn_idx</code>/vtable 常量编码一致）。
+旧实现先算 <code>uint64_t idx = f - 1000000</code> 再判 <code>idx &gt;= 0</code>，
+无符号比较恒真，空表时间接调用全部进 trap；现实现：</p>
+<pre>if (f &lt; 1000000ULL) { sa_trap("bad indirect callee"); }
+{ sa_u64 idx = f - 1000000ULL;
+  if (idx &gt;= (sa_u64)(sizeof(sa_ftable) / sizeof(sa_ftable[0])))
+    { sa_trap("bad indirect callee"); }
+  if (sa_ftable[idx] == 0) { sa_trap("null indirect callee"); }
+  return sa_ftable[idx](a0, a1); }</pre>
+<p>空表退化为 <code>sa_ftable[1] = {0}</code>（零长数组是 GNU 扩展，且会使边界检查恒假）。
+<code>pthread_spawn</code> 在宿主侧经 dispatcher 同步跑 entry，因此调它的程序同样强制带分发表。</p>
+</body>
+</html>

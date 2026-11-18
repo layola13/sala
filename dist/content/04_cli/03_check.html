@@ -1,33 +1,33 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>sa sla check</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">命令行参考 &gt; sa sla check</div>
+<div class="topic-header">Command-Line Reference &gt; sa sla check</div>
 <h1>sa sla check</h1>
 
-<p><code>sa sla check</code> 对一个 <code>.sla</code> 源文件做词法、语法和类型检查。读完本页可以在不生成任何产物的情况下快速验证源码是否通过前端检查。</p>
+<p><code>sa sla check</code> performs lexical, syntax, and type checking on a <code>.sla</code> source file. After reading this page you can quickly verify that source passes the frontend checks without generating any artifacts.</p>
 
-<h2>语法</h2>
+<h2>Syntax</h2>
 <pre><code>usage: sa sla check [file] [-p &lt;package&gt;]</code></pre>
 
-<h2>参数</h2>
+<h2>Parameters</h2>
 <table>
-<tr><th>名称</th><th>说明</th></tr>
-<tr><td><code>file</code></td><td>要检查的 <code>.sla</code> 源文件；省略时从当前目录向上解析 <code>sa.mod</code> workspace，取成员入口 <code>src/main.sla</code>（或 <code>main.sla</code>）。</td></tr>
-<tr><td><code>-p</code>, <code>--package</code></td><td>workspace 模式下选择成员包，支持 <code>-p name</code> / <code>-p=name</code> / <code>--package=name</code>。</td></tr>
-<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+<tr><th>Name</th><th>Description</th></tr>
+<tr><td><code>file</code></td><td>The <code>.sla</code> source file to check; when omitted, the <code>sa.mod</code> workspace is resolved upward from the current directory, taking the member entry point <code>src/main.sla</code> (or <code>main.sla</code>).</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>Select the member package in workspace mode; supports <code>-p name</code> / <code>-p=name</code> / <code>--package=name</code>.</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>Show usage and return 0.</td></tr>
 </table>
 
-<h2>执行阶段</h2>
-<p><code>check</code> 依次经过：宏模板展开 → 解析（<code>@import</code> 的 SLA 源与 std 契约展开）→ 泛型特化（monomorphize）→ 契约加载 → 类型检查。任一阶段失败都会在 stderr 打出对应类别的诊断并返回非 0，例如 <code>Type Check Error: failed to verify types: ...</code>。</p>
+<h2>Execution stages</h2>
+<p><code>check</code> passes through, in order: macro template expansion → parsing (expansion of SLA sources and std contracts from <code>@import</code>) → generic specialization (monomorphize) → contract loading → type checking. If any stage fails, a diagnostic of the corresponding category is printed to stderr and a non-zero status is returned, for example <code>Type Check Error: failed to verify types: ...</code>.</p>
 
-<div class="note"><span class="label">注意</span><code>check</code> 不发射最终 SA 汇编，也不写 SAB；它只验证「前端能吃下」。前端通过不代表后端 lowering 一定能落地——两者之间存在已知差距。</div>
+<div class="note"><span class="label">Note</span><code>check</code> does not emit final SA assembly, nor does it write SAB; it only verifies that “the frontend can take it in”. Passing the frontend does not mean backend lowering will necessarily succeed — there is a known gap between the two.</div>
 
-<h2>示例</h2>
+<h2>Examples</h2>
 <pre><code># 显式文件
 SA_PLUGIN_DEV=1 sa sla check tests/test_unit_basic.sla
 
@@ -41,10 +41,11 @@ SA_PLUGIN_DEV=1 sa sla check -p my_app
 # Rosetta demo
 SA_PLUGIN_DEV=1 sa sla check demos/rosetta/01_hello_world/main.sla</code></pre>
 
-<h2>输出与产物位置</h2>
-<p>成功时 stdout 输出一行：</p>
+<h2>Output and artifact locations</h2>
+<p>On success, stdout prints one line:</p>
 <pre><code>Sla Compiler: Successfully parsed and verified syntax and types of src/main.sla.</code></pre>
-<p>没有磁盘产物。<code>check</code> 不读取也不写入 <code>.sla-cache/sab/</code>。</p>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<p>There are no on-disk artifacts. <code>check</code> neither reads nor writes <code>.sla-cache/sab/</code>.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/04_cli/03_check.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

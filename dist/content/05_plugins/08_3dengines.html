@@ -1,40 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>3dengines — 3D 引擎插件族</title>
+<title>3dengines — 3D Engine Plugin Family</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">插件参考 &gt; 3dengines — 3D 引擎插件族</div>
-<h1>3dengines — 3D 引擎插件族</h1>
-<div class="note"><span class="label">Zig 0.17</span>本插件使用 <b>Zig 0.17</b> 编译：<code>0.17</code> 分支以 Zig 0.17 构建通过并通过 Zig 单元测试；旧的 0.14.1 分支保留不动。</div>
+<div class="topic-header">Plugin Reference &gt; 3dengines — 3D Engine Plugin Family</div>
+<h1>3dengines — 3D Engine Plugin Family</h1>
+<div class="note"><span class="label">Zig 0.17</span>This plugin is built with <b>Zig 0.17</b>: the <code>0.17</code> branch builds with Zig 0.17 and passes the Zig unit tests; the old 0.14.1 branch is kept unchanged.</div>
 
-<p><code>sa_plugin_3dengines</code> 不是单个插件，而是一个目录下的 3D 引擎插件族：
-各模块独立可构建、可通过各自的 <code>sap.json</code> 安装，整体架构正对标 Bevy 重排，
-完成度门禁是仓库内的 <code>BEVY_ALIGNMENT.md</code>。本页只给总览；深入用法属于 UI 章节，细节见其仓库 README。</p>
+<p><code>sa_plugin_3dengines</code> is not a single plugin but a family of 3D engine plugins under one directory:
+each module builds independently and can be installed through its own <code>sap.json</code>; the overall architecture is being realigned against Bevy,
+and the completeness gate is the repository's <code>BEVY_ALIGNMENT.md</code>. This page only gives an overview; in-depth usage belongs to the UI chapter, and details are in its repository README.</p>
 
-<h2>模块构成（摘要）</h2>
+<h2>Module composition (summary)</h2>
 <table>
-<tr><th>插件</th><th>角色</th></tr>
-<tr><td><code>3d_time</code> / <code>3d_input</code> / <code>3d_color</code></td><td>Bevy 风格帧时间/计时器、按键输入状态机、RGBA 打包与 sRGB/linear 转换</td></tr>
-<tr><td><code>3d_math</code> / <code>3d_transform</code> / <code>3d_geometry</code></td><td>向量/矩阵/四元数/AABB、变换层级、P3N3UV2 顶点写入与网格 AABB 计算</td></tr>
-<tr><td><code>3d_scene</code> / <code>3d_camera</code> / <code>3d_light</code> / <code>3d_material</code> / <code>3d_pbr</code></td><td>场景节点组件掩码与声明式 AST 构造器、相机投影、环境/方向/点/聚光灯、材质与 PBR ABI</td></tr>
-<tr><td><code>3d_render_wgpu</code></td><td>WebGPU 后端 ABI 与 wasm import 契约（<code>sa3d_wgpu_request_renderer</code> 等 8 个导入）</td></tr>
-<tr><td><code>3d_gltf</code> / <code>3d_xml</code> / <code>3d_yaml</code> / <code>3d_animation</code> / <code>3d_particle</code> / <code>3d_gizmos</code> / <code>3d_ecs</code> / <code>3d_app</code> / <code>3d_shader</code> / <code>3d_image</code> 等</td><td>导入器与其余引擎子系统（部分仅 ABI 布局，行为待实现）</td></tr>
-<tr><td><code>3d</code>（聚合插件）</td><td>聚合全家桶，并安装 SAX sidecar 资产：<code>sa3d.sai</code>、<code>sa3d.sal</code>、<code>sa3d_airlock.js</code>、demo 与降级工具</td></tr>
+<tr><th>Plugin</th><th>Role</th></tr>
+<tr><td><code>3d_time</code> / <code>3d_input</code> / <code>3d_color</code></td><td>Bevy-style frame time/timers, key input state machine, RGBA packing and sRGB/linear conversion</td></tr>
+<tr><td><code>3d_math</code> / <code>3d_transform</code> / <code>3d_geometry</code></td><td>Vectors/matrices/quaternions/AABBs, transform hierarchy, P3N3UV2 vertex writing and mesh AABB computation</td></tr>
+<tr><td><code>3d_scene</code> / <code>3d_camera</code> / <code>3d_light</code> / <code>3d_material</code> / <code>3d_pbr</code></td><td>Scene node component masks and a declarative AST constructor, camera projection, ambient/directional/point/spot lights, material and PBR ABI</td></tr>
+<tr><td><code>3d_render_wgpu</code></td><td>WebGPU backend ABI and wasm import contract (8 imports such as <code>sa3d_wgpu_request_renderer</code>)</td></tr>
+<tr><td><code>3d_gltf</code> / <code>3d_xml</code> / <code>3d_yaml</code> / <code>3d_animation</code> / <code>3d_particle</code> / <code>3d_gizmos</code> / <code>3d_ecs</code> / <code>3d_app</code> / <code>3d_shader</code> / <code>3d_image</code>, etc.</td><td>Importers and the remaining engine subsystems (some are ABI layout only, behavior to be implemented)</td></tr>
+<tr><td><code>3d</code> (aggregate plugin)</td><td>Aggregates the whole family and installs the SAX sidecar assets: <code>sa3d.sai</code>, <code>sa3d.sal</code>, <code>sa3d_airlock.js</code>, demos and lowering tools</td></tr>
 </table>
 
-<h2>当前能力边界</h2>
+<h2>Current capability boundaries</h2>
 <ul>
-<li>已可用的里程碑：可工作的 <code>sa3d</code> WebGPU sidecar、第一条声明式 <code>Scene3D</code> 降级路径、第一版通用 WebGPU 渲染提交面。</li>
-<li>行为已实现并通过 SA 测试的模块包括 <code>3d_time</code>、<code>3d_input</code>、<code>3d_color</code>、<code>3d_geometry</code>、<code>3d_scene</code>、<code>3d_light</code> 等；其余模块多数只有布局契约。</li>
-<li>声明式场景目前限定：一个 <code>Scene3D</code>、一个 <code>PerspectiveCamera</code>、一种材质、一个 <code>CubeMesh</code>；通用渲染器只支持 P3N3UV2 顶点布局，暂忽略光照记录。</li>
+<li>Usable milestones already reached: a working <code>sa3d</code> WebGPU sidecar, the first declarative <code>Scene3D</code> lowering path, and the first general WebGPU render submission surface.</li>
+<li>Modules whose behavior is implemented and passes SA tests include <code>3d_time</code>, <code>3d_input</code>, <code>3d_color</code>, <code>3d_geometry</code>, <code>3d_scene</code>, <code>3d_light</code>, etc.; most other modules have only layout contracts.</li>
+<li>Declarative scenes are currently limited to: one <code>Scene3D</code>, one <code>PerspectiveCamera</code>, one material kind, one <code>CubeMesh</code>; the general renderer only supports the P3N3UV2 vertex layout and ignores lighting records for now.</li>
 </ul>
 
-<h2>启用方式</h2>
-<p>SAX 组件声明 <code>renderer="sa3d"</code> 后，<code>sa sax build</code> 会自动复制 <code>sa3d_airlock.js</code> 到输出目录。
-聚合插件的 CLI 形如：</p>
+<h2>How to enable it</h2>
+<p>Once a SAX component declares <code>renderer="sa3d"</code>, <code>sa sax build</code> automatically copies <code>sa3d_airlock.js</code> into the output directory.
+The aggregate plugin's CLI looks like:</p>
 <pre><code>sa 3d &lt;info|skills|check|inspect-layout|airlock|new|check-demo&gt; ...
 sa 3d new my-scene        # 生成 app.sax + scene.sax3d 骨架
 
@@ -42,10 +42,11 @@ sa 3d new my-scene        # 生成 app.sax + scene.sax3d 骨架
 node tools/build_all.mjs
 node tools/verify_3d_modules.mjs</code></pre>
 
-<div class="note"><span class="label">注意</span>每个模块的测试分两层：Zig 描述符测试 + SA 单元测试
-（<code>sa test tests/*_layout_test.sa</code>）。测试刻意避开浏览器/WebGPU 调用与原生 f32 运算，
-浮点字段用整数位模式断言。<code>BEVY_PARITY_AUDIT.md</code> 明确提醒：通过 <code>zig build test</code>
-只证明 ABI 与测试自洽，不证明与 Bevy 行为对齐。</div>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="note"><span class="label">Note</span>Each module's tests have two layers: Zig descriptor tests + SA unit tests
+(<code>sa test tests/*_layout_test.sa</code>). The tests deliberately avoid browser/WebGPU calls and native f32 arithmetic,
+asserting floating-point fields with integer bit patterns. <code>BEVY_PARITY_AUDIT.md</code> explicitly cautions: passing <code>zig build test</code>
+only proves the ABI and the tests are self-consistent; it does not prove behavioral alignment with Bevy.</div>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/05_plugins/08_3dengines.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

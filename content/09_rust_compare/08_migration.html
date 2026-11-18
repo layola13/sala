@@ -1,58 +1,58 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>从 Rust 迁移到 SLA：改写清单与场景选择</title>
+<title>Migrating from Rust to SLA: Rewrite Checklist and Scenario Guide</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">与 Rust 对比 &gt; 从 Rust 迁移到 SLA：改写清单与场景选择</div>
-<h1>从 Rust 迁移到 SLA：改写清单与场景选择</h1>
+<div class="topic-header">Comparison with Rust &gt; Migrating from Rust to SLA: Rewrite Checklist and Scenario Guide</div>
+<h1>Migrating from Rust to SLA: Rewrite Checklist and Scenario Guide</h1>
 
-<p>这一页把前三页的结论收拢成两件可执行的事：一份「Rust 写法 → SLA 改写」的对照检查清单，
-以及一张「什么场景该用哪个」的决策表。所有数字都注明出处文档、版本号与日期口径，
-它们是某一时点的评估快照，不是永久保证。</p>
+<p>This page gathers the conclusions of the previous pages into two executable things: a “Rust spelling → SLA rewrite” comparison checklist,
+and a decision table for “which to use in which scenario”. All numbers note their source document, version number, and date framing;
+they are assessment snapshots from a particular point in time, not permanent guarantees.</p>
 
-<h2>动手前的三个判断</h2>
+<h2>Three Judgments Before You Start</h2>
 <ol>
-<li><b>表层兼容 ≠ 语义兼容。</b>SLA 的目标是让大量 Rust 代码原样解析通过并在 lowering 期静默吸收冗余声明，
-    但语义层始终不同（可变性反向、<code>&amp;self</code> 当前涵盖读写、无 proc-macro）。
-    对比文档明确把它列为常见误解：「Sla 兼容 Rust 语法」仅指表层（Phase 1 约 70%）。</li>
-<li><b>运行时性能不是卖点。</b>2026-10-22 实测：Rust release 的 native/WASM 运行时中位数分别快约
-    1.47×/1.44×（不含 matmul 异常点），常规源码冷编译 Rust 更快；热编译在大型源码上 Rust 仍快，但小 WASM 项目差距消失甚至反转；但双方都取体积最优配置后，典型 SLA WASM 负载约为 Rust 的 1/5（matmul 例外）。迁移理由不应建立在运行时或编译速度上，
-    详见<a href="09_performance.html">性能实测</a>。</li>
-<li><b>成熟度要看日期口径。</b>例如 no-fallback 主线收敛进度在 <code>roadmap_status_cn.md</code>
-    （v0.1 / 2026-07-01）中记录为：No-fallback sweep <b>58/69（84%）</b>、Y/shared-lowering <b>72%</b>、
-    Direct SAB fallback-removal <b>88%</b>、加权总进度约 <b>80%</b>。
-    引用时必须带上这个版本与日期，不要当作现状转述。</li>
+<li><b>Surface compatibility ≠ semantic compatibility.</b> SLA's goal is to let a large amount of Rust code parse as-is and silently absorb redundant declarations during lowering,
+    but the semantic layer is always different (reversed mutability, <code>&amp;self</code> currently covers read and write, no proc-macro).
+    The comparison documents explicitly list this as a common misunderstanding: “SLA is compatible with Rust syntax” refers only to the surface (Phase 1 about 70%).</li>
+<li><b>Runtime performance is not a selling point.</b> Measured on 2026-10-22: Rust release's native/WASM runtime medians are about
+    1.47×/1.44× faster respectively (excluding the matmul outlier), Rust is faster for cold compilation of conventional source code; for hot compilation Rust is still faster on large source code, but the gap disappears or even reverses on small WASM projects; but with both sides in their size-optimal configurations, a typical SLA WASM load is about 1/5 the size of Rust's (matmul is an exception). Migration reasons should not be built on runtime or compilation speed,
+    see the <a href="09_performance.html">SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)</a> page for details.</li>
+<li><b>Maturity must be read with its date framing.</b> For example, the no-fallback mainline convergence progress is recorded in <code>roadmap_status_cn.md</code>
+    (v0.1 / 2026-07-01) as: No-fallback sweep <b>58/69 (84%)</b>, Y/shared-lowering <b>72%</b>,
+    Direct SAB fallback-removal <b>88%</b>, weighted total progress about <b>80%</b>.
+    When citing it you must include this version and date; do not relay it as the current state.</li>
 </ol>
 
-<h2>改写清单（逐项核对）</h2>
+<h2>Rewrite Checklist (Check Item by Item)</h2>
 <table>
-<tr><th>#</th><th>Rust 写法</th><th>SLA 改写</th><th>说明</th></tr>
-<tr><td>1</td><td><code>let mut x = ...;</code></td><td><code>let x = ...;</code></td><td>去掉 <code>mut</code>。<code>let mut</code> 永久不接受，SLA 的 <code>let</code> 默认可变</td></tr>
-<tr><td>2</td><td><code>&amp;mut T</code> / <code>&amp;mut self</code></td><td><code>&amp;T</code> / <code>&amp;self</code></td><td>Phase 1 未识别 <code>&amp;mut</code>，需手工去 <code>mut</code>；内部可变性用 <code>Cell</code>/<code>RefCell</code></td></tr>
-<tr><td>3</td><td><code>'a</code> / <code>'static</code></td><td>直接删掉</td><td>lifetime 仅解析不落语义</td></tr>
-<tr><td>4</td><td><code>pub</code> / <code>pub(crate)</code></td><td>直接删掉</td><td>SA 默认全部链接器可见</td></tr>
-<tr><td>5</td><td><code>where T: Bound</code></td><td>保留或删除均可</td><td>解析后约束只用于单态化时的 trait 方法查找</td></tr>
-<tr><td>6</td><td><code>use std::foo::bar;</code></td><td><code>@import "sa_std/foo/bar.sai"</code></td><td>双轨接受，但 <code>@import</code> 是现行写法</td></tr>
-<tr><td>7</td><td><code>println!("…")</code> / <code>vec![…]</code> / <code>assert!(…)</code></td><td><code>println("…")</code> 等无 <code>!</code> 函数调用</td><td>兼容路线建议由 parser 容错剥离紧贴标识符的 <code>!</code>，但源码应直接写成函数形态</td></tr>
-<tr><td>8</td><td><code>panic!("字符串")</code></td><td><code>panic(数值码)</code></td><td>需要文本时经 <code>sa_std</code> 的 <code>panic_msg</code></td></tr>
-<tr><td>9</td><td><code>impl Drop for X</code></td><td>手工展开清理顺序</td><td>不支持 <code>Drop</code> trait，释放由编译器隐式注入</td></tr>
-<tr><td>10</td><td><code>#[derive(X)]</code> / <code>#[inline]</code></td><td><code>@derive</code> / <code>inline</code></td><td><code>@derive</code> 是编译器内建的白名单制（对比文档记为 6 个，属 Phase 2 范畴），不要假设任意 derive 可用</td></tr>
-<tr><td>11</td><td><code>unsafe { … }</code></td><td><code>@ffi_wrapper</code> 包住整个函数</td><td>块级 unsafe 只算「声明意图」，裸指针下行必须在函数级隔离内</td></tr>
-<tr><td>12</td><td><code>extern "C" fn</code></td><td><code>@extern fn</code></td><td>双轨</td></tr>
-<tr><td>13</td><td><code>#[test]</code></td><td><code>@test "名称"() { … }</code></td><td>已落地</td></tr>
-<tr><td>14</td><td><code>loop { … break … }</code>、range <code>for</code></td><td><code>while</code> 循环 + <code>break</code>/<code>continue</code></td><td>rosetta 里 <code>22_break_continue</code>、<code>23_nested_loops</code> 都是这么改的</td></tr>
-<tr><td>15</td><td>trait 泛型分发、<code>dyn</code> 多态</td><td>单态化静态分发 + vtable 宏路径</td><td>不做 trait coherence、不做 GAT</td></tr>
-<tr><td>16</td><td>proc-macro / <code>macro_rules!</code> 复杂展开</td><td><code>macro</code> 卫生宏或普通辅助函数</td><td>多 arm pattern 宏、片段类型等明确不引入</td></tr>
-<tr><td>17</td><td><code>tokio::…</code> 等异步运行时</td><td><code>async</code>/<code>.await</code>/<code>future&lt;T&gt;</code> 可用，但没有 tokio 等价物</td><td>依赖 runtime 生态的服务端代码暂不适合迁</td></tr>
-<tr><td>18</td><td><code>serde</code> / <code>regex</code> / 数据库驱动等 crate</td><td>JSON 内建、正则待补走插件、DB 走插件，或用 bc2sa 桥接</td><td>见<a href="05_stdlib_errors_async.html">标准库对照表</a></td></tr>
+<tr><th>#</th><th>Rust spelling</th><th>SLA rewrite</th><th>Notes</th></tr>
+<tr><td>1</td><td><code>let mut x = ...;</code></td><td><code>let x = ...;</code></td><td>Remove <code>mut</code>. <code>let mut</code> is never accepted; SLA's <code>let</code> is mutable by default</td></tr>
+<tr><td>2</td><td><code>&amp;mut T</code> / <code>&amp;mut self</code></td><td><code>&amp;T</code> / <code>&amp;self</code></td><td>Phase 1 does not recognize <code>&amp;mut</code>; mut must be removed manually; use <code>Cell</code>/<code>RefCell</code> for interior mutability</td></tr>
+<tr><td>3</td><td><code>'a</code> / <code>'static</code></td><td>Delete directly</td><td>Lifetimes are parsed only and do not enter semantics</td></tr>
+<tr><td>4</td><td><code>pub</code> / <code>pub(crate)</code></td><td>Delete directly</td><td>SA defaults to everything being linker-visible</td></tr>
+<tr><td>5</td><td><code>where T: Bound</code></td><td>Either keep or delete</td><td>After parsing, bounds are used only for trait method lookup during monomorphization</td></tr>
+<tr><td>6</td><td><code>use std::foo::bar;</code></td><td><code>@import "sa_std/foo/bar.sai"</code></td><td>Both are accepted, but <code>@import</code> is the current spelling</td></tr>
+<tr><td>7</td><td><code>println!("…")</code> / <code>vec![…]</code> / <code>assert!(…)</code></td><td><code>println("…")</code> and other function calls without <code>!</code></td><td>The compatibility path recommends that the parser fault-tolerantly strip a <code>!</code> immediately adjacent to an identifier, but source code should be written directly in function form</td></tr>
+<tr><td>8</td><td><code>panic!("string")</code></td><td><code>panic(numeric code)</code></td><td>When text is needed, go through <code>sa_std</code>'s <code>panic_msg</code></td></tr>
+<tr><td>9</td><td><code>impl Drop for X</code></td><td>Expand the cleanup order by hand</td><td>The <code>Drop</code> trait is not supported; release is implicitly injected by the compiler</td></tr>
+<tr><td>10</td><td><code>#[derive(X)]</code> / <code>#[inline]</code></td><td><code>@derive</code> / <code>inline</code></td><td><code>@derive</code> is a compiler built-in whitelist system (the comparison documents record 6 of them, in the Phase 2 scope); do not assume an arbitrary derive is usable</td></tr>
+<tr><td>11</td><td><code>unsafe { … }</code></td><td>Wrap the whole function in <code>@ffi_wrapper</code></td><td>Block-level unsafe counts only as a “declaration of intent”; raw-pointer descent must be inside function-level isolation</td></tr>
+<tr><td>12</td><td><code>extern "C" fn</code></td><td><code>@extern fn</code></td><td>Dual track</td></tr>
+<tr><td>13</td><td><code>#[test]</code></td><td><code>@test "name"() { … }</code></td><td>Landed</td></tr>
+<tr><td>14</td><td><code>loop { … break … }</code>, range <code>for</code></td><td><code>while</code> loops + <code>break</code>/<code>continue</code></td><td>This is how <code>22_break_continue</code> and <code>23_nested_loops</code> in rosetta were changed</td></tr>
+<tr><td>15</td><td>Trait generic dispatch, <code>dyn</code> polymorphism</td><td>Monomorphized static dispatch + vtable macro path</td><td>No trait coherence, no GAT</td></tr>
+<tr><td>16</td><td>Complex expansion of proc-macro / <code>macro_rules!</code></td><td><code>macro</code> hygienic macros or ordinary helper functions</td><td>Multi-arm pattern macros, fragment types, etc. are explicitly not introduced</td></tr>
+<tr><td>17</td><td>Async runtimes such as <code>tokio::…</code></td><td><code>async</code>/<code>.await</code>/<code>future&lt;T&gt;</code> are usable, but there is no tokio equivalent</td><td>Server-side code depending on a runtime ecosystem is not suitable to migrate for now</td></tr>
+<tr><td>18</td><td>Crates such as <code>serde</code> / <code>regex</code> / database drivers</td><td>Built-in JSON, regular expressions to be added via plugins, DB via plugins, or bc2sa bridging</td><td>See the <a href="05_stdlib_errors_async.html">Standard Library, Error Handling, and async Compared</a> page</td></tr>
 </table>
 
-<h2>成对示例：四类高频改写</h2>
+<h2>Paired Examples: Four High-Frequency Rewrite Types</h2>
 
-<h3>① 去掉 <code>mut</code>，内部可变性交给 <code>Cell</code></h3>
+<h3>① Remove <code>mut</code>; Hand Interior Mutability to <code>Cell</code></h3>
 <pre><code>// Rust（demos/rosetta/59_method_counter/main.rs）
 struct Counter(i32);
 
@@ -73,10 +73,10 @@ impl Counter {
         self.value.set(current + 1);
     }
 }</code></pre>
-<p>注意方法签名是 <code>&amp;self</code> 而非 <code>&amp;mut self</code>：
-SLA 当前的 <code>&amp;self</code> 同时覆盖读与写两种用途，由 Referee 兜底。</p>
+<p>Note that the method signature is <code>&amp;self</code> rather than <code>&amp;mut self</code>:
+SLA's current <code>&amp;self</code> covers both read and write uses, backed by the Referee.</p>
 
-<h3>② <code>Drop</code> guard 展开成显式顺序</h3>
+<h3>② Expand a <code>Drop</code> Guard into an Explicit Sequence</h3>
 <pre><code>// Rust（101_custom_drop，节选）
 impl Drop for Guard&lt;'_&gt; {
     fn drop(&amp;mut self) {
@@ -89,7 +89,7 @@ tally = tally + inner_value;
 tally = tally + outer_value;
 return tally + result;</code></pre>
 
-<h3>③ 控制流形状调整：<code>loop/break/continue</code> → <code>while</code></h3>
+<h3>③ Adjust the Control-Flow Shape: <code>loop/break/continue</code> → <code>while</code></h3>
 <pre><code>// Rust（22_break_continue，节选）
 loop {
     i += 1;
@@ -105,12 +105,12 @@ while 1 == 1 {
     if i &gt; 5 { break; };
     sum = sum + i;
 };</code></pre>
-<p>复合赋值（<code>+=</code> 等）在兼容路线里被列为同义映射项，desugar 成 <code>x = x op y</code>；
-而 rosetta 现行写法普遍直接写成 <code>x = x + y</code>，迁移时建议照此办理，少踩一层兼容面。</p>
+<p>Compound assignment (<code>+=</code> etc.) is listed as a synonym mapping item on the compatibility path and desugars to <code>x = x op y</code>;
+while the current rosetta spelling generally writes it directly as <code>x = x + y</code>, and it is recommended to do the same when migrating, to avoid one layer of the compatibility surface.</p>
 
-<h3>④ 入口签名与自检块</h3>
-<p>Rust 的 <code>fn main()</code> 在 SLA 中通常写作返回 <code>i32</code> 并显式 <code>return 0;</code>，
-再补一个 <code>@test</code> 块锁住可观测结果：</p>
+<h3>④ Entry Signature and Self-Check Block</h3>
+<p>Rust's <code>fn main()</code> is usually written in SLA as returning <code>i32</code> with an explicit <code>return 0;</code>,
+plus an <code>@test</code> block to lock in the observable result:</p>
 <pre><code>// Rust                          // Sla
 fn main() {                      fn main() -&gt; i32 {
     let msg = Message::Move          let msg = Message::Move { x: 10, y: 20 };
@@ -123,96 +123,96 @@ fn main() {                      fn main() -&gt; i32 {
     let result = process_msg(Message::Move { x: 10, y: 20 });
     if result != 30 { panic(6); };
 }</code></pre>
-<div class="note"><span class="label">注意</span>迁移完先跑 <code>sla check</code> 再跑 <code>sla test</code>；
-rosetta 树里的 <code>@test</code> 就是这么用的。但别忘了那棵树并非全部端到端通过，
-逐个验证后再纳入自己的工程。</div>
+<div class="note"><span class="label">Note</span>After migrating, run <code>sla check</code> first, then <code>sla test</code>;
+that is how the <code>@test</code> blocks in the rosetta tree are used. But do not forget that not everything in that tree passes end to end,
+so verify each one before bringing it into your own project.</div>
 
-<h2>场景选择：什么时候用什么</h2>
-<h3>用 Rust（不建议迁 SLA）</h3>
+<h2>Scenario Selection: When to Use What</h2>
+<h3>Use Rust (Migrating to SLA Is Not Recommended)</h3>
 <ul>
-<li>桌面应用、服务器后端这类重生态场景</li>
-<li>需要 tokio / actix / axum 生产级 async runtime</li>
-<li>需要 serde 完整能力，或 bevy / wgpu / iced 这类大型框架</li>
-<li>团队里 Rust 老手多、需要成熟 IDE 体验、大型多人协作项目</li>
+<li>Heavy-ecosystem scenarios such as desktop applications and server backends</li>
+<li>Need a production-grade async runtime such as tokio / actix / axum</li>
+<li>Need the full capability of serde, or large frameworks such as bevy / wgpu / iced</li>
+<li>Many Rust veterans on the team, need for a mature IDE experience, large multi-person collaboration projects</li>
 </ul>
 
-<h3>用 SLA（不必上 Rust）</h3>
+<h3>Use SLA (No Need to Go to Rust)</h3>
 <ul>
-<li>WASM 边缘计算（Cloudflare Workers / Vercel Edge 一类）与 WASM 游戏 / 浏览器互动</li>
-<li>嵌入式 WASM / IoT 显示（双方最优配置下典型体积约为 Rust 的 1/5，但 matmul 例外且运行时较慢，需按负载核对）</li>
-<li>LLM 沙盒 / Agent 执行环境（错误信息简单且结构化，自修复闭环原生）</li>
-<li>安全 / 航空等需要验证器可证明性的领域</li>
-<li>教学、教育性 ECS / 游戏 jam（语法简单、上手成本低；编译速度并不占优）</li>
+<li>WASM edge computing (Cloudflare Workers / Vercel Edge and the like) and WASM games / browser interaction</li>
+<li>Embedded WASM / IoT displays (with both sides in their size-optimal configurations, typical size is about 1/5 of Rust's, but matmul is an exception and runtime is slower, so check against the load)</li>
+<li>LLM sandboxes / Agent execution environments (error messages are simple and structured; the self-repair loop is native)</li>
+<li>Domains needing verifier provability, such as safety / aviation</li>
+<li>Teaching, educational ECS / game jams (simple syntax, low onboarding cost; compilation speed is not an advantage)</li>
 </ul>
 
-<h3>用 bc2sa 桥接（独有路径）</h3>
+<h3>Use bc2sa Bridging (the Unique Path)</h3>
 <ul>
-<li>有现成 Rust crate 不想重写，但要部署到 WASM 边缘</li>
-<li>想用 C/C++ 数学库又要 SA 验证</li>
-<li>想吃 serde / image / 算法库，同时接受当前产物体积与编译时间</li>
+<li>Have an existing Rust crate you do not want to rewrite, but need to deploy to the WASM edge</li>
+<li>Want to use a C/C++ math library and also want SA verification</li>
+<li>Want to consume serde / image / algorithm libraries, while accepting the current output size and compilation time</li>
 </ul>
-<div class="warning"><span class="label">警告</span>bc2sa 当前只能吃 O0 基线加整数运算子集
-（约 30% 真实代码，2026-06-15 评估口径），提交前必须强制 <code>-Copt-level=0</code> 或先做
-<code>opt --reg2mem</code>。详见<a href="07_rosetta_bc2sa.html">上一页</a>的覆盖率与缺口表。</div>
+<div class="warning"><span class="label">Warning</span>bc2sa can currently only consume the O0 baseline plus the integer-operations subset
+(about 30% of real code, 2026-06-15 assessment framing); before submitting you must force <code>-Copt-level=0</code> or first do
+<code>opt --reg2mem</code>. See the coverage and gap table on the <a href="07_rosetta_bc2sa.html">The rosetta Comparison Set and the bc2sa Bridge Ecosystem</a> page for details.</div>
 
-<h3>决策速查表</h3>
+<h3>Decision Quick Reference</h3>
 <table>
-<tr><th>场景</th><th>推荐</th></tr>
-<tr><td>WASM 游戏 / Bevy 风 ECS（sa3d）</td><td>SLA</td></tr>
-<tr><td>SAX UI 组件 handler、LLM Agent 写代码、第三方业务包</td><td>SLA</td></tr>
-<tr><td>边缘 Worker 部署</td><td>SLA</td></tr>
-<tr><td>要用 Rust serde / image / 算法库、C/C++ 数学库、或 Rust crate 但部署 WASM</td><td>bc2sa 桥接 + SLA 调用</td></tr>
-<tr><td>重型 Web 后端（axum）、桌面 GUI（iced）、OS / 驱动</td><td>Rust</td></tr>
-<tr><td>内部插件开发</td><td>Zig + SA（不变）</td></tr>
+<tr><th>Scenario</th><th>Recommendation</th></tr>
+<tr><td>WASM games / Bevy-style ECS (sa3d)</td><td>SLA</td></tr>
+<tr><td>SAX UI component handlers, LLM Agents writing code, third-party business packages</td><td>SLA</td></tr>
+<tr><td>Edge Worker deployment</td><td>SLA</td></tr>
+<tr><td>Need to use Rust serde / image / algorithm libraries, C/C++ math libraries, or a Rust crate but deploy to WASM</td><td>bc2sa bridging + SLA calls</td></tr>
+<tr><td>Heavy Web backends (axum), desktop GUIs (iced), OS / drivers</td><td>Rust</td></tr>
+<tr><td>Internal plugin development</td><td>Zig + SA (unchanged)</td></tr>
 </table>
 
-<h2>量化参考：客观打分与当前成熟度</h2>
-<p><code>rust_vs_sla_final_cn.md</code> §5 给出过一份 16 维打分（v0.2 / 2026-06-15；
-「总分」一行是该文档自己汇总的数字，与逐项相加可能略有出入，引用时以原文为准）：</p>
+<h2>Quantitative Reference: Objective Scores and Current Maturity</h2>
+<p><code>rust_vs_sla_final_cn.md</code> §5 once gave a 16-dimension score (v0.2 / 2026-06-15;
+the “total score” row is the total as summarized by that document itself, which may differ slightly from adding the items, so cite the original text as authoritative):</p>
 <table>
-<tr><th>维度（节选）</th><th>Rust</th><th>SLA 当前</th><th>SLA + bc2sa 长期</th></tr>
-<tr><td>语法表达力 / 类型系统</td><td>95 / 95</td><td>70 / 60</td><td>70 / 60</td></tr>
-<tr><td>内存安全</td><td>95</td><td>90</td><td>90</td></tr>
-<tr><td>编译速度 / WASM 产物体积</td><td>50 / 60</td><td><b>90 / 90</b>（编译项不符；体积项在双方最优配置下基本成立）</td><td>90 / 90</td></tr>
-<tr><td>工具链</td><td>95</td><td>50（DCE / incremental / test 已有，缺 IDE）</td><td>60</td></tr>
-<tr><td>生态</td><td>95</td><td>45（含 bc2sa 30% 口径）</td><td>70–85</td></tr>
-<tr><td>包管理安全 / 形式化验证可行性</td><td>60 / 30</td><td><b>90 / 90</b></td><td><b>90 / 90</b></td></tr>
-<tr><td>async/await 可用度</td><td>95</td><td>80（语法与 ready future 可跑，缺 runtime）</td><td>80</td></tr>
-<tr><td>生产成熟度</td><td><b>95</b></td><td>30</td><td>50</td></tr>
-<tr><td><b>总分</b></td><td><b>1170</b></td><td><b>1085</b></td><td><b>1135</b></td></tr>
+<tr><th>Dimension (excerpts)</th><th>Rust</th><th>SLA current</th><th>SLA + bc2sa long term</th></tr>
+<tr><td>Syntax expressiveness / type system</td><td>95 / 95</td><td>70 / 60</td><td>70 / 60</td></tr>
+<tr><td>Memory safety</td><td>95</td><td>90</td><td>90</td></tr>
+<tr><td>Compilation speed / WASM output size</td><td>50 / 60</td><td><b>90 / 90</b> (the compilation item does not hold; the size item basically holds with both sides in their size-optimal configurations)</td><td>90 / 90</td></tr>
+<tr><td>Toolchain</td><td>95</td><td>50 (DCE / incremental / test exist; IDE is missing)</td><td>60</td></tr>
+<tr><td>Ecosystem</td><td>95</td><td>45 (including the bc2sa 30% framing)</td><td>70–85</td></tr>
+<tr><td>Package management security / feasibility of formal verification</td><td>60 / 30</td><td><b>90 / 90</b></td><td><b>90 / 90</b></td></tr>
+<tr><td>async/await usability</td><td>95</td><td>80 (syntax and ready futures run; runtime is missing)</td><td>80</td></tr>
+<tr><td>Production maturity</td><td><b>95</b></td><td>30</td><td>50</td></tr>
+<tr><td><b>Total score</b></td><td><b>1170</b></td><td><b>1085</b></td><td><b>1135</b></td></tr>
 </table>
-<p>同一文档还记录了 v0.1 → v0.2 的修正轨迹：生态从 10 提到 45（补算了 bc2sa 入口）、
-async 从 60 提到 80、工具链从 30 提到 50、总分从 940 提到 1085–1135。
-这组数字的价值在于说明<b>优势维度完全不同</b>，而不是宣称谁更强。</p>
+<p>The same document also records the v0.1 → v0.2 correction trajectory: ecosystem raised from 10 to 45 (the bc2sa entry was added),
+async from 60 to 80, toolchain from 30 to 50, and the total from 940 to 1085–1135.
+The value of this set of numbers is to show that <b>the advantageous dimensions are completely different</b>, not to claim which is stronger.</p>
 
-<p>工程侧的成熟度请以 roadmap 为准（<code>roadmap_status_cn.md</code> v0.1 / 2026-07-01）：
-No-fallback sweep 58/69、Y/shared-lowering 72%、Direct SAB fallback-removal 88%、加权总进度约 80%；
-剩余 11 个失败测试分布在调用/赋值（Phase 3）、std 元数据（Phase 4）、聚合/枚举/Derive（Phase 5）、
-协议迭代器（Phase 6）与 async（Phase 8）各阶段。后续版本请重新查该文档取最新数字。</p>
+<p>For engineering-side maturity, follow the roadmap (<code>roadmap_status_cn.md</code> v0.1 / 2026-07-01):
+No-fallback sweep 58/69, Y/shared-lowering 72%, Direct SAB fallback-removal 88%, weighted total progress about 80%;
+the remaining 11 failing tests are distributed across calls/assignments (Phase 3), std metadata (Phase 4), aggregates/enums/Derive (Phase 5),
+protocol iterators (Phase 6), and async (Phase 8). For later versions, check that document again for the latest numbers.</p>
 
-<h2>收尾检查清单</h2>
+<h2>Final Checklist</h2>
 <ol>
-<li>全文搜 <code>mut</code>：删掉 <code>let mut</code> 与 <code>&amp;mut</code>，内部可变性换 <code>Cell</code>/<code>RefCell</code></li>
-<li>删掉所有 lifetime 标注与 <code>pub</code> 修饰</li>
-<li><code>use …</code> 全部换成 <code>@import "…"</code>；宏调用的 <code>!</code> 后缀全部去掉</li>
-<li><code>panic!("…")</code> 改为 <code>panic(数值码)</code></li>
-<li><code>impl Drop</code> 展开成显式清理语句，并核对释放顺序</li>
-<li>裸指针代码包进 <code>@ffi_wrapper</code> 函数</li>
-<li>每个入口补一个 <code>@test</code> 自检块，先 <code>sla check</code> 再 <code>sla test</code></li>
-<li>依赖 tokio / serde / 大型框架的部分：确认是否留在 Rust 侧，或改走 bc2sa 桥接</li>
-<li>把改动对照 rosetta 同主题 demo 人工核对一遍语义等价性</li>
+<li>Search the whole text for <code>mut</code>: delete <code>let mut</code> and <code>&amp;mut</code>, and replace interior mutability with <code>Cell</code>/<code>RefCell</code></li>
+<li>Delete all lifetime annotations and <code>pub</code> modifiers</li>
+<li>Replace all <code>use …</code> with <code>@import "…"</code>; remove all <code>!</code> suffixes from macro calls</li>
+<li>Change <code>panic!("…")</code> to <code>panic(numeric code)</code></li>
+<li>Expand <code>impl Drop</code> into explicit cleanup statements and check the release order</li>
+<li>Wrap raw-pointer code in <code>@ffi_wrapper</code> functions</li>
+<li>Add an <code>@test</code> self-check block to each entry point; run <code>sla check</code> first, then <code>sla test</code></li>
+<li>For parts depending on tokio / serde / large frameworks: confirm whether they stay on the Rust side, or switch to bc2sa bridging</li>
+<li>Manually check the changes against the rosetta demo on the same topic for semantic equivalence</li>
 </ol>
 
-<h2>下一步</h2>
+<h2>Next Steps</h2>
 <ul>
-<li>不确定某条写法能不能原样解析：<a href="06_surface_compat.html">Rust 表层兼容性：哪些代码能原样解析</a></li>
-<li>标准库方法、错误处理与 async 细节：<a href="05_stdlib_errors_async.html">标准库、错误处理与 async 对照</a></li>
-<li>想看更多成对参考实现：<a href="07_rosetta_bc2sa.html">rosetta 对照集与 bc2sa 桥接生态</a></li>
-<li>背景阅读：为什么语义必然不同，见<a href="01_positioning.html">定位与设计哲学</a>与
-    <a href="03_ownership.html">所有权与借用：Referee 对比 borrow checker</a>；
-    宏迁移的取舍见<a href="04_macros.html">宏与元编程对比</a>。</li>
-<li>性能、编译时间与产物体积的实测数据：<a href="09_performance.html">SLA vs Rust 性能实测</a>。
-    该页说明旧评分中“编译速度”项不成立，“WASM 体积”项在双方体积最优配置下基本成立（matmul 例外）。</li>
+<li>Unsure whether a spelling parses as-is: <a href="06_surface_compat.html">Rust Surface Compatibility: What Code Parses As-Is</a></li>
+<li>Standard library methods, error handling, and async details: <a href="05_stdlib_errors_async.html">Standard Library, Error Handling, and async Compared</a></li>
+<li>Want to see more paired reference implementations: <a href="07_rosetta_bc2sa.html">The rosetta Comparison Set and the bc2sa Bridge Ecosystem</a></li>
+<li>Background reading: why the semantics necessarily differ, see the <a href="01_positioning.html">Positioning and Design Philosophy: SLA Is Not a Rust Clone</a> page and
+    the <a href="03_ownership.html">Ownership and Borrowing: Referee vs the Borrow Checker</a> page;
+    for macro migration trade-offs see the <a href="04_macros.html">Macros and Metaprogramming Compared</a> page.</li>
+<li>Measured data on performance, compilation time, and output size: <a href="09_performance.html">SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)</a>.
+    That page explains that the “compilation speed” item in the old scores does not hold, and that the “WASM size” item basically holds with both sides in their size-optimal configurations (matmul is an exception).</li>
 </ul>
 </body>
 </html>

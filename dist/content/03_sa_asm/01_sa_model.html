@@ -1,84 +1,85 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SA 概念模型</title>
+<title>The SA Conceptual Model</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SA 汇编与 SAB &gt; SA 概念模型</div>
-<h1>SA 概念模型</h1>
+<div class="topic-header">SA Assembly and SAB &gt; The SA Conceptual Model</div>
+<h1>The SA Conceptual Model</h1>
 
-<p>这一页解释 Safe ASM（SA）的核心抽象：扁平指令流、寄存器、栈/堆内存，以及
+<p>This page explains the core abstractions of Safe ASM (SA): the flat instruction stream, registers, stack/heap memory, and
 <code>=</code> <code>&amp;</code> <code>^</code> <code>!</code> <code>*</code>
-五个所有权符号的语义。读完可以看懂任何一份 <code>.sa</code> 文件的结构，
-并理解为什么 SA 校验器（Referee）会对寄存器的使用方式做出种种限制。</p>
+the semantics of the five ownership symbols. After reading it you will be able to understand the structure of any <code>.sa</code> file,
+and understand why the SA verifier (Referee) imposes various restrictions on how registers are used.</p>
 
-<h2>零 AST：只有扁平指令数组</h2>
-<p>SA 没有 AST，也没有结构化控制流。整个程序是一条扁平的指令数组，用 <code>u32</code>
-下标索引；控制流完全由标签和跳转表达。设计文档把这条数组定为编译管线的汇合点：
-文本汇编（<code>.sa</code>）和二进制 SAB（<code>.sab</code>）两种输入在此产出完全等价的
-<code>Instruction[]</code>。编译器只做单次前向线性扫描，唯一的例外是分支汇合点上的 Phi 状态求交集。</p>
+<h2>Zero AST: Only a Flat Instruction Array</h2>
+<p>SA has no AST and no structured control flow. The entire program is a flat array of instructions, indexed by <code>u32</code>
+subscripts; control flow is expressed entirely with labels and jumps. The design document defines this array as the convergence point of the compilation pipeline:
+the two inputs, text assembly (<code>.sa</code>) and binary SAB (<code>.sab</code>), produce a completely equivalent
+<code>Instruction[]</code> here. The compiler performs a single forward linear scan; the only exception is the intersection of Phi states at branch merge points.</p>
 
-<h2>寄存器与仿射使用</h2>
-<p>SA 的值都放在具名寄存器里（如 <code>x</code>、<code>tmp_0</code>、<code>ok</code>）。
-寄存器是<strong>仿射的</strong>：每个值只能被消费一次，消费后即失效。
-因此把一个值传给函数、把它 <code>store</code> 出去、或在 <code>return</code>
-中使用之后，都必须视为已移动；如果后续还想读它，需要重新 <code>alloc</code> 或 <code>load</code>。
-这也解释了两条常见写法：</p>
+<h2>Registers and Affine Use</h2>
+<p>All SA values live in named registers (such as <code>x</code>, <code>tmp_0</code>, <code>ok</code>).
+Registers are <strong>affine</strong>: each value can be consumed only once, and becomes invalid after consumption.
+Therefore, after passing a value to a function, <code>store</code>-ing it out, or using it in a <code>return</code>,
+it must be treated as already moved; if you still want to read it afterwards, you need to <code>alloc</code> or <code>load</code> again.
+This also explains two common idioms:</p>
 <ul>
-<li><code>return call @fn(...)</code> 不被支持——flattener 会把它当成返回一个名为
-<code>call @fn(...)</code> 的寄存器而报 <code>UnknownRegister</code>；必须拆成
-<code>r = call @fn(...)</code> 加 <code>return r</code> 两行。</li>
-<li>每个分支出口都要手动释放仍然活跃的寄存器（一串 <code>!reg</code>），否则触发 <code>MemoryLeak</code>。</li>
+<li><code>return call @fn(...)</code> is not supported — the flattener treats it as returning a register named
+<code>call @fn(...)</code> and reports <code>UnknownRegister</code>; it must be split into
+<code>r = call @fn(...)</code> plus <code>return r</code> on two lines.</li>
+<li>Every branch exit must manually release registers that are still live (a string of <code>!reg</code>), otherwise it triggers <code>MemoryLeak</code>.</li>
 </ul>
 
-<h2>栈、堆与字段偏移</h2>
-<p><code>alloc N</code> 在堆上分配 N 字节并返回指针寄存器；<code>stack_alloc N</code>
-分配栈槽（用于可变局部变量，不能逃逸出当前帧）。字段访问不是语法，而是约定：
-用 <code>#def Point_x = +0</code> 声明偏移常量，再用
-<code>load point+Point_x as i32</code> / <code>store point+Point_x, v as i32</code> 读写。</p>
-<div class="note"><span class="label">注意</span>SLA 编译器把函数参数和 <code>let</code> 绑定自动驻留（home）到栈槽，
-即你会在 lowering 输出里看到 <code>ch = stack_alloc 8</code> 这类指令。
-此时寄存器存的是槽地址：值上下文由编译器自动插入 <code>load</code>，
-<code>&amp;ch</code> 则直接得到槽地址。宏做文本替换时必须感知这一层，
-否则会把地址当成值存入。语言层语义见 <a href="../02_sla_lang/06_ownership.html">所有权：取地址与栈驻留</a>。</div>
+<h2>Stack, Heap, and Field Offsets</h2>
+<p><code>alloc N</code> allocates N bytes on the heap and returns a pointer register; <code>stack_alloc N</code>
+allocates a stack slot (used for mutable local variables, which cannot escape the current frame). Field access is not syntax, but convention:
+declare an offset constant with <code>#def Point_x = +0</code>, then use
+<code>load point+Point_x as i32</code> / <code>store point+Point_x, v as i32</code> to read and write.</p>
+<div class="note"><span class="label">Note</span>The SLA compiler automatically homes function parameters and <code>let</code> bindings to stack slots,
+that is, you will see instructions such as <code>ch = stack_alloc 8</code> in the lowering output.
+At that point the register holds the slot address: the compiler automatically inserts a <code>load</code> in value contexts,
+while <code>&amp;ch</code> directly yields the slot address. When a macro performs textual substitution it must be aware of this layer,
+otherwise it will store an address as if it were a value. For the language-level semantics, see the <a href="../02_sla_lang/06_ownership.html">Ownership and Lifetimes</a> page.</div>
 
-<h2>五符号契约</h2>
+<h2>The Five-Symbol Contract</h2>
 <table>
-<tr><th>符号</th><th>含义</th><th>典型形态</th></tr>
-<tr><td><code>=</code></td><td>定义新寄存器</td><td><code>x = load p+0 as i64</code></td></tr>
-<tr><td><code>&amp;</code></td><td>借用（共享或独占，由 Referee 依后续操作推导）</td><td>参数 <code>(&amp;arr: ptr)</code>、实参 <code>@fill_zero(&amp;buffer)</code></td></tr>
-<tr><td><code>^</code></td><td>转移所有权（move）</td><td>参数 <code>(^msg: ptr)</code>、实参 <code>call @process_msg(^msg)</code></td></tr>
-<tr><td><code>!</code></td><td>释放 / 结束生命周期</td><td><code>!x</code>；函数签名的 <code>-&gt; i32!</code> 表示可失败</td></tr>
-<tr><td><code>*</code></td><td>裸指针降级（rawcast），仅限气闸舱上下文</td><td><code>raw = *safe</code>、<code>@extern fd_open(*path: ptr)</code></td></tr>
+<tr><th>Symbol</th><th>Meaning</th><th>Typical form</th></tr>
+<tr><td><code>=</code></td><td>Define a new register</td><td><code>x = load p+0 as i64</code></td></tr>
+<tr><td><code>&amp;</code></td><td>Borrowing (shared or exclusive, inferred by the Referee from subsequent operations)</td><td>Parameter <code>(&amp;arr: ptr)</code>, argument <code>@fill_zero(&amp;buffer)</code></td></tr>
+<tr><td><code>^</code></td><td>Transfer ownership (move)</td><td>Parameter <code>(^msg: ptr)</code>, argument <code>call @process_msg(^msg)</code></td></tr>
+<tr><td><code>!</code></td><td>Release / end lifetime</td><td><code>!x</code>; <code>-&gt; i32!</code> in a function signature means fallible</td></tr>
+<tr><td><code>*</code></td><td>Raw pointer downgrade (rawcast), only in airlock contexts</td><td><code>raw = *safe</code>, <code>@extern fd_open(*path: ptr)</code></td></tr>
 </table>
 
-<div class="note"><span class="label">延伸</span><code>^</code> 在"所有权交给确定容器"的场景下有一个可验证形态 <code>transfer &lt;container&gt;, &lt;value&gt;</code>：它让 Referee 能检查目标容器并记录所有权重载，弥补裸 <code>^</code> 看不到去处的缺口。详见 <a href="09_ownership_transfer.html">transfer：可见的所有权转移</a>。</div>
+<div class="note"><span class="label">Further reading</span>In scenarios where “ownership is handed to a definite container”, <code>^</code> has a verifiable form <code>transfer &lt;container&gt;, &lt;value&gt;</code>: it lets the Referee check the target container and record the ownership transfer, filling the gap that a bare <code>^</code> cannot see where the value goes. See the <a href="09_ownership_transfer.html">transfer: Visible Ownership Transfer</a> page for details.</div>
 
-<div class="note"><span class="label">注意</span>SA 语法层没有 <code>&amp;mut</code>；
-Referee 会根据借用之后是否出现 <code>store</code> 来推导独占写借用。SLA 语言层的
-<code>&amp;mut T</code> 也尚未引入，<code>&amp;self</code> 当前同时覆盖读写。</div>
+<div class="note"><span class="label">Note</span>The SA syntax level has no <code>&amp;mut</code>;
+the Referee infers an exclusive write borrow from whether a <code>store</code> appears after the borrow. At the SLA language level,
+<code>&amp;mut T</code> has also not yet been introduced, and <code>&amp;self</code> currently covers both reading and writing.</div>
 
-<h2>能力掩码（CapabilityMask）</h2>
-<p>Referee 用一个位掩码跟踪每个寄存器的状态，校验都是 O(1) 的位运算。掩码存储类型为 <code>u16</code>：</p>
+<h2>Capability Mask (CapabilityMask)</h2>
+<p>The Referee tracks the state of each register with a bit mask, and all checks are O(1) bit operations. The mask is stored as a <code>u16</code>:</p>
 <pre><code>bit 0  (0x0001)  Active        bit 6  (0x0040)  Untracked
 bit 1  (0x0002)  Locked_Read   bit 7  (0x0080)  Fallible
 bit 2  (0x0004)  Locked_Mut    bit 8  (0x0100)  Immutable   （@const 全局常量）
 bit 3  (0x0008)  Consumed      bit 9  (0x0200)  InteriorPtr
 bit 4  (0x0010)  BorrowView
 bit 5  (0x0020)  FfiBorrow</code></pre>
-<p>诊断 JSON 中出现的 <code>expected_mask</code> / <code>actual_mask</code> 字段指的就是这组位；
-<code>BorrowConflict</code>、<code>UseAfterMove</code>、<code>CapabilityMismatch</code>
-等 trap 都源于掩码不满足要求。</p>
+<p>The <code>expected_mask</code> / <code>actual_mask</code> fields that appear in diagnostic JSON refer to exactly this set of bits;
+traps such as <code>BorrowConflict</code>, <code>UseAfterMove</code>, and <code>CapabilityMismatch</code>
+all arise when the mask does not satisfy the requirement.</p>
 
-<h2>前端责任制</h2>
-<p>SA 刻意不做作用域分析：Drop 插入位置、Phi 一致性、清理路径都由上游前端（人或 SLA 编译器）负责，
-Referee 只做事后校验。<code>assume_safe</code> / <code>assume_borrow</code> /
-裸指针这类"洗白"操作只能出现在 <code>@ffi_wrapper</code> 函数里，否则报
-<code>IllegalUnsafeContext</code>。</p>
+<h2>Frontend Responsibility</h2>
+<p>SA deliberately performs no scope analysis: Drop insertion points, Phi consistency, and cleanup paths are all the responsibility of the upstream frontend (a human or the SLA compiler),
+and the Referee only verifies after the fact. “Laundering” operations such as <code>assume_safe</code> / <code>assume_borrow</code> /
+raw pointers may only appear inside <code>@ffi_wrapper</code> functions, otherwise they report
+<code>IllegalUnsafeContext</code>.</p>
 
-<p>下一页：<a href="02_sa_syntax.html">SA 文本汇编速览</a>，用真实示例展示指令形状。</p>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<p>Next page: <a href="02_sa_syntax.html">SA Text Assembly at a Glance</a>, which shows instruction shapes with real examples.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/03_sa_asm/01_sa_model.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

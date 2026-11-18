@@ -1,34 +1,34 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>sa sla build-exe 与 build-workspace</title>
+<title>sa sla build-exe and build-workspace</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">命令行参考 &gt; sa sla build-exe / build-workspace</div>
-<h1>sa sla build-exe 与 build-workspace</h1>
+<div class="topic-header">Command-Line Reference &gt; sa sla build-exe and build-workspace</div>
+<h1>sa sla build-exe and build-workspace</h1>
 
-<p>这两个命令把 Sla 源码端到端编译为原生可执行文件：先按所选后端产出中间产物（默认 SA 文本，写在源文件同级；显式 <code>--test-backend sab</code> 时走 direct SAB 路径产出托管 SAB），再委派宿主 <code>sa build-exe</code> 完成后端与链接。读完本页可以完成从 <code>.sla</code> 到本机可执行文件的完整构建。</p>
+<p>These two commands compile Sla source end-to-end into a native executable: first they produce an intermediate artifact via the selected backend (by default SA text, written next to the source file; with an explicit <code>--test-backend sab</code> they take the direct SAB path and produce managed SAB), then they delegate to the host <code>sa build-exe</code> to complete the backend and linking. After reading this page you can complete the full build from <code>.sla</code> to a local executable.</p>
 
-<h2>语法</h2>
+<h2>Syntax</h2>
 <pre><code>usage: sa sla build-exe [file] [-p &lt;package&gt;] [sa-build-exe-options...]
 usage: sa sla build-workspace [-p &lt;package&gt;] [sa-build-exe-options...]</code></pre>
 
-<h2>参数</h2>
+<h2>Parameters</h2>
 <table>
-<tr><th>名称</th><th>说明</th></tr>
-<tr><td><code>file</code></td><td>输入的 <code>.sla</code> 源文件；省略时按 workspace 解析成员入口。<code>build-workspace</code> 不接受源文件参数，只能从 workspace 根或成员目录运行，否则报错退出。</td></tr>
-<tr><td><code>-p</code>, <code>--package</code></td><td>选择 workspace 成员包。</td></tr>
-<tr><td><code>--emit-sab</code>（或 <code>--emit-sab-file</code>）</td><td>额外在源文件旁边写出一个同级 <code>&lt;stem&gt;.sab</code> 文件供人工检查（两条后端路上都可用）。</td></tr>
-<tr><td><code>--test-backend auto|sab|sa</code></td><td>选择中间产物后端，与 <code>sa sla test</code> 同一拼写。默认（缺省 / <code>auto</code> / <code>sa</code>）走 SA 文本路；<code>sab</code> 显式选择 SAB（已封存的优化方向，opt-in）。该参数由插件消费，不透传给宿主。</td></tr>
-<tr><td><code>[sa-build-exe-options...]</code></td><td>其余参数原样透传给委派的宿主命令，例如 <code>-o</code>、<code>--release-fast</code>、<code>--release-small</code>、<code>--no-debug</code>、<code>--jobs</code>。未显式给 <code>--jobs</code> 时自动追加 <code>--jobs auto</code>。</td></tr>
-<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+<tr><th>Name</th><th>Description</th></tr>
+<tr><td><code>file</code></td><td>The input <code>.sla</code> source file; when omitted, the member entry point is resolved via the workspace. <code>build-workspace</code> does not accept a source file argument and can only run from the workspace root or a member directory, otherwise it errors out.</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>Select the workspace member package.</td></tr>
+<tr><td><code>--emit-sab</code> (or <code>--emit-sab-file</code>)</td><td>Additionally write a sibling <code>&lt;stem&gt;.sab</code> file next to the source file for manual inspection (available on both backend paths).</td></tr>
+<tr><td><code>--test-backend auto|sab|sa</code></td><td>Select the intermediate-artifact backend, with the same spelling as <code>sa sla test</code>. The default (omitted / <code>auto</code> / <code>sa</code>) takes the SA text path; <code>sab</code> explicitly selects SAB (a sealed optimization direction, opt-in). This parameter is consumed by the plugin and is not passed through to the host.</td></tr>
+<tr><td><code>[sa-build-exe-options...]</code></td><td>All remaining arguments are passed through verbatim to the delegated host command, for example <code>-o</code>, <code>--release-fast</code>, <code>--release-small</code>, <code>--no-debug</code>, <code>--jobs</code>. When <code>--jobs</code> is not given explicitly, <code>--jobs auto</code> is appended automatically.</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>Show usage and return 0.</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>委派目标是插件自己解析出的 <code>sa</code> 可执行文件，解析顺序为：<code>SA_EXE</code> 环境变量 → <code>$SCI_ROOT/zig-out/bin/</code> → 加载插件的 <code>sa.exe</code> 所在目录 → 遍历 <code>PATH</code>。委派命令的退出码会原样返回。</div>
+<div class="note"><span class="label">Note</span>The delegation target is the <code>sa</code> executable resolved by the plugin itself, in this resolution order: the <code>SA_EXE</code> environment variable → <code>$SCI_ROOT/zig-out/bin/</code> → the directory of the <code>sa.exe</code> that loaded the plugin → searching <code>PATH</code>. The exit code of the delegated command is returned as-is.</div>
 
-<h2>示例</h2>
+<h2>Examples</h2>
 <pre><code># 单文件编译为可执行文件（-o 透传给 sa build-exe）
 SA_PLUGIN_DEV=1 sa sla build-exe demos/rosetta/13_array_sum/main.sla -o /tmp/13_array_sum
 /tmp/13_array_sum
@@ -42,11 +42,11 @@ SA_PLUGIN_DEV=1 sa sla build-exe src/main.sla -o bin/app --emit-sab
 # 从 workspace 根编译指定成员
 SA_PLUGIN_DEV=1 sa sla build-workspace -p my_app -o /tmp/my_app</code></pre>
 
-<h2>产物位置</h2>
+<h2>Output locations</h2>
 <ul>
-<li>中间产物：默认是源文件同级的 <code>&lt;stem&gt;.sa</code> 文本；仅 <code>--test-backend sab</code> 时为 SAB 托管产物 <code>.sla-cache/sab/&lt;stem&gt;-&lt;hash&gt;.sab</code>，文件名由输入路径哈希得出；字节内容不变时不重写，以便 SA 增量缓存复用稳定输入。</li>
-<li>可执行文件：由委派的 <code>sa build-exe</code> 按 <code>-o</code> 写出；未给 <code>-o</code> 时由宿主按其默认规则从输入路径推导（Windows 下带 <code>.exe</code> 后缀）。</li>
-<li><code>--emit-sab</code> 时额外有源文件旁的 <code>&lt;stem&gt;.sab</code>。</li>
+<li>Intermediate artifact: by default the sibling <code>&lt;stem&gt;.sa</code> text next to the source file; only with <code>--test-backend sab</code> is it the SAB managed artifact <code>.sla-cache/sab/&lt;stem&gt;-&lt;hash&gt;.sab</code>, whose filename is derived from a hash of the input path; when the byte content is unchanged it is not rewritten, so that the SA incremental cache can reuse a stable input.</li>
+<li>Executable: written by the delegated <code>sa build-exe</code> according to <code>-o</code>; when <code>-o</code> is not given, the host derives it from the input path by its own default rules (with a <code>.exe</code> suffix on Windows).</li>
+<li>With <code>--emit-sab</code>, there is additionally a sibling <code>&lt;stem&gt;.sab</code> next to the source file.</li>
 </ul>
 </body>
 </html>

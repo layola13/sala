@@ -1,5 +1,5 @@
-<!DOCTYPE html><html lang='zh-CN'><head><meta charset='utf-8'>
-<title>四路对照基准（sa2native/sa2wasm/sa2js）</title>
+<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'>
+<title>Four-Way Comparison Benchmark (sa2native/sa2wasm/sa2js)</title>
 <link rel="stylesheet" href="../../assets/help.css"><style>
 body{font-family:system-ui,'Noto Sans SC',sans-serif;max-width:960px;margin:0 auto;padding:24px;color:#111}
 table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
@@ -10,9 +10,9 @@ svg{width:100%;height:auto;background:#fff;border:1px solid #e5e7eb;border-radiu
 h2{margin-top:36px;border-bottom:2px solid #2563eb;padding-bottom:6px}
 code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
 </style></head><body>
-<div class="topic-header">命令行参考 &gt; 宿主侧命令 &gt; sa build-js &gt; 四路对照基准</div><h1>四路对照基准（同一 workload，SA-only）</h1>
-<p>Workload：分配 K 个 CELL 对象（8B=Cell级 / 24B=Rc级），数组 pin 住全部存活，求和校验 <code>sum=K(K-1)/2</code>。四路：<b>sa→native / sa→wasm(node WASI) / sa→js+node / sa→js+bun</b>，全部由同一 SA 程序编译运行，无手写 JS。peak RSS 为子进程精确值（全新解释器 <code>peakrun</code> 取数）。JS 后端已含 P0+Slab+字面量修复。</p>
-<h2>1. 运行耗时（对数轴，ms）</h2>
+<div class="topic-header">Command-Line Reference &gt; Four-Way Comparison Benchmark (sa2native/sa2wasm/sa2js)</div><h1>Four-Way Comparison Benchmark (same workload, SA-only)</h1>
+<p>Workload: allocate K CELL objects (8B = Cell-level / 24B = Rc-level), the array pins all of them alive, and the sum is verified as <code>sum=K(K-1)/2</code>. Four ways: <b>sa→native / sa→wasm(node WASI) / sa→js+node / sa→js+bun</b>, all compiled and run from the same SA program, with no hand-written JS. Peak RSS is the exact child-process value (measured by <code>peakrun</code> with a fresh interpreter). The JS backend already includes the P0 + Slab + literal fixes.</p>
+<h2>1. Run time (log axis, ms)</h2>
 <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
 <text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Wall time by target (log)</text>
 <line x1="90" y1="204.0" x2="864" y2="204.0" stroke="#e5e7eb"/><text x="82" y="208.0" text-anchor="end" font-size="11" fill="#555">12.0</text>
@@ -55,7 +55,7 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
 <rect x="350" y="266" width="12" height="12" fill="#16a34a"/><text x="366" y="276" font-size="11" fill="#333">sa→js+node</text>
 <rect x="480" y="266" width="12" height="12" fill="#ea580c"/><text x="496" y="276" font-size="11" fill="#333">sa→js+bun</text>
 </svg>
-<h2>2. 峰值 RSS（MB）</h2>
+<h2>2. Peak RSS (MB)</h2>
 <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" role="img">
 <text x="440.0" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#111">Peak RSS by target</text>
 <line x1="90" y1="204.0" x2="864" y2="204.0" stroke="#e5e7eb"/><text x="82" y="208.0" text-anchor="end" font-size="11" fill="#555">0</text>
@@ -98,54 +98,55 @@ code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
 <rect x="350" y="266" width="12" height="12" fill="#16a34a"/><text x="366" y="276" font-size="11" fill="#333">sa→js+node</text>
 <rect x="480" y="266" width="12" height="12" fill="#ea580c"/><text x="496" y="276" font-size="11" fill="#333">sa→js+bun</text>
 </svg>
-<h3>K=200K/CELL=8B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
-<tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>13.3</td><td>11.6</td></tr>
-<tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>58.9</td><td>50.2</td></tr>
-<tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>197.7</td><td>53.7</td></tr>
-<tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>443.8</td><td>72.8</td></tr>
+<h3>K=200K/CELL=8B</h3><table><thead><tr><th>Target</th><th>Result</th><th>Time ms</th><th>Peak RSS MB</th></tr></thead><tbody>
+<tr><td>sa→native</td><td><span class='ok'>Pass</span></td><td>13.3</td><td>11.6</td></tr>
+<tr><td>sa→wasm(node)</td><td><span class='ok'>Pass</span></td><td>58.9</td><td>50.2</td></tr>
+<tr><td>sa→js+node</td><td><span class='ok'>Pass</span></td><td>197.7</td><td>53.7</td></tr>
+<tr><td>sa→js+bun</td><td><span class='ok'>Pass</span></td><td>443.8</td><td>72.8</td></tr>
 </tbody></table>
-<h3>K=200K/CELL=24B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
-<tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>14.2</td><td>11.6</td></tr>
-<tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>57.6</td><td>53.3</td></tr>
-<tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>193.1</td><td>60.1</td></tr>
-<tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>459.8</td><td>76.0</td></tr>
+<h3>K=200K/CELL=24B</h3><table><thead><tr><th>Target</th><th>Result</th><th>Time ms</th><th>Peak RSS MB</th></tr></thead><tbody>
+<tr><td>sa→native</td><td><span class='ok'>Pass</span></td><td>14.2</td><td>11.6</td></tr>
+<tr><td>sa→wasm(node)</td><td><span class='ok'>Pass</span></td><td>57.6</td><td>53.3</td></tr>
+<tr><td>sa→js+node</td><td><span class='ok'>Pass</span></td><td>193.1</td><td>60.1</td></tr>
+<tr><td>sa→js+bun</td><td><span class='ok'>Pass</span></td><td>459.8</td><td>76.0</td></tr>
 </tbody></table>
-<h3>K=500K/CELL=8B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
-<tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>30.9</td><td>20.8</td></tr>
-<tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>83.8</td><td>57.3</td></tr>
-<tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>347.6</td><td>62.0</td></tr>
-<tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>993.9</td><td>92.9</td></tr>
+<h3>K=500K/CELL=8B</h3><table><thead><tr><th>Target</th><th>Result</th><th>Time ms</th><th>Peak RSS MB</th></tr></thead><tbody>
+<tr><td>sa→native</td><td><span class='ok'>Pass</span></td><td>30.9</td><td>20.8</td></tr>
+<tr><td>sa→wasm(node)</td><td><span class='ok'>Pass</span></td><td>83.8</td><td>57.3</td></tr>
+<tr><td>sa→js+node</td><td><span class='ok'>Pass</span></td><td>347.6</td><td>62.0</td></tr>
+<tr><td>sa→js+bun</td><td><span class='ok'>Pass</span></td><td>993.9</td><td>92.9</td></tr>
 </tbody></table>
-<h3>K=500K/CELL=24B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
-<tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>30.7</td><td>20.8</td></tr>
-<tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>89.6</td><td>64.8</td></tr>
-<tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>367.3</td><td>75.4</td></tr>
-<tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>1060.7</td><td>101.1</td></tr>
+<h3>K=500K/CELL=24B</h3><table><thead><tr><th>Target</th><th>Result</th><th>Time ms</th><th>Peak RSS MB</th></tr></thead><tbody>
+<tr><td>sa→native</td><td><span class='ok'>Pass</span></td><td>30.7</td><td>20.8</td></tr>
+<tr><td>sa→wasm(node)</td><td><span class='ok'>Pass</span></td><td>89.6</td><td>64.8</td></tr>
+<tr><td>sa→js+node</td><td><span class='ok'>Pass</span></td><td>367.3</td><td>75.4</td></tr>
+<tr><td>sa→js+bun</td><td><span class='ok'>Pass</span></td><td>1060.7</td><td>101.1</td></tr>
 </tbody></table>
-<h3>K=1000K/CELL=8B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
-<tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>68.2</td><td>39.6</td></tr>
-<tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>138.3</td><td>68.4</td></tr>
-<tr><td>sa→js+node</td><td><span class='ok'>通过</span></td><td>669.5</td><td>72.8</td></tr>
-<tr><td>sa→js+bun</td><td><span class='ok'>通过</span></td><td>1996.9</td><td>99.8</td></tr>
+<h3>K=1000K/CELL=8B</h3><table><thead><tr><th>Target</th><th>Result</th><th>Time ms</th><th>Peak RSS MB</th></tr></thead><tbody>
+<tr><td>sa→native</td><td><span class='ok'>Pass</span></td><td>68.2</td><td>39.6</td></tr>
+<tr><td>sa→wasm(node)</td><td><span class='ok'>Pass</span></td><td>138.3</td><td>68.4</td></tr>
+<tr><td>sa→js+node</td><td><span class='ok'>Pass</span></td><td>669.5</td><td>72.8</td></tr>
+<tr><td>sa→js+bun</td><td><span class='ok'>Pass</span></td><td>1996.9</td><td>99.8</td></tr>
 </tbody></table>
-<h3>K=1000K/CELL=24B</h3><table><thead><tr><th>目标</th><th>结果</th><th>耗时ms</th><th>峰值RSS MB</th></tr></thead><tbody>
-<tr><td>sa→native</td><td><span class='ok'>通过</span></td><td>59.8</td><td>39.6</td></tr>
-<tr><td>sa→wasm(node)</td><td><span class='ok'>通过</span></td><td>158.0</td><td>83.2</td></tr>
-<tr><td>sa→js+node</td><td><span class='fail'>失败 rc=1</span></td><td>177.8</td><td>71.0</td></tr>
-<tr><td>sa→js+bun</td><td><span class='fail'>失败 rc=1</span></td><td>374.8</td><td>85.2</td></tr>
+<h3>K=1000K/CELL=24B</h3><table><thead><tr><th>Target</th><th>Result</th><th>Time ms</th><th>Peak RSS MB</th></tr></thead><tbody>
+<tr><td>sa→native</td><td><span class='ok'>Pass</span></td><td>59.8</td><td>39.6</td></tr>
+<tr><td>sa→wasm(node)</td><td><span class='ok'>Pass</span></td><td>158.0</td><td>83.2</td></tr>
+<tr><td>sa→js+node</td><td><span class='fail'>Fail rc=1</span></td><td>177.8</td><td>71.0</td></tr>
+<tr><td>sa→js+bun</td><td><span class='fail'>Fail rc=1</span></td><td>374.8</td><td>85.2</td></tr>
 </tbody></table>
-<h2>3. 容量极限（本机48G可用）</h2><table><thead><tr><th>目标</th><th>线性内存</th><th>8B对象上限</th><th>24B对象上限</th><th>备注</th></tr></thead><tbody>
-<tr><td>sa→js（node/bun同）</td><td>16MB固定ArrayBuffer</td><td>~1M（520K×24B通过；1M×24B=32MB OOM）</td><td>~520K（524288×32B≈16MB理论值）</td><td>Slab后8B对象 16B→8B，容量翻倍</td></tr>
-<tr><td>sa→wasm（node WASI）</td><td>6页起可增长（无max）</td><td>≥1M（151ms通过）</td><td>1M通过；1.5M/2M node侧崩溃（SIGSEGV/SIGTRAP，待跟进）</td><td>增长上限在host侧</td></tr>
-<tr><td>sa→native</td><td>host RAM</td><td>50M×8B=800MB存活 5.0s / RSS 1.9GB</td><td>—</td><td>malloc开销约2.4x</td></tr>
+<h2>3. Capacity limits (48G available on this machine)</h2><table><thead><tr><th>Target</th><th>Linear memory</th><th>8B object limit</th><th>24B object limit</th><th>Notes</th></tr></thead><tbody>
+<tr><td>sa→js (same for node/bun)</td><td>16MB fixed ArrayBuffer</td><td>~1M (520K×24B passes; 1M×24B = 32MB OOM)</td><td>~520K (524288×32B ≈ 16MB theoretical value)</td><td>After Slab, 8B objects go 16B→8B, doubling capacity</td></tr>
+<tr><td>sa→wasm（node WASI）</td><td>Starts at 6 pages, growable (no max)</td><td>≥1M (passes in 151ms)</td><td>1M passes; 1.5M/2M crash on the node side (SIGSEGV/SIGTRAP, to follow up)</td><td>The growth limit is on the host side</td></tr>
+<tr><td>sa→native</td><td>host RAM</td><td>50M×8B = 800MB alive in 5.0s / RSS 1.9GB</td><td>—</td><td>malloc overhead about 2.4x</td></tr>
 </tbody></table>
-<h2>4. 核心结论</h2><ul>
-<li><b>正确性</b>：同一SA程序四路输出一致（MEM OK），24B×1M仅JS因16MB硬顶OOM，符合设计。</li>
-<li><b>速度</b>：native最快；wasm/node约2~3x native；sa→js+node约7~10x；sa→js+bun在BigInt循环上最慢
-（同 workload 下 u64 累加是 u32 的 19.2x，见 peer 页 §3；bun 的 BigInt op 显著慢于 node）。字面量修复后 u32 循环 bun 已进 4.1x native。</li>
-<li><b>内存</b>：RSS主要被运行时启动基线主导（node ~50MB起，bun ~35MB起）；native单位字节最省。</li>
-<li><b>口径声明</b>：本页所有 JS 数字均出自 SA 源码编译产物；历史版本中的手写 JS 对照系列已按“只写 SA、禁止手写 mjs”口径移除。</li>
-<li><b>下一步</b>：bun官方bench对等测试见 peer 页；bulk内存操作的 slot→局部变量提升是下个优化点。</li>
-</ul><p style='color:#666;font-size:12px'>生成时间：2026-10-11 · 数据：/tmp/bench3/sixway_result.json（仅 SA 四路） · 方法：/tmp/bench3/sixway.py + peakrun.py + report.py</p>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<h2>4. Core conclusions</h2><ul>
+<li><b>Correctness</b>: the same SA program produces consistent output on all four ways (MEM OK); 24B×1M OOMs only on JS due to the 16MB hard cap, as designed.</li>
+<li><b>Speed</b>: native is fastest; wasm/node is about 2~3x native; sa→js+node about 7~10x; sa→js+bun is slowest on BigInt loops
+(under the same workload, u64 accumulation is 19.2x the u32 one, see the peer page §3; bun's BigInt ops are markedly slower than node's). After the literal fix, the u32 loop on bun is already within 4.1x native.</li>
+<li><b>Memory</b>: RSS is dominated mainly by the runtime startup baseline (node starts at ~50MB, bun at ~35MB); native is the most economical per byte.</li>
+<li><b>Basis statement</b>: all JS numbers on this page come from artifacts compiled from SA source; the hand-written JS comparison series in historical versions has been removed under the “SA only, no hand-written mjs” rule.</li>
+<li><b>Next step</b>: for the Bun official bench peer test, see the peer page; slot-to-local-variable promotion for bulk memory operations is the next optimization point.</li>
+</ul><p style='color:#666;font-size:12px'>Generated: 2026-10-11 · Data: /tmp/bench3/sixway_result.json (SA four ways only) · Method: /tmp/bench3/sixway.py + peakrun.py + report.py</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/04_cli/12_sixway.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body></html>

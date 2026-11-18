@@ -1,40 +1,40 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SAX 是什么与开发模型</title>
+<title>What SAX Is and Its Development Model</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SAX / MUI 界面开发 &gt; SAX 是什么与开发模型</div>
-<h1>SAX 是什么与开发模型</h1>
+<div class="topic-header">SAX / MUI UI Development &gt; What SAX Is and Its Development Model</div>
+<h1>What SAX Is and Its Development Model</h1>
 
-<p>这一页解释 SAX 的定位、一个 SAX 界面工程的组成方式，以及"纯界面、静态占位数据"的开发模型。
-读完你就能判断什么场景适合用 SAX，并理解后续几页要讲的语法、结构与工具链。</p>
+<p>This page explains what SAX is, how a SAX UI project is put together, and the “pure UI, static placeholder data” development model.
+After reading it, you will be able to judge which scenarios suit SAX and understand the syntax, structure, and toolchain covered in the following pages.</p>
 
-<h2>SAX 是什么</h2>
-<p>SAX 是 SA 的界面方言插件（<code>sa_plugin_sax</code>），把 <code>.sax</code> 源文件编译成可直接在浏览器运行的产物：
-<code>app.wasm</code>（组件逻辑）、<code>airlock.js</code>（WASM 与 DOM 之间的桥）、<code>index.html</code> 和中间产物 <code>app.sa</code>。
-在 SAX 之上还有两个配套插件：<code>sa_plugin_react</code> 提供 React 风格的写法（<code>className</code>、事件别名、大写组件组合等），
-<code>sa_plugin_mui</code> 提供以 SAX 源码形式发布的 Material 组件库（<code>mui/material.sax</code>、<code>mui/icons_material.sax</code>）。</p>
-<div class="note"><span class="label">注意</span>你的代码与 JS/TS 构建链物理隔离：<code>.sax → WASM</code> 全程走 SA 工具链，
-没有 esbuild/tsc/node。浏览器里唯一的 JS 是机器生成的胶水（<code>airlock.js</code> 和 dev 热重载客户端），不进入你的源码。</div>
+<h2>What SAX Is</h2>
+<p>SAX is SA's UI dialect plugin (<code>sa_plugin_sax</code>), which compiles <code>.sax</code> source files into output that runs directly in the browser:
+<code>app.wasm</code> (component logic), <code>airlock.js</code> (the bridge between WASM and the DOM), <code>index.html</code>, and the intermediate product <code>app.sa</code>.
+Two companion plugins sit on top of SAX: <code>sa_plugin_react</code> provides a React-style way of writing code (<code>className</code>, event aliases, capitalized component composition, and so on),
+and <code>sa_plugin_mui</code> provides a Material component library published in SAX source form (<code>mui/material.sax</code>, <code>mui/icons_material.sax</code>).</p>
+<div class="note"><span class="label">Note</span>Your code is physically isolated from the JS/TS build chain: <code>.sax → WASM</code> goes through the SA toolchain the whole way,
+with no esbuild/tsc/node. The only JS in the browser is machine-generated glue (<code>airlock.js</code> and the dev hot-reload client), which never enters your source code.</div>
 
-<h2>纯界面工程模型</h2>
-<p>最佳实践样本是 <code>D:\projects\sla\codex_ui</code>：把一个 React 界面用 SAX 工具链重构的<strong>纯界面工程</strong>。它的边界约定：</p>
+<h2>The Pure-UI Project Model</h2>
+<p>The best-practice sample is <code>D:\projects\sla\codex_ui</code>: a <strong>pure-UI project</strong> that rebuilds a React UI with the SAX toolchain. Its boundary conventions:</p>
 <ul>
-<li><strong>只做界面</strong>：不含真实业务逻辑，所有数据都是静态占位文本（如 "CPU 23% · MEM 41%"、"12.4k in / 3.1k out"）。</li>
-<li><strong>每个界面一个独立 <code>.sax</code> 文件</strong>：入口是根目录的 <code>app.sax</code>，屏幕和区域组件在 <code>screens/</code>，设置分区在 <code>screens/settings/</code>。</li>
-<li><strong>跨文件组件共享同一命名空间</strong>：所有文件通过 <code>--include</code> 一并传给编译器，大写开头的标签即可互相引用。</li>
-<li><strong>样式全部走全局 CSS 类</strong>（<code>app.css</code>），MUI 库组件用 <code>className</code> 加子文本/属性定制外观。</li>
-<li><strong>交互只做状态切换</strong>：布尔状态 + <code>fn handler()</code> + <code>render()</code>，没有路由、没有网络请求。</li>
+<li><strong>UI only</strong>: it contains no real business logic; all data is static placeholder text (such as “CPU 23% · MEM 41%”, “12.4k in / 3.1k out”).</li>
+<li><strong>One independent <code>.sax</code> file per screen</strong>: the entry point is <code>app.sax</code> in the root directory, screens and region components live in <code>screens/</code>, and settings sections live in <code>screens/settings/</code>.</li>
+<li><strong>Cross-file components share one namespace</strong>: all files are passed to the compiler together via <code>--include</code>, and tags starting with a capital letter can reference each other.</li>
+<li><strong>All styling goes through global CSS classes</strong> (<code>app.css</code>); MUI library components use <code>className</code> plus child text/attributes to customize their appearance.</li>
+<li><strong>Interaction is only state switching</strong>: boolean state + <code>fn handler()</code> + <code>render()</code>, with no routing and no network requests.</li>
 </ul>
 
-<h2>开发导航条：多屏切换的门禁替代品</h2>
-<p>原 React 应用的状态机门禁/对话框开关，在 SAX 里被替换成一个固定在页面底部的「开发导航条」
-（类名 <code>cxu-devnav</code>）。入口组件为每个屏幕声明一个 <code>i1</code> 布尔状态，点击按钮时把目标屏置 <code>true</code>、其余置 <code>false</code> 并调用 <code>render()</code>；
-每个屏幕包在 <code>&lt;section className="cxu-screen{nav_xxx ? '' : ' cxu-hidden'}"&gt;</code> 里，靠 <code>cxu-hidden</code>（<code>display:none</code>）实现互斥显示。
-设置抽屉内部也用同样手法实现 17 个分区的左栏切换（<code>sec_xxx</code> 状态族）。</p>
+<h2>The Development Navigation Bar: a Substitute for Multi-Screen Switching Gates</h2>
+<p>The state-machine gates / dialog switches of the original React application are replaced in SAX by a “development navigation bar” fixed at the bottom of the page
+(class name <code>cxu-devnav</code>). The entry component declares one <code>i1</code> boolean state per screen; clicking a button sets the target screen to <code>true</code>, the rest to <code>false</code>, and calls <code>render()</code>;
+each screen is wrapped in a <code>&lt;section className="cxu-screen{nav_xxx ? '' : ' cxu-hidden'}"&gt;</code>, and <code>cxu-hidden</code> (<code>display:none</code>) provides mutually exclusive display.
+The settings drawer uses the same technique internally for left-column switching among its 17 sections (the <code>sec_xxx</code> state family).</p>
 
 <pre><code>&lt;Component name="CodexUiApp"&gt;
   &lt;state&gt;
@@ -62,15 +62,16 @@
   }
 &lt;/Component&gt;</code></pre>
 
-<h2>本章节阅读路线</h2>
+<h2>Reading Route for This Chapter</h2>
 <ol>
-<li><a href="02_syntax.html">SAX 语法规则</a> —— 标签、属性、插值与 handler 的硬性边界。</li>
-<li><a href="03_project_structure.html">项目结构约定</a> —— 入口、screens/、settings 分区、导航条。</li>
-<li><a href="04_styling.html">样式体系</a> —— theme.css 令牌、styles/*.css 分工与拼接顺序。</li>
-<li><a href="05_mui.html">组件库 mui 概览</a> —— material.sax / icons_material.sax 里有什么。</li>
-<li><a href="06_toolchain.html">react/vite 插件集成与本地预览</a> —— 编译、热重载、静态构建。</li>
-<li><a href="07_getting_started.html">从零新建一个 SAX 界面工程</a> —— 最小可运行步骤。</li>
+<li><a href="02_syntax.html">SAX Syntax Rules</a> — the hard boundaries for tags, attributes, interpolation, and handlers.</li>
+<li><a href="03_project_structure.html">Project Structure Conventions</a> — the entry point, screens/, settings sections, and the navigation bar.</li>
+<li><a href="04_styling.html">The Styling System</a> — theme.css tokens, the division of labor among styles/*.css, and the concatenation order.</li>
+<li><a href="05_mui.html">The mui Component Library</a> — what is in material.sax / icons_material.sax.</li>
+<li><a href="06_toolchain.html">react/vite Plugin Integration and Local Preview</a> — compilation, hot reload, and static builds.</li>
+<li><a href="07_getting_started.html">Creating a SAX UI Project from Scratch</a> — the minimal runnable steps.</li>
 </ol>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/07_ui/01_overview.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

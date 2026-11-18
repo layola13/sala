@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>所有权与借用：Referee 对比 borrow checker</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">与 Rust 对比 &gt; 所有权与借用</div>
+<h1>所有权与借用：Referee 对比 borrow checker</h1>
+
+<p>Rust 和 Sla 都保证内存安全，但检查模型完全不同：Rust 用编译期 borrow checker 加类型系统区分读写，
+Sla 把这件事交给 SA 的 Referee 位掩码验证器。这一页逐项对比两种模型，说明 Sla 的两条设计红线
+（不放弃 <code>^</code>、不引入 <code>mut</code>），并给出可变性分阶段的引入计划。</p>
+
+<h2>两种检查模型</h2>
+<table>
+<tr><th>维度</th><th>Rust borrow checker</th><th>SA Referee（Sla 背后）</th></tr>
+<tr><td>读/写区分方式</td><td>类型系统：<code>&amp;T</code> 只读、<code>&amp;mut T</code> 独占写</td><td>只有 <code>&amp;</code> 一种语法；按借用视图后面有没有 store 动态判定
+<code>Locked_Read</code> / <code>Locked_Mut</code></td></tr>
+<tr><td>所有权转移</td><td>赋值/传参时隐式 move</td><td><code>^x</code> 前缀显式声明（多数场景可依赖自动移动）</td></tr>
+<tr><td>资源释放</td><td><code>Drop</code> trait</td><td>编译器隐式注入 <code>!</code>，用户面不写</td></tr>
+<tr><td>数据竞争防止</td><td><code>Send</code>/<code>Sync</code> 编译期求解</td><td>仿射掩码 + 跨核校验</td></tr>
+<tr><td>跨函数借用安全</td><td>编译期保证</td><td>前端责任制（FAQ 明示承认此处有下限缺口）</td></tr>
+<tr><td>验证器规模</td><td>约 200K 行</td><td>目标 ≤2500 行，可形式化证明（Coq / FPGA 烧录为路线）</td></tr>
+</table>
+<p>检查成本差距是 Sla 编译速度承诺的来源之一。按 2026-06-15 快照的目标口径：
+对 1000 个函数做借用检查，Rust NLL 约 1-3 秒，Sla 约 10 毫秒（O(1) 位掩码，宣称 100-300×）；
+这是<b>设计目标值</b>，不是实测基准报告。</p>
+
+<h2>五符号契约里的三个用户面符号</h2>
+<p>SA 的所有权契约由五个符号构成：<code>= &amp; ^ ! *</code>。Sla 用户面直接接触的是其中三个：</p>
+<table>
+<tr><th>Rust 写法</th><th>Sla 写法</th><th>差异说明</th></tr>
+<tr><td><code>&amp;x</code> / <code>&amp;mut x</code></td><td><code>&amp;x</code></td><td>创建借用视图，作用域结束自动解锁；读/写由 Referee 动态判定，不在语法层区分</td></tr>
+<tr><td>隐式 move（<code>let b = a;</code>）</td><td><code>let b = ^a;</code></td><td>Sla 用前缀 <code>^</code> 显式标记转移；方法调用按接收者签名自动借用/自动移动</td></tr>
+<tr><td><code>impl Drop</code> / 手动释放</td><td>无对应物</td><td><code>!</code> 由编译器在分支汇合点做活跃变量分析后隐式注入，源码不写</td></tr>
+</table>
+<p>被移动后的变量在前端即标记为 <code>Consumed</code>，再次使用会得到明确的 <code>UseAfterMove</code>
+编译错误——与 SA Referee 的拦截语义一致，只是报错提前到了 SLA 层。</p>
+
+<h2>显式 move 与隐式 move 对照</h2>
+<pre><code>// Rust：转移发生在赋值的瞬间，源码上没有任何痕迹
+let a = make_value();
+let b = a;              // 隐式 move，a 从此不可用
+// 再用 a → 编译错误</code></pre>
+<pre><code>// Sla：转移是一个看得见的操作
+let a = make_value();
+let b = ^a;             // ^ 前缀 = Move
+// 再用 a → UseAfterMove 编译错误</code></pre>
+<p>方法调用遵循同一套规则（UFCS 静态展开）：签名首参是 <code>&amp;T</code> 就自动借用
+（<code>v.len()</code> → <code>len(&amp;v)</code>），首参是值类型就自动移动
+（<code>v.push(1)</code> → <code>push(^v, 1)</code>）。</p>
+
+<h2>两条红线</h2>
+<p>表层兼容性评估为“让 Sla 更像 Rust”划了两条不可逾越的红线：</p>
+<table>
+<tr><th>红线</th><th>对应的设计原则</th></tr>
+<tr><td>不放弃 <code>^</code></td><td>五符号契约 + 仿射状态机的核心物理输入，去掉它 SA 验证模型就塌了</td></tr>
+<tr><td>不引入 <code>mut</code></td><td>共享读 vs 独占写由 Referee 在运行时上下文动态决定，<b>不在语法层区分</b>；
+<code>&amp;mut</code> 在这里属于冗余声明，“少一个前缀 = LLM 出错率更低”</td></tr>
+</table>
+<p>关于 <code>^</code> 还有一个常见担心——它会不会和 Rust 的 XOR 打架？答案是不会：
+Sla 的 <code>^x</code> 是<b>前缀</b>一元操作符，Rust 的 <code>a ^ b</code> 是<b>中缀</b>二元操作符，
+两者在 parser 里处于不同上下文，可以共存（解析规则见<a href="02_syntax_matrix.html">语法对照实测矩阵</a>）。</p>
+
+<h2>可变性的三个阶段</h2>
+<p>可变性决策（v0.2 定稿，2026-06-15）的核心结论是：<code>let mut</code> 永久不引入；
+<code>&amp;mut</code> 按<b>工程触发条件</b>引入，而不是立刻引入。</p>
+<table>
+<tr><th>项</th><th>Phase 1（当前）</th><th>Phase 2（sa3d ECS 启动前）</th></tr>
+<tr><td><code>let x = 5</code> 绑定可变性</td><td>默认可变（不变）</td><td>默认可变（不变）</td></tr>
+<tr><td><code>const x = 5</code> 绑定</td><td>不可变（不变）</td><td>不可变（不变）</td></tr>
+<tr><td><code>let mut x = 5</code> 写法</td><td><b>不引入</b></td><td><b>不引入</b></td></tr>
+<tr><td>impl/trait 中的 <code>&amp;self</code></td><td><b>涵盖读写</b>（当前约定）</td><td>仅读；写需 <code>&amp;mut self</code></td></tr>
+<tr><td><code>&amp;mut T</code> 借用类型</td><td>不引入</td><td>引入</td></tr>
+<tr><td>trait 方法 <code>&amp;mut self</code></td><td>不引入</td><td>引入（强制契约）</td></tr>
+<tr><td>lowered SA 影响</td><td>无</td><td>零影响（仍降级为 SA <code>&amp;</code>）</td></tr>
+<tr><td>现有 Sla 代码影响</td><td>零改动</td><td>写型方法签名改 <code>&amp;mut self</code>，由工具自动化迁移</td></tr>
+<tr><td>Rust 表层兼容度</td><td>约 70%</td><td>约 85%</td></tr>
+</table>
+<p>Phase 1 的约定已被真实 demo 验证：<code>demos/rosetta/59_method_counter/main.sla</code> 用
+<code>fn inc(&amp;self)</code> 包含自增写操作、<code>demos/rosetta/40_impl_block_state/main.sla</code>
+在 <code>&amp;self</code> 中修改状态，均正常工作——读写区分由 SA Referee 在 lowering 后承担。
+Phase 2 的硬触发是 ECS 并行调度器需要静态 read/write 集：如果 <code>move_sys</code> 写 <code>Pos</code>
+而 <code>render_sys</code> 读 <code>Pos</code>，调度器必须知道这一点才能决定串行；两者都写成
+<code>&amp;Pos</code> 时只能保守全串行。配套会提供迁移工具 <code>sa migrate sla-add-mut</code>
+扫描函数体中的写操作并自动改签名。</p>
+<div class="note"><span class="label">注意</span>Phase 2 引入 <code>&amp;mut</code> 不是哲学转向——
+SA 物理层的 Referee 仍动态判定读写；引入它只是给 ECS 调度器补静态信息。
+Phase 3（库生态形成时）才把借用错误升级到 Sla 源码层精确报错。</div>
+
+<h2>内存安全保证逐项对比</h2>
+<table>
+<tr><th>保证</th><th>Rust</th><th>Sla（通过 SA）</th></tr>
+<tr><td>无 use-after-free</td><td>✅</td><td>✅</td></tr>
+<tr><td>无 double-free</td><td>✅</td><td>✅</td></tr>
+<tr><td>无 use-after-move</td><td>✅</td><td>✅</td></tr>
+<tr><td>无内存泄漏</td><td>✅</td><td>✅</td></tr>
+<tr><td>数据竞争防止</td><td><code>Send</code>/<code>Sync</code> 编译期求解</td><td>仿射掩码 + 跨核校验</td></tr>
+<tr><td>验证器代码量</td><td>约 200K 行</td><td>≤2500 行</td></tr>
+<tr><td>形式化证明可行性</td><td>极难</td><td>可烧 FPGA / Coq 证明（路线）</td></tr>
+<tr><td>跨函数借用安全</td><td>编译期保证</td><td>前端责任制（承认下限缺口）</td></tr>
+</table>
+
+<h2>Rust → Sla 迁移速查</h2>
+<table>
+<tr><th>Rust 写法</th><th>Sla 当前等价写法</th></tr>
+<tr><td><code>let mut x = 5;</code></td><td><code>let x = 5;</code></td></tr>
+<tr><td><code>fn inc(&amp;mut self)</code></td><td><code>fn inc(&amp;self)</code></td></tr>
+<tr><td><code>&amp;mut x</code></td><td><code>&amp;x</code></td></tr>
+<tr><td><code>impl Drop for T</code></td><td>无对应物；由编译器托管清理</td></tr>
+<tr><td><code>'a</code> 生命周期标注</td><td>删除即可（解析但忽略）</td></tr>
+</table>
+<div class="warning"><span class="label">警告</span>从 Rust 迁移时最容易踩的坑是把
+<code>&amp;T</code> 当成只读：Sla 当前约定下它同时覆盖读和写，签名上看不出方法是否会改状态。
+这个“签名不表达可变性”的缺口要等 Phase 2 引入 <code>&amp;mut self</code> 后才闭合。</div>
+
+<h2>本页要点</h2>
+<ul>
+<li>两边都给出无 UAF/双重释放/泄漏/use-after-move 的保证，差别在验证机制与验证器规模。</li>
+<li>Sla 只有一种借用语法，读写由 Referee 动态判定；这是“不引入 mut”红线的物理基础。</li>
+<li><code>^</code> 让所有权转移显式化，与 Rust 的中缀 XOR 不冲突。</li>
+<li><code>let mut</code> 永久不引入；<code>&amp;mut T</code>/<code>&amp;mut self</code> 属于 Phase 2 工程触发项。</li>
+<li>宏层面的差异往往比所有权更影响移植工作量，见<a href="04_macros.html">宏与元编程对比</a>。</li>
+</ul>
+</body>
+</html>

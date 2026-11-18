@@ -1,54 +1,55 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>VM 支持规划：可编程查询层</title>
+<title>VM Support Plan: A Programmable Query Layer</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">db 数据库插件 &gt; VM 支持规划：可编程查询层</div>
-<h1>VM 支持规划：可编程查询层</h1>
+<div class="topic-header">db Database Plugin &gt; VM Support Plan: A Programmable Query Layer</div>
+<h1>VM Support Plan: A Programmable Query Layer</h1>
 
-<div class="note"><span class="label">状态</span>讨论已成、未立项（2026-10-28 用户提出「db 加入 VM 支持增加灵活性」并完成评估，本页为结论权威记录）。定位一句话：<strong>不引入 SQL，引入可编程的查询逻辑</strong>——字节码用 SA 自己的 SAB，模块沿用 qmod 的哈希寻址。前置条件：SAB 解释器稳定性清理 + VM 燃料计量规格（与 sangx 逻辑层插件共用同一笔 VM 投资）。</div>
+<div class="note"><span class="label">Status</span>Discussion complete, not yet proposed/planned (on 2026-10-28 the user proposed “adding VM support to db for more flexibility” and the evaluation was completed; this page is the authoritative record of the conclusion). The positioning in one sentence: <strong>do not introduce SQL; introduce programmable query logic</strong> — the bytecode is SA's own SAB, and modules keep using qmod's hash addressing. Prerequisites: SAB interpreter stability cleanup + a VM fuel metering specification (the same VM investment shared with the sangx logic-layer plugin).</div>
 
-<h2>先例与现状</h2>
+<h2>Precedent and current state</h2>
 <ul>
-<li><strong>SQLite 本质上就是字节码 VM</strong>：SQL 先编译为 VDBE 字节码再执行，其灵活性来自那台虚拟机，只是字节码不对用户开放。本规划等于把这层打开，且字节码是 SA 生态自有的 SAB。</li>
-<li><strong>qmod 已是雏形</strong>：插件现有「预编译查询模块按哈希执行」（<code>sa db exec &lt;hash&gt;</code>）机制，VM 化是把 qmod 从固定的几种查询形状推广为任意 SLA 编写的查询模块，寻址与分发机制不变。</li>
-<li>现状的硬边界在读句柄 API：加一种新查询形状 = 加 native API + 发新版插件。VM 化的首要收益就是拆掉这条边界。</li>
+<li><strong>SQLite is essentially a bytecode VM</strong>: SQL is first compiled to VDBE bytecode and then executed; its flexibility comes from that virtual machine, except that the bytecode is not open to users. This plan amounts to opening up that layer, with bytecode that is native to the SA ecosystem: SAB.</li>
+<li><strong>qmod is already a prototype</strong>: the plugin already has a mechanism for “precompiled query modules executed by hash” (<code>sa db exec &lt;hash&gt;</code>); VM-ifying it generalizes qmod from a few fixed query shapes to arbitrary query modules written in SLA, with the addressing and dispatch mechanism unchanged.</li>
+<li>The hard boundary in the current state is the read-handle API: adding a new query shape = adding a native API + releasing a new version of the plugin. The primary benefit of VM-ification is removing that boundary.</li>
 </ul>
 
-<h2>灵活性收益</h2>
+<h2>Flexibility benefits</h2>
 <ul>
-<li><strong>新查询形状不用发版</strong>：谓词、聚合、连接逻辑写成字节码模块即可，宿主与插件二进制不动。</li>
-<li><strong>计算下推</strong>：过滤/聚合在读快照旁执行，避免逐行过 FFI 搬运数据；模块按哈希寻址，可热换、可版本化、可 A/B。</li>
-<li><strong>存储过程类能力</strong>：MySQL 有、SQLite 弱的存储过程/触发器/物化视图，可由 VM 模块补上，且模块受 capability 约束（只能碰被授权的表），比 MySQL 存储过程的全权限模型干净。</li>
-<li><strong>生态复利</strong>：sangx 的逻辑层插件、规划中 sardis 的脚本面、db 的查询模块共用同一台 VM 与同一套能力模型——VM 的稳定性与性能投资摊到三个产品上。</li>
+<li><strong>New query shapes without a release</strong>: predicates, aggregations, and join logic can be written as bytecode modules, with the host and plugin binaries unchanged.</li>
+<li><strong>Computation pushdown</strong>: filtering/aggregation execute next to the read snapshot, avoiding row-by-row data movement across the FFI; modules are addressed by hash, so they can be hot-swapped, versioned, and A/B tested.</li>
+<li><strong>Stored-procedure-like capabilities</strong>: stored procedures/triggers/materialized views — which MySQL has and SQLite is weak at — can be supplied by VM modules, and modules are constrained by capability (they can only touch tables they are authorized for), which is cleaner than MySQL stored procedures' full-privilege model.</li>
+<li><strong>Ecosystem compounding</strong>: sangx's logic-layer plugin, the planned sardis scripting surface, and db's query modules share the same VM and the same capability model — the VM's stability and performance investment is spread across three products.</li>
 </ul>
 
-<h2>设计纪律（守住才还是这个插件）</h2>
+<h2>Design discipline (keep these, or it stops being this plugin)</h2>
 <ul>
-<li><strong>schema 永远编译期定死</strong>：VM 只许动查询逻辑。守不住这条，插件会慢慢长成第二个通用数据库，丢掉「编译期 schema、无运行时解析」的立身取舍。</li>
-<li><strong>两档执行</strong>：VM 只做编排；列运算原语（sum/filter/count 等向量化操作）保留为 native extern 供模块调用。热模块留 AOT 逃生口——经 SLA 工具链编译为 native 后注册执行。</li>
-<li><strong>默认只读</strong>：查询模块默认只有读能力；写入只能经现有的单表事务 API，不给模块裸写段文件的面。</li>
-<li><strong>燃料计量是前置条件，不是优化项</strong>：模块执行必须有步数预算与超时。单写者模型下，一条跑飞的查询能锁死全表——没有计量就不许上线写路径，只读档亦须计量防宿主进程被挂死。</li>
-<li><strong>数据文件永不嵌字节码</strong>：数据比代码活得久。模块存应用层、按哈希引用；把存储过程持久化进数据目录等于把数据绑上 VM 版本，明确禁止。</li>
+<li><strong>The schema is always fixed at compile time</strong>: the VM may only touch query logic. If this line is not held, the plugin will slowly grow into a second general-purpose database and lose its founding trade-off of “compile-time schema, no runtime parsing”.</li>
+<li><strong>Two-tier execution</strong>: the VM only orchestrates; column-operation primitives (vectorized operations such as sum/filter/count) remain as native externs for modules to call. Hot modules keep an AOT escape hatch — compiled to native through the SLA toolchain, then registered and executed.</li>
+<li><strong>Read-only by default</strong>: query modules have only read capability by default; writes can only go through the existing single-table transaction API, and modules are not given a surface for writing segment files directly.</li>
+<li><strong>Fuel metering is a prerequisite, not an optimization</strong>: module execution must have a step budget and a timeout. Under the single-writer model, one runaway query can lock up an entire table — without metering, the write path must not ship, and the read-only tier must also be metered to keep a module from hanging the host process.</li>
+<li><strong>Data files never embed bytecode</strong>: data outlives code. Modules live at the application layer and are referenced by hash; persisting stored procedures into the data directory amounts to binding the data to a VM version, and is expressly forbidden.</li>
 </ul>
 
-<h2>风险登记</h2>
+<h2>Risk register</h2>
 <ul>
-<li><strong>TCB 扩大且爆炸半径更敏感</strong>：VM 解释器进入 db 的信任边界。Web 服务器 worker 崩溃可重启，数据库内跑坏字节码可能写坏数据——故只读默认、写走事务 API、计量先行，三条纪律都是为此。</li>
-<li><strong>性能卖点风险</strong>：解释执行谓词慢于 native 扫描是常态，而扫描/投影速度是本插件对 SQLite 的主要卖点。两档制（VM 编排 + native 原语 + AOT 逃生口）是守卖点的结构，不是可选装饰。</li>
-<li><strong>解释器既有稳定性问题</strong>：SAB 解释器有在册缺陷（如 &amp; 标量实参 segfault），属编译器线待清理项；本规划与 sangx 规划共用这笔前置账。</li>
+<li><strong>A larger TCB with a more sensitive blast radius</strong>: the VM interpreter enters db's trust boundary. A Web server worker that crashes can be restarted, but bad bytecode running inside a database can corrupt data — hence the three disciplines of read-only by default, writes through the transaction API, and metering first are all for this.</li>
+<li><strong>Risk to the performance selling point</strong>: interpreted predicate execution being slower than a native scan is the norm, and scan/projection speed is this plugin's main selling point against SQLite. The two-tier design (VM orchestration + native primitives + AOT escape hatch) is the structure that protects the selling point, not optional decoration.</li>
+<li><strong>Existing interpreter stability issues</strong>: the SAB interpreter has registered defects (such as a segfault on &amp; scalar arguments), which are cleanup items on the compiler track; this plan shares that prerequisite bill with the sangx plan.</li>
 </ul>
 
-<h2>分步建议</h2>
+<h2>Recommended steps</h2>
 <ul>
-<li><strong>第一步（只读档）</strong>：快照上的谓词/聚合 VM 模块 + native 列原语 + 燃料计量。风险最低、灵活性收益最大——新查询形状从此不用发版插件即在此步兑现。</li>
-<li><strong>第二步（评估后）</strong>：写过程模块（经事务 API）与 AOT 注册档；是否做取决于第一步的实测数据（模块热度分布与解释开销占比）。</li>
-<li>立项时点未定，与 sangx 的 VM 前置工程合并排期。</li>
+<li><strong>Step one (read-only tier)</strong>: predicate/aggregation VM modules over snapshots + native column primitives + fuel metering. Lowest risk, greatest flexibility benefit — new query shapes no longer requiring a plugin release is delivered at this step.</li>
+<li><strong>Step two (after evaluation)</strong>: write-procedure modules (through the transaction API) and the AOT registration tier; whether to do it depends on measured data from step one (the module hotness distribution and the share of interpretation overhead).</li>
+<li>The timing for proposing/planning the project is not yet set; it will be scheduled together with sangx's VM prerequisite work.</li>
 </ul>
 
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/10_db/07_vm_support.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

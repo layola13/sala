@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>fs：文件与目录</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; fs：文件与目录</div>
+<h1>fs：文件与目录</h1>
+
+<p>这一页介绍 <code>sa_std/fs.sai</code> 的文件读写、整文件读取、目录遍历与 metadata 函数，
+以及 Sla/SA 侧对应的宏封装。读完即可打开文件读写内容，并把整个文件读进内存缓冲。</p>
+
+<h2>导入</h2>
+<pre><code>@import "sa_std/fs.sai"   // extern 契约
+@import "sa_std/fs.sa"    // SA 宏（Sla 方法面经此 lower）</code></pre>
+
+<h2>常用 extern（摘自 fs.sai）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_std_fs_open_read(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>只读方式打开文件</td></tr>
+<tr><td><code>sa_std_fs_file_read(file: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td>读最多 cap 字节</td></tr>
+<tr><td><code>sa_std_fs_file_write(file: u64, &amp;buf: ptr, len: u64, &amp;out_written: ptr) -&gt; i32</code></td><td>写 buf</td></tr>
+<tr><td><code>sa_std_fs_file_seek(file: u64, whence: u32, offset: i64, &amp;out_pos: ptr) -&gt; i32</code></td><td>定位读写位置</td></tr>
+<tr><td><code>sa_std_close(handle: u64) -&gt; i32</code></td><td>关闭 owned 句柄</td></tr>
+<tr><td><code>sa_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td><td>整文件读为文本，返回 owned 缓冲句柄</td></tr>
+<tr><td><code>sa_fs_read_file(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td><td>整文件读为字节缓冲</td></tr>
+<tr><td><code>sa_fs_write_file(&amp;path: ptr, path_len: u64, &amp;buf: ptr, len: u64) -&gt; i32</code></td><td>整体写入文件</td></tr>
+<tr><td><code>sa_fs_read_buffer_data(buffer: u64) -&gt; &amp;ptr / sa_fs_read_buffer_len(buffer: u64) -&gt; u64 / sa_fs_read_buffer_free(^buffer: u64) -&gt; i32</code></td><td>读缓冲三件套：数据 / 长度 / 释放</td></tr>
+<tr><td><code>sa_fs_read_dir_entries(&amp;path: ptr, path_len: u64, max_entries: u64) -&gt; u64!</code></td><td>列目录项；配套 <code>sa_fs_dir_entries_len</code>、<code>sa_fs_dir_entry_name_ptr/_len/_kind</code> 与 <code>_free</code></td></tr>
+<tr><td><code>sa_fs_metadata(&amp;path: ptr, path_len: u64) -&gt; u64!</code></td><td>取 metadata 句柄；配套 <code>is_file/is_directory/len/mode/modified_ms</code> 等访问器与 <code>sa_fs_metadata_free</code></td></tr>
+<tr><td><code>sa_fs_exists(&amp;path: ptr, path_len: u64) -&gt; i32</code> / <code>sa_fs_remove_path(...) -&gt; i32</code> / <code>sa_fs_create_dir(...) -&gt; i32</code> / <code>sa_fs_copy_file(...) -&gt; i32</code> / <code>sa_fs_rename(...) -&gt; i32</code></td><td>存在判断、删除、建目录、复制、重命名</td></tr>
+<tr><td><code>sa_fs_hard_link(...)</code> / <code>sa_fs_symlink(...)</code> / <code>sa_fs_set_permissions(...)</code></td><td>硬链接、符号链接、权限设置</td></tr>
+</table>
+
+<h2>SA 宏形式（fs.sa 节选）</h2>
+<p>宏把 extern 调用包成多返回值形式，例如：</p>
+<pre><code>[MACRO] FS_READ_TO_STRING %out_status, %out_buffer, %path, %path_len, %max_bytes
+[MACRO] FS_OPEN_READ      %out_status, %out_file, %path, %path_len
+[MACRO] FS_WRITE_FILE     %out_status, %path, %path_len, %buf, %len
+[MACRO] FS_READ_BUFFER_DATA %out_ptr, %buffer
+[MACRO] FS_EXISTS         %out_flag, %path, %path_len
+[MACRO] FS_METADATA_IS_FILE %out_flag, %metadata</code></pre>
+
+<h2>真实示例</h2>
+<p>Sla 侧包装宏摘自 <code>sa_plugin_sla/tests/import_fixtures/pkgjson/fs_helpers.sa</code>：</p>
+<pre><code>@import "sa_std/fs.sa"
+
+[MACRO] SLA_FS_READ_TO_STRING %out_buffer, %path, %path_len, %max_bytes
+    __sla_fs_read_status_%out_buffer = 0
+    EXPAND FS_READ_TO_STRING __sla_fs_read_status_%out_buffer, %out_buffer, %path, %path_len, %max_bytes
+    !__sla_fs_read_status_%out_buffer
+[END_MACRO]</code></pre>
+<p>SA 层直接使用宏的例子摘自 <code>demos/rosetta/181_file_descriptor_raii/main.sa</code>
+（打开失败时构造 <code>Err</code>）：</p>
+<pre><code>@const SLA_STR_0 = utf8:"/dev/null"
+EXPAND SLICE_NEW tmp_1, &SLA_STR_0, tmp_2
+EXPAND FS_OPEN_READ tmp_5, tmp_6, tmp_3, tmp_4
+tmp_8 = eq tmp_5, SA_FS_OK
+br tmp_8 -&gt; L_FILE_OPEN_OK_0, L_FILE_OPEN_ERR_1</code></pre>
+
+<div class="warning"><span class="label">警告</span>整文件读取受 <code>max_bytes</code> 上限保护，
+返回的是 owned 缓冲句柄；用完必须调用对应的 <code>_free</code>，
+否则缓冲泄漏。</div>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>工具链组成</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">入门指南 &gt; 工具链组成</div>
+<h1>工具链组成</h1>
+
+<p>这一页把 SA / SLA 工具链里的可执行文件、插件目录和标准库逐一列出，每个条目一句话说明角色。
+读完你就能知道某个任务该找哪个命令或哪个仓库。</p>
+
+<h2>核心可执行文件</h2>
+<table>
+<tr><th>名称</th><th>来源</th><th>角色</th></tr>
+<tr><td><code>sa.exe</code></td><td><code>sci</code></td><td>SA 宿主 CLI：<code>run</code> / <code>build</code> / <code>build-exe</code> / <code>build-wasm</code> / <code>test</code> / <code>plugin</code> 等子命令，加载并调度所有插件</td></tr>
+<tr><td><code>sla.exe</code></td><td><code>sa_plugin_sla</code></td><td><b>顶级 <code>sla</code> 命令</b>：全自动安装包自带，或由安装脚本复制到 <code>SCI\current\bin</code>（与 sa.exe 同目录、同在 PATH），功能与 <code>sa sla …</code> 完全等价</td></tr>
+<tr><td>动态库（<code>libsla.so</code> / DLL）+ <code>sap.json</code></td><td><code>sa_plugin_sla</code></td><td>Sla 编译器插件本体，由 <code>sa plugin install --dev</code> 注册进 SA 环境</td></tr>
+</table>
+
+<h2>SLA 插件提供的命令</h2>
+<p>下表以顶级 <code>sla</code> 命令书写；每种写法都有 <code>sa sla …</code> 等价形式
+（去掉前缀即互换），详见「命令行参考」章节。</p>
+<table>
+<tr><th>命令</th><th>作用</th></tr>
+<tr><td><code>sla init [path]</code></td><td>创建最小 SLA 二进制项目骨架</td></tr>
+<tr><td><code>sla check &lt;file&gt;</code></td><td>词法、语法、类型检查，不发射最终 SA 汇编</td></tr>
+<tr><td><code>sla build &lt;file&gt;</code></td><td>把 <code>.sla</code> 编译为经校验的 <code>.sa</code> 汇编文件</td></tr>
+<tr><td><code>sla build-exe &lt;file&gt;</code></td><td>编译为原生可执行文件；默认走 SA 文本路，SAB 路须显式 <code>--test-backend sab</code></td></tr>
+<tr><td><code>sla sab build</code> / <code>sab workspace</code> / <code>sab disasm</code></td><td>SAB 编译 / 按 workspace 成员编译 / 反汇编调试；短别名 <code>slab</code></td></tr>
+<tr><td><code>sla test &lt;file&gt;</code></td><td>编译后经 <code>sa test</code> 运行；默认 <code>auto</code> 后端落 SA 文本路，SAB 须显式 <code>--test-backend sab</code></td></tr>
+<tr><td><code>sla skills [--json]</code></td><td>列出 SLA 插件能力；文本模式还会写入 skill 文件到当前目录</td></tr>
+</table>
+
+<h2>应用插件一览</h2>
+<p>每个插件是独立工程（各自的 <code>sap.json</code> + <code>.sai</code>/<code>.sal</code> +
+动态库），可独立安装升级。角色描述来自 <code>sci</code> README：</p>
+<table>
+<tr><th>插件目录</th><th>一句话角色</th></tr>
+<tr><td><code>sa_plugin_sax</code></td><td>SA UI 方言：<code>.sax</code> → <code>app.wasm</code> + <code>airlock.js</code> + <code>index.html</code></td></tr>
+<tr><td><code>sa_plugin_react</code></td><td>React-on-SAX：用 React 心智模型编写 SA 组件</td></tr>
+<tr><td><code>sa_plugin_mui</code></td><td>Material UI 组件（早期）</td></tr>
+<tr><td><code>sa_plugin_vite</code></td><td>开发服务器与 <code>.sax</code> 热更新（Phase 2）</td></tr>
+<tr><td><code>sa_plugin_wgpu</code></td><td>浏览器 WebGPU sidecar</td></tr>
+<tr><td><code>sa_plugin_3dengines</code></td><td>3D 引擎栈（对齐 Bevy）</td></tr>
+<tr><td><code>sa_plugin_http_server</code></td><td>HTTP 服务器</td></tr>
+<tr><td><code>sa_plugin_http_client</code></td><td>HTTP 客户端</td></tr>
+<tr><td><code>sa_plugin_db</code></td><td>原生列式数据库（文件支撑）</td></tr>
+<tr><td><code>sa_plugin_dbnet</code></td><td>数据库网络层</td></tr>
+<tr><td><code>sa_plugin_matmul</code></td><td>物理极限 GEMM 矩阵乘法</td></tr>
+<tr><td><code>sa_plugin_vm</code></td><td>独立动态 VM 解释器</td></tr>
+<tr><td><code>sa_plugin_pkg</code></td><td>零信任包管理：URL 作命名空间、SHA-256 版本锁定、无中心 registry、模块级 grants 沙箱</td></tr>
+<tr><td><code>sa_plugin_tui</code></td><td>终端能力 ABI：所有权、尺寸、输出、模式切换、字节输入事件</td></tr>
+<tr><td><code>sa_plugin_ts</code></td><td>TypeScript → SA 前端</td></tr>
+<tr><td><code>sa_plugin_deno</code></td><td>Deno API 子集前端（实验性，非 Deno 运行时）</td></tr>
+<tr><td><code>sa_plugin_node</code></td><td>Node API 表面前端（实验性，无 V8/VM）</td></tr>
+<tr><td><code>sa_plugin_bc2sa</code></td><td><code>clang</code>/<code>rustc</code> → LLVM bitcode → SA（实验性）</td></tr>
+</table>
+
+<h2>TS 前端：sa_plugin_ts 与 tsgo-sa（satsgo）</h2>
+<p>仓库内有两个 TypeScript → SA 前端：<code>sa_plugin_ts</code>（手写词法/解析，
+子集明确，286 个 demo 全过 <code>sa check</code>）与 <code>tsgo-sa</code>
+（satsgo，复用生产级 TS 解析/绑定/检查器，目标是替代前者）。
+两者共同纪律：<strong>拒则大声</strong>——不在子集的一律报定位错误，
+绝不静默错译；标准库一律复用 <code>sci/sa_std</code> 或插件原生后端，
+前端零运行时模拟（<code>tools/check_sa_std_projection.sh</code> 机器强制）。</p>
+<ul>
+<li><strong>多文件链接</strong>（<code>tsgo-sa build</code>）：import 图 + 可达集，
+值循环拒绝并给出链；<code>import type</code> 边与“仅类型位使用”的
+value import 边自动擦除；<code>export default {..}</code> /
+<code>export default ns</code> 命名空间对象按成员直达定义（含
+<code>const {a, b: c} = NS</code> 解构）；
+<code>package.json</code> 依赖记入 <code>sa.mod</code> 注释与报告
+（require 行需 sha256，无 hash 不输出有效行）。</li>
+<li><strong>类型驱动布局</strong>：结构体布局优先记录表，缺失时查检查器
+（工厂返回等推断类型、匿名形字段集）；<code>type X = {..}</code> 别名建布局，
+嵌套链按字段偏移下沉；类静态字面量折叠（heritage 类亦发布静态，实例化仍拒）；
+访问器（getter/setter）只记录不内联，读写报专属诊断。</li>
+<li><strong>守卫与窄化</strong>：<code>?.</code> 按可空性加 join；
+<code>typeof v === "undefined"</code> 降为 null 检查（子集 null/undefined 统一为 0）；
+<code>Date</code> 窄化为 <code>i64</code> 毫秒（UTC），
+<code>now/getTime/toISOString/parse/get 系/setter/toString 系/valueOf</code>
+投影到 <code>sa_std/time.sai</code>（见标准库 time 页）。箭头函数捕获走共享用名分析
+（类型名不进捕获）；<code>typeof</code> 未知名的“unknown global”判定经
+binder 可见性（自建 scope 仍管所有权，binder 只答可见性）；
+<code>typeof v === "undefined"</code> 降为 null 检查；
+泛型按实参单态化布局（<code>Box&lt;i32&gt;</code> 与 <code>Box&lt;string&gt;</code> 分宽，
+递归经实例 shell 收敛）；
+已知类型的 <code>typeof</code> 折叠为常量（联合一致才折叠，any 仍拒）。
+注意 NoLib 衰减：方言原语注解（<code>i32</code>/<code>u64</code> 等）在检查器眼中是
+<code>Any</code>，类型精度只对真实 TS 类型（<code>number</code>/<code>string</code>/
+接口/导入名）有效；写可移植 TS 时优先真实类型。</li>
+<li><strong>Node/Deno 投影</strong>：<code>os/path/crypto/Hash/url/querystring/util/console/Buffer</code>
+与 <code>Deno.*</code> 按调用形状投影到 <code>node.sai</code> / <code>deno.sai</code>
+原生符号（u32 状态检查，非零 panic；<code>Deno.env.get</code> 缺失映射 null）；
+<code>Deno.env.*</code> 走两级命名空间路由；异步（timers 等）与缺件保持大声拒。
+完整表面见“插件参考 &gt; node”页第九节。</li>
+<li><strong>TSX</strong>：静态模板直出 <code>.sax</code>；<code>useState</code> 进
+state 槽、挂载期 <code>useEffect</code>（空体/ setter 常量）进
+<code>@onMount</code>；<code>document.createElement/appendChild/setAttribute</code>、
+<code>createTextNode</code>、<code>textContent/innerHTML</code> 读写与
+<code>el.textContent</code> 读（调用方 scratch + 满缓冲 panic）、
+<code>getAttribute/removeAttribute</code> 与 <code>className/id</code> 糖读投影到
+airlock DOM extern；<code>useEffect</code> 内 <code>console</code> 调用维持拒绝
+（.sax 无 print 机制）；其余 hooks/动态形态一律大声拒。</li>
+<li><strong>拒则大声的名录</strong>：异步定时器（<code>setTimeout</code> 等 6 个，
+缺事件循环，Phase 2）、<code>toLocale*</code>（缺 locale 后端）、非 ISO 的
+<code>Date.parse</code>（panic，非 NaN）、动态 <code>Buffer.concat</code> 数组、
+<code>format/inspect</code>（缺编码器/类型守卫）。用户同名定义永远优先于
+上述拒绝（影子规则）。</li>
+</ul>
+
+<h2>TS 前端：tsgosa（typescript-go 薄口，2026-10 现状）</h2>
+<p><code>tsgosa</code> 是 typescript-go 的浅克隆：复用其生产级解析/绑定/检查器，
+在既有管线末端把 JS 发射替换为 SA（<code>TranspileSA</code> 单文件口 +
+<code>tsgo build</code> 程序链接口），输出 <code>.sai</code> 给 <code>sci/sa</code>
+消费。纪律：六条铁律（已有架构做、替换 JS 逻辑、零新 Go 文件、禁原创语义、
+<code>main.go</code> 只留薄分发、领域 lowering 按归属落 <code>sa_*.go</code>）；
+拒则大声，标准库只映射 <code>sci/sa_std</code> 现货。</p>
+<ul>
+<li><strong>进度</strong>（2026-10-12）：<code>demos/</code> 2146 例，
+<code>--check</code> 2146/2146 + <code>--corpus</code>（对上游 286 agree）+
+LLVM 原生运行 2146/2146 全绿。覆盖：纯计算/字符串/数组全家（含嵌套解构缺省
+OOB 现场构造：i32/串/嵌套元；Array.of 下标/取长；新鲜构造巡回；串数组 OOB
+空合回退；串元复合赋值；数组与对象剩余解构）/Map/Set/类（含构造接线：嵌套链读/串与数组
+<code>?.</code> 守卫读/this 读/复合赋值；形参位全覆盖）/i32 值位句柄设防
+（数组/串/实例）/布尔相等核（双布尔/混合整数·调用/下标/Map 读松相等）/
+接口布局/解构全形/正则子集/Math/Date/JSON子集/顶层快照（数组/对象/模板串）/
+IIFE/标签模板等；Node/Deno/http插件面经 <code>--dev</code> 链打通。</li>
+<li><strong>工具链</strong>：Go 1.27（<code>/usr/local/go</code>）+
+真 Zig 0.17.0（<code>/opt/zig</code>，PATH 首位，shim 版不可用）+
+<code>llvm-14-dev</code>（<code>sci</code> 以 <code>zig build -Dllvm=true</code>
+构建，<code>/content/sci</code> 软链供插件构建）。最新增量：构造接线嵌套链读
+（<code>this.n = oo.p.v</code>，门-only，接 <code>saChainLeafDef</code> 纯判定，
+demos 1938–1947）与 <code>?.</code> 守卫读接线（<code>this.n = t?.length ?? -1</code> /
+<code>this.s = t?.[0] ?? "?"</code>，复用空合核与守卫槽，demos 1948–1957）与
+数组缺省 OOB 现场构造（<code>const [x = [9]] = nn</code>，新守卫 helper，
+demos 1958–1967）与数组 <code>?.</code> 下标接线（<code>this.n = a?.[0] ?? -1</code>，
+复用可选下标守卫，demos 1968–1977，1954 旧锁删除）与接线 this 读
+（<code>this.n = this.n + k</code>，finit 门 + thisSelf 注入，
+demos 1978–1987）与接线复合赋值（<code>this.n += k</code>，委托实例字段复合臂，
+demos 1988–1997）与 i32 值位句柄设防（数组柄禁入，裸泛型豁免，
+demos 1998–1999）与缺省子归属（臂内逆序释放，串/嵌套缺省真机全对，
+1966–1967 转正，demos 2000–2001）与布尔相等核（双边布尔值相等比较，
+demos 2002–2011，1843 旧锁删除）与混合布尔相等（整数侧松相等，
+demos 2012–2021）与混合调用侧（number/boolean 返回调用，
+demos 2022–2030）与混合下标侧（越界折值，demos 2031–2040）与混合 Map 读
+（缺键折值，demos 2041–2050）与散残留回归锁（demos 2051–2058，零改码）与
+串数组 OOB 空合锁（demos 2059–2065，零改码）与形参位回归锁
+（demos 2066–2073，零改码）与串元复合赋值（demos 2074–2083）与数组剩余解构
+（demos 2084–2093）与对象剩余解构（剩余域合成子布局 + 逐域复制，demos 2094–2103，2093 旧拒收锁删除）与剩余邻形锁仓（链式/函数对象形参/写回/`in` 折叠 + 四拒收，demos 2104–2111，零改码）与剩余交叉锁仓（展开回填/JSON/类实例/可选域/嵌套 + 三拒收，demos 2112–2119，零改码）与剩余深边锁仓（缺省/双展开/条件/f64/数组推入/继承/模板 + 一拒收，demos 2120–2127，零改码）与剩余语句锁仓（Map/for/switch/数组构造/双剩余/三级嵌套/while/调用源，demos 2128–2135，零改码）与剩余控制流锁仓（空合/this/try/do-while/串拼接/分支函数/三元值 + 一拒收，demos 2136–2143，零改码）与 TALG 立项（TheAlgorithms-TypeScript 全量支撑最高优，talgapp 真 npm 工程跨包直链，expect 数组调用门补齐，demo 2144）与全工程形态锁仓（exports 子路径 + 传递依赖三单元分裂布局，demo 2145，零改码）与臂出口归属收敛（兄弟块复名/重复内联真修复，demos 2146–2150 数据结构首批，wasm/js 缺口 sci 侧实锤记录）与
+TALG 次轮（TheAlgorithms-TypeScript 重克隆 + talgapp 真 npm 工程重建：bubbleSort/insertionSort/shellSort 三绿，
+<code>tsgo build</code> 程序链 → <code>sa check</code> → 原生真机 → bun 镜算 → <code>sa build-js</code> node 三方逐字节一致，
+合仓 6 断言 861 指令；selectionSort/gnomeSort 解构交换赋值大声拒；wasm 全挂于 sci 侧缺 wasm32-wasi stdlib 归档，零 Go 改动）。
+详见 <code>tsgosa/docs/todo.md</code>。</li>
+</ul>
+
+<h2>Agent-first 的宿主命令</h2>
+<p><code>sci</code> 面向 Agent 设计了一组自解释命令：全局 <code>--json</code> 输出结构化诊断
+（稳定错误码如 <code>SA-REF-010</code>，附 repair 建议）、<code>compile_tokens</code> /
+<code>instruction_count</code> 指标，以及 <code>explain &lt;code&gt;</code>、
+<code>fix --plan --json</code>、<code>skills</code> 等子命令。
+<code>skills</code> 会聚合当前启用插件的语法、宏与 API 契约，文本模式下刷新
+<code>.codex/skills/…</code> 与 <code>.claude/skills/…</code> 文件；
+使用前仍应通过 <code>sa plugin list</code> 或 <code>sa skills --json</code>
+确认插件已启用。</p>
+
+<h2>sa_std 的位置</h2>
+<p>标准库随 <code>sci</code> 仓库发布，位于 <code>&lt;sci 根目录&gt;/sa_std/</code>，
+包含 <code>.sa</code> 实现、<code>.sai</code> 接口契约与 <code>.sal</code> 宏，
+按模块分子目录（<code>io</code>、<code>collections</code>、<code>mem</code>、
+<code>sync</code>、<code>text</code>、<code>os</code> 等）。Sla 通过
+<code>@import "sa_std/…"</code> 直接引用。预构建产物另有
+<code>artifacts/sa_std/libsa_std.a</code>。解析顺序：
+环境变量 <code>SA_STD_DIR</code> 优先，否则回退到 <code>$HOME/projects/sci/sa_std</code>。</p>
+
+<p>各插件命令的完整参数说明见「命令行参考」<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/01_overview/04_toolchain.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

@@ -1,0 +1,53 @@
+{
+  "topics": [
+    {
+      "id": "overview",
+      "title": "SAX 是什么与开发模型",
+      "file": "01_overview.html",
+      "keywords": ["SAX", "纯界面工程", "静态占位数据", "开发导航条", "airlock", "wasm"],
+      "parent": null
+    },
+    {
+      "id": "syntax",
+      "title": "SAX 语法规则",
+      "file": "02_syntax.html",
+      "keywords": ["语法", "Component", "state", "插值", "三元表达式", "handler", "InvalidTextExpression"],
+      "parent": null
+    },
+    {
+      "id": "project-structure",
+      "title": "项目结构约定",
+      "file": "03_project_structure.html",
+      "keywords": ["项目结构", "app.sax", "screens", "settings 分区", "命名约定", "devnav"],
+      "parent": null
+    },
+    {
+      "id": "styling",
+      "title": "样式体系",
+      "file": "04_styling.html",
+      "keywords": ["CSS", "theme.css", "official-black", "cxu-", "app.css 拼接", "样式令牌"],
+      "parent": null
+    },
+    {
+      "id": "mui",
+      "title": "组件库 mui 概览",
+      "file": "05_mui.html",
+      "keywords": ["MUI", "material.sax", "icons_material.sax", "组件库", "Slot", "className"],
+      "parent": null
+    },
+    {
+      "id": "toolchain",
+      "title": "react/vite 插件集成与本地预览",
+      "file": "06_toolchain.html",
+      "keywords": ["vite dev", "热重载", "sa vite build", "http-server", "插件安装", "SA_PLUGIN_DEV"],
+      "parent": null
+    },
+    {
+      "id": "getting-started",
+      "title": "从零新建一个 SAX 界面工程",
+      "file": "07_getting_started.html",
+      "keywords": ["入门", "新建工程", "最小示例", "HelloScreen", "自查清单"],
+      "parent": null
+    }
+  ]
+}

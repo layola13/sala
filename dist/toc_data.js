@@ -1,289 +1,289 @@
 var TOC = [
  {
-  "t": "入门指南",
+  "t": "Getting Started",
   "f": null,
   "c": [
    {
-    "t": "SA 与 SLA 概述",
+    "t": "Overview of SA and SLA",
     "f": "content/01_overview/01_sa_sla_overview.html",
     "c": []
    },
    {
-    "t": "安装与构建",
+    "t": "Installation and Building",
     "f": "content/01_overview/02_install_build.html",
     "c": []
    },
    {
-    "t": "快速上手：第一个 SLA 程序",
+    "t": "Quick Start: Your First SLA Program",
     "f": "content/01_overview/03_quick_start.html",
     "c": []
    },
    {
-    "t": "工具链组成",
+    "t": "Toolchain Components",
     "f": "content/01_overview/04_toolchain.html",
     "c": []
    },
    {
-    "t": "项目与 workspace",
+    "t": "Projects and Workspaces",
     "f": "content/01_overview/05_projects_workspace.html",
     "c": []
    },
    {
-    "t": "scodex-mini：SLA 写成的 Codex 最小单元",
+    "t": "scodex-mini: A Minimal Codex Written in SLA",
     "f": "content/01_overview/06_scodex_mini.html",
     "c": []
    },
    {
-    "t": "CXU 前后端 SLA 重构就绪度审核",
+    "t": "CXU Frontend/Backend SLA Rewrite Readiness Audit",
     "f": "content/01_overview/07_cxu_readiness.html",
     "c": []
    },
    {
-    "t": "CXU 完整 SLA 重构路线图",
+    "t": "CXU Full SLA Rewrite Roadmap",
     "f": "content/01_overview/08_cxu_rewrite_roadmap.html",
     "c": []
    },
    {
-    "t": "sangx：自研 Web 服务器（nginx 重构）规划",
+    "t": "sangx: A Home-Grown Web Server (nginx Rewrite) Plan",
     "f": "content/01_overview/09_nginx_rebuild_roadmap.html",
     "c": []
    },
    {
-    "t": "后台服务覆盖图：已有、立项与缺口",
+    "t": "Backend Service Coverage Map: Existing, Planned, and Missing",
     "f": "content/01_overview/10_backend_coverage.html",
     "c": []
    },
    {
-    "t": "sardis（暂名）：Redis 重构规划",
+    "t": "sardis (Working Name): Redis Rewrite Plan",
     "f": "content/01_overview/11_sardis_roadmap.html",
     "c": []
    },
    {
-    "t": "Haxe 编译后端：SA 作为 Haxe 的底层目标",
+    "t": "Haxe Compilation Backend: SA as a Low-Level Target for Haxe",
     "f": "content/01_overview/12_haxe_backend.html",
     "c": []
    },
    {
-    "t": "goroutine 运行时：引入 sa_std 的设计讨论",
+    "t": "The goroutine Runtime: Design Discussion on Bringing It into sa_std",
     "f": "content/01_overview/13_goroutine_runtime.html",
     "c": []
    },
    {
-    "t": "cpp2sa 与 go2sa：两个新前端的立项讨论",
+    "t": "cpp2sa and go2sa: Proposal Discussion for Two New Frontends",
     "f": "content/01_overview/14_cpp2sa_go2sa.html",
     "c": []
    },
    {
-    "t": "Go 生态候选语法与底层成套引入",
+    "t": "Go Ecosystem Candidate Syntax and Bundled Low-Level Imports",
     "f": "content/01_overview/15_go_feature_candidates.html",
     "c": []
    },
    {
-    "t": "Erlang 并发候选与 Verse 事务调研评估",
+    "t": "Erlang Concurrency Candidates and a Verse Transaction Survey",
     "f": "content/01_overview/16_erlang_verse.html",
     "c": []
    },
    {
-    "t": "Verse 游戏向吸纳与插件承载",
+    "t": "Adopting Verse for Games and Hosting It in Plugins",
     "f": "content/01_overview/17_verse_game_profile.html",
     "c": []
    },
    {
-    "t": "移动端转译：sla2swift 与 sla2kotlin",
+    "t": "Mobile Transpilation: sla2swift and sla2kotlin",
     "f": "content/01_overview/18_mobile_transpile.html",
     "c": []
    },
    {
-    "t": "支线研究与底层不足登记",
+    "t": "Side-Track Research and Low-Level Gap Register",
     "f": "content/01_overview/19_side_tracks_foundation_gaps.html",
     "c": []
    },
    {
-    "t": "高考统一引擎「衡 · Heng」（生化核心演算先行）：开发计划",
+    "t": "The Gaokao Unified Engine “Heng” (Biochemistry Core Calculus First): Development Plan",
     "f": "content/01_overview/20_biochem_education_language.html",
     "c": []
    },
    {
-    "t": "SAX3D 3D 资产格式与 SLASL 着色器语言白皮书",
+    "t": "SAX3D 3D Asset Format and SLASL Shader Language Whitepaper",
     "f": "content/01_overview/21_sax3d_whitepaper.html",
     "c": []
    },
    {
-    "t": "静默失败面普查（2026-11-17）",
+    "t": "Silent-Failure Surface Census (2026-11-17)",
     "f": "content/01_overview/22_silent_surface.html",
     "c": []
    }
   ]
  },
  {
-  "t": "SLA 语言参考",
+  "t": "SLA Language Reference",
   "f": null,
   "c": [
    {
-    "t": "词法与基础语法",
+    "t": "Lexical Structure and Basic Syntax",
     "f": "content/02_sla_lang/01_lexical.html",
     "c": []
    },
    {
-    "t": "类型系统",
+    "t": "Type System",
     "f": "content/02_sla_lang/02_types.html",
     "c": []
    },
    {
-    "t": "函数与控制流",
+    "t": "Functions and Control Flow",
     "f": "content/02_sla_lang/03_functions.html",
     "c": []
    },
    {
-    "t": "模式匹配",
+    "t": "Pattern Matching",
     "f": "content/02_sla_lang/04_patterns.html",
     "c": []
    },
    {
-    "t": "结构体与枚举",
+    "t": "Structs and Enums",
     "f": "content/02_sla_lang/05_structs_enums.html",
     "c": []
    },
    {
-    "t": "所有权与生命周期",
+    "t": "Ownership and Lifetimes",
     "f": "content/02_sla_lang/06_ownership.html",
     "c": []
    },
    {
-    "t": "模块与 @import",
+    "t": "Modules and @import",
     "f": "content/02_sla_lang/07_modules.html",
     "c": []
    },
    {
-    "t": "扩展机制",
+    "t": "Extension Mechanisms",
     "f": "content/02_sla_lang/08_extensions.html",
     "c": []
    },
    {
-    "t": "async/await 现状",
+    "t": "async/await: Current State",
     "f": "content/02_sla_lang/09_async.html",
     "c": []
    },
    {
-    "t": "特性成熟度总表",
+    "t": "Feature Maturity Matrix",
     "f": "content/02_sla_lang/10_maturity.html",
     "c": []
    }
   ]
  },
  {
-  "t": "与 Rust 对比",
+  "t": "Comparison with Rust",
   "f": null,
   "c": [
    {
-    "t": "定位与设计哲学：SLA 不是 Rust 克隆",
+    "t": "Positioning and Design Philosophy: SLA Is Not a Rust Clone",
     "f": "content/09_rust_compare/01_positioning.html",
     "c": []
    },
    {
-    "t": "语法对照实测矩阵",
+    "t": "Syntax Comparison Matrix (Measured)",
     "f": "content/09_rust_compare/02_syntax_matrix.html",
     "c": []
    },
    {
-    "t": "所有权与借用：Referee 对比 borrow checker",
+    "t": "Ownership and Borrowing: Referee vs the Borrow Checker",
     "f": "content/09_rust_compare/03_ownership.html",
     "c": []
    },
    {
-    "t": "宏与元编程对比",
+    "t": "Macros and Metaprogramming Compared",
     "f": "content/09_rust_compare/04_macros.html",
     "c": []
    },
    {
-    "t": "标准库、错误处理与 async 对照",
+    "t": "Standard Library, Error Handling, and async Compared",
     "f": "content/09_rust_compare/05_stdlib_errors_async.html",
     "c": []
    },
    {
-    "t": "Rust 表层兼容性：哪些代码能原样解析",
+    "t": "Rust Surface Compatibility: What Code Parses As-Is",
     "f": "content/09_rust_compare/06_surface_compat.html",
     "c": []
    },
    {
-    "t": "rosetta 对照集与 bc2sa 桥接生态",
+    "t": "The rosetta Comparison Set and the bc2sa Bridge Ecosystem",
     "f": "content/09_rust_compare/07_rosetta_bc2sa.html",
     "c": []
    },
    {
-    "t": "从 Rust 迁移到 SLA：改写清单与场景选择",
+    "t": "Migrating from Rust to SLA: Rewrite Checklist and Scenario Guide",
     "f": "content/09_rust_compare/08_migration.html",
     "c": []
    },
    {
-    "t": "SLA vs Rust vs Go 性能实测（native / WASM / 编译 / 网络）",
+    "t": "SLA vs Rust vs Go Performance Measurements (native / WASM / compilation / networking)",
     "f": "content/09_rust_compare/09_performance.html",
     "c": []
    },
    {
-    "t": "Rust std × sa_std 表面普查与缺口表",
+    "t": "Rust std × sa_std Surface Census and Gap Table",
     "f": "content/09_rust_compare/10_std_census.html",
     "c": []
    }
   ]
  },
  {
-  "t": "SA 汇编与 SAB",
+  "t": "SA Assembly and SAB",
   "f": null,
   "c": [
    {
-    "t": "SA 概念模型",
+    "t": "The SA Conceptual Model",
     "f": "content/03_sa_asm/01_sa_model.html",
     "c": []
    },
    {
-    "t": "SA 文本汇编速览",
+    "t": "SA Text Assembly at a Glance",
     "f": "content/03_sa_asm/02_sa_syntax.html",
     "c": []
    },
    {
-    "t": "SAB 字节码格式概览",
+    "t": "SAB Bytecode Format Overview",
     "f": "content/03_sa_asm/03_sab_format.html",
     "c": []
    },
    {
-    "t": "编译管线：direct 与 fallback",
+    "t": "Compilation Pipeline: Direct and Fallback",
     "f": "content/03_sa_asm/04_pipeline.html",
     "c": []
    },
    {
-    "t": "错误码与诊断",
+    "t": "Error Codes and Diagnostics",
     "f": "content/03_sa_asm/05_diagnostics.html",
     "c": []
    },
    {
-    "t": "已知限制",
+    "t": "Known Limitations",
     "f": "content/03_sa_asm/06_limitations.html",
     "c": []
    },
    {
-    "t": "SAB 与 SA-text 一致性进展",
+    "t": "SAB / SA-text Parity Progress",
     "f": "content/03_sa_asm/07_sab_parity.html",
     "c": []
    },
    {
-    "t": "SAB 格式白皮书（规范）",
+    "t": "SAB Format Whitepaper (Specification)",
     "f": "content/03_sa_asm/08_sab_whitepaper.html",
     "c": []
    },
    {
-    "t": "transfer：可见的所有权转移",
+    "t": "transfer: Visible Ownership Transfer",
     "f": "content/03_sa_asm/09_ownership_transfer.html",
     "c": []
    }
   ]
  },
  {
-  "t": "命令行参考",
+  "t": "Command-Line Reference",
   "f": null,
   "c": [
    {
-    "t": "命令行参考总览",
+    "t": "Command-Line Reference Overview",
     "f": "content/04_cli/01_overview.html",
     "c": [
      {
@@ -307,7 +307,7 @@ var TOC = [
       "c": []
      },
      {
-      "t": "sa sla sab（build / workspace / disasm）",
+      "t": "sa sla sab (build / workspace / disasm)",
       "f": "content/04_cli/06_sab.html",
       "c": []
      },
@@ -317,27 +317,27 @@ var TOC = [
       "c": []
      },
      {
-      "t": "sa sla skills 与 stability",
+      "t": "sa sla skills and stability",
       "f": "content/04_cli/08_skills.html",
       "c": []
      }
     ]
    },
    {
-    "t": "宿主侧 sa build-exe / sa test 概览",
+    "t": "Host-Side sa build-exe / sa test Overview",
     "f": "content/04_cli/09_host_commands.html",
     "c": [
      {
-      "t": "宿主侧 sa build-js（JS 编译目标）",
+      "t": "Host-Side sa build-js (JS Compilation Target)",
       "f": "content/04_cli/11_build_js.html",
       "c": [
        {
-        "t": "四路对照基准（sa2native/sa2wasm/sa2js）",
+        "t": "Four-Way Comparison Benchmark (sa2native/sa2wasm/sa2js)",
         "f": "content/04_cli/12_sixway.html",
         "c": []
        },
        {
-        "t": "bun官方bench对等测试（buffer-read-write）",
+        "t": "Bun Official Bench Peer Test (buffer-read-write)",
         "f": "content/04_cli/13_bun_peer.html",
         "c": []
        }
@@ -346,113 +346,113 @@ var TOC = [
     ]
    },
    {
-    "t": "环境变量",
+    "t": "Environment Variables",
     "f": "content/04_cli/10_env_vars.html",
     "c": []
    }
   ]
  },
  {
-  "t": "插件参考",
+  "t": "Plugin Reference",
   "f": null,
   "c": [
    {
-    "t": "插件参考总览",
+    "t": "Plugin Reference Overview",
     "f": "content/05_plugins/01_overview.html",
     "c": [
      {
-      "t": "sax — SA UI 方言插件",
+      "t": "sax — SA UI Dialect Plugin",
       "f": "content/05_plugins/02_sax.html",
       "c": []
      },
      {
-      "t": "react — SAX 上的 React 兼容层",
+      "t": "react — React Compatibility Layer on SAX",
       "f": "content/05_plugins/03_react.html",
       "c": []
      },
      {
-      "t": "mui — SAX 版 Material UI 组件库",
+      "t": "mui — Material UI Component Library for SAX",
       "f": "content/05_plugins/04_mui.html",
       "c": []
      },
      {
-      "t": "vite — SAX 热重载开发服务器",
+      "t": "vite — SAX Hot-Reload Dev Server",
       "f": "content/05_plugins/05_vite.html",
       "c": []
      },
      {
-      "t": "tui — 终端原语插件",
+      "t": "tui — Terminal Primitives Plugin",
       "f": "content/05_plugins/06_tui.html",
       "c": []
      },
      {
-      "t": "wgpu — 浏览器 WebGPU sidecar",
+      "t": "wgpu — Browser WebGPU Sidecar",
       "f": "content/05_plugins/07_wgpu.html",
       "c": []
      },
      {
-      "t": "3dengines — 3D 引擎插件族",
+      "t": "3dengines — 3D Engine Plugin Family",
       "f": "content/05_plugins/08_3dengines.html",
       "c": []
      },
      {
-      "t": "vm — 动态解释器虚拟机",
+      "t": "vm — Dynamic Interpreter Virtual Machine",
       "f": "content/05_plugins/09_vm.html",
       "c": []
      },
      {
-      "t": "sla — SLA 编译器插件（概述）",
+      "t": "sla — SLA Compiler Plugin (Overview)",
       "f": "content/05_plugins/10_sla.html",
       "c": []
      },
      {
-      "t": "deno — Deno 兼容 API 插件",
+      "t": "deno — Deno-Compatible API Plugin",
       "f": "content/05_plugins/11_deno.html",
       "c": []
      },
      {
-      "t": "node — Node.js 兼容门面",
+      "t": "node — Node.js Compatibility Facade",
       "f": "content/05_plugins/12_node.html",
       "c": []
      },
      {
-      "t": "bun — Bun 兼容门面",
+      "t": "bun — Bun Compatibility Facade",
       "f": "content/05_plugins/19_bun.html",
       "c": []
      },
      {
-      "t": "pkg — 零信任包管理器",
+      "t": "pkg — Zero-Trust Package Manager",
       "f": "content/05_plugins/13_pkg.html",
       "c": []
      },
      {
-      "t": "http-client — HTTP 客户端插件",
+      "t": "http-client — HTTP Client Plugin",
       "f": "content/05_plugins/14_http_client.html",
       "c": []
      },
      {
-      "t": "http-server — 内嵌 HTTP 服务端插件",
+      "t": "http-server — Embedded HTTP Server Plugin",
       "f": "content/05_plugins/15_http_server.html",
       "c": []
      },
      {
-      "t": "db — 本地列式数据库插件",
+      "t": "db — Local Columnar Database Plugin",
       "f": "content/05_plugins/16_db.html",
       "c": []
      },
      {
-      "t": "bc2sa — LLVM bitcode 逆向翻译器",
+      "t": "bc2sa — LLVM Bitcode Reverse Translator",
       "f": "content/05_plugins/17_bc2sa.html",
       "c": [
        {
-        "t": "FFI vs bc2sa：外部代码接入路径",
+        "t": "FFI vs bc2sa: Paths for Bringing in External Code",
         "f": "content/05_plugins/18_ffi_vs_bc2sa.html",
         "c": []
        }
       ]
      },
      {
-      "t": "插件系统改进：语言前端、dev 模式与确认层",
+      "t": "Plugin System Improvements: Language Frontends, Dev Mode, and the Confirmation Layer",
       "f": "content/05_plugins/20_system_redesign.html",
       "c": []
      }
@@ -461,77 +461,77 @@ var TOC = [
   ]
  },
  {
-  "t": "db 数据库插件",
+  "t": "db Database Plugin",
   "f": null,
   "c": [
    {
-    "t": "db 插件总览：定位与架构",
+    "t": "db Plugin Overview: Positioning and Architecture",
     "f": "content/10_db/01_overview.html",
     "c": [
      {
-      "t": "CLI 命令详解",
+      "t": "CLI Commands in Detail",
       "f": "content/10_db/02_cli.html",
       "c": []
      },
      {
-      "t": "SA API 八大分组",
+      "t": "The Eight SA API Groups",
       "f": "content/10_db/03_api.html",
       "c": []
      },
      {
-      "t": "宏用法与完整示例",
+      "t": "Macro Usage and a Complete Example",
       "f": "content/10_db/04_macros_usage.html",
       "c": []
      },
      {
-      "t": "vs SQLite：选型对比",
+      "t": "vs SQLite: Choosing Between Them",
       "f": "content/10_db/05_vs_sqlite.html",
       "c": []
      },
      {
-      "t": "边界、性能与最佳实践",
+      "t": "Limits, Performance, and Best Practices",
       "f": "content/10_db/06_limits_perf.html",
       "c": []
      }
     ]
    },
    {
-    "t": "VM 支持规划：可编程查询层",
+    "t": "VM Support Plan: A Programmable Query Layer",
     "f": "content/10_db/07_vm_support.html",
     "c": []
    },
    {
-    "t": "三角对比与漏洞统计：MySQL / SQLite / db 插件",
+    "t": "Three-Way Comparison and Vulnerability Statistics: MySQL / SQLite / the db Plugin",
     "f": "content/10_db/08_mysql_sqlite_compare.html",
     "c": []
    }
   ]
  },
  {
-  "t": "ECS 开发（sla_ecs）",
+  "t": "ECS Development (sla_ecs)",
   "f": null,
   "c": [
    {
-    "t": "sla_ecs 是什么：定位与规模",
+    "t": "What sla_ecs Is: Positioning and Scale",
     "f": "content/11_ecs/01_overview.html",
     "c": [
      {
-      "t": "架构与模块面",
+      "t": "Architecture and Module Surface",
       "f": "content/11_ecs/02_architecture.html",
       "c": []
      },
      {
-      "t": "宏使用格局与编译器改进路线",
+      "t": "Macro Usage Patterns and the Compiler Improvement Path",
       "f": "content/11_ecs/03_macros.html",
       "c": []
      },
      {
-      "t": "SA 层的 3d_ecs 插件契约",
+      "t": "The SA-Level 3d_ecs Plugin Contract",
       "f": "content/11_ecs/04_sa3d_ecs.html",
       "c": []
      },
      {
-      "t": "已知问题与回归史",
+      "t": "Known Issues and Regression History",
       "f": "content/11_ecs/05_status.html",
       "c": []
      }
@@ -540,40 +540,40 @@ var TOC = [
   ]
  },
  {
-  "t": "vm 虚拟机",
+  "t": "vm Virtual Machine",
   "f": null,
   "c": [
    {
-    "t": "vm 总览：定位与架构",
+    "t": "vm Overview: Positioning and Architecture",
     "f": "content/12_vm/01_overview.html",
     "c": [
      {
-      "t": "CLI 用法详解",
+      "t": "CLI Usage in Detail",
       "f": "content/12_vm/02_cli.html",
       "c": []
      },
      {
-      "t": "解释器内部机制",
+      "t": "Interpreter Internals",
       "f": "content/12_vm/03_internals.html",
       "c": []
      },
      {
-      "t": "FFI 桥与宿主互操作",
+      "t": "The FFI Bridge and Host Interop",
       "f": "content/12_vm/04_ffi_bridge.html",
       "c": []
      },
      {
-      "t": "资源限制与退出码",
+      "t": "Resource Limits and Exit Codes",
       "f": "content/12_vm/05_limits.html",
       "c": []
      },
      {
-      "t": "端到端示例",
+      "t": "End-to-End Examples",
       "f": "content/12_vm/06_examples.html",
       "c": []
      },
      {
-      "t": "Codex Ultra 集成与 SLA 速查",
+      "t": "Codex Ultra Integration and SLA Quick Reference",
       "f": "content/12_vm/07_codex_ultra.html",
       "c": []
      }
@@ -582,117 +582,117 @@ var TOC = [
   ]
  },
  {
-  "t": "多平台编译",
+  "t": "Cross-Platform Builds",
   "f": null,
   "c": [
    {
-    "t": "多平台编译矩阵总览",
+    "t": "Cross-Platform Build Matrix Overview",
     "f": "content/13_build/01_matrix.html",
     "c": []
    },
    {
-    "t": "Linux 与 Windows 本地构建",
+    "t": "Local Builds on Linux and Windows",
     "f": "content/13_build/02_linux_windows.html",
     "c": []
    },
    {
-    "t": "交叉编译 ARM 与 macOS",
+    "t": "Cross-Compiling for ARM and macOS",
     "f": "content/13_build/03_cross_arm_mac.html",
     "c": []
    },
    {
-    "t": "FreeBSD 交叉编译",
+    "t": "FreeBSD Cross-Compilation",
     "f": "content/13_build/04_freebsd.html",
     "c": []
    },
    {
-    "t": "构建验证与故障排查",
+    "t": "Build Verification and Troubleshooting",
     "f": "content/13_build/05_verify_troubleshoot.html",
     "c": []
    },
    {
-    "t": "Release 与 npm 发布",
+    "t": "Releases and npm Publishing",
     "f": "content/13_build/06_release_npm.html",
     "c": []
    }
   ]
  },
  {
-  "t": "标准库",
+  "t": "Standard Library",
   "f": null,
   "c": [
    {
-    "t": "标准库总览",
+    "t": "Standard Library Overview",
     "f": "content/06_stdlib/01_overview.html",
     "c": [
      {
-      "t": "如何使用 sa_std：导入机制与契约体系",
+      "t": "Using sa_std: The Import Mechanism and Contract System",
       "f": "content/06_stdlib/13_usage_guide.html",
       "c": []
      },
      {
-      "t": "常见配方：从打印到 HTTP 的完整示例",
+      "t": "Common Recipes: Complete Examples from Printing to HTTP",
       "f": "content/06_stdlib/14_recipes.html",
       "c": []
      },
      {
-      "t": "io 与 print：标准输入输出",
+      "t": "io and print: Standard Input/Output",
       "f": "content/06_stdlib/02_io_print.html",
       "c": []
      },
      {
-      "t": "fmt：数值与字节格式化",
+      "t": "fmt: Number and Byte Formatting",
       "f": "content/06_stdlib/03_fmt.html",
       "c": []
      },
      {
-      "t": "string：ASCII / UTF-8 字符串",
+      "t": "string: ASCII / UTF-8 Strings",
       "f": "content/06_stdlib/04_string.html",
       "c": []
      },
      {
-      "t": "collections：Vec / HashMap / Option 等",
+      "t": "collections: Vec / HashMap / Option and More",
       "f": "content/06_stdlib/05_collections.html",
       "c": []
      },
      {
-      "t": "fs：文件与目录",
+      "t": "fs: Files and Directories",
       "f": "content/06_stdlib/06_fs.html",
       "c": []
      },
      {
-      "t": "env：环境变量与目录",
+      "t": "env: Environment Variables and Directories",
       "f": "content/06_stdlib/07_env.html",
       "c": []
      },
      {
-      "t": "time：时钟、时间与睡眠",
+      "t": "time: Clocks, Time, and Sleep",
       "f": "content/06_stdlib/08_time.html",
       "c": []
      },
      {
-      "t": "process：子进程",
+      "t": "process: Child Processes",
       "f": "content/06_stdlib/09_process.html",
       "c": []
      },
      {
-      "t": "net：TCP / UDP / Unix 套接字与 HTTP/2",
+      "t": "net: TCP / UDP / Unix Sockets and HTTP/2",
       "f": "content/06_stdlib/10_net.html",
       "c": [
        {
-        "t": "跨语言 std 普查：Java（OpenJDK）net × sa_std",
+        "t": "Cross-Language std Census: Java (OpenJDK) net × sa_std",
         "f": "content/06_stdlib/21_java_net_census.html",
         "c": []
        },
        {
-        "t": "Go net 标准库 × sa_std 缺口普查",
+        "t": "Go net Standard Library × sa_std Gap Census",
         "f": "content/06_stdlib/22_go_net_census.html",
         "c": []
        }
       ]
      },
      {
-      "t": "encoding 与 text：JSON 与正则",
+      "t": "encoding and text: JSON and Regular Expressions",
       "f": "content/06_stdlib/11_encoding.html",
       "c": []
      },
@@ -704,188 +704,188 @@ var TOC = [
     ]
    },
    {
-    "t": "API 总索引",
+    "t": "API Index",
     "f": "content/06_stdlib/15_api_index.html",
     "c": [
      {
-      "t": "extern 函数契约全表",
+      "t": "Complete extern Function Contract Table",
       "f": "content/06_stdlib/16_api_externs.html",
       "c": []
      },
      {
-      "t": "汇编宏清单",
+      "t": "Assembly Macro Catalog",
       "f": "content/06_stdlib/17_api_macros.html",
       "c": []
      },
      {
-      "t": "布局常量清单",
+      "t": "Layout Constant Catalog",
       "f": "content/06_stdlib/18_api_layout.html",
       "c": []
      }
     ]
    },
    {
-    "t": "tls_client：TLS 客户端",
+    "t": "tls_client: TLS Client",
     "f": "content/06_stdlib/19_tls_client.html",
     "c": []
    },
    {
-    "t": "ws_client：WebSocket 客户端",
+    "t": "ws_client: WebSocket Client",
     "f": "content/06_stdlib/20_ws_client.html",
     "c": []
    },
    {
-    "t": "Android net 表面 × sa_std 缺口普查",
+    "t": "Android net Surface × sa_std Gap Census",
     "f": "content/06_stdlib/21_android_net_census.html",
     "c": []
    },
    {
-    "t": "Unreal Engine 网络体系 × sa_std 网络面普查与缺口表",
+    "t": "Unreal Engine Networking × sa_std Network Surface Census and Gap Table",
     "f": "content/06_stdlib/23_unreal_net_census.html",
     "c": []
    },
    {
-    "t": "跨语言普查：Python (CPython) net 标准库 × sa_std 缺口",
+    "t": "Cross-Language Census: Python (CPython) net Standard Library × sa_std Gaps",
     "f": "content/06_stdlib/24_python_net_census.html",
     "c": []
    },
    {
-    "t": "iOS net 表面 × sa_std 缺口普查",
+    "t": "iOS net Surface × sa_std Gap Census",
     "f": "content/06_stdlib/25_ios_net_census.html",
     "c": []
    },
    {
-    "t": ".NET net 表面 × sa_std 缺口普查",
+    "t": ".NET net Surface × sa_std Gap Census",
     "f": "content/06_stdlib/26_dotnet_net_census.html",
     "c": []
    }
   ]
  },
  {
-  "t": "SAX / MUI 界面开发",
+  "t": "SAX / MUI UI Development",
   "f": null,
   "c": [
    {
-    "t": "SAX 是什么与开发模型",
+    "t": "What SAX Is and Its Development Model",
     "f": "content/07_ui/01_overview.html",
     "c": []
    },
    {
-    "t": "SAX 语法规则",
+    "t": "SAX Syntax Rules",
     "f": "content/07_ui/02_syntax.html",
     "c": []
    },
    {
-    "t": "项目结构约定",
+    "t": "Project Structure Conventions",
     "f": "content/07_ui/03_project_structure.html",
     "c": []
    },
    {
-    "t": "样式体系",
+    "t": "The Styling System",
     "f": "content/07_ui/04_styling.html",
     "c": []
    },
    {
-    "t": "组件库 mui 概览",
+    "t": "The mui Component Library",
     "f": "content/07_ui/05_mui.html",
     "c": []
    },
    {
-    "t": "react/vite 插件集成与本地预览",
+    "t": "react/vite Plugin Integration and Local Preview",
     "f": "content/07_ui/06_toolchain.html",
     "c": []
    },
    {
-    "t": "从零新建一个 SAX 界面工程",
+    "t": "Creating a SAX UI Project from Scratch",
     "f": "content/07_ui/07_getting_started.html",
     "c": []
    }
   ]
  },
  {
-  "t": "FAQ 与故障排查",
+  "t": "FAQ and Troubleshooting",
   "f": null,
   "c": [
    {
-    "t": "常见问题 FAQ",
+    "t": "Frequently Asked Questions (FAQ)",
     "f": "content/08_faq/01_faq.html",
     "c": []
    },
    {
-    "t": "编译失败排查",
+    "t": "Troubleshooting Build Failures",
     "f": "content/08_faq/02_compile_failures.html",
     "c": []
    },
    {
-    "t": "运行与环境问题排查",
+    "t": "Troubleshooting Runtime and Environment Issues",
     "f": "content/08_faq/03_runtime_env.html",
     "c": []
    },
    {
-    "t": "性能与优化预期",
+    "t": "Performance and Optimization Expectations",
     "f": "content/08_faq/04_performance.html",
     "c": []
    },
    {
-    "t": "当前局限与路线图状态",
+    "t": "Current Limitations and Roadmap Status",
     "f": "content/08_faq/05_limitations_roadmap.html",
     "c": []
    }
   ]
  },
  {
-  "t": "Zig 0.17 升级对比",
+  "t": "Zig 0.17 Upgrade Comparison",
   "f": null,
   "c": [
    {
-    "t": "Zig 0.17 与 0.14.1 实测对比",
+    "t": "Zig 0.17 vs 0.14.1: Measured Comparison",
     "f": "content/14_zig017_perf/01_zig017_vs_014.html",
     "c": []
    }
   ]
  },
  {
-  "t": "sa→C 后端",
+  "t": "sa→C Backend",
   "f": null,
   "c": [
    {
-    "t": "sa→C 总览与快速上手",
+    "t": "sa→C Overview and Quick Start",
     "f": "content/15_sa2c/01_overview.html",
     "c": []
    },
    {
-    "t": "运行时：按需 helper、内存与 Gas",
+    "t": "Runtime: On-Demand Helpers, Memory, and Gas",
     "f": "content/15_sa2c/02_runtime.html",
     "c": []
    },
    {
-    "t": "语义对齐：别名、f32 与间接调用",
+    "t": "Semantic Alignment: Aliasing, f32, and Indirect Calls",
     "f": "content/15_sa2c/03_semantics.html",
     "c": []
    },
    {
-    "t": "extern 宿主绑定（staged 模拟）",
+    "t": "extern Host Bindings (Staged Simulation)",
     "f": "content/15_sa2c/04_extern.html",
     "c": []
    },
    {
-    "t": "验证矩阵与已知边界",
+    "t": "Verification Matrix and Known Boundaries",
     "f": "content/15_sa2c/05_verify.html",
     "c": []
    },
    {
-    "t": "sa2c 性能对比：C / JS / 解释器",
+    "t": "sa2c Performance Comparison: C / JS / Interpreter",
     "f": "content/15_sa2c/06_perf.html",
     "c": []
    }
   ]
  },
  {
-  "t": "运行时权限与审计",
+  "t": "Runtime Permissions and Auditing",
   "f": null,
   "c": [
    {
-    "t": "运行时权限与审计：设计总览",
+    "t": "Runtime Permissions and Auditing: Design Overview",
     "f": "content/16_policy/01_overview.html",
     "c": []
    }

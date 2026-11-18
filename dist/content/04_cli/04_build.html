@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <title>sa sla build</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">命令行参考 &gt; sa sla build</div>
+<div class="topic-header">Command-Line Reference &gt; sa sla build</div>
 <h1>sa sla build</h1>
 
-<p><code>sa sla build</code> 把一个 <code>.sla</code> 源文件编译为经校验的 SA 汇编文本文件。读完本页可以知道如何控制输出路径，以及不指定 <code>--out</code> 时产物落在哪里。</p>
+<p><code>sa sla build</code> compiles a <code>.sla</code> source file into a verified SA assembly text file. After reading this page you will know how to control the output path, and where the artifact lands when <code>--out</code> is not specified.</p>
 
-<h2>语法</h2>
+<h2>Syntax</h2>
 <pre><code>usage: sa sla build [file] [-p &lt;package&gt;] [--out &lt;file&gt;]</code></pre>
 
-<h2>参数</h2>
+<h2>Parameters</h2>
 <table>
-<tr><th>名称</th><th>说明</th></tr>
-<tr><td><code>file</code></td><td>输入的 <code>.sla</code> 源文件；省略时按 workspace 解析成员入口（见「sa sla check」一页）。</td></tr>
-<tr><td><code>--out</code>, <code>-o</code></td><td>输出 <code>.sa</code> 文件路径。省略时默认把输入扩展名替换为 <code>.sa</code>：<code>main.sla → main.sa</code>（非 <code>.sla</code> 输入则为 <code>&lt;file&gt;.sa</code>），写在源文件旁边。</td></tr>
-<tr><td><code>-p</code>, <code>--package</code></td><td>workspace 模式下选择成员包。</td></tr>
-<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+<tr><th>Name</th><th>Description</th></tr>
+<tr><td><code>file</code></td><td>The input <code>.sla</code> source file; when omitted, the member entry point is resolved via the workspace (see the “sa sla check” page).</td></tr>
+<tr><td><code>--out</code>, <code>-o</code></td><td>The output <code>.sa</code> file path. When omitted, the input extension is replaced with <code>.sa</code> by default: <code>main.sla → main.sa</code> (for non-<code>.sla</code> input, <code>&lt;file&gt;.sa</code>), written next to the source file.</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>Select the member package in workspace mode.</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>Show usage and return 0.</td></tr>
 </table>
 
-<div class="note"><span class="label">注意</span>这条命令产出的是文本形式的 <code>.sa</code> 汇编——这是 SLA 的生产路输出，所有前端统一只输出 SA 文本。要产出 SAB 字节（已封存的优化方向，仅显式 opt-in）请用 <code>sa sla sab build</code>。</div>
+<div class="note"><span class="label">Note</span>What this command produces is <code>.sa</code> assembly in text form — this is SLA's production-path output, and all frontends uniformly output only SA text. To produce SAB bytes (a sealed optimization direction, explicit opt-in only), use <code>sa sla sab build</code>.</div>
 
-<h2>示例</h2>
+<h2>Examples</h2>
 <pre><code># 输出到 /tmp
 SA_PLUGIN_DEV=1 sa sla build demos/rosetta/13_array_sum/main.sla --out /tmp/13_array_sum.sa
 
@@ -36,14 +36,15 @@ SA_PLUGIN_DEV=1 sa sla build src/main.sla          # 生成 src/main.sa
 # workspace 成员
 SA_PLUGIN_DEV=1 sa sla build -p my_app --out /tmp/my_app.sa</code></pre>
 
-<h2>产物位置</h2>
+<h2>Output locations</h2>
 <ul>
-<li>显式指定 <code>--out</code>/<code>-o</code>：写到该绝对或相对路径，父目录必须已存在。</li>
-<li>未指定：写到源文件同目录下的 <code>&lt;stem&gt;.sa</code>。</li>
-<li>此命令不写 <code>.sla-cache/sab/</code>；SAB 托管产物只由显式 SAB 命令产生。</li>
+<li>With an explicit <code>--out</code>/<code>-o</code>: written to that absolute or relative path; the parent directory must already exist.</li>
+<li>When unspecified: written to <code>&lt;stem&gt;.sa</code> in the same directory as the source file.</li>
+<li>This command does not write <code>.sla-cache/sab/</code>; managed SAB artifacts are produced only by explicit SAB commands.</li>
 </ul>
-<p>成功时 stdout 输出：</p>
+<p>On success, stdout prints:</p>
 <pre><code>Sla Compiler: Successfully compiled main.sla to /tmp/main.sa.</code></pre>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/04_cli/04_build.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

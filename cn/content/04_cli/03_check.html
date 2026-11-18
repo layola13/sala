@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sa sla check</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; sa sla check</div>
+<h1>sa sla check</h1>
+
+<p><code>sa sla check</code> 对一个 <code>.sla</code> 源文件做词法、语法和类型检查。读完本页可以在不生成任何产物的情况下快速验证源码是否通过前端检查。</p>
+
+<h2>语法</h2>
+<pre><code>usage: sa sla check [file] [-p &lt;package&gt;]</code></pre>
+
+<h2>参数</h2>
+<table>
+<tr><th>名称</th><th>说明</th></tr>
+<tr><td><code>file</code></td><td>要检查的 <code>.sla</code> 源文件；省略时从当前目录向上解析 <code>sa.mod</code> workspace，取成员入口 <code>src/main.sla</code>（或 <code>main.sla</code>）。</td></tr>
+<tr><td><code>-p</code>, <code>--package</code></td><td>workspace 模式下选择成员包，支持 <code>-p name</code> / <code>-p=name</code> / <code>--package=name</code>。</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+</table>
+
+<h2>执行阶段</h2>
+<p><code>check</code> 依次经过：宏模板展开 → 解析（<code>@import</code> 的 SLA 源与 std 契约展开）→ 泛型特化（monomorphize）→ 契约加载 → 类型检查。任一阶段失败都会在 stderr 打出对应类别的诊断并返回非 0，例如 <code>Type Check Error: failed to verify types: ...</code>。</p>
+
+<div class="note"><span class="label">注意</span><code>check</code> 不发射最终 SA 汇编，也不写 SAB；它只验证「前端能吃下」。前端通过不代表后端 lowering 一定能落地——两者之间存在已知差距。</div>
+
+<h2>示例</h2>
+<pre><code># 显式文件
+SA_PLUGIN_DEV=1 sa sla check tests/test_unit_basic.sla
+
+# 在 workspace 成员目录里省略文件参数
+cd my_app
+SA_PLUGIN_DEV=1 sa sla check
+
+# 从 workspace 根目录指定成员
+SA_PLUGIN_DEV=1 sa sla check -p my_app
+
+# Rosetta demo
+SA_PLUGIN_DEV=1 sa sla check demos/rosetta/01_hello_world/main.sla</code></pre>
+
+<h2>输出与产物位置</h2>
+<p>成功时 stdout 输出一行：</p>
+<pre><code>Sla Compiler: Successfully parsed and verified syntax and types of src/main.sla.</code></pre>
+<p>没有磁盘产物。<code>check</code> 不读取也不写入 <code>.sla-cache/sab/</code>。</p>
+</body>
+</html>

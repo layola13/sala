@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>time：时钟、时间与睡眠</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; time：时钟、时间与睡眠</div>
+<h1>time：时钟、时间与睡眠</h1>
+
+<p>这一页列出 <code>sa_std/time.sai</code> 的 extern 函数，并给出 Sla 侧
+<code>Instant</code> / <code>Duration</code> / <code>SystemTime</code> 的真实用法。
+读完即可测量耗时和让线程休眠。</p>
+
+<h2>extern 函数（摘自 time.sai）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_time_instant_ns() -&gt; u64</code></td><td>单调时钟当前纳秒值</td></tr>
+<tr><td><code>sa_time_unix_s() -&gt; i64</code></td><td>Unix 时间戳（秒）</td></tr>
+<tr><td><code>sa_time_unix_ms() -&gt; i64</code></td><td>Unix 时间戳（毫秒）</td></tr>
+<tr><td><code>sa_time_unix_ns() -&gt; i64</code></td><td>Unix 时间戳（纳秒）</td></tr>
+<tr><td><code>sa_time_utc_now(&amp;out: ptr) -&gt; i32</code></td><td>当前 UTC 日历时间写入 SaTimeDate；返回普通 i32 状态码（不是 Fallible 结构）</td></tr>
+<tr><td><code>sa_time_sleep_ns(ns: u64) -&gt; i32</code></td><td>睡眠指定纳秒</td></tr>
+<tr><td><code>sa_time_sleep_ms(ms: u64) -&gt; i32</code></td><td>睡眠指定毫秒</td></tr>
+<tr><td><code>sa_time_iso_from_unix_ms(ms: i64) -&gt; u64</code></td><td>JS <code>Date.toISOString</code> 形状：UTC <code>YYYY-MM-DDTHH:MM:SS.sssZ</code>，返回新 buffer 句柄（经 <code>sa_fmt_buffer_data/len</code> 读回）</td></tr>
+<tr><td><code>sa_time_parse_iso(&amp;iso: ptr, len: u64, &amp;out_ms: ptr) -&gt; i32</code></td><td>严格 ISO <code>Date.parse</code>（<code>YYYY-MM-DD[THH:MM:SS[.sss]][Z|±HH:MM]</code>）；0 成功 1 非法，闰日/越界拒绝</td></tr>
+<tr><td><code>sa_time_get_full_year/month/date/hours/minutes/seconds/milliseconds/day(ms: i64) -&gt; i64</code></td><td>Date get 系（UTC；month 0 起，周日 0）</td></tr>
+<tr><td><code>sa_time_set_field(ms: i64, field: u64, value: i64) -&gt; i64</code></td><td>Date setter 系（field 0..6，month 入参 0 起）；越界按 JS 翻转归一，返回新毫秒值</td></tr>
+</table>
+
+<h2>时钟口径（TS-17，2026-10-29 落字）</h2>
+<p>time 域是<strong>双钟划分</strong>，现成文如下：<code>sa_time_instant_ns</code> 是<strong>单调钟</strong>
+（相对进程原点的时钟）；运行时任务计时同走单调钟——task / select 的 timeout 与睡眠计时
+均为单调口径（<code>CLOCK_MONOTONIC</code>），<code>sa_time_sleep_ns</code> 是按此时钟的时长睡眠；
+<code>sa_time_unix_*</code> 一族是<strong>墙钟</strong>（真实时间）；日历字段分解与
+<code>sa_time_format_utc</code> 为 <strong>UTC 口径</strong>。</p>
+
+<h2>TS 前端（satsgo Date 链）</h2>
+<p>satsgo 把 <code>Date</code> 窄化为 <code>i64</code> 毫秒值（UTC 子集，无时区）：
+<code>Date.now()</code> / 无参 <code>new Date()</code> 直调
+<code>sa_time_unix_ms</code>；<code>getTime</code> 是恒等；
+<code>toISOString</code> / get 系 / setter 系分别路由到上表三行；
+<code>getTimezoneOffset</code> 恒为 <code>0</code>；
+<code>new Date(x)</code> / <code>Date.parse</code> 之外的解析与格式化形态
+（RFC2822、双位年份、locale 串）一律大声拒绝。非法 ISO 在
+<code>Date.parse</code> 处 panic（NaN 在 i64 中不可表示）。移植注意：
+satsgo 发射的调用形状与上表签名逐位对齐，由
+<code>tools/check_sa_std_projection.sh</code> 机器强制。</p>
+
+<h2>Sla 侧类型面</h2>
+<p>Sla 代码使用 <code>SystemTime</code> / <code>Instant</code> / <code>Duration</code>
+这些名字，由编译器 lower 到 time 契约。真实示例摘自
+<code>demos/rosetta/09_async_await/main.sla</code>：</p>
+<pre><code>@import "sa_std/time.sla"
+
+fn unix_now_millis() -&gt; u64 {
+    return SystemTime::now().duration_since(SystemTime::unix_epoch()).unwrap().as_millis();
+}
+
+fn sleep_for_millis(delay_ms: u64) -&gt; void {
+    thread::sleep(Duration::from_millis(delay_ms));
+}
+
+fn instant_now_ns() -&gt; u64 {
+    let started = Instant::now();
+    return started.raw_ns();
+}
+
+fn elapsed_millis_since_ns(started_ns: u64) -&gt; u64 {
+    let started = Instant::from_raw_ns(started_ns);
+    return started.elapsed().as_millis();
+}</code></pre>
+<p>可见的对应关系：<code>Instant::now().raw_ns()</code> 即单调纳秒
+（<code>sa_time_instant_ns</code>），<code>Instant::from_raw_ns</code> 从裸纳秒重建，
+<code>Duration::from_millis(ms).as_millis()</code> 在毫秒粒度上构造与读取时长。</p>
+
+<div class="note"><span class="label">注意</span>契约注释明确：
+<code>sa_time_utc_now</code> 返回<strong>普通 i32 状态码</strong>而非
+<code>Fallible {status, value}</code>，调用方要按状态码判断成败，
+日历字段通过 <code>&amp;out</code> 指针带回。</div>
+
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/06_stdlib/08_time.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

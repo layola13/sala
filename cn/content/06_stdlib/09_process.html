@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>process：子进程</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; process：子进程</div>
+<h1>process：子进程</h1>
+
+<p>这一页介绍 <code>sa_std/process.sai</code> 的核心函数：启动并等待子进程、捕获其输出、
+发送信号以及读取自身进程信息。读完即可在程序里调用外部命令并取回退出码与输出。</p>
+
+<h2>句柄模型</h2>
+<p>进程句柄是不透明的 <code>u64</code> 资源，用完必须 <code>sa_std_process_close</code>。
+<code>argv</code> 是指向 <code>SaProcessArgv</code> 记录数组的借用指针。</p>
+
+<h2>常用 extern（摘自 process.sai）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_std_process_run(&amp;argv: ptr, argv_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>运行并等待结束，返回进程句柄</td></tr>
+<tr><td><code>sa_std_process_run_cwd(&amp;argv, argv_len, &amp;cwd, cwd_len, &amp;out_handle) -&gt; i32</code></td><td>同上，但指定工作目录</td></tr>
+<tr><td><code>sa_std_process_spawn(&amp;argv: ptr, argv_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>启动不等待的子进程</td></tr>
+<tr><td><code>sa_std_process_spawn_stream(&amp;argv, argv_len, &amp;out_process, &amp;out_stdout, &amp;out_stderr) -&gt; i32</code></td><td>spawn 并接管 stdout/stderr 管道</td></tr>
+<tr><td><code>sa_std_process_exec_capture(&amp;argv, argv_len, &amp;out_code, &amp;out_stdout, &amp;out_stderr) -&gt; i32</code></td><td>一步完成运行 + 捕获退出码与两路输出</td></tr>
+<tr><td><code>sa_std_process_wait(handle: u64, &amp;out_code: ptr) -&gt; i32</code></td><td>阻塞等待退出</td></tr>
+<tr><td><code>sa_std_process_try_wait(handle: u64, &amp;out_ready: ptr, &amp;out_code: ptr) -&gt; i32</code></td><td>非阻塞探测是否已退出</td></tr>
+<tr><td><code>sa_std_process_kill(handle: u64) -&gt; i32</code> / <code>sa_std_process_send_signal(handle: u64, signal: i32) -&gt; i32</code></td><td>终止 / 发送信号；另有针对进程组的 <code>_process_group</code> 变体</td></tr>
+<tr><td><code>sa_std_process_read_stdout(handle: u64, &amp;buf: ptr, cap: u64, &amp;out_read: ptr) -&gt; i32</code></td><td>从接管的 stdout 读数据（stderr 同理）</td></tr>
+<tr><td><code>sa_std_process_exit_status_code(raw: i32) -&gt; u32</code> 等</td><td>解码原始等待状态：<code>_signal</code>、<code>_core_dumped</code>、<code>_stopped_signal</code>、<code>_continued</code></td></tr>
+<tr><td><code>sa_std_process_id() -&gt; u32</code> / <code>_parent_id() / _user_id() / _group_id()</code></td><td>当前进程 / 父进程 / 用户 / 进程组 ID</td></tr>
+<tr><td><code>sa_std_process_abort() -&gt; void</code> / <code>sa_std_process_close(handle: u64) -&gt; i32</code></td><td>异常中止当前进程 / 关闭句柄</td></tr>
+</table>
+
+<h2>高级变体</h2>
+<p>契约还提供一组扩展入口，按可选能力递增：
+<code>..._command_ext</code>（工作目录、arg0、进程组、setsid）、
+<code>..._command_ext_pidfd</code>（Linux pidfd）、
+<code>..._command_ext_uid_gid</code>（切换 uid/gid）、
+<code>..._command_ext_groups</code>（附加组）、
+<code>..._command_ext_chroot</code>（chroot），每个都有
+<code>run / spawn / spawn_stream</code> 三种形式；
+配套的 <code>sa_std_pidfd_kill/_send_signal/_wait/_try_wait</code> 用于 pidfd 操作。
+可选项通过成对的 <code>has_xxx: u32</code> 标志启用。</p>
+
+<div class="warning"><span class="label">警告</span>带 uid/gid、chroot、pidfd 的变体是平台相关
+（主要为 POSIX）能力，跨平台程序不要假设它们可用。</div>
+
+<h2>SA 层调用形式</h2>
+<pre><code>%status = call @sa_std_process_exec_capture(&amp;%argv, %argv_len, &amp;%code, &amp;%out_h, &amp;%err_h)
+%close  = call @sa_std_process_close(%handle)</code></pre>
+
+</body>
+</html>

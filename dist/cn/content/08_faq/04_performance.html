@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>性能与优化预期</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">FAQ 与故障排查 &gt; 性能与优化预期</div>
+<h1>性能与优化预期</h1>
+
+<p>这一页说明 SLA 编译管线的耗时量级：direct 路径与回退路径差多少、宏模板缓存带来什么、大数组初始化优化解决了什么。读完可以对「编译为什么这么慢」建立合理预期，并知道用哪个工具测量。</p>
+
+<div class="warning"><span class="label">警告</span>下文数字均来自开发仓库的内部文档（roadmap_status_cn.md §6、compilation_optimization_cn.md），属于<b>未标定的微观测量</b>：单机、单文件、特定版本。它们只用于说明数量级差异，不构成任何性能保证。</div>
+
+<h2>direct 与 fallback 的差距</h2>
+
+<p>以下为历史测量快照（SAB 尚作主线、SA 兼容回退尚存的时期）：当时 SAB 路优先走 direct AST-&gt;SAB 编码器，遇到未覆盖特性时退回 SA 兼容降低 + SCI 展平器，两条路径的耗时差距可达一个数量级以上。以 roadmap_status_cn.md §6 记录的单文件测量为例：</p>
+
+<table>
+<tr><th>输入 / 路径</th><th>耗时</th><th>说明</th></tr>
+<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB（带宏模板缓存）</td><td>约 257ms</td><td>记录中标注为 16 倍加速</td></tr>
+<tr><td><code>test_unit_vec_remove_direct.sla</code> — direct SAB（无缓存）</td><td>约 4094ms</td><td>当时的瓶颈点</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — SA 兼容展平（回退）</td><td>约 4.04s</td><td>回退路径瓶颈</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — SAB encode</td><td>约 5.22s</td><td>当时最大单一瓶颈</td></tr>
+<tr><td><code>parallel_table_erased.sla</code> — sa test（宿主侧后端）</td><td>约 13.50s</td><td>SA 后端耗时</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>当时的核心结论是：direct 路径本身很快（同一批记录中为 24-257ms 量级），慢的是「遇到不支持特性就整体走回退」；回退已于 2026-09-28 拆除。现行口径（2026-11-15）：SAB 已封存为优化方向，且 SAB 不加速单次编译——冷编时间大头在宿主后端（同表末行 <code>sa test</code> 宿主侧耗时即为大头），与输入走文本还是 SAB 无关；热编 / 增量缓存是按源码哈希键控的独立机制，与 SAB 无关。若显式 SAB 路上某文件报错，用本章节<a href="02_compile_failures.html">「编译失败排查」</a>中的 <code>SLA_SAB_TRACE_UNSUPPORTED=1</code> 定位未覆盖点。</div>
+
+<h2>大数组初始化优化</h2>
+
+<p>针对包含大量常量数组的源码（例如 Lua VM 重构中的 16384 长度指令缓冲区），sci 编译器的 LLVM 常量生成引入了 <code>.repeat</code> 重复常量优化：检测到大面积重复默认值时，用 <code>@memset</code> 一次性填充字节流并直接发射 LLVM 聚合常量，避免逐元素生成。compilation_optimization_cn.md 记录的效果：</p>
+
+<ul>
+<li><code>lvm.test.sa</code> 干净重构编译时间从 <b>&gt;5 分钟</b>缩短到约 <b>4.6 秒</b>；</li>
+<li><code>lparser.test.sa</code> 缩短到约 <b>6.6 秒</b>；</li>
+<li>同时解决了单元测试和增量编译卡死/终端超时的问题。</li>
+</ul>
+
+<h2>重复构建：零变更不再全量重编</h2>
+
+<p>早期版本有一个严重的增量构建缺陷：<b>源码零变更时，<code>sla build-exe</code> 每次都等于全量重新编译</b>。根因有两层。SA 侧 <code>build-exe</code> 的项目缓存（<code>.sa_cache</code>）只在串行发射路径写回；显式传 <code>--jobs</code> 且函数数 ≥ 100 时走的 CGU 并行路径从不写缓存，编完即弃。SLA 侧则无条件给委托的 SA 命令追加 <code>--jobs auto</code>，于是每一次 <code>sla</code> 驱动的构建都被推进那条不写缓存的路径。</p>
+
+<p>修复后的缓存分工：</p>
+<ul>
+<li><b>SA build-exe 缓存</b>：所有发射路径（含 CGU 并行）都会写回 <code>.sa_cache</code> 条目，命中时直接恢复产物，跳过原生编译；缓存键与 <code>--jobs</code> 无关，串行与并行构建互相命中同一条目。</li>
+<li><b>sla 不再强加 <code>--jobs auto</code></b>：委托的 SA 命令默认走串行 + 缓存路径；用户显式传入的 <code>--jobs</code> 仍原样透传。</li>
+<li><b>SLA 前端新鲜度门</b>：前端把每次编译的依赖闭包（根文件、全部导入模块、契约导入文件、同级 <code>sa.mod</code>）连同产物存入 <code>.sla-cache/fresh/</code>，逐文件记录内容哈希。之后闭包哈希全部一致就直接复用产物，解析、导入展开、单态化、类型检查、编码整条管线跳过；任一文件内容变化都会未命中并正常重编，不会发出过期产物。环境变量 <code>SLA_NO_FRESHNESS_CACHE=1</code> 可禁用该门。<code>sla check</code> 走独立的内联管线，目前未接入。</li>
+</ul>
+
+<p>量级参考（288 模块合成项目、共享主机，未标定）：零变更 <code>sla build-exe</code> 由约 0.70s 降到约 0.05s 量级（前端命中后只剩进程启动与 SA 缓存恢复）。只改注释时新鲜度门正确未命中、前端重跑，但生成的 SAB 字节不变，SA 缓存仍然命中；改函数体则产出新 SAB 与新可执行文件。</p>
+
+<h2>如何测量自己的管线</h2>
+
+<p>插件仓库自带 benchmark harness，输出 JSONL 计时（运行目录为插件仓库根）：</p>
+
+<pre><code>tools/bench_sla_pipeline.sh --runs 3 --out /tmp/sla_pipeline_bench.jsonl</code></pre>
+
+<p>内置项目包括 <code>sla_to_sab_cold</code>（清空托管 SAB 缓存后计时）、<code>sla_to_sab_warm</code>（保留缓存）、<code>sla_to_native</code>（build-exe 主链路）、<code>sab_test_fallback_allowed</code> 与 <code>sab_test_direct_no_fallback</code>（对比允许回退与 no-fallback 的测试路径）。也可以在单次命令上加 <code>SLA_PROFILE=1</code> 查看各阶段计时：</p>
+
+<pre><code>[sla-profile] parse: 12ms
+[sla-profile] import expand: 45ms
+[sla-profile] type check: 15ms
+[sla-profile] sab direct codegen: 24ms</code></pre>
+
+<h2>已知的结构性压力</h2>
+
+<p>SLA 前端在 <code>@import</code> 时目前采取「全展开合并」模式：多个模块会被合并进单个 <code>.sa</code>/<code>.sab</code>，真实项目里出现过展开后上万条 SA 指令的单文件，这给展平器、验证器和后端都带来压力。按模块拆分输出、复用 SA 原生 <code>@import</code> 链接的模块化编译方案在设计文档中有规划，尚未成为当前行为——不要假设现在就是按模块缓存编译的。上文的新鲜度门是整编译粒度：零变更时整段跳过，但闭包内任一文件变化仍是全展开重编，产物形态不变。</p>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/roadmap_status_cn.md §6、compilation_optimization_cn.md、benchmarking_cn.md、testing_and_verification_cn.md §6。</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/08_faq/04_performance.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

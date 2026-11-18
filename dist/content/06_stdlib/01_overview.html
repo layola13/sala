@@ -1,79 +1,80 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>标准库总览</title>
+<title>Standard Library Overview</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">标准库 &gt; 标准库总览</div>
-<h1>标准库总览</h1>
+<div class="topic-header">Standard Library &gt; Standard Library Overview</div>
+<h1>Standard Library Overview</h1>
 
-<p>这一页介绍 SA/SLA 标准库 <code>sa_std</code> 的组织方式：如何导入模块、编译器在哪里找到它、
-<code>.sai</code> / <code>.sal</code> / <code>.sa</code> 三种契约文件分别承载什么，以及句柄与缓冲区的通用管理约定。
-读完即可按路径定位需要的模块，并知道去哪个文件核对函数签名。</p>
+<p>This page introduces how the SA/SLA standard library <code>sa_std</code> is organized: how to import modules, where the compiler finds it,
+what the three kinds of contract files <code>.sai</code> / <code>.sal</code> / <code>.sa</code> each carry, and the general management conventions for handles and buffers.
+After reading it, you will be able to locate the module you need by path and know which file to check for a function signature.</p>
 
-<h2>导入方式</h2>
-<p>Sla 直接导入 SA 顶层 <code>sa_std</code> 包，写法是带 <code>sa_std/</code> 前缀的完整契约路径：</p>
+<h2>Importing</h2>
+<p>Sla imports the SA top-level <code>sa_std</code> package directly, written as a complete contract path with the <code>sa_std/</code> prefix:</p>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 @import "sa_std/string.sa"</code></pre>
-<p>Sla 编译器会在类型检查之前加载导入的 <code>.sai</code> / <code>.sal</code> 契约，
-因此契约里声明的 <code>@extern</code> 函数对 Sla 代码直接可用。</p>
+<p>The Sla compiler loads the imported <code>.sai</code> / <code>.sal</code> contracts before type checking,
+so the <code>@extern</code> functions declared in the contracts are directly available to Sla code.</p>
 
-<div class="note"><span class="label">注意</span>Sla 源码默认使用编译器托管的生命周期清理，
-用户面 <code>.sla</code> 代码不需要显式 <code>!x;</code> 释放；生成的 <code>.sa</code> 里仍可能出现
-<code>!</code> 指令，那是 SA 的所有权原语。Sla 有意不提供 <code>drop</code> 关键字或
-<code>drop()</code> 函数。</div>
+<div class="note"><span class="label">Note</span>Sla source code uses compiler-managed lifetime cleanup by default;
+user-facing <code>.sla</code> code does not need an explicit <code>!x;</code> release; the generated <code>.sa</code> may still contain
+<code>!</code> instructions, which are SA's ownership primitives. Sla deliberately does not provide a <code>drop</code> keyword or a
+<code>drop()</code> function.</div>
 
-<h2>SA_STD_DIR 解析顺序</h2>
+<h2>SA_STD_DIR Resolution Order</h2>
 <table>
-<tr><th>顺序</th><th>条件</th><th>解析位置</th></tr>
-<tr><td>1</td><td>已设置环境变量 <code>SA_STD_DIR</code></td><td>从 <code>$SA_STD_DIR</code> 解析 <code>sa_std/...</code></td></tr>
-<tr><td>2</td><td><code>SA_STD_DIR</code> 未设置</td><td>从 <code>$HOME/projects/sci/sa_std</code> 解析</td></tr>
+<tr><th>Order</th><th>Condition</th><th>Resolution location</th></tr>
+<tr><td>1</td><td>The environment variable <code>SA_STD_DIR</code> is set</td><td>Resolve <code>sa_std/...</code> from <code>$SA_STD_DIR</code></td></tr>
+<tr><td>2</td><td><code>SA_STD_DIR</code> is not set</td><td>Resolve from <code>$HOME/projects/sci/sa_std</code></td></tr>
 </table>
 
-<h2>三种契约文件</h2>
+<h2>The Three Kinds of Contract Files</h2>
 <table>
-<tr><th>扩展名</th><th>内容</th><th>典型例子</th></tr>
-<tr><td><code>.sai</code></td><td><code>@extern</code> 函数签名（逐字即 ABI），由 Zig 实现的运行时模块提供，如 <code>io</code>、<code>fs</code>、<code>net</code>、<code>encoding/json</code></td><td><code>@extern sa_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td></tr>
-<tr><td><code>.sal</code></td><td>布局与常量契约：<code>#def Struct_SIZE = 24</code>、字段偏移 <code>Vec_len = +16</code>、错误码等</td><td><code>alloc/vec.sal</code>、<code>hashmap.sal</code></td></tr>
-<tr><td><code>.sa</code></td><td>SA 汇编宏（<code>[MACRO] ... EXPAND ...</code>），把若干指令和 extern 调用封装成可复用操作</td><td><code>vec.sa</code> 的 <code>VEC_NEW</code>、<code>fs.sa</code> 的 <code>FS_READ_TO_STRING</code></td></tr>
+<tr><th>Extension</th><th>Content</th><th>Typical example</th></tr>
+<tr><td><code>.sai</code></td><td><code>@extern</code> function signatures (verbatim, i.e. the ABI), provided by runtime modules implemented in Zig, such as <code>io</code>, <code>fs</code>, <code>net</code>, <code>encoding/json</code></td><td><code>@extern sa_fs_read_to_string(&amp;path: ptr, path_len: u64, max_bytes: u64) -&gt; u64!</code></td></tr>
+<tr><td><code>.sal</code></td><td>Layout and constant contracts: <code>#def Struct_SIZE = 24</code>, field offsets such as <code>Vec_len = +16</code>, error codes, etc.</td><td><code>alloc/vec.sal</code>, <code>hashmap.sal</code></td></tr>
+<tr><td><code>.sa</code></td><td>SA assembly macros (<code>[MACRO] ... EXPAND ...</code>), wrapping several instructions and extern calls into reusable operations</td><td><code>VEC_NEW</code> in <code>vec.sa</code>, <code>FS_READ_TO_STRING</code> in <code>fs.sa</code></td></tr>
 </table>
-<p>Sla 侧的类型方法面（例如 <code>Vec::push</code>、<code>Option::unwrap</code>）由插件的
-<code>sla_std/std_surface.sla_meta</code> 描述：这张表声明"某类型的某方法 lower 到 sa_std 的某个宏"，
-direct SAB 后端按规则生成代码，不在编译器里硬编码库语义。</p>
+<p>The Sla-side type method surface (for example <code>Vec::push</code>, <code>Option::unwrap</code>) is described by the plugin's
+<code>sla_std/std_surface.sla_meta</code>: this table declares “a given method of a given type lowers to a given macro in sa_std”,
+and the direct SAB backend generates code according to the rules, without hard-coding library semantics in the compiler.</p>
 
-<h2>模块地图</h2>
+<h2>Module Map</h2>
 <table>
-<tr><th>路径（相对 <code>sa_std/</code>)</th><th>内容</th><th>契约形式</th></tr>
-<tr><td><code>io/print.sai</code>、<code>io.sai</code></td><td>stdin/stdout/stderr、读行、读写、打印</td><td><code>.sai</code></td></tr>
-<tr><td><code>fmt.sai</code></td><td>i64/u64/f64/bool/bytes 的格式化到 owned 缓冲</td><td><code>.sai</code></td></tr>
-<tr><td><code>string.sai</code>、<code>string.sa</code></td><td>ASCII/UTF-8 判定与遍历、字符串宏</td><td><code>.sai</code> + <code>.sa</code></td></tr>
-<tr><td><code>vec.sa</code>、<code>hashmap.sa</code>、<code>btree_*.sa</code> 等</td><td>Vec / HashMap / HashSet / BTreeMap / BTreeSet 等集合</td><td><code>.sa</code> + <code>.sal</code></td></tr>
-<tr><td><code>core/option.sa</code>、<code>core/result.sa</code>、<code>core/box.sa</code> 等</td><td>Option / Result / Box / Rc / Arc / Cell / RefCell</td><td><code>.sa</code></td></tr>
-<tr><td><code>fs.sai</code></td><td>文件读写、目录遍历、metadata、复制链接等</td><td><code>.sai</code></td></tr>
-<tr><td><code>env.sai</code></td><td>环境变量、工作目录、参数、XDG 目录</td><td><code>.sai</code></td></tr>
-<tr><td><code>time.sai</code>、<code>time/</code></td><td>单调时钟、Unix 时间、睡眠、Duration/Instant</td><td><code>.sai</code></td></tr>
-<tr><td><code>process.sai</code></td><td>子进程 spawn/run/wait/signal/capture</td><td><code>.sai</code></td></tr>
-<tr><td><code>net.sai</code>、<code>netx.sai</code>、<code>http2.sai</code>、<code>tls_client.sai</code>、<code>ws_client.sai</code></td><td>TCP/UDP/Unix 套接字、URL 与 WebSocket 编解码、io_uring 反应器、HTTP/2、TLS 客户端、WebSocket 客户端</td><td><code>.sai</code></td></tr>
-<tr><td><code>encoding/json.sai</code>、<code>text/regex.sai</code></td><td>JSON 解析/序列化/流式 writer；正则表达式</td><td><code>.sai</code></td></tr>
-<tr><td><code>term.sai</code>、<code>os/fd.sai</code>、<code>thread.sai</code>、<code>testing/assert.sai</code></td><td>终端 raw 模式与 epoll、原始 fd、线程、测试断言</td><td><code>.sai</code></td></tr>
+<tr><th>Path (relative to <code>sa_std/</code>)</th><th>Content</th><th>Contract form</th></tr>
+<tr><td><code>io/print.sai</code>, <code>io.sai</code></td><td>stdin/stdout/stderr, reading lines, reading/writing, printing</td><td><code>.sai</code></td></tr>
+<tr><td><code>fmt.sai</code></td><td>Formatting i64/u64/f64/bool/bytes into an owned buffer</td><td><code>.sai</code></td></tr>
+<tr><td><code>string.sai</code>, <code>string.sa</code></td><td>ASCII/UTF-8 checks and traversal, string macros</td><td><code>.sai</code> + <code>.sa</code></td></tr>
+<tr><td><code>vec.sa</code>, <code>hashmap.sa</code>, <code>btree_*.sa</code>, etc.</td><td>Collections such as Vec / HashMap / HashSet / BTreeMap / BTreeSet</td><td><code>.sa</code> + <code>.sal</code></td></tr>
+<tr><td><code>core/option.sa</code>, <code>core/result.sa</code>, <code>core/box.sa</code>, etc.</td><td>Option / Result / Box / Rc / Arc / Cell / RefCell</td><td><code>.sa</code></td></tr>
+<tr><td><code>fs.sai</code></td><td>File reading/writing, directory traversal, metadata, copying, links, etc.</td><td><code>.sai</code></td></tr>
+<tr><td><code>env.sai</code></td><td>Environment variables, working directory, arguments, XDG directories</td><td><code>.sai</code></td></tr>
+<tr><td><code>time.sai</code>, <code>time/</code></td><td>Monotonic clock, Unix time, sleep, Duration/Instant</td><td><code>.sai</code></td></tr>
+<tr><td><code>process.sai</code></td><td>Child process spawn/run/wait/signal/capture</td><td><code>.sai</code></td></tr>
+<tr><td><code>net.sai</code>, <code>netx.sai</code>, <code>http2.sai</code>, <code>tls_client.sai</code>, <code>ws_client.sai</code></td><td>TCP/UDP/Unix sockets, URL and WebSocket codecs, io_uring reactor, HTTP/2, TLS client, WebSocket client</td><td><code>.sai</code></td></tr>
+<tr><td><code>encoding/json.sai</code>, <code>text/regex.sai</code></td><td>JSON parsing/serialization/streaming writer; regular expressions</td><td><code>.sai</code></td></tr>
+<tr><td><code>term.sai</code>, <code>os/fd.sai</code>, <code>thread.sai</code>, <code>testing/assert.sai</code></td><td>Terminal raw mode and epoll, raw fds, threads, test assertions</td><td><code>.sai</code></td></tr>
 </table>
 
-<h2>资源管理约定</h2>
+<h2>Resource Management Conventions</h2>
 <ul>
-<li>多数运行时模块返回<strong>不透明句柄</strong>（<code>u64</code> 或 <code>ptr</code>），必须显式关闭：
-<code>sa_io_close</code>、<code>sa_fs_metadata_free</code>、<code>sa_json_free</code> 等。</li>
-<li>"owned 缓冲区句柄"统一是三件套：<code>..._buffer_data</code> 取数据指针、
-<code>..._buffer_len</code> 取长度、<code>..._buffer_free</code> 释放，
-如 <code>sa_fmt_buffer_* / sa_fs_read_buffer_* / sa_env_buffer_* / sa_json_buffer_*。</code></li>
-<li>stdio 句柄由进程持有，属于借用句柄，不要 close。</li>
-<li>返回类型里的 <code>!</code> 表示 fallible（可失败）返回，例如 <code>-&gt; u64!</code>、<code>-&gt; i32!</code>。</li>
+<li>Most runtime modules return an <strong>opaque handle</strong> (<code>u64</code> or <code>ptr</code>) that must be closed explicitly:
+<code>sa_io_close</code>, <code>sa_fs_metadata_free</code>, <code>sa_json_free</code>, etc.</li>
+<li>An “owned buffer handle” always comes as a trio: <code>..._buffer_data</code> to get the data pointer,
+<code>..._buffer_len</code> to get the length, <code>..._buffer_free</code> to release it,
+such as <code>sa_fmt_buffer_* / sa_fs_read_buffer_* / sa_env_buffer_* / sa_json_buffer_*。</code></li>
+<li>stdio handles are held by the process and are borrowed handles; do not close them.</li>
+<li>A <code>!</code> in a return type indicates a fallible return, for example <code>-&gt; u64!</code>, <code>-&gt; i32!</code>.</li>
 </ul>
-<div class="warning"><span class="label">警告</span>各章列出的签名均逐字摘自仓库内的
-<code>.sai</code> 契约文件。若你的 <code>SA_STD_DIR</code> 指向的版本不同，请以本地契约为准。</div>
+<div class="warning"><span class="label">Warning</span>The signatures listed in each chapter are quoted verbatim from the
+<code>.sai</code> contract files in the repository. If your <code>SA_STD_DIR</code> points to a different version, please treat your local contracts as authoritative.</div>
 
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/06_stdlib/01_overview.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

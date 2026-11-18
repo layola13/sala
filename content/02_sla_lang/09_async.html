@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>async/await 现状</title>
+<title>async/await: Current State</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SLA 语言参考 &gt; async/await 现状</div>
-<h1>async/await 现状</h1>
+<div class="topic-header">SLA Language Reference &gt; async/await: Current State</div>
+<h1>async/await: Current State</h1>
 
-<p>SLA 已有 <code>async fn</code>/<code>.await</code> 语法与配套的 sa_std future 契约。
-当前编译器已经为单次 await、连续两次 await、<code>join2</code> 以及若干动态
-Pending/Ready 形态生成真实状态机；但这不是“所有 async 代码都已经有通用 runtime”。
-本页记录可验证的 lowering 范围、手动驱动方式和仍未完成的边界。</p>
+<p>SLA already has <code>async fn</code>/<code>.await</code> syntax and the accompanying sa_std future contracts.
+The current compiler already generates real state machines for a single await, two consecutive awaits, <code>join2</code>, and several dynamic
+Pending/Ready forms; but this is not "all async code already has a general runtime".
+This page records the verifiable lowering scope, the manual driving method, and the boundaries still unfinished.</p>
 
-<div class="note"><span class="label">源码快照（2026-09-03）</span>
-权威实现位于 <code>sa_plugin_sla</code>，不是本帮助站点本身：
-<code>src/codegen.zig</code> 按 join2 → two-await → single-await → dynamic
-planner 选择专用构造器；<code>sa_std/core/future.sal</code> 定义
-<code>FutureState</code> 的动态 vtable 位于偏移 <code>+48</code>，动态状态必须通过
-<code>FUTURE_POLL_STATE</code> 分发。不要把动态 outer future 交给只读取内联 ready 布局的
-<code>FUTURE_READY_POLL_STATE</code>。</div>
+<div class="note"><span class="label">Source snapshot (2026-09-03)</span>
+The authoritative implementation lives in <code>sa_plugin_sla</code>, not in this help site itself:
+<code>src/codegen.zig</code> selects a dedicated constructor in the order join2 → two-await → single-await → dynamic
+planner; <code>sa_std/core/future.sal</code> defines
+<code>FutureState</code>'s dynamic vtable at offset <code>+48</code>, and dynamic state must be dispatched through
+<code>FUTURE_POLL_STATE</code>. Do not hand a dynamic outer future to
+<code>FUTURE_READY_POLL_STATE</code>, which only reads the inline ready layout.</div>
 
-<h2>基本写法</h2>
-<p><code>async fn</code> 声明异步函数；调用它得到一个 future 值，用后缀 <code>.await</code> 取结果。
-future 的类型写作 <code>future&lt;T&gt;</code>
-（<code>demos/rosetta/314_async_await_pending_resume/main.sla</code>）：</p>
+<h2>Basic spelling</h2>
+<p><code>async fn</code> declares an asynchronous function; calling it yields a future value, and the suffix <code>.await</code> takes the result.
+A future's type is written <code>future&lt;T&gt;</code>
+(<code>demos/rosetta/314_async_await_pending_resume/main.sla</code>):</p>
 <pre><code>@import "sa_std/future.sa"
 @import "sa_std/core/waker.sa"
 @import "sa_std/pin.sa"
@@ -42,10 +42,10 @@ async fn run() -&gt; i32 {
     return second;
 }</code></pre>
 
-<h2>Pending / Ready 与手动 block_on</h2>
-<p><code>future::defer_ready(v)</code> 第一次 poll 返回 <code>Pending</code>，第二次返回
-<code>Ready(v)</code>——这会让 async 状态机真正挂起并在重新 poll 时恢复。标准库没有内置
-block_on 时，demo 使用轮询 + waker 的手写驱动：</p>
+<h2>Pending / Ready and manual block_on</h2>
+<p><code>future::defer_ready(v)</code> returns <code>Pending</code> on the first poll and
+<code>Ready(v)</code> on the second — this makes the async state machine genuinely suspend and resume on re-poll. When the standard library has no built-in
+block_on, the demo uses a handwritten driver of polling + waker:</p>
 <pre><code>fn block_on(future: future&lt;i32&gt;) -&gt; i32 {
     let data: ptr = PTR_NULL();
     let raw = RAW_WAKER_NEW(data, data);
@@ -68,10 +68,10 @@ block_on 时，demo 使用轮询 + waker 的手写驱动：</p>
     panic(314);
 }</code></pre>
 
-<h2>跨线程的任务池</h2>
-<p>async 调用产生的 future 可以移动进线程闭包，由工作线程自行驱动；
-结果通过 <code>Arc&lt;Mutex&lt;i32&gt;&gt;</code> 回传
-（<code>demos/rosetta/315_async_thread_pool/main.sla</code>）：</p>
+<h2>A cross-thread task pool</h2>
+<p>Futures produced by async calls can be moved into a thread closure and driven by the worker thread itself;
+results are returned through an <code>Arc&lt;Mutex&lt;i32&gt;&gt;</code>
+(<code>demos/rosetta/315_async_thread_pool/main.sla</code>):</p>
 <pre><code>@import "sa_std/sync/mutex.sa"
 @import "sa_std/core/arc.sa"
 @import "sa_std/thread.sa"
@@ -87,8 +87,8 @@ fn pool_worker(f: future&lt;i32&gt;, out: Arc&lt;Mutex&lt;i32&gt; &gt;) {
     *g = r;
 }</code></pre>
 
-<h2>while let + await 组合</h2>
-<p>任务队列的常见形态（<code>demos/rosetta/136_executor_task_queue/main.sla</code>）：</p>
+<h2>The while let + await combination</h2>
+<p>The common form of a task queue (<code>demos/rosetta/136_executor_task_queue/main.sla</code>):</p>
 <pre><code>let queue = vec(task_one(), task_two(), task_three());
 let total = 0;
 
@@ -97,44 +97,42 @@ while let Some(task) = queue.pop() {
     total = total + resolved;
 }</code></pre>
 
-<h2>成熟度与建议</h2>
+<h2>Maturity and recommendations</h2>
 <ul>
-<li>async/await 已部分进入 direct-SAB 快路径，但覆盖是专用 lowering，不是任意 async
-函数的通用 CPS/state-machine。当前已验证的重点是单 await、两次 await、join2、
-局部 Future 重新赋值和 Pending/Ready 恢复；</li>
-<li>当前源码记录中，34 个 <code>test_unit_async*.sla</code> 通过 native SA，
-SLA→SA→VM 矩阵也是 34/34；2026-09-29 复核 strict direct SAB 同样 34/34
-（线程池用例经 helpers 门控对齐后转正，sa_plugin_sla@f5f473b）。
-此前“34/35、线程池受 <code>stack_alloc + PIN_MUT_NEW + FUTURE_POLL_STATE</code>
-组合限制”为 2026-09-03 快照，已 supersede；</li>
-<li>线性连续 await 已通用：三 await 用例（<code>test_unit_async_linear_three_await_state_machine</code>，
-四轮 poll 恢复）在树内通过；四 await 探针（四阶段局部值 <code>a+b+c+d=44</code>
-跨阶段保持）同样通过。仍缺的是<strong>跨 <code>async fn</code> 边界的嵌套 await</strong>：
-rosetta 314/315 仍以断言 panic 失败（共享层缺口，见下）。不能据此宣称“高级 async/await 已完成”；</li>
-<li><code>sa_std/core/task.sa</code> 的 executor 是任务数组上的轮询循环；
-<code>run_until_complete</code> 没有 Tokio 级 reactor、调度公平性、背压或结构化并发。
-线程池示例是真实 OS 线程 + <code>Arc&lt;Mutex&gt;</code>，但仍由手写
-<code>block_on</code> 和 sleep 驱动；</li>
-<li>demo 009 的简化 <code>block_on</code> 在 future 未立即就绪时会 panic；需要真挂起请参考 demo 314 的轮询写法；</li>
-<li>不要假设 rosetta 树中的 async demo 全部端到端通过，按需单独验证：
-<code>SA_PLUGIN_DEV=1 sa sla test demos/rosetta/314_async_await_pending_resume/main.sla</code>。</li>
-<li>2026-09-29 实测：22 个抽查 demo（enum/match、闭包、trait/dyn、迭代器、Cell/RefCell、
-Box、derive、select/join/streams、基础 async）双后端执行输出完全一致；
-rosetta 314/315 双后端同 panic（跨 async fn 边界的嵌套 await，共享层缺口，
-非 SA/SAB 分歧，另立项）；</li>
-<li><strong>panic 在 future / await 边界的传播（TS-16，2026-10-29 落字）</strong>：async 体内的
-<code>panic()</code> 与 goroutine 边界口径对称——<strong>进程级终止</strong>，不以数据形式被 future
-观察：future 的状态 / 轮询表示（<code>sa_std/future.sa</code>）没有 panic 槽位，poll 永不返回一个
-「已 panic」结果，进程在 poll 驱动点直接终止（解释路记为 <code>RunError.UserExit</code>，
-编译路为 <code>panic</code> / <code>panic_msg</code> 主机调用）。</li>
+<li>async/await has partially entered the direct-SAB fast path, but the coverage is dedicated lowering, not a general CPS/state-machine for arbitrary async
+functions. What is currently verified focuses on a single await, two awaits, join2,
+local Future reassignment, and Pending/Ready resumption;</li>
+<li>In the current source record, 34 <code>test_unit_async*.sla</code> pass on native SA,
+and the SLA→SA→VM matrix is also 34/34; the 2026-09-29 re-check found strict direct SAB likewise 34/34
+(the thread-pool case turned green after alignment through the helpers gate, sa_plugin_sla@f5f473b).
+The earlier "34/35, the thread pool limited by the <code>stack_alloc + PIN_MUT_NEW + FUTURE_POLL_STATE</code>
+combination" was the 2026-09-03 snapshot and has been superseded;</li>
+<li>Linear consecutive awaits are now general: the three-await case (<code>test_unit_async_linear_three_await_state_machine</code>,
+resuming over four poll rounds) passes in the tree; a four-await probe (four-stage local values <code>a+b+c+d=44</code>
+kept across stages) also passes. What is still missing is <strong>nested awaits across <code>async fn</code> boundaries</strong>:
+rosetta 314/315 still fail with assertion panics (a shared-layer gap, see below). Do not claim on this basis that "advanced async/await is complete";</li>
+<li>The executor in <code>sa_std/core/task.sa</code> is a polling loop over a task array;
+<code>run_until_complete</code> has no Tokio-grade reactor, scheduling fairness, backpressure, or structured concurrency.
+The thread-pool example uses real OS threads + <code>Arc&lt;Mutex&gt;</code>, but is still driven by a handwritten
+<code>block_on</code> and sleeps;</li>
+<li>Demo 009's simplified <code>block_on</code> panics when the future is not immediately ready; for genuine suspension, refer to demo 314's polling spelling;</li>
+<li>Do not assume all async demos in the rosetta tree pass end to end; verify individually as needed:
+<code>SA_PLUGIN_DEV=1 sa sla test demos/rosetta/314_async_await_pending_resume/main.sla</code>.</li>
+<li>Measured on 2026-09-29: 22 spot-checked demos (enum/match, closures, trait/dyn, iterators, Cell/RefCell,
+Box, derive, select/join/streams, basic async) produced completely identical output on both backends;
+rosetta 314/315 panic identically on both backends (nested awaits across async fn boundaries, a shared-layer gap,
+not an SA/SAB divergence; a separate project);</li>
+<li><strong>Panic propagation across future / await boundaries (TS-16, written 2026-10-29)</strong>: a
+<code>panic()</code> inside an async body is symmetric with the goroutine boundary position — <strong>process-level termination</strong>, not observed by the future in data form: the future's state / polling representation (<code>sa_std/future.sa</code>) has no panic slot, poll never returns a
+"panicked" result, and the process terminates directly at the poll driving point (the interpreted path records it as <code>RunError.UserExit</code>,
+the compiled path as the <code>panic</code> / <code>panic_msg</code> host calls).</li>
 </ul>
 
-<div class="note"><span class="label">注意</span>编译器内部使用 continuation/state-machine
-lowering，但 SLA 不提供 Rust 式 <code>Pin</code>/<code>Unpin</code> 用户面语义；demo 中出现的
-<code>PIN_MUT_*</code> 来自 sa_std 契约，不是语言关键字。HTTP client 的 async ABI
-目前是句柄 + poll/cancel 的插件接口，不能等同于统一的 SLA Future executor。</div>
+<div class="note"><span class="label">Note</span>The compiler internally uses continuation/state-machine
+lowering, but SLA provides no Rust-style <code>Pin</code>/<code>Unpin</code> user-facing semantics; the
+<code>PIN_MUT_*</code> appearing in demos comes from sa_std contracts, not from language keywords. The HTTP client's async ABI
+is currently a handle + poll/cancel plugin interface and cannot be equated with a unified SLA Future executor.</div>
 
-<p>相关页面：<a href="03_functions.html">函数与控制流</a>、<a href="10_maturity.html">特性成熟度总表</a>。</p>
+<p>Related pages: <a href="03_functions.html">Functions and Control Flow</a>, <a href="10_maturity.html">Feature Maturity Matrix</a>.</p>
 </body>
 </html>
-

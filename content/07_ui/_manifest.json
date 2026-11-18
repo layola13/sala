@@ -2,51 +2,100 @@
   "topics": [
     {
       "id": "overview",
-      "title": "SAX 是什么与开发模型",
+      "title": "What SAX Is and Its Development Model",
       "file": "01_overview.html",
-      "keywords": ["SAX", "纯界面工程", "静态占位数据", "开发导航条", "airlock", "wasm"],
+      "keywords": [
+        "SAX",
+        "pure UI project",
+        "static placeholder data",
+        "dev navigation bar",
+        "airlock",
+        "wasm"
+      ],
       "parent": null
     },
     {
       "id": "syntax",
-      "title": "SAX 语法规则",
+      "title": "SAX Syntax Rules",
       "file": "02_syntax.html",
-      "keywords": ["语法", "Component", "state", "插值", "三元表达式", "handler", "InvalidTextExpression"],
+      "keywords": [
+        "syntax",
+        "Component",
+        "state",
+        "interpolation",
+        "ternary expression",
+        "handler",
+        "InvalidTextExpression"
+      ],
       "parent": null
     },
     {
       "id": "project-structure",
-      "title": "项目结构约定",
+      "title": "Project Structure Conventions",
       "file": "03_project_structure.html",
-      "keywords": ["项目结构", "app.sax", "screens", "settings 分区", "命名约定", "devnav"],
+      "keywords": [
+        "project structure",
+        "app.sax",
+        "screens",
+        "settings partitions",
+        "naming conventions",
+        "devnav"
+      ],
       "parent": null
     },
     {
       "id": "styling",
-      "title": "样式体系",
+      "title": "The Styling System",
       "file": "04_styling.html",
-      "keywords": ["CSS", "theme.css", "official-black", "cxu-", "app.css 拼接", "样式令牌"],
+      "keywords": [
+        "CSS",
+        "theme.css",
+        "official-black",
+        "cxu-",
+        "app.css concatenation",
+        "style tokens"
+      ],
       "parent": null
     },
     {
       "id": "mui",
-      "title": "组件库 mui 概览",
+      "title": "The mui Component Library",
       "file": "05_mui.html",
-      "keywords": ["MUI", "material.sax", "icons_material.sax", "组件库", "Slot", "className"],
+      "keywords": [
+        "MUI",
+        "material.sax",
+        "icons_material.sax",
+        "component library",
+        "Slot",
+        "className"
+      ],
       "parent": null
     },
     {
       "id": "toolchain",
-      "title": "react/vite 插件集成与本地预览",
+      "title": "react/vite Plugin Integration and Local Preview",
       "file": "06_toolchain.html",
-      "keywords": ["vite dev", "热重载", "sa vite build", "http-server", "插件安装", "SA_PLUGIN_DEV"],
+      "keywords": [
+        "vite dev",
+        "hot reload",
+        "sa vite build",
+        "http-server",
+        "plugin installation",
+        "SA_PLUGIN_DEV"
+      ],
       "parent": null
     },
     {
       "id": "getting-started",
-      "title": "从零新建一个 SAX 界面工程",
+      "title": "Creating a SAX UI Project from Scratch",
       "file": "07_getting_started.html",
-      "keywords": ["入门", "新建工程", "最小示例", "HelloScreen", "自查清单"],
+      "keywords": [
+        "getting started",
+        "new project",
+        "minimal example",
+        "HelloScreen",
+        "self-check checklist"
+      ],
       "parent": null
     }
   ]

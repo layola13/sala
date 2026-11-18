@@ -2,72 +2,146 @@
   "topics": [
     {
       "id": "lexical",
-      "title": "词法与基础语法",
+      "title": "Lexical Structure and Basic Syntax",
       "file": "01_lexical.html",
-      "keywords": ["词法", "关键字", "字面量", "注释", "@import", "@test"],
+      "keywords": [
+        "lexical",
+        "keywords",
+        "literals",
+        "comments",
+        "@import",
+        "@test"
+      ],
       "parent": null
     },
     {
       "id": "types",
-      "title": "类型系统",
+      "title": "Type System",
       "file": "02_types.html",
-      "keywords": ["类型", "基本类型", "数组", "切片", "元组", "type 别名", "泛型"],
+      "keywords": [
+        "types",
+        "primitive types",
+        "arrays",
+        "slices",
+        "tuple",
+        "type alias",
+        "generics"
+      ],
       "parent": null
     },
     {
       "id": "functions",
-      "title": "函数与控制流",
+      "title": "Functions and Control Flow",
       "file": "03_functions.html",
-      "keywords": ["函数", "fn", "闭包", "if else", "while", "for in", "? 错误传播"],
+      "keywords": [
+        "functions",
+        "fn",
+        "closures",
+        "if else",
+        "while",
+        "for in",
+        "? error propagation"
+      ],
       "parent": null
     },
     {
       "id": "patterns",
-      "title": "模式匹配",
+      "title": "Pattern Matching",
       "file": "04_patterns.html",
-      "keywords": ["match", "switch", "if let", "let else", "while let", "..rest", "结构体更新"],
+      "keywords": [
+        "match",
+        "switch",
+        "if let",
+        "let else",
+        "while let",
+        "..rest",
+        "struct update"
+      ],
       "parent": null
     },
     {
       "id": "structs-enums",
-      "title": "结构体与枚举",
+      "title": "Structs and Enums",
       "file": "05_structs_enums.html",
-      "keywords": ["结构体", "枚举", "newtype", "trait", "impl", "dyn"],
+      "keywords": [
+        "structs",
+        "enums",
+        "newtype",
+        "trait",
+        "impl",
+        "dyn"
+      ],
       "parent": null
     },
     {
       "id": "ownership",
-      "title": "所有权与生命周期",
+      "title": "Ownership and Lifetimes",
       "file": "06_ownership.html",
-      "keywords": ["所有权", "借用", "move", "drop", "&self", "&mut", "UseAfterMove", "取地址", "栈驻留", "stack homing"],
+      "keywords": [
+        "ownership",
+        "borrowing",
+        "move",
+        "drop",
+        "&self",
+        "&mut",
+        "UseAfterMove",
+        "address-of",
+        "stack residency",
+        "stack homing"
+      ],
       "parent": null
     },
     {
       "id": "modules",
-      "title": "模块与 @import",
+      "title": "Modules and @import",
       "file": "07_modules.html",
-      "keywords": ["模块", "mod", "pub", "@import", "sa_std", "using"],
+      "keywords": [
+        "modules",
+        "mod",
+        "pub",
+        "@import",
+        "sa_std",
+        "using"
+      ],
       "parent": null
     },
     {
       "id": "extensions",
-      "title": "扩展机制",
+      "title": "Extension Mechanisms",
       "file": "08_extensions.html",
-      "keywords": ["@overload", "操作符重载", "macro", "@expand_tuple", "@derive", "静态扩展"],
+      "keywords": [
+        "@overload",
+        "operator overloading",
+        "macro",
+        "@expand_tuple",
+        "@derive",
+        "static extensions"
+      ],
       "parent": null
     },
     {
       "id": "async",
-      "title": "async/await 现状",
+      "title": "async/await: Current State",
       "file": "09_async.html",
-      "keywords": ["async", "await", "future", "block_on", "Pending"],
+      "keywords": [
+        "async",
+        "await",
+        "future",
+        "block_on",
+        "Pending"
+      ],
       "parent": null
     },
     {
       "id": "maturity",
-      "title": "特性成熟度总表",
+      "title": "Feature Maturity Matrix",
       "file": "10_maturity.html",
-      "keywords": ["成熟度", "direct SAB", "回退", "fallback", "SLA_SAB_NO_FALLBACK"],
+      "keywords": [
+        "maturity",
+        "direct SAB",
+        "fallback",
+        "SLA_SAB_NO_FALLBACK"
+      ],
       "parent": null
     }
   ]

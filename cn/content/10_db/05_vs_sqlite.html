@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>vs SQLite：选型对比</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">db 数据库插件 &gt; vs SQLite：选型对比</div>
+<h1>vs SQLite：选型对比</h1>
+
+<p>db 插件和 SQLite 经常被拿来比，但它们解决的不是同一个问题。
+这一页从存储模型、事务、查询接口、类型系统、嵌入方式五个维度做结构化对照，
+并把仓库自带的实测数据原样列出。<strong>所有结论都注明出处</strong>；仓库文档没有覆盖的部分会明确标为背景知识。</p>
+
+<div class="note"><span class="label">出处约定</span>本页引用的四个来源分别是：
+<code>sa_plugin_db/README.md</code>（插件主文档）、
+<code>sci/docs/db_comparison.md</code>（2026-06-12 对照报告）、
+<code>sci/docs/db_plugin_evaluation.md</code>（同期评估）、
+<code>sci/docs/database.md</code>（sa-db 设计蓝图）。下文用短名引用。</div>
+
+<h2 id="verdict">一句话结论</h2>
+<p>README.md 的总结原文是：<em>"SQLite remains stronger for SQL, index creation, ACID, WAL, crash recovery,
+compact/vacuum, and integrity checks."</em>
+而 db 插件在<strong>复用读句柄的扫描查询</strong>、<strong>批量列式写入</strong>和
+<strong>索引化 ERP 列表/投影查询</strong>上占优。</p>
+<p>db_comparison.md 的选择建议逐条照录：</p>
+<ul>
+<li>需要 SQL、索引、事务、崩溃恢复：<strong>选 SQLite</strong>。</li>
+<li>SA 程序内部已有列式数据，想快速落地小表批量写入或全量列更新：<strong>db 插件在本 benchmark 更快</strong>。</li>
+<li>需要生产级长期存储：<strong>SQLite 仍明显更稳</strong>。</li>
+</ul>
+
+<h2 id="storage">存储模型</h2>
+<p><strong>db 插件：列式段文件，无 B-Tree。</strong>
+每张表按列拆分成一组顺序追加的段文件（<code>&lt;table&gt;.col&lt;i&gt;.&lt;seg&gt;.dat</code>），
+schema 在编译期展开成 <code>#def</code> 字典，行宽由列 stride 求和得到。
+database.md §0 把这概括为「无 SQL 字符串解析、无 B-Tree（SoA 列式 + 物理行索引直跳）」；
+点查与范围查靠持久化的「键 -&gt; row」排序索引加二分，而不是页式树。</p>
+<p><strong>SQLite：成熟的关系存储层。</strong>
+db_comparison.md 的技术解释一节写道：
+<em>"SQLite 的存储层、pager、WAL/锁机制和查询执行路径成熟得多；db 插件目前没有 SQL、索引、事务日志、查询优化器或崩溃恢复"</em>
+（该句写于索引与事务落地之前，现应理解为对成熟度的定性而非能力清单）。
+SQLite 以 B-tree 组织表与索引属于数据库常识，仓库文档未展开描述，此处仅作背景。</p>
+<p>两者的直接推论差异：</p>
+<table>
+<tr><th>维度</th><th>db 插件</th><th>SQLite</th></tr>
+<tr><td>行内布局</td><td>按列连续存放（SoA），行是各列同序号切片的逻辑拼合</td><td>按行组织在页内</td></tr>
+<tr><td>追加写入</td><td>新数据成为新段，配合 manifest 推进 epoch</td><td>页分裂与 WAL 追加</td></tr>
+<tr><td>整行读取</td><td>需把各列片段拼回定宽行缓冲</td><td>天然按行返回</td></tr>
+<tr><td>只取少数列</td><td>优势场景：投影只复制请求的列字节</td><td>仍需解页读行</td></tr>
+<tr><td>空间回收</td><td><code>compact</code> 重写合并段</td><td><code>VACUUM</code>，实测快约 3.6 倍</td></tr>
+<tr><td>完整性校验</td><td><code>verify</code> 校验 schema/段/块级哈希</td><td><code>integrity_check</code>，实测快约 3.3 倍</td></tr>
+</table>
+
+<h2 id="tx">事务与并发</h2>
+<p>这是两者差距最大、也最容易被误解的一块。README 的边界声明原文：</p>
+<blockquote>This is still not a replacement for SQLite-style ACID, WAL, general primary/secondary index
+planning, or multi-table transaction isolation.</blockquote>
+<table>
+<tr><th>能力</th><th>db 插件（现状）</th><th>SQLite</th></tr>
+<tr><td>事务范围</td><td>单表、单写者；<code>tx_begin</code>/<code>tx_commit</code>/<code>tx_rollback</code> 操作内存镜像</td><td>跨多表的标准事务</td></tr>
+<tr><td>写串行化</td><td>进程内互斥 + 每表 advisory 写锁文件 <code>&lt;table&gt;.write.lock</code>，跨进程对同一张表串行</td><td>锁机制 + WAL 并发读写</td></tr>
+<tr><td>提交原子性</td><td>临时文件 sync 后原子 rename；manifest 推进前崩溃可回退到上一 epoch</td><td>pager/WAL 保证</td></tr>
+<tr><td>崩溃恢复</td><td><code>recover</code> 扫版本化 meta 重建 manifest；事务用 pending/commit marker 区分未完成与已提交</td><td>成熟的崩溃恢复路径</td></tr>
+<tr><td>读并发</td><td>读句柄打开不再等待全局变更互斥，活跃写事务不会阻塞打开已提交快照</td><td>WAL 下读写互不阻塞</td></tr>
+<tr><td>约束</td><td>唯一索引（u64/i64/紧凑整数/pair/blob_eq）作为真实唯一约束，违反返回 <code>SA_DB_ERR_CONSTRAINT</code></td><td>完整的主键/外键/CHECK/触发器体系</td></tr>
+</table>
+<div class="warning"><span class="label">警告</span>db_comparison.md 特意提醒：
+进程内互斥「只证明同进程 benchmark 正确，不等同于多进程事务隔离或 ACID」。
+把 db 插件用于跨进程强一致写入前必须自行评估这一点。</div>
+
+<h2 id="sql">查询接口：SQL 面 vs read-handle API</h2>
+<p>db 插件<strong>没有运行时 SQL</strong>。查询有两条路：</p>
+<ol>
+<li><strong>read-handle API</strong>：打开快照后在内存里调用
+<code>sum/count/find/range/filter_rows/plan/sort/project/get_row/group_stats</code> 等函数组合出结果。
+README 强调 plan 家族是 "a planner building block rather than a SQL optimizer"，
+更复杂的形状要显式组合这些构件。</li>
+<li><strong>预编译 qmod</strong>：把 SA 查询代码注册成 SHA-256 锁定的模块，
+用 <code>sa db register</code>/<code>sa db exec &lt;hash&gt;</code> 执行，入口需声明
+<code>db_read</code>/<code>db_write</code>/<code>db_atomic_cursor</code> grants。</li>
+</ol>
+<p>SQLite 提供完整 SQL 字符串解析、查询规划与执行。代价是每一行都要走 bind/step/reset 循环——
+db_comparison.md 认为这正是 db 插件在批量插入上反超的原因：
+benchmark 直接传入按列布局的原始字节，「避免了 SQLite 每行 bind/step/reset 的开销」。</p>
+
+<h2 id="types">类型系统</h2>
+<p><strong>db 插件：物理定宽 primitive + 逻辑注解。</strong>
+物理层只有固定宽度的 primitive 列
+（<code>I1/I8/I16/I32/I64/U8/U16/U32/U64/F32/F64/PTR/BLOB_HANDLE/V128</code>），
+业务类型通过 schema 注解映射到这些字节上：</p>
+<pre><code>#def COL_AMOUNT_CENTS_STRIDE = 8 // i64 decimal(2)
+#def COL_DUE_DAY_STRIDE     = 8 // i64 date
+#def COL_POSTED_AT_STRIDE   = 8 // i64 timestamp_ms
+#def COL_ACTIVE_STRIDE      = 1 // u8 bool</code></pre>
+<ul>
+<li>金额 = scaled <code>i64</code>；日期 = epoch days；时间戳 = epoch ms/us；布尔 = 规范化 <code>0/1</code>；
+可空 = sidecar null bitmap。decimal scale 上限 18。</li>
+<li>变长文本不做成列：低基数走字典 ID（1-based，0 预留），一般文本/blob 走 store + 8 字节 handle。</li>
+<li>float 索引拒绝 NaN 与 ±Inf，因为它们的排序不是稳定业务数据。</li>
+<li>schema 锁定后不可变；database.md §15 明确「不支持动态 schema 变更（新增列必须开新表）」。</li>
+</ul>
+<p><strong>SQLite</strong> 采用动态类型与存储类亲和性，同一列可以存不同类型的值，且支持任意长度的 TEXT/BLOB 列。
+这部分是通用背景，仓库文档未涉及；但由此产生的工程差异是真实的：
+db 插件要求你在建表时就把业务类型编码方案定下来，换来的是零解析开销与稳定行宽。</p>
+
+<h2 id="embedding">嵌入方式与权限面</h2>
+<table>
+<tr><th>维度</th><th>db 插件</th><th>SQLite</th></tr>
+<tr><td>接入形态</td><td>SA 插件 ABI，经 <code>sap.json</code> 安装后通过 <code>@import "db.sal"</code> 使用</td><td>C 语言库，SA 侧经 <code>@extern sqlite3_*</code> 调用</td></tr>
+<tr><td>符号来源</td><td><code>abi.symbols = "db.sai"</code>，约 300 个 <code>sa_db_*</code> extern</td><td><code>sqlite3_prepare/step/finalize</code> 等 C API</td></tr>
+<tr><td>文件权限</td><td>仅 <code>$PROJECT/**</code> 的 read/write/create/delete</td><td>由宿主进程决定</td></tr>
+<tr><td>网络 / 环境 / 子进程</td><td>全部禁止（<code>net:[]</code>、<code>env:[]</code>、<code>spawn:false</code>）</td><td>无此层限制</td></tr>
+<tr><td>构建产物</td><td><code>zig-out/lib/libdb.so</code> / <code>zig-out/bin/db.dll</code></td><td><code>libsqlite3.so.0</code> 等系统库</td></tr>
+</table>
+<p>benchmark 侧有一个值得注意的工程细节：SA 标准库当前导出
+<code>sqlite3_prepare/sqlite3_step/sqlite3_finalize</code> 的 stub，会覆盖系统 SQLite 同名符号，
+因此 SQLite 对照程序链接时要先用 <code>objcopy --redefine-sym</code> 重命名 std 里的 stub
+（见 README Benchmark 一节的完整命令）。这说明在 SA 里同时用两者需要一点链接技巧。</p>
+
+<h2 id="bench">实测数据对照</h2>
+
+<div class="warning"><span class="label">警告</span><strong>以下全部是未标定的微观基准测量</strong>，
+不是产品级承诺。它们来自单一机器上的小样本中位数（多为 3–7 轮），负载只有会员库与特定 ERP 工作流两种；
+2026-06-27 那组更是明确运行在 <code>SA_DB_UNSAFE_NO_SYNC=1</code> 的 unsafe/no-sync 测量模式下。
+README 自己反复限定 "Scope is still limited to this benchmark"。请把这些数字当作<strong>相对趋势参考</strong>，
+不要当作绝对性能指标，也不要外推到你自己的负载。</div>
+
+<h3>会员库 50,000 行（5 轮中位数）</h3>
+<p>来源：README.md Benchmark 表格与 db_comparison.md 单线程明细，两者数字一致。</p>
+<table>
+<tr><th>操作</th><th>db 插件</th><th>SQLite</th><th>最快</th></tr>
+<tr><td>create/init</td><td>6.711 ms</td><td>0.596 ms</td><td>SQLite 约 11.3×</td></tr>
+<tr><td>bulk insert 50k 行</td><td>19.012 ms</td><td>41.081 ms</td><td>db 插件约 2.2×</td></tr>
+<tr><td>单次 SUM（更新前）</td><td>5.359 ms</td><td>3.256 ms</td><td>SQLite 约 1.6×</td></tr>
+<tr><td>全量 update all</td><td>8.897 ms</td><td>9.838 ms</td><td>db 插件约 1.1×</td></tr>
+<tr><td>单次 SUM（更新后）</td><td>3.683 ms</td><td>2.803 ms</td><td>SQLite 约 1.3×</td></tr>
+<tr><td>count <code>plan = 1</code></td><td>1.108 ms</td><td>2.253 ms</td><td>db 插件约 2.0×</td></tr>
+<tr><td>compact/vacuum</td><td>20.293 ms</td><td>5.597 ms</td><td>SQLite 约 3.6×</td></tr>
+<tr><td>verify/integrity</td><td>11.624 ms</td><td>3.518 ms</td><td>SQLite 约 3.3×</td></tr>
+</table>
+
+<h3>复用读句柄的查询与并发写入（2026-06-18 隔离 root 三轮中位数）</h3>
+<table>
+<tr><th>操作</th><th>db 插件</th><th>SQLite</th><th>最快</th></tr>
+<tr><td>serial 100× SUM（read handle）</td><td>167.317 ms</td><td>338.595 ms</td><td>db 插件</td></tr>
+<tr><td>concurrent 4×25 SUM（read handles）</td><td>157.531 ms</td><td>197.866 ms</td><td>db 插件</td></tr>
+<tr><td>concurrent insert 4×12500（裸 ingest_columns）</td><td>95.736 ms</td><td>108.089 ms</td><td>db 插件</td></tr>
+<tr><td>concurrent insert 4×12500（coltx 批量会话）</td><td>72.192 ms</td><td>108.089 ms*</td><td>db 插件</td></tr>
+</table>
+<p><code>*</code> SQLite 侧只有一条并发事务插入基准路径，无法区分裸插入与 coltx。
+README 同时指出本轮验证了两个行为变化：读句柄可在活跃写事务期间打开（仍只见已提交快照），
+以及 coltx 的暂存不再被全局句柄互斥串行化。需要提醒的是，
+db_comparison.md 报告过一组明显更好看的早期数字（serial 122.111 ms、concurrent 48.385 ms、
+concurrent insert 55.618 ms），但当时三套基准共享同一个 root，
+历史工件与 WAL/SHM 侧文件会互相污染；README 说明把每个基准移到独立 root
+（<code>.bench_raw</code>/<code>.bench_coltx</code>/<code>.bench_sqlite</code>）之后才得到上面这组可复现值，
+此前的间歇性并发失败也未再复现。</p>
+
+<h3>ERP 工作流查询（7 轮中位数）</h3>
+<table>
+<tr><th>操作</th><th>db 插件</th><th>SQLite</th><th>最快</th></tr>
+<tr><td>init 6 张 ERP 表</td><td>153.576 ms</td><td>1.301 ms</td><td>SQLite</td></tr>
+<tr><td>ingest ERP 行</td><td>131.877 ms</td><td>93.332 ms</td><td>SQLite</td></tr>
+<tr><td>build ERP indexes</td><td>175.708 ms</td><td>19.449 ms</td><td>SQLite</td></tr>
+<tr><td>按 order_id 取订单明细</td><td>0.019 ms</td><td>0.052 ms</td><td>db 插件</td></tr>
+<tr><td>投影订单明细分组列</td><td>0.005 ms</td><td>0.031 ms</td><td>db 插件</td></tr>
+<tr><td>按客户/日期查订单</td><td>0.006 ms</td><td>0.028 ms</td><td>db 插件</td></tr>
+<tr><td>按状态/日期查到期发票</td><td>0.010 ms</td><td>0.248 ms</td><td>db 插件</td></tr>
+<tr><td>按 product_id 查库存流水</td><td>0.007 ms</td><td>0.027 ms</td><td>db 插件</td></tr>
+<tr><td>verify/integrity</td><td>147.362 ms</td><td>38.938 ms</td><td>SQLite</td></tr>
+</table>
+
+<h3>ERP 索引化写入（2026-06-27，安装插件版，5 轮区间与中位数）</h3>
+<table>
+<tr><th>操作</th><th>db 插件</th><th>SQLite</th><th>最快</th></tr>
+<tr><td>init 3 张 ERP 表 + 字典</td><td>0.217 ms 中位</td><td>1.583 ms 中位</td><td>db 插件</td></tr>
+<tr><td>ingest ERP 行</td><td>5.159 ms 中位</td><td>100.015 ms 中位</td><td>db 插件</td></tr>
+<tr><td>build ERP indexes</td><td>9.576 ms 中位</td><td>32.151 ms 中位</td><td>db 插件</td></tr>
+<tr><td>tx append（orders+invoices）</td><td>2.513 ms 中位</td><td>6.674 ms 中位*</td><td>db 插件</td></tr>
+<tr><td>coltx append（order lines）</td><td>2.003 ms 中位</td><td>6.674 ms 中位*</td><td>db 插件</td></tr>
+<tr><td>verify/integrity</td><td>1.203 ms 中位</td><td>44.948 ms 中位</td><td>db 插件</td></tr>
+</table>
+<p><code>*</code> SQLite 侧仍只有一条 append 路径，同一份样本被拿来分别对照 db 的 tx 与 coltx 子路径。</p>
+<p>README 对这组的限定语必须完整保留：<em>"Scope is still limited to this benchmark and unsafe/no-sync
+measurement mode; SQLite remains stronger for general SQL, mature ACID/WAL behavior, crash recovery,
+vacuum/compaction semantics, and broad operational tooling."</em>
+另外它强调 benchmark 可执行文件链接的是<strong>已安装</strong>的插件，所以重跑 Zig 构建后必须重新
+<code>SA_PLUGIN_DEV=1 sa plugin install --dev …</code> 才是在测当前源码。</p>
+
+<h2 id="decision">选型对照表</h2>
+<table>
+<tr><th>你的需求</th><th>建议</th><th>依据</th></tr>
+<tr><td>需要 SQL、JOIN、视图、聚合函数表达复杂报表</td><td>SQLite</td><td>db_comparison.md 选择建议第一条</td></tr>
+<tr><td>需要 ACID、WAL、跨表事务隔离、成熟崩溃恢复</td><td>SQLite</td><td>README 边界声明 + 总结</td></tr>
+<tr><td>需要生产级长期存储与运维工具链</td><td>SQLite</td><td>db_comparison.md：「SQLite 仍明显更稳」</td></tr>
+<tr><td>频繁 compact/vacuum 或完整性校验</td><td>SQLite</td><td>会员库两项均快 3 倍以上</td></tr>
+<tr><td>SA 程序内部已生成列式数据，要批量落盘</td><td>db 插件</td><td>bulk insert 快约 2.2×</td></tr>
+<tr><td>同一批数据上反复做全表/索引扫描</td><td>db 插件</td><td>复用 read handle 后串行与并发 SUM 均更快</td></tr>
+<tr><td>ERP 风格的列表页、子表明细、复合键过滤、列投影</td><td>db 插件</td><td>ERP workflow 五项索引化查询快约 2.7–25×</td></tr>
+<tr><td>高频初始化/重建带字典与索引的小型 ERP 表</td><td>db 插件</td><td>2026-06-27 组全类别领先（unsafe 模式）</td></tr>
+<tr><td>金额等需要精确十进制的字段</td><td>两者皆可，方式不同</td><td>db 插件用 scaled i64 + <code>decimal(N)</code> 注解；float 仅限非金额测量</td></tr>
+</table>
+
+<h2 id="roadmap">差距会缩小吗</h2>
+<p>README 的 ERP Foundation Roadmap 明确列出下一步方向：扩展故障注入矩阵、可选 WAL、
+更丰富的主键/二级索引形态、多表事务语义、异步批量刷盘；性能侧则排在可靠性之后——mmap 快照、
+块 min/max 索引、谓词下推、SIMD 聚合。也就是说，<strong>当前的多表隔离与 WAL 缺口是有意排期的后续工作</strong>，
+不是设计上的永久放弃。反过来，它也明确表示不会去追「general SQL」这个方向。</p>
+
+<p>相关阅读：<a href="06_limits_perf.html">边界、性能与最佳实践</a> 给出了限制清单与可操作的实践建议；
+<a href="01_overview.html">db 插件总览</a> 描述了产生这些行为差异的架构原因。</p>
+</body>
+</html>

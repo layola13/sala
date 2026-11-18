@@ -1,31 +1,31 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>组件库 mui 概览</title>
+<title>The mui Component Library</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SAX / MUI 界面开发 &gt; 组件库 mui 概览</div>
-<h1>组件库 mui 概览</h1>
+<div class="topic-header">SAX / MUI UI Development &gt; The mui Component Library</div>
+<h1>The mui Component Library</h1>
 
-<p>这一页介绍 <code>sa_plugin_mui</code> 提供的 SAX 版 Material 组件库：它的源码形态、如何在编译时引入，
-以及在 <code>.sax</code> 文件里使用这些组件的写法。</p>
+<p>This page introduces the SAX version of the Material component library provided by <code>sa_plugin_mui</code>: its source form, how to bring it in at compile time,
+and how to use these components in <code>.sax</code> files.</p>
 
-<h2>SA-first 的源码库</h2>
-<p><code>sa_plugin_mui</code> 是 SA/SAX 的 Material UI 组件库，实现方向是 SA-first：
-组件本体写在 SAX 源码 <code>mui/material.sax</code> 里，React/SAX 编译链通过通用的
-<code>--include</code> 组件源码组合机制消费它。插件的 Zig 部分只负责插件描述与共享资产安装，
-不实现任何组件行为、主题逻辑或类名生成。上游 material-ui 仅作为 React 模型的参考
-（默认 props 归入 ownerState、slots、工具类、主题令牌），不是运行时依赖。</p>
+<h2>An SA-First Source Library</h2>
+<p><code>sa_plugin_mui</code> is a Material UI component library for SA/SAX, implemented in an SA-first direction:
+the components themselves are written in SAX source, <code>mui/material.sax</code>, and the React/SAX compilation chain consumes it through the generic
+<code>--include</code> component-source composition mechanism. The plugin's Zig part is only responsible for the plugin description and shared-asset installation;
+it implements no component behavior, theme logic, or class-name generation. Upstream material-ui serves only as a reference for the React model
+(default props folded into ownerState, slots, utility classes, theme tokens); it is not a runtime dependency.</p>
 <ul>
-<li><code>mui/material.sax</code> —— 全部核心 Material 组件（v1 清单锁定为 <code>@mui/material</code> 默认导出，不含 hooks/helper）以及 Lab 风格组件（<code>LoadingButton</code>、<code>Timeline</code>、<code>Masonry</code>、<code>TabContext</code>/<code>TabList</code>/<code>TabPanel</code>、<code>SimpleTreeView</code>/<code>TreeItem</code>、<code>SpeedDial</code> 系列等）。</li>
-<li><code>mui/icons_material.sax</code> —— 纯 SAX 的图标封装，依赖同一 <code>SvgIcon</code> 表面；当前覆盖仪表盘/导航与常见动作，如 <code>SearchIcon</code>、<code>NotificationsIcon</code>、<code>SettingsIcon</code>、<code>MenuIcon</code>、<code>CloseIcon</code>、<code>AddIcon</code>、<code>EditIcon</code>、<code>DeleteIcon</code>、<code>HomeIcon</code>、<code>LogoutIcon</code> 等 30 个左右。</li>
-<li>常用布局/数据组件包括：<code>Button</code>、<code>IconButton</code>、<code>Chip</code>、<code>Paper</code>、<code>Typography</code>、<code>Stack</code>、<code>Grid</code>、<code>AppBar</code>、<code>Tabs</code>/<code>Tab</code>、<code>Select</code>/<code>MenuItem</code>、<code>List</code>/<code>ListItemButton</code>、<code>Table</code> 系列、<code>Switch</code>、<code>TextField</code>、<code>Alert</code>、<code>Dialog</code> 系列、<code>Avatar</code>、<code>CssBaseline</code>、<code>InitColorSchemeScript</code>、<code>GlobalStyles</code> 等。</li>
+<li><code>mui/material.sax</code> — all core Material components (the v1 inventory is locked to the default exports of <code>@mui/material</code>, excluding hooks/helpers) plus Lab-style components (<code>LoadingButton</code>, <code>Timeline</code>, <code>Masonry</code>, <code>TabContext</code>/<code>TabList</code>/<code>TabPanel</code>, <code>SimpleTreeView</code>/<code>TreeItem</code>, the <code>SpeedDial</code> family, etc.).</li>
+<li><code>mui/icons_material.sax</code> — pure-SAX icon wrappers depending on the same <code>SvgIcon</code> surface; it currently covers dashboards/navigation and common actions, around 30 icons such as <code>SearchIcon</code>, <code>NotificationsIcon</code>, <code>SettingsIcon</code>, <code>MenuIcon</code>, <code>CloseIcon</code>, <code>AddIcon</code>, <code>EditIcon</code>, <code>DeleteIcon</code>, <code>HomeIcon</code>, <code>LogoutIcon</code>.</li>
+<li>Common layout/data components include: <code>Button</code>, <code>IconButton</code>, <code>Chip</code>, <code>Paper</code>, <code>Typography</code>, <code>Stack</code>, <code>Grid</code>, <code>AppBar</code>, <code>Tabs</code>/<code>Tab</code>, <code>Select</code>/<code>MenuItem</code>, <code>List</code>/<code>ListItemButton</code>, the <code>Table</code> family, <code>Switch</code>, <code>TextField</code>, <code>Alert</code>, the <code>Dialog</code> family, <code>Avatar</code>, <code>CssBaseline</code>, <code>InitColorSchemeScript</code>, <code>GlobalStyles</code>, etc.</li>
 </ul>
 
-<h2>引入方式</h2>
-<p>MUI 库文件不参与你的工程目录，而是在编译命令里用两个 <code>--include</code> 挂进来（路径指向插件仓库）：</p>
+<h2>How to Bring It In</h2>
+<p>The MUI library files do not live in your project directory; instead they are attached at build time with two <code>--include</code> flags (paths pointing at the plugin repository):</p>
 <pre><code>MUI=D:/projects/sla/sa_plugin_mui
 
 sa vite dev app.sax --react \
@@ -33,12 +33,12 @@ sa vite dev app.sax --react \
   --include $MUI/mui/icons_material.sax \
   ...其余 include... \
   --title "Codex UI" --css app.css --out-dir .zig-cache/dev --port 5173</code></pre>
-<p>include 解析顺序：先相对入口 <code>.sax</code> 文件，其次 <code>SA_REACT_INCLUDE_PATH</code>、
-由 <code>SA_PLUGINS_PATH</code> 推断的共享目录、已安装插件的 share 目录（<code>$SA_PLUGINS_HOME/installed/&lt;plugin&gt;/current/share</code>）。
-因此也可以只传 <code>--include mui/material.sax</code> 让它从已安装的 mui 插件共享目录解析。</p>
+<p>Include resolution order: first relative to the entry <code>.sax</code> file, then <code>SA_REACT_INCLUDE_PATH</code>,
+the shared directory inferred from <code>SA_PLUGINS_PATH</code>, and the share directory of an installed plugin (<code>$SA_PLUGINS_HOME/installed/&lt;plugin&gt;/current/share</code>).
+So you can also pass just <code>--include mui/material.sax</code> and let it resolve from the installed mui plugin's shared directory.</p>
 
-<h2>在 .sax 中使用</h2>
-<p>MUI 组件就是大写标签，与自己的组件混用在同一命名空间。典型用法是给它们挂全局 CSS 类和静态属性：</p>
+<h2>Using It in .sax</h2>
+<p>MUI components are just capitalized tags, mixed with your own components in the same namespace. The typical usage attaches global CSS classes and static attributes to them:</p>
 <pre><code>&lt;Chip color="warning"&gt;⚡ Fast&lt;/Chip&gt;
 
 &lt;Select value="full-access"&gt;
@@ -52,20 +52,21 @@ sa vite dev app.sax --react \
   &lt;/List&gt;
 &lt;/Paper&gt;</code></pre>
 <ul>
-<li>根节点 <code>className</code> 会合并到生成的工具类之后（对 Button、Paper、Card、Chip、Alert、Dialog 等常见根槽组件生效）。</li>
-<li>外观基线由工程的 <code>theme.css</code> 手工定义（如 <code>.MuiButton-contained</code>、<code>.MuiChip-colorSuccess</code>），见<a href="04_styling.html">样式体系</a>一页。</li>
-<li>包装/布局类组件可用 <code>&lt;Slot contextProps="..." /&gt;</code> 把默认值投影给直接子组件；需要穿透透明包装层的 Provider 用 <code>contextScope="descendants"</code> 显式声明。</li>
-<li>当前 <code>className</code> 支持是增量的：静态对象 props（如 <code>classes=&#123;&#123; root: "..." &#125;&#125;</code>）与
-<code>slotProps</code> 会被投影成同名状态；动态对象值、自定义 slot 组件替换、styleOverrides、portal、焦点陷阱仍是后续工作。</li>
+<li>A root node's <code>className</code> is merged after the generated utility classes (applies to common root-slot components such as Button, Paper, Card, Chip, Alert, Dialog).</li>
+<li>The appearance baseline is hand-defined by the project's <code>theme.css</code> (such as <code>.MuiButton-contained</code>, <code>.MuiChip-colorSuccess</code>); see the <a href="04_styling.html">The Styling System</a> page.</li>
+<li>Wrapper/layout components can use <code>&lt;Slot contextProps="..." /&gt;</code> to project default values onto their direct children; a Provider that needs to penetrate transparent wrapper layers declares <code>contextScope="descendants"</code> explicitly.</li>
+<li>Current <code>className</code> support is incremental: static object props (such as <code>classes=&#123;&#123; root: "..." &#125;&#125;</code>) and
+<code>slotProps</code> are projected into same-named state; dynamic object values, custom slot component replacement, styleOverrides, portals, and focus traps are still future work.</li>
 </ul>
 
-<h2>安装与构建</h2>
+<h2>Installation and Building</h2>
 <pre><code># 在插件目录构建出 DLL 后安装（privileged 插件需 --dev 跳过 TTY 确认）
 cd D:/projects/sla/sa_plugin_mui &amp;&amp; zig build -Doptimize=Debug
 sa plugin install --dev D:/projects/sla/sa_plugin_mui
 sa plugin list          # 查看已安装插件</code></pre>
-<div class="note"><span class="label">注意</span>运行 privileged 插件（react、mui 依赖链等）需设置环境变量 <code>SA_PLUGIN_DEV=1</code>，
-否则报 "privileged plugin ... is blocked in formal runtime mode"。工具链细节见<a href="06_toolchain.html">react/vite 插件集成与本地预览</a>。</div>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="note"><span class="label">Note</span>Running privileged plugins (react, the mui dependency chain, etc.) requires the environment variable <code>SA_PLUGIN_DEV=1</code>,
+otherwise you get “privileged plugin ... is blocked in formal runtime mode”. For toolchain details, see <a href="06_toolchain.html">react/vite Plugin Integration and Local Preview</a>.</div>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/07_ui/05_mui.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

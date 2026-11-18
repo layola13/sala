@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>宏与元编程对比</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">与 Rust 对比 &gt; 宏与元编程对比</div>
+<h1>宏与元编程对比</h1>
+
+<p>把 Rust 代码迁到 Sla 时，宏往往是工作量的大头：Sla 只有一种卫生化的函数式标识符宏，
+没有 <code>macro_rules!</code> 的模式子语言，也永远不会有 proc-macro。这一页给出两套系统的结构对照、
+能力矩阵、转换难度四级分类，以及 Bevy 这类重度依赖 derive 的场景在 Sla 上的现实路径。</p>
+
+<div class="note"><span class="label">注意</span>本页依据 <code>docs/macro_vs_rust_cn.md</code>
+（v0.1-草案，2026-06-15）及其 2026-06-23 架构更正：<code>Component</code>/<code>Resource</code> 等
+ECS 语义<b>不进入</b> Sla 编译器，归 <code>sla_ecs</code> 库与项目级注解所有；编译器只提供语言中立能力。</div>
+
+<h2>两套宏系统的结构</h2>
+<h3>Sla 当前宏</h3>
+<p>Sla 的 <code>macro</code> 关键字定义一个卫生化的函数式宏，参数是纯标识符列表（无类型标注、无 pattern）：</p>
+<pre><code>macro swap(a, b) {
+    let temp = ^a;
+    a = ^b;
+    b = ^temp;
+}</code></pre>
+<p>实测实现要点（<code>parser.zig</code> / <code>ast.zig</code> / <code>codegen.zig</code>）：
+AST 节点只含 <code>name</code>、<code>params: []identifier</code>、<code>body</code> 三部分；
+展开前做 α-conversion，宏内局部变量重命名为 <code>&lt;macro_name&gt;_&lt;local_name&gt;_uniq_&lt;N&gt;</code>，
+因此宏体不会污染调用方作用域；最终 1:1 降级为 SA 的 <code>[MACRO] ... [END_MACRO]</code>
+加调用处 <code>EXPAND name x, y</code>。</p>
+<table>
+<tr><th>特性</th><th>状态</th></tr>
+<tr><td>函数式调用语法 <code>name(args)</code></td><td>✅</td></tr>
+<tr><td>参数为纯标识符</td><td>✅（无类型标注、无 pattern）</td></tr>
+<tr><td>自动卫生（α-conversion）</td><td>✅ 前端解决；底层 SA 仍是非卫生文本替换</td></tr>
+<tr><td>多 arm、模式匹配、片段类型</td><td>❌ 不支持</td></tr>
+<tr><td>变长参数（repetition）</td><td>❌</td></tr>
+<tr><td>属性宏 / derive 宏 / 过程宏</td><td>❌</td></tr>
+<tr><td>类型上下文感知</td><td>❌（本质是文本级 identifier 替换）</td></tr>
+</table>
+
+<h3>Rust 的两套系统</h3>
+<p>Rust 有两套互相独立的宏系统。<b>声明式 <code>macro_rules!</code></b> 支持多 arm、片段类型
+（<code>:expr</code>/<code>:ty</code>/<code>:ident</code>/<code>:pat</code>/<code>:tt</code> 等）、
+变长重复 <code>$($x:expr),*</code> 与部分卫生：</p>
+<pre><code>macro_rules! swap {
+    ($a:expr, $b:expr) => {
+        let temp = $a;
+        $a = $b;
+        $b = temp;
+    };
+    ($a:ident; $b:ident) => { ... };   // 第二个 arm
+}</code></pre>
+<p><b>过程宏（proc-macro）</b>则是独立的 <code>proc-macro = true</code> crate，接收
+<code>TokenStream</code> 返回 <code>TokenStream</code>，用任意 Rust 代码操控（syn/quote 是事实标准），
+有函数式、derive、属性三种形态——这正是 <code>#[derive(Component)]</code> 的来源。</p>
+
+<h2>能力对比矩阵</h2>
+<table>
+<tr><th>能力</th><th>Sla <code>macro</code></th><th>Rust <code>macro_rules!</code></th><th>Rust proc-macro</th></tr>
+<tr><td>调用样式 <code>name(args)</code></td><td>✅</td><td>✅（<code>name!()</code>）</td><td>✅（<code>name!()</code>）</td></tr>
+<tr><td>调用样式 <code>#[derive(X)]</code></td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>调用样式 <code>#[attr]</code></td><td>❌</td><td>❌</td><td>✅</td></tr>
+<tr><td>参数是 identifier</td><td>✅</td><td>✅（<code>:ident</code>）</td><td>✅</td></tr>
+<tr><td>参数是 expression</td><td>❌</td><td>✅（<code>:expr</code>）</td><td>✅</td></tr>
+<tr><td>参数是 type</td><td>❌</td><td>✅（<code>:ty</code>）</td><td>✅</td></tr>
+<tr><td>参数是 token tree</td><td>❌</td><td>✅（<code>:tt</code>）</td><td>✅</td></tr>
+<tr><td>变长参数</td><td>❌</td><td>✅（<code>$()*</code>）</td><td>✅</td></tr>
+<tr><td>多 arm 模式匹配</td><td>❌</td><td>✅</td><td>✅（手写匹配）</td></tr>
+<tr><td>自动卫生</td><td>✅</td><td>✅（部分）</td><td>手动控制 span</td></tr>
+<tr><td>生成 <code>impl</code> 块</td><td>间接（宏体内手写 impl）</td><td>✅</td><td>✅</td></tr>
+<tr><td>解析 struct 字段并生成 trait impl</td><td>❌</td><td>困难</td><td>✅（核心场景）</td></tr>
+<tr><td>编译期类型反射</td><td>❌</td><td>❌</td><td>✅（受限）</td></tr>
+<tr><td>跨 crate 可见</td><td>✅（import）</td><td>✅</td><td>✅</td></tr>
+</table>
+
+<h2>转换难度四级分类</h2>
+<h3>易：Sla 已能直接覆盖（估计占 Rust 项目 declarative 简单宏的 20-30%）</h3>
+<table>
+<tr><th>Rust 写法</th><th>Sla 等价</th></tr>
+<tr><td><code>macro_rules! f { ($x:ident, $y:ident) =&gt; { ... } }</code> 单 arm 纯 identifier</td><td><code>macro f(x, y) { ... }</code> 直接对应</td></tr>
+<tr><td><code>macro_rules! debug { () =&gt; { ... } }</code> 无参 marker</td><td><code>macro debug() { ... }</code></td></tr>
+<tr><td>简单文本展开（无类型上下文）</td><td>直接转</td></tr>
+</table>
+<h3>中等：手写改造可行（约 30-40%）</h3>
+<table>
+<tr><th>Rust 写法</th><th>Sla 处理方式</th></tr>
+<tr><td><code>($x:expr) =&gt; { ... }</code> 接表达式</td><td>调用方先 <code>let tmp = expr;</code> 再传 identifier</td></tr>
+<tr><td><code>($t:ty) =&gt; { ... }</code> 接类型</td><td>对每个具体类型手动调一次，或改用 Sla 泛型</td></tr>
+<tr><td>多 arm 按类型分派</td><td>拆成多个不同名宏，或用 trait 替代</td></tr>
+<tr><td><code>($f:ident: $t:ty = $v:expr)</code> 混合片段</td><td>拆成几个 identifier 参数 + 调用方先求值</td></tr>
+<tr><td>简单变长 <code>$($x),+</code></td><td>手动展开 N 次，或改用数组字面量</td></tr>
+</table>
+<h3>难：需要编译器扩展才能转（约 30-50%）</h3>
+<table>
+<tr><th>Rust 写法</th><th>为什么难</th></tr>
+<tr><td><code>#[derive(Debug)]</code> / <code>#[derive(Clone)]</code></td><td>需要读 struct 字段元数据生成方法，Sla 宏无此能力</td></tr>
+<tr><td><code>#[derive(Component)]</code> 等 Bevy ECS 核心</td><td>还要注册 component id / layout / vtable</td></tr>
+<tr><td><code>#[derive(Serialize, Deserialize)]</code></td><td>需要递归遍历类型</td></tr>
+<tr><td><code>#[command]</code> / <code>#[get("/api")]</code> 属性宏</td><td>Sla 完全没有 attribute macro 体系</td></tr>
+<tr><td>元组批量 impl、依赖 syn/quote 的 proc macro</td><td>需要 TokenStream API，与 SA 哲学冲突</td></tr>
+</table>
+<h3>不可能：设计层面拒绝</h3>
+<ul>
+<li>用任意代码作为宏实现（违背 SA“零 AST、零隐式逻辑”哲学）</li>
+<li>编译期任意计算（const eval，SA 已拒绝）</li>
+<li>跨包改写其他包的 AST（零信任包管理禁止）</li>
+</ul>
+
+<h2>常见宏的速查表</h2>
+<table>
+<tr><th>Rust 写法</th><th>Sla 等价</th><th>难度</th></tr>
+<tr><td><code>println!("x = {}", x)</code></td><td><code>println("x = ", x)</code> 或 sa_std fmt</td><td>低</td></tr>
+<tr><td><code>vec![1, 2, 3]</code></td><td><code>[1, 2, 3]</code> 数组字面量</td><td>低</td></tr>
+<tr><td>单 arm <code>$x:ident</code> 宏</td><td><code>macro f(x) { ... }</code></td><td>低</td></tr>
+<tr><td><code>$x:expr</code> 宏</td><td>调用方先求值再传 identifier</td><td>中</td></tr>
+<tr><td><code>$($x:expr),*</code> 变长</td><td>改数组或循环</td><td>中</td></tr>
+<tr><td><code>#[derive(Debug)]</code> / <code>#[derive(Component)]</code></td><td><code>@derive(...)</code> 编译器内建（见下）</td><td>中（需内建支持）</td></tr>
+<tr><td><code>#[derive(Serialize)]</code></td><td>手写 <code>to_json</code> 方法</td><td>高</td></tr>
+<tr><td><code>#[tokio::main]</code></td><td>不可转，重写</td><td>很高</td></tr>
+<tr><td>proc-macro crate / <code>quote!{...}</code> 元编程</td><td>不可转</td><td>永远不可</td></tr>
+</table>
+
+<h2>Bevy 场景打击面</h2>
+<p>实测 <code>bevy_ecs</code> 的宏使用情况：</p>
+<table>
+<tr><th>Bevy 用法</th><th>类型</th><th>Sla 直接支持？</th></tr>
+<tr><td><code>#[derive(Component)]</code></td><td>proc derive</td><td>❌</td></tr>
+<tr><td><code>#[derive(Bundle)]</code> / <code>(Resource)</code> / <code>(States)</code> / <code>(Event)</code> / <code>(SystemParam)</code></td><td>proc derive</td><td>❌</td></tr>
+<tr><td><code>world.spawn((Pos, Vel))</code></td><td>普通函数</td><td>✅</td></tr>
+<tr><td><code>Query&lt;&amp;Pos, With&lt;Cam&gt;&gt;</code></td><td>普通泛型</td><td>✅（若 Sla 泛型足够）</td></tr>
+<tr><td><code>bevy::prelude::*</code></td><td>仅 import</td><td>✅</td></tr>
+</table>
+<p>结论：<b>Bevy ECS 90%+ 的简洁性来自 derive 宏</b>，而 Sla 在这一格直接归零。
+没有 derive 时，一个三字段 Component 要手写注册常量与读写函数：</p>
+<pre><code>// Rust：4 行
+#[derive(Component)]
+struct Position { x: f32, y: f32, z: f32 }</code></pre>
+<pre><code>// Sla 无宏版：15-20 行
+struct Position { x: f32, y: f32, z: f32 }
+
+const COMPONENT_ID_POSITION: u32 = 1;
+const COMPONENT_SIZE_POSITION: u64 = 12;
+const COMPONENT_ALIGN_POSITION: u64 = 4;
+
+impl Component for Position {
+    fn component_id() -&gt; u32 { return COMPONENT_ID_POSITION; }
+    fn size() -&gt; u64 { return COMPONENT_SIZE_POSITION; }
+    fn align() -&gt; u64 { return COMPONENT_ALIGN_POSITION; }
+    fn write_to(self: &amp;Position, dst: ptr) {
+        store dst+0, self.x as f32;
+        store dst+4, self.y as f32;
+        store dst+8, self.z as f32;
+    }
+    fn read_from(src: ptr) -&gt; Position { ... }
+}</code></pre>
+<p>按这个比例，游戏里 50 个 Component 就是 750-1000 行样板。<b>ECS 移植的最大瓶颈不在 Sla 语言本身，
+而在 derive 能力缺失。</b></p>
+
+<h2>弥补路径与现状</h2>
+<table>
+<tr><th>路径</th><th>内容</th><th>评价</th></tr>
+<tr><td>编译器内建 <code>@derive(...)</code></td><td>编译器 hard-code 一小撮 derive 的展开逻辑，用户不能自定义</td><td>推荐；解锁 Bevy 风体验的主要投资</td></tr>
+<tr><td><code>sa migrate rust-macro</code> 转换工具</td><td>识别简单单 arm 宏与白名单 derive，转不了的写入 TODO 清单人工处理</td><td>可覆盖“易+中等”两档，约 50-70% 的 Rust 宏</td></tr>
+<tr><td>把 <code>macro</code> 升级到 <code>macro_rules!</code> 等价</td><td>引入多 arm / 片段类型 / 变长重复的完整子语言</td><td>不建议：数千行 parser、与极简定位冲突、仍解不了 derive</td></tr>
+<tr><td>支持 proc-macro</td><td>让构建期执行任意宏代码</td><td>永远不做：不可复现、安全模型崩塌</td></tr>
+</table>
+<h3>当前已落地的能力</h3>
+<ul>
+<li><code>macro</code>：卫生化函数式标识符宏，等价于 <code>macro_rules!</code> 最简单的单 arm 子集。</li>
+<li><code>@expand_tuple(min, max, T)</code>：受限 arity 模板，占位符含 <code>$N</code>、<code>$TYPES</code>/
+<code>$TYPE_PARAMS</code>、<code>$I</code>/<code>$T</code>、<code>$ORD</code>，迭代指令 <code>@each(T)</code> 与
+拼接指令 <code>@join(T, ", ")</code>；用于批量生成 tuple/arity 家族，不支持 token-tree 匹配、
+多 arm、递归宏或任意编译期执行。</li>
+<li><code>@derive(copy, eq, ord, hash, debug)</code>：值语义派生已在真实源码可见；
+<code>ord</code> 提供 <code>&lt;=&gt;</code> 支持并可链 <code>.then(...)</code>；<code>default</code> 待评估。</li>
+<li><code>@overload 类型 { fn +(...) }</code>：操作符重载块已落地，限定 <code>+ - * /</code>
+的显式静态分发，裸写 <code>overload</code> 不是合法入口；比较运算不在机制内自动开放。
+<code>@derive(Add/Sub/Mul/Neg/PartialEq/Eq/Hash/PartialOrd/Ord)</code> 属未来白名单路线。</li>
+</ul>
+<div class="warning"><span class="label">警告</span>ECS 相关的派生名（<code>Component</code>、<code>Bundle</code>、
+<code>Resource</code>、<code>Event</code>、<code>Message</code>、<code>Relationship</code>）按 2026-06-23 的架构更正
+<b>不会进入编译器的 Zig 白名单</b>：它们由 <code>sla_ecs</code> 库以项目级注解/生成规则解释和展开，
+编译器只保留语言中立能力。不要在语言文档里把它们当作内建特性承诺。</div>
+
+<h2>为什么不引入 ! 后缀</h2>
+<p>Rust 用 <code>ident!(...)</code> 区分宏调用；Sla 短期不引入这个后缀，因为它和 SA 的 <code>!</code>
+释放原语在 lexer 与视觉上都容易混淆。所有 Rust 宏调用都写成普通函数或字面量：</p>
+<pre><code>// Rust
+println!("x = {}", x);
+let v = vec![1, 2, 3];
+assert!(x &gt; 0);</code></pre>
+<pre><code>// Sla
+println("x = ", x);      // 普通函数
+let v = [1, 2, 3];       // 数组字面量
+assert(x &gt; 0);           // 普通函数</code></pre>
+<p>parser 对紧贴标识符的 <code>!</code> 做<b>容错降级</b>：当作语法噪音剥离后继续解析，
+这样保住“Rust 表层兼容子集”的承诺又不污染 Sla 自己的 <code>!</code> 语义。等 SA 侧的
+<code>!</code> 彻底从 .sla 用户面消失后再评估是否打开该入口——是短期不引入，不是永久拒绝。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>Sla 的 <code>macro</code> 是“卫生化的函数式 identifier 宏”，只覆盖 Rust declarative 宏里最简单的单 arm 子集。</li>
+<li>属性宏、proc-macro、编译期反射永远不做；这是设计决定，不是待办事项。</li>
+<li>derive 缺口靠编译器内建 <code>@derive</code> 白名单 + <code>sla_ecs</code> 库侧生成规则补齐，
+而不是引入用户可写的宏系统。</li>
+<li>Rust 宏调用一律去 <code>!</code> 写成函数调用；parser 会容错剥离紧贴标识符的 <code>!</code>。</li>
+<li>定位层面的差异回顾<a href="01_positioning.html">定位与设计哲学</a>；所有权层面见
+<a href="03_ownership.html">所有权与借用</a>。</li>
+</ul>
+</body>
+</html>

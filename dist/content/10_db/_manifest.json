@@ -2,22 +2,22 @@
   "topics": [
     {
       "id": "overview",
-      "title": "db 插件总览：定位与架构",
+      "title": "db Plugin Overview: Positioning and Architecture",
       "file": "01_overview.html",
       "keywords": [
         "db",
         "sa_plugin_db",
-        "列式存储",
-        "数据库插件",
-        "架构",
+        "columnar storage",
+        "database plugin",
+        "architecture",
         "sap.json",
-        "存储布局"
+        "storage layout"
       ],
       "parent": null
     },
     {
       "id": "cli",
-      "title": "CLI 命令详解",
+      "title": "CLI Commands in Detail",
       "file": "02_cli.html",
       "keywords": [
         "CLI",
@@ -33,92 +33,91 @@
     },
     {
       "id": "api",
-      "title": "SA API 八大分组",
+      "title": "The Eight SA API Groups",
       "file": "03_api.html",
       "keywords": [
         "API",
         "db.sai",
-        "读句柄",
         "read handle",
-        "事务",
-        "索引",
-        "字典",
+        "transaction",
+        "index",
+        "dictionary",
         "blob"
       ],
       "parent": "overview"
     },
     {
       "id": "macros-usage",
-      "title": "宏用法与完整示例",
+      "title": "Macro Usage and a Complete Example",
       "file": "04_macros_usage.html",
       "keywords": [
-        "宏",
+        "macros",
         "EXPAND",
         "db.sal",
         "DB_INIT_SCHEMA",
         "DB_INSERT_ROW",
-        "示例"
+        "examples"
       ],
       "parent": "overview"
     },
     {
       "id": "vs-sqlite",
-      "title": "vs SQLite：选型对比",
+      "title": "vs SQLite: Choosing Between Them",
       "file": "05_vs_sqlite.html",
       "keywords": [
         "SQLite",
-        "选型",
+        "selection",
         "ACID",
         "WAL",
-        "性能对比",
+        "performance comparison",
         "B-Tree",
-        "类型系统"
+        "type system"
       ],
       "parent": "overview"
     },
     {
       "id": "limits-perf",
-      "title": "边界、性能与最佳实践",
+      "title": "Limits, Performance, and Best Practices",
       "file": "06_limits_perf.html",
       "keywords": [
-        "限制",
-        "边界",
-        "性能",
-        "最佳实践",
+        "limits",
+        "boundaries",
+        "performance",
+        "best practices",
         "benchmark",
-        "未标定",
+        "uncalibrated",
         ":memory:"
       ],
       "parent": "overview"
     },
     {
       "id": "vm-support",
-      "title": "VM 支持规划：可编程查询层",
+      "title": "VM Support Plan: A Programmable Query Layer",
       "file": "07_vm_support.html",
       "keywords": [
         "VM",
         "SAB",
         "qmod",
-        "可编程查询",
-        "字节码",
-        "燃料计量",
-        "存储过程",
-        "规划"
+        "programmable query",
+        "bytecode",
+        "fuel metering",
+        "stored procedures",
+        "plan"
       ],
       "parent": null
     },
     {
       "id": "mysql-sqlite-compare",
-      "title": "三角对比与漏洞统计：MySQL / SQLite / db 插件",
+      "title": "Three-Way Comparison and Vulnerability Statistics: MySQL / SQLite / the db Plugin",
       "file": "08_mysql_sqlite_compare.html",
       "keywords": [
         "MySQL",
         "SQLite",
-        "对比",
+        "comparison",
         "CVE",
-        "漏洞统计",
-        "选型",
-        "安全"
+        "vulnerability statistics",
+        "selection",
+        "safety"
       ],
       "parent": null
     }

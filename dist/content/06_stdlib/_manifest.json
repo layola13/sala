@@ -2,14 +2,14 @@
   "topics": [
     {
       "id": "overview",
-      "title": "标准库总览",
+      "title": "Standard Library Overview",
       "file": "01_overview.html",
       "keywords": [
-        "标准库",
+        "standard library",
         "sa_std",
         "SA_STD_DIR",
         "@import",
-        "契约",
+        "contract",
         "sai",
         "sal"
       ],
@@ -17,15 +17,15 @@
     },
     {
       "id": "usage-guide",
-      "title": "如何使用 sa_std：导入机制与契约体系",
+      "title": "Using sa_std: The Import Mechanism and Contract System",
       "file": "13_usage_guide.html",
       "keywords": [
-        "导入",
+        "imports",
         "@import",
-        "契约",
+        "contract",
         "sai",
         "sal",
-        "缓冲三件套",
+        "buffer trio",
         "std_surface.sla_meta",
         "prelude"
       ],
@@ -33,14 +33,14 @@
     },
     {
       "id": "recipes",
-      "title": "常见配方：从打印到 HTTP 的完整示例",
+      "title": "Common Recipes: Complete Examples from Printing to HTTP",
       "file": "14_recipes.html",
       "keywords": [
-        "配方",
-        "示例",
+        "recipes",
+        "examples",
         "println",
-        "读文件",
-        "子进程",
+        "file reading",
+        "child process",
         "tcp",
         "json",
         "assert"
@@ -49,7 +49,7 @@
     },
     {
       "id": "io-print",
-      "title": "io 与 print：标准输入输出",
+      "title": "io and print: Standard Input/Output",
       "file": "02_io_print.html",
       "keywords": [
         "io",
@@ -63,20 +63,20 @@
     },
     {
       "id": "fmt",
-      "title": "fmt：数值与字节格式化",
+      "title": "fmt: Number and Byte Formatting",
       "file": "03_fmt.html",
       "keywords": [
         "fmt",
-        "格式化",
+        "formatting",
         "i64",
         "f64",
-        "缓冲"
+        "buffers"
       ],
       "parent": "overview"
     },
     {
       "id": "string",
-      "title": "string：ASCII / UTF-8 字符串",
+      "title": "string: ASCII / UTF-8 Strings",
       "file": "04_string.html",
       "keywords": [
         "string",
@@ -89,7 +89,7 @@
     },
     {
       "id": "collections",
-      "title": "collections：Vec / HashMap / Option 等",
+      "title": "collections: Vec / HashMap / Option and More",
       "file": "05_collections.html",
       "keywords": [
         "Vec",
@@ -104,12 +104,12 @@
     },
     {
       "id": "fs",
-      "title": "fs：文件与目录",
+      "title": "fs: Files and Directories",
       "file": "06_fs.html",
       "keywords": [
         "fs",
-        "文件",
-        "目录",
+        "files",
+        "directory",
         "metadata",
         "read_to_string"
       ],
@@ -117,11 +117,11 @@
     },
     {
       "id": "env",
-      "title": "env：环境变量与目录",
+      "title": "env: Environment Variables and Directories",
       "file": "07_env.html",
       "keywords": [
         "env",
-        "环境变量",
+        "environment variables",
         "home",
         "XDG",
         "args"
@@ -130,7 +130,7 @@
     },
     {
       "id": "time",
-      "title": "time：时钟、时间与睡眠",
+      "title": "time: Clocks, Time, and Sleep",
       "file": "08_time.html",
       "keywords": [
         "time",
@@ -143,11 +143,11 @@
     },
     {
       "id": "process",
-      "title": "process：子进程",
+      "title": "process: Child Processes",
       "file": "09_process.html",
       "keywords": [
         "process",
-        "子进程",
+        "child process",
         "spawn",
         "wait",
         "signal"
@@ -156,7 +156,7 @@
     },
     {
       "id": "net",
-      "title": "net：TCP / UDP / Unix 套接字与 HTTP/2",
+      "title": "net: TCP / UDP / Unix Sockets and HTTP/2",
       "file": "10_net.html",
       "keywords": [
         "net",
@@ -170,13 +170,13 @@
     },
     {
       "id": "encoding-text",
-      "title": "encoding 与 text：JSON 与正则",
+      "title": "encoding and text: JSON and Regular Expressions",
       "file": "11_encoding.html",
       "keywords": [
         "json",
         "regex",
-        "正则",
-        "序列化",
+        "regular expressions",
+        "serialization",
         "writer"
       ],
       "parent": "overview"
@@ -197,67 +197,67 @@
     },
     {
       "id": "api-index",
-      "title": "API 总索引",
+      "title": "API Index",
       "file": "15_api_index.html",
       "keywords": [
         "API",
-        "总索引",
-        "模块地图",
+        "master index",
+        "module map",
         "sa_std",
-        "统计",
-        "覆盖"
+        "statistics",
+        "coverage"
       ],
       "parent": null
     },
     {
       "id": "api-externs",
-      "title": "extern 函数契约全表",
+      "title": "Complete extern Function Contract Table",
       "file": "16_api_externs.html",
       "keywords": [
         "extern",
         "sai",
-        "函数",
-        "签名",
-        "契约",
+        "functions",
+        "signatures",
+        "contract",
         "API"
       ],
       "parent": "api-index"
     },
     {
       "id": "api-macros",
-      "title": "汇编宏清单",
+      "title": "Assembly Macro Catalog",
       "file": "17_api_macros.html",
       "keywords": [
-        "宏",
+        "macros",
         "MACRO",
         "sa",
-        "清单",
+        "manifest",
         "STR_LEN"
       ],
       "parent": "api-index"
     },
     {
       "id": "api-layout",
-      "title": "布局常量清单",
+      "title": "Layout Constant Catalog",
       "file": "18_api_layout.html",
       "keywords": [
-        "布局",
+        "layout",
         "#def",
         "sal",
-        "偏移",
-        "常量"
+        "offset",
+        "constants"
       ],
       "parent": "api-index"
     },
     {
       "id": "tls-client",
-      "title": "tls_client：TLS 客户端",
+      "title": "tls_client: TLS Client",
       "file": "19_tls_client.html",
       "keywords": [
         "TLS",
         "tls_client",
         "HTTPS",
-        "证书验证",
+        "certificate verification",
         "SNI",
         "CA"
       ],
@@ -265,7 +265,7 @@
     },
     {
       "id": "ws-client",
-      "title": "ws_client：WebSocket 客户端",
+      "title": "ws_client: WebSocket Client",
       "file": "20_ws_client.html",
       "keywords": [
         "WebSocket",
@@ -280,7 +280,7 @@
     },
     {
       "id": "android-net-census",
-      "title": "Android net 表面 × sa_std 缺口普查",
+      "title": "Android net Surface × sa_std Gap Census",
       "file": "21_android_net_census.html",
       "keywords": [
         "Android",
@@ -289,31 +289,30 @@
         "DnsResolver",
         "NetworkCapabilities",
         "libcore",
-        "普查"
+        "census"
       ],
       "parent": null
     },
     {
-        "id": "java-net-census",
-        "title": "跨语言 std 普查：Java（OpenJDK）net × sa_std",
-        "file": "21_java_net_census.html",
-        "keywords": [
-            "java",
-            "openjdk",
-            "jdk",
-            "普查",
-            "net",
-            "nio",
-            "httpclient",
-            "ssl",
-            "缺口",
-            "census"
-        ],
-        "parent": "net"
+      "id": "java-net-census",
+      "title": "Cross-Language std Census: Java (OpenJDK) net × sa_std",
+      "file": "21_java_net_census.html",
+      "keywords": [
+        "java",
+        "openjdk",
+        "jdk",
+        "census",
+        "net",
+        "nio",
+        "httpclient",
+        "ssl",
+        "gaps"
+      ],
+      "parent": "net"
     },
     {
       "id": "go-net-census",
-      "title": "Go net 标准库 × sa_std 缺口普查",
+      "title": "Go net Standard Library × sa_std Gap Census",
       "file": "22_go_net_census.html",
       "keywords": [
         "go",
@@ -322,34 +321,34 @@
         "http",
         "tls",
         "dns",
-        "普查",
-        "缺口"
+        "census",
+        "gaps"
       ],
       "parent": "net"
     },
     {
       "id": "unreal-net-census",
-      "title": "Unreal Engine 网络体系 × sa_std 网络面普查与缺口表",
+      "title": "Unreal Engine Networking × sa_std Network Surface Census and Gap Table",
       "file": "23_unreal_net_census.html",
       "keywords": [
         "Unreal Engine",
         "UE5",
-        "网络普查",
+        "network census",
         "Replication",
         "Iris",
         "NetDriver",
         "Sockets",
         "PacketHandler",
         "NetQuantize",
-        "位级打包",
+        "bit-level packing",
         "sa_std",
-        "缺口表"
+        "gap table"
       ],
       "parent": null
     },
     {
       "id": "python-net-census",
-      "title": "跨语言普查：Python (CPython) net 标准库 × sa_std 缺口",
+      "title": "Cross-Language Census: Python (CPython) net Standard Library × sa_std Gaps",
       "file": "24_python_net_census.html",
       "keywords": [
         "Python",
@@ -359,14 +358,14 @@
         "ssl",
         "asyncio",
         "urllib",
-        "跨语言普查",
-        "缺口"
+        "cross-language census",
+        "gaps"
       ],
       "parent": null
     },
     {
       "id": "ios-net-census",
-      "title": "iOS net 表面 × sa_std 缺口普查",
+      "title": "iOS net Surface × sa_std Gap Census",
       "file": "25_ios_net_census.html",
       "keywords": [
         "iOS",
@@ -375,13 +374,13 @@
         "NWConnection",
         "NWPath",
         "ATS",
-        "普查"
+        "census"
       ],
       "parent": null
     },
     {
       "id": "dotnet-net-census",
-      "title": ".NET net 表面 × sa_std 缺口普查",
+      "title": ".NET net Surface × sa_std Gap Census",
       "file": "26_dotnet_net_census.html",
       "keywords": [
         ".NET",
@@ -389,8 +388,8 @@
         "HttpClient",
         "Sockets",
         "QUIC",
-        "普查",
-        "缺口"
+        "census",
+        "gaps"
       ],
       "parent": null
     }

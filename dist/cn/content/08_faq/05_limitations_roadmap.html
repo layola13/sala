@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>当前局限与路线图状态</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">FAQ 与故障排查 &gt; 当前局限与路线图状态</div>
+<h1>当前局限与路线图状态</h1>
+
+<p>这一页如实列出 SLA 当前尚未稳定或刻意不做的部分：可变性写法、聚合/枚举/derive/for-in/async 的降低覆盖、no-fallback 进度以及 rosetta 示例树的真实状态。读完可以避免把「计划中」当成「已保证」。</p>
+
+<h2>可变性：<code>&amp;mut</code> 未引入</h2>
+
+<p>按 rust_surface_compat_report_cn.md 的 v0.2 修订，Phase 1 阶段不引入任何 <code>mut</code> 写法；SLA 的 <code>&amp;self</code> 约定同时覆盖 Rust 的 <code>&amp;self</code> 与 <code>&amp;mut self</code>，由 SA Referee 在降低后兜底（<code>demos/rosetta/59_method_counter</code> 等示例已验证）。<code>&amp;mut T</code>/<code>&amp;mut self</code> 计划在后续阶段引入；<code>let mut</code> 则永久不引入——它与 SLA「<code>let</code> 默认可变」的现状冲突。不要在代码里使用这些写法。</p>
+
+<h2>direct SAB 尚未全覆盖的表面</h2>
+
+<p>roadmap_status_cn.md §2（快照 2026-07-01）把当时 no-fallback 扫描中仍失败的测试归到各 Phase，对应到用户可见的特性类别：</p>
+
+<table>
+<tr><th>特性类别</th><th>当时的缺口</th><th>归属 Phase</th></tr>
+<tr><td>枚举 payload / match 提取</td><td><code>enum_match</code>：标签/负载布局与 match 提取</td><td>Phase 5</td></tr>
+<tr><td>derive 语义</td><td><code>derive_semantics</code>：derive 生成的操作符/函数调用</td><td>Phase 5</td></tr>
+<tr><td>结构体更新 / 比较操作符</td><td><code>struct_update</code>、<code>spaceship_cmp</code></td><td>Phase 5</td></tr>
+<tr><td><code>for in</code> 协议</td><td><code>for_in_protocol</code>、<code>generic_for_in_protocol</code>：非泛型与泛型迭代器特化</td><td>Phase 6</td></tr>
+<tr><td>async / await</td><td><code>async_await</code>：单/双 await、join2、线性三/四连续 await 和部分 Pending/Ready 状态机已落地；跨 async fn 边界嵌套 await、统一 executor/reactor 仍是缺口</td><td>Phase 8（部分完成）</td></tr>
+<tr><td>调用与赋值清理</td><td><code>assign_move_cleanup</code> 等：UseAfterMove 与赋值/循环清理的协调</td><td>Phase 3</td></tr>
+</table>
+
+<div class="warning"><span class="label">警告</span>语法被解析并通过 <code>check</code> 不等于该特性的 direct SAB 路径已经稳定。涉及上表类别的代码可能走更慢的回退路径，或在 no-fallback 模式下直接报错。</div>
+
+<h2>no-fallback 进度数字怎么读</h2>
+
+<ul>
+<li><b>roadmap_status_cn.md（v0.1，2026-07-01）</b>：no-fallback sweep 为 58/69（约 84%），Y/shared-lowering 约 72%，direct SAB 回退消除约 88%，加权总进度约 80%。</li>
+<li><b>direct_sab_historical_69_corpus.md（证据刷新于 2026-07-12）</b>：历史 69 个单元测试文件全部仍在，且本地与已安装插件两种 strict direct-SAB no-fallback 扫描均通过 134/134（当前测试集已扩到 134 个文件）。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>两组数字口径不同：前者是带失败清单的进度快照，后者是后来对扩充后测试集的全量扫描结果。引用时请注明出处与日期，不要把它们混成一个「当前通过率」。</div>
+
+<h2>rosetta 示例树并非全部通过</h2>
+
+<p><code>demos/rosetta/</code> 是一个仍在推进的工作面，不是「300+ 个 demo 全部编译通过」的证明：</p>
+
+<ul>
+<li>sa_std_macro_gap_audit.md 明确说明：该审计面向 rosetta demos，「demos still must be rewritten and verified manually」——demo 仍需逐个改写并人工验证，审计的目的只是提前发现共性的 std 宏/降低缺口；</li>
+<li>部分 demo 已作为特定能力的实测依据（如 <code>07_trait_vtable</code>、<code>40_impl_block_state</code>、<code>59_method_counter</code>、<code>55_builder_pattern</code>），以及操作符重载新增的 <code>301</code>-<code>304</code>；</li>
+<li>audit 文档同时记录了尚待补齐的面，例如自有 trait 对象存储、更广的强制转换位置等属于「后续工作」而非已完成项。</li>
+</ul>
+
+<h2>其他值得知道的边界</h2>
+
+<ul>
+<li><code>union</code> 语法可被解析，但其健壮性被视为不如 <code>struct</code>/<code>enum</code> 成熟；</li>
+<li>没有稳定的用户自定义 <code>Drop</code> trait、没有 <code>defer</code>；清理由编译器在作用域退出插入；</li>
+<li>没有 Rust 式的关联类型、const 泛型和 <code>where</code> 子句；定长数组 <code>[T; N]</code> 不是 const 泛型；</li>
+<li>逃逸的堆分配闭包支持仍应视为受限；</li>
+<li>泛型容器 <code>for in</code> 协议的成熟度低于直接索引或显式容器方法。</li>
+</ul>
+
+<h2>网络协议能力现状（2026-09-19）</h2>
+<table>
+<tr><th>协议</th><th>状态</th><th>说明</th></tr>
+<tr><td>TCP / UDP / Unix socket</td><td>✅ 有</td><td><code>net.sai</code>，另有 io_uring 反应器 <code>netx.sai</code></td></tr>
+<tr><td>TLS client</td><td>✅ 有</td><td><code>sa_std/tls_client.sai</code>，纯 Zig <code>std.crypto.tls</code>，系统 CA + SNI + hostname 验证，无关闭开关</td></tr>
+<tr><td>WebSocket client</td><td>✅ 有</td><td><code>sa_std/ws_client.sai</code>，纯 Zig RFC 6455；<code>wss://</code> 复用 TLS client</td></tr>
+<tr><td>HTTP/2</td><td>✅ 有</td><td><code>sa_std/http2.sai</code>，libnghttp2 经 dlopen 驱动</td></tr>
+<tr><td>IPv6</td><td>✅ 有</td><td>客户端底层经 <code>tcpConnectToHost</code> 原生支持，<code>[::1]</code> 已实测</td></tr>
+<tr><td>HTTP/3 / QUIC</td><td>❌ 仅骨架</td><td><code>src/runtime/sa_quic.zig</code> 只有能力探测（dlopen 找 ngtcp2/nghttp3），连接/流/ACK 等协议状态机未实现</td></tr>
+<tr><td>SSH client</td><td>❌ 无</td><td>没有任何实现；如需补，先做 password/publickey 认证的 exec 通道</td></tr>
+<tr><td>DTLS client</td><td>❌ 无</td><td>现有 <code>sa_dtls.zig</code> 是 DTLS 服务端能力包装，非客户端</td></tr>
+</table>
+<p>HTTP/3 的取舍：它的收益集中在弱网/高丢包/跨网切换场景（0-RTT、连接迁移、
+无 TCP 队头阻塞）；机房到机房的稳定网络下 HTTP/1.1/2 已足够，当前没有被它卡住的消费者。</p>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：sa_plugin_sla/docs/roadmap_status_cn.md §1-§2、direct_sab_historical_69_corpus.md、rust_surface_compat_report_cn.md、mutability_decision_cn.md、sa_std_macro_gap_audit.md、operator_overload_decision_cn.md、faq.md。</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/08_faq/05_limitations_roadmap.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

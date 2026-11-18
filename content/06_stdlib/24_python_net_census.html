@@ -1,64 +1,64 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>跨语言普查：Python (CPython) net 标准库 × sa_std 缺口</title>
+<title>Cross-Language Census: Python (CPython) net Standard Library × sa_std Gaps</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">标准库 &gt; 跨语言普查：Python (CPython) net 标准库 × sa_std 缺口</div>
-<h1>跨语言普查：Python (CPython) net 标准库 × sa_std 缺口</h1>
+<div class="topic-header">Standard Library &gt; Cross-Language Census: Python (CPython) net Standard Library × sa_std Gaps</div>
+<h1>Cross-Language Census: Python (CPython) net Standard Library × sa_std Gaps</h1>
 
-<p>本页是「跨语言 std 普查批」的一员（同批：Rust 全 std、Go net、Java net、.NET net、
-Android net、iOS net、Unreal 网络体系，口径一致、SA 侧基线统一为 sci main
-<code>8a943911</code> 的 sa_std）。本页负责 <strong>Python（CPython）net 标准库</strong>：
-以 CPython 最新稳定版源码的 Lib 层公共表面为一侧、sa_std 网络面为另一侧，机械抽取
-双边清单后逐簇比对，给出缺口四分类（已有等价 / 可直接对应 / 需建模 / 模型不合）
-与优先补齐短名单。Rust 侧结论见
-<a href="../09_rust_compare/10_std_census.html">Rust std 普查页</a>；其余各线页面
-由主会话集成时互链。</p>
+<p>This page is a member of the “cross-language std census batch” (same batch: Rust full std, Go net, Java net, .NET net,
+Android net, iOS net, the Unreal networking system; consistent methodology, and the SA-side baseline uniformly sci main
+<code>8a943911</code>'s sa_std). This page covers the <strong>Python (CPython) net standard library</strong>:
+with the public surface of the Lib layer in the latest stable CPython source on one side and the sa_std network surface on the other, it mechanically extracts
+the two-side inventories and compares them cluster by cluster, giving the four gap categories (existing equivalent / directly mappable / needs modeling / model mismatch)
+and a priority shortlist for closing gaps. For the Rust-side conclusions, see
+the <a href="../09_rust_compare/10_std_census.html">Rust std Census page</a>; the pages of the other lines
+are cross-linked when the main session integrates them.</p>
 
-<h2>来源与方法</h2>
+<h2>Sources and Method</h2>
 <table>
-<tr><th>项</th><th>内容</th></tr>
-<tr><td>Python 侧来源</td><td>CPython <code>v3.15.0</code>（tag 提交 <code>d220409a13b77de7a6c30abe16ea90db01528edc</code>），
-浅克隆 + blob 过滤 + sparse checkout，仅取 Lib/ 与 Modules/ 的网络相关部分（工作树约 3 MB）</td></tr>
-<tr><td>SA 侧基线</td><td>sci main <code>8a943911</code> 的 <code>sa_std/</code> 网络家族文件
-（net/netx/http2/http_client/http_server/multipart/tls_client/tls_server/dtls/quic/ws_client/ssh
-的 .sai/.sa/.sal/.sla 与 plugin_http_*、plugin_async）+ <code>src/runtime/sa_std.h</code> 网络前缀 C 函数</td></tr>
-<tr><td>抽取方法</td><td>Python 侧：AST 抽取模块级函数/类与公共方法/枚举成员/模块级常量
-（脚本 <code>tools/python_net_census/extract_python_surface.py</code>）；
-C 实现模块（_socket/_ssl）按普查口径以 Lib 层（socket.py/ssl.py）为准，
-另以 PyMethodDef 表与常量注册宏扫描 C 源码作补充行（来源在清单中单独标记）。
-SA 侧：按 .sai 的 <code>@extern</code>、.sal 的 <code>#def</code>、.sa/.sal 的 <code>[MACRO]</code>、
-.sla 的 <code>fn</code> 规则抽取（脚本 <code>tools/python_net_census/extract_sa_surface.py</code>）。
-双边清单（TSV）与分类映射表（<code>python_net_gaps.tsv</code>）随本页入库，脚本可复跑</td></tr>
-<tr><td>比对粒度</td><td>分类以「能力簇」为单位（同一能力的函数/方法/常数组归一簇），
-共 78 簇；簇内逐项对应关系见入库的映射表。计数只来自实际抽取的清单，
-抽不到的面在文末「覆盖边界」如实注明</td></tr>
+<tr><th>Item</th><th>Content</th></tr>
+<tr><td>Python-side source</td><td>CPython <code>v3.15.0</code> (tag commit <code>d220409a13b77de7a6c30abe16ea90db01528edc</code>),
+shallow clone + blob filter + sparse checkout, taking only the network-related parts of Lib/ and Modules/ (working tree about 3 MB)</td></tr>
+<tr><td>SA-side baseline</td><td>The <code>sa_std/</code> network family files of sci main <code>8a943911</code>
+(the .sai/.sa/.sal/.sla of net/netx/http2/http_client/http_server/multipart/tls_client/tls_server/dtls/quic/ws_client/ssh
+and plugin_http_*, plugin_async) + the network-prefixed C functions of <code>src/runtime/sa_std.h</code></td></tr>
+<tr><td>Extraction method</td><td>Python side: AST extraction of module-level functions/classes and public methods/enum members/module-level constants
+(script <code>tools/python_net_census/extract_python_surface.py</code>);
+C-implemented modules (_socket/_ssl) follow the census methodology and take the Lib layer (socket.py/ssl.py) as authoritative,
+supplemented by scanning the C source with the PyMethodDef tables and constant registration macros for extra rows (sources marked separately in the inventory).
+SA side: extraction by the rules of <code>@extern</code> in .sai, <code>#def</code> in .sal, <code>[MACRO]</code> in .sa/.sal,
+and <code>fn</code> in .sla (script <code>tools/python_net_census/extract_sa_surface.py</code>).
+The two-side inventories (TSV) and the classification mapping table (<code>python_net_gaps.tsv</code>) are checked in with this page; the scripts are re-runnable</td></tr>
+<tr><td>Comparison granularity</td><td>Classification is in units of “capability clusters” (the functions/methods/constant groups of the same capability are normalized into one cluster),
+78 clusters in total; the item-by-item correspondences within clusters are in the checked-in mapping table. Counts come only from the actually extracted inventories;
+surfaces that could not be extracted are noted honestly in “Coverage Boundaries” at the end</td></tr>
 </table>
 
-<h2>双边清单规模</h2>
-<p>Python 侧（Lib 层，按模块）：</p>
+<h2>Two-Side Inventory Scale</h2>
+<p>Python side (Lib layer, by module):</p>
 <table>
-<tr><th>组</th><th>模块与抽取行数</th><th>小计</th></tr>
-<tr><td>核心面</td><td>socket 33、ssl 99、ipaddress 62、http 7、http.client 64、http.server 39、
-http.cookies 24、http.cookiejar 107、urllib.parse 40、urllib.request 125、urllib.error 9、
-urllib.response 13、urllib.robotparser 23、socketserver 46、selectors 15</td><td>706</td></tr>
-<tr><td>asyncio 网络面</td><td>streams 39、transports 31、protocols 19、base_events 54、
-selector_events 16、proactor_events 11、unix_events 2、windows_events 34、sslproto 21、trsock 17</td><td>244</td></tr>
-<tr><td>协议客户端</td><td>smtplib 55、ftplib 57、imaplib 73、poplib 28（nntplib 文件不存在，见登记节）</td><td>213</td></tr>
-<tr><td>Lib 层合计</td><td></td><td><strong>1163</strong></td></tr>
-<tr><td>C 补充行</td><td>_socket(C)：方法 42 + 常量 608；_ssl(C)：常量 43</td><td>693</td></tr>
-<tr><td>总计</td><td></td><td><strong>1856</strong></td></tr>
+<tr><th>Group</th><th>Modules and extracted row counts</th><th>Subtotal</th></tr>
+<tr><td>Core surface</td><td>socket 33, ssl 99, ipaddress 62, http 7, http.client 64, http.server 39,
+http.cookies 24, http.cookiejar 107, urllib.parse 40, urllib.request 125, urllib.error 9,
+urllib.response 13, urllib.robotparser 23, socketserver 46, selectors 15</td><td>706</td></tr>
+<tr><td>asyncio network surface</td><td>streams 39, transports 31, protocols 19, base_events 54,
+selector_events 16, proactor_events 11, unix_events 2, windows_events 34, sslproto 21, trsock 17</td><td>244</td></tr>
+<tr><td>Protocol clients</td><td>smtplib 55, ftplib 57, imaplib 73, poplib 28 (the nntplib file does not exist; see the registration section)</td><td>213</td></tr>
+<tr><td>Lib layer total</td><td></td><td><strong>1163</strong></td></tr>
+<tr><td>C supplementary rows</td><td>_socket (C): methods 42 + constants 608; _ssl (C): constants 43</td><td>693</td></tr>
+<tr><td>Total</td><td></td><td><strong>1856</strong></td></tr>
 </table>
-<p>SA 侧：.sai extern 475、.sa/.sal 宏 591、.sal 常量 225，SA 层合计 <strong>1291</strong> 行；
-另 <code>sa_std.h</code> 中网络前缀 C 函数 <strong>207</strong> 个（全头共 652 个）。
-其中 net.sai 单文件 222 个 extern、net.sa 476 个宏、net.sal 142 个常量，是 SA 网络面的主体。</p>
+<p>SA side: .sai externs 475, .sa/.sal macros 591, .sal constants 225, SA layer total <strong>1291</strong> rows;
+plus <strong>207</strong> network-prefixed C functions in <code>sa_std.h</code> (652 in the whole header).
+Of these, the single file net.sai has 222 externs, net.sa 476 macros, net.sal 142 constants — the main body of the SA network surface.</p>
 
-<h2>总览：按模块缺口计数（能力簇）</h2>
+<h2>Overview: Gap Counts by Module (Capability Clusters)</h2>
 <table>
-<tr><th>模块</th><th>簇数</th><th>已有等价</th><th>可直接对应</th><th>需建模</th><th>模型不合</th><th>上游已移除（登记）</th></tr>
+<tr><th>Module</th><th>Clusters</th><th>Existing equivalent</th><th>Directly mappable</th><th>Needs modeling</th><th>Model mismatch</th><th>Removed upstream (registered)</th></tr>
 <tr><td><code>socket</code></td><td>16</td><td>8</td><td>5</td><td>2</td><td>1</td><td>0</td></tr>
 <tr><td><code>ssl</code></td><td>11</td><td>2</td><td>6</td><td>3</td><td>0</td><td>0</td></tr>
 <tr><td><code>ipaddress</code></td><td>4</td><td>2</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
@@ -74,180 +74,180 @@ selector_events 16、proactor_events 11、unix_events 2、windows_events 34、ss
 <tr><td><code>urllib.robotparser</code></td><td>1</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td></tr>
 <tr><td><code>socketserver</code></td><td>4</td><td>0</td><td>0</td><td>3</td><td>0</td><td>1</td></tr>
 <tr><td><code>selectors</code></td><td>2</td><td>0</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
-<tr><td><code>asyncio</code>（网络面）</td><td>9</td><td>4</td><td>1</td><td>1</td><td>3</td><td>0</td></tr>
-<tr><td>协议客户端（smtp/ftp/imap/pop3/nntp）</td><td>5</td><td>0</td><td>4</td><td>0</td><td>0</td><td>1</td></tr>
-<tr><td><strong>合计</strong></td><td><strong>78</strong></td><td><strong>23</strong></td><td><strong>30</strong></td><td><strong>16</strong></td><td><strong>6</strong></td><td><strong>3</strong></td></tr>
+<tr><td><code>asyncio</code> (network surface)</td><td>9</td><td>4</td><td>1</td><td>1</td><td>3</td><td>0</td></tr>
+<tr><td>Protocol clients (smtp/ftp/imap/pop3/nntp)</td><td>5</td><td>0</td><td>4</td><td>0</td><td>0</td><td>1</td></tr>
+<tr><td><strong>Total</strong></td><td><strong>78</strong></td><td><strong>23</strong></td><td><strong>30</strong></td><td><strong>16</strong></td><td><strong>6</strong></td><td><strong>3</strong></td></tr>
 </table>
-<p>读法：sa_std 的网络主体（TCP/UDP/Unix/TLS/HTTP 客户与服务端/WebSocket/HTTP2 工具面）
-与 Python 的对应关系以「已有等价」为主；缺口集中在三处——<strong>TLS 的配置与证书面</strong>
-（ssl 一簇 6 个可直接对应 + 3 个需建模）、<strong>Web 周边工具面</strong>（URL 工具、Cookie、
-HTTP 常量、认证/代理）、以及 <strong>asyncio/socketserver 的框架模型</strong>（回调与处理器模型，
-多为需建模或模型不合，属模型差异而非能力缺失）。</p>
+<p>How to read this: sa_std's network main body (TCP/UDP/Unix/TLS/HTTP client and server/WebSocket/HTTP2 tool surface)
+corresponds to Python's mostly as “existing equivalent”; the gaps are concentrated in three places — <strong>TLS's configuration and certificate surface</strong>
+(the ssl cluster has 6 directly mappable + 3 needing modeling), <strong>the Web periphery tool surface</strong> (URL tools, Cookies,
+HTTP constants, authentication/proxy), and <strong>asyncio/socketserver's framework models</strong> (callback and handler models,
+mostly needs modeling or model mismatch — model differences, not capability absences).</p>
 
-<h2>核心面逐项</h2>
+<h2>Core Surface, Item by Item</h2>
 <table>
-<tr><th>模块</th><th>条目</th><th>分类</th><th>SA 对应</th><th>注</th></tr>
-<tr><td><code>socket</code></td><td>TCP 流（connect/listen/accept/recv/send）</td><td>已有等价</td><td>sa_std_net_tcp_*；sa_net_tcp_*</td><td>句柄模型</td></tr>
-<tr><td><code>socket</code></td><td>UDP 数据报</td><td>已有等价</td><td>sa_std_net_udp_*；sa_net_udp_*</td><td></td></tr>
-<tr><td><code>socket</code></td><td>Unix domain（stream/datagram/abstract）</td><td>已有等价</td><td>sa_std_net_unix_*</td><td>含 abstract 地址</td></tr>
-<tr><td><code>socket</code></td><td>地址解析与格式化（getaddrinfo/getnameinfo/addr 对象）</td><td>已有等价</td><td>sa_std_net_to_socket_addr_list；sa_std_net_addr_reverse_lookup；sa_net_socket_addr_v4/v6_parse_ascii、format_ascii</td><td></td></tr>
-<tr><td><code>socket</code></td><td>服务/协议名查询（getservbyname/port、getprotobyname/num、getfqdn）</td><td>可直接对应</td><td>—</td><td>小函数群，SA 查无</td></tr>
-<tr><td><code>socket</code></td><td>网卡接口枚举（if_nameindex/if_nametoindex/if_indextoname）</td><td>可直接对应</td><td>—</td><td></td></tr>
-<tr><td><code>socket</code></td><td>具名套接字选项群（nodelay/keepalive/linger/ttl/缓冲/广播/组播/reuse/passcred/mark）</td><td>已有等价</td><td>sa_std_net_*_set_*（40+ 具名 setter）</td><td></td></tr>
-<tr><td><code>socket</code></td><td>通用 setsockopt/getsockopt 透传（任意 level/optname/值）</td><td>可直接对应</td><td>—</td><td>逃生口缺失</td></tr>
-<tr><td><code>socket</code></td><td>sendmsg/recvmsg 与辅助数据（SCM_RIGHTS fd 传递）</td><td>需建模</td><td>—</td><td>passcred 有、fd 传递无</td></tr>
-<tr><td><code>socket</code></td><td>socketpair</td><td>已有等价</td><td>sa_std_net_unix_pair；sa_std_net_unix_datagram_pair</td><td></td></tr>
-<tr><td><code>socket</code></td><td>fromfd/dup/detach 句柄互操作</td><td>已有等价</td><td>sa_std_net_*_from_raw_fd；sa_std_net_tcp_listener_try_clone</td><td>stream 侧 try_clone 缺（并入透传项注记）</td></tr>
-<tr><td><code>socket</code></td><td>settimeout/setblocking/gettimeout</td><td>已有等价</td><td>sa_std_net_*_set_nonblocking；set_read/write_timeout</td><td></td></tr>
-<tr><td><code>socket</code></td><td>socket.sendfile</td><td>可直接对应</td><td>—</td><td>net 面查无；os 层零拷贝不在本普查范围</td></tr>
-<tr><td><code>socket</code></td><td>常量空间（_socket C 注册 608 名：AF_*/SOCK_*/SO_*/IPPROTO_*/AI_* 等）</td><td>可直接对应</td><td>net.sal 142 常量（子集）</td><td>含平台条件名，为源码注册上界；SA_NET_AF_* 编号陷阱为既有登记</td></tr>
-<tr><td><code>socket</code></td><td>makefile/SocketIO（io.RawIOBase 适配）</td><td>需建模</td><td>—</td><td>SA io 面为句柄+缓冲三件套</td></tr>
-<tr><td><code>socket</code></td><td>异常面（gaierror/herror/timeout 等 OSError 子类）</td><td>模型不合</td><td>SA_NET_ERR_*；sa_std_net_error_code_name</td><td>SA 无异常体系；错误分类本身已由错误码覆盖</td></tr>
-<tr><td><code>ssl</code></td><td>客户端连接（SSLContext.wrap_socket + server_hostname SNI + 校验策略）</td><td>需建模</td><td>sa_std_tls_client_connect（仅 host/port）</td><td>无 SNI/校验参数</td></tr>
-<tr><td><code>ssl</code></td><td>服务端（ctx_create + accept）</td><td>已有等价</td><td>sa_std_tls_server_ctx_create/accept；sa_std_dtls_*</td><td>仅证书/私钥文件路径装载</td></tr>
-<tr><td><code>ssl</code></td><td>SSLContext 配置面（verify_mode/flags、options、版本上下限、cipher 列表、ALPN/NPN、SNI 回调）</td><td>需建模</td><td>sa_std_tls_shaped_*（profile 指纹面，相邻）</td><td>无配置对象；单项旋钮可直接对应</td></tr>
-<tr><td><code>ssl</code></td><td>证书装载形态与 PEM/DER 转换（DER_cert_to_PEM_cert、PEM_cert_to_DER_cert、内存装载）</td><td>可直接对应</td><td>—</td><td></td></tr>
-<tr><td><code>ssl</code></td><td>对端证书与证书链（getpeercert/get_verified_chain/get_unverified_chain）</td><td>可直接对应</td><td>—</td><td>status_json 不含证书解码</td></tr>
-<tr><td><code>ssl</code></td><td>协商信息查询（cipher/version/group/sigalg/shared_ciphers/selected_alpn）</td><td>可直接对应</td><td>sa_std_tls_shaped_negotiated_json（塑形面部分覆盖）</td><td></td></tr>
-<tr><td><code>ssl</code></td><td>MemoryBIO/SSLObject 增量 TLS（wrap_bio）</td><td>需建模</td><td>—</td><td>仅套接字一体形态</td></tr>
-<tr><td><code>ssl</code></td><td>会话复用（SSLSession/session/session_reused）</td><td>可直接对应</td><td>—</td><td>低优先</td></tr>
-<tr><td><code>ssl</code></td><td>get_server_certificate</td><td>可直接对应</td><td>—</td><td>依赖对端证书面组合可达</td></tr>
-<tr><td><code>ssl</code></td><td>常量/枚举面（PROTOCOL_*/CERT_*/VERIFY_*/OP_*/TLSVersion/Purpose；Lib 6 + C 43 名）</td><td>可直接对应</td><td>tls_server.sal 4 常量（子集）</td><td>成批补齐型</td></tr>
-<tr><td><code>ssl</code></td><td>DTLS</td><td>已有等价</td><td>sa_std_dtls_*</td><td></td></tr>
-<tr><td><code>ipaddress</code></td><td>地址解析/格式化（ip_address、exploded/compressed/packed）</td><td>已有等价</td><td>sa_net_ipv4/ipv6_parse_ascii；sa_net_ipv4/ipv6_format_ascii；sa_net_socket_addr_*_ascii</td><td></td></tr>
-<tr><td><code>ipaddress</code></td><td>地址分类谓词（is_private/is_global/is_loopback/is_multicast/is_reserved/is_link_local/teredo/sixtofour/ipv4_mapped 等）</td><td>可直接对应</td><td>—</td><td>is_private/is_global 需 IANA 特殊注册表数据</td></tr>
-<tr><td><code>ipaddress</code></td><td>网络对象运算（IPv4/6Network/Interface：subnets/supernet/hosts/overlaps/summarize/collapse 等，私有基类 25 法）</td><td>需建模</td><td>—</td><td>宜 SLA 值类型库形态，非 extern 面</td></tr>
-<tr><td><code>ipaddress</code></td><td>整数互转（v4/v6_int_to_packed 等）</td><td>已有等价</td><td>sa_net_addr 对象内 packed 表示</td><td>小函数可随网络运算项补</td></tr>
-<tr><td><code>http</code></td><td>HTTPStatus 枚举 + is_* 谓词</td><td>可直接对应</td><td>—</td><td>SA 无 HTTP 状态码命名常量面（与 AJ 状态码登记同族）</td></tr>
-<tr><td><code>http</code></td><td>HTTPMethod 枚举</td><td>可直接对应</td><td>—</td><td>AJ 登记：SA http method 仅四种</td></tr>
-<tr><td><code>http.client</code></td><td>HTTP/1.1 请求-响应（HTTPConnection/HTTPResponse）</td><td>已有等价</td><td>sa_http_client_*（含 v2 面）</td><td></td></tr>
-<tr><td><code>http.client</code></td><td>响应流式读取（read/readinto/read1/peek）</td><td>已有等价</td><td>sa_http_client_resp_body_reader；sa_http_client_resp_read_chunk</td><td></td></tr>
-<tr><td><code>http.client</code></td><td>HTTPS 客户端（TLS 配置在 http 契约层可见）</td><td>需建模</td><td>sa_std_tls_client_*（分离面）</td><td>http_client.sai 契约未暴露 TLS 开关/校验/SNI；实现层是否内建 HTTPS 不在本普查证据内</td></tr>
-<tr><td><code>http.client</code></td><td>隧道与代理（set_tunnel）</td><td>可直接对应</td><td>—</td><td></td></tr>
-<tr><td><code>http.client</code></td><td>异常类群（HTTPException 等 12 类）</td><td>模型不合</td><td>错误码返回</td><td>无异常体系</td></tr>
-<tr><td><code>http.client</code></td><td>set_debuglevel 等零散小项</td><td>可直接对应</td><td>—</td><td>低优先</td></tr>
-<tr><td><code>http.server</code></td><td>服务骨架（HTTPServer/ThreadingHTTPServer/serve_forever）</td><td>已有等价</td><td>sa_http_server_new/start/accept/serve/stop</td><td></td></tr>
-<tr><td><code>http.server</code></td><td>BaseHTTPRequestHandler 处理模型（请求解析/do_* 分发/send_response 家族）</td><td>需建模</td><td>sa_http_server_req_get_*；sa_http_server_resp_*（显式面部分覆盖）</td><td></td></tr>
-<tr><td><code>http.server</code></td><td>静态文件服务（SimpleHTTPRequestHandler：目录列表/translate_path/MIME 猜测）</td><td>可直接对应</td><td>—</td><td></td></tr>
-<tr><td><code>http.server</code></td><td>HTTPSServer（server × SSLContext 组合）</td><td>已有等价</td><td>sa_std_tls_server_*（可组合）</td><td></td></tr>
-<tr><td><code>http.server</code></td><td>CGIHTTPRequestHandler</td><td>上游已移除（登记）</td><td>—</td><td>3.13 已自 Python 移除；3.15 树实测无此类</td></tr>
-<tr><td><code>http.cookies</code></td><td>Cookie 解析/序列化（SimpleCookie/Morsel）</td><td>可直接对应</td><td>—</td><td>SA 仅原始 header 读写</td></tr>
-<tr><td><code>http.cookiejar</code></td><td>CookieJar 策略与持久化（域/过期/第三方策略、Mozilla/LWP 文件格式）</td><td>需建模</td><td>—</td><td>24 个模块级工具函数为其实现细节面</td></tr>
-<tr><td><code>urllib.parse</code></td><td>URL 拆解/组装（urlparse/urlsplit/ParseResult/urljoin）</td><td>需建模</td><td>sa_std_url_parse（基础拆解子集）</td><td>完整组件模型与相对解析缺</td></tr>
-<tr><td><code>urllib.parse</code></td><td>百分号编解码（quote/quote_plus/unquote/unquote_plus/quote_from_bytes）</td><td>可直接对应</td><td>—</td><td></td></tr>
-<tr><td><code>urllib.parse</code></td><td>查询串（parse_qs/parse_qsl/urlencode）</td><td>可直接对应</td><td>—</td><td></td></tr>
-<tr><td><code>urllib.request</code></td><td>urlopen 便捷面</td><td>已有等价</td><td>sa_http_fetch_bytes；sa_http_client_*</td><td></td></tr>
-<tr><td><code>urllib.request</code></td><td>Opener/Handler 可插拔链（含重定向策略）</td><td>需建模</td><td>—</td><td>SA http_client 为固定管线</td></tr>
-<tr><td><code>urllib.request</code></td><td>HTTP Basic/Digest 认证 handler</td><td>可直接对应</td><td>—</td><td>sa_http_client_req_add_openai_auth 为专用头，非通用 auth</td></tr>
-<tr><td><code>urllib.request</code></td><td>ProxyHandler + 环境代理读取（getproxies）</td><td>可直接对应</td><td>—</td><td></td></tr>
-<tr><td><code>urllib.request</code></td><td>FTP/Data/File handler</td><td>可直接对应</td><td>—</td><td>低优先；file: 语义由 fs 面覆盖（范围外注记）</td></tr>
-<tr><td><code>urllib.request</code></td><td>Request 对象（头/数据/方法建模）</td><td>已有等价</td><td>sa_http_client_req_new/add_header/set_body；sa_http_client_req_set_timeout_v2</td><td></td></tr>
-<tr><td><code>urllib.error</code></td><td>URLError/HTTPError/ContentTooShortError</td><td>模型不合</td><td>错误码返回</td><td>HTTPError 的异常×响应双重身份亦无对应模型</td></tr>
-<tr><td><code>urllib.response</code></td><td>addinfourl 等响应包装</td><td>已有等价</td><td>sa_http_client_resp_status/get_header/body_slice</td><td></td></tr>
-<tr><td><code>urllib.robotparser</code></td><td>RobotFileParser（robots.txt 规则/can_fetch/crawl_delay）</td><td>可直接对应</td><td>—</td><td>低优先</td></tr>
-<tr><td><code>socketserver</code></td><td>通用服务框架（BaseServer/TCPServer/UDPServer 生命周期）</td><td>需建模</td><td>sa_http_server 生命周期；net listen/accept（网络部分覆盖）</td><td>无通用请求处理框架</td></tr>
-<tr><td><code>socketserver</code></td><td>请求处理器模型（BaseRequestHandler setup/handle/finish、Stream/Datagram 变体、rfile/wfile）</td><td>需建模</td><td>—</td><td></td></tr>
-<tr><td><code>socketserver</code></td><td>ThreadingMixIn 并发混合</td><td>需建模</td><td>async/netx 反应器；thread 面</td><td>能力可达、模型不同</td></tr>
-<tr><td><code>socketserver</code></td><td>ForkingMixIn</td><td>上游已移除（登记）</td><td>—</td><td>3.15 树实测无此类</td></tr>
-<tr><td><code>selectors</code></td><td>Selector 注册表（register/unregister/modify/select/get_map）</td><td>需建模</td><td>sa_netx_*（io_uring 反应器，能力相邻）</td><td>无 select/poll/epoll 风格显式注册表 API</td></tr>
-<tr><td><code>selectors</code></td><td>EVENT_READ/EVENT_WRITE 常量</td><td>可直接对应</td><td>—</td><td></td></tr>
+<tr><th>Module</th><th>Entry</th><th>Category</th><th>SA counterpart</th><th>Note</th></tr>
+<tr><td><code>socket</code></td><td>TCP streams (connect/listen/accept/recv/send)</td><td>Existing equivalent</td><td>sa_std_net_tcp_*; sa_net_tcp_*</td><td>Handle model</td></tr>
+<tr><td><code>socket</code></td><td>UDP datagrams</td><td>Existing equivalent</td><td>sa_std_net_udp_*; sa_net_udp_*</td><td></td></tr>
+<tr><td><code>socket</code></td><td>Unix domain (stream/datagram/abstract)</td><td>Existing equivalent</td><td>sa_std_net_unix_*</td><td>Including abstract addresses</td></tr>
+<tr><td><code>socket</code></td><td>Address resolution and formatting (getaddrinfo/getnameinfo/addr objects)</td><td>Existing equivalent</td><td>sa_std_net_to_socket_addr_list; sa_std_net_addr_reverse_lookup; sa_net_socket_addr_v4/v6_parse_ascii, format_ascii</td><td></td></tr>
+<tr><td><code>socket</code></td><td>Service/protocol name queries (getservbyname/port, getprotobyname/num, getfqdn)</td><td>Directly mappable</td><td>—</td><td>A small function group; not found in SA</td></tr>
+<tr><td><code>socket</code></td><td>Network interface enumeration (if_nameindex/if_nametoindex/if_indextoname)</td><td>Directly mappable</td><td>—</td><td></td></tr>
+<tr><td><code>socket</code></td><td>The named socket option group (nodelay/keepalive/linger/ttl/buffers/broadcast/multicast/reuse/passcred/mark)</td><td>Existing equivalent</td><td>sa_std_net_*_set_* (40+ named setters)</td><td></td></tr>
+<tr><td><code>socket</code></td><td>Generic setsockopt/getsockopt pass-through (arbitrary level/optname/value)</td><td>Directly mappable</td><td>—</td><td>The escape hatch is missing</td></tr>
+<tr><td><code>socket</code></td><td>sendmsg/recvmsg and ancillary data (SCM_RIGHTS fd passing)</td><td>Needs modeling</td><td>—</td><td>passcred exists, fd passing does not</td></tr>
+<tr><td><code>socket</code></td><td>socketpair</td><td>Existing equivalent</td><td>sa_std_net_unix_pair; sa_std_net_unix_datagram_pair</td><td></td></tr>
+<tr><td><code>socket</code></td><td>fromfd/dup/detach handle interoperation</td><td>Existing equivalent</td><td>sa_std_net_*_from_raw_fd; sa_std_net_tcp_listener_try_clone</td><td>try_clone on the stream side is missing (merged into the pass-through item's note)</td></tr>
+<tr><td><code>socket</code></td><td>settimeout/setblocking/gettimeout</td><td>Existing equivalent</td><td>sa_std_net_*_set_nonblocking; set_read/write_timeout</td><td></td></tr>
+<tr><td><code>socket</code></td><td>socket.sendfile</td><td>Directly mappable</td><td>—</td><td>Not found on the net surface; os-layer zero-copy is outside this census's scope</td></tr>
+<tr><td><code>socket</code></td><td>Constant space (_socket C registers 608 names: AF_*/SOCK_*/SO_*/IPPROTO_*/AI_* etc.)</td><td>Directly mappable</td><td>net.sal 142 constants (a subset)</td><td>Includes platform-conditional names; an upper bound of source registration; the SA_NET_AF_* numbering trap is an existing registration</td></tr>
+<tr><td><code>socket</code></td><td>makefile/SocketIO (io.RawIOBase adaptation)</td><td>Needs modeling</td><td>—</td><td>SA's io surface is a handle+buffer trio</td></tr>
+<tr><td><code>socket</code></td><td>Exception surface (OSError subclasses such as gaierror/herror/timeout)</td><td>Model mismatch</td><td>SA_NET_ERR_*; sa_std_net_error_code_name</td><td>SA has no exception system; error classification itself is already covered by error codes</td></tr>
+<tr><td><code>ssl</code></td><td>Client connections (SSLContext.wrap_socket + server_hostname SNI + verification policy)</td><td>Needs modeling</td><td>sa_std_tls_client_connect (host/port only)</td><td>No SNI/verification parameters</td></tr>
+<tr><td><code>ssl</code></td><td>Server side (ctx_create + accept)</td><td>Existing equivalent</td><td>sa_std_tls_server_ctx_create/accept; sa_std_dtls_*</td><td>Loads only certificate/private-key file paths</td></tr>
+<tr><td><code>ssl</code></td><td>SSLContext configuration surface (verify_mode/flags, options, version bounds, cipher list, ALPN/NPN, SNI callbacks)</td><td>Needs modeling</td><td>sa_std_tls_shaped_* (the profile fingerprint surface, adjacent)</td><td>No configuration object; individual knobs can be directly mapped</td></tr>
+<tr><td><code>ssl</code></td><td>Certificate loading shapes and PEM/DER conversion (DER_cert_to_PEM_cert, PEM_cert_to_DER_cert, in-memory loading)</td><td>Directly mappable</td><td>—</td><td></td></tr>
+<tr><td><code>ssl</code></td><td>Peer certificate and certificate chain (getpeercert/get_verified_chain/get_unverified_chain)</td><td>Directly mappable</td><td>—</td><td>status_json does not include certificate decoding</td></tr>
+<tr><td><code>ssl</code></td><td>Negotiation information queries (cipher/version/group/sigalg/shared_ciphers/selected_alpn)</td><td>Directly mappable</td><td>sa_std_tls_shaped_negotiated_json (the shaping surface partially covers)</td><td></td></tr>
+<tr><td><code>ssl</code></td><td>MemoryBIO/SSLObject incremental TLS (wrap_bio)</td><td>Needs modeling</td><td>—</td><td>Only the integrated socket shape</td></tr>
+<tr><td><code>ssl</code></td><td>Session reuse (SSLSession/session/session_reused)</td><td>Directly mappable</td><td>—</td><td>Low priority</td></tr>
+<tr><td><code>ssl</code></td><td>get_server_certificate</td><td>Directly mappable</td><td>—</td><td>Reachable by composing the peer certificate surface</td></tr>
+<tr><td><code>ssl</code></td><td>Constant/enum surface (PROTOCOL_*/CERT_*/VERIFY_*/OP_*/TLSVersion/Purpose; Lib 6 + C 43 names)</td><td>Directly mappable</td><td>tls_server.sal 4 constants (a subset)</td><td>Batch fill-in type</td></tr>
+<tr><td><code>ssl</code></td><td>DTLS</td><td>Existing equivalent</td><td>sa_std_dtls_*</td><td></td></tr>
+<tr><td><code>ipaddress</code></td><td>Address parsing/formatting (ip_address, exploded/compressed/packed)</td><td>Existing equivalent</td><td>sa_net_ipv4/ipv6_parse_ascii; sa_net_ipv4/ipv6_format_ascii; sa_net_socket_addr_*_ascii</td><td></td></tr>
+<tr><td><code>ipaddress</code></td><td>Address classification predicates (is_private/is_global/is_loopback/is_multicast/is_reserved/is_link_local/teredo/sixtofour/ipv4_mapped etc.)</td><td>Directly mappable</td><td>—</td><td>is_private/is_global need IANA special registry data</td></tr>
+<tr><td><code>ipaddress</code></td><td>Network object operations (IPv4/6Network/Interface: subnets/supernet/hosts/overlaps/summarize/collapse etc., 25 methods on the private base classes)</td><td>Needs modeling</td><td>—</td><td>Best done as an SLA value type library, not an extern surface</td></tr>
+<tr><td><code>ipaddress</code></td><td>Integer conversion (v4/v6_int_to_packed etc.)</td><td>Existing equivalent</td><td>The packed representation inside sa_net_addr objects</td><td>Small functions can be filled in with the network operations item</td></tr>
+<tr><td><code>http</code></td><td>HTTPStatus enum + is_* predicates</td><td>Directly mappable</td><td>—</td><td>SA has no HTTP status code named constant surface (same family as the AJ status code registration)</td></tr>
+<tr><td><code>http</code></td><td>HTTPMethod enum</td><td>Directly mappable</td><td>—</td><td>AJ registration: SA http methods are only four kinds</td></tr>
+<tr><td><code>http.client</code></td><td>HTTP/1.1 request-response (HTTPConnection/HTTPResponse)</td><td>Existing equivalent</td><td>sa_http_client_* (including the v2 surface)</td><td></td></tr>
+<tr><td><code>http.client</code></td><td>Streaming response reading (read/readinto/read1/peek)</td><td>Existing equivalent</td><td>sa_http_client_resp_body_reader; sa_http_client_resp_read_chunk</td><td></td></tr>
+<tr><td><code>http.client</code></td><td>HTTPS client (TLS configuration visible at the http contract layer)</td><td>Needs modeling</td><td>sa_std_tls_client_* (a separate surface)</td><td>http_client.sai's contract does not expose TLS switches/verification/SNI; whether the implementation layer has built-in HTTPS is not within this census's evidence</td></tr>
+<tr><td><code>http.client</code></td><td>Tunnels and proxies (set_tunnel)</td><td>Directly mappable</td><td>—</td><td></td></tr>
+<tr><td><code>http.client</code></td><td>Exception group (12 classes such as HTTPException)</td><td>Model mismatch</td><td>Error code returns</td><td>No exception system</td></tr>
+<tr><td><code>http.client</code></td><td>Scattered small items such as set_debuglevel</td><td>Directly mappable</td><td>—</td><td>Low priority</td></tr>
+<tr><td><code>http.server</code></td><td>Server skeleton (HTTPServer/ThreadingHTTPServer/serve_forever)</td><td>Existing equivalent</td><td>sa_http_server_new/start/accept/serve/stop</td><td></td></tr>
+<tr><td><code>http.server</code></td><td>BaseHTTPRequestHandler handler model (request parsing/do_* dispatch/the send_response family)</td><td>Needs modeling</td><td>sa_http_server_req_get_*; sa_http_server_resp_* (the explicit surface partially covers)</td><td></td></tr>
+<tr><td><code>http.server</code></td><td>Static file serving (SimpleHTTPRequestHandler: directory listing/translate_path/MIME guessing)</td><td>Directly mappable</td><td>—</td><td></td></tr>
+<tr><td><code>http.server</code></td><td>HTTPSServer (server × SSLContext composition)</td><td>Existing equivalent</td><td>sa_std_tls_server_* (composable)</td><td></td></tr>
+<tr><td><code>http.server</code></td><td>CGIHTTPRequestHandler</td><td>Removed upstream (registered)</td><td>—</td><td>Removed from Python itself in 3.13; measured absent in the 3.15 tree</td></tr>
+<tr><td><code>http.cookies</code></td><td>Cookie parsing/serialization (SimpleCookie/Morsel)</td><td>Directly mappable</td><td>—</td><td>SA has only raw header reading/writing</td></tr>
+<tr><td><code>http.cookiejar</code></td><td>CookieJar policies and persistence (domain/expiry/third-party policies, Mozilla/LWP file formats)</td><td>Needs modeling</td><td>—</td><td>Its 24 module-level utility functions are its implementation-detail surface</td></tr>
+<tr><td><code>urllib.parse</code></td><td>URL splitting/assembly (urlparse/urlsplit/ParseResult/urljoin)</td><td>Needs modeling</td><td>sa_std_url_parse (a basic splitting subset)</td><td>The full component model and relative resolution are missing</td></tr>
+<tr><td><code>urllib.parse</code></td><td>Percent encoding/decoding (quote/quote_plus/unquote/unquote_plus/quote_from_bytes)</td><td>Directly mappable</td><td>—</td><td></td></tr>
+<tr><td><code>urllib.parse</code></td><td>Query strings (parse_qs/parse_qsl/urlencode)</td><td>Directly mappable</td><td>—</td><td></td></tr>
+<tr><td><code>urllib.request</code></td><td>The urlopen convenience surface</td><td>Existing equivalent</td><td>sa_http_fetch_bytes; sa_http_client_*</td><td></td></tr>
+<tr><td><code>urllib.request</code></td><td>The pluggable Opener/Handler chain (including redirect policies)</td><td>Needs modeling</td><td>—</td><td>SA http_client is a fixed pipeline</td></tr>
+<tr><td><code>urllib.request</code></td><td>HTTP Basic/Digest authentication handlers</td><td>Directly mappable</td><td>—</td><td>sa_http_client_req_add_openai_auth is a special-purpose header, not general auth</td></tr>
+<tr><td><code>urllib.request</code></td><td>ProxyHandler + environment proxy reading (getproxies)</td><td>Directly mappable</td><td>—</td><td></td></tr>
+<tr><td><code>urllib.request</code></td><td>FTP/Data/File handlers</td><td>Directly mappable</td><td>—</td><td>Low priority; file: semantics are covered by the fs surface (out-of-scope note)</td></tr>
+<tr><td><code>urllib.request</code></td><td>Request objects (header/data/method modeling)</td><td>Existing equivalent</td><td>sa_http_client_req_new/add_header/set_body; sa_http_client_req_set_timeout_v2</td><td></td></tr>
+<tr><td><code>urllib.error</code></td><td>URLError/HTTPError/ContentTooShortError</td><td>Model mismatch</td><td>Error code returns</td><td>HTTPError's dual exception×response identity also has no corresponding model</td></tr>
+<tr><td><code>urllib.response</code></td><td>Response wrappers such as addinfourl</td><td>Existing equivalent</td><td>sa_http_client_resp_status/get_header/body_slice</td><td></td></tr>
+<tr><td><code>urllib.robotparser</code></td><td>RobotFileParser (robots.txt rules/can_fetch/crawl_delay)</td><td>Directly mappable</td><td>—</td><td>Low priority</td></tr>
+<tr><td><code>socketserver</code></td><td>General server framework (BaseServer/TCPServer/UDPServer lifecycles)</td><td>Needs modeling</td><td>The sa_http_server lifecycle; net listen/accept (the network part covered)</td><td>No general request handling framework</td></tr>
+<tr><td><code>socketserver</code></td><td>Request handler model (BaseRequestHandler setup/handle/finish, Stream/Datagram variants, rfile/wfile)</td><td>Needs modeling</td><td>—</td><td></td></tr>
+<tr><td><code>socketserver</code></td><td>ThreadingMixIn concurrency mixin</td><td>Needs modeling</td><td>The async/netx reactor; the thread surface</td><td>Capability reachable, model different</td></tr>
+<tr><td><code>socketserver</code></td><td>ForkingMixIn</td><td>Removed upstream (registered)</td><td>—</td><td>Measured absent in the 3.15 tree</td></tr>
+<tr><td><code>selectors</code></td><td>Selector registry (register/unregister/modify/select/get_map)</td><td>Needs modeling</td><td>sa_netx_* (the io_uring reactor, capability-adjacent)</td><td>No select/poll/epoll-style explicit registry API</td></tr>
+<tr><td><code>selectors</code></td><td>EVENT_READ/EVENT_WRITE constants</td><td>Directly mappable</td><td>—</td><td></td></tr>
 </table>
 
-<h2>asyncio 网络面（单列）</h2>
-<p>asyncio 的网络面分三层看：协程式连接/服务与 <code>loop.sock_*</code> 一层，SA 以
-async fn + future/task 协程面、非阻塞句柄与 netx io_uring 反应器对应，属已有等价；
-<code>StreamReader/StreamWriter</code> 的缓冲流读写器（行读、readuntil、drain 流控）SA 尚无
-对应面，属需建模；而 Transport/Protocol 回调接口族是 asyncio 的根基模型，与 SA 的
-协程 + 显式句柄模型不同，归模型不合——这与同批 Rust 普查对 async 运行时的定性一致：
-能力可达，模型不移植。</p>
+<h2>The asyncio Network Surface (Separate Section)</h2>
+<p>asyncio's network surface is viewed in three layers: the coroutine-style connection/server layer and <code>loop.sock_*</code>,
+which SA corresponds to with the async fn + future/task coroutine surface, non-blocking handles and the netx io_uring reactor — existing equivalent;
+<code>StreamReader/StreamWriter</code>'s buffered stream reader/writer (line reading, readuntil, drain flow control), for which SA has no
+corresponding surface yet — needs modeling; and the Transport/Protocol callback interface family, which is asyncio's root model and differs from SA's
+coroutine + explicit handle model — model mismatch. This matches the characterization of async runtimes in the Rust census of the same batch:
+the capability is reachable, the model is not ported.</p>
 <table>
-<tr><th>模块</th><th>条目</th><th>分类</th><th>SA 对应</th><th>注</th></tr>
-<tr><td><code>asyncio</code></td><td>loop.create_connection/create_server/connect_accepted_socket</td><td>已有等价</td><td>net 句柄 + async.sla/future/task 协程面；plugin_async；sa_netx_*</td><td></td></tr>
-<tr><td><code>asyncio</code></td><td>StreamReader/StreamWriter（readline/readuntil/drain 流控）</td><td>需建模</td><td>—</td><td>缓冲流读写器面缺</td></tr>
-<tr><td><code>asyncio</code></td><td>Transport/Protocol 回调模型（transports/protocols 接口族）</td><td>模型不合</td><td>—</td><td>SA 为协程+显式句柄模型，无 data_received 式回调协议</td></tr>
-<tr><td><code>asyncio</code></td><td>loop.sock_*（sock_recv/sock_sendall/sock_connect/sock_accept 等）</td><td>已有等价</td><td>非阻塞句柄 + async poll；netx ticket</td><td></td></tr>
-<tr><td><code>asyncio</code></td><td>create_datagram_endpoint</td><td>已有等价</td><td>sa_std_net_udp_*；sa_net_udp_*</td><td>传输面等价；回调面归 Transport/Protocol 项</td></tr>
-<tr><td><code>asyncio</code></td><td>loop.start_tls / StreamWriter.start_tls（既有连接升级）</td><td>可直接对应</td><td>—</td><td>tls 仅 connect/accept 一体形态</td></tr>
-<tr><td><code>asyncio</code></td><td>loop.getnameinfo</td><td>已有等价</td><td>sa_std_net_addr_reverse_lookup；sa_std_net_addr_format</td><td>与 socket 地址解析项同口径</td></tr>
-<tr><td><code>asyncio</code></td><td>TransportSocket（trsock）</td><td>模型不合</td><td>—</td><td>依赖 transport 模型</td></tr>
-<tr><td><code>asyncio</code></td><td>平台事件循环（Proactor/Windows IOCP 面）</td><td>模型不合</td><td>sa_netx_*（io_uring，Linux 反应器）</td><td>平台模型不合；能力由跨平台句柄覆盖</td></tr>
+<tr><th>Module</th><th>Entry</th><th>Category</th><th>SA counterpart</th><th>Note</th></tr>
+<tr><td><code>asyncio</code></td><td>loop.create_connection/create_server/connect_accepted_socket</td><td>Existing equivalent</td><td>net handles + the async.sla/future/task coroutine surface; plugin_async; sa_netx_*</td><td></td></tr>
+<tr><td><code>asyncio</code></td><td>StreamReader/StreamWriter (readline/readuntil/drain flow control)</td><td>Needs modeling</td><td>—</td><td>The buffered stream reader/writer surface is missing</td></tr>
+<tr><td><code>asyncio</code></td><td>Transport/Protocol callback model (the transports/protocols interface family)</td><td>Model mismatch</td><td>—</td><td>SA is a coroutine+explicit handle model, with no data_received-style callback protocol</td></tr>
+<tr><td><code>asyncio</code></td><td>loop.sock_* (sock_recv/sock_sendall/sock_connect/sock_accept etc.)</td><td>Existing equivalent</td><td>Non-blocking handles + async poll; netx tickets</td><td></td></tr>
+<tr><td><code>asyncio</code></td><td>create_datagram_endpoint</td><td>Existing equivalent</td><td>sa_std_net_udp_*; sa_net_udp_*</td><td>The transport surface is equivalent; the callback surface belongs to the Transport/Protocol item</td></tr>
+<tr><td><code>asyncio</code></td><td>loop.start_tls / StreamWriter.start_tls (upgrading an existing connection)</td><td>Directly mappable</td><td>—</td><td>tls has only the integrated connect/accept shape</td></tr>
+<tr><td><code>asyncio</code></td><td>loop.getnameinfo</td><td>Existing equivalent</td><td>sa_std_net_addr_reverse_lookup; sa_std_net_addr_format</td><td>Same methodology as the socket address resolution item</td></tr>
+<tr><td><code>asyncio</code></td><td>TransportSocket (trsock)</td><td>Model mismatch</td><td>—</td><td>Depends on the transport model</td></tr>
+<tr><td><code>asyncio</code></td><td>Platform event loops (the Proactor/Windows IOCP surface)</td><td>Model mismatch</td><td>sa_netx_* (io_uring, a Linux reactor)</td><td>Platform model mismatch; the capability is covered by cross-platform handles</td></tr>
 </table>
 
-<h2>协议客户端（登记式）</h2>
-<p>Python 的协议客户端都是「TCP（+TLS）之上的文本协议助手」，SA 侧目前只有原始
-连接面、无任何协议助手。按真实使用频率只有 SMTP 进入优先短名单，其余登记待需求。
-<code>nntplib</code> 已被上游移除（PEP 594，3.13 移除），3.15 源码树实测无
-<code>Lib/nntplib.py</code>——不是缺口，是上游消亡，登记备查。同理
-<code>http.server</code> 的 CGI 处理器与 <code>socketserver</code> 的 ForkingMixIn
-也已随上游移除（3.15 树实测无此二类）。</p>
+<h2>Protocol Clients (Registration Style)</h2>
+<p>Python's protocol clients are all “text protocol helpers over TCP (+TLS)”; the SA side currently has only the raw
+connection surface and no protocol helpers at all. By real usage frequency only SMTP enters the priority shortlist; the rest are registered pending demand.
+<code>nntplib</code> has been removed upstream (PEP 594, removed in 3.13); the 3.15 source tree was measured to have no
+<code>Lib/nntplib.py</code> — not a gap, but an upstream extinction, registered for reference. Likewise,
+<code>http.server</code>'s CGI handler and <code>socketserver</code>'s ForkingMixIn
+have also been removed upstream (measured absent in the 3.15 tree).</p>
 <table>
-<tr><th>模块</th><th>条目</th><th>分类</th><th>SA 对应</th><th>注</th></tr>
-<tr><td><code>smtplib</code></td><td>SMTP 客户端（SMTP/SMTP_SSL/LMTP、ESMTP 扩展、STARTTLS）</td><td>可直接对应</td><td>—</td><td>协议助手中最高频</td></tr>
-<tr><td><code>ftplib</code></td><td>FTP 客户端（FTP/FTP_TLS）</td><td>可直接对应</td><td>—</td><td>低优先</td></tr>
-<tr><td><code>imaplib</code></td><td>IMAP4 客户端</td><td>可直接对应</td><td>—</td><td>低优先</td></tr>
-<tr><td><code>poplib</code></td><td>POP3 客户端</td><td>可直接对应</td><td>—</td><td>低优先</td></tr>
-<tr><td><code>nntplib</code></td><td>NNTP 客户端</td><td>上游已移除（登记）</td><td>—</td><td>PEP 594，3.13 已移除；3.15 树实测无 Lib/nntplib.py</td></tr>
+<tr><th>Module</th><th>Entry</th><th>Category</th><th>SA counterpart</th><th>Note</th></tr>
+<tr><td><code>smtplib</code></td><td>SMTP client (SMTP/SMTP_SSL/LMTP, ESMTP extensions, STARTTLS)</td><td>Directly mappable</td><td>—</td><td>The most frequent among protocol helpers</td></tr>
+<tr><td><code>ftplib</code></td><td>FTP client (FTP/FTP_TLS)</td><td>Directly mappable</td><td>—</td><td>Low priority</td></tr>
+<tr><td><code>imaplib</code></td><td>IMAP4 client</td><td>Directly mappable</td><td>—</td><td>Low priority</td></tr>
+<tr><td><code>poplib</code></td><td>POP3 client</td><td>Directly mappable</td><td>—</td><td>Low priority</td></tr>
+<tr><td><code>nntplib</code></td><td>NNTP client</td><td>Removed upstream (registered)</td><td>—</td><td>PEP 594, removed in 3.13; measured: no Lib/nntplib.py in the 3.15 tree</td></tr>
 </table>
 
-<h2>反向超集：SA 有而 Python 无</h2>
+<h2>Reverse Superset: What SA Has and Python Does Not</h2>
 <table>
-<tr><th>SA 面</th><th>规模（实抽）</th><th>说明</th></tr>
-<tr><td>QUIC + HTTP/3</td><td>quic.sai 29 extern</td><td>Python 标准库无 QUIC/HTTP3</td></tr>
-<tr><td>SSH 客户/服务端（含 SFTP）</td><td>ssh.sai 26 extern</td><td>Python 标准库无 SSH</td></tr>
-<tr><td>TLS 指纹塑形客户端（JA3/JA4）</td><td>tls_client.sai 中 <code>sa_std_tls_shaped_*</code> 10 extern</td><td>Python ssl 无指纹面</td></tr>
-<tr><td>DTLS 独立面</td><td>dtls.sai 11 extern</td><td>Python 仅以 PROTOCOL_DTLS 常量薄覆盖</td></tr>
-<tr><td>netx io_uring 反应器</td><td>netx.sai 7 extern + 15 宏</td><td>ticket 式事件服务核，asyncio/selectors 无同形物</td></tr>
-<tr><td>WebSocket 帧级编解码（共享面）</td><td>net.sai 中 <code>sa_std_ws_frame_*</code> 等</td><td>Python 标准库无 WebSocket（仅 http.client/server 借道升级在 SA http 面内）</td></tr>
+<tr><th>SA surface</th><th>Scale (actually extracted)</th><th>Notes</th></tr>
+<tr><td>QUIC + HTTP/3</td><td>quic.sai 29 externs</td><td>Python's standard library has no QUIC/HTTP3</td></tr>
+<tr><td>SSH client/server (including SFTP)</td><td>ssh.sai 26 externs</td><td>Python's standard library has no SSH</td></tr>
+<tr><td>TLS fingerprint shaping client (JA3/JA4)</td><td><code>sa_std_tls_shaped_*</code> 10 externs in tls_client.sai</td><td>Python ssl has no fingerprint surface</td></tr>
+<tr><td>Standalone DTLS surface</td><td>dtls.sai 11 externs</td><td>Python covers DTLS only thinly with the PROTOCOL_DTLS constant</td></tr>
+<tr><td>netx io_uring reactor</td><td>netx.sai 7 externs + 15 macros</td><td>A ticket-style event service core; asyncio/selectors have no same-shaped counterpart</td></tr>
+<tr><td>WebSocket frame-level codec (shared surface)</td><td><code>sa_std_ws_frame_*</code> etc. in net.sai</td><td>Python's standard library has no WebSocket (only http.client/server upgrade borrowing, inside the SA http surface)</td></tr>
 </table>
 
-<h2>优先补齐短名单</h2>
+<h2>Priority Shortlist for Closing Gaps</h2>
 <ol>
-<li><strong>通用 setsockopt/getsockopt 透传</strong>（socket 逃生口）：任意 level/optname/字节值的
-透传一对函数即可兜底全部未具名选项，是 socket 面性价比最高的一补。</li>
-<li><strong>TLS 配置面（SSLContext 等价物）</strong>：以 ctx 句柄建模 SNI、校验模式/标志、ALPN、
-TLS 版本上下限、cipher 列表、内存证书/CA 装载。现 <code>sa_std_tls_client_connect</code> 只有
-(host, port)，这是 CXU/中转类真实使用面与 Python ssl 之间最大的一块契约缺口。</li>
-<li><strong>对端证书面</strong>：getpeercert 等价物（证书链 + 解码字段）与独立取证
-（get_server_certificate），与第 2 项配套落地。</li>
-<li><strong>URL 工具补全</strong>：quote/unquote/quote_plus/unquote_plus、parse_qs/parse_qsl、
-urlencode、urljoin——纯函数、低成本，补齐 urllib.parse 的高频面（现仅
-<code>sa_std_url_parse</code> 基础拆解）。</li>
-<li><strong>HTTP 状态码/方法命名常量</strong>（HTTPStatus/HTTPMethod 等价面）：与 AJ 普查登记的
-「HTTP method 仅四种、状态码 SLA 面」同族，一次补齐。</li>
-<li><strong>Cookie 面</strong>：http.cookies 的解析/序列化 + CookieJar 策略与 Netscape 格式
-持久化——Web 客户端真实使用面，SA 目前只有原始 header 读写。</li>
-<li><strong>DNS 小项补全</strong>：getservbyname/getservbyport、getprotobyname/getprotobynumber、
-getfqdn、if_nameindex 家族——小而完整的一组。</li>
-<li><strong>既有连接 TLS 升级（start_tls 等价物）</strong>：asyncio 与 STARTTLS 类协议
-（含 SMTP 项）共同的前置能力。</li>
-<li><strong>ipaddress 值类型库（SLA 层）</strong>：网络/接口对象运算（subnets/supernet/hosts/
-overlaps/summarize/collapse）+ 地址分类谓词——纯值语义，宜以 SLA 库形态补，不走 extern。</li>
-<li><strong>SMTP 客户端助手</strong>：协议客户端中唯一高频项（含 STARTTLS，依赖第 8 项）；
-FTP/IMAP/POP3 登记待需求，不进短名单。</li>
+<li><strong>Generic setsockopt/getsockopt pass-through</strong> (the socket escape hatch): a single pair of pass-through functions for arbitrary level/optname/byte values
+can backstop all unnamed options — the highest value-for-effort fill-in on the socket surface.</li>
+<li><strong>The TLS configuration surface (an SSLContext equivalent)</strong>: model SNI, verification modes/flags, ALPN,
+TLS version bounds, cipher lists, and in-memory certificate/CA loading with a ctx handle. The current <code>sa_std_tls_client_connect</code> has only
+(host, port); this is the largest contract gap between CXU/relay-style real usage surfaces and Python ssl.</li>
+<li><strong>The peer certificate surface</strong>: a getpeercert equivalent (certificate chain + decoded fields) and standalone fetching
+(get_server_certificate), landing together with item 2.</li>
+<li><strong>URL tool completion</strong>: quote/unquote/quote_plus/unquote_plus, parse_qs/parse_qsl,
+urlencode, urljoin — pure functions, low cost, filling in urllib.parse's high-frequency surface (currently only
+<code>sa_std_url_parse</code> basic splitting).</li>
+<li><strong>HTTP status code/method named constants</strong> (the HTTPStatus/HTTPMethod equivalent surface): same family as the AJ census's registration of
+“http methods are only four kinds, status codes on the SLA surface”, filled in at once.</li>
+<li><strong>The Cookie surface</strong>: http.cookies parsing/serialization + CookieJar policies and Netscape format
+persistence — a real Web client usage surface; SA currently has only raw header reading/writing.</li>
+<li><strong>DNS small-item completion</strong>: getservbyname/getservbyport, getprotobyname/getprotobynumber,
+getfqdn, the if_nameindex family — a small and complete group.</li>
+<li><strong>TLS upgrade of an existing connection (a start_tls equivalent)</strong>: a prerequisite capability shared by asyncio and STARTTLS-style protocols
+(including the SMTP item).</li>
+<li><strong>An ipaddress value type library (SLA layer)</strong>: network/interface object operations (subnets/supernet/hosts/
+overlaps/summarize/collapse) + address classification predicates — pure value semantics, best filled in as an SLA library, not via externs.</li>
+<li><strong>An SMTP client helper</strong>: the only high-frequency item among protocol clients (including STARTTLS, depending on item 8);
+FTP/IMAP/POP3 are registered pending demand and do not enter the shortlist.</li>
 </ol>
 
-<h2>覆盖边界与未核面</h2>
+<h2>Coverage Boundaries and Unverified Surfaces</h2>
 <ul>
-<li><strong>C 实现模块以 Lib 层为准</strong>（普查统一口径）：socket 类的方法主体在 _socket 的
-C 类型上，本页以 PyMethodDef 表扫描补得 42 法计入补充行；_ssl 的方法表由 Argument Clinic
-生成、表扫描未覆盖，其 SSLContext 的 C 方法面（load_cert_chain 等）未逐项计数——ssl 的
-分类以 ssl.py 可见面 + 能力簇为准，该簇计数是下限。</li>
-<li><strong>socket 常量 608 为源码注册上界</strong>：含 #ifdef 平台条件名，单平台运行时
-实际可见数更少；SA 侧 net.sal 142 个常量为错误码 + 族/类型子集。另注既有登记：
-.sal 的 <code>SA_NET_AF_IPV4/IPV6</code> 是 std 内编号，与 <code>sa_net_addr_family</code>
-返回的 OS 值不是同一数系（AJ 普查已登记，待裁定）。</li>
-<li><strong>继承未展开</strong>：ipaddress 私有基类承载的方法实测另有 25 个
-（_BaseNetwork 22 + _IPAddressBase 3），已计入能力判断，但 1163 的抽取行数只计
-具体类直属方法（44）；跨模块继承（如 http.server 处理器继承 socketserver 的
-BaseRequestHandler）未展开去重。</li>
-<li><strong>token 回退抽取</strong>：http.server 与 http.cookies 因 CPython 3.15 新语法
-（<code>lazy import</code>）超出盒上 Python 3.13 的 AST 语法面，由 token 流抽取器回退
-处理；已在 4 个可 AST 解析模块上校验——ipaddress、urllib.parse 逐项一致，
-socket（+4 法 +4 函数）、ssl（+7 法）因条件/平台定义呈包容性略高，回退计数取包容口径。</li>
-<li><strong>范围外</strong>：asyncio 只取网络相关文件，loop 的任务管理/定时器等非网络
-方法不在比对内；SA 侧只计 net 家族文件与 sa_std.h 网络前缀，io/fs 等支撑面
-未计入等价基数（文中注明处除外）；http_client 的 HTTPS 是否由实现层内建，
-不在契约层证据内，本页只判契约面。</li>
+<li><strong>C-implemented modules take the Lib layer as authoritative</strong> (the unified census methodology): the main body of the socket class's methods is on _socket's
+C types; this page supplemented them by scanning the PyMethodDef tables, obtaining 42 methods counted as supplementary rows; _ssl's method tables are generated by Argument Clinic
+and the table scan did not cover them, so SSLContext's C method surface (load_cert_chain etc.) was not counted item by item — ssl's
+classification is based on ssl.py's visible surface + capability clusters, and that cluster's count is a lower bound.</li>
+<li><strong>socket's 608 constants are a source-registration upper bound</strong>: they include #ifdef platform-conditional names, and the number actually visible at runtime on a single platform
+is smaller; the SA side's 142 constants in net.sal are error codes + a family/type subset. Also note the existing registration:
+.sal's <code>SA_NET_AF_IPV4/IPV6</code> are std-internal numbers and are not the same number system as the OS values returned by <code>sa_net_addr_family</code>
+(already registered by the AJ census, pending adjudication).</li>
+<li><strong>Inheritance not expanded</strong>: the methods carried by ipaddress's private base classes were measured at another 25
+(_BaseNetwork 22 + _IPAddressBase 3), already counted in the capability judgments, but the 1163 extracted rows count only
+the concrete classes' own methods (44); cross-module inheritance (such as http.server handlers inheriting socketserver's
+BaseRequestHandler) was not expanded or deduplicated.</li>
+<li><strong>Token fallback extraction</strong>: http.server and http.cookies, because of CPython 3.15's new syntax
+(<code>lazy import</code>) exceeding the AST syntax surface of the box's Python 3.13, were handled by a token-stream extractor fallback;
+validated on 4 AST-parseable modules — ipaddress and urllib.parse agree item by item,
+while socket (+4 methods +4 functions) and ssl (+7 methods) are slightly more inclusive due to conditional/platform definitions, and the fallback counts take the inclusive methodology.</li>
+<li><strong>Out of scope</strong>: asyncio takes only network-related files; the loop's task management/timers and other non-network
+methods are not in the comparison; the SA side counts only the net family files and sa_std.h's network prefix, and supporting surfaces such as io/fs
+are not counted in the equivalence base (except where noted in the text); whether http_client's HTTPS is built in at the implementation layer
+is not within the contract-layer evidence, and this page judges only the contract surface.</li>
 </ul>
 
 </body>

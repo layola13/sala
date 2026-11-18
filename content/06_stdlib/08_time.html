@@ -1,57 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>time：时钟、时间与睡眠</title>
+<title>time: Clocks, Time, and Sleep</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">标准库 &gt; time：时钟、时间与睡眠</div>
-<h1>time：时钟、时间与睡眠</h1>
+<div class="topic-header">Standard Library &gt; time: Clocks, Time, and Sleep</div>
+<h1>time: Clocks, Time, and Sleep</h1>
 
-<p>这一页列出 <code>sa_std/time.sai</code> 的 extern 函数，并给出 Sla 侧
-<code>Instant</code> / <code>Duration</code> / <code>SystemTime</code> 的真实用法。
-读完即可测量耗时和让线程休眠。</p>
+<p>This page lists the extern functions in <code>sa_std/time.sai</code>, and gives real usage of
+<code>Instant</code> / <code>Duration</code> / <code>SystemTime</code> on the Sla side.
+After reading it, you will be able to measure elapsed time and put a thread to sleep.</p>
 
-<h2>extern 函数（摘自 time.sai）</h2>
+<h2>extern Functions (from time.sai)</h2>
 <table>
-<tr><th>签名</th><th>说明</th></tr>
-<tr><td><code>sa_time_instant_ns() -&gt; u64</code></td><td>单调时钟当前纳秒值</td></tr>
-<tr><td><code>sa_time_unix_s() -&gt; i64</code></td><td>Unix 时间戳（秒）</td></tr>
-<tr><td><code>sa_time_unix_ms() -&gt; i64</code></td><td>Unix 时间戳（毫秒）</td></tr>
-<tr><td><code>sa_time_unix_ns() -&gt; i64</code></td><td>Unix 时间戳（纳秒）</td></tr>
-<tr><td><code>sa_time_utc_now(&amp;out: ptr) -&gt; i32</code></td><td>当前 UTC 日历时间写入 SaTimeDate；返回普通 i32 状态码（不是 Fallible 结构）</td></tr>
-<tr><td><code>sa_time_sleep_ns(ns: u64) -&gt; i32</code></td><td>睡眠指定纳秒</td></tr>
-<tr><td><code>sa_time_sleep_ms(ms: u64) -&gt; i32</code></td><td>睡眠指定毫秒</td></tr>
-<tr><td><code>sa_time_iso_from_unix_ms(ms: i64) -&gt; u64</code></td><td>JS <code>Date.toISOString</code> 形状：UTC <code>YYYY-MM-DDTHH:MM:SS.sssZ</code>，返回新 buffer 句柄（经 <code>sa_fmt_buffer_data/len</code> 读回）</td></tr>
-<tr><td><code>sa_time_parse_iso(&amp;iso: ptr, len: u64, &amp;out_ms: ptr) -&gt; i32</code></td><td>严格 ISO <code>Date.parse</code>（<code>YYYY-MM-DD[THH:MM:SS[.sss]][Z|±HH:MM]</code>）；0 成功 1 非法，闰日/越界拒绝</td></tr>
-<tr><td><code>sa_time_get_full_year/month/date/hours/minutes/seconds/milliseconds/day(ms: i64) -&gt; i64</code></td><td>Date get 系（UTC；month 0 起，周日 0）</td></tr>
-<tr><td><code>sa_time_set_field(ms: i64, field: u64, value: i64) -&gt; i64</code></td><td>Date setter 系（field 0..6，month 入参 0 起）；越界按 JS 翻转归一，返回新毫秒值</td></tr>
+<tr><th>Signature</th><th>Description</th></tr>
+<tr><td><code>sa_time_instant_ns() -&gt; u64</code></td><td>Current nanosecond value of the monotonic clock</td></tr>
+<tr><td><code>sa_time_unix_s() -&gt; i64</code></td><td>Unix timestamp (seconds)</td></tr>
+<tr><td><code>sa_time_unix_ms() -&gt; i64</code></td><td>Unix timestamp (milliseconds)</td></tr>
+<tr><td><code>sa_time_unix_ns() -&gt; i64</code></td><td>Unix timestamp (nanoseconds)</td></tr>
+<tr><td><code>sa_time_utc_now(&amp;out: ptr) -&gt; i32</code></td><td>Write the current UTC calendar time into a SaTimeDate; returns a plain i32 status code (not a Fallible struct)</td></tr>
+<tr><td><code>sa_time_sleep_ns(ns: u64) -&gt; i32</code></td><td>Sleep for the specified number of nanoseconds</td></tr>
+<tr><td><code>sa_time_sleep_ms(ms: u64) -&gt; i32</code></td><td>Sleep for the specified number of milliseconds</td></tr>
+<tr><td><code>sa_time_iso_from_unix_ms(ms: i64) -&gt; u64</code></td><td>JS <code>Date.toISOString</code> shape: UTC <code>YYYY-MM-DDTHH:MM:SS.sssZ</code>, returning a new buffer handle (read back via <code>sa_fmt_buffer_data/len</code>)</td></tr>
+<tr><td><code>sa_time_parse_iso(&amp;iso: ptr, len: u64, &amp;out_ms: ptr) -&gt; i32</code></td><td>Strict ISO <code>Date.parse</code> (<code>YYYY-MM-DD[THH:MM:SS[.sss]][Z|±HH:MM]</code>); 0 = success, 1 = invalid, leap days / out-of-range values are rejected</td></tr>
+<tr><td><code>sa_time_get_full_year/month/date/hours/minutes/seconds/milliseconds/day(ms: i64) -&gt; i64</code></td><td>The Date get family (UTC; month is 0-based, Sunday is 0)</td></tr>
+<tr><td><code>sa_time_set_field(ms: i64, field: u64, value: i64) -&gt; i64</code></td><td>The Date setter family (field 0..6, month argument is 0-based); out-of-range values are normalized by JS rollover, returning the new millisecond value</td></tr>
 </table>
 
-<h2>时钟口径（TS-17，2026-10-29 落字）</h2>
-<p>time 域是<strong>双钟划分</strong>，现成文如下：<code>sa_time_instant_ns</code> 是<strong>单调钟</strong>
-（相对进程原点的时钟）；运行时任务计时同走单调钟——task / select 的 timeout 与睡眠计时
-均为单调口径（<code>CLOCK_MONOTONIC</code>），<code>sa_time_sleep_ns</code> 是按此时钟的时长睡眠；
-<code>sa_time_unix_*</code> 一族是<strong>墙钟</strong>（真实时间）；日历字段分解与
-<code>sa_time_format_utc</code> 为 <strong>UTC 口径</strong>。</p>
+<h2>Clock Conventions (TS-17, Written 2026-10-29)</h2>
+<p>The time domain is a <strong>two-clock division</strong>, stated as follows: <code>sa_time_instant_ns</code> is a <strong>monotonic clock</strong>
+(a clock relative to a process origin); runtime task timing also uses the monotonic clock — task / select timeouts and sleep timing
+are all in monotonic terms (<code>CLOCK_MONOTONIC</code>), and <code>sa_time_sleep_ns</code> sleeps for a duration by this clock;
+the <code>sa_time_unix_*</code> family is a <strong>wall clock</strong> (real time); calendar field decomposition and
+<code>sa_time_format_utc</code> are in <strong>UTC terms</strong>.</p>
 
-<h2>TS 前端（satsgo Date 链）</h2>
-<p>satsgo 把 <code>Date</code> 窄化为 <code>i64</code> 毫秒值（UTC 子集，无时区）：
-<code>Date.now()</code> / 无参 <code>new Date()</code> 直调
-<code>sa_time_unix_ms</code>；<code>getTime</code> 是恒等；
-<code>toISOString</code> / get 系 / setter 系分别路由到上表三行；
-<code>getTimezoneOffset</code> 恒为 <code>0</code>；
-<code>new Date(x)</code> / <code>Date.parse</code> 之外的解析与格式化形态
-（RFC2822、双位年份、locale 串）一律大声拒绝。非法 ISO 在
-<code>Date.parse</code> 处 panic（NaN 在 i64 中不可表示）。移植注意：
-satsgo 发射的调用形状与上表签名逐位对齐，由
-<code>tools/check_sa_std_projection.sh</code> 机器强制。</p>
+<h2>The TS Frontend (the satsgo Date Chain)</h2>
+<p>satsgo narrows <code>Date</code> to an <code>i64</code> millisecond value (a UTC subset, no time zones):
+<code>Date.now()</code> / a no-argument <code>new Date()</code> call
+<code>sa_time_unix_ms</code> directly; <code>getTime</code> is the identity;
+<code>toISOString</code> / the get family / the setter family route to the three rows in the table above, respectively;
+<code>getTimezoneOffset</code> is always <code>0</code>;
+parse and format forms other than <code>new Date(x)</code> / <code>Date.parse</code>
+(RFC2822, two-digit years, locale strings) are all rejected loudly. An invalid ISO value panics at
+<code>Date.parse</code> (NaN is not representable in an i64). Porting note:
+the call shapes emitted by satsgo align bit-for-bit with the signatures in the table above, enforced mechanically by
+<code>tools/check_sa_std_projection.sh</code>.</p>
 
-<h2>Sla 侧类型面</h2>
-<p>Sla 代码使用 <code>SystemTime</code> / <code>Instant</code> / <code>Duration</code>
-这些名字，由编译器 lower 到 time 契约。真实示例摘自
-<code>demos/rosetta/09_async_await/main.sla</code>：</p>
+<h2>Type Surface on the Sla Side</h2>
+<p>Sla code uses the names <code>SystemTime</code> / <code>Instant</code> / <code>Duration</code>,
+which the compiler lowers to the time contract. A real example is from
+<code>demos/rosetta/09_async_await/main.sla</code>:</p>
 <pre><code>@import "sa_std/time.sla"
 
 fn unix_now_millis() -&gt; u64 {
@@ -71,14 +71,14 @@ fn elapsed_millis_since_ns(started_ns: u64) -&gt; u64 {
     let started = Instant::from_raw_ns(started_ns);
     return started.elapsed().as_millis();
 }</code></pre>
-<p>可见的对应关系：<code>Instant::now().raw_ns()</code> 即单调纳秒
-（<code>sa_time_instant_ns</code>），<code>Instant::from_raw_ns</code> 从裸纳秒重建，
-<code>Duration::from_millis(ms).as_millis()</code> 在毫秒粒度上构造与读取时长。</p>
+<p>The visible correspondences: <code>Instant::now().raw_ns()</code> is the monotonic nanosecond value
+(<code>sa_time_instant_ns</code>), <code>Instant::from_raw_ns</code> rebuilds from a raw nanosecond value,
+and <code>Duration::from_millis(ms).as_millis()</code> constructs and reads a duration at millisecond granularity.</p>
 
-<div class="note"><span class="label">注意</span>契约注释明确：
-<code>sa_time_utc_now</code> 返回<strong>普通 i32 状态码</strong>而非
-<code>Fallible {status, value}</code>，调用方要按状态码判断成败，
-日历字段通过 <code>&amp;out</code> 指针带回。</div>
+<div class="note"><span class="label">Note</span>The contract comment states explicitly:
+<code>sa_time_utc_now</code> returns a <strong>plain i32 status code</strong> rather than a
+<code>Fallible {status, value}</code>; the caller must judge success or failure by the status code,
+and the calendar fields are returned through the <code>&amp;out</code> pointer.</div>
 
 </body>
 </html>

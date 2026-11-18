@@ -1,32 +1,32 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>宿主侧 sa build-js（JS 编译目标）</title>
+<title>Host-Side sa build-js (JS Compilation Target)</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">命令行参考 &gt; 宿主侧命令 &gt; sa build-js</div>
-<h1>宿主侧 sa build-js（JS 编译目标）</h1>
+<div class="topic-header">Command-Line Reference &gt; Host-Side sa build-js (JS Compilation Target)</div>
+<h1>Host-Side sa build-js (JS Compilation Target)</h1>
 
-<p><code>sa build-js</code> 是与 <code>build-exe</code>（原生）、<code>build-wasm</code>（WASM）并列的第三个发射目标：输入 <code>.sa</code> 源码或 <code>.sab</code> 二进制，输出自包含的 JS 模块（默认 ESM），直接用 <code>node</code> 或 <code>bun</code> 运行，不需要 WASI 运行器，也不需要传 argv。读完本页可以用 JS 目标完成构建＋运行。</p>
+<p><code>sa build-js</code> is the third emission target alongside <code>build-exe</code> (native) and <code>build-wasm</code> (WASM): it takes <code>.sa</code> source or a <code>.sab</code> binary as input and outputs a self-contained JS module (ESM by default), run directly with <code>node</code> or <code>bun</code>, with no need for a WASI runner and no need to pass argv. After reading this page you can build and run with the JS target.</p>
 
-<h2>语法</h2>
+<h2>Syntax</h2>
 <pre><code>usage: sa build-js &lt;file&gt; [options]</code></pre>
 
-<h2>参数</h2>
+<h2>Parameters</h2>
 <table>
-<tr><th>名称</th><th>说明</th></tr>
-<tr><td><code>file</code></td><td>输入的 <code>.sa</code> 源文件或 <code>.sab</code> 二进制。省略时按 workspace 解析包入口。</td></tr>
-<tr><td><code>-o &lt;path&gt;</code></td><td>输出路径；省略时从输入路径推导（<code>.js</code> 后缀）。</td></tr>
-<tr><td><code>--format esm|cjs</code></td><td>JS 模块格式，默认 <code>esm</code>。node / bun 两种格式都能直接运行。</td></tr>
-<tr><td><code>-g</code> / <code>--no-debug</code></td><td>在产物中保留 / 去掉调试注释。</td></tr>
-<tr><td><code>--project-root &lt;dir&gt;</code></td><td>指定仓库根（供测试矩阵共享 <code>.sa_cache</code>；日常使用一般不需要）。</td></tr>
-<tr><td>公共编译选项</td><td>与其余 <code>build-*</code> 命令相同的透传编译选项（优化等级、jobs、DCE 等）。</td></tr>
-<tr><td><code>-h</code>, <code>--help</code></td><td>显示用法并返回 0。</td></tr>
+<tr><th>Name</th><th>Description</th></tr>
+<tr><td><code>file</code></td><td>The input <code>.sa</code> source file or <code>.sab</code> binary. When omitted, the package entry point is resolved via the workspace.</td></tr>
+<tr><td><code>-o &lt;path&gt;</code></td><td>The output path; when omitted, it is derived from the input path (with a <code>.js</code> suffix).</td></tr>
+<tr><td><code>--format esm|cjs</code></td><td>The JS module format, default <code>esm</code>. Both formats run directly under node / bun.</td></tr>
+<tr><td><code>-g</code> / <code>--no-debug</code></td><td>Keep / strip debug comments in the artifact.</td></tr>
+<tr><td><code>--project-root &lt;dir&gt;</code></td><td>Specify the repository root (so the test matrix can share <code>.sa_cache</code>; generally not needed in everyday use).</td></tr>
+<tr><td>Common compilation options</td><td>The same pass-through compilation options as the other <code>build-*</code> commands (optimization level, jobs, DCE, etc.).</td></tr>
+<tr><td><code>-h</code>, <code>--help</code></td><td>Show usage and return 0.</td></tr>
 </table>
 
-<h2>示例</h2>
+<h2>Examples</h2>
 <pre><code># 构建并用 node 运行
 ./zig-out/bin/sa build-js examples/hello.sa -o hello.mjs
 node hello.mjs
@@ -38,28 +38,28 @@ bun hello.mjs
 ./zig-out/bin/sa build-js examples/hello.sa -o hello.cjs --format cjs
 node hello.cjs</code></pre>
 
-<h2>与另外两个目标的对比</h2>
+<h2>Comparison with the other two targets</h2>
 <table>
-<tr><th>目标</th><th>构建命令</th><th>产物量级（hello-world）</th><th>运行方式</th></tr>
-<tr><td>原生</td><td><code>sa build-exe</code></td><td>~6.3MB（含静态运行时），构建约 730ms</td><td>直接执行</td></tr>
-<tr><td>WASM</td><td><code>sa build-wasm --target wasm32</code></td><td>~741KB，构建约 390ms</td><td>WASI runner（node 用 <code>getImportObject</code>，bun 用 <code>wasiImport</code>；argv 必须传 <code>["sa", "&lt;wasm文件名&gt;"]</code>，否则程序以 71 退出且无输出）</td></tr>
-<tr><td>JS</td><td><code>sa build-js</code></td><td>~31KB，构建约 365ms</td><td><code>node</code> / <code>bun</code> 直接运行</td></tr>
+<tr><th>Target</th><th>Build command</th><th>Artifact size (hello-world)</th><th>How to run</th></tr>
+<tr><td>Native</td><td><code>sa build-exe</code></td><td>~6.3MB (including the static runtime), build about 730ms</td><td>Execute directly</td></tr>
+<tr><td>WASM</td><td><code>sa build-wasm --target wasm32</code></td><td>~741KB, build about 390ms</td><td>WASI runner (node uses <code>getImportObject</code>, bun uses <code>wasiImport</code>; argv must be passed as <code>["sa", "&lt;wasm filename&gt;"]</code>, otherwise the program exits with 71 and no output)</td></tr>
+<tr><td>JS</td><td><code>sa build-js</code></td><td>~31KB, build about 365ms</td><td>Run directly with <code>node</code> / <code>bun</code></td></tr>
 </table>
-<p>运行性能口径（1000 万次 u64 累加，5 次中位数）：native 68ms ≈ wasm/bun 67ms ＞ wasm/node 198ms ＞ js/node 3.5s ＞ js/bun 8.7s。小 demo 主要体现运行时启动开销（native ~1ms，wasm/bun ~19ms，js/bun ~23ms，wasm/node ~37ms，js/node ~45ms）。结论：JS 目标构建最快、产物最小，但计算密集循环优先选 native 或 wasm。</p>
+<p>Runtime performance basis (10 million u64 additions, median of 5): native 68ms ≈ wasm/bun 67ms &gt; wasm/node 198ms &gt; js/node 3.5s &gt; js/bun 8.7s. Small demos mainly reflect runtime startup overhead (native ~1ms, wasm/bun ~19ms, js/bun ~23ms, wasm/node ~37ms, js/node ~45ms). Conclusion: the JS target builds fastest and produces the smallest artifact, but for compute-intensive loops prefer native or wasm.</p>
 
-<h2>npm 导入（仅 JS 目标）</h2>
+<h2>npm imports (JS target only)</h2>
 <ul>
-<li>源码中的 <code>#npm_bind</code> 行把一个已声明的 <code>@extern</code> 函数绑定到 npm 包，只在 <code>sa build-js</code> 下 lowering；<code>run</code>、<code>build-exe</code>、<code>build-wasm</code>、<code>build-obj</code>、`test` 遇到它会直接报错（<code>NpmImportJsOnly</code>），提示换用 <code>sa build-js</code>。</li>
-<li>每个 <code>#npm_bind</code> 的目标必须是已声明的 <code>@extern</code> 同名函数，否则在 flatten 阶段报 <code>UnknownNpmBindTarget</code>，所有后端都看不到悬空绑定。</li>
+<li>A <code>#npm_bind</code> line in the source binds a declared <code>@extern</code> function to an npm package, lowered only under <code>sa build-js</code>; <code>run</code>, <code>build-exe</code>, <code>build-wasm</code>, <code>build-obj</code>, and <code>test</code> error out directly when they encounter it (<code>NpmImportJsOnly</code>), prompting you to switch to <code>sa build-js</code>.</li>
+<li>The target of each <code>#npm_bind</code> must be a declared <code>@extern</code> function of the same name, otherwise <code>UnknownNpmBindTarget</code> is reported at the flatten stage, and no backend ever sees a dangling binding.</li>
 </ul>
 
-<h2>故障排查</h2>
+<h2>Troubleshooting</h2>
 <table>
-<tr><th>现象</th><th>原因 / 做法</th></tr>
-<tr><td><code>error: sa build-exe does not support '#npm_bind' ... use 'sa build-js'</code></td><td>npm 绑定是 JS 专属，换 <code>sa build-js</code> 重新构建。</td></tr>
-<tr><td><code>#npm_bind target must name a declared @extern function</code></td><td>绑定的名字没有对应的 <code>@extern</code> 声明，或拼写不一致；逐行对齐两者名字。</td></tr>
-<tr><td>JS 产物运行正确但很慢</td><td>预期内：JS 发射是基于线性内存的未优化代码；计算密集任务换 native / wasm（见上表口径）。</td></tr>
-<tr><td>WASM 在 node 下退出码 71 且无输出</td><td>这是 WASM 侧问题（非 JS）：WASI argv 缺失。argv 必须传 <code>["sa", "&lt;wasm文件名&gt;"]</code>，且构建时加 <code>--target wasm32</code>。</td></tr>
+<tr><th>Symptom</th><th>Cause / action</th></tr>
+<tr><td><code>error: sa build-exe does not support '#npm_bind' ... use 'sa build-js'</code></td><td>npm binding is JS-only; rebuild with <code>sa build-js</code>.</td></tr>
+<tr><td><code>#npm_bind target must name a declared @extern function</code></td><td>The bound name has no corresponding <code>@extern</code> declaration, or the spelling differs; align the two names line by line.</td></tr>
+<tr><td>The JS artifact runs correctly but very slowly</td><td>As expected: JS emission is unoptimized code based on linear memory; for compute-intensive tasks switch to native / wasm (see the basis in the table above).</td></tr>
+<tr><td>WASM exits with code 71 and no output under node</td><td>This is a WASM-side issue (not JS): WASI argv is missing. argv must be passed as <code>["sa", "&lt;wasm filename&gt;"]</code>, and the build must add <code>--target wasm32</code>.</td></tr>
 </table>
 </body>
 </html>

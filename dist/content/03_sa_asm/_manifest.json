@@ -2,65 +2,144 @@
   "topics": [
     {
       "id": "sa-model",
-      "title": "SA 概念模型",
+      "title": "The SA Conceptual Model",
       "file": "01_sa_model.html",
-      "keywords": ["SA", "概念模型", "寄存器", "仿射", "所有权", "CapabilityMask", "能力掩码", "五符号契约"],
+      "keywords": [
+        "SA",
+        "conceptual model",
+        "registers",
+        "affine",
+        "ownership",
+        "CapabilityMask",
+        "capability mask",
+        "five-symbol contract"
+      ],
       "parent": null
     },
     {
       "id": "sa-syntax",
-      "title": "SA 文本汇编速览",
+      "title": "SA Text Assembly at a Glance",
       "file": "02_sa_syntax.html",
-      "keywords": ["SA 汇编", ".sa", "指令集", "助记符", "atomic_load", "call_indirect", "panic"],
+      "keywords": [
+        "SA assembly",
+        ".sa",
+        "instruction set",
+        "mnemonics",
+        "atomic_load",
+        "call_indirect",
+        "panic"
+      ],
       "parent": null
     },
     {
       "id": "sab-format",
-      "title": "SAB 字节码格式概览",
+      "title": "SAB Bytecode Format Overview",
       "file": "03_sab_format.html",
-      "keywords": ["SAB", "字节码", "v4", "section", "symbol_pool", "disasm"],
+      "keywords": [
+        "SAB",
+        "bytecode",
+        "v4",
+        "section",
+        "symbol_pool",
+        "disasm"
+      ],
       "parent": null
     },
     {
       "id": "pipeline",
-      "title": "编译管线：direct 与 fallback",
+      "title": "Compilation Pipeline: Direct and Fallback",
       "file": "04_pipeline.html",
-      "keywords": ["编译管线", "Y 形", "flattener", "Referee", "direct SAB", "fallback", "SLA_SAB_NO_FALLBACK"],
+      "keywords": [
+        "compilation pipeline",
+        "Y shape",
+        "flattener",
+        "Referee",
+        "direct SAB",
+        "fallback",
+        "SLA_SAB_NO_FALLBACK"
+      ],
       "parent": null
     },
     {
       "id": "diagnostics",
-      "title": "错误码与诊断",
+      "title": "Error Codes and Diagnostics",
       "file": "05_diagnostics.html",
-      "keywords": ["错误码", "trap", "TrapReport", "诊断", "JSON", "退出码", "UseAfterMove"],
+      "keywords": [
+        "error codes",
+        "trap",
+        "TrapReport",
+        "diagnostics",
+        "JSON",
+        "exit codes",
+        "UseAfterMove"
+      ],
       "parent": null
     },
     {
       "id": "limitations",
-      "title": "已知限制",
+      "title": "Known Limitations",
       "file": "06_limitations.html",
-      "keywords": ["已知限制", "PhiStateConflict", "借用冲突", "move", "宏限制", "回退路径"],
+      "keywords": [
+        "known limitations",
+        "PhiStateConflict",
+        "borrow conflict",
+        "move",
+        "macro limits",
+        "fallback path"
+      ],
       "parent": null
     },
     {
       "id": "sab-parity-status",
-      "title": "SAB 与 SA-text 一致性进展",
+      "title": "SAB / SA-text Parity Progress",
       "file": "07_sab_parity.html",
-      "keywords": ["SAB", "SA-text", "一致性", "strict sweep", "direct", "剩余问题", "进展", "520"],
+      "keywords": [
+        "SAB",
+        "SA-text",
+        "consistency",
+        "strict sweep",
+        "direct",
+        "remaining issues",
+        "progress",
+        "520"
+      ],
       "parent": null
     },
     {
       "id": "sab-whitepaper",
-      "title": "SAB 格式白皮书（规范）",
+      "title": "SAB Format Whitepaper (Specification)",
       "file": "08_sab_whitepaper.html",
-      "keywords": ["SAB", "白皮书", "规范", "字节布局", "往返对称性", "L1", "L2", "版本兼容", "ULEB128", "黄金向量", "symbol_pool", "InstKind"],
+      "keywords": [
+        "SAB",
+        "whitepaper",
+        "specification",
+        "byte layout",
+        "round-trip symmetry",
+        "L1",
+        "L2",
+        "version compatibility",
+        "ULEB128",
+        "golden vectors",
+        "symbol_pool",
+        "InstKind"
+      ],
       "parent": null
     },
     {
       "id": "ownership-transfer",
-      "title": "transfer：可见的所有权转移",
+      "title": "transfer: Visible Ownership Transfer",
       "file": "09_ownership_transfer.html",
-      "keywords": ["transfer", "所有权转移", "owns_children", "TransferIntoBorrow", "TransferIntoImmutable", "move", "no-op", "Referee", "DropPlan"],
+      "keywords": [
+        "transfer",
+        "ownership transfer",
+        "owns_children",
+        "TransferIntoBorrow",
+        "TransferIntoImmutable",
+        "move",
+        "no-op",
+        "Referee",
+        "DropPlan"
+      ],
       "parent": null
     }
   ]

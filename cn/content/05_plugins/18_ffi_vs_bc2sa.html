@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>FFI vs bc2sa：两条外部代码接入路径</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; FFI vs bc2sa</div>
+<h1>FFI vs bc2sa：两条外部代码接入路径</h1>
+
+<p>SA / SLA 与 C/C++/Rust 世界打交道有<b>方向相反</b>的两条路：</p>
+<ul>
+<li><b>FFI</b> —— SA 侧声明 <code>@extern "C"</code> 函数，<b>运行时</b>经 ABI 直连原生代码。
+代码不进 SA 管线，留在原生的 .so/.dll 里。</li>
+<li><b>bc2sa</b> —— 把外部源码编译成 LLVM bitcode 后<b>翻译进来</b>变成 SA 文本，
+代码进入 SA 管线，受同一套验证/发布产物管理。</li>
+</ul>
+
+<h2>FFI：运行时经 ABI 调用</h2>
+<p>Sla 直接支持导出与调用 C ABI 函数。真实示例见 rosetta demo
+<code>demos/rosetta/111_extern_c_abi/main.sla</code>：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+@no_mangle pub extern "C" fn add_pair(a: i32, b: i32) -&gt; i32 {
+    a + b
+}
+
+fn main() -&gt; i32 {
+    let result = unsafe { add_pair(11, 12) };
+    println("{}", result);
+    return result;
+};</code></pre>
+<p>要点：</p>
+<table>
+<tr><th>项</th><th>说明</th></tr>
+<tr><td>导出</td><td><code>@no_mangle pub extern "C" fn</code> —— 符号按 C ABI 导出，可被宿主或其他原生代码调用</td></tr>
+<tr><td>调用边界</td><td>跨 ABI 的调用包在 <code>unsafe { … }</code> 中，明确标注「验证器管不到对端」</td></tr>
+<tr><td>数据面</td><td><code>sa_std/ffi.sal</code> 提供 <code>CStr</code>/<code>CString</code> 布局常量（复用 Slice 三件）与
+<code>CSTR_*</code>/<code>CSTRING_*</code> 错误码，处理 NUL 结尾与 UTF-8 校验；<code>ffi/cstring.sal</code>、<code>ffi/prelude.sal</code> 为子模块聚合</td></tr>
+<tr><td>成熟度</td><td>可用路径：rosetta 111 有 check/build/test 全链路对照（Rust 参考 main.rs + Sla 版 main.sla）</td></tr>
+</table>
+
+<h2>bc2sa：把 bitcode 翻译成 SA</h2>
+<p><code>sa bc2sa file.bc</code>（详见 <a href="17_bc2sa.html">bc2sa 插件页</a>）走编译期路线：
+clang/rustc 产出 LLVM bitcode → 翻译为 SA 文本 → 进入与手写 SA 相同的后续管线。
+当前只覆盖保守子集（无 phi/switch/select/浮点/原子），O0 产物才可能通过。</p>
+
+<h2>选型对照表</h2>
+<table>
+<tr><th>维度</th><th>FFI</th><th>bc2sa</th></tr>
+<tr><td>方向</td><td>运行时跨 ABI 调用，外部代码留在原生库</td><td>编译期把外部代码翻译为 SA 源</td></tr>
+<tr><td>交付物</td><td>SA 产物 + 动态库两件套</td><td>单一 SA 产物（被翻译的代码已并入）</td></tr>
+<tr><td>安全验证</td><td><code>unsafe</code> 边界内 SA 验证器看不到对端行为</td><td>翻译后的指令进入 SA 验证与静态拒绝流程（GEP 越界报 <code>StaticMemoryOverflow</code>/<code>SA-CLI-019</code>）</td></tr>
+<tr><td>性能特征</td><td>一次 FFI 调用一次 ABI 开销；适合粗粒度调用</td><td>无跨语言运行时开销，与手写 SA 同级</td></tr>
+<tr><td>依赖</td><td>目标平台动态库 + 头文件式契约（<code>.sai</code>/签名声明）</td><td>LLVM 14 工具链（llvm-dis/as）；Windows 上还有子进程路径问题</td></tr>
+<tr><td>覆盖面</td><td>任何符合 C ABI 的函数</td><td>保守子集：无优化、整数、固定 GEP</td></tr>
+<tr><td>适用场景</td><td>调用系统 API、现成第三方库、硬件绑定</td><td>需要纳入 SA 验证/发布的少量自研 C/Rust 叶子函数源码</td></tr>
+<tr><td>成熟度</td><td>可用（demo 全链路验证）</td><td>实验性（评估文档结论）</td></tr>
+</table>
+
+<div class="note"><span class="label">经验法则</span>默认用 FFI 接现成库；只有当目标是「这段 C/Rust 源码必须成为
+SA 产物的一部分」时才考虑 bc2sa，并先确认代码能以 <code>-O0</code> 编译且不含浮点/原子/复杂控制流。</div>
+</body>
+</html>

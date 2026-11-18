@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SAB 字节码格式概览</title>
+<title>SAB Bytecode Format Overview</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SA 汇编与 SAB &gt; SAB 字节码格式概览</div>
-<h1>SAB 字节码格式概览</h1>
+<div class="topic-header">SA Assembly and SAB &gt; SAB Bytecode Format Overview</div>
+<h1>SAB Bytecode Format Overview</h1>
 
-<p>这一页介绍 SA 的二进制 IR 文件格式 SAB（当前主版本 v4）：它是什么、不是什么、
-字节布局如何组织，以及如何生成和反汇编。读完可以识别一个 <code>.sab</code>
-文件并知道它包含哪些信息。字节级规范（编码规则、往返契约、版本政策）
-见 <a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a>。</p>
+<p>This page introduces SAB, SA's binary IR file format (current major version v4): what it is and what it is not,
+how its byte layout is organized, and how to generate and disassemble it. After reading it you will be able to recognize a <code>.sab</code>
+file and know what information it contains. For the byte-level specification (encoding rules, round-trip contract, version policy),
+see the <a href="08_sab_whitepaper.html">SAB Format Whitepaper (Specification)</a> page.</p>
 
-<h2>SAB 是结构化 IR，不是文本压缩包</h2>
-<p>SAB 是 SA 的二进制中间表示。用户面编译主线只有 SA 文本一条
-（生产路径）；<code>.sa</code> 与 <code>.sab</code> 两种输入在宿主内部的
-扁平指令数组处汇合。SAB <strong>不</strong>是把 <code>.sa</code> 源码塞进某个
-section 的容器——v4 明确禁止出现完整 <code>.sa</code> source section，
-指令 payload 里也不再保留每条指令的原始文本（<code>raw_text</code> 为空），
-只保留结构化操作数和少量短字符串（如 call body、const literal 文本）。</p>
+<h2>SAB Is a Structured IR, Not a Text Archive</h2>
+<p>SAB is SA's binary intermediate representation. The user-facing compilation mainline has only one path, SA text
+(the production path); the two inputs <code>.sa</code> and <code>.sab</code> converge inside the host at the
+flat instruction array. SAB is <strong>not</strong> a container that stuffs <code>.sa</code> source into some
+section — v4 explicitly forbids a complete <code>.sa</code> source section,
+and instruction payloads no longer retain the original text of each instruction (<code>raw_text</code> is empty),
+retaining only structured operands and a small number of short strings (such as call bodies and const literal text).</p>
 
-<h2>v4 布局</h2>
+<h2>v4 Layout</h2>
 <pre><code>magic:          4 bytes = "SAB\0"     （十六进制 53 41 42 00）
 version_major:  u8 = 4
 version_minor:  u8 = 0
@@ -33,33 +33,32 @@ section*:
   len:          uleb128
   payload:      len bytes</code></pre>
 
-<p>当前定义了四个 section：</p>
+<p>Four sections are currently defined:</p>
 <table>
-<tr><th>id</th><th>名称</th><th>内容</th></tr>
-<tr><td><code>1</code></td><td><code>symbol_pool</code></td><td>符号名、函数名、label、短文本 token；指令流通过 symbol id 引用它们</td></tr>
-<tr><td><code>2</code></td><td><code>function_sigs</code></td><td>函数签名、参数能力、参数/返回类型、函数 kind、参数寄存器与函数寄存器集合</td></tr>
-<tr><td><code>3</code></td><td><code>const_decls</code></td><td>常量声明与结构化 literal</td></tr>
-<tr><td><code>4</code></td><td><code>instructions</code></td><td>指令 kind、source line、op kind、atomic metadata、operands</td></tr>
+<tr><th>id</th><th>Name</th><th>Contents</th></tr>
+<tr><td><code>1</code></td><td><code>symbol_pool</code></td><td>Symbol names, function names, labels, short text tokens; the instruction stream references them by symbol id</td></tr>
+<tr><td><code>2</code></td><td><code>function_sigs</code></td><td>Function signatures, parameter capabilities, parameter/return types, function kind, parameter registers and function register sets</td></tr>
+<tr><td><code>3</code></td><td><code>const_decls</code></td><td>Constant declarations and structured literals</td></tr>
+<tr><td><code>4</code></td><td><code>instructions</code></td><td>Instruction kind, source line, op kind, atomic metadata, operands</td></tr>
 </table>
 
-<p>用任意十六进制查看器打开一个真实产物，开头即可看到 magic 与符号池中的名字：</p>
+<p>Open a real artifact with any hex viewer and you can immediately see the magic and the names in the symbol pool at the start:</p>
 <pre><code>$ xxd .sla-cache/sab/main-8d82ada9cb6f5e91.sab | head -2
 00000000: 5341 4200 0400 ...   SAB.....
 00000010: 6f6e 6512 6164 645f ...   one.add_one__param_0_x ...</code></pre>
 
-<div class="note"><span class="label">注意</span>SAB v4 保留了后端所需的结构化元数据：
-函数寄存器 id、native 寄存器名、包身份（package identity）、上游位置（upstream location）。
-因此从 SAB 编译仍能产出正确的 DWARF / 符号名，但<strong>不能</strong>还原出逐字的
-<code>.sa</code> 源码。</div>
+<div class="note"><span class="label">Note</span>SAB v4 retains the structured metadata the backend needs:
+function register ids, native register names, package identity, and upstream location.
+Therefore compiling from SAB can still produce correct DWARF / symbol names, but it <strong>cannot</strong> restore verbatim
+<code>.sa</code> source.</div>
 
-<h2>生成与消费</h2>
-<div class="note"><span class="label">状态（2026-11-15）</span>SAB 已封存
-（tag <code>sab-sealed-2026-11-15</code>），定位为优化方向而非生产路径：
-SLA 等所有前端只输出 SA 文本，Zig 编译器默认后端也是 SA 文本，需要 SAB
-须显式 opt-in（<code>sab build</code> 等按名命令，或
-<code>--test-backend sab</code>）。本页余下内容是格式与命令面的事实说明，
-照常有效；口径全文见 <a href="08_sab_whitepaper.html">SAB 格式白皮书</a>
-§1。</div>
+<h2>Generation and Consumption</h2>
+<div class="note"><span class="label">Status (2026-11-15)</span>SAB has been sealed
+(tag <code>sab-sealed-2026-11-15</code>) and positioned as an optimization direction rather than the production path:
+all frontends such as SLA output only SA text, and the Zig compiler's default backend is also SA text; SAB
+requires explicit opt-in (<code>sab build</code> and other named commands, or
+<code>--test-backend sab</code>). The remainder of this page is a factual description of the format and command surface,
+and remains valid as usual; see §1 of the <a href="08_sab_whitepaper.html">SAB Format Whitepaper (Specification)</a> page for the full position statement.</div>
 <pre><code># SLA 源直接编译为 SAB（默认托管在 .sla-cache/sab/，--out 额外落盘一份）
 SA_PLUGIN_DEV=1 sa sla sab build src/main.sla --out /tmp/main.sab
 
@@ -76,26 +75,26 @@ SA_PLUGIN_DEV=1 sa sla sab disasm /tmp/main.sab --out /tmp/main.disasm.sa
 sa check --emit-sab /tmp/main.sab /tmp/main.sa
 sa check --emit-sab /tmp/from_sab.sab /tmp/main.sab   # 输入也可以是 .sab</code></pre>
 
-<div class="note"><span class="label">注意</span>SAB 曾于 2026-09 扶正为一等格式（不再是 experimental），
-但已于 2026-11-15 封存为优化方向（tag <code>sab-sealed-2026-11-15</code>）：默认生产路为 SA 文本，SAB 仅显式 opt-in。
-下文的「一等格式 / 接受 <code>.sab</code> 输入」描述的是格式与命令面的事实能力，
-并非当前默认路径。<code>sa build / run / test / build-exe / build-obj / build-wasm / check</code>
-全部接受 <code>.sab</code> 输入；但入口齐备不等于功能对等——与 <code>.sa</code>
-等价是规范目标（白皮书 §4.1 的 L2 等价要求），当前执行面仍有已登记缺口，
-见 <a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a> §4.1。<strong>损坏的
-<code>.sab</code> 直接报 SAB 专用错误</strong>（截断 → <code>TruncatedSab</code>、
-非 SAB 文件 → <code>InvalidSabMagic</code>），<strong>不会静默回退到
-<code>.sa</code> 文本解析</strong>——拿到 SAB 错误就修文件，不要指望文本兜底。</div>
+<div class="note"><span class="label">Note</span>SAB was promoted to a first-class format in 2026-09 (no longer experimental),
+but was sealed on 2026-11-15 as an optimization direction (tag <code>sab-sealed-2026-11-15</code>): the default production path is SA text, and SAB is explicit opt-in only.
+The “first-class format / accepts <code>.sab</code> input” statements below describe the factual capabilities of the format and command surface,
+not the current default path. <code>sa build / run / test / build-exe / build-obj / build-wasm / check</code>
+all accept <code>.sab</code> input; but complete entry points do not mean functional parity — equivalence with <code>.sa</code>
+is a specification goal (the L2 equivalence requirement in whitepaper §4.1), and the current execution surface still has registered gaps,
+see §4.1 of the <a href="08_sab_whitepaper.html">SAB Format Whitepaper (Specification)</a> page. <strong>A corrupt
+<code>.sab</code> directly reports a SAB-specific error</strong> (truncation → <code>TruncatedSab</code>,
+non-SAB file → <code>InvalidSabMagic</code>), <strong>and does not silently fall back to
+<code>.sa</code> text parsing</strong> — when you get a SAB error, fix the file; do not count on a text fallback.</div>
 
-<p>SA 侧由 <code>src/sab.zig</code> 的 <code>decodeModule</code> 解码。
-解码产物与文本 Flattener 的结构等价是<strong>规范要求</strong>（白皮书 §4.1
-分 L1/L2 两级），当前尚未完全达成：解码出的 FlattenResult 中
-<code>loc_table</code> 全为 null、<code>layout_versions</code> 与
-<code>def_dict</code> 为空，与文本路的全信息表示不对称，差距与证据见
-<a href="08_sab_whitepaper.html">SAB 格式白皮书（规范）</a> §4.1。
-SCI 的通用 SAB v4 encoder 覆盖全部 SA <code>InstKind</code> / <code>OpKind</code> /
-operand tag。</p>
+<p>On the SA side, <code>decodeModule</code> in <code>src/sab.zig</code> performs the decoding.
+Structural equivalence between the decode product and the text Flattener is a <strong>specification requirement</strong> (whitepaper §4.1
+divides it into levels L1/L2), and has not yet been fully achieved: in the decoded FlattenResult,
+<code>loc_table</code> is entirely null, and <code>layout_versions</code> and
+<code>def_dict</code> are empty, which is asymmetric with the full-information representation of the text path; see
+§4.1 of the <a href="08_sab_whitepaper.html">SAB Format Whitepaper (Specification)</a> page for the gaps and evidence.
+SCI's generic SAB v4 encoder covers all SA <code>InstKind</code> / <code>OpKind</code> /
+operand tags.</p>
 
-<p>下一页：<a href="04_pipeline.html">编译管线：direct 与 fallback</a>。</p>
+<p>Next page: <a href="04_pipeline.html">Compilation Pipeline: Direct and Fallback</a>.</p>
 </body>
 </html>

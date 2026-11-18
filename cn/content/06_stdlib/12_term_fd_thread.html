@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>term / fd / thread / testing</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; term / fd / thread / testing</div>
+<h1>term / fd / thread / testing</h1>
+
+<p>这一页汇总四个较小的契约：<code>term.sai</code>（终端 raw 模式与 epoll 事件循环）、
+<code>os/fd.sai</code>（原始文件描述符）、<code>thread.sai</code>（线程）与
+<code>testing/assert.sai</code>(断言)。读完即可做 TUI/事件循环、fd 转换、并发与单元测试。</p>
+
+<h2>term.sai：终端控制与 epoll</h2>
+<p>raw 模式会话和 epoll 实例都是 owned <code>ptr</code>，必须显式关闭。</p>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_term_raw_enter(handle: ptr) -&gt; ^ptr!</code></td><td>进入 raw 模式，返回会话句柄</td></tr>
+<tr><td><code>sa_term_raw_leave(^session: ptr) -&gt; i32!</code></td><td>离开 raw 模式并释放会话</td></tr>
+<tr><td><code>sa_term_winsize(handle: ptr, &amp;out_size: ptr) -&gt; i32!</code></td><td>查询终端窗口尺寸</td></tr>
+<tr><td><code>sa_term_epoll_create(flags: u32) -&gt; ^ptr!</code></td><td>创建 epoll 实例</td></tr>
+<tr><td><code>sa_term_epoll_ctl(epoll: ptr, op: u32, target: ptr, events: u32, data: u64) -&gt; i32!</code></td><td>注册/修改/删除关注的目标句柄</td></tr>
+<tr><td><code>sa_term_epoll_wait(epoll: ptr, &amp;events: ptr, max_events: u64, timeout_ms: i32, &amp;out_count: ptr) -&gt; i32!</code></td><td>等待事件，超时毫秒</td></tr>
+<tr><td><code>sa_term_epoll_close(^epoll: ptr) -&gt; i32!</code></td><td>关闭 epoll 实例</td></tr>
+</table>
+
+<h2>os/fd.sai：原始描述符</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_std_fd_as_raw(handle: u64, &amp;out_fd: ptr) -&gt; i32</code> / <code>sa_std_fd_from_raw(fd: i32, &amp;out_handle: ptr) -&gt; i32</code></td><td>句柄与原始 fd 互转（另有 <code>_into_raw</code>、<code>_dup_raw</code>)</td></tr>
+<tr><td><code>sa_std_fd_dup(handle: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>复制句柄</td></tr>
+<tr><td><code>sa_std_fd_close_raw(fd: i32) -&gt; i32</code></td><td>关闭原始 fd</td></tr>
+<tr><td><code>sa_std_fd_is_terminal(handle: u64, &amp;out_flag: ptr) -&gt; i32</code></td><td>是否指向终端</td></tr>
+</table>
+
+<h2>thread.sai：线程</h2>
+<p>句柄是运行时持有的不透明 <code>i32</code> 槽位。</p>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>pthread_spawn(*entry: ptr, *arg: ptr) -&gt; i32</code> / <code>pthread_spawn_detached(...) -&gt; i32</code></td><td>创建 joinable / 分离线程</td></tr>
+<tr><td><code>pthread_join(handle: i32, *out: ptr) -&gt; i32</code> / <code>pthread_drop(handle: i32) -&gt; void</code></td><td>join 或直接丢弃句柄</td></tr>
+<tr><td><code>sa_thread_current_id() -&gt; u64</code> / <code>sa_thread_yield_now() -&gt; i32</code></td><td>当前线程 ID / 让出调度</td></tr>
+<tr><td><code>sa_thread_as_pthread_t(handle: i32, &amp;out_raw: ptr) -&gt; i32</code> 等</td><td>与原生 pthread_t 互转；<code>sa_thread_raw_pthread_join(raw: u64, *out: ptr)</code> 直接 join 原生句柄</td></tr>
+</table>
+
+<h2>testing/assert.sai：测试断言</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>sa_assert_eq_i64(actual: i64, expected: i64, code: i32) -&gt; void</code></td><td>i64 相等断言，失败时以 code panic</td></tr>
+<tr><td><code>sa_assert_eq_i64_at(actual: i64, expected: i64, code: i32, &amp;file: ptr, file_len: u64, line: u32, col: u32) -&gt; void</code></td><td>带源码位置的版本</td></tr>
+<tr><td><code>sa_test_debug_i64(&amp;name: ptr, name_len: u64, value: i64) -&gt; void</code></td><td>测试期输出调试值</td></tr>
+<tr><td><code>sa_test_fallible_i32_value(value: i32) -&gt; i32!</code></td><td>把普通 i32 包成 fallible 值供测试</td></tr>
+</table>
+<p>Sla 的测试入口是 <code>@test "名字"() { ... }</code> 块，配合
+<code>panic(code)</code> 表达失败，例如：</p>
+<pre><code>@test "rosetta 004 04_loop"() {
+    let got = zeroed_buffer_sum();
+    if got != 0 {
+        panic(4);
+    };
+};</code></pre>
+
+<div class="note"><span class="label">注意</span>同步原语（Mutex/RwLock/Condvar/Barrier/
+atomic/Mpsc/Once）位于 <code>sa_std/sync/</code> 下，均为 <code>.sa</code>/<code>.sal</code>
+宏契约而非 extern，例如 demos 中的
+<code>121_rwlock_reader_writer</code>、<code>122_condvar_wait_notify</code>、
+<code>123_barrier_sync</code> 即基于它们实现。</div>
+
+</body>
+</html>

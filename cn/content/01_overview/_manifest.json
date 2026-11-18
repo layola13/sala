@@ -1,0 +1,383 @@
+{
+  "topics": [
+    {
+      "id": "sa-sla-overview",
+      "title": "SA 与 SLA 概述",
+      "file": "01_sa_sla_overview.html",
+      "keywords": [
+        "SA",
+        "Safe ASM",
+        "SLA",
+        "Sla",
+        "IR",
+        "Referee",
+        "Y 型架构"
+      ],
+      "parent": null
+    },
+    {
+      "id": "install-build",
+      "title": "安装与构建",
+      "file": "02_install_build.html",
+      "keywords": [
+        "安装",
+        "构建",
+        "zig build",
+        "LLVM",
+        "install.bat",
+        "Windows",
+        "全自动安装包",
+        "安装包",
+        "install_bundle_windows.ps1",
+        "package_windows.ps1",
+        "bundle",
+        "图形安装器"
+      ],
+      "parent": null
+    },
+    {
+      "id": "quick-start",
+      "title": "快速上手：第一个 SLA 程序",
+      "file": "03_quick_start.html",
+      "keywords": [
+        "快速上手",
+        "sa sla init",
+        "check",
+        "build-exe",
+        "hello world"
+      ],
+      "parent": null
+    },
+    {
+      "id": "toolchain",
+      "title": "工具链组成",
+      "file": "04_toolchain.html",
+      "keywords": [
+        "工具链",
+        "sa.exe",
+        "插件",
+        "sa_std",
+        "skills"
+      ],
+      "parent": null
+    },
+    {
+      "id": "projects-workspace",
+      "title": "项目与 workspace",
+      "file": "05_projects_workspace.html",
+      "keywords": [
+        "sa.mod",
+        "workspace",
+        ".sla-cache",
+        "demos",
+        "项目结构"
+      ],
+      "parent": null
+    },
+    {
+      "id": "scodex-mini",
+      "title": "scodex-mini：SLA 写成的 Codex 最小单元",
+      "file": "06_scodex_mini.html",
+      "keywords": [
+        "scodex-mini",
+        "codex",
+        "agent",
+        "SSE",
+        "会话持久化",
+        "--resume",
+        "Responses",
+        "Chat Completions"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cxu-rewrite-readiness",
+      "title": "CXU 前后端 SLA 重构就绪度审核",
+      "file": "07_cxu_readiness.html",
+      "keywords": [
+        "CXU",
+        "codex-react-ui",
+        "重构",
+        "就绪度",
+        "stdin",
+        "PTY",
+        "SAX",
+        "后端",
+        "前端"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cxu-rewrite-roadmap",
+      "title": "CXU 完整 SLA 重构路线图",
+      "file": "08_cxu_rewrite_roadmap.html",
+      "keywords": [
+        "CXU",
+        "重构",
+        "路线图",
+        "P0",
+        "双向 spawn",
+        "PTY",
+        "tree-sitter",
+        "试点",
+        "SAX"
+      ],
+      "parent": null
+    },
+    {
+      "id": "nginx-rebuild-roadmap",
+      "title": "sangx：自研 Web 服务器（nginx 重构）规划",
+      "file": "09_nginx_rebuild_roadmap.html",
+      "keywords": [
+        "nginx",
+        "sangx",
+        "Web 服务器",
+        "重构",
+        "反向代理",
+        "VM 插件",
+        "配置即代码",
+        "phase",
+        "路线图"
+      ],
+      "parent": null
+    },
+    {
+      "id": "backend-coverage",
+      "title": "后台服务覆盖图：已有、立项与缺口",
+      "file": "10_backend_coverage.html",
+      "keywords": [
+        "后台服务",
+        "覆盖图",
+        "缺口",
+        "Raft",
+        "共识",
+        "sangx",
+        "sardis",
+        "消息队列",
+        "全文搜索",
+        "对象存储"
+      ],
+      "parent": null
+    },
+    {
+      "id": "sardis-roadmap",
+      "title": "sardis（暂名）：Redis 重构规划",
+      "file": "11_sardis_roadmap.html",
+      "keywords": [
+        "sardis",
+        "Redis",
+        "KV",
+        "缓存",
+        "RESP",
+        "紧凑编码",
+        "复制",
+        "路线图"
+      ],
+      "parent": null
+    },
+    {
+      "id": "haxe-backend",
+      "title": "Haxe 编译后端：SA 作为 Haxe 的底层目标",
+      "file": "12_haxe_backend.html",
+      "keywords": [
+        "Haxe",
+        "HashLink",
+        "hl2sa",
+        "编译后端",
+        "GC",
+        "底层目标"
+      ],
+      "parent": null
+    },
+    {
+      "id": "goroutine-runtime",
+      "title": "goroutine 运行时：引入 sa_std 的设计讨论",
+      "file": "13_goroutine_runtime.html",
+      "keywords": [
+        "goroutine",
+        "协程",
+        "调度器",
+        "channel",
+        "sa_std",
+        "运行时",
+        "M:N"
+      ],
+      "parent": null
+    },
+    {
+      "id": "cpp-go-frontends",
+      "title": "cpp2sa 与 go2sa：两个新前端的立项讨论",
+      "file": "14_cpp2sa_go2sa.html",
+      "keywords": [
+        "cpp2sa",
+        "go2sa",
+        "C++",
+        "Go",
+        "bc2sa",
+        "前端",
+        "转换器",
+        "TinyGo"
+      ],
+      "parent": null
+    },
+    {
+      "id": "go-feature-candidates",
+      "title": "Go 生态候选语法与底层成套引入",
+      "file": "15_go_feature_candidates.html",
+      "keywords": [
+        "Go",
+        "goroutine",
+        "defer",
+        "recover",
+        "go:embed",
+        "隐式接口",
+        "候选语法",
+        "成套引入"
+      ],
+      "parent": null
+    },
+    {
+      "id": "erlang-verse-candidates",
+      "title": "Erlang 并发候选与 Verse 事务调研评估",
+      "file": "16_erlang_verse.html",
+      "keywords": [
+        "Erlang",
+        "BEAM",
+        "监督树",
+        "monitor",
+        "OTP",
+        "Verse",
+        "事务",
+        "STM",
+        "效应标注"
+      ],
+      "parent": null
+    },
+    {
+      "id": "verse-game-profile",
+      "title": "Verse 游戏向吸纳与插件承载",
+      "file": "17_verse_game_profile.html",
+      "keywords": [
+        "Verse",
+        "游戏",
+        "插件",
+        "语言前端",
+        "方言",
+        "事务推测",
+        "预测回滚",
+        "netcode",
+        "sla_ecs"
+      ],
+      "parent": null
+    },
+    {
+      "id": "mobile-transpile",
+      "title": "移动端转译：sla2swift 与 sla2kotlin",
+      "file": "18_mobile_transpile.html",
+      "keywords": [
+        "Android",
+        "iOS",
+        "Swift",
+        "Kotlin",
+        "sla2swift",
+        "sla2kotlin",
+        "移动端",
+        "转译",
+        "交付客户"
+      ],
+      "parent": null
+    },
+    {
+      "id": "side-tracks-foundation-gaps",
+      "title": "支线研究与底层不足登记",
+      "file": "19_side_tracks_foundation_gaps.html",
+      "keywords": [
+        "支线",
+        "底层不足",
+        "登记册",
+        "sla2ts",
+        "SAX",
+        "跨平台",
+        "std 修复优先",
+        "内存模型",
+        "整数溢出"
+      ],
+      "parent": null
+    },
+    {
+      "id": "gaokao-unified-engine",
+      "title": "高考统一引擎「衡 · Heng」（生化核心演算先行）：开发计划",
+      "file": "20_biochem_education_language.html",
+      "keywords": [
+        "衡",
+        "Heng",
+        "高考",
+        "统一引擎",
+        "四科一体",
+        "数学",
+        "物理",
+        "化学",
+        "生物",
+        "教育",
+        "分级教学",
+        "反应网络",
+        "热力学",
+        "守恒",
+        "检查器",
+        "核心演算",
+        "CTMC",
+        "three.js",
+        "ECS",
+        "sla_ecs",
+        "全覆盖验证",
+        "SLA 实现"
+      ],
+      "parent": null
+    },
+    {
+      "id": "sax3d-whitepaper",
+      "title": "SAX3D 3D 资产格式与 SLASL 着色器语言白皮书",
+      "file": "21_sax3d_whitepaper.html",
+      "keywords": [
+        "SAX3D",
+        "SLASL",
+        "3D 格式",
+        "白皮书",
+        "mesh",
+        "材质",
+        "纹理",
+        "shader",
+        "着色器",
+        "glTF",
+        "GLB",
+        "转换器",
+        "动画",
+        "clip",
+        "骨骼",
+        "蒙皮",
+        "SAX",
+        "接口表",
+        "逻辑通道",
+        "WebGPU"
+      ],
+      "parent": null
+    },
+    {
+      "id": "silent-surface-census",
+      "title": "静默失败面普查（2026-11-17）",
+      "file": "22_silent_surface.html",
+      "keywords": [
+        "静默失败",
+        "无声错误",
+        "兜底",
+        "else",
+        "catch",
+        "orelse",
+        "transfer",
+        "普查",
+        "待审核"
+      ],
+      "parent": null
+    }
+  ]
+}

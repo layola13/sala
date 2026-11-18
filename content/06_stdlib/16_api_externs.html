@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>extern 函数契约全表</title>
+<title>Complete extern Function Contract Table</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">标准库 &gt; API 总索引 &gt; extern 函数契约</div>
-<h1>extern 函数契约全表</h1>
+<div class="topic-header">Standard Library &gt; API Index &gt; Complete extern Function Contract Table</div>
+<h1>Complete extern Function Contract Table</h1>
 
-<p>共 <b>569</b> 个 <code>@extern</code> 契约，按模块（即导入路径去掉 <code>sa_std/</code> 前缀与扩展名）分组。说明列取自契约文件中紧邻的注释。</p>
-<h3><code>encoding/json.sai</code>（51 个）</h3>
+<p>A total of <b>569</b> <code>@extern</code> contracts, grouped by module (that is, the import path with the <code>sa_std/</code> prefix and the extension removed). The description column is taken from the comment immediately adjacent to each contract in the contract file.</p>
+<h3><code>encoding/json.sai</code>(51)</h3>
 <table>
 <tr><td><code>sa_json_parse(&amp;json_bytes: ptr, len: u64) -&gt; ^ptr</code></td><td>SA-facing contracts for the Zig-backed sa_std.encoding.json module. JSON documents and derived nodes are opaque owned ptr values and must be freed explicitly. JSON stringification returns an owned byte buffer handle.</td></tr>
 <tr><td><code>sa_json_kind(node: ptr) -&gt; u32</code></td><td></td></tr>
@@ -64,7 +64,7 @@
 <tr><td><code>sa_json_writer_finish_buffer(writer: ptr) -&gt; ptr</code></td><td></td></tr>
 <tr><td><code>sa_json_writer_free(^writer: ptr) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>env.sai</code>（22 个）</h3>
+<h3><code>env.sai</code>(22)</h3>
 <table>
 <tr><td><code>sa_env_get(key: ptr, key_len: u64) -&gt; u64</code></td><td>SA-facing contracts for environment variable helpers. Env values are copied into owned buffer handles and must be freed explicitly.</td></tr>
 <tr><td><code>sa_env_has(key: ptr, key_len: u64) -&gt; i32</code></td><td></td></tr>
@@ -89,7 +89,7 @@
 <tr><td><code>sa_env_buffer_len(buffer: u64) -&gt; u64</code></td><td></td></tr>
 <tr><td><code>sa_env_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>fmt.sai</code>（14 个）</h3>
+<h3><code>fmt.sai</code>(14)</h3>
 <table>
 <tr><td><code>sa_fmt_i64(value: i64, base: u32) -&gt; u64</code></td><td>SA-facing contracts for the Zig-backed sa_std.fmt module. Formatting helpers return owned buffer handles; free them explicitly.</td></tr>
 <tr><td><code>sa_fmt_u64(value: u64, base: u32) -&gt; u64</code></td><td></td></tr>
@@ -106,7 +106,7 @@
 <tr><td><code>sa_fmt_buffer_write_to(buffer: u64, writer: u64) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_fmt_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>fs.sai</code>（120 个）</h3>
+<h3><code>fs.sai</code>(120)</h3>
 <table>
 <tr><td><code>sa_fs_file_open(&amp;path: ptr, path_len: u64, flags: u32) -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_std.fs module. File handles are opaque owned ptr values and must be closed explicitly.</td></tr>
 <tr><td><code>sa_fs_file_create(&amp;path: ptr, path_len: u64) -&gt; i32</code></td><td></td></tr>
@@ -229,7 +229,7 @@
 <tr><td><code>sa_fs_mkfifo(&amp;path: ptr, path_len: u64, mode: u32) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_std_fs_read_link(&amp;path: ptr, path_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>http2.sai</code>（13 个）</h3>
+<h3><code>http2.sai</code>(13)</h3>
 <table>
 <tr><td><code>sa_std_http2_supported(&amp;out_supported: ptr) -&gt; i32</code></td><td>sa_std HTTP/2 surface — real libnghttp2 backend living in the sci runtime.  String/JSON/binary outputs are returned as registered u64 buffer handles, following the same convention as sa_std.fs.read_*: read bytes/length with sa_std_http2_buffer_data / sa_std_http2_buffer_len and release with sa_std_http2_buffer_free.</td></tr>
 <tr><td><code>sa_std_http2_client_request(&amp;url: ptr, url_len: u64, &amp;method: ptr, method_len: u64, &amp;body: ptr, body_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
@@ -245,11 +245,11 @@
 <tr><td><code>sa_std_http2_buffer_len(buffer: u64) -&gt; u64</code></td><td></td></tr>
 <tr><td><code>sa_std_http2_buffer_free(^buffer: u64) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>io/print.sai</code>（1 个）</h3>
+<h3><code>io/print.sai</code>(1)</h3>
 <table>
 <tr><td><code>sa_print_bytes(&amp;msg: ptr, len: u64) -&gt; void</code></td><td>Legacy print contract for demos and simple applications. Implemented by the Zig-backed sa_std.io library as stdout().write_all(bytes).</td></tr>
 </table>
-<h3><code>io.sai</code>（15 个）</h3>
+<h3><code>io.sai</code>(15)</h3>
 <table>
 <tr><td><code>sa_io_stdin() -&gt; u64</code></td><td>SA-facing contracts for the Zig-backed sa_std.io module. Handles returned by stdio accessors are borrowed process handles; do not close them.</td></tr>
 <tr><td><code>sa_io_stdout() -&gt; u64</code></td><td></td></tr>
@@ -267,7 +267,7 @@
 <tr><td><code>sa_io_buffer_free(^buffer: ptr) -&gt; i32!</code></td><td></td></tr>
 <tr><td><code>sa_print_bytes(&amp;msg: ptr, len: u64) -&gt; void</code></td><td>Legacy demo compatibility: equivalent to stdout().write_all(bytes).</td></tr>
 </table>
-<h3><code>net.sai</code>（220 个）</h3>
+<h3><code>net.sai</code>(220)</h3>
 <table>
 <tr><td><code>sa_std_last_error() -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_std.net module. TcpStream, TcpListener, UdpSocket, and NetAddr values are opaque u64 handles.</td></tr>
 <tr><td><code>sa_std_net_error_code_from_status(status: i32) -&gt; i32</code></td><td></td></tr>
@@ -490,7 +490,7 @@
 <tr><td><code>sa_net_socket_addr_v4_format_ascii(&amp;addr: ptr, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_net_socket_addr_v6_format_ascii(&amp;addr: ptr, &amp;out: ptr, out_cap: u64, &amp;out_len: ptr) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>netx.sai</code>（7 个）</h3>
+<h3><code>netx.sai</code>(7)</h3>
 <table>
 <tr><td><code>sa_netx_init(slot_capacity: u64, reactor_count: u32) -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_netx runtime module. The runtime owns sockets, slot pools, parsing, and io_uring orchestration. Every entry returns a plain i32 status code (SA_NETX_OK / SA_NETX_ERR_*), matching the `pub export fn ... i32` signatures in src/runtime/sa_net_uring.zig.</td></tr>
 <tr><td><code>sa_netx_listen(&amp;host: ptr, host_len: u64, port: u16) -&gt; i32</code></td><td></td></tr>
@@ -500,7 +500,7 @@
 <tr><td><code>sa_netx_close_slot(slot_id: u32) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_netx_shutdown() -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>os/fd.sai</code>（7 个）</h3>
+<h3><code>os/fd.sai</code>(7)</h3>
 <table>
 <tr><td><code>sa_std_fd_as_raw(handle: u64, &amp;out_fd: ptr) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_std_fd_dup(handle: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
@@ -510,7 +510,7 @@
 <tr><td><code>sa_std_fd_close_raw(fd: i32) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_std_fd_is_terminal(handle: u64, &amp;out_flag: ptr) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>process.sai</code>（54 个）</h3>
+<h3><code>process.sai</code>(54)</h3>
 <table>
 <tr><td><code>sa_std_process_run(&amp;argv: ptr, argv_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td>SA-facing contracts for the Zig-backed sa_std.process module. Process handles are opaque u64 resource handles and must be closed explicitly. `argv` is a borrowed pointer to an array of SaProcessArgv records.</td></tr>
 <tr><td><code>sa_std_process_run_cwd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, &amp;out_handle: ptr) -&gt; i32</code></td><td></td></tr>
@@ -567,7 +567,7 @@
 <tr><td><code>sa_std_process_exec_capture_cwd(&amp;argv: ptr, argv_len: u64, &amp;cwd: ptr, cwd_len: u64, &amp;out_code: ptr, &amp;out_stdout: ptr, &amp;out_stderr: ptr) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_std_process_close(handle: u64) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>string.sai</code>（11 个）</h3>
+<h3><code>string.sai</code>(11)</h3>
 <table>
 <tr><td><code>sa_str_is_ascii(ptr: ptr, len: u64) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_str_eq_ignore_ascii_case(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; i32</code></td><td></td></tr>
@@ -581,7 +581,7 @@
 <tr><td><code>sa_str_utf8_char_range_at(ptr: ptr, len: u64, char_index: u64, out_start: ptr, out_len: ptr) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_string_concat(left: ptr, left_len: u64, right: ptr, right_len: u64) -&gt; u64</code></td><td></td></tr>
 </table>
-<h3><code>term.sai</code>（7 个）</h3>
+<h3><code>term.sai</code>(7)</h3>
 <table>
 <tr><td><code>sa_term_raw_enter(handle: ptr) -&gt; ^ptr!</code></td><td>SA-facing contracts for terminal control and epoll-backed event loops. Raw-mode sessions and epoll instances are opaque owned ptr values and must be closed explicitly.</td></tr>
 <tr><td><code>sa_term_raw_leave(^session: ptr) -&gt; i32!</code></td><td></td></tr>
@@ -591,14 +591,14 @@
 <tr><td><code>sa_term_epoll_wait(epoll: ptr, &amp;events: ptr, max_events: u64, timeout_ms: i32, &amp;out_count: ptr) -&gt; i32!</code></td><td></td></tr>
 <tr><td><code>sa_term_epoll_close(^epoll: ptr) -&gt; i32!</code></td><td></td></tr>
 </table>
-<h3><code>testing/assert.sai</code>（4 个）</h3>
+<h3><code>testing/assert.sai</code>(4)</h3>
 <table>
 <tr><td><code>sa_assert_eq_i64(actual: i64, expected: i64, code: i32) -&gt; void</code></td><td></td></tr>
 <tr><td><code>sa_assert_eq_i64_at(actual: i64, expected: i64, code: i32, &amp;file: ptr, file_len: u64, line: u32, col: u32) -&gt; void</code></td><td></td></tr>
 <tr><td><code>sa_test_debug_i64(&amp;name: ptr, name_len: u64, value: i64) -&gt; void</code></td><td></td></tr>
 <tr><td><code>sa_test_fallible_i32_value(value: i32) -&gt; i32!</code></td><td></td></tr>
 </table>
-<h3><code>text/regex.sai</code>（7 个）</h3>
+<h3><code>text/regex.sai</code>(7)</h3>
 <table>
 <tr><td><code>sa_regex_compile(&amp;pattern: ptr, pattern_len: u64, cflags: i32) -&gt; ^ptr</code></td><td>SA-facing contracts for the Zig-backed sa_std.text.regex module. Regex and regex match handles are opaque owned ptr values.</td></tr>
 <tr><td><code>sa_regex_match(regex: ptr, &amp;text: ptr, text_len: u64) -&gt; ^ptr</code></td><td></td></tr>
@@ -608,7 +608,7 @@
 <tr><td><code>sa_regex_free(^regex: ptr) -&gt; i32!</code></td><td></td></tr>
 <tr><td><code>sa_regex_match_free(^match: ptr) -&gt; i32!</code></td><td></td></tr>
 </table>
-<h3><code>thread.sai</code>（9 个）</h3>
+<h3><code>thread.sai</code>(9)</h3>
 <table>
 <tr><td><code>pthread_spawn(*entry: ptr, *arg: ptr) -&gt; i32</code></td><td>SA-facing contracts for the std::thread runtime facade. Handles are opaque i32 slots owned by the Zig-backed sa_std runtime.</td></tr>
 <tr><td><code>pthread_spawn_detached(*entry: ptr, *arg: ptr) -&gt; i32</code></td><td></td></tr>
@@ -620,7 +620,7 @@
 <tr><td><code>sa_thread_into_pthread_t(handle: i32, &amp;out_raw: ptr) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_thread_raw_pthread_join(raw: u64, *out: ptr) -&gt; i32</code></td><td></td></tr>
 </table>
-<h3><code>time.sai</code>（7 个）</h3>
+<h3><code>time.sai</code>(7)</h3>
 <table>
 <tr><td><code>sa_time_instant_ns() -&gt; u64</code></td><td>SA-facing contracts for monotonic, system, and UTC time helpers. Time values are exposed as raw integers; the UTC calendar helper writes into SaTimeDate.</td></tr>
 <tr><td><code>sa_time_unix_s() -&gt; i64</code></td><td></td></tr>
@@ -630,7 +630,7 @@
 <tr><td><code>sa_time_sleep_ns(ns: u64) -&gt; i32</code></td><td></td></tr>
 <tr><td><code>sa_time_sleep_ms(ms: u64) -&gt; i32</code></td><td></td></tr>
 </table>
-<h2>本节导航</h2>
-<p><a href="15_api_index.html">API 总索引</a> | <a href="16_api_externs.html">extern 函数契约</a> | <a href="17_api_macros.html">汇编宏清单</a> | <a href="18_api_layout.html">布局常量清单</a></p>
+<h2>Section navigation</h2>
+<p><a href="15_api_index.html">API Index</a> | <a href="16_api_externs.html">Complete extern Function Contract Table</a> | <a href="17_api_macros.html">Assembly Macro Catalog</a> | <a href="18_api_layout.html">Layout Constant Catalog</a></p>
 </body>
 </html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>sla — SLA 编译器插件（概述）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">插件参考 &gt; sla — SLA 编译器插件（概述）</div>
+<h1>sla — SLA 编译器插件（概述）</h1>
+<div class="note"><span class="label">Zig 0.17</span>本插件使用 <b>Zig 0.17</b> 编译：<code>0.17</code> 分支以 Zig 0.17 构建通过并通过 Zig 单元测试；旧的 0.14.1 分支保留不动。</div>
+
+<p><code>sa_plugin_sla</code> 是 Safe ASM (SA) 的 Sla 语言编译器与工具插件：提供 Sla → SA / SAB 的编译能力，
+并向宿主 SA 环境暴露 <code>sla</code> 能力段与一组 CLI 命令。本页只给定位与入口；
+SLA 语言的语法、类型与所有权规则见「SLA 语言参考」章节，命令行细节见「命令行参考」章节。</p>
+
+<h2>定位</h2>
+<ul>
+<li>能力段：<code>sla</code>；无插件依赖；权限为项目目录读写创建、<code>HOME</code>/<code>PATH</code>/<code>SA_*</code> 环境变量、允许 spawn <code>/opt/zig/zig</code>。</li>
+<li>项目处于 1.0 之前的活跃开发阶段。现行口径（2026-11-15）：<strong>SA 文本是唯一生产路径</strong>——
+前端发射 <code>.sa</code> 文本再由宿主 Flattener 解析；SAB 结构化产物已封存为优化方向
+（tag <code>sab-sealed-2026-11-15</code>），仅显式 opt-in。SAB 路无 SA 兼容回退（2026-09-28 起拆除），未覆盖特性显式报错。</li>
+<li>成熟度快照（2026-07-07 本地实测）：前端检查 <code>sa sla check</code> 通过 306/313 个 demo，
+端到端 <code>sa sla build-exe</code> 约 76%（239/313）；具体指标以仓库内 <code>docs/roadmap_status_cn.md</code> 为准。</li>
+<li>Sla 直接导入 SA 顶层 <code>sa_std</code> 包（如 <code>@import "sa_std/io/print.sai"</code>），
+并默认使用编译器托管的生命周期清理——用户面 <code>.sla</code> 不需要显式释放。</li>
+</ul>
+
+<h2>主要命令一览</h2>
+<table>
+<tr><th>命令</th><th>说明</th></tr>
+<tr><td><code>sa sla init [path]</code></td><td>创建最小项目骨架（<code>sa.mod</code> + <code>src/main.sla</code>）</td></tr>
+<tr><td><code>sa sla check &lt;file&gt;</code></td><td>词法/语法/类型检查，不发射 SA 汇编</td></tr>
+<tr><td><code>sa sla build &lt;file&gt;</code></td><td>编译为经校验的 <code>.sa</code> 文件</td></tr>
+<tr><td><code>sa sla build-exe &lt;file&gt; -o out</code></td><td>默认走 SA 文本路发射 <code>.sa</code> 再编译为可执行文件；显式 <code>--test-backend sab</code> 才走 direct SAB 路</td></tr>
+<tr><td><code>sa sla sab build|workspace|disasm</code></td><td>SAB 直编译 / workspace 成员编译 / 反汇编（短别名 <code>slab ...</code>）</td></tr>
+<tr><td><code>sa sla test &lt;file&gt;</code></td><td>编译测试文件并在 <code>sa test</code> 下运行，后端可选 <code>auto/sab/sa</code></td></tr>
+</table>
+
+<div class="note"><span class="label">重复构建</span>源码零变更时 <code>build</code> / <code>build-exe</code> / <code>test</code> 不再全量重编：前端新鲜度门按依赖闭包（根文件 + 全部导入模块 + 契约文件 + 同级 <code>sa.mod</code>）的内容哈希复用 <code>.sla-cache/fresh/</code> 中的产物，整条前端管线跳过；SA 侧 <code>build-exe</code> 缓存覆盖全部发射路径（含 <code>--jobs</code> 的 CGU 路径），且 <code>sla</code> 不再默认给 SA 命令追加 <code>--jobs auto</code>。<code>SLA_NO_FRESHNESS_CACHE=1</code> 可禁用前端门；原理与量级见 FAQ 的「性能与优化预期」。</div>
+
+<div class="note"><span class="label">注意</span>本插件的 <code>docs/</code> 目录有上百篇文档
+（架构、SAB 管线、路线图状态、基准测试、语言规范、教程系列等），全部以仓库为准。
+已知局限包括：<code>&amp;mut T</code> 尚未引入（当前由 <code>&amp;self</code> 覆盖读写、SA Referee 兜底）、
+部分语言特性仍走兼容回退路径、<code>demos/rosetta</code> 样例并非全部可端到端通过。</div>
+</body>
+</html>

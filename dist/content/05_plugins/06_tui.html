@@ -1,51 +1,52 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>tui — 终端原语插件</title>
+<title>tui — Terminal Primitives Plugin</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">插件参考 &gt; tui — 终端原语插件</div>
-<h1>tui — 终端原语插件</h1>
-<div class="note"><span class="label">Zig 0.17</span>本插件使用 <b>Zig 0.17</b> 编译：<code>0.17</code> 分支以 Zig 0.17 构建通过并通过 Zig 单元测试；旧的 0.14.1 分支保留不动。</div>
+<div class="topic-header">Plugin Reference &gt; tui — Terminal Primitives Plugin</div>
+<h1>tui — Terminal Primitives Plugin</h1>
+<div class="note"><span class="label">Zig 0.17</span>This plugin is built with <b>Zig 0.17</b>: the <code>0.17</code> branch builds with Zig 0.17 and passes the Zig unit tests; the old 0.14.1 branch is kept unchanged.</div>
 
-<p><code>sa_plugin_tui</code> 提供一个小而带版本的 C/SAI ABI，覆盖终端句柄所有权、尺寸查询、UTF-8 输出、
-模式切换与字节级输入事件。它是底层宿主适配器，不是完整 TUI 应用框架。</p>
+<p><code>sa_plugin_tui</code> provides a small, versioned C/SAI ABI covering terminal handle ownership, size queries, UTF-8 output,
+mode switching, and byte-level input events. It is a low-level host adapter, not a complete TUI application framework.</p>
 
-<h2>基本事实</h2>
+<h2>Basic facts</h2>
 <ul>
-<li>能力段：<code>tui.terminal</code>、<code>tui.input</code>、<code>tui.ansi</code>；无插件依赖。</li>
-<li>权限极小：无文件系统、无网络、无子进程；环境变量仅 <code>TERM</code>、<code>COLORTERM</code>、<code>TERM_PROGRAM</code>、<code>WT_SESSION</code>、<code>TMUX</code>。</li>
-<li>无 CLI 命令；契约在 <code>tui.sai</code>；产物为 <code>libtui.so</code> / <code>tui.dll</code>。</li>
+<li>Capability segments: <code>tui.terminal</code>, <code>tui.input</code>, <code>tui.ansi</code>; no plugin dependencies.</li>
+<li>Extremely small permissions: no filesystem, no network, no child processes; environment variables only <code>TERM</code>, <code>COLORTERM</code>, <code>TERM_PROGRAM</code>, <code>WT_SESSION</code>, <code>TMUX</code>.</li>
+<li>No CLI commands; the contract is in <code>tui.sai</code>; artifacts are <code>libtui.so</code> / <code>tui.dll</code>.</li>
 </ul>
 
-<h2>ABI 表面（tui.sai）</h2>
+<h2>ABI surface (tui.sai)</h2>
 <table>
-<tr><th>函数</th><th>说明</th></tr>
-<tr><td><code>sa_tui_open(&amp;out_handle)</code></td><td>打开终端句柄</td></tr>
-<tr><td><code>sa_tui_close(^handle)</code></td><td>关闭句柄</td></tr>
-<tr><td><code>sa_tui_size(handle, &amp;rows, &amp;cols)</code></td><td>查询屏幕缓冲区尺寸</td></tr>
-<tr><td><code>sa_tui_write(handle, &amp;bytes, len)</code> / <code>sa_tui_flush(handle)</code></td><td>UTF-8 输出与刷新</td></tr>
-<tr><td><code>sa_tui_set_mode(handle, mode)</code></td><td>模式切换：<code>0 cooked / 1 raw / 2 alternate_screen / 3 mouse_tracking</code></td></tr>
-<tr><td><code>sa_tui_read_event(handle, timeout_ms, &amp;kind, &amp;code)</code></td><td>带超时的字节输入读取；事件类型 <code>0 none / 1 byte / 2 resize / 3 eof</code></td></tr>
+<tr><th>Function</th><th>Description</th></tr>
+<tr><td><code>sa_tui_open(&amp;out_handle)</code></td><td>Open a terminal handle</td></tr>
+<tr><td><code>sa_tui_close(^handle)</code></td><td>Close a handle</td></tr>
+<tr><td><code>sa_tui_size(handle, &amp;rows, &amp;cols)</code></td><td>Query the screen buffer size</td></tr>
+<tr><td><code>sa_tui_write(handle, &amp;bytes, len)</code> / <code>sa_tui_flush(handle)</code></td><td>UTF-8 output and flushing</td></tr>
+<tr><td><code>sa_tui_set_mode(handle, mode)</code></td><td>Mode switching: <code>0 cooked / 1 raw / 2 alternate_screen / 3 mouse_tracking</code></td></tr>
+<tr><td><code>sa_tui_read_event(handle, timeout_ms, &amp;kind, &amp;code)</code></td><td>Byte input read with a timeout; event kinds <code>0 none / 1 byte / 2 resize / 3 eof</code></td></tr>
 </table>
-<p>返回状态约定：<code>0 ok, 1 unknown_command, 2 io_error, 3 timeout, 4 unsupported,
-5 failed, 6 version_mismatch, 7 invalid_descriptor</code>；无字节可读时返回 <code>3</code>。</p>
+<p>Return status convention: <code>0 ok, 1 unknown_command, 2 io_error, 3 timeout, 4 unsupported,
+5 failed, 6 version_mismatch, 7 invalid_descriptor</code>; when no byte is readable it returns <code>3</code>.</p>
 
-<h2>平台行为</h2>
+<h2>Platform behavior</h2>
 <ul>
-<li>Windows：console 句柄 + screen-buffer 尺寸 + ConsoleMode raw 模式恢复。</li>
-<li>Unix：<code>ioctl(TIOCGWINSZ)</code> 查询尺寸，<code>termios</code> 做 raw 模式。</li>
+<li>Windows: console handle + screen-buffer size + ConsoleMode raw-mode restoration.</li>
+<li>Unix: <code>ioctl(TIOCGWINSZ)</code> for size queries, <code>termios</code> for raw mode.</li>
 </ul>
 
 <pre><code># 构建（在本插件目录内）
 zig build test
 zig build   # 产出 zig-out/lib/libtui.so 或 zig-out/bin/tui.dll</code></pre>
 
-<div class="warning"><span class="label">警告</span>尚未实现的 ABI 能力：转义序列解码为类型化键盘/鼠标/粘贴/焦点事件、
-resize 事件与稳定事件队列、cell/frame 表面与 diff 提交、PTY/ConPTY 监管、事件循环轮询回调 ABI。
-需要这些能力的 TUI 应用目前不能只靠本插件；详见其仓库 README。</div>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="warning"><span class="label">Warning</span>ABI capabilities not yet implemented: decoding escape sequences into typed keyboard/mouse/paste/focus events,
+resize events and a stable event queue, cell/frame surfaces and diff commits, PTY/ConPTY supervision, and an event-loop polling callback ABI.
+TUI applications needing these capabilities cannot currently rely on this plugin alone; see its repository README for details.</div>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/05_plugins/06_tui.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

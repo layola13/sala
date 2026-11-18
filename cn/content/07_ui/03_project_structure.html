@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>项目结构约定</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SAX / MUI 界面开发 &gt; 项目结构约定</div>
+<h1>项目结构约定</h1>
+
+<p>这一页给出一个 SAX 界面工程的标准目录布局与命名约定，参照 <code>D:\projects\sla\codex_ui</code> 的真实结构
+（38 个 <code>.sax</code> 文件 / 39 个组件）。按这个布局组织文件，编译命令、样式拼接和导航条写法都能保持一致。</p>
+
+<h2>目录布局</h2>
+<pre><code>codex_ui/
+├── app.sax                 # 入口：根组件 CodexUiApp + 开发导航条
+├── app.css                 # 拼接产物（由 theme.css + styles/*.css 生成，勿手改）
+├── theme.css               # 全局令牌 + MUI 基线 + 共享原语
+├── styles/                 # 分区样式源文件（见「样式体系」页）
+│   ├── shell.css
+│   ├── workbench_regions.css
+│   ├── dialogs.css
+│   ├── panels.css
+│   ├── admin.css
+│   ├── plugins.css
+│   ├── settings_tabs1.css ... settings_tabs4.css
+│   └── gates.css
+└── screens/
+    ├── workbench.sax       # 屏幕与区域组件
+    ├── top_bar.sax
+    ├── history_sidebar.sax
+    ├── chat_waterfall.sax
+    ├── agent_overview.sax
+    ├── composer.sax
+    ├── right_workspace.sax
+    ├── side_chat.sax
+    ├── workspace_explorer.sax
+    ├── chatgpt_shell.sax
+    ├── cli_prerequisite.sax
+    ├── legal_consent.sax
+    ├── login_screen.sax
+    ├── settings_drawer.sax     # 设置外壳：左栏切换 17 个分区
+    ├── members_permissions.sax
+    ├── security_settings.sax / usage_billing.sax / plugin_settings.sax
+    ├── launch_adapters.sax / project_group_chat.sax / setup_guide.sax
+    ├── free_model_access.sax / official_login.sax / agent_roster.sax
+    └── settings/           # 设置的 13 个分区 tab
+        ├── appearance_tab.sax / layout_tab.sax / notifications_tab.sax
+        ├── assistant_tab.sax / codex_tab.sax / workspace_tab.sax
+        ├── session_tab.sax / relay_tab.sax / launch_tab.sax
+        ├── skills_tab.sax / pet_tab.sax / privacy_tab.sax
+        └── about_tab.sax</code></pre>
+
+<h2>命名约定</h2>
+<table>
+<tr><th>对象</th><th>约定</th><th>示例</th></tr>
+<tr><td>入口文件</td><td>固定为根目录 <code>app.sax</code></td><td><code>CodexUiApp</code></td></tr>
+<tr><td>屏幕组件</td><td>以 <code>Screen</code> 结尾</td><td><code>WorkbenchScreen</code>、<code>LoginScreen</code>、<code>SettingsDrawerScreen</code></td></tr>
+<tr><td>对话框组件</td><td>以 <code>Dialog</code> 结尾</td><td><code>ProjectGroupChatDialog</code>、<code>FreeModelAccessDialog</code></td></tr>
+<tr><td>区域/面板组件</td><td>以 <code>Panel</code>/<code>Dock</code>/<code>Bar</code>/<code>Strip</code> 等结尾</td><td><code>ChatWaterfallPanel</code>、<code>ComposerDock</code>、<code>TopBar</code>、<code>TaskTabStrip</code></td></tr>
+<tr><td>设置分区</td><td><code>SettingsXxxTab</code>，文件名 <code>xxx_tab.sax</code></td><td><code>SettingsAppearanceTab</code></td></tr>
+<tr><td>状态变量</td><td>小写下划线；导航用 <code>nav_*</code>，设置分区用 <code>sec_*</code>，页签用 <code>tab*</code></td><td><code>nav_workbench</code>、<code>sec_appearance</code>、<code>tab0</code></td></tr>
+<tr><td>handler</td><td><code>go_/goto_/pick_/show_</code> 前缀 + 动作</td><td><code>goto_settings</code>、<code>pick_th_black</code>、<code>show_agent_overview</code></td></tr>
+<tr><td>自定义 CSS 类</td><td><code>cxu-</code> 前缀</td><td><code>cxu-topbar</code>、<code>cxu-set-navitem</code></td></tr>
+</table>
+
+<h2>入口 app.sax 与屏幕挂载</h2>
+<p><code>app.sax</code> 只做三件事：声明每个屏幕的布尔状态、按状态互斥渲染各屏幕的 <code>&lt;section&gt;</code>、提供开发导航条。
+屏幕本身不感知彼此，全部组合关系（如工作台内的 <code>TopBar</code> + <code>HistorySidebarPanel</code> + <code>ChatWaterfallPanel</code> + <code>ComposerDock</code>）
+都写在各自的屏幕组件里。</p>
+<div class="note"><span class="label">注意</span>成员权限/用量/安全/插件四个设置分区没有单独的 tab 文件，
+而是复用 <code>MembersPermissionsScreen</code>、<code>UsageBillingScreen</code>、<code>SecuritySettingsScreen</code>、<code>PluginSettingsScreen</code> 四个独立屏幕，
+通过导航条直接进入。</div>
+
+<h2>开发导航条</h2>
+<p>导航条是 <code>&lt;nav className="cxu-devnav"&gt;</code>，固定在视口底部居中，包含全部 16 个顶层界面的按钮：
+工作台、ChatGPT壳、CLI检测、法律同意、登录、设置、引导、成员权限、安全、用量账单、插件、启动适配器、项目群聊、免费模型、官方登录、协作成员。
+每个按钮对应一个 <code>goto_xxx</code> handler，把目标状态置 <code>true</code>、其余 15 个置 <code>false</code> 后调用 <code>render()</code>。
+它替代了原 React 应用里的状态机门禁和对话框开关，是纯界面工程里在界面之间切换的唯一手段。</p>
+<p>相关页面：<a href="01_overview.html">SAX 是什么与开发模型</a>、<a href="04_styling.html">样式体系</a>、<a href="07_getting_started.html">从零新建一个 SAX 界面工程</a>。</p>
+</body>
+</html>

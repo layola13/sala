@@ -1,34 +1,35 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Verse 游戏向吸纳与插件承载</title>
+<title>Adopting Verse for Games and Hosting It in Plugins</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body>
-<div class="topic-header">入门指南 &gt; Verse 游戏向吸纳与插件承载</div>
+<div class="topic-header">Getting Started &gt; Adopting Verse for Games and Hosting It in Plugins</div>
 
-<div class="note">状态：定位记录（2026-10-29，用户定）。本页登记 Verse 特性集因「将来为游戏服务」前提变更而升级的定位，及其插件承载形态；实施排程以 <a href="13_goroutine_runtime.html">13 号文档</a>第九节定序链为准，Verse 调研事实见 <a href="16_erlang_verse.html">16 号文档</a>第二节。</div>
+<div class="note">Status: positioning record (2026-10-29, decided by the user). This page registers the upgraded positioning of the Verse feature set, upgraded because the premise "it will serve games in the future" changed, and its plugin hosting form; the implementation schedule follows the ordering chain fixed in section nine of <a href="13_goroutine_runtime.html">document 13</a>, and the Verse research facts are in section two of <a href="16_erlang_verse.html">document 16</a>.</div>
 
-<h2>一、前提变更：从「只观察」到远期完全吸纳</h2>
-<p>用户定（2026-10-29）：本生态的 SA / SLA 将来可能要<strong>为游戏服务</strong>。<a href="16_erlang_verse.html">16 号文档</a>里 Jev 对「联机预测 / 并行 STM」的裁定是<strong>只观察（0.86）</strong>，但那条裁定建立在一个明确前提上——<strong>我们的交付物不做联机预测</strong>。该前提现已变更，裁定的地基随之失效：Verse 特性集的定位由「只观察」升级为<strong>远期完全吸纳目标</strong>。</p>
-<p>吸纳视野按 16 号第二节的调研事实全量圈定，不分已发货与未发货：<strong>已发货</strong>的本地失败回滚事务与函数签名效应标注；<strong>未发布</strong>的并行 STM（推测执行 + 冲突重试）与 <code>&lt;predicts&gt;</code> 客户端预测（客户端预测运行、服务器权威纠正）。后者在 Epic 侧尚不存在成形机制，吸纳的是其<strong>设计目标与语义形态</strong>，落地时以我们的运行时条件为准重新设计，不是对 Epic 实现的移植。</p>
+<h2>1. The Premise Change: From "Observe Only" to Full Adoption in the Long Term</h2>
+<p>Decided by the user (2026-10-29): this ecosystem's SA / SLA may in the future have to <strong>serve games</strong>. In <a href="16_erlang_verse.html">document 16</a>, Jev's ruling on "online prediction / parallel STM" was <strong>observe only (0.86)</strong>, but that ruling was built on an explicit premise — <strong>our deliverables do no online prediction</strong>. That premise has now changed, and the ruling's foundation fails with it: the Verse feature set's positioning is upgraded from "observe only" to a <strong>long-term full adoption target</strong>.</p>
+<p>The adoption horizon is circled in full by the research facts in section two of document 16, regardless of shipped or unshipped: the <strong>shipped</strong> local failure-rollback transactions and function-signature effect annotations; the <strong>unreleased</strong> parallel STM (speculative execution + conflict retry) and <code>&lt;predicts&gt;</code> client prediction (client-side predictive running, server-authoritative correction). The latter does not yet exist as a formed mechanism on Epic's side; what is adopted is its <strong>design goals and semantic form</strong>, to be redesigned at landing time under our own runtime conditions — not a port of Epic's implementation.</p>
 
-<h2>二、承载形态：插件承载、三层拆分</h2>
-<p>主会话方案，用户批准：Verse 这一套不进 SLA 本体，按性质拆成三层、分别归位。</p>
+<h2>2. Hosting Form: Hosted in Plugins, Split into Three Layers</h2>
+<p>The main session's proposal, approved by the user: the Verse set does not enter the SLA core; it is split by nature into three layers, each placed where it belongs.</p>
 <ul>
-<li><strong>语言语义层 → 语言插件 / 方言前端</strong>。失败回滚语义（失败上下文内的写入暂定、失败即整体撤销）、<code>decides</code> / <code>transacts</code> 式可回滚代码圈定，都是<strong>编译器语义</strong>，进不了运行时插件。但插件体系里早有 <code>kind=language</code> 一类：SLA、slars 皆以语言前端挂在宿主上、由宿主按扩展名分发。故形态 = <strong>Verse 向语言插件 / 方言档</strong>，承 slars 的硬条件——<strong>不动 SLA、另开前端、lowering 与 codegen 与 SLA 共享同一份代码</strong>，落点同为 SA；SLA 本体不被游戏语义污染。</li>
-<li><strong>运行时引擎层 → 领域插件</strong>。事务推测引擎（写日志 / 撤销）、预测与回滚的 netcode 骨架（快照环、输入延迟、回滚重演）是<strong>领域能力</strong>，不是 HTTP / TCP 那类基础核心，不适用「基础核心进 sa_std」的归位。先例现成：db 插件即「领域引擎 + 宿主注册」的形态。既有的游戏向种子 <strong>sla_ecs 归此线名下</strong>，作为该引擎层的存量起点。</li>
-<li><strong>通用部分 → SLA 本体</strong>。效应标注对非游戏场景同样成立，已按 16 号文档裁定（0.66）采纳进 <strong>SLA goroutine 语法批</strong>，走本体路线，<strong>不随游戏档走</strong>——游戏档将来无论是否启动，这一部分都照常落地。</li>
+<li><strong>The language semantics layer → a language plugin / dialect frontend</strong>. Failure-rollback semantics (writes inside a failure context are tentative and are revoked wholesale on failure) and <code>decides</code> / <code>transacts</code>-style circumscription of rollback-capable code are <strong>compiler semantics</strong> and cannot enter a runtime plugin. But the plugin system has long had a <code>kind=language</code> category: SLA and slars both hang on the host as language frontends, dispatched by the host by file extension. So the form = a <strong>Verse-oriented language plugin / dialect profile</strong>, under slars's hard conditions — <strong>do not move SLA; open a separate frontend; the lowering and codegen share the same code as SLA</strong>, landing likewise on SA; the SLA core is not polluted by game semantics.</li>
+<li><strong>The runtime engine layer → a domain plugin</strong>. The transaction speculation engine (write log / rollback) and the netcode skeleton for prediction and rollback (snapshot rings, input delay, rollback replay) are <strong>domain capabilities</strong>, not basic cores of the HTTP / TCP kind, so the "basic cores go into sa_std" placement does not apply. A ready precedent exists: the db plugin is exactly the form "domain engine + host registration". The existing game-oriented seed, <strong>sla_ecs, belongs under this line</strong> as the engine layer's existing starting point.</li>
+<li><strong>The general parts → the SLA core</strong>. Effect annotations hold for non-game scenarios too; they have already been adopted, per document 16's ruling (0.66), into the <strong>SLA goroutine syntax batch</strong>, following the core route and <strong>not going with the game profile</strong> — whether or not the game profile ever starts, this part lands as usual.</li>
 </ul>
 
-<h2>三、边界</h2>
-<p>吸纳的是 Verse 的<strong>机制</strong>（事务推测、预测回滚、效应圈定），<strong>不是把 SLA 改成 Verse</strong>：语法表面、检查器纪律与所有权模型仍是本生态自己的。游戏档是<strong>可选挂载</strong>——服务器三台（slanginx / slaredis / db）的代码路径永不被迫背上推测执行的成本，不用游戏档就一字不付。SA 规约照旧<strong>冻结</strong>：三层全部落在 sa_std 之外的上层与插件面，与底座定案不冲突。</p>
+<h2>3. Boundaries</h2>
+<p>What is adopted is Verse's <strong>mechanisms</strong> (transaction speculation, prediction rollback, effect circumscription), <strong>not turning SLA into Verse</strong>: the syntax surface, checker discipline, and ownership model remain this ecosystem's own. The game profile is an <strong>optional mount</strong> — the code paths of the three servers (slanginx / slaredis / db) are never forced to carry the cost of speculative execution; if you do not use the game profile you pay not a single character for it. The SA specification remains <strong>frozen</strong> as usual: all three layers land in the upper layers and plugin surfaces outside sa_std, and do not conflict with the base decision.</p>
 
-<h2>四、排程</h2>
-<p><strong>全程序总定序（用户 2026-10-29 定）</strong>：先完成 <strong>Erlang + goroutine 综合体</strong>（运行时一期 → SLA 语法批，定序见 13 / 15 / 16 号文档），再完成<strong>三台（slanginx / slaredis / db）的并发性能改进</strong>，<strong>两者都完成之后</strong>，才考虑加入 Verse、Haskell（STM 等）的特性。故本线的启动门是「<strong>综合体 + 三台改进双双完成</strong>」，不是综合体一完就开。属<strong>远期线</strong>。当前只改登记定位、<strong>不动任何施工面</strong>——在建的运行时一期、已排的语法批与三台改造均不受本页影响。启动时点与分期（语言档与引擎层的先后、首期语义子集的圈定）候届时另行裁定。</p>
+<h2>4. Schedule</h2>
+<p><strong>The whole program's master ordering (decided by the user on 2026-10-29)</strong>: first complete the <strong>Erlang + goroutine complex</strong> (runtime phase one → the SLA syntax batch; ordering per documents 13 / 15 / 16), then complete the <strong>concurrency performance improvements of the three machines (slanginx / slaredis / db)</strong>, and <strong>only after both are complete</strong> consider adding Verse and Haskell (STM etc.) features. So this line's starting gate is "<strong>the complex + the three-machine improvements both complete</strong>", not "start as soon as the complex is done". It is a <strong>long-term line</strong>. At present only the registered positioning changes; <strong>no construction surface is touched</strong> — the runtime phase one under construction, the already-scheduled syntax batch, and the three-machine rework are all unaffected by this page. The starting point and phasing (the order of the language profile and the engine layer, the circling of the first-phase semantic subset) are to be ruled on when the time comes.</p>
 
-<p>相关讨论：<a href="16_erlang_verse.html">Erlang 并发候选与 Verse 事务调研评估</a>、<a href="13_goroutine_runtime.html">goroutine 运行时：引入 sa_std 的设计讨论</a>。</p>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<p>Related discussions: <a href="16_erlang_verse.html">Erlang Concurrency Candidates and a Verse Transaction Survey</a>, <a href="13_goroutine_runtime.html">The goroutine Runtime: Design Discussion on Bringing It into sa_std</a>.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/01_overview/17_verse_game_profile.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

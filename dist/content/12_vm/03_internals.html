@@ -1,20 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>解释器内部机制</title>
+<title>Interpreter Internals</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">vm 虚拟机 &gt; 解释器内部机制</div>
-<h1>解释器内部机制</h1>
+<div class="topic-header">vm Virtual Machine &gt; Interpreter Internals</div>
+<h1>Interpreter Internals</h1>
 
-<p>本页展开 vm 的实现细节：两遍预处理在做什么、栈帧模型如何表达一段 <code>.sa</code>、指令分发如何与基本块配合、
-以及 vm 到底吃的是 <code>.sa</code> 还是 <code>.sab</code>。读完本节可以解释「为什么 <code>--stats</code> 输出这一串计数器」，并为阅读
-<code>src/vm.zig</code> / <code>src/parser.zig</code> 打基础。</p>
+<p>This page expands on vm’s implementation details: what the two-pass preprocessing does, how the stack-frame model expresses a piece of <code>.sa</code>, how instruction dispatch cooperates with basic blocks, and whether vm consumes <code>.sa</code> or <code>.sab</code>. After reading this section you will be able to explain “why <code>--stats</code> outputs this string of counters”, and be prepared to read <code>src/vm.zig</code> / <code>src/parser.zig</code>.</p>
 
-<h2>输入识别：源码 vs SAB 字节码</h2>
-<p>vm 的入口（<code>src/plugin.zig::runVmCommand</code>）不会看扩展名决定走哪条路径，而是用 <code>"SAB\x00"</code> 魔数：</p>
+<h2>Input Recognition: Source vs SAB Bytecode</h2>
+<p>vm’s entry point (<code>src/plugin.zig::runVmCommand</code>) does not look at the extension to decide which path to take, but uses the <code>"SAB\x00"</code> magic:</p>
 <pre><code>const input_is_sab = blk: {
     const file = std.fs.cwd().openFile(file_path.?, .{}) catch break :blk false;
     defer file.close();
@@ -22,159 +20,137 @@
     const read_len = file.readAll(&amp;magic_buf) catch break :blk false;
     break :blk sab_loader.isSabMagic(magic_buf[0..read_len]);
 };</code></pre>
-<p>命中后用 <code>sab_loader.loadProgram</code> 重建一个与文本解析路径<strong>同形</strong>的 <code>Program</code>
-（基本块、寄存器表、签名表），直接进入绑定/执行；不命中则进入文本流程：</p>
+<p>On a hit, <code>sab_loader.loadProgram</code> rebuilds a <code>Program</code> <strong>of the same shape</strong> as the text parsing path (basic blocks, register table, signature table) and goes directly into binding/execution; on a miss it enters the text flow:</p>
 <ol>
-<li><strong>预处理</strong>（<code>parser.Parser.preprocessWithCache</code>）</li>
-<li><strong>解析</strong>（<code>parser.Parser.parse</code>）</li>
-<li><strong>绑定</strong>（在 <code>src/vm.zig::VM.init</code> 内部）</li>
-<li><strong>执行</strong>（<code>run</code> / <code>runTests</code>）</li>
+<li><strong>Preprocessing</strong> (<code>parser.Parser.preprocessWithCache</code>)</li>
+<li><strong>Parsing</strong> (<code>parser.Parser.parse</code>)</li>
+<li><strong>Binding</strong> (inside <code>src/vm.zig::VM.init</code>)</li>
+<li><strong>Execution</strong> (<code>run</code> / <code>runTests</code>)</li>
 </ol>
 
-<div class="note"><span class="label">注意</span>两条入口合流后是同一份 <code>Program</code> 结构——这保证了 <code>--stats</code> 在 SAB 与 .sa 上输出形态一致；
-SAB 路径只跳过预处理和重新词法分析，所以"字节码更冷启动更快"主要来自这个跳过。</div>
+<div class="note"><span class="label">Note</span>After the two entry points merge, they share the same <code>Program</code> structure — this guarantees that <code>--stats</code> has the same output shape on SAB and .sa; the SAB path only skips preprocessing and re-lexing, so “bytecode has a faster cold start” mainly comes from that skip.</div>
 
-<h2>两遍预处理</h2>
-<p><code>src/parser.zig::preprocessWithCache</code> 是 vm 的"前端入口"。它的设计目标是支持 <strong>前向引用</strong>，
-即 <code>EXPAND FOO</code> 出现在 <code>[MACRO] FOO</code> 之前仍然正确展开。</p>
+<h2>Two-Pass Preprocessing</h2>
+<p><code>src/parser.zig::preprocessWithCache</code> is vm’s “frontend entry point”. Its design goal is to support <strong>forward references</strong>, i.e. <code>EXPAND FOO</code> appearing before <code>[MACRO] FOO</code> still expands correctly.</p>
 
-<h3>Pass 1：预扫（Pre-Scan）</h3>
-<p><code>preprocessLines</code> 的第一步是从原始行列表里把所有 <code>[MACRO]</code> / <code>#def</code> 先抽出来，放进解析器状态
-的 <code>macros</code> / <code>defs</code> 表中。注意这一步<strong>还没有真正展开任何 EXPAND</strong>，只是把宏定义全部"先认得"。</p>
-<p>这让 <code>tests/hygiene_macro.sa</code> 这种把宏放在 <code>@main</code> 之后、调用方在前面的写法合法，
-因为 Pass 2 跑时已经认得 <code>BAR</code>。</p>
+<h3>Pass 1: Pre-Scan</h3>
+<p>The first step of <code>preprocessLines</code> is to extract all <code>[MACRO]</code> / <code>#def</code> from the original line list and put them into the <code>macros</code> / <code>defs</code> tables in the parser state. Note that this step <strong>has not yet actually expanded any EXPAND</strong>; it only makes all macro definitions “known first”.</p>
+<p>This makes code like <code>tests/hygiene_macro.sa</code>, which puts the macro after <code>@main</code> with the caller in front, legal, because by the time Pass 2 runs, <code>BAR</code> is already known.</p>
 
-<h3>Pass 2：展开</h3>
-<p>在 Pass 2 里逐行处理：</p>
+<h3>Pass 2: Expansion</h3>
+<p>In Pass 2, lines are processed one by one:</p>
 <ul>
-<li><code>@import "..."</code>：相对当前文件目录解析；不在文件系统时回退查标准库根
-（<code>$HOME/.sa/std/</code>，来源是 <code>README.md</code> 的描述）。找到后递归调用 <code>preprocessFile</code>。</li>
-<li><code>EXPAND MACRO %p1, %p2</code>：把宏体里的形式参数按调用实参替换；<code>_xxx</code> 形式的局部变量
-会被附加 <code>__sa_hyg&lt;N&gt;</code>（单调计数器来自 <code>expansion_counter</code>）以保证连写两次的宏不互相覆盖栈槽。</li>
-<li><code>#def NAME = VALUE</code>：纯文本替换，常量级生效。</li>
-<li><code>@const NAME = utf8:"..."</code>：把字符串字面量放进 <code>constants</code> 表，同时自动派生 <code>NAME_len</code>。</li>
-<li><code>@const NAME = struct { f: SIZE = hex:...\xNN }</code>：二进制结构体字面量按字段解码。</li>
-<li><code>[REP N] ... [END_REP]</code>：循环展开，每一轮把 <code>%i</code> 替换为当前下标，并为局部标识符同样加 hygiene 后缀。</li>
+<li><code>@import "..."</code>: resolved relative to the current file’s directory; if not found in the filesystem, falls back to looking up the standard library root (<code>$HOME/.sa/std/</code>, source is the description in <code>README.md</code>). Once found, <code>preprocessFile</code> is called recursively.</li>
+<li><code>EXPAND MACRO %p1, %p2</code>: formal parameters in the macro body are replaced with the call arguments; local variables of the form <code>_xxx</code> are suffixed with <code>__sa_hyg&lt;N&gt;</code> (a monotonic counter from <code>expansion_counter</code>) to ensure that a macro written twice in a row does not overwrite the other’s stack slots.</li>
+<li><code>#def NAME = VALUE</code>: pure text replacement, effective at the constant level.</li>
+<li><code>@const NAME = utf8:"..."</code>: puts the string literal into the <code>constants</code> table, while automatically deriving <code>NAME_len</code>.</li>
+<li><code>@const NAME = struct { f: SIZE = hex:...\xNN }</code>: binary struct literals are decoded field by field.</li>
+<li><code>[REP N] ... [END_REP]</code>: loop expansion; each iteration replaces <code>%i</code> with the current index, and likewise adds a hygiene suffix to local identifiers.</li>
 </ul>
 
-<p>展开是递归的：宏体里再出现 <code>EXPAND</code> / <code>[REP]</code> / <code>@import</code> / <code>#def</code> / <code>@const</code>
-会重新调用 <code>preprocessLines</code>。</p>
+<p>Expansion is recursive: if <code>EXPAND</code> / <code>[REP]</code> / <code>@import</code> / <code>#def</code> / <code>@const</code> appears again inside a macro body, <code>preprocessLines</code> is called again.</p>
 
-<h3>持久预处理缓存</h3>
-<p>当 <code>SA_VM_DISABLE_PREPROCESS_CACHE</code> 未设置时，vm 会按 <code>SA_CACHE</code>（否则
-<code>$HOME/.cache/sa/vm/preprocess</code>）作为根目录写缓存。缓存粒度是单个 <code>@import</code> 文件，校验维度是 size + mtime；
-任何 import 依赖发生变化都会让该条目 stale。状态在 <code>--stats</code> 报告里以
-<code>disabled / hit / miss / stale / write_failed</code> 出现。</p>
+<h3>Persistent Preprocessing Cache</h3>
+<p>When <code>SA_VM_DISABLE_PREPROCESS_CACHE</code> is not set, vm writes the cache using <code>SA_CACHE</code> (otherwise <code>$HOME/.cache/sa/vm/preprocess</code>) as the root directory. The cache granularity is a single <code>@import</code> file, and the validation dimensions are size + mtime; any change to an import dependency makes that entry stale. The status appears in the <code>--stats</code> report as <code>disabled / hit / miss / stale / write_failed</code>.</p>
 
-<h2>解析与 Program 结构</h2>
-<p>解析器输出一个 <code>parser.Program</code>，核心字段：</p>
+<h2>Parsing and the Program Structure</h2>
+<p>The parser outputs a <code>parser.Program</code>, whose core fields are:</p>
 <ul>
-<li><code>functions: StringHashMap(Function)</code>：每个 <code>@fn</code> 一条，含 <code>params</code>、<code>return_type</code>、<code>blocks</code>、<code>instructions</code>。</li>
-<li><code>externs: StringHashMap(ExternSignature)</code>：每个 <code>@extern</code> 一条，含参数类型、返回类型、ABI 形状。</li>
-<li><code>constants: StringHashMap([]const u8)</code>：所有 <code>@const</code> 的字面量原始字节（用于 <code>utf8:"..."</code> / 二进制 struct）。</li>
-<li><code>labels</code>、<code>memory_layout</code> 等辅助表。</li>
+<li><code>functions: StringHashMap(Function)</code>: one entry per <code>@fn</code>, containing <code>params</code>, <code>return_type</code>, <code>blocks</code>, <code>instructions</code>.</li>
+<li><code>externs: StringHashMap(ExternSignature)</code>: one entry per <code>@extern</code>, containing parameter types, return type, ABI shape.</li>
+<li><code>constants: StringHashMap([]const u8)</code>: the raw literal bytes of all <code>@const</code> (used for <code>utf8:"..."</code> / binary structs).</li>
+<li>Auxiliary tables such as <code>labels</code>, <code>memory_layout</code>.</li>
 </ul>
 
-<p>每个 <code>Function.blocks</code> 是一个 <code>[]BasicBlock</code>，<code>BasicBlock</code> 描述一段以 <code>br</code> / <code>jmp</code> / <code>return</code> 结尾的
-连续指令。vm 在绑定期预计算每个块的 <code>start_inst / end_inst</code>，分发表用 <code>pc ∈ [start, end)</code> 二分即可定位。</p>
+<p>Each <code>Function.blocks</code> is a <code>[]BasicBlock</code>; a <code>BasicBlock</code> describes a run of consecutive instructions ending in <code>br</code> / <code>jmp</code> / <code>return</code>. At bind time vm precomputes each block’s <code>start_inst / end_inst</code>, and the dispatch table can locate a block by binary search on <code>pc ∈ [start, end)</code>.</p>
 
-<h3>解析缓存（in-process LRU）</h3>
-<p>同一进程内多次 <code>sa vm run</code> 会复用 LRU 解析结果（<code>PARSE_CACHE_MAX_ENTRIES = 8</code>）：
+<h3>Parse Cache (In-Process LRU)</h3>
+<p>Multiple <code>sa vm run</code> invocations within the same process reuse LRU parse results (<code>PARSE_CACHE_MAX_ENTRIES = 8</code>):
 <ol>
-<li>按 Wyhash 计算 <code>preprocessed</code> 行 + <code>constants</code> 表的指纹（<code>parseCacheFingerprint</code>）。</li>
-<li>命中即 <code>parser.cloneProgram</code> 克隆一份给执行线程；原 AST 模板不被改动。</li>
-<li>未命中才调 <code>parser_inst.parse</code>，完成后用 <code>c_allocator</code> 存一份模板。</li>
+<li>Compute a fingerprint of the <code>preprocessed</code> lines + <code>constants</code> table using Wyhash (<code>parseCacheFingerprint</code>).</li>
+<li>On a hit, <code>parser.cloneProgram</code> clones a copy for the execution thread; the original AST template is not modified.</li>
+<li>Only on a miss is <code>parser_inst.parse</code> called; after completion a template is stored using <code>c_allocator</code>.</li>
 </ol>
-状态在 <code>--stats</code> 输出里是 <code>disabled / hit / miss / clone_failed / store_failed</code>。</p>
+The status in the <code>--stats</code> output is <code>disabled / hit / miss / clone_failed / store_failed</code>.</p>
 
-<h2>栈帧模型</h2>
-<p>vm 的"栈"由 3 段组成（<code>src/vm.zig</code> 内部）：</p>
+<h2>Stack-Frame Model</h2>
+<p>vm’s “stack” consists of 3 segments (inside <code>src/vm.zig</code>):</p>
 <table>
-<tr><th>段</th><th>来源</th><th>生命周期</th></tr>
-<tr><td>host stack</td><td>OS 线程栈（解释器自身递归）</td><td>与进程同；TEB / pthread 自带 guard page</td></tr>
-<tr><td>guest frame</td><td>内部子程序调用时 <code>frame_pool</code> 借出 <code>[]u64</code> 缓冲区</td><td>返回时 <code>defer</code> 释放，由 <code>frame_pool_releases</code> 计数</td></tr>
-<tr><td>heap alloc</td><td><code>alloc N</code> 走 <code>QuotaAllocator</code> 申请</td><td>记录在 <code>heap_allocs</code>，函数返回时统一 free</td></tr>
+<tr><th>Segment</th><th>Source</th><th>Lifetime</th></tr>
+<tr><td>host stack</td><td>OS thread stack (the interpreter’s own recursion)</td><td>Same as the process; TEB / pthread provide their own guard pages</td></tr>
+<tr><td>guest frame</td><td>A <code>[]u64</code> buffer borrowed from <code>frame_pool</code> on an internal subroutine call</td><td>Released via <code>defer</code> on return, counted by <code>frame_pool_releases</code></td></tr>
+<tr><td>heap alloc</td><td><code>alloc N</code> goes through <code>QuotaAllocator</code> to request memory</td><td>Recorded in <code>heap_allocs</code>, freed uniformly when the function returns</td></tr>
 </table>
 
-<p>每个 guest 帧是一个 <code>[]u64</code> 缓冲区，vm 内部把虚拟寄存器号映射到该缓冲区的下标（基本块的
-register mapping 在绑定期算好）；参数按调用约定从调用方的参数寄存器复制到被调方的新帧槽位，
-再在调用结束后由 <code>!param</code> 形式显式归还（这与 <code>.sa</code> 的所有权记号一致）。</p>
+<p>Each guest frame is a <code>[]u64</code> buffer; vm internally maps virtual register numbers to indices into that buffer (the register mapping of basic blocks is computed at bind time); parameters are copied from the caller’s parameter registers into the callee’s new frame slots according to the calling convention, and after the call ends they are explicitly returned in the <code>!param</code> form (consistent with the ownership notation of <code>.sa</code>).</p>
 
-<h3>线性栈安全</h3>
-<p>借自 <code>heap_allocs</code> / <code>stack_alloc</code> 的所有段在帧的 <code>defer</code> 块里一次性释放，<strong>不会</strong>
-发生 "guest 函数提前 return 漏掉某次 alloc 释放" 这类典型解释器 bug。配合 <code>QuotaAllocator</code> 还能
-精确回收每一个 byte（<code>QuotaAllocator.free</code> 用 <code>memory.len</code> 反向扣减）。</p>
+<h3>Linear Stack Safety</h3>
+<p>All segments borrowed from <code>heap_allocs</code> / <code>stack_alloc</code> are released all at once in the frame’s <code>defer</code> block, so the typical interpreter bug of “a guest function returns early and misses an alloc release” <strong>does not</strong> occur. Combined with <code>QuotaAllocator</code>, every byte can also be reclaimed precisely (<code>QuotaAllocator.free</code> subtracts in reverse using <code>memory.len</code>).</p>
 
-<h3>栈深度与主机栈闸门</h3>
-<p><code>src/sandbox.zig</code> 暴露两个常数：</p>
+<h3>Stack Depth and the Host-Stack Gate</h3>
+<p><code>src/sandbox.zig</code> exposes two constants:</p>
 <ul>
-<li><code>default_max_call_depth = 100_000</code>：guest 递归上限，由 <code>--max-call-depth</code> 覆盖。</li>
-<li><code>default_stack_headroom_bytes = 256 * 1024</code>：低于该值时拒绝继续递归，防止把 TEB 撞穿。</li>
+<li><code>default_max_call_depth = 100_000</code>: the guest recursion limit, overridden by <code>--max-call-depth</code>.</li>
+<li><code>default_stack_headroom_bytes = 256 * 1024</code>: below this value, further recursion is refused, to prevent crashing through the TEB.</li>
 </ul>
-<p>Windows 平台 TEB guard 通常先于 <code>max_call_depth</code> 触发（约 1 MiB 主栈下 2.7k 帧即拦截）。
-<code>tests/vm_tail_arena.sa</code> 专门覆盖「需要 arena-backed <code>stack_alloc</code> 帧的尾自调函数」——它把 <code>stack_alloc</code> 显式放在循环里，
-保证尾自调不会耗尽 host stack。</p>
+<p>On Windows, the TEB guard usually triggers before <code>max_call_depth</code> (about 2.7k frames under a 1 MiB main stack are intercepted). <code>tests/vm_tail_arena.sa</code> specifically covers “tail self-call functions that need arena-backed <code>stack_alloc</code> frames” — it puts <code>stack_alloc</code> explicitly inside a loop, ensuring that tail self-calls do not exhaust the host stack.</p>
 
-<h2>指令分发</h2>
-<p>主循环的形态是「PC 推进 + 块切换」：</p>
+<h2>Instruction Dispatch</h2>
+<p>The shape of the main loop is “PC advancement + block switching”:</p>
 <ol>
-<li>从 <code>pc</code> 找所在 <code>BasicBlock</code>（<code>findBlockForPc</code>，线性搜索块表，块数通常个位数）。</li>
-<li>在块内逐条执行；遇到 <code>br cond -> L_T, L_F</code> 直接跳到预计算的目标块索引。</li>
-<li>遇到 <code>call @fn(args...)</code> 时递归进入 <code>executeFunction</code>，新帧借自 <code>frame_pool</code>。</li>
-<li>遇到 <code>return val</code> 走尾调用 / 非尾调用两条路径：尾调用优先触发 <code>tail_restart</code>（同一栈帧复用），非尾调用走正常返回并把返回值写回调用方寄存器。</li>
+<li>Find the <code>BasicBlock</code> containing <code>pc</code> (<code>findBlockForPc</code>, a linear search over the block table; the number of blocks is usually in single digits).</li>
+<li>Execute instructions one by one inside the block; on encountering <code>br cond -&gt; L_T, L_F</code>, jump directly to the precomputed target block index.</li>
+<li>On encountering <code>call @fn(args...)</code>, recursively enter <code>executeFunction</code>, with the new frame borrowed from <code>frame_pool</code>.</li>
+<li>On encountering <code>return val</code>, take one of two paths, tail call or non-tail call: a tail call preferentially triggers <code>tail_restart</code> (reusing the same stack frame), while a non-tail call returns normally and writes the return value back to the caller’s register.</li>
 </ol>
 
-<h3>类型化 Val 联合</h3>
-<p>所有 operand（register / immediate / stack slot / offset）在解析期归一化到 <code>Val</code> union，分支对应
-立即数、寄存器槽、栈偏移、外部引用。结果送进指令时再做符号扩展 / 截断。例如 <code>load addr+off as i8</code> 会显式 sign-extend 到 64 bit，保证
-<code>sgt</code> / <code>slt</code> / <code>srem</code> 在负数场景下语义正确（README "Correct Sign Extension" 段落）。</p>
+<h3>The Typed Val Union</h3>
+<p>All operands (register / immediate / stack slot / offset) are normalized at parse time into the <code>Val</code> union, whose variants correspond to immediates, register slots, stack offsets, and external references. When the result is fed into an instruction, sign extension / truncation is then performed. For example, <code>load addr+off as i8</code> explicitly sign-extends to 64 bits, ensuring that <code>sgt</code> / <code>slt</code> / <code>srem</code> have correct semantics in negative-number scenarios (the README’s “Correct Sign Extension” section).</p>
 
-<h3>统计与快速路径</h3>
-<p><code>--stats</code> 暴露的核心计数器：</p>
+<h3>Statistics and Fast Paths</h3>
+<p>The core counters exposed by <code>--stats</code>:</p>
 <table>
-<tr><th>计数器</th><th>含义</th></tr>
-<tr><td><code>function_calls</code></td><td>所有 call 指令命中次数</td></tr>
-<tr><td><code>interpreted_calls</code></td><td>其中走完整解释（未命中 call cache）次数</td></tr>
-<tr><td><code>bytecode_ops</code></td><td>执行过的字节码条数</td></tr>
-<tr><td><code>slow_ops</code></td><td>被识别为 slow op 的条数（影响 fuel 计费）</td></tr>
-<tr><td><code>fast_block_hits</code></td><td>命中 fast arm 超级指令的次数</td></tr>
-<tr><td><code>tail_restarts</code></td><td>尾自调复用栈帧的次数</td></tr>
-<tr><td><code>call_cache_{hits,misses,stores,clears}</code></td><td>调用缓存 4 个计数</td></tr>
-<tr><td><code>frame_pool_{hits,misses,releases}</code></td><td>guest 帧池使用情况</td></tr>
-<tr><td><code>memory_epoch_bumps</code></td><td>call cache 因内存写入失效而被 bump 的次数</td></tr>
-<tr><td><code>max_call_depth</code></td><td>本次运行达到的最大 guest 递归深度</td></tr>
+<tr><th>Counter</th><th>Meaning</th></tr>
+<tr><td><code>function_calls</code></td><td>Number of hits of all call instructions</td></tr>
+<tr><td><code>interpreted_calls</code></td><td>Of those, the number that went through full interpretation (missed the call cache)</td></tr>
+<tr><td><code>bytecode_ops</code></td><td>Number of bytecode instructions executed</td></tr>
+<tr><td><code>slow_ops</code></td><td>Number of instructions identified as slow ops (affects fuel charging)</td></tr>
+<tr><td><code>fast_block_hits</code></td><td>Number of hits of the fast-arm superinstruction</td></tr>
+<tr><td><code>tail_restarts</code></td><td>Number of times a tail self-call reused a stack frame</td></tr>
+<tr><td><code>call_cache_{hits,misses,stores,clears}</code></td><td>The 4 call-cache counters</td></tr>
+<tr><td><code>frame_pool_{hits,misses,releases}</code></td><td>Guest frame pool usage</td></tr>
+<tr><td><code>memory_epoch_bumps</code></td><td>Number of times the call cache was bumped due to invalidation by a memory write</td></tr>
+<tr><td><code>max_call_depth</code></td><td>The maximum guest recursion depth reached in this run</td></tr>
 </table>
 
-<p>所有这些计数器都只在 <code>collect_stats || profile_top_n != 0</code> 时更新，热路径只在 cap 关闭时多一次预测分支。</p>
+<p>All of these counters are only updated when <code>collect_stats || profile_top_n != 0</code>; the hot path only adds one predicted branch when caps are off.</p>
 
-<h2>Fuel 计费模型</h2>
-<p>沙箱 fuel 按"已编译基本块"为粒度计费，公式（<code>src/sandbox.zig::blockCost</code>）：</p>
+<h2>Fuel Charging Model</h2>
+<p>Sandbox fuel is charged at the granularity of “compiled basic blocks”, with the formula (<code>src/sandbox.zig::blockCost</code>):</p>
 <pre><code>cost = body_words * 1 + slow_words * 15 + call_words * 31 + terminator(1)
 fast-arm 固定 = 4
 空块也至少 = 1（否则 while(true){} 是免费的）</code></pre>
-<p>空体块（典型例子是 <code>jmp L_ENTRY</code> 反向形成的死循环）仍然 cost 1——这让
-<code>INFINITE_LOOP_SA</code> 这样的最小死循环夹具也能在测试里稳定地因 fuel 耗尽而退出。</p>
+<p>An empty-body block (the typical example is a dead loop formed by a backward <code>jmp L_ENTRY</code>) still costs 1 — this lets even a minimal dead-loop fixture like <code>INFINITE_LOOP_SA</code> exit stably in tests due to fuel exhaustion.</p>
 
-<h2>SAB v4 字节码的关系</h2>
-<p>SAB（"SA Bytecode"）是 SA 工具链的中间码，由 <code>sa build-exe</code> 的编译阶段产出。
-SAB 模块以 4 字节 <code>"SAB\x00"</code> 魔数开头，符号表 / 签名表 / 常量表 / 指令流打包。
-vm 的 <code>src/sab_loader.zig</code> 解析 SAB，<strong>把它折叠回 <code>Program</code></strong>，于是后面的执行流与 <code>.sa</code> 完全共用。</p>
+<h2>Relationship with SAB v4 Bytecode</h2>
+<p>SAB (“SA Bytecode”) is the intermediate code of the SA toolchain, produced by the compilation stage of <code>sa build-exe</code>. A SAB module starts with the 4-byte <code>"SAB\x00"</code> magic, with the symbol table / signature table / constant table / instruction stream packed together. vm’s <code>src/sab_loader.zig</code> parses SAB and <strong>folds it back into a <code>Program</code></strong>, so the subsequent execution flow is fully shared with <code>.sa</code>.</p>
 
-<p>关键映射（来源 <code>src/sab_loader.zig</code>）：</p>
+<p>Key mappings (source <code>src/sab_loader.zig</code>):</p>
 <ul>
-<li><code>.move_</code> / <code>.release</code> / <code>.fence</code> 折叠为 no-op assign（VM 不发出 ownership diagnostics）。</li>
-<li><code>borrow CONST_NAME</code> 的「裸 const 名」operand 解码为 <code>.register</code>（指向 const 数据指针）。</li>
-<li><code>&amp;CONST_NAME</code> 解码为 <code>take</code> 形式的指针加载。</li>
+<li><code>.move_</code> / <code>.release</code> / <code>.fence</code> are folded into no-op assigns (VM does not emit ownership diagnostics).</li>
+<li>A “bare const name” operand of <code>borrow CONST_NAME</code> is decoded as <code>.register</code> (pointing to the const data pointer).</li>
+<li><code>&amp;CONST_NAME</code> is decoded as a pointer load in <code>take</code> form.</li>
 </ul>
-<p>因此"vm 吃 <code>.sa</code> 还是 <code>.sab</code>"的答案是：<strong>两者都吃，按魔数自动分流，最终在同一个 <code>Program</code> 上执行</strong>。</p>
+<p>Therefore the answer to “does vm consume <code>.sa</code> or <code>.sab</code>” is: <strong>it consumes both, automatically split by magic, and ultimately executes on the same <code>Program</code></strong>.</p>
 
-<h2>已知实现陷阱</h2>
+<h2>Known Implementation Pitfalls</h2>
 <ul>
-<li><strong>无 backtrace</strong>：<code>panic</code> / <code>panic_msg</code> 仅打印 <code>PANIC[code]</code> 后终止。</li>
-<li><strong>同步线程模型</strong>：<code>pthread_*</code> shim 是占位（<code>src/ffi.zig</code>），目前没有 host-level 调度器。</li>
-<li><strong>浮点比较未实现</strong>：位存储已实现，<code>fcmp_*</code> 仅在 SAB 路径有完整支持；文本路径在某些比较分支下未走完。</li>
-<li><strong>call cache 内存敏感</strong>：<code>memory_epoch</code> 在每个"读可能不纯"的 extern 后 bump；纯函数会一直命中。</li>
+<li><strong>No backtrace</strong>: <code>panic</code> / <code>panic_msg</code> only print <code>PANIC[code]</code> and then terminate.</li>
+<li><strong>Synchronous threading model</strong>: the <code>pthread_*</code> shims are placeholders (<code>src/ffi.zig</code>); there is currently no host-level scheduler.</li>
+<li><strong>Floating-point comparison not implemented</strong>: bit storage is implemented; <code>fcmp_*</code> only has full support on the SAB path; the text path has not completed some comparison branches.</li>
+<li><strong>Call cache is memory-sensitive</strong>: <code>memory_epoch</code> is bumped after every extern that “may read impurely”; pure functions keep hitting.</li>
 </ul>
-<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/12_vm/03_internals.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
 </body>
 </html>

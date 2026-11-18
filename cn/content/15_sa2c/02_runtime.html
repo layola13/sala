@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>运行时：按需 helper、内存与 Gas</title>
+<link rel="stylesheet" href="../../assets/help.css">
+<style>
+table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
+th,td{border:1px solid #d1d5db;padding:6px 8px;text-align:left}
+th{background:#f3f4f6}
+code{background:#f3f4f6;padding:1px 5px;border-radius:4px}
+pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-size:13px}
+</style>
+</head>
+<body class="topic">
+<div class="topic-header">sa→C &gt; 运行时：按需 helper、内存与 Gas</div>
+<h1>运行时：按需 helper、内存与 Gas</h1>
+
+<h2>1. helper 按需发射（无死代码）</h2>
+<p>运行时约 130 个 helper（load/store/ALU/float/cvt/print 等）组成目录表，
+发射器先把函数体写进侧 buffer，再用 <code>名字 + "("</code> 文本扫描定使用集，
+经依赖闭包补齐后只发射用到的那些（相对顺序保证被调者在前）。
+效果：<code>hello_world</code> 从约 180 行降到 43 行。
+无间接调用的程序整个跳过 <code>sa_fn_t/sa_ftable/sa_call_indirect</code>；
+纯计算程序连 16MB 的 <code>sa_mem</code> 都不发射（<code>sa_brk</code> 只跟分配器走）。</p>
+<p>配套裁剪：从未被跳转的 label 只保留 metering（消 <code>-Wunused-label</code>）；
+从未被读的寄存器槽不声明（消 <code>-Wunused-but-set-variable</code>）；
+从 <code>main</code> 不可达的用户函数整个跳过（无 main 的纯库单元全保留）；
+未被调用的 extern 只有前向声明、没有 stub 定义。</p>
+
+<h2>2. 线性内存与检查</h2>
+<ul>
+<li><code>static uint8_t sa_mem[SA_MEM_BYTES]</code>（默认 16MB，可用
+<code>-DSA_MEM_BYTES=…</code> 覆盖），bump 分配器 <code>sa_alloc</code>（8 字节对齐）。</li>
+<li>所有 load/store/print 经 <code>sa_checked_addr(addr, size)</code> 做越界检查，
+越界走 <code>sa_trap("oob linear-memory access")</code>；<code>sa_trap</code> 为
+<code>noreturn</code>，错误输出到 stderr 并 <code>exit(1)</code>。</li>
+</ul>
+
+<h2>3. Gas 计量</h2>
+<pre>static sa_u64 sa_gas = SA_GAS_LIMIT;   /* 默认 10000，可 -DSA_GAS_LIMIT=… 覆盖 */
+#define SA_GAS_CHECK(n) do { \
+  if (sa_gas &lt; (sa_u64)(n)) sa_trap("out of gas"); \
+  sa_gas -= (sa_u64)(n); } while (0)</pre>
+<p>每个函数入口与每个 <code>SA_L_*</code> 标签各扣 1 单位。
+<code>main</code> 内有 <code>(void)sa_gas;</code> 保证符号被引用。
+验证例：<code>-DSA_GAS_LIMIT=1ULL</code> 编译 hello（需 2 单位）运行报
+<code>[sa-trap] out of gas</code>，exit=1。注意默认 1 万单位只够中小 demo，
+循环上万次的真程序需要调大限额（见<a href="05_verify.html">验证矩阵</a>）。</p>
+
+<div class="note"><span class="label">注意</span>生成的 C 只用确定性构造：
+无 <code>malloc</code>（除 staged http 状态表，见 extern 章，也是固定大小静态数组）、
+无平台相关头文件，同一输入在任何 <code>-std=c99</code> 编译器下输出一致。</div>
+</body>
+</html>

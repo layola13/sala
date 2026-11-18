@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>运行时：按需 helper、内存与 Gas</title>
+<title>Runtime: On-Demand Helpers, Memory, and Gas</title>
 <link rel="stylesheet" href="../../assets/help.css">
 <style>
 table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px}
@@ -13,43 +13,43 @@ pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-
 </style>
 </head>
 <body class="topic">
-<div class="topic-header">sa→C &gt; 运行时：按需 helper、内存与 Gas</div>
-<h1>运行时：按需 helper、内存与 Gas</h1>
+<div class="topic-header">sa→C Backend &gt; Runtime: On-Demand Helpers, Memory, and Gas</div>
+<h1>Runtime: On-Demand Helpers, Memory, and Gas</h1>
 
-<h2>1. helper 按需发射（无死代码）</h2>
-<p>运行时约 130 个 helper（load/store/ALU/float/cvt/print 等）组成目录表，
-发射器先把函数体写进侧 buffer，再用 <code>名字 + "("</code> 文本扫描定使用集，
-经依赖闭包补齐后只发射用到的那些（相对顺序保证被调者在前）。
-效果：<code>hello_world</code> 从约 180 行降到 43 行。
-无间接调用的程序整个跳过 <code>sa_fn_t/sa_ftable/sa_call_indirect</code>；
-纯计算程序连 16MB 的 <code>sa_mem</code> 都不发射（<code>sa_brk</code> 只跟分配器走）。</p>
-<p>配套裁剪：从未被跳转的 label 只保留 metering（消 <code>-Wunused-label</code>）；
-从未被读的寄存器槽不声明（消 <code>-Wunused-but-set-variable</code>）；
-从 <code>main</code> 不可达的用户函数整个跳过（无 main 的纯库单元全保留）；
-未被调用的 extern 只有前向声明、没有 stub 定义。</p>
+<h2>1. On-Demand Helper Emission (No Dead Code)</h2>
+<p>About 130 runtime helpers (load/store/ALU/float/cvt/print, etc.) form a catalog table;
+the emitter first writes the function bodies into a side buffer, then determines the used set with a text scan for <code>name + "("</code>,
+completes it through the dependency closure, and emits only those that are used (relative order guarantees callees come first).
+Effect: <code>hello_world</code> dropped from about 180 lines to 43 lines.
+Programs with no indirect calls skip <code>sa_fn_t/sa_ftable/sa_call_indirect</code> entirely;
+pure-computation programs do not even emit the 16MB <code>sa_mem</code> (<code>sa_brk</code> follows the allocator only).</p>
+<p>Companion trimming: a label that is never jumped to keeps only metering (eliminating <code>-Wunused-label</code>);
+a register slot that is never read is not declared (eliminating <code>-Wunused-but-set-variable</code>);
+a user function unreachable from <code>main</code> is skipped entirely (pure library units with no main keep everything);
+an extern that is never called gets only a forward declaration, with no stub definition.</p>
 
-<h2>2. 线性内存与检查</h2>
+<h2>2. Linear Memory and Checks</h2>
 <ul>
-<li><code>static uint8_t sa_mem[SA_MEM_BYTES]</code>（默认 16MB，可用
-<code>-DSA_MEM_BYTES=…</code> 覆盖），bump 分配器 <code>sa_alloc</code>（8 字节对齐）。</li>
-<li>所有 load/store/print 经 <code>sa_checked_addr(addr, size)</code> 做越界检查，
-越界走 <code>sa_trap("oob linear-memory access")</code>；<code>sa_trap</code> 为
-<code>noreturn</code>，错误输出到 stderr 并 <code>exit(1)</code>。</li>
+<li><code>static uint8_t sa_mem[SA_MEM_BYTES]</code> (16MB by default, overridable with
+<code>-DSA_MEM_BYTES=…</code>), with the bump allocator <code>sa_alloc</code> (8-byte alignment).</li>
+<li>All load/store/print operations go through <code>sa_checked_addr(addr, size)</code> for bounds checking;
+out-of-bounds access goes to <code>sa_trap("oob linear-memory access")</code>; <code>sa_trap</code> is
+<code>noreturn</code>, writes the error to stderr, and calls <code>exit(1)</code>.</li>
 </ul>
 
-<h2>3. Gas 计量</h2>
+<h2>3. Gas Metering</h2>
 <pre>static sa_u64 sa_gas = SA_GAS_LIMIT;   /* 默认 10000，可 -DSA_GAS_LIMIT=… 覆盖 */
 #define SA_GAS_CHECK(n) do { \
   if (sa_gas &lt; (sa_u64)(n)) sa_trap("out of gas"); \
   sa_gas -= (sa_u64)(n); } while (0)</pre>
-<p>每个函数入口与每个 <code>SA_L_*</code> 标签各扣 1 单位。
-<code>main</code> 内有 <code>(void)sa_gas;</code> 保证符号被引用。
-验证例：<code>-DSA_GAS_LIMIT=1ULL</code> 编译 hello（需 2 单位）运行报
-<code>[sa-trap] out of gas</code>，exit=1。注意默认 1 万单位只够中小 demo，
-循环上万次的真程序需要调大限额（见<a href="05_verify.html">验证矩阵</a>）。</p>
+<p>Each function entry and each <code>SA_L_*</code> label deducts 1 unit.
+<code>main</code> contains <code>(void)sa_gas;</code> to guarantee the symbol is referenced.
+Verification example: compiling hello with <code>-DSA_GAS_LIMIT=1ULL</code> (it needs 2 units) and running it reports
+<code>[sa-trap] out of gas</code>, exit=1. Note that the default limit of 10,000 units is only enough for small and medium demos;
+a real program looping tens of thousands of times needs a larger limit (see the <a href="05_verify.html">Verification Matrix and Known Boundaries</a> page).</p>
 
-<div class="note"><span class="label">注意</span>生成的 C 只用确定性构造：
-无 <code>malloc</code>（除 staged http 状态表，见 extern 章，也是固定大小静态数组）、
-无平台相关头文件，同一输入在任何 <code>-std=c99</code> 编译器下输出一致。</div>
+<div class="note"><span class="label">Note</span>The generated C uses only deterministic constructs:
+no <code>malloc</code> (except the staged http state table — see the extern page — which is also a fixed-size static array),
+no platform-specific headers, and the same input produces identical output under any <code>-std=c99</code> compiler.</div>
 </body>
 </html>

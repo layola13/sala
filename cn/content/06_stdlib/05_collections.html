@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>collections：Vec / HashMap / Option 等</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; collections：Vec / HashMap / Option 等</div>
+<h1>collections：Vec / HashMap / Option 等</h1>
+
+<p>这一页说明集合与常用值类型的实现方式，以及 Sla 代码能直接使用的类型方法面。
+集合不是 extern 函数，而是 SA 宏 + 布局契约（<code>.sal</code>），Sla 方法调用由
+<code>sla_std/std_surface.sla_meta</code> 规则 lower 到对应宏。</p>
+
+<h2>布局契约（.sal）</h2>
+<table>
+<tr><th>常量</th><th>含义</th></tr>
+<tr><td><code>Vec_SIZE = 24</code></td><td>Vec 结构大小；字段 <code>ptr = +0</code>、<code>cap = +8</code>、<code>len = +16</code>（alloc/vec.sal）</td></tr>
+<tr><td><code>HashMap_SIZE = 40</code></td><td>字段 <code>slots/cap/len/tombs/seed</code> 位于 <code>+0/+8/+16/+24/+32</code></td></tr>
+<tr><td><code>HashMapSlot_SIZE = 32</code></td><td>槽位含 <code>hash/key/value/state</code>；状态有 <code>EMPTY/FILLED/TOMB</code></td></tr>
+</table>
+
+<h2>Sla 方法面（std_surface.sla_meta）</h2>
+<table>
+<tr><th>类型</th><th>可用成员</th></tr>
+<tr><td><code>Vec</code></td><td>关联 <code>new</code>；<code>push</code>、<code>len()</code>、下标读写 <code>v[i]</code>、fallible 的 <code>remove(index)</code></td></tr>
+<tr><td><code>HashSet</code></td><td>关联 <code>new</code>；<code>insert</code>、<code>contains</code>、<code>len()</code></td></tr>
+<tr><td><code>BTreeSet</code></td><td>关联 <code>new</code>；<code>insert</code>、<code>contains</code>、<code>len()</code></td></tr>
+<tr><td><code>Box</code></td><td>关联 <code>new / into_raw / from_raw</code>；方法 <code>get</code>、<code>as_ptr</code></td></tr>
+<tr><td><code>Rc</code> / <code>Arc</code></td><td>关联 <code>new / clone</code>；方法 <code>get</code>、<code>as_ptr</code></td></tr>
+<tr><td><code>Cell</code> / <code>RefCell</code></td><td>关联 <code>new</code>；<code>Cell</code> 有 <code>get / set</code></td></tr>
+<tr><td><code>Option</code></td><td><code>Some(v)</code> / <code>None</code>；<code>is_some</code>、<code>is_none</code>、<code>get</code>、<code>unwrap</code>、<code>unwrap_or</code></td></tr>
+<tr><td><code>Result</code></td><td><code>Ok(v)</code> / <code>Err(e)</code>；<code>is_ok</code>、<code>is_err</code>、<code>unwrap</code>、<code>unwrap_or</code></td></tr>
+<tr><td><code>Slice</code></td><td>下标读 <code>s[i]</code> 与地址视图</td></tr>
+</table>
+
+<h2>HashMap：哈希种子与迭代序口径（TS-11，2026-10-29 落字）</h2>
+<p>哈希种子<strong>全固定、无进程随机化</strong>：SA 层 HashMap 默认入口以种子 0 哈希
+（xor-shift 终化）；SLA <code>Hash</code> trait 的 DefaultHasher 是 FNV-1a 形（固定种子常量
+与素数）；SipHash 形的 RandomState 虽存在，其默认键同为编译期常量，map 路径不从 OS 熵播种。
+迭代顺序是<strong>表位序</strong>，由（哈希、容量、插入序）确定性决定——但契约口径是
+<strong>迭代顺序无保证</strong>：实现虽确定，程序不得依赖任何具体顺序。附事实注记：
+无随机化意味着没有哈希洪水防护，是否处理属后续安全裁定，不在本节口径内。</p>
+
+<h2>真实示例</h2>
+<p>摘自 <code>sa_plugin_sla/tests/import_fixtures/std_nested/uses_vec.sla</code>：</p>
+<pre><code>@import "sa_std/vec.sa"
+
+fn imported_vec_sum() -&gt; i32 {
+    let values: Vec&lt;i32&gt; = Vec::new();
+    values.push(2);
+    values.push(3);
+    return values[0] + values[1];
+}</code></pre>
+<p>泛型写法 <code>Vec&lt;i32&gt;</code> 由编译器按元素类型单态化（宏里的
+<code>%elem_size</code>/<code>_TYPED_{elem_ty}</code> 变体即来源于此）。</p>
+
+<div class="note"><span class="label">注意</span>同目录还有更多集合实现可经
+<code>.sa</code> 宏使用：<code>binary_heap.sa</code>、<code>btree_map.sa</code>、
+<code>btree_set.sa</code>、<code>hashmap.sa</code>、<code>hashset.sa</code>、
+<code>collections/linked_list.sa</code>、<code>vec_deque.sa</code>。这些没有专门的 Sla 方法面，
+需要通过导入宏在 SA 层使用。</div>
+
+<h2>甲类：几何增长批量面与池（2026-11-02）</h2>
+<div>GAP-BULKAPPEND 关闭。原生层新增三个几何增长原语（sa_std/alloc/vec.sa），
+增长序 <code>0&rarr;4</code> 起步、其后翻倍，与 <code>@sa_vec_push</code> 同序
+（push 的 0&rarr;1 起步已按裁决统一为 0&rarr;4）；<code>@sa_vec_reserve</code>
+保持精确一次性尺寸语义不变，精确预留的增量增长是 O(n&sup2;) 陷阱。</div>
+<table>
+<tr><th>原语</th><th>语义</th></tr>
+<tr><td><code>@sa_vec_reserve_grow</code></td><td>几何预留：容量不足时扩到 max(所需, 翻倍)，已足则零动作</td></tr>
+<tr><td><code>@sa_vec_extend</code></td><td>批量追加一段内存（几何扩容 + 一次 memcpy 级拷贝）</td></tr>
+<tr><td><code>@sa_vec_extend_vec</code></td><td>整 Vec 追加；自追加（源与目标同一缓冲）响亮 panic</td></tr>
+</table>
+<div>批量拷贝绑定 <code>@sa_mem_copy_nonoverlapping</code>（core/mem.sa，
+memcpy 面）；新原语不承诺 [len, cap) 零填（与 push 的历史行为一致，
+reserve/with_capacity 才零填整缓冲）。SLA 面见 vec_packed.sla 与
+vec_grow.sla：<code>sa_vec_grow_to</code>、几何 extend 家族（含
+u16/i32/f64 的 packed 变体）与 mark/rewind
+（<code>sa_vec_mark</code> / <code>sa_vec_rewind</code> /
+<code>sa_vec_rewind_bytes</code>）。</div>
+<div>池与链接模式库（SLA 层）：<code>slice_pool.sla</code> 字节段池
+（first-fit + 分裂 + 邻接合并，free 不匹配响亮 panic）；
+<code>slot_pool.sla</code> 定长槽池（freelist LIFO，double-free 响亮
+panic；深元素在 v1 契约外）；<code>rel_link.sla</code> 相对偏移链接
+（u32 偏移字段 + <code>REL_NIL</code>，整块搬迁后偏移仍可解析）。
+</div>
+
+</body>
+</html>

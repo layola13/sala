@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>rosetta 对照集与 bc2sa 桥接生态</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">与 Rust 对比 &gt; rosetta 对照集与 bc2sa 桥接生态</div>
+<h1>rosetta 对照集与 bc2sa 桥接生态</h1>
+
+<p>这一页介绍两条「借力 Rust 生态」的真实通道：
+<b>rosetta 对照集</b>——每个主题一个 Rust 参考实现配一个 SLA 实现，用来人工核对语义等价；
+<b>bc2sa</b>——把 LLVM bitcode 逆向翻译成 SA，让 Rust/C/C++ 编译产物直接进 SA 管线。
+读完你就能判断：手头的 Rust 代码该走哪条路、以及当前各自能吃到多少。</p>
+
+<h2>rosetta 树的结构与命名规律</h2>
+<p><code>demos/rosetta/</code> 目前有 <b>315 个连续编号目录（01–315）</b>。
+根 README 自述为「300 个 Rust/Sla 对比 demo，源自 sci/demos/rosetta」；
+实际目录编号排到了 315，其中 301 号以后是 SLA 前端特性类 demo
+（<code>@overload</code> 操作符、<code>_</code> 丢弃槽、<code>using</code> 静态扩展、async 挂起恢复等）。
+每个目录固定放：</p>
+<table>
+<tr><th>文件</th><th>内容</th></tr>
+<tr><td><code>main.rs</code></td><td>Rust 参考实现（保持原味写法）</td></tr>
+<tr><td><code>main.sla</code></td><td>SLA 对应实现，多数带一个 <code>@test "rosetta NNN …"</code> 自检块</td></tr>
+<tr><td><code>README.md</code></td><td>一句话说明（仅 <code>314_async_await_pending_resume</code> 与 <code>315_async_thread_pool</code> 暂缺）</td></tr>
+<tr><td><code>main.sa</code> / 缓存目录</td><td>部分目录留有编译出的 SA 文本与 <code>.sla-cache</code> 等产物</td></tr>
+</table>
+
+<p>编号段大致按主题分区：</p>
+<table>
+<tr><th>编号段</th><th>主题</th><th>例子</th></tr>
+<tr><td>01–30</td><td>基础语法</td><td><code>01_hello_world</code>、<code>02_mutability</code>、<code>06_enum_and_match</code>、<code>09_async_await</code>、<code>27_move_semantics</code></td></tr>
+<tr><td>31–40</td><td>trait / 迭代器 / 泛型</td><td><code>31_trait_static_dispatch</code>、<code>32_trait_object_vector</code>、<code>35_iterator_fold</code></td></tr>
+<tr><td>41–60</td><td>模块、Option/Result、常用模式</td><td><code>43_tagged_union</code>、<code>50_error_chain</code>、<code>55_builder_pattern</code></td></tr>
+<tr><td>61–100</td><td>应用型场景</td><td><code>61_thread_pool</code>、<code>77_http_route</code>、<code>81_kv_store</code>、<code>100_full_app</code></td></tr>
+<tr><td>101–160</td><td>内存、unsafe、并发底层</td><td><code>101_custom_drop</code>、<code>107_refcell_dynamic_borrow</code>、<code>112_raw_pointer_arithmetic</code>、<code>155_arena_allocator_bump</code></td></tr>
+<tr><td>161–170</td><td>高级 trait 特性</td><td><code>161_generic_associated_types</code>、<code>162_auto_traits_send_sync</code>、<code>165_blanket_impl_resolution</code></td></tr>
+<tr><td>171–180</td><td>错误处理生态</td><td><code>171_anyhow_dynamic_error</code>、<code>175_thiserror_macro_derive</code>、<code>180_try_trait_v2</code></td></tr>
+<tr><td>181–200</td><td>OS / FFI 实战、宏与构建开关</td><td><code>186_sqlite_c_api_binding</code>、<code>191_macro_rules_ast_emit</code>、<code>196_lto_link_time_opt</code></td></tr>
+<tr><td>201–220</td><td>包管理（<code>pkg_*</code>）</td><td><code>205_pkg_cyclic_dependency_reject</code>、<code>210_pkg_workspace_root</code></td></tr>
+<tr><td>221–240</td><td>mod 系统（<code>mod_*</code>）</td><td><code>224_mod_reexport_pub_use</code>、<code>226_mod_cyclic_import_detect</code></td></tr>
+<tr><td>241–260</td><td>契约与 ABI 稳定性（<code>contract_*</code>）</td><td><code>243_contract_sig_mismatch_link</code>、<code>247_contract_semver_major_break</code></td></tr>
+<tr><td>261–280</td><td>构建系统（<code>build_*</code>）</td><td><code>268_build_cross_compile_wasm</code>、<code>276_build_incremental_caching</code></td></tr>
+<tr><td>281–300</td><td>FFI 链接与部署形态（<code>ffi_* / eco_*</code>）</td><td><code>281_ffi_link_system_libc</code>、<code>297_eco_game_engine_ecs</code></td></tr>
+<tr><td>301–315</td><td>SLA 前端特性演示</td><td><code>301_operator_overload_add</code>、<code>310_blank_identifier_discard</code>、<code>314_async_await_pending_resume</code></td></tr>
+</table>
+
+<h2>语义等价标注：demo.md 的 ✅ / ❌ 登记口径</h2>
+<p>根目录 <code>demo.md</code> 逐条登记「Rust 源 ↔ SLA 文件」的语义匹配关系：
+<b>✅ 表示直接 1:1 映射；❌ 表示已接受的替代实现、子集或非 1:1 对应。</b>
+当前登记共 204 行，其中 ✅ 114 行、❌ 90 行（这是对仓库内当前文件内容的统计，随代码演进会变化，请勿当作固定比例引用）。
+❌ 行的理由写得很具体，例如：</p>
+<ul>
+<li><code>02_mutability</code>：Rust 在同一变量上做共享借用再可变借用的序列；SLA 只能通过一个独立的不可变辅助计算保留最终值。</li>
+<li><code>04_loop</code>：Rust 用 <code>&amp;mut [u8; 4]</code> 加索引 for 循环改写原缓冲区；SLA 当前消费数组并以 <code>fill(0)</code> 替代。</li>
+<li><code>23_nested_loops</code>：Rust 用嵌套 range <code>for</code>；SLA 改写成 <code>while</code>，控制流形状不同但总数一致。</li>
+<li><code>40_impl_block_state</code>：Rust 通过 <code>&amp;mut self</code> 原地改状态；SLA 消费 <code>self</code> 后返回新值，语义不是 1:1。</li>
+<li><code>190_base64_encode_simd</code>：当前 SLA 源在 <code>u8</code> 算术链上本地失败，走不到字符串收集那一步。</li>
+<li><code>310–313</code>：<code>_</code> 丢弃槽、<code>using</code> 静态扩展、<code>@overload</code>、<code>type</code> 别名展平被明确登记为「本地前端表面 demo，而非 Rust 等价性主张」。</li>
+</ul>
+<div class="warning"><span class="label">警告</span>rosetta 树的定位是<b>人工核对语义等价的工作台</b>，
+不是回归测试集。官方文档明确提示它并非全部都能端到端跑通——例如 <code>09_async_await</code> 在 demo.md 里
+被标为「当前 Sla 版本在本机 checked 路径上失败，不是稳定的直接对应」。使用前请对单个 demo 单独验证，
+不要假设整棵树已就绪。</div>
+
+<h3>三组典型对照</h3>
+<p><b>完全 1:1 的情况</b>（<code>27_move_semantics</code>，除入口签名与自检块外逐行相同）：</p>
+<pre><code>// main.rs                          // main.sla
+struct Data {                       struct Data {
+    value: i32,                         value: i32,
+}                                   }
+
+fn consume(data: Data) -&gt; i32 {     fn consume(data: Data) -&gt; i32 {
+    data.value                          data.value
+}                                   }</code></pre>
+<p><b>方法要改写的情况</b>（<code>59_method_counter</code>）：Rust 用 <code>&amp;mut self</code> 原地自增，
+SLA 用 <code>Cell</code> 承载内部可变性，方法签名是 <code>&amp;self</code>：</p>
+<pre><code>// Rust                              // Sla
+impl Counter {                        impl Counter {
+    fn inc(&amp;mut self) {                   fn inc(&amp;self) -&gt; void {
+        self.0 += 1;                          let current = self.value.get();
+    }                                         self.value.set(current + 1);
+}                                             }
+                                      }
+// 字段声明：struct Counter(i32);  →   struct Counter { value: Cell&lt;i32&gt;, }</code></pre>
+<p><b>Drop 要手工展开的情况</b>（<code>101_custom_drop</code>）：Rust 写 <code>impl Drop</code> 让 guard
+出作用域时累加计数；SLA 不支持 <code>Drop</code>，把释放顺序改写成显式的两次累加：</p>
+<pre><code>// Rust（节选）                        // Sla（节选）
+impl Drop for Guard&lt;'_&gt; {             // 无 Drop：按作用域顺序显式累加
+    fn drop(&amp;mut self) {              tally = tally + inner_value;
+        self.tally.set(               tally = tally + outer_value;
+            self.tally.get()          return tally + result;
+            + self.value);
+    }
+}</code></pre>
+
+<h3>怎么用这棵树</h3>
+<pre><code># 运行目录：sa_plugin_sla 仓库根目录
+SA_PLUGIN_DEV=1 sa sla check demos/rosetta/01_hello_world/main.sla
+SA_PLUGIN_DEV=1 sa sla build demos/rosetta/01_hello_world/main.sla --out /tmp/01_hello_world.sa
+SA_PLUGIN_DEV=1 sa sla test  demos/rosetta/01_hello_world/main.sla</code></pre>
+
+<h2>bc2sa：LLVM bitcode → SA 的桥接器</h2>
+<p>bc2sa 是另一条路：不翻译源码，而是把 <code>rustc</code>/<code>clang</code> 等产出的 LLVM bitcode
+逆向翻译成 SA 文本。理论上任何能产 LLVM bitcode 的语言（Rust、C/C++、Swift、Zig 等）都能经它接入 SA 管线。
+依据 <code>bc2sa_evaluation_cn.md</code>（评估日期 2026-06-15，插件 0.1.0 主线）：</p>
+<table>
+<tr><th>类别</th><th>指令</th><th>状态</th></tr>
+<tr><td rowspan="4">设计文档点名的最小子集</td><td><code>define</code> / <code>declare</code> 函数头</td><td>已实现</td></tr>
+<tr><td><code>alloca</code> / <code>load</code> / <code>store</code></td><td>已实现</td></tr>
+<tr><td><code>add</code> / <code>sub</code> / <code>mul</code> / 比较 / <code>br</code> / <code>ret</code> / <code>call</code></td><td>已实现</td></tr>
+<tr><td>固定边界的 <code>getelementptr</code> 字节偏移</td><td>已实现（含越界拒绝）</td></tr>
+<tr><td rowspan="3">超额实现</td><td><code>sdiv/udiv/srem/urem</code>、<code>and/or/xor/shl/lshr/ashr</code>、<code>icmp</code> 全系列</td><td>已实现</td></tr>
+<tr><td><code>trunc/zext/sext/bitcast</code>、字符串常量全局量</td><td>已实现</td></tr>
+<tr><td><code>.ll</code> 文本输入（不只吃 <code>.bc</code>）</td><td>已实现</td></tr>
+<tr><td rowspan="5">关键缺口</td><td><code>phi</code></td><td>未实现——<b>-O1 以上优化必产生，rustc 默认 opt-level=2 也必产生</b></td></tr>
+<tr><td><code>switch</code> / <code>select</code></td><td>未实现——Rust 的 <code>match</code> 展开与 C 三元表达式常被打成这两条指令</td></tr>
+<tr><td><code>fadd/fsub/fmul/fdiv/fcmp</code> 浮点</td><td>未实现</td></tr>
+<tr><td><code>extractvalue/insertvalue</code> 聚合、原子指令</td><td>未实现</td></tr>
+<tr><td><code>invoke</code>/<code>landingpad</code>（C++ 异常）</td><td>有意不做（与 SA 显式错误模型冲突）</td></tr>
+</table>
+<div class="note"><span class="label">注意</span>静态安全护栏是真的：<code>getelementptr</code> 若可证明越过固定数组边界，
+直接返回 <code>StaticMemoryOverflow</code>，CLI 以 <code>SA-CLI-019</code> 结构化报错退出；
+权限模型只允许读项目目录并 spawn <code>/usr/bin/llvm-dis-14</code>，参数白名单 <code>-o - &lt;input&gt;</code>。
+评估同时明确：该策略只覆盖静态可解析的常量偏移，不承诺完整 C 内存安全证明。</div>
+
+<h3>覆盖率与路线（带日期口径）</h3>
+<table>
+<tr><th>指标</th><th>数值</th><th>出处与时间口径</th></tr>
+<tr><td>当前可翻译的真实代码占比</td><td>O0 基线 + 整数运算 + 静态边界检查 ≈ <b>30%</b></td><td><code>rust_vs_sla_final_cn.md</code> §3.3 / 附录 B（v0.2，2026-06-15），引自 bc2sa_evaluation §1</td></tr>
+<tr><td>广义完成度估计（按「能翻典型 Rust/C 函数」标准）</td><td>约 <b>25–35%</b></td><td><code>bc2sa_evaluation_cn.md</code> §2.2（2026-06-15）；端到端测试覆盖 &lt;5%</td></tr>
+<tr><td>P0 五项完成后预期</td><td>补 phi / switch / select / 浮点 / call 所有权前缀推断 → 覆盖率 <b>70–80%</b></td><td>70–80% 出自 <code>rust_vs_sla_final_cn.md</code> §3.3；
+P0 清单与「2–3 个月」节奏出自 <code>bc2sa_evaluation_cn.md</code> §4.1 / §6</td></tr>
+<tr><td>长期愿景</td><td>完整 LLVM bitcode 子集，理论上可消费整个 Rust/C++ 生态</td><td><code>rust_vs_sla_final_cn.md</code> §3.3</td></tr>
+</table>
+<p>因此现实用法有一条硬约束：提交给 bc2sa 的 bitcode 必须强制 <b>O0</b>
+（Rust 侧形如 <code>--emit=llvm-bc -Copt-level=0</code>，或先用 <code>opt --reg2mem</code> 预处理掉 <code>phi</code>），
+否则大概率撞上未支持指令。评估报告也建议对外宣传时把 bc2sa 标注为 experimental / subset only。</p>
+
+<h2>第三种工具：simple_rust_converter（设计方案）</h2>
+<p><code>sci/docs/simple_rust_converter.md</code> 记录的是一份<b>设计方案</b>而非已交付工具：
+绕过 LLVM，做一个面向 SA-ASM「指令级子集」的源到源直译器（DMT）。核心映射几乎 1:1：</p>
+<pre><code>fn name(a: i64) -&gt; i64 { ... }   →  @name(a: i64) -&gt; i64:   （自动插入 L_ENTRY 标签）
+let x = a + b;                   →  x = add a, b
+if cond { A } else { B }         →  br cond -&gt; L_TRUE, L_FALSE（生成标签并跳转）
+drop(x);                         →  !x
+return val;                      →  return val</code></pre>
+<p>思路是复用 SAX parser 已有的降级逻辑（拟新增 <code>src/sax/rust_flavor.zig</code>），
+线性扫描并把大括号块展平成 SA-ASM 标签流，变量名直接映射为数量无限的虚拟寄存器；
+文档还建议把它编进 WASM、作为 Playground 里 Monaco Editor 的「Simple Rust to SA」按钮。
+定位很清楚：<b>牺牲生态兼容性，换取极快的响应</b>，适合演示 SA 的所有权核心概念，
+不适合真实工程迁移。</p>
+
+<h2>下一步</h2>
+<ul>
+<li>想知道表层兼容到底承诺了什么：<a href="06_surface_compat.html">Rust 表层兼容性：哪些代码能原样解析</a></li>
+<li>把上面的差异变成可执行的改写步骤：<a href="08_migration.html">从 Rust 迁移到 SLA：改写清单与场景选择</a></li>
+<li>标准库方法与 async 的具体形态：<a href="05_stdlib_errors_async.html">标准库、错误处理与 async 对照</a></li>
+<li>逐条语法特性对照：<a href="02_syntax_matrix.html">语法对照实测矩阵</a></li>
+<li>bc2sa 作为插件的使用细节：见「插件参考」章节的 bc2sa 页。</li>
+</ul>
+</body>
+</html>

@@ -1,513 +1,500 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>SAB 格式白皮书（规范）</title>
+<title>SAB Format Whitepaper (Specification)</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SA 汇编与 SAB &gt; SAB 格式白皮书（规范）</div>
-<h1>SAB 格式白皮书</h1>
+<div class="topic-header">SA Assembly and SAB &gt; SAB Format Whitepaper (Specification)</div>
+<h1>SAB Format Whitepaper</h1>
 
-<p>本页是 SAB 二进制格式的规范性说明：字节布局、编码规则、生产者与
-消费者图景，以及往返与版本契约。格式概览见
-<a href="03_sab_format.html">SAB 字节码格式概览</a>；本页为字节级规范，
-实现者按本文即可独立实现 SAB 生产者/消费者。</p>
+<p>This page is the normative specification of the SAB binary format: byte layout, encoding rules, the producer and
+consumer landscape, and the round-trip and version contracts. For a format overview, see
+the <a href="03_sab_format.html">SAB Bytecode Format Overview</a> page; this page is the byte-level specification,
+and implementers can independently implement a SAB producer/consumer from this text alone.</p>
 
-<div class="note"><span class="label">出处与钉版</span>本文每条格式事实
-以源码为准并标注出处（<code>文件:行</code>）。行号出处复核钉版：
-sci <code>2e67cc54</code>、sa_plugin_sla <code>0cc23855</code>
-（2026-11-05）。既有文档（<code>sci/docs/design.md</code>、
-<code>sci/docs/sab_evaluation.md</code>、
-<code>sci/docs/sab_distributed_compilation.md</code>）只作线索，
-与源码冲突处以源码为准，冲突清单见附录 B。</div>
+<div class="note"><span class="label">Sources and pinned versions</span>Every format fact in this text
+takes the source code as authoritative and cites its source (<code>file:line</code>). Pinned versions for line-number verification:
+sci <code>2e67cc54</code>, sa_plugin_sla <code>0cc23855</code>
+(2026-11-05). Existing documents (<code>sci/docs/design.md</code>,
+<code>sci/docs/sab_evaluation.md</code>,
+<code>sci/docs/sab_distributed_compilation.md</code>) serve only as leads;
+where they conflict with the source code, the source code prevails, and the conflict list is in Appendix B.</div>
 
-<h2>0. 术语</h2>
+<h2>0. Terminology</h2>
 <ul>
-<li><strong>SA 文本</strong>：<code>.sa</code> 人类可读汇编文本，经宿主 Flattener 解析/宏展开为指令流。</li>
-<li><strong>SAB</strong>：<code>.sab</code>，SA 指令流的二进制序列化格式，本文的规范对象。</li>
-<li><strong>Instruction</strong>：扁平三地址指令（<code>sci/src/common/instruction.zig</code> 的 <code>Instruction</code> 结构），文本路与 SAB 路的汇合表示。</li>
-<li><strong>Referee</strong>：宿主验证器（<code>sci/src/verifier.zig</code> / <code>sci/src/referee/</code>），对指令流做所有权/能力/状态一致性校验。</li>
-<li><strong>FlattenResult</strong>：宿主内部的扁平程序表示（指令 + 常量声明 + 函数签名 + 符号表 + 位置/布局等附带信息），文本路与 SAB 路各自构造一份后汇合。</li>
-<li><strong>生产者</strong>：写出 <code>.sab</code> 字节的组件；<strong>消费者</strong>：读入 <code>.sab</code> 字节的组件。</li>
+<li><strong>SA text</strong>: <code>.sa</code> human-readable assembly text, parsed/macro-expanded by the host Flattener into an instruction stream.</li>
+<li><strong>SAB</strong>: <code>.sab</code>, the binary serialization format of the SA instruction stream, and the specification object of this text.</li>
+<li><strong>Instruction</strong>: a flat three-address instruction (the <code>Instruction</code> struct in <code>sci/src/common/instruction.zig</code>), the convergence representation of the text path and the SAB path.</li>
+<li><strong>Referee</strong>: the host verifier (<code>sci/src/verifier.zig</code> / <code>sci/src/referee/</code>), which checks the instruction stream for ownership/capability/state consistency.</li>
+<li><strong>FlattenResult</strong>: the host-internal flat program representation (instructions + constant declarations + function signatures + symbol table + ancillary information such as positions/layout), constructed separately by the text path and the SAB path before converging.</li>
+<li><strong>Producer</strong>: a component that writes out <code>.sab</code> bytes; <strong>consumer</strong>: a component that reads in <code>.sab</code> bytes.</li>
 </ul>
-<p>本文的规范对象是<strong>线格式本身</strong>：实现者按本文的字节布局
-即可独立实现生产者/消费者，无需链接 sci 的实现代码。§3 描述的「SLA
-插件与宿主共用同一份编解码源码」是当前工程事实，不是格式要求。</p>
+<p>The specification object of this text is <strong>the wire format itself</strong>: an implementer can independently implement a producer/consumer from the byte layout in this text,
+without linking sci's implementation code. The “SLA plugin and host share the same encode/decode source code” described in §3 is a current engineering fact, not a format requirement.</p>
 
-<h2>1. 定位与设计动机</h2>
-<div class="note"><span class="label">现行口径（2026-11-15 用户裁定）</span>
-<strong>生产优先：SLA 的生产路径是 SA 文本。</strong>所有前端（SLA、slars、
-Rust 实现及任何第三方前端）一律只输出 SA 文本。Zig 版 SLA 编译器的默认
-后端已改为 SA 文本，需要 SAB 必须显式加编译参数
-（<code>--test-backend sab</code>，opt-in）。<strong>SAB 已于 2026-11-15
-封存</strong>（封存 tag <code>sab-sealed-2026-11-15</code>，打在 sci /
-sa_plugin_sla / sla 三仓当时的头上）：SAB 是<strong>优化方向，不是生产
-门槛</strong>；本节旧定位「SAB 是生产路径交换格式、SA 文本只保留教学与
-反编译调试镜像」<strong>自此废止</strong>。SAB 将来若解封，唯一形态是
-SA 工具链内部的 <strong>text → SAB 单向转换</strong>（SA 指令集封闭且已
-冻结，转换器写一次即可）：前端永不发射 SAB、也不感知其存在；逆向转换
-（反汇编找回文本）没有必要——SAB 永远由 text 派生，text 永远是源头。
-两条实测口径同批钉死：其一，SAB <strong>不加速单次编译</strong>（冷编
-时间大头在宿主后端，与输入走文本还是 SAB 无关）；其二，热编 / 增量
-缓存是按源码哈希键控的<strong>独立机制，与 SAB 无关</strong>。SAB 唯一
-具体的残余用途是<strong>类 DLL 的客户交付</strong>：给客户
-<code>.sab</code> 而非源码，客户用 SA 编译器直接编译确认
-（<code>sa build</code> 接受 <code>.sab</code> 输入、文本侧经
-<code>--emit-sab</code> 产出）并验证行为，但拿不到源码；其保护强度与
-DLL 同级（指令流可被逆向还原，原文 / 命名 / 注释不随附），
-<strong>不得表述为源码级保密</strong>。诚实规则不变：任一后端缺失
-lowering 必须响亮报错，禁止静默回退——那是禁假绿，不是路线优先级。
-本白皮书余下章节是格式本身的规范（字节布局、编码与往返契约），
-不因封存而失效；§3 的生产者 / 消费者图景描述的是封存时点的实现状态。</div>
-<p>以下四点是 SAB 引入时的<strong>原始设计动机（历史）</strong>，保留以
-备查；其现状评估以本节开头口径为准（动机一的吞吐主张从未独立实测
-兑现，动机二的前后端二进制交接已随生产路改定退出，动机三的缓存与
-分布式未落地、且缓存已定性为与 SAB 无关的独立机制）：</p>
+<h2>1. Positioning and Design Motivation</h2>
+<div class="note"><span class="label">Current position (user ruling, 2026-11-15)</span>
+<strong>Production first: SLA's production path is SA text.</strong> All frontends (SLA, slars,
+the Rust implementation, and any third-party frontend) output only SA text. The Zig version of the SLA compiler's default
+backend has been changed to SA text, and SAB requires an explicit compiler flag
+(<code>--test-backend sab</code>, opt-in). <strong>SAB was sealed on 2026-11-15</strong> (sealing tag <code>sab-sealed-2026-11-15</code>, placed on the then-current heads of the sci /
+sa_plugin_sla / sla repositories): SAB is an <strong>optimization direction, not a production
+threshold</strong>; the old positioning in this section, “SAB is the production-path interchange format, and SA text is retained only as a teaching and
+decompilation/debugging mirror”, is <strong>hereby abolished</strong>. If SAB is unsealed in the future, its only form will be
+a <strong>text → SAB one-way conversion</strong> inside the SA toolchain (the SA instruction set is closed and already
+frozen, so the converter needs to be written only once): frontends will never emit SAB, nor be aware of its existence; a reverse conversion
+(disassembling to recover text) is unnecessary — SAB is always derived from text, and text is always the source.
+Two measured positions were pinned in the same batch: first, SAB <strong>does not accelerate a single compilation</strong> (the bulk of cold-compilation
+time is in the host backend, unrelated to whether the input takes the text or SAB path); second, hot compilation / incremental
+caching is an <strong>independent mechanism keyed by source hash, unrelated to SAB</strong>. SAB's only
+concrete residual use is <strong>DLL-like customer delivery</strong>: giving the customer a
+<code>.sab</code> rather than the source, so the customer compiles it directly with the SA compiler to confirm
+(<code>sa build</code> accepts <code>.sab</code> input, and the text side produces it via
+<code>--emit-sab</code>) and verifies behavior, without obtaining the source; its protection strength is at the
+same level as a DLL (the instruction stream can be reverse-engineered and restored, while the original text / naming / comments are not attached),
+and it <strong>must not be described as source-level confidentiality</strong>. The honesty rule is unchanged: a missing
+lowering in any backend must report loudly, with silent fallback forbidden — that is a ban on false greens, not a route priority.
+The remaining chapters of this whitepaper are the specification of the format itself (byte layout, encoding and round-trip contracts),
+and do not lapse because of the sealing; the producer / consumer landscape in §3 describes the implementation state at the sealing point in time.</div>
+<p>The following four points are the <strong>original design motivations (historical)</strong> when SAB was introduced, retained for
+reference; their current assessment is governed by the position at the start of this section (motivation 1's throughput claim was never independently measured and
+delivered, motivation 2's frontend/backend binary handover has exited with the production-path change, and motivation 3's caching and
+distributed work has not landed, with caching now characterized as an independent mechanism unrelated to SAB):</p>
 <ol>
-<li><strong>编译吞吐</strong>：SAB 解码直达结构化 <code>Instruction[]</code>，
-跳过文本解析、宏展开与 <code>@import</code> 展开的体量放大
-（<code>sci/docs/design.md</code> §3 的 Y 形双输入架构；该文档称二进制路
-稳态耗时约为文本路 1/10——此为设计文档口径，本白皮书未做独立基准复核，
-见 §6）。</li>
-<li><strong>插件架构的统一交换格式</strong>：SA 是多前端（SLA、slars、
-未来的 RS/TS 前端）的共同目标。前端与宿主之间以布局已定、带版本、
-与源语言无关的二进制指令包交接，而不是让宿主重解析每种前端的文本输出。</li>
-<li><strong>增量 / 缓存 / 分布式的地基</strong>：模块自带符号 + 签名 +
-常量 + 指令四部分（见 §2），为函数级缓存、content hash、模块级并行
-提供格式地基（相关能力建设中；外部引用如 extern 函数、native 文本的
-目标仍按宿主上下文解析，模块并非完全自足）。其中分布式编译目前仍是
-设计草案（<code>sci/docs/sab_distributed_compilation.md</code> 状态：
-设计草案），未落地（见 §6）。</li>
-<li><strong>人机分工</strong>：文本给人（可读、可教、可调试），二进制
-给机器（紧凑、可校验、可缓存）。</li>
+<li><strong>Compilation throughput</strong>: SAB decoding goes directly to structured <code>Instruction[]</code>,
+skipping the volume amplification of text parsing, macro expansion, and <code>@import</code> expansion
+(the Y-shaped dual-input architecture in §3 of <code>sci/docs/design.md</code>; that document claims the binary path's
+steady-state time is about 1/10 of the text path — this is the design document's figure, and this whitepaper has not independently benchmark-verified it,
+see §6).</li>
+<li><strong>A unified interchange format for the plugin architecture</strong>: SA is the common target of multiple frontends (SLA, slars,
+and future RS/TS frontends). Frontends and the host hand over via a binary instruction package whose layout is fixed, versioned,
+and source-language-independent, rather than having the host re-parse each frontend's text output.</li>
+<li><strong>The foundation for incremental / caching / distributed work</strong>: a module carries its own symbols + signatures +
+constants + instructions in four parts (see §2), providing a format foundation for function-level caching, content hashes, and module-level parallelism
+(the related capabilities are under construction; external references such as extern functions and native-text
+targets are still resolved against the host context, so a module is not fully self-contained). Distributed compilation among them is currently still a
+design draft (<code>sci/docs/sab_distributed_compilation.md</code> status:
+design draft), not landed (see §6).</li>
+<li><strong>Human/machine division of labor</strong>: text for humans (readable, teachable, debuggable), binary
+for machines (compact, verifiable, cacheable).</li>
 </ol>
 
-<h2>2. 格式总览</h2>
-<p>主源：<code>sci/src/sab.zig</code>（下文简称 <code>sab.zig</code>，
-行号均指该文件）；指令与操作数的定义源：
-<code>sci/src/common/instruction.zig</code>（简称
-<code>instruction.zig</code>）；签名与类型：
-<code>sci/src/common/signature.zig</code>（简称
-<code>signature.zig</code>）；常量声明：
-<code>sci/src/common/const_decl.zig</code>（简称
-<code>const_decl.zig</code>）。</p>
+<h2>2. Format Overview</h2>
+<p>Primary source: <code>sci/src/sab.zig</code> (referred to below as <code>sab.zig</code>,
+with all line numbers referring to that file); the definition source for instructions and operands:
+<code>sci/src/common/instruction.zig</code> (referred to as
+<code>instruction.zig</code>); signatures and types:
+<code>sci/src/common/signature.zig</code> (referred to as
+<code>signature.zig</code>); constant declarations:
+<code>sci/src/common/const_decl.zig</code> (referred to as
+<code>const_decl.zig</code>).</p>
 
-<h3>2.1 文件布局</h3>
+<h3>2.1 File Layout</h3>
 <table>
-<tr><th>偏移</th><th>字段</th><th>编码</th><th>出处</th></tr>
-<tr><td>0</td><td>magic</td><td>4 字节定长 <code>"SAB\0"</code>（0x53 0x41 0x42 0x00）</td><td><code>sab.zig:10</code></td></tr>
-<tr><td>4</td><td>version_major</td><td>u8 定长，当前 = 4</td><td><code>sab.zig:11</code></td></tr>
-<tr><td>5</td><td>version_minor</td><td>u8 定长，当前 = 0（语义保留，见 §4.3）</td><td><code>sab.zig:12</code></td></tr>
-<tr><td>6</td><td>section_count</td><td>ULEB128，编码器恒写 4</td><td><code>sab.zig:989-996</code></td></tr>
-<tr><td>7…</td><td>sections × section_count</td><td>见下</td><td><code>sab.zig:128-132</code></td></tr>
+<tr><th>Offset</th><th>Field</th><th>Encoding</th><th>Source</th></tr>
+<tr><td>0</td><td>magic</td><td>4-byte fixed length <code>"SAB\0"</code> (0x53 0x41 0x42 0x00)</td><td><code>sab.zig:10</code></td></tr>
+<tr><td>4</td><td>version_major</td><td>u8 fixed length, currently = 4</td><td><code>sab.zig:11</code></td></tr>
+<tr><td>5</td><td>version_minor</td><td>u8 fixed length, currently = 0 (semantics reserved, see §4.3)</td><td><code>sab.zig:12</code></td></tr>
+<tr><td>6</td><td>section_count</td><td>ULEB128, the encoder always writes 4</td><td><code>sab.zig:989-996</code></td></tr>
+<tr><td>7…</td><td>sections × section_count</td><td>See below</td><td><code>sab.zig:128-132</code></td></tr>
 </table>
-<p>偏移 7 是当前编码器把 section_count 以 1 字节最短形写出时的产出；
-解码器按 ULEB128 读计数，不校验最短形，故该偏移不是格式常量，
-一般式为 6 + section_count 的 ULEB 字节数。</p>
-<p>每个 section 的线格式：<code>id: ULEB128</code> +
+<p>Offset 7 is the output when the current encoder writes section_count in its 1-byte shortest form;
+the decoder reads the count as ULEB128 and does not check for the shortest form, so this offset is not a format constant,
+and the general form is 6 + the ULEB byte length of section_count.</p>
+<p>The wire format of each section: <code>id: ULEB128</code> +
 <code>payload_len: ULEB128</code> + <code>payload</code>
-（<code>writeSection</code>，<code>sab.zig:128-132</code>）。section id
-定义（<code>sab.zig:14-19</code>）：</p>
+(<code>writeSection</code>, <code>sab.zig:128-132</code>). Section id
+definitions (<code>sab.zig:14-19</code>):</p>
 <table>
-<tr><th>id</th><th>名称</th><th>内容</th></tr>
-<tr><td>1</td><td>symbol_pool</td><td>字符串池（§2.3）</td></tr>
-<tr><td>2</td><td>function_sigs</td><td>函数签名表（§2.4）</td></tr>
-<tr><td>3</td><td>const_decls</td><td>常量声明表（§2.5）</td></tr>
-<tr><td>4</td><td>instructions</td><td>指令流（§2.6）</td></tr>
+<tr><th>id</th><th>Name</th><th>Contents</th></tr>
+<tr><td>1</td><td>symbol_pool</td><td>String pool (§2.3)</td></tr>
+<tr><td>2</td><td>function_sigs</td><td>Function signature table (§2.4)</td></tr>
+<tr><td>3</td><td>const_decls</td><td>Constant declaration table (§2.5)</td></tr>
+<tr><td>4</td><td>instructions</td><td>Instruction stream (§2.6)</td></tr>
 </table>
-<p><strong>生产者必须</strong>按 1→2→3→4 的顺序写出全部四个 section
-（规范要求；现编码器 <code>encodeProgramWithConsts</code> 即如此，
-<code>sab.zig:993-996</code>）。消费者现状对顺序宽容，但乱序会触发
-§4.4 的池解析依赖，生产者不得利用该宽容。文件<strong>没有</strong>
-尾部校验和、签名或长度总账字段（<code>sab.zig:989-997</code> 的完整
-写出路径即文件全貌）；解码错误与 Referee 验证只能拒绝结构/语义非法者，
-<strong>不提供「检出任意内容变更」的保证</strong>（在合法值域内互相
-替换的损坏可能通过全部检查，见 §6.4）。</p>
+<p><strong>Producers must</strong> write all four sections in the order 1→2→3→4
+(a specification requirement; the current encoder <code>encodeProgramWithConsts</code> does exactly this,
+<code>sab.zig:993-996</code>). Consumers are currently lenient about order, but out-of-order input triggers
+the pool-resolution dependency of §4.4, and producers must not exploit that leniency. The file has <strong>no</strong>
+trailing checksum, signature, or total-length ledger field (the complete write path in <code>sab.zig:989-997</code> is the full
+picture of the file); decode errors and Referee verification can only reject structurally/semantically illegal content,
+and <strong>do not provide a guarantee of “detecting arbitrary content changes”</strong> (corruption that substitutes values within the legal value range may pass all checks, see §6.4).</p>
 
-<h3>2.2 编码原语</h3>
+<h3>2.2 Encoding Primitives</h3>
 <table>
-<tr><th>原语</th><th>规则</th><th>出处</th></tr>
-<tr><td>ULEB128</td><td>无符号小端 LEB128，每字节低 7 位载荷、高位为延续位。解码至多读 10 字节：第 10 字节（移位 63）只有最低位载荷进入结果、其余位移出 u64 宽度被丢弃；仅当第 10 字节仍带延续位时报 <code>Leb128Overflow</code></td><td><code>sab.zig:75-96</code></td></tr>
-<tr><td>SLEB128</td><td>有符号 LEB128，至多 10 字节；终止字节 bit6 为符号位，总移位 &lt;64 时解码做符号扩展</td><td><code>sab.zig:98-126</code></td></tr>
-<tr><td>最短形</td><td><strong>生产者必须</strong>发最短形 LEB 编码（现编码器恒最短形）；解码器接受非最短形，不因此报错</td><td><code>sab.zig:75-126</code></td></tr>
-<tr><td>定长字节</td><td>枚举类字段（指令 kind、各类 enum）以原始 u8 写出其枚举序号</td><td>如 <code>sab.zig:452</code> 起的 <code>writeInstructions</code></td></tr>
-<tr><td>可选字段</td><td>presence 字节：0 = 缺席、1 = 存在后跟载荷；presence 为其他值报 <code>InvalidTag</code></td><td><code>sab.zig</code> 的 <code>writeOptionalEnum</code>/<code>readOptionalEnum</code> 等</td></tr>
-<tr><td>浮点立即数</td><td><code>imm_float</code> 以 f64 的 IEEE-754 位型按 u64 小端定长 8 字节写出，<strong>逐位保留</strong>（含 NaN 载荷与 -0.0），编解码不做规范化</td><td><code>sab.zig:189</code> 起的 <code>writeOperand</code> 中 <code>.imm_float</code> 分支</td></tr>
-<tr><td>池索引</td><td>对字符串池的引用以 ULEB128 写出池下标；编码器内部以 u32 分配池 id（<code>std.StringHashMap(u32)</code>），下标越界在解码时报 <code>InvalidTag</code></td><td><code>sab.zig:189</code>、<code>sab.zig:357</code> 起</td></tr>
+<tr><th>Primitive</th><th>Rule</th><th>Source</th></tr>
+<tr><td>ULEB128</td><td>Unsigned little-endian LEB128: the low 7 bits of each byte are payload, the high bit is the continuation bit. Decoding reads at most 10 bytes: for the 10th byte (shift 63) only the lowest payload bit enters the result and the remaining bits are shifted out of the u64 width and discarded; <code>Leb128Overflow</code> is reported only when the 10th byte still carries a continuation bit</td><td><code>sab.zig:75-96</code></td></tr>
+<tr><td>SLEB128</td><td>Signed LEB128, at most 10 bytes; bit 6 of the terminating byte is the sign bit, and decoding performs sign extension when the total shift is &lt;64</td><td><code>sab.zig:98-126</code></td></tr>
+<tr><td>Shortest form</td><td><strong>Producers must</strong> emit shortest-form LEB encodings (the current encoder is always shortest-form); the decoder accepts non-shortest forms without erroring on that account</td><td><code>sab.zig:75-126</code></td></tr>
+<tr><td>Fixed-length bytes</td><td>Enum-class fields (instruction kind, various enums) are written as their raw u8 enum ordinal</td><td>Such as <code>writeInstructions</code> starting at <code>sab.zig:452</code></td></tr>
+<tr><td>Optional fields</td><td>Presence byte: 0 = absent, 1 = present followed by payload; any other presence value reports <code>InvalidTag</code></td><td><code>writeOptionalEnum</code>/<code>readOptionalEnum</code> etc. in <code>sab.zig</code></td></tr>
+<tr><td>Floating-point immediates</td><td><code>imm_float</code> is written as the IEEE-754 bit pattern of an f64, as a fixed-length 8-byte little-endian u64, <strong>preserved bit-for-bit</strong> (including NaN payloads and -0.0); encoding/decoding performs no normalization</td><td>The <code>.imm_float</code> branch in <code>writeOperand</code> starting at <code>sab.zig:189</code></td></tr>
+<tr><td>Pool indices</td><td>References to the string pool are written as ULEB128 pool indices; the encoder internally allocates pool ids as u32 (<code>std.StringHashMap(u32)</code>), and an out-of-range index reports <code>InvalidTag</code> at decode time</td><td><code>sab.zig:189</code>, starting at <code>sab.zig:357</code></td></tr>
 </table>
 
-<h3>2.3 Section 1：symbol_pool（字符串池）</h3>
-<p>线格式：<code>count: ULEB128</code>，随后每项
-<code>len: ULEB128</code> + <code>len</code> 字节原始字节串（无 NUL
-终止符）（<code>writeStringPool</code>，<code>sab.zig:134-141</code>）。</p>
-<p>池是全文件的统一字符串驻留表（即模块的符号表），承载：符号名、
-寄存器名、函数/参数名、<code>.text</code> / <code>.native_text</code>
-操作数的文本、文件名（upstream_loc 的 file）、package identity 等
-一切文本（池的收集范围见 <code>encodeProgramWithConsts</code> 的池
-构建段，<code>sab.zig:935-988</code>）。池规则：</p>
+<h3>2.3 Section 1: symbol_pool (String Pool)</h3>
+<p>Wire format: <code>count: ULEB128</code>, followed by, for each entry,
+<code>len: ULEB128</code> + <code>len</code> bytes of raw byte string (no NUL
+terminator) (<code>writeStringPool</code>, <code>sab.zig:134-141</code>).</p>
+<p>The pool is the whole file's unified string interning table (i.e. the module's symbol table), carrying: symbol names,
+register names, function/parameter names, the text of <code>.text</code> / <code>.native_text</code>
+operands, file names (the file of upstream_loc), package identity, and
+all other text (for the pool's collection scope, see the pool-construction segment of <code>encodeProgramWithConsts</code>,
+<code>sab.zig:935-988</code>). Pool rules:</p>
 <ul>
-<li>编码器按<strong>字节内容去重</strong>（同一字节序列只驻留一份，
-出处同上）；解码器不要求池无重复，重复项的索引各指其项。</li>
-<li>池内字符串是任意字节序列，<strong>不要求 UTF-8</strong>，解码器
-不做编码校验。</li>
+<li>The encoder <strong>deduplicates by byte content</strong> (the same byte sequence is interned only once,
+same source as above); the decoder does not require the pool to be duplicate-free, and the index of a duplicate entry refers to its own entry.</li>
+<li>Strings in the pool are arbitrary byte sequences, <strong>not required to be UTF-8</strong>, and the decoder
+performs no encoding validation.</li>
 </ul>
-<p><strong>编号命名空间</strong>（各操作数/字段的 ULEB128 载荷指向
-何处，实现者必须逐项区分）：<code>.symbol</code> 与 <code>.reg</code>
-是池下标——<code>.reg</code> 下标处存放对应寄存器名，宿主在合成文本时
-以池解析之（<code>operandRegName</code>，见 <code>sab.zig:357</code>
-起的 <code>readOperand</code> 与 <code>synthesizeRawText</code>）；
-<code>.label</code> / <code>.func</code> / <code>.ty</code> 在 sab.zig
-层仅为数值 id（反汇编分别以 <code>L</code> / <code>fn:</code> /
-<code>ty:</code> 呈现、不经池解析），其与名称的对应由生产者的符号表/
-类型表构造定义。函数签名的 <code>param_ids</code> /
-<code>reg_ids</code> 与 <code>.reg</code> 同处符号表 id 空间，
-<code>reg_ids</code> 是该函数涉及的寄存器 id 集（由验证后元数据写入，
-见 §3.1 宿主桥）。</p>
-<p>编码器是其四组<strong>有序输入</strong>（符号序列、常量声明、函数
-签名、指令流）的确定函数：池按固定顺序构建——先调用方给定的符号序，
-再按指令序收集指令携带文本，再函数签名、再常量声明
-（<code>sab.zig:935-988</code>）；哈希表只作查找、不参与输出排序。
-因此相同输入产出相同字节（确定性编码）。这与「同一源程序必产出相同
-字节」是两回事：后者还取决于前端产出的有序输入是否稳定，不在本文
-保证范围。跨独立构建的字节一致性已在实测样本上观察到（同一源文件
-多次构建产出的 <code>.sab</code> 哈希一致），证据范围限于已测样本。</p>
+<p><strong>Numbering namespaces</strong> (implementers must distinguish, item by item, where the ULEB128 payload of each operand/field
+points): <code>.symbol</code> and <code>.reg</code>
+are pool indices — the index of a <code>.reg</code> holds the corresponding register name, and the host resolves it via the pool when synthesizing text
+(<code>operandRegName</code>, see <code>readOperand</code> starting at <code>sab.zig:357</code>
+and <code>synthesizeRawText</code>);
+<code>.label</code> / <code>.func</code> / <code>.ty</code> are, at the sab.zig
+layer, only numeric ids (disassembly presents them as <code>L</code> / <code>fn:</code> /
+<code>ty:</code> respectively, without pool resolution), and their correspondence to names is defined by the producer's symbol table /
+type table construction. A function signature's <code>param_ids</code> /
+<code>reg_ids</code> share the same symbol-table id space as <code>.reg</code>,
+and <code>reg_ids</code> is the set of register ids involved in that function (written from post-verification metadata,
+see the host bridge in §3.1).</p>
+<p>The encoder is a deterministic function of its four groups of <strong>ordered inputs</strong> (the symbol sequence, constant declarations, function
+signatures, and the instruction stream): the pool is built in a fixed order — first the symbol order given by the caller,
+then text carried by instructions collected in instruction order, then function signatures, then constant declarations
+(<code>sab.zig:935-988</code>); the hash table is used only for lookup and does not participate in output ordering.
+Therefore identical inputs produce identical bytes (deterministic encoding). This is a different matter from “the same source program must produce the same
+bytes”: the latter also depends on whether the ordered inputs produced by the frontend are stable, which is outside this text's
+guarantee scope. Byte consistency across independent builds has been observed on measured samples (the <code>.sab</code> hashes of multiple builds of the same source file
+agree), with the evidence scope limited to the samples tested.</p>
 
-<h3>2.4 Section 2：function_sigs（函数签名表）</h3>
-<p>线格式：<code>count: ULEB128</code>，随后每条签名按固定字段序写出
-（<code>writeFunctionSigs</code>，<code>sab.zig:642</code> 起）：</p>
+<h3>2.4 Section 2: function_sigs (Function Signature Table)</h3>
+<p>Wire format: <code>count: ULEB128</code>, followed by each signature written in a fixed field order
+(<code>writeFunctionSigs</code>, starting at <code>sab.zig:642</code>):</p>
 <table>
-<tr><th>字段</th><th>编码</th><th>备注</th></tr>
-<tr><td>id</td><td>ULEB128</td><td>函数 id</td></tr>
-<tr><td>name</td><td>池索引（ULEB128）</td><td></td></tr>
-<tr><td>kind</td><td>u8</td><td><code>FunctionKind</code> 序号，共 6 值：normal / ffi_wrapper / external / exported / test_func / gpu（<code>signature.zig:92-101</code>）</td></tr>
-<tr><td>return_cap</td><td>可选：presence + u8</td><td><code>CapPrefix</code>（见 §2.6）</td></tr>
-<tr><td>return_ty</td><td>u8</td><td><code>PrimType</code> 序号，共 15 值（<code>signature.zig:11-27</code>）</td></tr>
-<tr><td>return_fallible</td><td>u8 布尔</td><td></td></tr>
-<tr><td>entry_inst_idx</td><td>ULEB128</td><td>函数体在指令流中的入口下标</td></tr>
-<tr><td>is_ffi_wrapper / ignored / should_panic / is_variadic</td><td>各 u8 布尔</td><td></td></tr>
-<tr><td>upstream_file</td><td>可选池文本</td><td>v3+ 元数据（见 §4.3）</td></tr>
-<tr><td>upstream_loc</td><td>可选：池索引 file + ULEB128 line + ULEB128 col</td><td>v3+ 元数据</td></tr>
-<tr><td>llvm_name</td><td>可选池文本</td><td>v3+ 元数据</td></tr>
-<tr><td>params</td><td>count: ULEB128 + 每参数（name 池索引、ty u8、cap u8）</td><td></td></tr>
+<tr><th>Field</th><th>Encoding</th><th>Notes</th></tr>
+<tr><td>id</td><td>ULEB128</td><td>Function id</td></tr>
+<tr><td>name</td><td>Pool index (ULEB128)</td><td></td></tr>
+<tr><td>kind</td><td>u8</td><td><code>FunctionKind</code> ordinal, 6 values in total: normal / ffi_wrapper / external / exported / test_func / gpu (<code>signature.zig:92-101</code>)</td></tr>
+<tr><td>return_cap</td><td>Optional: presence + u8</td><td><code>CapPrefix</code> (see §2.6)</td></tr>
+<tr><td>return_ty</td><td>u8</td><td><code>PrimType</code> ordinal, 15 values in total (<code>signature.zig:11-27</code>)</td></tr>
+<tr><td>return_fallible</td><td>u8 boolean</td><td></td></tr>
+<tr><td>entry_inst_idx</td><td>ULEB128</td><td>The function's entry index in the instruction stream</td></tr>
+<tr><td>is_ffi_wrapper / ignored / should_panic / is_variadic</td><td>Each a u8 boolean</td><td></td></tr>
+<tr><td>upstream_file</td><td>Optional pool text</td><td>v3+ metadata (see §4.3)</td></tr>
+<tr><td>upstream_loc</td><td>Optional: pool-index file + ULEB128 line + ULEB128 col</td><td>v3+ metadata</td></tr>
+<tr><td>llvm_name</td><td>Optional pool text</td><td>v3+ metadata</td></tr>
+<tr><td>params</td><td>count: ULEB128 + per parameter (name pool index, ty u8, cap u8)</td><td></td></tr>
 <tr><td>param_ids</td><td>count: ULEB128 + ULEB128 × n</td><td></td></tr>
 <tr><td>reg_ids</td><td>count: ULEB128 + ULEB128 × n</td><td></td></tr>
 </table>
 
-<h3>2.5 Section 3：const_decls（常量声明表）</h3>
-<p>线格式：<code>count: ULEB128</code>，随后每条声明
-（<code>writeConstDecls</code>，<code>sab.zig:595</code> 起）：</p>
+<h3>2.5 Section 3: const_decls (Constant Declaration Table)</h3>
+<p>Wire format: <code>count: ULEB128</code>, followed by each declaration
+(<code>writeConstDecls</code>, starting at <code>sab.zig:595</code>):</p>
 <table>
-<tr><th>字段</th><th>编码</th><th>备注</th></tr>
-<tr><td>source_line / expanded_line</td><td>各 ULEB128</td><td>源码行 / 宏展开行</td></tr>
-<tr><td>name</td><td>池索引</td><td></td></tr>
-<tr><td>literal_text</td><td>池索引</td><td>字面量原文。<strong>属格式内容而非可选元数据，生产者必须写入</strong>；解码端据此重建 <code>@const name = literal_text</code> 的 raw_text（<code>sab.zig:607</code> 起的 <code>readConstDecls</code>）</td></tr>
-<tr><td>upstream_loc</td><td>可选（同 §2.4）</td><td>v3+ 元数据</td></tr>
-<tr><td>value</td><td>标签 u8 + 载荷（递归）</td><td><code>ConstValue</code>，见下</td></tr>
+<tr><th>Field</th><th>Encoding</th><th>Notes</th></tr>
+<tr><td>source_line / expanded_line</td><td>Each ULEB128</td><td>Source line / macro-expanded line</td></tr>
+<tr><td>name</td><td>Pool index</td><td></td></tr>
+<tr><td>literal_text</td><td>Pool index</td><td>The literal's original text. <strong>It is format content, not optional metadata, and producers must write it</strong>; the decoder rebuilds the raw_text of <code>@const name = literal_text</code> from it (<code>readConstDecls</code> starting at <code>sab.zig:607</code>)</td></tr>
+<tr><td>upstream_loc</td><td>Optional (same as §2.4)</td><td>v3+ metadata</td></tr>
+<tr><td>value</td><td>Tag u8 + payload (recursive)</td><td><code>ConstValue</code>, see below</td></tr>
 </table>
-<p><code>ConstValue</code> 的标签是 <code>ConstLiteralKind</code> 的
-序号，共 5 值（<code>const_decl.zig:4-10</code>），载荷规则
-（<code>writeConstValue</code>，<code>sab.zig:530</code> 起）：</p>
+<p>The tag of a <code>ConstValue</code> is the ordinal of <code>ConstLiteralKind</code>,
+5 values in total (<code>const_decl.zig:4-10</code>), with payload rules
+(<code>writeConstValue</code>, starting at <code>sab.zig:530</code>):</p>
 <table>
-<tr><th>标签</th><th>载荷</th></tr>
-<tr><td>hex / utf8 / repeat</td><td>BytesLiteral：<code>len: ULEB128</code> + 原始字节 + repeat presence 字节；若 repeat 存在，再跟 <code>repeat_count: ULEB128</code> + <code>repeat_byte: u8</code>（<code>sab.zig:500</code> 起）</td></tr>
-<tr><td>struct_</td><td><code>field_count: ULEB128</code> + 每字段（name 池索引、size: ULEB128、value 递归）</td></tr>
-<tr><td>vtable</td><td><code>slot_count: ULEB128</code> + 每槽（name 池索引、func_name 池索引）</td></tr>
+<tr><th>Tag</th><th>Payload</th></tr>
+<tr><td>hex / utf8 / repeat</td><td>BytesLiteral: <code>len: ULEB128</code> + raw bytes + repeat presence byte; if repeat is present, followed by <code>repeat_count: ULEB128</code> + <code>repeat_byte: u8</code> (starting at <code>sab.zig:500</code>)</td></tr>
+<tr><td>struct_</td><td><code>field_count: ULEB128</code> + per field (name pool index, size: ULEB128, value recursive)</td></tr>
+<tr><td>vtable</td><td><code>slot_count: ULEB128</code> + per slot (name pool index, func_name pool index)</td></tr>
 </table>
 
-<h3>2.6 Section 4：instructions（指令流）</h3>
-<p>本节描述<strong>当前版本（v4）</strong>的线格式；历史版本（v1–v3）
-的字段差异见 §4.3 的版本矩阵。线格式：<code>count: ULEB128</code>，
-随后每条指令按固定字段序写出（<code>writeInstructions</code>，
-<code>sab.zig:452</code> 起）：</p>
+<h3>2.6 Section 4: instructions (Instruction Stream)</h3>
+<p>This section describes the wire format of the <strong>current version (v4)</strong>; the field differences of historical versions (v1–v3)
+are in the version matrix in §4.3. Wire format: <code>count: ULEB128</code>,
+followed by each instruction written in a fixed field order (<code>writeInstructions</code>,
+starting at <code>sab.zig:452</code>):</p>
 <table>
-<tr><th>字段</th><th>编码</th><th>备注</th></tr>
-<tr><td>kind</td><td>u8</td><td><code>InstKind</code> 序号，共 <strong>40</strong> 值（<code>instruction.zig:264-308</code>，全表见附录 A）</td></tr>
+<tr><th>Field</th><th>Encoding</th><th>Notes</th></tr>
+<tr><td>kind</td><td>u8</td><td><code>InstKind</code> ordinal, <strong>40</strong> values in total (<code>instruction.zig:264-308</code>, full table in Appendix A)</td></tr>
 <tr><td>source_line</td><td>ULEB128</td><td></td></tr>
-<tr><td>expanded_line</td><td>ULEB128</td><td>解码端原样保留，禁止以指令序号覆盖（<code>sab.zig:880</code> 起 <code>readInstructions</code> 内的源码注释明示此纪律）</td></tr>
-<tr><td>op_kind</td><td>可选：presence + u8</td><td><code>OpKind</code> 序号，共 56 值（<code>instruction.zig:13-85</code>，全表见附录 A）</td></tr>
-<tr><td>operands</td><td><strong>恒 4 个</strong>操作数，逐个按操作数编码（下表）</td><td><code>Instruction.operands</code> 为定长 <code>[4]Operand</code>（<code>instruction.zig:318</code>），未用槽位以 <code>.none</code>（标签 0）填充</td></tr>
-<tr><td>atomic_value_ty</td><td>presence 字节 + ULEB128</td><td>原子操作的元素类型序号（值域为 <code>PrimType</code> 序号）</td></tr>
-<tr><td>atomic_ordering / atomic_second_ordering / atomic_rmw_op</td><td>各为可选枚举（presence + u8）</td><td></td></tr>
-<tr><td>atomic_expected_text / atomic_new_text</td><td>各为可选池文本</td><td><strong>v3 起引入的元数据区</strong>（本行至 upstream_loc 行）：v4 线格式中恒位于此位，字段本身以 presence 编码、值可为空；v1/v2 线格式中整段不存在</td></tr>
-<tr><td>native_reg_names</td><td>count: ULEB128 + 池索引 × n</td><td>同上（v3 起）</td></tr>
-<tr><td>package_identity</td><td>可选池文本</td><td>同上（v3 起）</td></tr>
-<tr><td>package_source_sha256</td><td>presence 字节 + 32 字节定长</td><td>同上（v3 起）。<strong>注意</strong>：这是逐指令的源码溯源元数据，不是文件完整性校验和</td></tr>
-<tr><td>upstream_loc</td><td>可选（同 §2.4）</td><td>同上（v3 起）</td></tr>
+<tr><td>expanded_line</td><td>ULEB128</td><td>The decoder preserves it as-is; overwriting it with the instruction ordinal is forbidden (a source comment inside <code>readInstructions</code> starting at <code>sab.zig:880</code> explicitly states this discipline)</td></tr>
+<tr><td>op_kind</td><td>Optional: presence + u8</td><td><code>OpKind</code> ordinal, 56 values in total (<code>instruction.zig:13-85</code>, full table in Appendix A)</td></tr>
+<tr><td>operands</td><td><strong>Always 4</strong> operands, each encoded per the operand encoding (table below)</td><td><code>Instruction.operands</code> is a fixed-length <code>[4]Operand</code> (<code>instruction.zig:318</code>); unused slots are filled with <code>.none</code> (tag 0)</td></tr>
+<tr><td>atomic_value_ty</td><td>Presence byte + ULEB128</td><td>The element-type ordinal of the atomic operation (value range is the <code>PrimType</code> ordinals)</td></tr>
+<tr><td>atomic_ordering / atomic_second_ordering / atomic_rmw_op</td><td>Each an optional enum (presence + u8)</td><td></td></tr>
+<tr><td>atomic_expected_text / atomic_new_text</td><td>Each optional pool text</td><td><strong>The metadata region introduced in v3</strong> (from this row to the upstream_loc row): in the v4 wire format it is always at this position, with the fields themselves presence-encoded and possibly empty; in the v1/v2 wire formats the whole segment does not exist</td></tr>
+<tr><td>native_reg_names</td><td>count: ULEB128 + pool index × n</td><td>Same as above (v3 onwards)</td></tr>
+<tr><td>package_identity</td><td>Optional pool text</td><td>Same as above (v3 onwards)</td></tr>
+<tr><td>package_source_sha256</td><td>Presence byte + 32-byte fixed length</td><td>Same as above (v3 onwards). <strong>Note</strong>: this is per-instruction source-provenance metadata, not a file integrity checksum</td></tr>
+<tr><td>upstream_loc</td><td>Optional (same as §2.4)</td><td>Same as above (v3 onwards)</td></tr>
 </table>
-<p>操作数编码：1 字节标签 + 标签相关载荷
-（<code>writeOperand</code>/<code>readOperand</code>，
-<code>sab.zig:189</code> / <code>sab.zig:357</code> 起）。共
-<strong>15</strong> 种（<code>instruction.zig:246-262</code>）：</p>
+<p>Operand encoding: a 1-byte tag + tag-dependent payload
+(<code>writeOperand</code>/<code>readOperand</code>,
+starting at <code>sab.zig:189</code> / <code>sab.zig:357</code>). <strong>15</strong> kinds in total (<code>instruction.zig:246-262</code>):</p>
 <table>
-<tr><th>标签</th><th>种类</th><th>载荷</th></tr>
-<tr><td>0</td><td>none</td><td>无</td></tr>
-<tr><td>1</td><td>reg</td><td>ULEB128（池下标，解析为寄存器名，见 §2.3）</td></tr>
+<tr><th>Tag</th><th>Kind</th><th>Payload</th></tr>
+<tr><td>0</td><td>none</td><td>None</td></tr>
+<tr><td>1</td><td>reg</td><td>ULEB128 (pool index, resolved to a register name, see §2.3)</td></tr>
 <tr><td>2</td><td>symbol</td><td>ULEB128</td></tr>
 <tr><td>3</td><td>label</td><td>ULEB128</td></tr>
 <tr><td>4</td><td>func</td><td>ULEB128</td></tr>
 <tr><td>5</td><td>imm_i64</td><td>SLEB128</td></tr>
 <tr><td>6</td><td>imm_u64</td><td>ULEB128</td></tr>
 <tr><td>7</td><td>imm_int</td><td>SLEB128</td></tr>
-<tr><td>8</td><td>imm_float</td><td>8 字节小端 f64 位型</td></tr>
-<tr><td>9</td><td>op_code</td><td>u8（<code>OpCode</code> 序号，共 23 值，<code>instruction.zig:178-237</code>）</td></tr>
-<tr><td>10</td><td>cap_prefix</td><td>u8（<code>CapPrefix</code>：by_value=0 / borrow=1 / move=2 / raw=3，<code>instruction.zig:6-11</code>）</td></tr>
+<tr><td>8</td><td>imm_float</td><td>8-byte little-endian f64 bit pattern</td></tr>
+<tr><td>9</td><td>op_code</td><td>u8 (<code>OpCode</code> ordinal, 23 values in total, <code>instruction.zig:178-237</code>)</td></tr>
+<tr><td>10</td><td>cap_prefix</td><td>u8 (<code>CapPrefix</code>: by_value=0 / borrow=1 / move=2 / raw=3, <code>instruction.zig:6-11</code>)</td></tr>
 <tr><td>11</td><td>offset</td><td>ULEB128</td></tr>
 <tr><td>12</td><td>ty</td><td>ULEB128</td></tr>
-<tr><td>13</td><td>text</td><td>池索引</td></tr>
-<tr><td>14</td><td>native_text</td><td>池索引</td></tr>
+<tr><td>13</td><td>text</td><td>Pool index</td></tr>
+<tr><td>14</td><td>native_text</td><td>Pool index</td></tr>
 </table>
-<p><strong>枚举 append-only 纪律</strong>：<code>InstKind</code>、
-<code>FunctionKind</code> 等以原始字节承载序号的枚举，新成员只能追加
-在末尾、既有序号不得移动——源码注释明示
-（<code>instruction.zig:301-307</code>：「SAB encodes the kind as a raw
-byte, so existing values must not move」；<code>signature.zig:98-100</code>
-同）。该纪律目前靠源码注释与评审维持，源码未见对枚举计数的静态断言
-（2026-11-05 复核），是格式演进的已知脆弱点。</p>
-<p><strong>范围边界</strong>：每种指令的各操作数槽位语义（何槽必填、
-何槽须为 <code>.none</code>、类型要求）由 SA 指令语义定义，不属本文
-的编码规范范围；本文只规范其编码容器（恒 4 槽、未用槽位以
-<code>.none</code> 填充）。</p>
+<p><strong>Append-only discipline for enums</strong>: enums whose ordinals are carried as raw bytes, such as <code>InstKind</code> and
+<code>FunctionKind</code>, may only have new members appended
+at the end, and existing ordinals must not move — this is explicitly stated in source comments
+(<code>instruction.zig:301-307</code>: “SAB encodes the kind as a raw
+byte, so existing values must not move”; likewise <code>signature.zig:98-100</code>).
+This discipline is currently maintained by source comments and review; no static assertion on enum counts was found in the source
+(verified 2026-11-05), and it is a known fragility in format evolution.</p>
+<p><strong>Scope boundary</strong>: the semantics of each operand slot of each instruction kind (which slots are required,
+which slots must be <code>.none</code>, and the type requirements) are defined by SA instruction semantics and are outside this text's
+encoding-specification scope; this text specifies only their encoding container (always 4 slots, with unused slots filled with
+<code>.none</code>).</p>
 
-<h3>2.7 解码器总览</h3>
-<p>宿主解码入口 <code>decodeModule</code>（<code>sab.zig:1008</code>
-起）：校验 magic → 读 major/minor → 按 section_count 逐个读 section
-并按 id 分发。解码器另提供两个部分解码入口：
-<code>decodeFunctionSigsOnly</code>（<code>sab.zig:1043</code>，只取
-签名）与 <code>decodeTestFunctionSigsOnly</code>
-（<code>sab.zig:1076</code>，只保留 test_func 签名且跳过其参数细节
-——<strong>有损</strong>，仅供测试列表快速收集，见 §6）。
-<code>disasmModule</code>（<code>sab.zig:1106</code>）把模块渲染为
-人类可读的调试文本；在已实证的样本上，该文本被 SA 文本解析器以
-ForbiddenSyntax 拒绝，故 disasm <strong>不构成</strong>规范往返路径
-（见 §4.1），只作调试呈现。</p>
+<h3>2.7 Decoder Overview</h3>
+<p>The host decode entry point is <code>decodeModule</code> (starting at <code>sab.zig:1008</code>):
+it checks the magic → reads major/minor → reads sections one by one according to section_count
+and dispatches by id. The decoder also provides two partial-decode entry points:
+<code>decodeFunctionSigsOnly</code> (<code>sab.zig:1043</code>, signatures only) and <code>decodeTestFunctionSigsOnly</code>
+(<code>sab.zig:1076</code>, retains only test_func signatures and skips their parameter details
+— <strong>lossy</strong>, only for fast collection of the test list, see §6).
+<code>disasmModule</code> (<code>sab.zig:1106</code>) renders a module as
+human-readable debug text; on proven samples, that text is rejected by the SA text parser with
+ForbiddenSyntax, so disasm <strong>does not constitute</strong> a normative round-trip path
+(see §4.1) and serves only as debug presentation.</p>
 
-<h2>3. 生产者与消费者图景</h2>
-<h3>3.1 生产者</h3>
+<h2>3. Producer and Consumer Landscape</h2>
+<h3>3.1 Producers</h3>
 <table>
-<tr><th>生产者</th><th>路径</th><th>出处</th></tr>
-<tr><td>SLA 插件（Direct SAB，主生产者）</td><td><code>sab_codegen</code> 直接构造 <code>Instruction[]</code>（不经 SA 文本中介），经 sci 的同一 <code>sab.encodeProgramWithConsts</code> 编码成字节；插件经 <code>sci_bridge</code> 引用宿主 sci 的 sab 模块源码（同一份编解码实现，非独立重实现——但这是工程事实而非格式要求，见 §0）</td><td><code>sa_plugin_sla/src/sab_codegen.zig:10-15</code>（<code>const sab = sci_bridge.sab</code>）、<code>:660</code>（编码调用点）</td></tr>
-<tr><td>宿主桥（文本路转 SAB）</td><td><code>plugin_bridge.encodeSabFromFlat</code>：先以 Referee 验证 FlattenResult、把签名重映射到扁平符号表，再 <code>encodeProgramWithConsts</code>；验证陷落返回 <code>error.VerificationTrap</code>。另有 <code>encodeSabFromFlatDetailed</code>（失败时回完整 TrapReport 供前端呈现诊断）与 <code>encodeSabFromFlatUnchecked</code>（不验证，插件内部路径用）</td><td><code>sci/src/plugin_bridge.zig:118-178</code>、<code>:280-291</code></td></tr>
-<tr><td>CLI</td><td><code>sa check --emit-sab &lt;path&gt;</code>：对已验证程序经宿主桥写出 <code>.sab</code></td><td><code>sci/src/cli.zig:1558</code>（帮助文本）、<code>:8727-8760</code>（实现）、<code>:10842</code> 起（回归测试）</td></tr>
+<tr><th>Producer</th><th>Path</th><th>Source</th></tr>
+<tr><td>SLA plugin (Direct SAB, main producer)</td><td><code>sab_codegen</code> directly constructs <code>Instruction[]</code> (without an SA-text intermediary), encoded into bytes via sci's same <code>sab.encodeProgramWithConsts</code>; the plugin references the host sci sab module source via <code>sci_bridge</code> (the same encode/decode implementation, not an independent reimplementation — but this is an engineering fact, not a format requirement, see §0)</td><td><code>sa_plugin_sla/src/sab_codegen.zig:10-15</code> (<code>const sab = sci_bridge.sab</code>), <code>:660</code> (the encoding call site)</td></tr>
+<tr><td>Host bridge (text path to SAB)</td><td><code>plugin_bridge.encodeSabFromFlat</code>: first verifies the FlattenResult with the Referee, remaps the signatures to the flat symbol table, then calls <code>encodeProgramWithConsts</code>; a verification trap returns <code>error.VerificationTrap</code>. There are also <code>encodeSabFromFlatDetailed</code> (returns a full TrapReport on failure for the frontend to present diagnostics) and <code>encodeSabFromFlatUnchecked</code> (no verification, used by plugin-internal paths)</td><td><code>sci/src/plugin_bridge.zig:118-178</code>, <code>:280-291</code></td></tr>
+<tr><td>CLI</td><td><code>sa check --emit-sab &lt;path&gt;</code>: writes out a <code>.sab</code> for an already-verified program via the host bridge</td><td><code>sci/src/cli.zig:1558</code> (help text), <code>:8727-8760</code> (implementation), starting at <code>:10842</code> (regression tests)</td></tr>
 </table>
-<p>生产者侧的覆盖纪律：SLA 的 SAB 路对不支持的构造<strong>响亮报错
-</strong>（<code>Error.UnsupportedSabDirectFeature</code>，顶层声明分发处
-<code>sa_plugin_sla/src/sab_codegen.zig:648</code>），不静默改走文本路。
-标准库的 SAB 片段以预编译 <code>sab.Module</code> 形式被解码后合并进
-产物（<code>appendDecodedModule*</code> 一族，
-<code>sa_plugin_sla/src/sab_codegen.zig:5697</code> 起）。</p>
+<p>Coverage discipline on the producer side: the SLA SAB path <strong>reports loudly</strong> for unsupported constructs
+(<code>Error.UnsupportedSabDirectFeature</code>, at the top-level declaration dispatch in
+<code>sa_plugin_sla/src/sab_codegen.zig:648</code>) and does not silently switch to the text path.
+Standard-library SAB fragments are decoded as precompiled <code>sab.Module</code> values and merged into
+the product (the <code>appendDecodedModule*</code> family,
+starting at <code>sa_plugin_sla/src/sab_codegen.zig:5697</code>).</p>
 
-<h3>3.2 消费者</h3>
+<h3>3.2 Consumers</h3>
 <table>
-<tr><th>消费者</th><th>路径</th><th>出处</th></tr>
-<tr><td>CLI 主管线</td><td>以扩展名 <code>.sab</code> 识别二进制输入 → <code>loadSabFlat</code> → <code>decodeModule</code> → FlattenResult → Referee → LLVM / WASM / JS / C 发射器、解释器、测试运行器</td><td><code>sci/src/cli.zig:5528</code>、<code>:4683</code>（<code>loadSabFlat</code>）</td></tr>
-<tr><td>测试运行器</td><td>快速测试列表走 <code>decodeTestFunctionSigsOnly</code>；选中测试时对解码扁平做函数级裁剪（<code>pruneSabFlatToSelectedTests</code>）</td><td><code>sci/src/cli.zig:4999</code> 起、<code>:5532</code></td></tr>
-<tr><td>插件桥</td><td><code>disasmSabAlloc</code> 等工具面</td><td><code>sci/src/plugin_bridge.zig:293</code> 起</td></tr>
+<tr><th>Consumer</th><th>Path</th><th>Source</th></tr>
+<tr><td>CLI main pipeline</td><td>Recognizes binary input by the <code>.sab</code> extension → <code>loadSabFlat</code> → <code>decodeModule</code> → FlattenResult → Referee → LLVM / WASM / JS / C emitters, interpreter, test runner</td><td><code>sci/src/cli.zig:5528</code>, <code>:4683</code> (<code>loadSabFlat</code>)</td></tr>
+<tr><td>Test runner</td><td>The fast test list uses <code>decodeTestFunctionSigsOnly</code>; when a test is selected, function-level pruning is applied to the decoded flat form (<code>pruneSabFlatToSelectedTests</code>)</td><td>Starting at <code>sci/src/cli.zig:4999</code>, <code>:5532</code></td></tr>
+<tr><td>Plugin bridge</td><td>Tool surfaces such as <code>disasmSabAlloc</code></td><td>Starting at <code>sci/src/plugin_bridge.zig:293</code></td></tr>
 </table>
-<p>消费者侧的输入体积上限：CLI 的源码装载上限为 1 GiB
-（<code>sci/src/cli.zig:4670-4682</code>，注释载明 SLA 对大型模块闭包
-实测产出 20–85 MiB 的 <code>.sab</code>）。上表列的是<strong>入口
-存在性</strong>（据 cli.zig 的分发代码）；各后端对 SAB 输入的端到端
-验证程度不一，执行面的已知缺口见 §4.1，不得把本表读作逐后端已验证
-清单。</p>
+<p>Input-volume limit on the consumer side: the CLI's source loading limit is 1 GiB
+(<code>sci/src/cli.zig:4670-4682</code>; the comment states that SLA closures of large modules have been
+measured to produce 20–85 MiB <code>.sab</code> files). The table above lists <strong>entry-point
+existence</strong> (per the dispatch code in cli.zig); the degree of end-to-end verification of SAB input varies by backend, and the known gaps on the execution surface are in §4.1 — this table must not be read as a per-backend verified checklist.</p>
 
-<h2>4. 契约</h2>
-<p>本节把<strong>规范要求</strong>与<strong>实现现状</strong>分开写：
-规范是格式对生产者/消费者的承诺；现状缺口如实标注，不把缺口写进
-规范、也不拿规范掩盖缺口。另需区分本节条目的两种性质：<strong>线格式
-契约</strong>（§4.1 的等价要求、§4.4 的解码行为）与<strong>项目治理
-决定</strong>（§4.2 的禁止降级、§4.3 中标注为「政策决定」的承诺）
-——后者是项目决定，不是能从当前实现推导的事实，分别阅读。</p>
+<h2>4. Contracts</h2>
+<p>This section writes <strong>specification requirements</strong> separately from <strong>implementation status</strong>:
+the specification is the format's promise to producers/consumers; status gaps are marked truthfully — gaps are not written into
+the specification, nor is the specification used to conceal gaps. The two kinds of items in this section must also be distinguished: <strong>wire-format
+contracts</strong> (§4.1's equivalence requirements, §4.4's decode behavior) and <strong>project governance
+decisions</strong> (the no-downgrade rule in §4.2, and the commitments marked as “policy decisions” in §4.3)
+— the latter are project decisions, not facts derivable from the current implementation, and should be read separately.</p>
 
-<h3>4.1 往返对称性（规格级要求）</h3>
-<p>SAB 的往返要求分两个层级，<strong>不得混为一谈</strong>：</p>
+<h3>4.1 Round-Trip Symmetry (specification-level requirement)</h3>
+<p>SAB's round-trip requirements are divided into two levels, which <strong>must not be conflated</strong>:</p>
 <ul>
-<li><strong>L1 编解码往返</strong>：<code>decode(encode(module))</code>
-与原模块在<strong>结构化语义</strong>上逐项等价（指令种类/操作数/
-签名/常量/元数据）。等价域须作三点限定：其一，不含逐指令源文本
-——v4 编码不携带 <code>Instruction.raw_text</code>（设计决策，见
-§4.3），解码出的逐指令 <code>raw_text</code> 恒为空串；常量声明的
-<code>literal_text</code> 不在此列，它是格式内容（见 §2.5）。其二，
-对 v2/v3 文件解码时，盘上 <code>raw_text</code> 先被读入，
-<code>call</code> / <code>call_indirect</code> / <code>panic</code> /
-<code>panic_msg</code> 四类的文本仅在读得为空时才由解码器按结构合成
-补齐（<code>synthesizeRawText</code>，<code>sab.zig:389</code> 起；
-补齐条件见 <code>readInstructions</code> 的
-<code>raw_text.len == 0</code> 判断）。其三，<code>encode(decode(bytes))
-</code> <strong>不承诺字节恒等</strong>：解码器的规范化行为（未知
-section 丢弃、重复 section 覆盖、尾随字节忽略、旧版输入再编码为 v4，
-见 §4.4）都会改变字节；L1 等价只就解码得到的模块结构而言。</li>
-<li><strong>L2 宿主表示往返（规范目标，待达成）</strong>：同一程序经
-SAB 路与文本路应获得<strong>等价的验证结论与可执行语义</strong>；
-宿主把 <code>.sab</code> 解码为 FlattenResult 后，对该表示再编码
-（经 <code>encodeSabFromFlat</code>）必须能通过其自带验证，不得陷落。</li>
+<li><strong>L1 encode/decode round-trip</strong>: <code>decode(encode(module))</code>
+is equivalent to the original module item by item in <strong>structured semantics</strong> (instruction kinds/operands/
+signatures/constants/metadata). The equivalence domain requires three qualifications: first, it does not include per-instruction source text
+— v4 encoding does not carry <code>Instruction.raw_text</code> (a design decision, see
+§4.3), and the decoded per-instruction <code>raw_text</code> is always the empty string; constant declarations'
+<code>literal_text</code> is not in this category — it is format content (see §2.5). Second,
+when decoding v2/v3 files, the on-disk <code>raw_text</code> is read in first,
+and the text of the four kinds <code>call</code> / <code>call_indirect</code> / <code>panic</code> /
+<code>panic_msg</code> is synthesized by the decoder from structure only when what was read is empty
+(<code>synthesizeRawText</code>, starting at <code>sab.zig:389</code>;
+the fill-in condition is the <code>raw_text.len == 0</code> check in <code>readInstructions</code>). Third, <code>encode(decode(bytes))
+</code> <strong>does not promise byte identity</strong>: the decoder's normalization behaviors (discarding unknown
+sections, later duplicate sections overwriting earlier ones, ignoring trailing bytes, re-encoding old-version input as v4,
+see §4.4) all change the bytes; L1 equivalence is only about the module structure obtained by decoding.</li>
+<li><strong>L2 host-representation round-trip (specification goal, to be achieved)</strong>: the same program via
+the SAB path and the text path should obtain <strong>equivalent verification conclusions and executable semantics</strong>;
+after the host decodes a <code>.sab</code> into a FlattenResult, re-encoding that representation
+(via <code>encodeSabFromFlat</code>) must be able to pass its own built-in verification, without trapping.</li>
 </ul>
-<p><strong>现状（L1）</strong>：<code>sab.zig</code> 内置 roundtrip
-测试覆盖逐 InstKind 与逐 OpKind（<code>sab.zig:1392</code>）、逐
-Operand（<code>sab.zig:1427</code>）、v4 元数据组合
-（<code>sab.zig:1352</code>）、函数签名（<code>sab.zig:1506</code>）
-等。此处「覆盖」指测试的存在性与覆盖面；本白皮书未在钉版上复跑该
-套件，不据此断言 L1 已在当前版本验证通过。</p>
-<p><strong>现状（L2，证据分四层）</strong>：</p>
+<p><strong>Status (L1)</strong>: the built-in roundtrip tests in <code>sab.zig</code>
+cover per-InstKind and per-OpKind (<code>sab.zig:1392</code>), per-
+Operand (<code>sab.zig:1427</code>), v4 metadata combinations
+(<code>sab.zig:1352</code>), function signatures (<code>sab.zig:1506</code>),
+etc. Here “coverage” refers to the existence and coverage area of the tests; this whitepaper did not re-run that
+suite on the pinned version, and does not assert on that basis that L1 has been verified as passing on the current version.</p>
+<p><strong>Status (L2, evidence in four layers)</strong>:</p>
 <ol>
-<li><em>观察到的表示差异</em>：<code>loadSabFlat</code> 构造的
-FlattenResult 中 <code>loc_table</code> 全为 null、
-<code>layout_versions</code> 为空、<code>def_dict</code> 为空、
-<code>cached_macro_defs</code> 为空、<code>package_identities</code>
-为空表（<code>sci/src/cli.zig:4706-4722</code>），与文本路的全信息
-表示不对称。</li>
-<li><em>已复现的失败</em>：宿主对自家解码产物的再编码在验证处陷落
-（<code>sa check x.sab --emit-sab out</code> rc=1）；一组核心样本
-（7 个文件/最小复现）在 SAB 路执行 signal 11 或挂死、文本路通过。</li>
-<li><em>已定层</em>：缺陷区段在「插件产出 .sab 之后、宿主验证之后」
-的执行面，与验证器无关。</li>
-<li><em>未定根因</em>：整结构体临时量以单寄存器物化、在控制流合并点
-被误办，是经全部探针未被证伪的站立假设；区段内三个子面（插件编码
-语义 / 宿主解码保真 / 宿主发射）尚未干净切开。同签名候选另有约 89 个
-@test（亲缘普查分组 A–H，其中 B–H 约 60 个未被任何修复线触及），
-其归属待后续判别。</li>
+<li><em>Observed representation differences</em>: in the FlattenResult constructed by <code>loadSabFlat</code>,
+<code>loc_table</code> is entirely null,
+<code>layout_versions</code> is empty, <code>def_dict</code> is empty,
+<code>cached_macro_defs</code> is empty, and <code>package_identities</code>
+is an empty table (<code>sci/src/cli.zig:4706-4722</code>), asymmetric with the text path's full-information
+representation.</li>
+<li><em>Reproduced failures</em>: the host's re-encoding of its own decode product traps at verification
+(<code>sa check x.sab --emit-sab out</code> rc=1); a set of core samples
+(7 files / minimal reproductions) signal 11 or hang on the SAB path and pass on the text path.</li>
+<li><em>Layer determined</em>: the defect segment is on the execution surface “after the plugin produces the .sab, after host verification”,
+and is unrelated to the verifier.</li>
+<li><em>Root cause undetermined</em>: that whole-struct temporaries are materialized as a single register and mishandled at control-flow merge points
+is a standing hypothesis that has not been falsified by any probe; the three sub-surfaces within the segment (plugin encoding
+semantics / host decode fidelity / host emission) have not yet been cleanly separated. There are also about 89 @test cases with the same signature candidates
+(kinship census groups A–H, of which B–H, about 60, have not been touched by any fix line),
+whose attribution awaits later determination.</li>
 </ol>
-<p>该缺口已经定层，修复进行中。修复落地前：L2 的状态是<strong>规范
-目标已立、实现未达</strong>；生产者与工具不得依赖 L2（如不得假设
-宿主能对解码产物再编码成功）。</p>
+<p>This gap has been layered, and fixing is in progress. Before the fix lands: L2's status is <strong>the specification
+goal is established, the implementation has not reached it</strong>; producers and tools must not rely on L2 (for example, must not assume
+the host can successfully re-encode a decode product).</p>
 
-<h3>4.2 禁止 SAB 降级文本</h3>
-<p>目标为 SAB 时，缺失 lowering/注册或解码失败的唯一合法结果是
-<strong>响亮报错</strong>，禁止把函数或模块静默改走文本后端
-（项目治理决定，2026-11-03）。源码锚点：CLI 源码注释明示「SAB encode
-path is standalone: it never falls back to .sa text」「a corrupt .sab
-must fail loudly, never silently」（<code>sci/src/cli.zig:8728</code>、
-<code>:10842</code> 起的测试 <code>check --emit-sab roundtrips through
-compileSource without text fallback</code>）；生产者侧对应
-<code>UnsupportedSabDirectFeature</code>（§3.1）。</p>
+<h3>4.2 No SAB Downgrade to Text</h3>
+<p>When the target is SAB, the only legal result of a missing lowering/registration or a decode failure is
+a <strong>loud error</strong>; silently rerouting a function or module through the text backend is forbidden
+(project governance decision, 2026-11-03). Source anchors: CLI source comments explicitly state “SAB encode
+path is standalone: it never falls back to .sa text” and “a corrupt .sab
+must fail loudly, never silently” (<code>sci/src/cli.zig:8728</code>,
+and the test <code>check --emit-sab roundtrips through
+compileSource without text fallback</code> starting at <code>:10842</code>); the corresponding producer-side item is
+<code>UnsupportedSabDirectFeature</code> (§3.1).</p>
 
-<h3>4.3 版本兼容政策</h3>
-<p><strong>现状行为</strong>（据解码器源码）：</p>
+<h3>4.3 Version Compatibility Policy</h3>
+<p><strong>Current behavior</strong> (per the decoder source):</p>
 <ul>
-<li>当前版本 <strong>4.0</strong>（<code>sab.zig:11-12</code>）；现
-编码器只产出 v4，v1–v3 只读不写。</li>
-<li>解码器接受 major ∈ {1, 2, 3, 4}，其他 major 报
-<code>UnsupportedSabVersion</code>（<code>decodeModule</code>，
-<code>sab.zig:1008</code> 起）。<strong>minor 字节被读取但不参与判定
-</strong>——任何 minor 值都被接受。注意这只是当前读取行为：minor 的
-语义保留给未来版本定义，当前生产者恒写 0；它不构成任何兼容性协商
-机制，消费者不得假定 minor 变更可被安全忽略之外的含义。</li>
-<li>版本能力矩阵（由解码器的条件读逻辑定义——旧版布局没有独立文档，
-解码器即旧版格式的现存定义）：</li>
+<li>The current version is <strong>4.0</strong> (<code>sab.zig:11-12</code>); the current
+encoder produces only v4, and v1–v3 are read-only, never written.</li>
+<li>The decoder accepts major ∈ {1, 2, 3, 4}, and reports
+<code>UnsupportedSabVersion</code> for any other major (<code>decodeModule</code>,
+starting at <code>sab.zig:1008</code>). <strong>The minor byte is read but does not participate in the decision
+</strong> — any minor value is accepted. Note this is only the current read behavior: the semantics of minor are
+reserved for definition by future versions, and current producers always write 0; it does not constitute any compatibility-negotiation
+mechanism, and consumers must not assume any meaning for minor changes beyond safe ignorability.</li>
+<li>Version capability matrix (defined by the decoder's conditional-read logic — old-version layouts have no independent document,
+and the decoder is the surviving definition of the old-version formats):</li>
 </ul>
 <table>
-<tr><th>major</th><th>raw_text（逐指令源文本）</th><th>full metadata（原子文本/native 寄存器名/package 身份与哈希/upstream 定位；签名与常量的 upstream 元数据）</th></tr>
-<tr><td>1</td><td>无</td><td>无</td></tr>
-<tr><td>2</td><td>有（presence + 池索引，位于操作数之后）</td><td>无</td></tr>
-<tr><td>3</td><td>有</td><td>有</td></tr>
-<tr><td>4</td><td><strong>无</strong>（v4 移除，结构化语义为准）</td><td>有</td></tr>
+<tr><th>major</th><th>raw_text (per-instruction source text)</th><th>full metadata (atomic text/native register names/package identity and hash/upstream location; upstream metadata of signatures and constants)</th></tr>
+<tr><td>1</td><td>No</td><td>No</td></tr>
+<tr><td>2</td><td>Yes (presence + pool index, located after the operands)</td><td>No</td></tr>
+<tr><td>3</td><td>Yes</td><td>Yes</td></tr>
+<tr><td>4</td><td><strong>No</strong> (removed in v4; structured semantics prevail)</td><td>Yes</td></tr>
 </table>
-<p>条件读出处：<code>has_raw_text = major &gt;= 2 and major &lt; 4
-</code>、<code>has_full_metadata = major &gt;= 3</code>、
+<p>Conditional-read sources: <code>has_raw_text = major &gt;= 2 and major &lt; 4
+</code>, <code>has_full_metadata = major &gt;= 3</code>,
 <code>synthesize_debug_text = major &lt; 4</code>
-（<code>sab.zig:1008</code> 起的 <code>decodeModule</code>）。</p>
-<p><strong>政策决定</strong>（项目治理决定，非从实现推导的事实）：</p>
+(<code>decodeModule</code> starting at <code>sab.zig:1008</code>).</p>
+<p><strong>Policy decisions</strong> (project governance decisions, not facts derived from the implementation):</p>
 <ul>
-<li>序号化枚举只许 append（§2.6）。但须注意：append 只保证既有序号
-不移动，<strong>不保证旧消费者能处理新值</strong>——旧解码器对未知
-枚举字节以 <code>InvalidTag</code> 响亮拒绝（<code>readOperand</code>
-/ <code>readInstructions</code> 的 <code>std.enums.fromInt … orelse
-InvalidTag</code>），不存在静默误解，但目前也没有能力协商机制；
-新增枚举成员对旧消费者仍是破坏性变更，须与版本政策一并评估。</li>
-<li>破坏性变更必须升 major；解码器对旧 major 的读取路径予以保留
-（现状为接受 1–4，保留期限由后续版本政策决定）。</li>
+<li>Ordinal enums are append-only (§2.6). But note: appending only guarantees that existing ordinals
+do not move; it <strong>does not guarantee that old consumers can handle new values</strong> — old decoders loudly reject unknown
+enum bytes with <code>InvalidTag</code> (<code>readOperand</code>
+/ the <code>std.enums.fromInt … orelse
+InvalidTag</code> in <code>readInstructions</code>); there is no silent misinterpretation, but there is currently no capability-negotiation mechanism either;
+adding an enum member is still a breaking change for old consumers and must be assessed together with the version policy.</li>
+<li>Breaking changes must bump major; the decoder's read paths for old majors are retained
+(currently accepting 1–4; the retention period is determined by later version policy).</li>
 </ul>
 
-<h3>4.4 解码器健壮性边界（现状）</h3>
-<p>解码错误集共 7 个（<code>sab.zig:21-29</code>）：
-<code>InvalidSabMagic</code>、<code>UnsupportedSabVersion</code>、
-<code>MissingInstructionSection</code>、<code>TruncatedSab</code>、
-<code>Leb128Overflow</code>、<code>InvalidTag</code>、
-<code>OutOfMemory</code>。解码器只做<strong>结构</strong>校验；语义
-合法性（所有权、状态一致性）由其后的 Referee 承担。畸形输入处理
-现状（如实记录，非规范承诺；本段行为出处均为
-<code>decodeModule</code>，<code>sab.zig:1008</code> 起，另注者除外）：</p>
+<h3>4.4 Decoder Robustness Boundaries (status)</h3>
+<p>There are 7 decode errors in total (<code>sab.zig:21-29</code>):
+<code>InvalidSabMagic</code>, <code>UnsupportedSabVersion</code>,
+<code>MissingInstructionSection</code>, <code>TruncatedSab</code>,
+<code>Leb128Overflow</code>, <code>InvalidTag</code>,
+<code>OutOfMemory</code>. The decoder performs only <strong>structural</strong> validation; semantic
+legality (ownership, state consistency) is borne by the Referee that follows. The current handling of malformed input
+(recorded truthfully, not a specification promise; the behavior sources in this paragraph are all
+<code>decodeModule</code>, starting at <code>sab.zig:1008</code>, except where otherwise noted):</p>
 <ul>
-<li><strong>失败原子性</strong>：解码失败时不返回部分模块——已分配
-内容经 errdefer 清理后以错误返回，调用方拿不到半成品 Module。</li>
-<li><strong>section 处理</strong>：解码按文件顺序逐个 section 处理并
-<strong>即时</strong>以当时的符号池解析引用。未知 section id 被跳过
-（分发 if 链不命中即忽略其 payload）；顺序不被强制，但 symbol_pool
-若不先出现，其余 section 的池引用将以空池解析并多以
-<code>InvalidTag</code> 失败。重复 section 的后解码者覆盖先解码者
-（结果变量重赋值），但先解码的 section 已按旧池物化字符串、后解码者
-按新池解析，故池被重复声明时同一模块内的引用解析可能不一致
-——生产者不得发出重复 section。各 section 的 payload 内部未被消费
-的尾字节不被校验（各 read 函数按计数读完即返回）。读满 section_count
-个 section 后解码即返回，其后字节不被扫描。</li>
-<li><strong>必需与缺省</strong>：仅 instructions section 必需，缺失报
-<code>MissingInstructionSection</code>；其余 section 缺省时解码器以
-空表处理，section_count 可小于 4。生产者则恒写全四段（§2.1）。</li>
-<li><strong>计数与收窄</strong>：多个计数型字段（池条数、指令数、
-字段数等）先按解码值申请内存，没有独立的「计数上限」校验，畸形巨值
-可能导致巨额分配并以 <code>OutOfMemory</code> 失败。若干 u32 字段
-（<code>.reg</code> / <code>.symbol</code> / <code>.label</code> /
-<code>.func</code> / <code>.offset</code> / <code>.ty</code> 操作数、
-签名 id / entry_inst_idx 等）以 <code>@intCast</code> 收窄，超出 u32
-上限的值触发运行时 panic 而非格式错误（<code>sab.zig:357</code> 起、
-<code>:681</code> 起）。故七种显式错误不是畸形输入的全部失败方式。</li>
-<li>字段级宽严不一：可选字段的 presence 字节严格校验 0/1
-（<code>readOptionalEnum</code> 等），而签名中的若干布尔字段以「字节
-== 1 为真、其余为假」宽松读取（如 <code>readFunctionSigs</code> 的
-<code>return_fallible</code>，<code>sab.zig:681</code> 起）。</li>
+<li><strong>Failure atomicity</strong>: on decode failure no partial module is returned — already-allocated
+content is cleaned up via errdefer and returned as an error, so the caller cannot obtain a half-finished Module.</li>
+<li><strong>Section handling</strong>: decoding processes sections one by one in file order and
+resolves references <strong>immediately</strong> against the symbol pool at that moment. Unknown section ids are skipped
+(the dispatch if-chain simply does not match and ignores their payload); order is not enforced, but if symbol_pool
+does not appear first, pool references in the other sections will be resolved against an empty pool and mostly
+fail with <code>InvalidTag</code>. For duplicate sections, the later decoder overwrites the earlier one
+(the result variable is reassigned), but the earlier-decoded section has already materialized strings against the old pool while the later decoder
+resolves against the new pool, so reference resolution within the same module may be inconsistent when the pool is declared twice
+— producers must not emit duplicate sections. Unconsumed tail bytes inside each section's payload are not validated (each read function returns after reading its counted items). After reading section_count
+sections, decoding returns, and bytes after that are not scanned.</li>
+<li><strong>Required and defaulted</strong>: only the instructions section is required; its absence reports
+<code>MissingInstructionSection</code>; when the other sections are absent the decoder treats them as
+empty tables, and section_count may be less than 4. Producers always write all four sections (§2.1).</li>
+<li><strong>Counts and narrowing</strong>: several count fields (pool entry count, instruction count,
+field count, etc.) allocate memory according to the decoded value first, with no independent “count cap” validation; a malformed huge value
+may cause a huge allocation and fail with <code>OutOfMemory</code>. Several u32 fields
+(the <code>.reg</code> / <code>.symbol</code> / <code>.label</code> /
+<code>.func</code> / <code>.offset</code> / <code>.ty</code> operands,
+signature id / entry_inst_idx, etc.) are narrowed with <code>@intCast</code>, and a value exceeding the u32
+limit triggers a runtime panic rather than a format error (starting at <code>sab.zig:357</code>,
+starting at <code>:681</code>). Hence the seven explicit errors are not the entirety of malformed-input failure modes.</li>
+<li>Field-level strictness varies: the presence byte of an optional field is strictly validated as 0/1
+(<code>readOptionalEnum</code> etc.), while several boolean fields in signatures are read leniently as “byte
+== 1 is true, anything else is false” (such as <code>return_fallible</code> in <code>readFunctionSigs</code>, starting at <code>sab.zig:681</code>).</li>
 </ul>
 
-<h2>5. 同类格式定位</h2>
-<p>SAB 与 LLVM bitcode、WebAssembly 二进制、SPIR-V 同属「二进制 IR +
-文本镜像 + 加载期验证」的格式家族：文本形态供人读写调试，二进制形态
-供机器高效交接，这些格式的生态普遍把往返保真当作规格议题；SAB 在此
-之上自行确立 L1/L2 两层要求（§4.1），不依赖类比成立。与家族成员的
-差异：其一，SAB 的验证不止于类型/结构合法，还包括宿主 Referee 的
-所有权与状态语义校验；其二，SAB 同时是<strong>进程内</strong>交换
-格式（前端插件与宿主共用同一份编解码实现，见 §3.1）与<strong>文件
-</strong>交换格式，而非仅作分发或归档之用。（2026-11-15 口径更新：
-进程内交换这一重角色已随 SAB 封存退出——前端与宿主之间现以 SA 文本
-交接；SAB 留下的只有文件格式本身，及其在 SA 工具链内部由 text 单向
-派生、作分发 / 预编译格式的残余角色，见 §1。）</p>
+<h2>5. Positioning Among Peer Formats</h2>
+<p>SAB belongs, together with LLVM bitcode, the WebAssembly binary format, and SPIR-V, to the format family of “binary IR +
+text mirror + load-time verification”: the text form is for humans to read, write, and debug, and the binary form
+is for efficient machine handover; the ecosystems of these formats generally treat round-trip fidelity as a specification topic; on top of this, SAB
+establishes its own two-level L1/L2 requirements (§4.1), without relying on analogy. Differences from family members: first, SAB's verification is not limited to type/structure legality, but also includes the host Referee's
+ownership and state semantic checks; second, SAB is simultaneously an <strong>in-process</strong> interchange
+format (the frontend plugin and the host share the same encode/decode implementation, see §3.1) and a <strong>file</strong>
+interchange format, rather than serving only for distribution or archiving. (2026-11-15 position update:
+the in-process interchange role has exited with the SAB sealing — frontends and the host now hand over via SA text;
+what remains of SAB is only the file format itself, and its residual role inside the SA toolchain, derived one-way from text, as a distribution / precompilation format, see §1.)</p>
 
-<h2>6. 已知限制与未实现（观察口径逐项标注）</h2>
+<h2>6. Known Limitations and Unimplemented Items (observation basis marked per item)</h2>
 <ol>
-<li><strong>无增量 append 编码</strong>：编码 API 只有整模块写出的
-三个入口（<code>encodeProgramWithConsts</code> /
-<code>encodeProgram</code> / <code>encodeModule</code>，
-<code>sab.zig:935-1007</code>），模块修改后须整模块重新序列化；这是
-编码层粒度，不涉及编译/lowering/缓存的粒度。函数级增量与模块级
-分布式编译仍停留在设计草案
-（<code>sci/docs/sab_distributed_compilation.md</code>）。</li>
-<li><strong>包分发未用 .sab</strong>：在 <code>sci/src/pkg/</code> 内
-未见 <code>.sab</code> 分发路径（2026-11-05 grep 无命中）；包分发在
-其他组件是否支持 <code>.sab</code> 不在本轮核查范围。已知现状是包以
-文本 <code>.sa</code> 分发（据 <code>sab_evaluation.md</code>，其称此
-为设计决策，但理由未在源码成文）。</li>
-<li><strong>解码性能未测</strong>：解码为游标逐字节 LEB 读取
-（<code>sab.zig:52-73</code> 的 <code>Cursor</code> 与
-<code>sab.zig:86</code> 起的 <code>decodeUleb128</code>），无批量/
-向量化路径；本文不附任何解码性能数字，<code>design.md</code> 的
-「约 1/10」仅为设计口径（见 §1）。</li>
-<li><strong>无文件级完整性机制</strong>：无校验和/签名（§2.1）；解码
-与 Referee 只能拒绝结构/语义非法者，在合法值域内互相替换的损坏可能
-通过全部检查，没有先验的完整性拒绝层。</li>
-<li><strong>部分解码有损</strong>：<code>decodeTestFunctionSigsOnly
-</code> 只保留 test_func 签名并丢弃参数与 id 细节
-（<code>sab.zig:1076</code> 起），是测试工具的专用快路，任何完整
-消费者不得误用。</li>
-<li><strong>L2 往返缺口</strong>：见 §4.1（修复进行中）。</li>
-<li><strong>一致性测试材料尚不完整</strong>：附录 C 给出空模块黄金
-向量，已经在钉版 sci 上实际运行编码/解码校验（2026-11-05）；带函数
-签名/元数据的黄金向量与跨实现一致性套件仍缺位。注意：生产者与消费者
-共用同一份编解码实现时，双方共享的同一错误无法被往返测试发现，
-独立实现的交叉校验因此是必需的。</li>
+<li><strong>No incremental append encoding</strong>: the encoding API has only three whole-module write-out entry points (<code>encodeProgramWithConsts</code> /
+<code>encodeProgram</code> / <code>encodeModule</code>,
+<code>sab.zig:935-1007</code>); after a module is modified it must be re-serialized as a whole module; this is
+an encoding-layer granularity and does not concern the granularity of compilation/lowering/caching. Function-level incrementality and module-level
+distributed compilation remain at the design-draft stage
+(<code>sci/docs/sab_distributed_compilation.md</code>).</li>
+<li><strong>Package distribution does not use .sab</strong>: within <code>sci/src/pkg/</code>,
+no <code>.sab</code> distribution path was found (a grep on 2026-11-05 found no hits); whether package distribution in
+other components supports <code>.sab</code> is outside this round's verification scope. The known status is that packages are distributed as
+text <code>.sa</code> (per <code>sab_evaluation.md</code>, which calls this
+a design decision, but the rationale is not written in the source).</li>
+<li><strong>Decode performance unmeasured</strong>: decoding is cursor-based, byte-by-byte LEB reading
+(the <code>Cursor</code> in <code>sab.zig:52-73</code> and
+<code>decodeUleb128</code> starting at <code>sab.zig:86</code>), with no bulk/
+vectorized path; this text attaches no decode performance figures, and <code>design.md</code>'s
+“about 1/10” is a design figure only (see §1).</li>
+<li><strong>No file-level integrity mechanism</strong>: no checksum/signature (§2.1); decoding
+and the Referee can only reject structurally/semantically illegal content, and corruption that substitutes values within the legal value range may
+pass all checks, with no a-priori integrity rejection layer.</li>
+<li><strong>Partial decoding is lossy</strong>: <code>decodeTestFunctionSigsOnly
+</code> retains only test_func signatures and discards parameter and id details
+(starting at <code>sab.zig:1076</code>); it is a dedicated fast path for test tooling, and no complete
+consumer may misuse it.</li>
+<li><strong>L2 round-trip gap</strong>: see §4.1 (fix in progress).</li>
+<li><strong>Consistency test materials are still incomplete</strong>: Appendix C gives the empty-module golden
+vector, which has actually been run for encode/decode verification on the pinned sci (2026-11-05); golden vectors with function
+signatures/metadata and a cross-implementation consistency suite are still missing. Note: when producers and consumers
+share the same encode/decode implementation, a shared error on both sides cannot be discovered by round-trip tests,
+so cross-checking with an independent implementation is therefore necessary.</li>
 </ol>
 
-<h2>附录 A：InstKind 全表（线上字节 = 枚举序号）</h2>
-<p>据 <code>instruction.zig:264-308</code>，共 40 值：</p>
+<h2>Appendix A: Full InstKind Table (on-wire byte = enum ordinal)</h2>
+<p>Per <code>instruction.zig:264-308</code>, 40 values in total:</p>
 <table>
-<tr><th>值</th><th>名称</th><th>值</th><th>名称</th></tr>
+<tr><th>Value</th><th>Name</th><th>Value</th><th>Name</th></tr>
 <tr><td>0</td><td>alloc</td><td>20</td><td>try_</td></tr>
 <tr><td>1</td><td>stack_alloc</td><td>21</td><td>early_return</td></tr>
 <tr><td>2</td><td>load</td><td>22</td><td>panic</td></tr>
@@ -529,55 +516,54 @@ InvalidTag</code>），不存在静默误解，但目前也没有能力协商机
 <tr><td>18</td><td>call</td><td>38</td><td>va_end</td></tr>
 <tr><td>19</td><td>call_indirect</td><td>39</td><td>gpu_decl</td></tr>
 </table>
-<p>其余枚举的线上数值（按声明序，值 = 序号）：</p>
-<p><strong>OpKind</strong>（56 值，<code>instruction.zig:13-85</code>）：
-0 add、1 sub、2 mul、3 sdiv、4 udiv、5 srem、6 urem、7 neg、8 and、
-9 or、10 xor、11 shl、12 lshr、13 ashr、14 not、15 eq、16 ne、17 slt、
-18 sle、19 sgt、20 sge、21 ult、22 ule、23 ugt、24 uge、25 div、26 rem、
-27 gt、28 lt、29 shr、30 fadd、31 fsub、32 fmul、33 fdiv、34 fneg、
-35 fcmp_eq、36 fcmp_ne、37 fcmp_lt、38 fcmp_le、39 fcmp_gt、40 fcmp_ge、
-41 trunc、42 zext、43 sext、44 fptosi、45 sitofp、46 uitofp、47 fptrunc、
-48 fpext、49 bitcast、50 add_v128、51 sub_v128、52 mul_v128、
-53 shuffle_v128、54 extract_lane、55 insert_lane。</p>
-<p><strong>OpCode</strong>（23 值，<code>instruction.zig:178-237</code>）：
-0 add、1 sub、2 mul、3 div、4 sdiv、5 udiv、6 rem、7 srem、8 urem、
-9 gt、10 lt、11 sgt、12 slt、13 sge、14 sle、15 ugt、16 ult、17 uge、
-18 ule、19 eq、20 ne、21 shl、22 shr。</p>
-<p><strong>PrimType</strong>（15 值，<code>signature.zig:11-27</code>）：
-0 void、1 i1、2 i8、3 i16、4 i32、5 i64、6 u8、7 u16、8 u32、9 u64、
-10 f32、11 f64、12 ptr、13 blob_handle、14 v128。</p>
-<p><strong>FunctionKind</strong>（6 值，<code>signature.zig:92-101</code>）：
-0 normal、1 ffi_wrapper、2 external、3 exported、4 test_func、5 gpu。</p>
-<p><strong>CapPrefix</strong>（4 值，<code>instruction.zig:6-11</code>）：
-0 by_value、1 borrow、2 move、3 raw。</p>
-<p><strong>ConstLiteralKind</strong>（5 值，<code>const_decl.zig:4-10</code>）：
-0 hex、1 utf8、2 repeat、3 struct_、4 vtable。</p>
-<p><strong>AtomicOrdering</strong>（5 值，<code>common/atomic.zig:4-10</code>）：
-0 relaxed、1 acquire、2 release、3 acq_rel、4 seq_cst。</p>
-<p><strong>AtomicRmwOp</strong>（10 值，<code>common/atomic.zig:12-23</code>）：
-0 add、1 sub、2 and、3 or、4 xor、5 xchg、6 min、7 max、8 umin、9 umax。</p>
+<p>On-wire values of the other enums (in declaration order, value = ordinal):</p>
+<p><strong>OpKind</strong> (56 values, <code>instruction.zig:13-85</code>):
+0 add, 1 sub, 2 mul, 3 sdiv, 4 udiv, 5 srem, 6 urem, 7 neg, 8 and,
+9 or, 10 xor, 11 shl, 12 lshr, 13 ashr, 14 not, 15 eq, 16 ne, 17 slt,
+18 sle, 19 sgt, 20 sge, 21 ult, 22 ule, 23 ugt, 24 uge, 25 div, 26 rem,
+27 gt, 28 lt, 29 shr, 30 fadd, 31 fsub, 32 fmul, 33 fdiv, 34 fneg,
+35 fcmp_eq, 36 fcmp_ne, 37 fcmp_lt, 38 fcmp_le, 39 fcmp_gt, 40 fcmp_ge,
+41 trunc, 42 zext, 43 sext, 44 fptosi, 45 sitofp, 46 uitofp, 47 fptrunc,
+48 fpext, 49 bitcast, 50 add_v128, 51 sub_v128, 52 mul_v128,
+53 shuffle_v128, 54 extract_lane, 55 insert_lane.</p>
+<p><strong>OpCode</strong> (23 values, <code>instruction.zig:178-237</code>):
+0 add, 1 sub, 2 mul, 3 div, 4 sdiv, 5 udiv, 6 rem, 7 srem, 8 urem,
+9 gt, 10 lt, 11 sgt, 12 slt, 13 sge, 14 sle, 15 ugt, 16 ult, 17 uge,
+18 ule, 19 eq, 20 ne, 21 shl, 22 shr.</p>
+<p><strong>PrimType</strong> (15 values, <code>signature.zig:11-27</code>):
+0 void, 1 i1, 2 i8, 3 i16, 4 i32, 5 i64, 6 u8, 7 u16, 8 u32, 9 u64,
+10 f32, 11 f64, 12 ptr, 13 blob_handle, 14 v128.</p>
+<p><strong>FunctionKind</strong> (6 values, <code>signature.zig:92-101</code>):
+0 normal, 1 ffi_wrapper, 2 external, 3 exported, 4 test_func, 5 gpu.</p>
+<p><strong>CapPrefix</strong> (4 values, <code>instruction.zig:6-11</code>):
+0 by_value, 1 borrow, 2 move, 3 raw.</p>
+<p><strong>ConstLiteralKind</strong> (5 values, <code>const_decl.zig:4-10</code>):
+0 hex, 1 utf8, 2 repeat, 3 struct_, 4 vtable.</p>
+<p><strong>AtomicOrdering</strong> (5 values, <code>common/atomic.zig:4-10</code>):
+0 relaxed, 1 acquire, 2 release, 3 acq_rel, 4 seq_cst.</p>
+<p><strong>AtomicRmwOp</strong> (10 values, <code>common/atomic.zig:12-23</code>):
+0 add, 1 sub, 2 and, 3 or, 4 xor, 5 xchg, 6 min, 7 max, 8 umin, 9 umax.</p>
 
-<h2>附录 B：文档–源码差异清单</h2>
-<p>对象：<code>sci/docs/sab_evaluation.md</code>（2026-07-01）与
-<code>sci/docs/design.md</code>；核对基准：sci <code>2e67cc54</code>
-源码。</p>
+<h2>Appendix B: Document–Source Discrepancy List</h2>
+<p>Objects: <code>sci/docs/sab_evaluation.md</code> (2026-07-01) and
+<code>sci/docs/design.md</code>; verification baseline: sci <code>2e67cc54</code>
+source.</p>
 <table>
-<tr><th>#</th><th>文档断言</th><th>源码事实</th><th>处置</th></tr>
-<tr><td>B1</td><td>sab_evaluation：指令编码覆盖「48 InstKind」</td><td>实测 40（<code>instruction.zig:264-308</code>）</td><td>文档过时，白皮书以 40 为准</td></tr>
-<tr><td>B2</td><td>sab_evaluation：CLI <code>--emit-sab</code> 未实现、无该 flag</td><td>已实现：帮助文本 <code>cli.zig:1558</code>、实现 <code>:8727-8760</code>、回归测试 <code>:10842</code> 起</td><td>文档过时</td></tr>
-<tr><td>B3</td><td>sab_evaluation：「encode/decode/roundtrip 全链路正确」</td><td>须分层：L1 编解码往返有源码测试覆盖；L2 宿主表示往返存在已定层缺口（再编码验证陷落、执行崩溃家族）。原评估未区分层级</td><td>白皮书 §4.1 分层表述</td></tr>
-<tr><td>B4</td><td>sab_evaluation：「WASM 发射器 SAB 路径未测试」</td><td><code>build-wasm</code> 帮助文本已列 <code>.sab</code> 为输入（<code>cli.zig:1466</code>）；端到端覆盖程度本轮未复核</td><td>标未核实，不下结论</td></tr>
-<tr><td>B5</td><td>design.md：二进制路「稳像耗时约为文本路径的 1/10」</td><td>源码与仓库内未见该数字的基准出处</td><td>标为设计口径、非实测（§1、§6.3）</td></tr>
-<tr><td>B6</td><td>sab_evaluation：包管理器不分发 <code>.sab</code> 为「设计决策，但无文档说明」</td><td><code>sci/src/pkg/</code> grep 无 <code>.sab</code> 路径（2026-11-05 复核），现状属实；决策理由仍无成文出处</td><td>§6.2 如实标注</td></tr>
+<tr><th>#</th><th>Document claim</th><th>Source fact</th><th>Disposition</th></tr>
+<tr><td>B1</td><td>sab_evaluation: instruction encoding covers “48 InstKind”</td><td>Measured 40 (<code>instruction.zig:264-308</code>)</td><td>Document outdated; the whitepaper takes 40 as authoritative</td></tr>
+<tr><td>B2</td><td>sab_evaluation: CLI <code>--emit-sab</code> not implemented, no such flag</td><td>Implemented: help text <code>cli.zig:1558</code>, implementation <code>:8727-8760</code>, regression tests starting at <code>:10842</code></td><td>Document outdated</td></tr>
+<tr><td>B3</td><td>sab_evaluation: “the encode/decode/roundtrip whole chain is correct”</td><td>Must be layered: L1 encode/decode round-trip has source-test coverage; L2 host-representation round-trip has a layered gap (re-encoding verification traps, an execution-crash family). The original evaluation did not distinguish the levels</td><td>Layered statement in whitepaper §4.1</td></tr>
+<tr><td>B4</td><td>sab_evaluation: “the WASM emitter SAB path is untested”</td><td>The <code>build-wasm</code> help text already lists <code>.sab</code> as input (<code>cli.zig:1466</code>); the degree of end-to-end coverage was not re-verified this round</td><td>Marked unverified; no conclusion drawn</td></tr>
+<tr><td>B5</td><td>design.md: the binary path's “steady-state time is about 1/10 of the text path”</td><td>No benchmark source for this figure was found in the source or the repository</td><td>Marked as a design figure, not a measurement (§1, §6.3)</td></tr>
+<tr><td>B6</td><td>sab_evaluation: the package manager not distributing <code>.sab</code> is “a design decision, but with no documented explanation”</td><td>A grep of <code>sci/src/pkg/</code> found no <code>.sab</code> path (re-verified 2026-11-05); the status is true; the decision rationale still has no written source</td><td>Truthfully marked in §6.2</td></tr>
 </table>
 
-<h2>附录 C：空模块黄金向量（已运行校验）</h2>
-<p>零符号、零签名、零常量、零指令的模块经 <code>encodeModule</code>
-写出的全部字节（19 字节）。本向量已于 2026-11-05 在钉版 sci
-<code>2e67cc54</code> 源码树上以 Zig 0.17.0 实际运行校验：调用
-<code>sab.encodeModule</code>（空符号、空指令）产出下述字节；
-<code>sab.decodeModule</code> 回读得四段计数皆为 0；对解码结果再以
-<code>encodeModule</code> 编码，字节与首次产出逐字节恒等。</p>
+<h2>Appendix C: Empty-Module Golden Vector (run-verified)</h2>
+<p>All bytes written by <code>encodeModule</code> for a module with zero symbols, zero signatures, zero constants, and zero instructions (19 bytes). This vector was actually run and verified on 2026-11-05 on the pinned sci
+<code>2e67cc54</code> source tree with Zig 0.17.0: calling
+<code>sab.encodeModule</code> (empty symbols, empty instructions) produced the bytes below;
+reading them back with <code>sab.decodeModule</code> gave counts of 0 in all four sections; encoding the decode result again with
+<code>encodeModule</code> produced bytes identical byte-for-byte to the first output.</p>
 <pre><code>53 41 42 00 04 00 04 01 01 00 02 01 00 03 01 00 04 01 00</code></pre>
 <pre><code>53 41 42 00                                        magic "SAB\0"
 04 00                                              version 4.0
@@ -586,10 +572,10 @@ InvalidTag</code>），不存在静默误解，但目前也没有能力协商机
 02 01 00                                           section 2: id=2, len=1, 签名数 0
 03 01 00                                           section 3: id=3, len=1, 常量数 0
 04 01 00                                           section 4: id=4, len=1, 指令数 0</code></pre>
-<p>带函数签名/元数据的黄金向量仍待补，见 §6 第 7 条的缺位登记。</p>
+<p>Golden vectors with function signatures/metadata are still to be added; see the missing-item registration in §6, item 7.</p>
 
-<p>相关页面：<a href="03_sab_format.html">SAB 字节码格式概览</a>、
-<a href="04_pipeline.html">编译管线：direct 与 fallback</a>、
-<a href="07_sab_parity.html">SAB 与 SA-text 一致性进展</a>。</p>
+<p>Related pages: <a href="03_sab_format.html">SAB Bytecode Format Overview</a>,
+<a href="04_pipeline.html">Compilation Pipeline: Direct and Fallback</a>,
+<a href="07_sab_parity.html">SAB / SA-text Parity Progress</a>.</p>
 </body>
 </html>

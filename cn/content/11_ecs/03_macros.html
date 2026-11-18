@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>宏使用格局与编译器改进路线</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">ECS 开发（sla_ecs） &gt; 宏使用格局与编译器改进路线</div>
+<h1>宏使用格局与编译器改进路线</h1>
+
+<p>本页总结 <code>sla_ecs</code> 实际使用的三类宏能力及其频率，以及基于这些使用模式提出的
+<code>sa_plugin_sla</code> 编译器改进建议清单。所有数字与条目均来自宏缺口分析文档
+<code>sla_ecs_macro_gap_analysis_and_recommendations_cn.md</code>（v0.1 / 2026-07-01）。</p>
+
+<h2>三类宏能力的使用频率</h2>
+<table>
+<tr><th>宏能力</th><th>使用次数</th><th>代码量覆盖</th></tr>
+<tr><td><code>@expand_tuple</code></td><td><b>~60 次</b>（4 个核心文件）</td><td>数百个结构和函数</td></tr>
+<tr><td><code>@derive(name)</code></td><td><b>~15 次</b>（lib + examples）</td><td>仅标注用途</td></tr>
+<tr><td><code>macro</code> 关键字</td><td><b>0 次</b></td><td>不适用</td></tr>
+</table>
+
+<h2>@expand_tuple 是核心支柱</h2>
+<p><code>@expand_tuple</code> 覆盖了 <code>sla_ecs</code> 所有变长展开场景，
+主要展开种类见<a href="02_architecture.html">架构与模块面</a>中的组合族表
+（<code>TableErasedAnyOf$N</code> 2..8、<code>TableErasedCombination$N</code> 2..16 等）。
+它能使用的模板变量包括：<code>$N</code>（当前 arity）、<code>$TYPES</code>/<code>$TYPE_PARAMS</code>、
+<code>$I</code>/<code>$T</code>（当前项索引与类型名）、<code>$ORD</code>（序数字段名），
+以及按 arity 重复的 <code>@each(T)</code> 与拼接用的 <code>@join(T, ", ")</code>。
+它不支持 token-tree 匹配、多 arm 模式、递归宏或任意编译期代码执行。</p>
+
+<h3>$ORD 的实现边界</h3>
+<ul>
+<li><code>$ORD</code> 在 <code>sa_plugin_sla/src/source_expand.zig</code> 中已实现到
+index 15（<code>sixteenth</code>），因此 2..16 范围可用。</li>
+<li><code>sla_ecs</code> 中把字段命名拆成两段——(2..4) 用命名参数字段、(5..8) 用数值字段——
+是<b>库侧代码风格选择，而非编译器限制</b>：</li>
+</ul>
+<pre><code>// 现状：两个范围，字段命名不一致
+@expand_tuple(2, 4, T) { $ORD_value: $T }   // first_value, second_value, ...
+@expand_tuple(5, 8, T) { value_$I: $T }     // value_0, value_1, ...
+
+// 可统一为：
+@expand_tuple(2, 8, T) { $ORD_value: $T }   // 一行即可</code></pre>
+
+<h2>@derive 是纯标注（现状）</h2>
+<p>两种情况：</p>
+<table>
+<tr><th>情况</th><th>derive 名称</th><th>编译器行为</th></tr>
+<tr><td>有语义展开</td><td><code>copy</code>、<code>eq</code>（含 PartialEq）、<code>ord</code>（含 PartialOrd）</td><td>在 <code>lowering_rules.zig</code> 与 <code>codegen.zig</code> 中生成代码</td></tr>
+<tr><td>无语义展开（纯标注）</td><td><code>Component</code>、<code>Resource</code>、<code>Message</code>、<code>Event</code>、<code>Relationship</code>；以及 <code>hash</code>、<code>debug</code>、<code>default</code></td><td>只记录名称作注解，不生成任何代码；ECS metadata 来自手写 <code>impl</code> 方法</td></tr>
+</table>
+
+<h2>macro 关键字为何为 0</h2>
+<p>SLA 的 <code>macro swap(a, b)</code> 形态只接受 identifier 参数，无法处理类型参数或表达式参数，
+对 <code>sla_ecs</code> 的代码生成没有价值。这是<b>有意不引入更复杂宏系统</b>的结果
+（SA 极简前端哲学），不是待补的功能缺口。</p>
+
+<h2>编译器改进建议清单</h2>
+<table>
+<tr><th>编号</th><th>内容</th><th>优先级</th><th>编译器改动量</th><th>预期收益</th></tr>
+<tr><td>A</td><td><code>@derive(Component/Resource/Message/Event/Relationship)</code> 自动生成 type_id</td><td>P0</td><td>~250 行 Zig</td><td>消除约 90% 的 ECS 手写 metadata</td></tr>
+<tr><td>B</td><td><code>@derive(hash)</code> / <code>@derive(debug)</code> 语义展开</td><td>P1</td><td>~200 行 Zig</td><td>完善 derive 白名单，消除手写 helper</td></tr>
+<tr><td>C</td><td>system-param 组合生成：外部脚本方案（替代通用模板引擎）</td><td>P2</td><td>0 行（脚本 + 生成的文件）</td><td>消除 300+ 手写组合 runner</td></tr>
+<tr><td>D</td><td>把 <code>@expand_tuple</code> 的 (2..4) + (5..8) 统一为 2..8</td><td>P3</td><td>0 行（仅库重构）</td><td>API 一致性</td></tr>
+</table>
+
+<h3>建议 A（P0）要点</h3>
+<ul>
+<li>每个 ECS 类型目前需手写约 5 行 <code>impl</code>
+（如 <code>fn component_type_id() -&gt; i32</code>、<code>component_storage_kind()</code>、
+<code>component_name()</code>）；examples 中已有约 30 处这类手写 metadata。</li>
+<li>方案是在编译器中为白名单 derive 名称添加展开规则：<code>type_id</code> 用编译期类型名的
+确定性哈希（候选如 FNV-1a / xxHash / murmur3，保证跨文件一致、稳定、低碰撞）；
+<code>component_storage_kind()</code> 默认返回 0（table），可由额外属性覆盖
+（如 <code>@component(storage = "sparse")</code>）。</li>
+<li><b>不引入用户可写的 derive 宏系统</b>——只增加编译器内部白名单；
+所有名称保持语言中立，编译器不硬编码 ECS 语义。</li>
+<li>改动面估计：<code>src/codegen.zig</code> 约 +120 行、<code>src/sab_codegen.zig</code> 约 +80 行、
+<code>src/type_checker.zig</code> 约 +30 行、<code>src/ast.zig</code> 约 +10 行，另加测试。</li>
+</ul>
+
+<h3>建议 B（P1）要点</h3>
+<ul>
+<li>现状 workaround：<code>lib/entity_set.sla</code> 手写 <code>entity_hash(entity: Entity) -&gt; i64</code>，
+调试处手写 <code>debug_entity(...)</code> 返回 <code>[]const u8</code>。</li>
+<li>方向是逐字段遍历式生成 hash 组合与 debug 字符串拼接；
+前提是确认这两个签名能被正确类型检查（<code>debug</code> 涉及字符串拼接的 codegen 支持）。</li>
+</ul>
+
+<h3>建议 C（P2）要点</h3>
+<p>system-param runner 是<b>参数类型组合的笛卡尔积</b>而非 arity 模板，
+<code>@expand_tuple</code> 无法表达。文档比较了两条路径并给出结论：</p>
+<ul>
+<li>路径 1（推荐）：在 <code>sla_ecs</code> 内放生成脚本（如 <code>tools/generate_system_params.py</code>），
+定义参数组合矩阵，生成 <code>system_param_table_erased.sla</code> 等文件；零编译器改动。</li>
+<li>路径 2（可选但不推荐）：编译器增加通用 <code>@expand(min, max, var)</code> 模板引擎，
+工程量约 500 行 Zig，且不一定能覆盖全部变体。</li>
+</ul>
+
+<h3>明确「不做」的项</h3>
+<ul>
+<li><code>macro</code> 关键字扩展 —— 与 SA 哲学冲突；</li>
+<li>用户自定义 derive —— 与 SA 哲学冲突；</li>
+<li><code>macro_rules!</code> 多 arm 模式宏 —— 与 SA 哲学冲突。</li>
+</ul>
+
+<div class="note"><span class="label">注意</span>该文档状态为「建议草案，待审批后开发」，
+以上是路线图而非已交付能力；当前编译器仍只对 <code>copy/eq/ord</code> 提供语义展开。
+这些改动若落地，影响的是编译器行为，<code>sla_ecs</code> 作为回归目标的验证流程见
+<a href="05_status.html">已知问题与回归史</a>。</div>
+</body>
+</html>

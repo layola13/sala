@@ -1,56 +1,56 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>运行时权限与审计：设计总览</title>
+<title>Runtime Permissions and Auditing: Design Overview</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">运行时权限与审计 &gt; 运行时权限与审计：设计总览</div>
-<h1>运行时权限与审计：设计总览</h1>
+<div class="topic-header">Runtime Permissions and Auditing &gt; Runtime Permissions and Auditing: Design Overview</div>
+<h1>Runtime Permissions and Auditing: Design Overview</h1>
 
-<div class="note"><span class="label">状态</span>本页是<b>设计稿</b>（2026-10-24 讨论定案），描述 SA 运行时权限与审计系统的目标形态。<b>实现进度（2026-10-25）：一期切片 1（策略核心，sci 109f7caf）、切片 2（原生获取点拦截接线 + 专用拒绝码 SA_STD_ERR_PERMISSION_DENIED=10，sci 0e184e26）、切片 3（产物二进制策略自举，sci df69882d、5dc14339）均已落地并推送</b>：切片 3 让产物经环境自举——SA_POLICY_JSON（最高）＞ SA_POLICY_FILE ＞ SA_POLICY_ALLOW_ALL=1（显式总放行，必留审计痕迹），SA_POLICY_REQUIRED=1 且无策略时拒绝启动（退出码 1），策略在位但不可读/不合法时硬失败（退出码 2），审计目的地 SA_AUDIT_FILE 或策略 audit.sink；四场景端到端验证与 sa build-exe 真实产物复验均通过，sa-std-unit 130/130。实现中修掉一个真缺陷：策略构造器条目在 .init_array 段对齐为 16 时，链接器补的零填充会被 glibc 当作函数指针调用、程序在 main 前段错误，条目对齐改 8 已解决。<b>与设计稿尚存两处差距</b>：其一，无策略时产物目前默认为 legacy 放行（靠 SA_POLICY_REQUIRED 关闭），与下文「不存在无策略的运行状态」的默认拒绝尚差一步，默认值待定案；其二，切片 2b 已补齐三后端策略执行（wasm 惰性自举 sci e942c0c5、emit_js 运行时头策略模块 sci 0240e7fd、emit_c 目录式 C 策略运行时 sci 8ff362c1，均经探针实测与 js/c 矩阵回归），剩余细节缺口如实列明：wasm 审计文件因 WASI rights 尚打不开（拦截执行不受影响）；js 后端无 env/net 获取点（shim 为本地桩，属能力缺席而非策略缺口）；切片 3b 已补齐 sa run 解释器表面（interp intrinsic 门控 + CLI 同 env 策略解析，sci 5777cba8）与原生 time 三条旁路（unix_s/unix_ns/utc_now 补门）。文中规则均为已确认的设计决定；标注「二期」的部分不在第一期范围内。<b>一期补遗（2026-10-25，D9 驱动）</b>：一次性令牌此前只有宿主进程内 API（PolicyContext.mintToken），产物二进制与 sa run 无投递面；现补 <code>SA_POLICY_TOKENS_JSON</code> 环境面——启动方在宿主侧批准后将令牌规格（[{category, key, ttl_s?}]，严格解析、未知字段即硬失败）经环境投递，自举期铸入根上下文，interp 同步同面；令牌在位而策略缺位时显式报错退出，绝不静默。端到端验证见 sa_plugin_sla demos/cxu/09_vm_tools 场景 C（ask + 令牌：每文件恰开一次，二次读被拒，审计恰有两条 source=token 放行）。</div>
+<div class="note"><span class="label">Status</span>This page is a <b>design draft</b> (discussion finalized on 2026-10-24), describing the target form of SA's runtime permission and auditing system. <b>Implementation progress (2026-10-25): phase-one slice 1 (the policy core, sci 109f7caf), slice 2 (native acquisition-point interception wiring + the dedicated denial code SA_STD_ERR_PERMISSION_DENIED=10, sci 0e184e26), and slice 3 (artifact binary policy bootstrapping, sci df69882d, 5dc14339) have all landed and been pushed</b>: slice 3 lets artifacts bootstrap from the environment — SA_POLICY_JSON (highest) ＞ SA_POLICY_FILE ＞ SA_POLICY_ALLOW_ALL=1 (an explicit allow-all, which must leave an audit trace); with SA_POLICY_REQUIRED=1 and no policy, startup is refused (exit code 1); when a policy is in place but unreadable/invalid, it hard-fails (exit code 2); the audit destination is SA_AUDIT_FILE or the policy's audit.sink; end-to-end verification of the four scenarios and re-verification with a real sa build-exe artifact both pass, and sa-std-unit is 130/130. One real defect was fixed during implementation: when policy-constructor entries were aligned to 16 in the .init_array section, the zero padding the linker inserted was called by glibc as a function pointer and the program segfaulted before main; changing the entry alignment to 8 solved it. <b>Two gaps remain against the design draft</b>: first, when there is no policy, artifacts currently default to legacy allow (closed off via SA_POLICY_REQUIRED), which is still one step short of the "there is no running state without a policy" default-deny described below, and the default value awaits a final ruling; second, slice 2b has completed policy execution on all three backends (wasm lazy bootstrapping, sci e942c0c5; the emit_js runtime-header policy module, sci 0240e7fd; the emit_c directory-style C policy runtime, sci 8ff362c1 — all measured with probes and regressed against the js/c matrix), with the remaining detail gaps listed honestly: the wasm audit file cannot yet be opened due to WASI rights (interception execution is unaffected); the js backend has no env/net acquisition points (the shims are local stubs — an absence of capability, not a policy gap); slice 3b has completed the sa run interpreter surface (interp intrinsic gating + CLI policy resolution from the same env, sci 5777cba8) and the three native time bypasses (gates added for unix_s/unix_ns/utc_now). All rules in the text are confirmed design decisions; parts marked "phase two" are outside phase one's scope. <b>Phase-one addendum (2026-10-25, driven by D9)</b>: one-time tokens previously had only an in-host-process API (PolicyContext.mintToken), and artifact binaries and sa run had no delivery surface; the <code>SA_POLICY_TOKENS_JSON</code> environment surface has now been added — after the launcher approves on the host side, it delivers the token specifications ([{category, key, ttl_s?}], strictly parsed, with an unknown field causing a hard failure) via the environment, to be minted into the root context during bootstrapping, with interp on the same surface in sync; when a token is present but the policy is absent, it explicitly errors and exits, never silently. For end-to-end verification see scenario C of sa_plugin_sla demos/cxu/09_vm_tools (ask + token: each file is opened exactly once, a second read is denied, and the audit contains exactly two source=token allowances).</div>
 
-<p>SA 运行时将内置一套权限与审计系统：程序的一切效果类操作（网络、文件、环境变量、进程、时间、随机源）在 <code>sa_std</code> 的 extern 边界上被统一拦截，按部署方给定的策略裁决——放行、拒绝或记录审计——而不是由程序代码自证清白。本页给出该系统的完整设计：三层结构、策略来源与优先级、拦截粒度、钩子权力模型、策略上下文与一次性临时授权。</p>
+<p>The SA runtime will have a built-in permission and auditing system: all of a program's effect-class operations (network, files, environment variables, processes, time, random sources) are uniformly intercepted at <code>sa_std</code>'s extern boundary and adjudicated against the policy given by the deployer — allow, deny, or record an audit entry — rather than the program's code vouching for itself. This page gives the system's complete design: the three-layer structure, policy sources and precedence, interception granularity, the hooks' power model, policy contexts, and one-time temporary authorization.</p>
 
-<h2>为什么走拦截路线，而不是纯度标注</h2>
-<p>曾评估过在 SLA 层引入 <code>pure fn</code> 式纯度系统（声明 + 编译期证明）。结论是降级处理，理由有三：</p>
+<h2>Why the Interception Route, Rather than Purity Annotations</h2>
+<p>Introducing a <code>pure fn</code>-style purity system at the SLA layer (declarations + compile-time proof) was evaluated. The conclusion was to downgrade it, for three reasons:</p>
 <ul>
-<li><strong>SA 不是给人看的。</strong>SA 是机器生成的中间层，没有读者；纯度是「给读者看的契约」，靠前端诚实标注与证明，在这一层天然水土不服。</li>
-<li><strong>证明路线管不住边界。</strong>SLA 的标准库能力几乎全部是 extern，纯度标注只能靠信任，检查强度在最重要的边界上恰恰最弱。拦截路线不依赖任何前端的诚实：手写 SA、插件、任何前端编译出的程序、LLM 生成的代码，一视同仁。</li>
-<li><strong>目标域要的是审计与控制。</strong>面向金融等场景时，合规要的是「已经发生的效果有完整记录、部署时能管控」，而不是类型层面的证明。拦截 + 事件日志直接产出审计材料。</li>
+<li><strong>SA is not meant for human readers.</strong> SA is a machine-generated intermediate layer with no readers; purity is "a contract for readers", resting on honest annotation and proof by the frontend, and is naturally out of place at this layer.</li>
+<li><strong>The proof route cannot govern the boundary.</strong> Almost all of SLA's standard library capabilities are externs, so purity annotations can only rest on trust, and the checking strength is weakest exactly at the most important boundary. The interception route depends on no frontend's honesty: hand-written SA, plugins, programs compiled by any frontend, and LLM-generated code are all treated alike.</li>
+<li><strong>The target domain wants auditing and control.</strong> For scenarios such as finance, compliance wants "the effects that have occurred are completely recorded, and can be controlled at deployment time", not a type-level proof. Interception + an event log directly produce audit material.</li>
 </ul>
-<p>纯度仅保留为 SLA 层未来可选的开发期 lint，不再列入主线路线图。</p>
+<p>Purity is kept only as a possible future development-time lint at the SLA layer, and is no longer on the main roadmap.</p>
 
-<h2>与 Deno 权限模型的关系</h2>
-<p>形态上类似 Deno 的运行时权限（默认受限、显式授权、按类别与资源清单放行），但下沉一层，且多两层：</p>
+<h2>Relation to Deno's Permission Model</h2>
+<p>In form it resembles Deno's runtime permissions (restricted by default, explicit grants, allowances by category and resource list), but it sits one layer lower, and has two more layers:</p>
 <table>
-<tr><th>维度</th><th>Deno</th><th>本设计</th></tr>
-<tr><td>检查点</td><td>JS 调 Rust op 的 API 边界，只管用 Deno API 的代码；FFI 放行后整体失效</td><td><code>sa_std</code> extern 边界——所有前端与 extern 调用的唯一漏斗，无更低 API 可绕</td></tr>
-<tr><td>静态层</td><td>无</td><td>SA Capability Mask 在链接期先定能力上限</td></tr>
-<tr><td>动态层</td><td>启动旗标，运行时不可变，无审计事件流</td><td>策略回调可在信封内裁决，全量结构化审计事件</td></tr>
-<tr><td>策略上下文</td><td>进程级一份</td><td>每宿主会话（如 CXU 的每个对话）一份物理隔离的上下文</td></tr>
+<tr><th>Dimension</th><th>Deno</th><th>This design</th></tr>
+<tr><td>Checkpoint</td><td>The API boundary where JS calls Rust ops; it governs only code using the Deno APIs, and fails wholesale once FFI is allowed</td><td>The <code>sa_std</code> extern boundary — the single funnel for all frontends and extern calls, with no lower API to go around it</td></tr>
+<tr><td>Static layer</td><td>None</td><td>The SA Capability Mask fixes the capability ceiling at link time</td></tr>
+<tr><td>Dynamic layer</td><td>Startup flags, immutable at runtime, no audit event stream</td><td>Policy callbacks can adjudicate inside the envelope, with a full structured audit event stream</td></tr>
+<tr><td>Policy context</td><td>One per process</td><td>One physically isolated context per host session (such as each CXU conversation)</td></tr>
 </table>
-<p>一个必须守住的前提：<code>sa_std</code> 的效果类 API 必须保持语义化（例如 connect 接收主机名字符串、DNS 内置解析），策略才看得见主机名，不至于退化到只能按 IP 段书写（CDN 场景下按 IP 的策略会碎）。</p>
+<p>One premise that must be held: <code>sa_std</code>'s effect-class APIs must stay semantic (for example, connect receives a hostname string and DNS resolution is built in), so that the policy can see hostnames and does not degenerate into being writable only by IP range (in CDN scenarios, IP-based policies shatter).</p>
 
-<h2>三层结构</h2>
-<p>有效权限 = 三层取交集，全部通过才放行：</p>
+<h2>The Three-Layer Structure</h2>
+<p>Effective permission = the intersection of the three layers; all must pass for an operation to be allowed:</p>
 <table>
-<tr><th>层</th><th>决定者</th><th>决定什么</th><th>时机</th></tr>
-<tr><td>静态层：Capability Mask</td><td>编译/链接</td><td>程序「最多能有什么能力」；未声明能力的 extern 链接不上</td><td>构建期</td></tr>
-<tr><td>配置层：策略文件 / 命令行</td><td>部署方（运维）</td><td>「这台机器、这次部署允许什么」；不需重编译，可事后追认到已编译的旧二进制</td><td>启动期</td></tr>
-<tr><td>钩子层：审计与裁决回调</td><td>部署方装配的策略回调 / 程序自注册的审计钩子</td><td>信封内的逐次裁决与全量审计记录</td><td>运行期</td></tr>
+<tr><th>Layer</th><th>Decider</th><th>What it decides</th><th>Timing</th></tr>
+<tr><td>Static layer: Capability Mask</td><td>Compilation/linking</td><td>What capabilities the program "can have at most"; an extern for an undeclared capability cannot be linked</td><td>Build time</td></tr>
+<tr><td>Configuration layer: policy file / command line</td><td>The deployer (operations)</td><td>"What this machine and this deployment allow"; no recompilation needed, and it can be retroactively applied to already-compiled old binaries</td><td>Startup time</td></tr>
+<tr><td>Hook layer: auditing and adjudication callbacks</td><td>Policy callbacks assembled by the deployer / audit hooks registered by the program itself</td><td>Per-call adjudication inside the envelope, and full audit recording</td><td>Runtime</td></tr>
 </table>
 
-<h2>策略来源与优先级（定案）</h2>
+<h2>Policy Sources and Precedence (Finalized)</h2>
 <ul>
-<li>两种来源：<strong>命令行参数</strong>与<strong>配置文件</strong>，任一即可，也可同时存在。</li>
-<li>优先级：<strong>命令行 &gt; 配置文件</strong>。合并按类别计算：命令行提到的类别整类以命令行为准；未提到的回落到配置文件；两处都未提到的类别默认拒绝。</li>
-<li><strong>不存在无策略的运行状态</strong>：两处都拿不到策略时，运行时拒绝启动并明确报错（提示如何提供策略），不静默放行。这意味着存量程序首次在新运行时上运行需要补一份策略——这是明码标价的迁移成本，用以换取「任何一次运行的权限边界都有出处」。</li>
-<li>保留 Deno <code>-A</code> 的对应物：命令行显式总放行开关，优先级最高；一旦使用，审计日志必须留痕。它是运维的主动决定，不是默认状态。</li>
+<li>Two sources: <strong>command-line arguments</strong> and a <strong>configuration file</strong>; either one suffices, and both may exist at once.</li>
+<li>Precedence: <strong>command line &gt; configuration file</strong>. Merging is computed by category: a category mentioned on the command line is governed wholesale by the command line; one not mentioned falls back to the configuration file; a category mentioned in neither defaults to denial.</li>
+<li><strong>There is no running state without a policy</strong>: when neither source yields a policy, the runtime refuses to start and reports a clear error (indicating how to provide a policy), rather than silently allowing everything. This means existing programs running on the new runtime for the first time need a policy supplied — that is the plainly priced migration cost, in exchange for "every run's permission boundary has a provenance".</li>
+<li>The counterpart of Deno's <code>-A</code> is retained: an explicit command-line allow-all switch, with the highest precedence; once used, the audit log must leave a trace. It is an active decision by operations, not a default state.</li>
 </ul>
 
-<h2>配置文件草案</h2>
+<h2>Configuration File Draft</h2>
 <pre><code>{
   "permissions": {
     "net":    { "mode": "allow-list", "allow": ["api.bank.com:443", "10.0.0.0/8:*"] },
@@ -62,58 +62,58 @@
   },
   "audit": { "sink": "file:///var/log/sa-audit.jsonl", "events": ["deny", "ask", "net", "run"] }
 }</code></pre>
-<p>每类五种模式：<code>allow</code>（放行）、<code>deny</code>（拒绝）、<code>allow-list</code>（按资源清单放行）、<code>audit</code>（放行但记录）、<code>ask</code>（交给运维装配的策略回调在信封内裁决）。</p>
+<p>Five modes per category: <code>allow</code> (allow), <code>deny</code> (deny), <code>allow-list</code> (allow by resource list), <code>audit</code> (allow but record), and <code>ask</code> (hand it to the policy callback assembled by operations for adjudication inside the envelope).</p>
 
-<h2>拦截点与粒度</h2>
+<h2>Interception Points and Granularity</h2>
 <ul>
-<li>拦截点是 <code>sa_std</code> 效果类 extern 的入口，且<strong>只在资源获取点</strong>：建连（connect）、监听（listen）、打开文件（open）、启动进程（spawn）、读取环境变量（env）、时间与随机源。两个理由：其一是性能——已授权句柄上的读写不再逐次付钩子成本；其二是避开 TOCTOU 竞态——检查的就是获取动作本身，之后句柄即凭证。</li>
-<li><strong>句柄禁止跨策略上下文传递使用</strong>（见下文策略上下文），否则隔离被句柄借道绕过。</li>
-<li>无策略钩子介入时，检查开销保持在一次原子读加分支，接近于零；装了钩子也只让被选中的事件类别付出成本。</li>
+<li>The interception points are the entry points of <code>sa_std</code>'s effect-class externs, and they sit <strong>only at resource acquisition points</strong>: connecting (connect), listening (listen), opening a file (open), starting a process (spawn), reading environment variables (env), and time and random sources. Two reasons: first, performance — reads and writes on an already-authorized handle no longer pay the hook cost on every call; second, avoiding TOCTOU races — what is checked is the acquisition action itself, after which the handle is the credential.</li>
+<li><strong>Handles must not be passed across policy contexts for use</strong> (see policy contexts below), otherwise the isolation is bypassed by borrowing a handle.</li>
+<li>When no policy hook intervenes, the checking overhead stays at one atomic read plus a branch, close to zero; with hooks installed, only the selected event categories pay the cost.</li>
 </ul>
 
-<h2>拒绝语义与审计事件</h2>
+<h2>Denial Semantics and Audit Events</h2>
 <ul>
-<li>被拒<strong>不 trap</strong>：返回专用状态码（在现有 AbiStatus 体系内预留 permission-denied），调用方必须能区分「策略拒绝」与「操作失败」。拒绝是正常裁决结果，不是崩溃。</li>
-<li>每次裁决产生一条结构化事件（类别、目标资源、裁决结果、来源上下文），格式与工具链现有 JSON 诊断同风格，审计日志机器可读，可被合规工具与 LLM 直接消费。</li>
-<li>审计<strong>只记元数据，绝不记录敏感值本身</strong>——例如 env 读取只记 key 名，不记读到的值。</li>
+<li>A denial <strong>does not trap</strong>: it returns a dedicated status code (permission-denied, reserved within the existing AbiStatus system), and the caller must be able to distinguish "policy denial" from "operation failure". A denial is a normal adjudication outcome, not a crash.</li>
+<li>Each adjudication produces a structured event (category, target resource, adjudication result, source context), in the same style as the toolchain's existing JSON diagnostics; the audit log is machine-readable and can be consumed directly by compliance tools and LLMs.</li>
+<li>The audit <strong>records only metadata, never the sensitive values themselves</strong> — for example, an env read records only the key name, not the value read.</li>
 </ul>
 
-<h2>钩子的权力模型</h2>
-<p>权力流向只有一条铁律：<strong>授权只能自上而下</strong>。运维经配置/命令行给予；程序一侧永远只能比策略更受限，不能更宽。两类钩子权力不同：</p>
+<h2>The Hooks' Power Model</h2>
+<p>There is only one iron rule for the flow of power: <strong>authorization flows only top-down</strong>. Operations grants it via configuration/the command line; the program side can only ever be more restricted than the policy, never wider. The two kinds of hook have different powers:</p>
 <table>
-<tr><th>钩子</th><th>装配者</th><th>权力</th></tr>
-<tr><td>审计钩子</td><td>程序自注册</td><td>只读观察全部事件；可以把放行改判为拒绝（自我收紧）；<b>永不能把拒绝改判为放行</b></td></tr>
-<tr><td>策略回调</td><td>部署方，随配置装配</td><td>对 <code>ask</code> 类别在配置划定的信封内逐次裁决；永不超出信封</td></tr>
+<tr><th>Hook</th><th>Assembler</th><th>Power</th></tr>
+<tr><td>Audit hook</td><td>Registered by the program itself</td><td>Read-only observation of all events; it can change an allowance into a denial (self-tightening); it can <b>never change a denial into an allowance</b></td></tr>
+<tr><td>Policy callback</td><td>The deployer, assembled with the configuration</td><td>Adjudicates <code>ask</code> categories per call within the envelope drawn by the configuration; never exceeds the envelope</td></tr>
 </table>
 <ul>
-<li><strong>不做对话确认</strong>：被管代码在调用路径上弹窗向人要权，是 UAC 式疲劳点击的来源，且服务器、守护进程、CI 等无头环境根本没有可确认的人。裁决回调执行期间钩子自动失效，防止递归。</li>
-<li><strong>特殊放行走带外通道</strong>：修改配置或以命令行授权重跑——批准是部署动作，有版本、有记录、可复盘。金融场景的动态版是四眼原则（二期）：调用先以 approval-required 状态码失败，审批人在独立界面批准，系统生成有范围有期限的授权，程序重试时凭授权通过。</li>
+<li><strong>No in-dialog confirmation</strong>: managed code popping up a dialog on the call path to ask a human for permission is a source of UAC-style fatigue clicking, and headless environments such as servers, daemons, and CI have no human available to confirm at all. While an adjudication callback executes, hooks automatically deactivate, preventing recursion.</li>
+<li><strong>Special allowances go through an out-of-band channel</strong>: change the configuration, or re-run with command-line authorization — approval is a deployment action, with versions, records, and reviewability. The dynamic version for financial scenarios is the four-eyes principle (phase two): the call first fails with an approval-required status code, an approver approves in a separate interface, the system generates a scoped, time-limited authorization, and the program passes with that authorization when it retries.</li>
 </ul>
 
-<h2>策略上下文</h2>
-<p>策略不是全进程一份，而是可以有多份、运行时切换「当前生效的是哪一份」的<strong>策略上下文</strong>。这是 CXU 的硬需求：<strong>每个对话持有一份物理隔离的权限配置</strong>，一个对话的授权在另一个对话里查无此物。实现要点：</p>
+<h2>Policy Contexts</h2>
+<p>A policy is not one per whole process; there can be several, with the runtime switching "which one is currently in effect" — a <strong>policy context</strong>. This is a hard CXU requirement: <strong>each conversation holds one physically isolated permission configuration</strong>, and one conversation's authorization is nowhere to be found in another conversation. Implementation points:</p>
 <ul>
-<li>上下文由运行时随当前任务携带（多对话并发时互不串扰），效果类调用查的是当前上下文而非全局策略。</li>
-<li>派生新上下文时权限只能比父级更少（单向收紧，与授权自上而下同一原则），任何代码不能借切换上下文扩权。</li>
-<li>上下文随宿主会话生灭：对话结束，上下文及其全部临时授权一并销毁。</li>
+<li>Contexts are carried by the runtime with the current task (concurrent conversations do not interfere with each other), and effect-class calls consult the current context rather than a global policy.</li>
+<li>When a new context is derived, its permissions can only be fewer than the parent's (one-way tightening, the same principle as top-down authorization); no code can expand its powers by switching contexts.</li>
+<li>A context lives and dies with the host session: when the conversation ends, the context and all its temporary authorizations are destroyed together.</li>
 </ul>
-<p>典型形态：宿主自身代码在正常上下文运行；被执行的插件或模型生成代码段切入收紧的上下文（禁网、文件仅临时目录、禁 spawn），代码再不可控也出不了上下文。</p>
+<p>The typical form: the host's own code runs in the normal context; an executed plugin or model-generated code segment switches into a tightened context (no network, files only in a temporary directory, no spawn), and however uncontrollable the code is, it cannot get out of the context.</p>
 
-<h2>临时授权：一次性令牌</h2>
-<p>单个对话临时需要策略外的一项权限时（典型：临时读取某个 env），不改配置、不给长期授权，而是走<b>一次性令牌</b>——与各类 API token「只生产、只展示一次」同一哲学：</p>
+<h2>Temporary Authorization: One-Time Tokens</h2>
+<p>When a single conversation temporarily needs one permission outside the policy (typically: temporarily reading some env), the configuration is not changed and no long-term authorization is given; instead it goes through a <b>one-time token</b> — the same philosophy as all kinds of API tokens, "produced once, shown once":</p>
 <ul>
-<li><strong>批准即铸造</strong>：宿主在该对话的界面呈现结构化申请（哪个对话、哪个类别、哪个具体资源），用户批准后运行时铸造一枚令牌，绑定「上下文 + 类别 + 具体资源」三元组。范围必须精确到资源——读 env 就批到 key 名，不批「env 整类」。</li>
-<li><strong>消费即焚</strong>：第一个匹配的调用消费令牌，消费后作废；想再读第二次，重新走一次批准。天然防重放：被拒代码重试多少次都无用，令牌不存在就是不存在。</li>
-<li><strong>逾期作废</strong>：未被消费的令牌短时过期，避免批准躺在上下文里被后续代码蹭用。</li>
-<li>用户在对话的权限面板可查看并随时撤销未消费的令牌；审计记录批准与消费两条事件（只记元数据）。</li>
+<li><strong>Approval is minting</strong>: the host presents a structured application in that conversation's interface (which conversation, which category, which concrete resource); after the user approves, the runtime mints a token bound to the triple "context + category + concrete resource". The scope must be precise to the resource — reading env is approved down to the key name, not to "the env category as a whole".</li>
+<li><strong>Consumption is destruction</strong>: the first matching call consumes the token, which is void after consumption; to read a second time, go through approval once more. Replay is naturally prevented: however many times denied code retries, it is useless — if the token does not exist, it does not exist.</li>
+<li><strong>Expiry</strong>: an unconsumed token expires after a short time, so that an approval does not lie around in the context to be ridden on by later code.</li>
+<li>The user can view and revoke unconsumed tokens at any time in the conversation's permission panel; the audit records both the approval and the consumption events (metadata only).</li>
 </ul>
-<p>一份临时授权的完整表述就是一句话：「允许对话 #3 读取 env <code>OPENAI_API_KEY</code> 一次。」代价是明牌的：同类操作重复发生就要逐次批准——便利让位于安全，这对装着真实凭证的类别是正确取舍。</p>
+<p>A complete statement of one temporary authorization is a single sentence: "Allow conversation #3 to read the env <code>OPENAI_API_KEY</code> once." The cost is on the table: the same kind of operation happening repeatedly requires approval each time — convenience yields to security, which is the correct trade-off for categories holding real credentials.</p>
 
-<h2>分期</h2>
+<h2>Phases</h2>
 <table>
-<tr><th>期</th><th>范围</th></tr>
-<tr><td>一期</td><td>策略上下文（进程级 + 每对话隔离）；配置/命令行双来源与优先级；获取点拦截与专用拒绝码；结构化审计日志；一次性临时授权令牌</td></tr>
-<tr><td>二期</td><td>运维装配的策略回调（ask 信封裁决）；带外审批流（四眼原则）；外部审计订阅</td></tr>
+<tr><th>Phase</th><th>Scope</th></tr>
+<tr><td>Phase one</td><td>Policy contexts (process-level + per-conversation isolation); dual policy sources (configuration/command line) and precedence; acquisition-point interception and the dedicated denial code; the structured audit log; one-time temporary authorization tokens</td></tr>
+<tr><td>Phase two</td><td>Operations-assembled policy callbacks (ask envelope adjudication); the out-of-band approval flow (the four-eyes principle); external audit subscriptions</td></tr>
 </table>
 
 </body>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>从零新建一个 SAX 界面工程</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SAX / MUI 界面开发 &gt; 从零新建一个 SAX 界面工程</div>
+<h1>从零新建一个 SAX 界面工程</h1>
+
+<p>这一页把前面几页串成一个最小可运行的操作清单：从空目录开始，写入口与一个屏幕，
+配一份主题 CSS，最后用 vite 插件在浏览器里看到它。</p>
+
+<h2>第 1 步：准备环境</h2>
+<pre><code># 编译器已加入 PATH（D:/projects/sla/sci/zig-out/bin/sa.exe）
+# 首次使用需安装插件（各插件目录需先 zig build 出 zig-out/bin/*.dll）
+sa plugin install --dev D:/projects/sla/sa_plugin_sax
+sa plugin install --dev D:/projects/sla/sa_plugin_http_server
+sa plugin install --dev D:/projects/sla/sa_plugin_react
+sa plugin install --dev D:/projects/sla/sa_plugin_vite
+sa plugin install --dev D:/projects/sla/sa_plugin_mui
+sa plugin list
+
+# 运行 privileged 插件必需（已持久化到用户环境变量，新终端可省略）
+export SA_PLUGIN_DEV=1</code></pre>
+
+<h2>第 2 步：建目录与样式</h2>
+<p>新建工程目录（示例叫 <code>my_ui</code>），按约定放三个位置：<code>app.sax</code> 在根目录、屏幕放 <code>screens/</code>、
+样式源文件放根目录与 <code>styles/</code>。先建一个最小的 <code>theme.css</code>，声明令牌和共享原语：</p>
+<pre><code>:root {
+  color-scheme: dark;
+  --cxu-bg: #070a0e;
+  --cxu-paper: #10161d;
+  --cxu-text: #f9fafb;
+  --cxu-muted: #a8b3bf;
+  --cxu-line: rgba(255, 255, 255, 0.09);
+  --cxu-primary: #61f3f3;
+  --cxu-secondary: #ffab00;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--cxu-bg); color: var(--cxu-text); font-size: 14px; }
+#app { min-height: 100vh; }
+.cxu-hidden { display: none !important; }
+.cxu-row { display: flex; align-items: center; gap: 8px; }
+.cxu-grow { flex: 1; min-width: 0; }
+.cxu-caption { color: var(--cxu-muted); font-size: 11px; }</code></pre>
+<p>工程变大后，再按「样式体系」一页的 12 个文件分工拆成 <code>theme.css + styles/*.css</code>，
+并保持拼接顺序生成 <code>app.css</code>。</p>
+
+<h2>第 3 步：写第一个屏幕 screens/hello_screen.sax</h2>
+<p>遵守语法规则：标签单行、状态用 <code>i1</code> 布尔、handler 只有直线赋值加 <code>render()</code>、无注释：</p>
+<pre><code>&lt;Component name="HelloScreen"&gt;
+  &lt;state&gt;
+    greeted = 0 as i1
+  &lt;/state&gt;
+
+  &lt;div className="cxu-row"&gt;
+    &lt;button className="MuiButton-root MuiButton-contained" onClick={say_hello}&gt;打招呼&lt;/button&gt;
+    &lt;span className="hello-msg{greeted ? '' : ' cxu-hidden'}"&gt;你好，SAX！&lt;/span&gt;
+  &lt;/div&gt;
+
+  fn say_hello() {
+    greeted = true;
+    render();
+  }
+&lt;/Component&gt;</code></pre>
+<div class="note"><span class="label">注意</span>文本位置不能写 <code>{greeted ? '你好' : ''}</code> 这类三元 ——
+这里用"静态分支文本 + <code>cxu-hidden</code>"替代，是本工程的标准做法。若要使用 MUI 组件（如上面的 <code>MuiButton-*</code> 类名对应的 <code>Button</code>），
+需要在编译时 include mui 库文件；纯 HTML 标签则不需要。</div>
+
+<h2>第 4 步：写入口 app.sax</h2>
+<pre><code>&lt;Component name="MyUiApp"&gt;
+  &lt;state&gt;
+    nav_hello = 1 as i1
+  &lt;/state&gt;
+
+  &lt;div className="cxu-app"&gt;
+    &lt;section className="cxu-screen{nav_hello ? '' : ' cxu-hidden'}"&gt;
+      &lt;HelloScreen /&gt;
+    &lt;/section&gt;
+
+    &lt;nav className="cxu-devnav"&gt;
+      &lt;button onClick={goto_hello}&gt;首页&lt;/button&gt;
+    &lt;/nav&gt;
+  &lt;/div&gt;
+
+  fn goto_hello() {
+    nav_hello = true;
+    render();
+  }
+&lt;/Component&gt;</code></pre>
+<p>以后每加一个界面：在 <code>screens/</code> 新建 <code>.sax</code>、在入口加一个 <code>nav_xxx</code> 状态和一个
+<code>&lt;section className="cxu-screen{...}"&gt;</code>、导航条加按钮和 <code>goto_xxx</code> handler、把文件加进编译命令的 include 清单。</p>
+
+<h2>第 5 步：启动热重载预览</h2>
+<pre><code>cd my_ui
+MUI=D:/projects/sla/sa_plugin_mui
+
+sa vite dev app.sax --react \
+  --include $MUI/mui/material.sax \
+  --include $MUI/mui/icons_material.sax \
+  --include screens/hello_screen.sax \
+  --title "My UI" --css app.css --out-dir .zig-cache/dev --port 5173</code></pre>
+<p>浏览器打开 <code>http://localhost:5173</code>。改任何 <code>.sax</code> 或 CSS 都会自动重建并刷新；
+编译错误会以浮层形式显示在页面里。需要部署产物时改用 <code>sa vite build ... --out-dir dist</code>。
+单文件语法验证与改动后一致性检查的做法见<a href="06_toolchain.html">react/vite 插件集成与本地预览</a>。</p>
+
+<h2>自查清单</h2>
+<ul>
+<li>所有起始标签都在单行内，没有 HTML 注释，没有空属性值。</li>
+<li>文本插值只有 <code>{var}</code> 和算术；三元只出现在属性位置。</li>
+<li>handler 里没有 <code>if</code>/<code>else</code>，且以 <code>render();</code> 结尾。</li>
+<li>每个大写组件标签都有对应定义或来自 mui 库；组件名无重复。</li>
+<li>新引入的 <code>cxu-*</code> 类在 CSS 源文件中有定义；文件编码为 UTF-8 无 BOM。</li>
+</ul>
+</body>
+</html>

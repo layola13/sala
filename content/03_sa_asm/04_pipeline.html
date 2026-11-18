@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>编译管线：direct 与 fallback</title>
+<title>Compilation Pipeline: Direct and Fallback</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">SA 汇编与 SAB &gt; 编译管线：direct 与 fallback</div>
-<h1>编译管线：direct 与 fallback</h1>
+<div class="topic-header">SA Assembly and SAB &gt; Compilation Pipeline: Direct and Fallback</div>
+<h1>Compilation Pipeline: Direct and Fallback</h1>
 
-<p>这一页描述从源码到原生可执行文件的完整路径：Y 形双输入架构、SLA 插件的
-direct SAB 快路径与 SA 兼容回退路径，以及两条路径各自的代价。读完可以判断一次慢编译
-慢在哪个阶段。现行口径（2026-11-15）：编译默认走 SA 文本路（生产路径）；
-本页的 SAB 路径仅在显式 opt-in（<code>--test-backend sab</code> 或
-<code>sab</code> 按名命令）时适用，且 SAB 已封存为优化方向。</p>
+<p>This page describes the complete path from source code to a native executable: the Y-shaped dual-input architecture, the SLA plugin's
+direct SAB fast path and SA compatibility fallback path, and the cost of each path. After reading it you will be able to judge which stage a slow compilation
+is slow in. Current position (2026-11-15): compilation uses the SA text path by default (the production path);
+the SAB paths on this page apply only on explicit opt-in (<code>--test-backend sab</code> or
+the <code>sab</code> named commands), and SAB has been sealed as an optimization direction.</p>
 
-<h2>Y 形双输入架构</h2>
-<p>文本与二进制两条输入在扁平指令数组处汇合，之后所有阶段完全共享：</p>
+<h2>Y-Shaped Dual-Input Architecture</h2>
+<p>The text and binary inputs converge at the flat instruction array, after which all stages are fully shared:</p>
 <pre><code>.sa 文本   --> Flattener (解析/宏展开/#def)  --\
                                                 +--> Instruction[] --> Referee
 .sab 二进制 --> SAB Decoder (sab.zig decodeModule)-/        |
@@ -26,70 +26,70 @@ direct SAB 快路径与 SA 兼容回退路径，以及两条路径各自的代�
                                  zig cc -O{1,2,3}       .wasm
                                        v
                                 .exe / .o / .a</code></pre>
-<p>Referee 做能力掩码校验、气闸舱检查、原子 ordering 检查，输出
-<code>AnnotatedInstruction[]</code>（可附带 Trap、Gas、upstream_loc）。</p>
+<p>The Referee performs capability mask verification, airlock checks, and atomic ordering checks, and outputs
+<code>AnnotatedInstruction[]</code> (which may carry Trap, Gas, and upstream_loc).</p>
 
-<h2>SLA 前端的两条 SAB 路径</h2>
-<div class="note"><span class="label">状态（2026-11-15）</span>本节描述的是
-显式选择 SAB 时的插件内部路径。默认路径是 SA 文本：前端经
-<code>compileSlaToSaString</code> 发射 <code>.sa</code> 文本，再由宿主
-Flattener 解析——这也是所有前端（SLA、slars、Rust 实现、第三方）统一的
-输出形态。SAB 已封存（tag <code>sab-sealed-2026-11-15</code>），其与
-文本路的平价维护不再推进。</div>
-<p><code>sa_plugin_sla</code> 的 direct 路径不经过 <code>.sa</code> 文本：</p>
+<h2>The SLA Frontend's Two SAB Paths</h2>
+<div class="note"><span class="label">Status (2026-11-15)</span>This section describes the
+plugin-internal paths when SAB is explicitly selected. The default path is SA text: the frontend emits
+<code>.sa</code> text via <code>compileSlaToSaString</code>, which is then parsed by the host
+Flattener — this is also the unified output form of all frontends (SLA, slars, the Rust implementation, and third parties).
+SAB has been sealed (tag <code>sab-sealed-2026-11-15</code>), and parity maintenance between it and
+the text path is no longer advancing.</div>
+<p>The direct path of <code>sa_plugin_sla</code> does not go through <code>.sa</code> text:</p>
 <pre><code>SLA source -> source_expand -> parser AST -> import expansion
            -> monomorphizer -> type checker
            -> sab_codegen.generate -> SAB binary bytes</code></pre>
-<p>它不调用 <code>compileSlaToSaString</code>、不写临时 <code>.sa</code>，
-也不通过 SA 文本 flattener 重解析。当 direct lowering 遇到尚未覆盖的 SLA 特性时
-（历史上如函数指针间接调用、枚举 payload/match 提取、<code>derive</code>、
-<code>for in</code> 协议、<code>async/await</code> 等），会显式报
-<code>UnsupportedSabDirectFeature</code>，随后改走<strong>兼容回退</strong>：
-内存中的 SA 兼容 lowering + SCI flattener + SAB encoder。输出仍是 <code>.sab</code>，
-不会退回旧的 <code>.test.sa</code>。</p>
+<p>It does not call <code>compileSlaToSaString</code>, does not write a temporary <code>.sa</code>,
+and does not re-parse through the SA text flattener. When direct lowering encounters an SLA feature it does not yet cover
+(historically, for example, function-pointer indirect calls, enum payload/match extraction, <code>derive</code>,
+the <code>for in</code> protocol, <code>async/await</code>, etc.), it explicitly reports
+<code>UnsupportedSabDirectFeature</code>, and then switches to the <strong>compatibility fallback</strong>:
+in-memory SA-compatible lowering + SCI flattener + SAB encoder. The output is still <code>.sab</code>,
+and does not revert to the old <code>.test.sa</code>.</p>
 
-<p>2026-09-28 更新：兼容回退已拆除（<code>sa_plugin_sla@e96e6b3</code>），
-<code>UnsupportedSabDirectFeature</code> 现为显式大声失败；上表 fallback 行与下文代价数字仅保留为历史说明。</p>
+<p>2026-09-28 update: the compatibility fallback has been removed (<code>sa_plugin_sla@e96e6b3</code>),
+and <code>UnsupportedSabDirectFeature</code> is now an explicit loud failure; the fallback row in the table above and the cost figures below are retained only as historical explanation.</p>
 
 <table>
-<tr><th>路径</th><th>阶段</th><th>特点</th></tr>
-<tr><td>direct（快）</td><td>AST → SAB 结构化 emitter</td><td>无文本解析；命中宏模板缓存后极快</td></tr>
-<tr><td>fallback（慢）</td><td>SA 兼容 flatten → SAB encode</td><td>flatten 与 encode 是两个最大的单一耗时阶段</td></tr>
+<tr><th>Path</th><th>Stages</th><th>Characteristics</th></tr>
+<tr><td>direct (fast)</td><td>AST → SAB structured emitter</td><td>No text parsing; extremely fast after hitting the macro template cache</td></tr>
+<tr><td>fallback (slow)</td><td>SA-compatible flatten → SAB encode</td><td>Flatten and encode are the two largest single time-consuming stages</td></tr>
 </table>
 
-<h2>各阶段实测代价（微观点测，机器未标定，不作性能保证）</h2>
-<p>数字来自插件 README 与 <code>roadmap_status_cn.md</code> §6：</p>
+<h2>Measured Cost of Each Stage (micro-benchmarks, machine uncalibrated, not a performance guarantee)</h2>
+<p>The figures come from the plugin README and §6 of <code>roadmap_status_cn.md</code>:</p>
 <table>
-<tr><th>场景</th><th>阶段</th><th>耗时</th></tr>
-<tr><td rowspan="2"><code>vec_remove_direct</code></td><td>direct AST→SAB（热，带宏模板缓存）</td><td>约 257 ms（相对冷编译约 16×）</td></tr>
-<tr><td>direct AST→SAB（冷，无缓存）</td><td>约 4094 ms</td></tr>
-<tr><td rowspan="3"><code>parallel_table_erased</code></td><td>SA 兼容 flatten（回退）</td><td>约 4.04 s</td></tr>
-<tr><td>SAB encode（回退）</td><td>约 5.22 s</td></tr>
-<tr><td><code>sa test</code>（宿主侧下游）</td><td>约 13.50 s</td></tr>
-<tr><td rowspan="2"><code>test_unit_fn_ptr_value</code> compile-only</td><td><code>sa test &lt;v4.sab&gt;</code></td><td>约 3.31–4.39 s</td></tr>
-<tr><td>raw <code>.sa</code> 路径</td><td>约 11.31 s</td></tr>
+<tr><th>Scenario</th><th>Stage</th><th>Time</th></tr>
+<tr><td rowspan="2"><code>vec_remove_direct</code></td><td>direct AST→SAB (hot, with macro template cache)</td><td>About 257 ms (about 16× relative to cold compilation)</td></tr>
+<tr><td>direct AST→SAB (cold, no cache)</td><td>About 4094 ms</td></tr>
+<tr><td rowspan="3"><code>parallel_table_erased</code></td><td>SA-compatible flatten (fallback)</td><td>About 4.04 s</td></tr>
+<tr><td>SAB encode (fallback)</td><td>About 5.22 s</td></tr>
+<tr><td><code>sa test</code> (host-side downstream)</td><td>About 13.50 s</td></tr>
+<tr><td rowspan="2"><code>test_unit_fn_ptr_value</code> compile-only</td><td><code>sa test &lt;v4.sab&gt;</code></td><td>About 3.31–4.39 s</td></tr>
+<tr><td>raw <code>.sa</code> path</td><td>About 11.31 s</td></tr>
 </table>
-<p>核心结论：direct 路径非常快，瓶颈几乎全部来自回退覆盖率——命中未覆盖特性就多付
-flatten + encode 两段代价。</p>
+<p>Core conclusion: the direct path is very fast, and almost all of the bottleneck comes from fallback coverage — hitting an uncovered feature means paying the extra
+flatten + encode costs.</p>
 
-<h2>覆盖率的三个指标</h2>
+<h2>Three Coverage Metrics</h2>
 <ul>
-<li><strong>No-fallback sweep</strong>：<code>SLA_SAB_NO_FALLBACK=1</code> 下通过的测试数
-（2026-07-01 为 58/69）。该开关让 direct lowering 失败直接报错而非进入 fallback。</li>
-<li><strong>Y/shared-lowering</strong>：经 <code>lowering_rules.zig</code> 共享规则实现的降低占比（72%）。</li>
-<li><strong>Direct SAB fallback-removal</strong>：不走回退路径的编译覆盖率（88%）。</li>
+<li><strong>No-fallback sweep</strong>: the number of tests passing under <code>SLA_SAB_NO_FALLBACK=1</code>
+(58/69 on 2026-07-01). This switch makes direct lowering failure report an error directly rather than entering fallback.</li>
+<li><strong>Y/shared-lowering</strong>: the share of lowering implemented via the shared rules in <code>lowering_rules.zig</code> (72%).</li>
+<li><strong>Direct SAB fallback-removal</strong>: compilation coverage that does not take the fallback path (88%).</li>
 </ul>
-<p>排查某个文件是否走了回退：</p>
+<p>To check whether a file took the fallback:</p>
 <pre><code>SLA_SAB_NO_FALLBACK=1 SA_PLUGIN_DEV=1 sa sla test src/main.sla --test-backend sab --filter "..."</code></pre>
 
-<h2>后端与本机优化提示</h2>
-<p>LLVM 路径默认 O1，O3 是选项。若编译含大常量数组（如全零字节缓冲）的程序卡死或超时，
-这是已被优化的问题：LLVM 常量生成对 <code>.repeat</code> 重复常量走专用分支，
-用一次性填充代替逐元素生成，把包含大指令缓冲的项目从 5 分钟以上降到秒级
-（详见插件文档 <code>compilation_optimization_cn.md</code>）。
-另外 SLA 编译器按模块生成独立的 <code>.sa</code>/<code>.sab</code> 并用导入引用，
-避免"全展开合并"产生上万行的巨型单文件加重 Referee 负担。</p>
+<h2>Backend and Local Optimization Hints</h2>
+<p>The LLVM path uses O1 by default; O3 is an option. If compiling a program containing a large constant array (such as an all-zero byte buffer) hangs or times out,
+this is an already-optimized issue: LLVM constant generation takes a dedicated branch for <code>.repeat</code> repeated constants,
+using a one-shot fill instead of per-element generation, bringing projects containing large instruction buffers from over 5 minutes down to seconds
+(see the plugin document <code>compilation_optimization_cn.md</code> for details).
+In addition, the SLA compiler generates a separate <code>.sa</code>/<code>.sab</code> per module and references them via imports,
+avoiding a “fully expanded merge” that produces a giant single file of tens of thousands of lines and burdens the Referee.</p>
 
-<p>下一页：<a href="05_diagnostics.html">错误码与诊断</a>。</p>
+<p>Next page: <a href="05_diagnostics.html">Error Codes and Diagnostics</a>.</p>
 </body>
 </html>
