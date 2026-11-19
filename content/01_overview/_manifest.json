@@ -377,6 +377,24 @@
         "pending review"
       ],
       "parent": null
+    },
+    {
+      "id": "zig-seal-rust-mainline",
+      "title": "SLA Compiler: Rust Mainline, Zig Sealed at Tag 0.1.9 (2026-11-19)",
+      "file": "23_zig_seal_rust_mainline.html",
+      "keywords": [
+        "Rust",
+        "Zig",
+        "mainline",
+        "sealed",
+        "0.1.9",
+        "stage0",
+        "bootstrap",
+        "plugin",
+        "dual implementation",
+        "decision"
+      ],
+      "parent": null
     }
   ]
 }

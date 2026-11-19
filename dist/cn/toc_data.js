@@ -112,6 +112,11 @@ var TOC = [
     "t": "静默失败面普查（2026-11-17）",
     "f": "content/01_overview/22_silent_surface.html",
     "c": []
+   },
+   {
+    "t": "SLA 编译器：Rust 版为唯一主线，Zig 版封存于 tag 0.1.9（2026-11-19）",
+    "f": "content/01_overview/23_zig_seal_rust_mainline.html",
+    "c": []
    }
   ]
  },

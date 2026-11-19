@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SLA Compiler: Rust Mainline, Zig Sealed at Tag 0.1.9 (2026-11-19)</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">Getting Started &gt; SLA Compiler: Rust Mainline, Zig Sealed at Tag 0.1.9 (2026-11-19)</div>
+
+<div class="note">Status: <strong>decided</strong> (2026-11-19, user ruling confirming the main session's inference). From this date, SLA compiler development proceeds on the Rust implementation (<code>layola13/sla</code>) as the sole mainline. The Zig implementation (<code>sa_plugin_sla</code>) is sealed at tag 0.1.9 and is no longer developed.</div>
+
+<h2>1. The Decision</h2>
+<ul>
+<li>The Rust implementation is the sole mainline: every new fix and every new feature lands there directly.</li>
+<li>The Zig implementation is sealed at tag 0.1.9; development stops.</li>
+<li>This page covers only the SLA compiler implementation. sci is out of scope (see section 4).</li>
+</ul>
+
+<h2>2. Rationale</h2>
+<p><strong>(1) The dual-implementation maintenance tax.</strong> Every fix written twice, every corpus run twice, drift adjudicated forever. Hard evidence from the Rust implementation's 722-name census: a 97-name “gap” between the two implementations turned out to be host-generation drift, not defects; and the RECONCILE audit found the booked count of 660 green overstated the verified green by 53 names. This is the same whole-surface-cost pricing that sealed SAB (<code>sab-sealed-2026-11-15</code>).</p>
+<p><strong>(2) Two structural Zig-toolchain pain points.</strong> The 2026-11-19 Zig 0.17.1 evaluation confirms that neither is fixed upstream: (a) successful test results are cached and silently replayed — a re-run reports rc=0 with a 0-byte log, producing false greens; gates must clear <code>.zig-cache</code>/<code>zig-out</code> and demand <code>--summary all</code>. (b) Build-graph cache poisoning: an <code>SA_PLUGIN_DEV=1</code> leak into a build downgrades ReleaseFast to Debug (a ~129 MB .so), and later plain builds exit in 0 s without rebuilding anything.</p>
+<p><strong>(3) A whole problem class from the plugin form factor.</strong> The Zig SLA is an SA-host plugin (.so): <code>sa plugin install --dev</code> swallows build failures, keeps the old .so, and still exits 0; plugin and std must be generation-paired, and cross-generation pairing produces mass false reds. The Rust standalone binary removes this class structurally — no install step, no generation pairing.</p>
+<p><strong>(4) Performance.</strong> On the same 100k-line cold-compile workload measured against rustc, the Zig implementation wins by +10.9% and the Rust implementation by +50.9% — the Rust build's wall clock is roughly a quarter to a third faster. The stable version should be the faster one.</p>
+<p><strong>(5) The dual track's original purpose is fulfilled.</strong> Under the 2026-11-07 ruling, the Zig implementation was the feature-exploration version and the Rust implementation the designated stable version. Once Rust reaches parity on the same corpus (722 names), keeping exploration in Zig only manufactures drift; the exploration role therefore migrates to Rust as well, and new features land in Rust directly.</p>
+
+<h2>3. Sealed Form and Residual Roles</h2>
+<p>The Zig implementation stays at tag 0.1.9 with three residual roles:</p>
+<ul>
+<li><strong>Frozen stage0 oracle</strong> for the SLA self-bootstrap (the dual-compile comparison baseline). An oracle is a frozen artifact, not maintained code — patching it would contaminate the baseline.</li>
+<li><strong>Transitional dual-compile cross-check oracle</strong>, while the Rust mainline settles.</li>
+<li><strong>Minimum-viable SA host plugin</strong>, for workflows that must invoke the SLA frontend inside the SA host.</li>
+</ul>
+<p>Only fatal fixes are accepted: defects that would invalidate it as oracle or backup. No feature work, no parity chasing.</p>
+
+<h2>4. Boundary</h2>
+<p>This decision covers only the SLA compiler implementation. sci (the SA host) remains Zig for now. Whether sci's implementation language changes — full Rust unification, or a MoonBit-style split by component nature (MoonBit: compiler core in OCaml, build system and CLI in Rust) — is queued for discussion after the Rust SLA succeeds; it is not a project, and no line is dispatched for it.</p>
+
+</body>
+</html>

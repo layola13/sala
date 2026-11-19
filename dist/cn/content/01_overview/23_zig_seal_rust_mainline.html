@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SLA 编译器：Rust 版为唯一主线，Zig 版封存于 tag 0.1.9（2026-11-19）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; SLA 编译器：Rust 版为唯一主线，Zig 版封存于 tag 0.1.9（2026-11-19）</div>
+
+<div class="note">状态：<strong>已定案</strong>（2026-11-19，用户裁定，确认主会话推断）。自本日起，SLA 编译器的开发只在 Rust 实现（<code>layola13/sla</code>）上进行，它是唯一主线。Zig 实现（<code>sa_plugin_sla</code>）封存于 tag 0.1.9，不再开发。</div>
+
+<h2>一、裁定</h2>
+<ul>
+<li>Rust 实现为唯一主线：一切新修复与新特性直接落 Rust 版。</li>
+<li>Zig 实现封存于 tag 0.1.9，停止开发。</li>
+<li>本页只覆盖 SLA 编译器实现；sci 不在范围内（见四）。</li>
+</ul>
+
+<h2>二、理由</h2>
+<p><strong>（1）双实现维护税。</strong>每个修复写两遍、每套语料跑两遍、漂移永远要对账。硬证据来自 Rust 版 722 名普查：两个实现之间一个 97 名的「缺口」实为宿主代际漂移、不是缺陷；RECONCILE 对账发现账面 660 绿比已验证绿多报 53 名。这与 SAB 封存（<code>sab-sealed-2026-11-15</code>）是同一套全表面成本定价。</p>
+<p><strong>（2）Zig 工具链的两个结构性痛点。</strong>2026-11-19 的 Zig 0.17.1 评估确认上游两者都不修：（a）测试成功结果被缓存并静默回放——重跑报 rc=0、日志 0 字节，造假绿；门禁须清 <code>.zig-cache</code>/<code>zig-out</code> 并要求 <code>--summary all</code>。（b）构建图缓存毒化：<code>SA_PLUGIN_DEV=1</code> 漏入构建会把 ReleaseFast 降级成 Debug（约 129 MB 的 .so），其后普通构建 0 秒退出、什么都不重编。</p>
+<p><strong>（3）插件形态带来的一整类问题。</strong>Zig 版 SLA 是 SA 宿主插件（.so）：<code>sa plugin install --dev</code> 在构建失败时吞错、保留旧 .so 且退出码仍为 0；插件与 std 必须同代配对，跨代配对造成大面积假红。Rust 独立二进制从结构上消除这一整类问题——无安装步、无代际配对。</p>
+<p><strong>（4）性能。</strong>同一 100k 行冷编负载对拍 rustc：Zig 版胜 +10.9%、Rust 版胜 +50.9%——Rust 版墙钟约快四分之一到三分之一。稳定版应当是更快的那一个。</p>
+<p><strong>（5）双轨的原始目的已达成。</strong>按 2026-11-07 裁定，Zig 版是特性探索版、Rust 版是既定稳定版。Rust 版在同一语料（722 名）上达成对齐之后，探索继续留在 Zig 只会生产漂移；探索角色因此一并迁往 Rust 版，新特性直接落 Rust 版。</p>
+
+<h2>三、封存形态与残值角色</h2>
+<p>Zig 实现停在 tag 0.1.9，保留三个残值角色：</p>
+<ul>
+<li><strong>冻结的 stage0 裁判</strong>：SLA 自举的双编译对拍基准。裁判是冻结产物、不是活代码——给裁判打补丁反而污染基准。</li>
+<li><strong>过渡期双编译对拍 oracle</strong>：Rust 主线稳定期内作交叉校验。</li>
+<li><strong>SA 宿主插件的最低可用形态</strong>：服务必须在宿主内调用 SLA 前端的工作流。</li>
+</ul>
+<p>只接受致命修复：会让它作为裁判或备份都不成立的缺陷。不做新特性、不追对齐。</p>
+
+<h2>四、边界</h2>
+<p>本裁定只覆盖 SLA 编译器实现。sci（SA 宿主）目前仍是 Zig。sci 的实现语言是否变更——全 Rust 一统，还是 MoonBit 式按部件性质分工（MoonBit：编译器核心用 OCaml、构建系统与 CLI 用 Rust）——列入 Rust 版 SLA 成功之后的探讨议题；未立项、不派线。</p>
+
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/01_overview/23_zig_seal_rust_mainline.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

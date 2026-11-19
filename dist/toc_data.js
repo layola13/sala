@@ -112,6 +112,11 @@ var TOC = [
     "t": "Silent-Failure Surface Census (2026-11-17)",
     "f": "content/01_overview/22_silent_surface.html",
     "c": []
+   },
+   {
+    "t": "SLA Compiler: Rust Mainline, Zig Sealed at Tag 0.1.9 (2026-11-19)",
+    "f": "content/01_overview/23_zig_seal_rust_mainline.html",
+    "c": []
    }
   ]
  },
