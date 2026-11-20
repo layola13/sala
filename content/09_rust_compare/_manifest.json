@@ -156,6 +156,25 @@
         "formatting"
       ],
       "parent": null
+    },
+    {
+      "id": "mut-borrow-compare",
+      "title": "No &mut by Design: One Borrow Type, Referee-Judged Read/Write",
+      "file": "11_mut_borrow_compare.html",
+      "keywords": [
+        "&mut",
+        "borrow",
+        "Referee",
+        "Locked_Read",
+        "Locked_Mut",
+        "spawn boundary",
+        "BorrowEscape",
+        "Cell",
+        "channel",
+        "Mutex",
+        "RwLock"
+      ],
+      "parent": null
     }
   ]
 }

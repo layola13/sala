@@ -84,6 +84,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="blob"><param name="Local" value="../../dist/cn/content/10_db/03_api.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="block_on"><param name="Local" value="../../dist/cn/content/02_sla_lang/09_async.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="borrow checker"><param name="Local" value="../../dist/cn/content/09_rust_compare/03_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="BorrowEscape"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Box"><param name="Local" value="../../dist/cn/content/06_stdlib/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="buffer-read-write"><param name="Local" value="../../dist/cn/content/04_cli/13_bun_peer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="build"><param name="Local" value="../../dist/cn/content/04_cli/04_build.html"></OBJECT>
@@ -105,9 +106,10 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CapabilityMask"><param name="Local" value="../../dist/cn/content/03_sa_asm/01_sa_model.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="cargo"><param name="Local" value="../../dist/cn/content/05_plugins/13_pkg.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="catch"><param name="Local" value="../../dist/cn/content/01_overview/22_silent_surface.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Cell"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Cell 内部可变性"><param name="Local" value="../../dist/cn/content/09_rust_compare/08_migration.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="census"><param name="Local" value="../../dist/cn/content/06_stdlib/21_java_net_census.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="channel"><param name="Local" value="../../dist/cn/content/01_overview/13_goroutine_runtime.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="channel"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Chat Completions"><param name="Local" value="../../dist/cn/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="check"><param name="Local" value="../../dist/cn/content/08_faq/02_compile_failures.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="child_process"><param name="Local" value="../../dist/cn/content/05_plugins/12_node.html"></OBJECT>
@@ -277,6 +279,8 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="LLVM bitcode"><param name="Local" value="../../dist/cn/content/09_rust_compare/07_rosetta_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="llvm-14-dev"><param name="Local" value="../../dist/cn/content/13_build/02_linux_windows.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="localhost"><param name="Local" value="../../dist/cn/content/05_plugins/15_http_server.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Locked_Mut"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Locked_Read"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="lshr"><param name="Local" value="../../dist/cn/content/15_sa2c/03_semantics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="M:N"><param name="Local" value="../../dist/cn/content/01_overview/13_goroutine_runtime.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Mach-O"><param name="Local" value="../../dist/cn/content/13_build/03_cross_arm_mac.html"></OBJECT>
@@ -299,6 +303,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="move"><param name="Local" value="../../dist/cn/content/03_sa_asm/09_ownership_transfer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="mui"><param name="Local" value="../../dist/cn/content/05_plugins/04_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="MUI"><param name="Local" value="../../dist/cn/content/07_ui/05_mui.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Mutex"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="MySQL"><param name="Local" value="../../dist/cn/content/10_db/08_mysql_sqlite_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="native"><param name="Local" value="../../dist/cn/content/14_zig017_perf/01_zig017_vs_014.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="net"><param name="Local" value="../../dist/cn/content/06_stdlib/24_python_net_census.html"></OBJECT>
@@ -384,6 +389,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="RSS"><param name="Local" value="../../dist/cn/content/04_cli/12_sixway.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="rust"><param name="Local" value="../../dist/cn/content/05_plugins/17_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Rust 版"><param name="Local" value="../../dist/cn/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="RwLock"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA"><param name="Local" value="../../dist/cn/content/03_sa_asm/01_sa_model.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa"><param name="Local" value="../../dist/cn/content/06_stdlib/17_api_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa build-exe"><param name="Local" value="../../dist/cn/content/04_cli/09_host_commands.html"></OBJECT>
@@ -608,11 +614,12 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="交付客户"><param name="Local" value="../../dist/cn/content/01_overview/18_mobile_transpile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="交叉编译"><param name="Local" value="../../dist/cn/content/13_build/03_cross_arm_mac.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="产物体积"><param name="Local" value="../../dist/cn/content/09_rust_compare/09_performance.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="任务边界"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="仿射"><param name="Local" value="../../dist/cn/content/03_sa_asm/01_sa_model.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="会话持久化"><param name="Local" value="../../dist/cn/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="位级打包"><param name="Local" value="../../dist/cn/content/06_stdlib/23_unreal_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="候选语法"><param name="Local" value="../../dist/cn/content/01_overview/15_go_feature_candidates.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="借用"><param name="Local" value="../../dist/cn/content/09_rust_compare/03_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="借用"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="借用冲突"><param name="Local" value="../../dist/cn/content/03_sa_asm/06_limitations.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="偏移"><param name="Local" value="../../dist/cn/content/06_stdlib/18_api_layout.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="元组"><param name="Local" value="../../dist/cn/content/02_sla_lang/02_types.html"></OBJECT>

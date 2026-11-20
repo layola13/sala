@@ -229,6 +229,11 @@ var TOC = [
     "t": "Rust std × sa_std Surface Census and Gap Table",
     "f": "content/09_rust_compare/10_std_census.html",
     "c": []
+   },
+   {
+    "t": "No &mut by Design: One Borrow Type, Referee-Judged Read/Write",
+    "f": "content/09_rust_compare/11_mut_borrow_compare.html",
+    "c": []
    }
   ]
  },

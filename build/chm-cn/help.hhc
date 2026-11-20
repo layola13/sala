@@ -373,6 +373,14 @@
 <param name="Local" value="../../dist/cn/content/09_rust_compare/10_std_census.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="没有 &amp;mut 是设计而非缺失：一种借用类型，读写由 Referee 判定">
+<param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

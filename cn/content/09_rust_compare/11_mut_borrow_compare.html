@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>没有 &amp;mut 是设计而非缺失：一种借用类型，读写由 Referee 判定</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">与 Rust 对比 &gt; 没有 &amp;mut 是设计而非缺失</div>
+<h1>没有 &amp;mut 是设计而非缺失：一种借用类型，读写由 Referee 判定</h1>
+
+<p>Sla 没有 <code>&amp;mut</code>，这是有意的设计决定，不是缺失的功能：只有一种借用类型
+<code>&amp;T</code>，同时覆盖读和写，读/写权限由 SA Referee 按借用视图背后实际的
+load/store 指令判定（<code>Locked_Read</code> / <code>Locked_Mut</code>）。这一页的结论都
+来自实际编译运行过的程序，不是设计草图。工具链：<code>sa 0.1.9</code> +
+<code>sa_plugin_sla 2b65a1dd</code>，2026-11-20 验证。Demo：
+<code>sa_plugin_sla/demos/mut_compare/</code>（01_borrow_read_write、
+02_spawn_boundary）。下文代码块均为这些 demo 文件的摘录；完整文件（含 import）在 demo 目录中，是已验证的工件。</p>
+
+<h2>同一个程序：Rust 要两个签名，Sla 只要一个</h2>
+<p>拿教科书式的 <code>&amp;mut</code> 例子：一个函数读数，另一个给数加 10。Rust 需要两种
+借用类型；Sla 只需要一种。</p>
+<pre><code>// Rust —— read 用 &amp;i32，modify 用 &amp;mut i32
+fn read(value: &amp;i32) {
+    println!("{}", value);
+}
+
+fn modify(value: &amp;mut i32) {
+    *value += 10;
+}
+
+fn main() {
+    let mut number = 100;
+    read(&amp;number);
+    modify(&amp;mut number);
+    println!("{}", number);
+}
+// 输出：100，然后 110</code></pre>
+<pre><code>// Sla —— read 和 modify 都用 &amp;i32
+fn read(value: &amp;i32) -&gt; void {
+    println("{}", *value);
+}
+
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    read(&amp;number);
+    modify(&amp;number);
+    println("{}", number);
+    return 0;
+}
+// 输出：100，然后 110</code></pre>
+<p>两个程序都打印 <code>100</code> 然后 <code>110</code>。把 Rust 的 <code>&amp;mut</code> 例子直译成
+Sla 不需要 <code>Cell</code> / <code>RefCell</code>。<code>Cell</code> / <code>RefCell</code> 只用于
+真正共享的内部状态，不是借用改值必须过的收费站。</p>
+<table>
+<tr><th></th><th>Rust</th><th>Sla</th></tr>
+<tr><td>读函数签名</td><td><code>read(&amp;i32)</code></td><td><code>read(&amp;i32)</code></td></tr>
+<tr><td>写函数签名</td><td><code>modify(&amp;mut i32)</code></td><td><code>modify(&amp;i32)</code></td></tr>
+<tr><td>读实现改成写</td><td>签名必须改成 <code>&amp;mut</code>，所有调用方跟着改</td><td>签名不变，只改函数体</td></tr>
+<tr><td>谁判定读/写</td><td>类型系统，在签名处</td><td>SA Referee，按实际 load/store 指令</td></tr>
+</table>
+
+<h2>为什么一个签名就够了</h2>
+<p>权限不是声明出来的，是观察出来的。降维之后，Referee 看借用视图到底只被
+load（<code>Locked_Read</code>）还是也被 store（<code>Locked_Mut</code>）。于是实现从
+读改成写时签名保持稳定，不用把标注逐层传过所有调用方。签名稳定就是设计动机——
+每个调用点少一个前缀，函数体内部的改动不引发签名连锁改动。</p>
+<p>还有一个相关形式值得记录，它曾经失败，但原因与检查器无关：<code>*value = *value + 10;</code>
+（解引用加二元运算）在 <code>sa_plugin_sla 1d3b850c</code> 之前会被拒绝。原因是解析器：
+前缀 <code>*</code>、<code>&amp;</code>、<code>^</code> 以优先级 6 解析操作数，二元运算被折进操作
+数里，表达式被解析成 <code>*(value + 10)</code>。修复是把前缀操作数改成优先级 8 解析。
+该形式由 demo 01（<code>modify_binop</code>）覆盖，现在 check、test、运行都通过。</p>
+
+<h2>任务边界：借用不得跨界</h2>
+<p>只有一种借用类型，不等于借用可以去任何地方。借用不得跨越任务边界——被借用的
+位置在派生任务的栈上，而派生任务可能比它活得久。两种派生形态都在检查期被拒绝：</p>
+<pre><code>// Sla —— `go` 形态：检查期拒绝
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    let h = go modify(&amp;number);
+    number = 200;
+    let st = sa_task_join(h);
+    println("{}", number);
+    return 0;
+}</code></pre>
+<pre><code>Type Check Error: failed to verify types: go: spawned function `modify`
+takes a borrowed parameter, which would dangle across the goroutine boundary;
+pass an owned value or a raw pointer instead (error.TypeMismatch)</code></pre>
+<pre><code>// Sla —— thread::spawn 闭包形态：检查期拒绝（BorrowEscape）
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    let h = thread::spawn(^|| modify(&amp;number));
+    number = 200;
+    let r = h.join().unwrap();
+    println("{}", number);
+    return 0;
+}</code></pre>
+<pre><code>Type Check Error: failed to verify types: thread::spawn: closure borrows
+`number` from the enclosing scope, which would dangle or race across the
+thread boundary; pass an owned value (such as an Arc clone) or a raw pointer
+instead (error.BorrowEscape)</code></pre>
+<p>闭包形态在 <code>sa_plugin_sla 2b65a1dd</code> 之前是一个真实漏洞：修复前这个文件能
+通过检查、编译并运行，打印 <code>210</code>——主任务写 <code>200</code> 的同时派生线程经
+借用视图加 <code>10</code>，一场检查器悄悄放行的活生生的数据竞争。修复
+（DEF-SLA-SPAWN-CLOSURE-BORROW-ESCAPE）会走查派生闭包体，拒绝三类情况：借用外
+层作用域的位置、使用类型里含借用的外层绑定、对外层位置赋值。</p>
+<p>Rust 用 <code>Send</code> + <code>'static</code> 在编译期拒绝同样的形态：传给
+<code>thread::spawn</code> 的闭包不得捕获栈上位置的借用。两种语言对这条规则的结论
+一致，只在执行位置上不同——Rust 在类型系统里，Sla 在检查器的任务边界守卫里。</p>
+
+<h2>合规的跨越方式：所有权转移</h2>
+<p>能跨越任务边界的是有主的值，永远不是借用。标准形态是 channel 交接（demo 02）：
+两个 channel（请求与响应），50 轮乒乓。worker 拥有两个 channel 端。</p>
+<pre><code>fn pp_worker(req: Chan&lt;u64&gt;, resp: Chan&lt;u64&gt;) {
+    let i = 0;
+    while i &lt; 50 {
+        let (v, closed) = req.recv();
+        if closed { panic(9601); };
+        resp.send(v + 1);
+        i = i + 1;
+    }
+}
+
+fn main() -&gt; i32 {
+    let req: Chan&lt;u64&gt; = Chan::new(0);
+    let resp: Chan&lt;u64&gt; = Chan::new(0);
+    let h = thread::spawn(^|| pp_worker(req, resp));
+    let i = 0;
+    let last: u64 = 0;
+    while i &lt; 50 {
+        req.send(i as u64);
+        let (r, closed) = resp.recv();
+        if closed { panic(9602); };
+        last = r;
+        i = i + 1;
+    }
+    let jr = h.join();
+    println("{}", last);
+    req.destroy();
+    resp.destroy();
+    if last != 50 { return 1; };
+    return 0;
+}
+// 输出：50，退出码 0</code></pre>
+<p>共享状态的协调同样用实测说话，同一工具链、同一天运行。Mutex、channel、并行读三行
+每次运行都是精确结果；RwLock 混合是例外——多数情况下出 <code>200</code>，但间歇会以
+运行时 panic 收尾，因此下面按实测比率报告，而不是当作稳定的精确值：</p>
+<table>
+<tr><th>模式</th><th>程序</th><th>实测结果</th></tr>
+<tr><td>共享计数器</td><td><code>Arc&lt;Mutex&lt;i32&gt;&gt;</code>，4 个 worker 各加 250 次</td><td>精确 <code>1000</code></td></tr>
+<tr><td>读写混合</td><td><code>Arc&lt;RwLock&lt;i32&gt;&gt;</code>，写者 +2 &times; 100，两个读者断言每次读到偶数</td><td>28 次运行中 22 次出 <code>200</code>；其余 6 次以运行时 panic（code 17）收尾——有时序敏感，未立修复线</td></tr>
+<tr><td>并行读</td><td>三个读者各把 <code>Arc&lt;i32&gt;</code>（= 100）累加 10,000 次</td><td>各 <code>1000000</code></td></tr>
+</table>
+
+<h2>Rust 实现里的同样两个缺陷</h2>
+<p>上面两个修复不只属于 Zig 版。SLA 编译器的 Rust 实现（<code>layola13/sla</code>）
+是从 Zig 版移植过去的——连同两个缺陷一起移植了过去，修复也是同样的形态：</p>
+<table>
+<tr><th>缺陷</th><th>Zig 插件</th><th>Rust <code>sla</code></th></tr>
+<tr><td>前缀 <code>*</code>/<code>&amp;</code>/<code>^</code> 的操作数以优先级 6 解析，<code>*value = *value + 10</code> 被解析成 <code>*(value + 10)</code></td><td><code>1d3b850c</code>（<code>src/parser.zig</code>，优先级 6 → 8）</td><td><code>26b5137f</code>（<code>crates/sla-parser/src/prefix.rs</code>，<code>parse_expr(6)</code> → <code>parse_expr(8)</code>）</td></tr>
+<tr><td><code>thread::spawn</code> 闭包借用外层作用域位置时被放行</td><td><code>2b65a1dd</code>（<code>src/type_checker.zig</code>）</td><td><code>b06c05ee</code>（<code>crates/sla-checker/src/check_spawn_guard.rs</code> + <code>leaf_thread_spawn</code> 中的 hook）</td></tr>
+</table>
+<p>“解引用缺陷只是 Zig 版检查器问题”的早期假设是错的：Rust 解析器对同样的
+探针文件报出同样的诊断（<code>TypeMismatch: operator requires matching operand
+types, actual borrow and i64</code>），修复后的 Rust 候选则接受它们。回归测试两侧
+逐字节相同：<code>corpus/tests/test_unit_deref_binop_operand.sla</code>（3 个 @test）、
+<code>corpus/tests/test_error_spawn_closure_borrow_arg.sla</code>、
+<code>corpus/tests/test_error_spawn_closure_borrow_capture.sla</code>。</p>
+<p>在 <code>sla</code> main <code>b06c05ee</code> 构建的 Rust 二进制上验证（盒 bd00ae7b9304，
+2026-11-20；<code>cargo build --release -p sla-cli</code>，二进制 6,923,920 B）：
+demo 01 检查与测试都绿（<code>test result: ok. 1 passed</code>）；语料解引用测试
+3/3 通过；两个 spawn 负例都以 <code>BorrowEscape</code> 被拒绝——直接捕获是
+“closure borrows `number` from the enclosing scope”，间接捕获是
+“closure captures borrowed value `r` from the enclosing scope”——<code>go</code>
+负例也被拒绝，只是诊断措辞不同（<code>GoBorrowPayload: spawn argument carries
+a borrow across the goroutine boundary</code>）。Demo 02 与 p3/p4/p5 探针在 Rust
+一侧检查也都通过。</p>
+<p>与 Rust 语言本身有一处不对称值得记录。在 Rust 里，内联形态
+<code>thread::spawn(move || modify(&amp;mut number))</code> 能编译：闭包捕获精度
+让闭包捕获 <code>i32</code> 的一份拷贝，<code>+10</code> 就此丢失——编译出的二进制打印
+<code>200</code> 而不是 <code>210</code>。与 Sla 拒绝形态真正对应的 Rust 写法是先预绑
+定借用（<code>let r = &amp;mut number; thread::spawn(move || modify(r))</code>），
+rustc 1.100.0 以 <code>E0597</code>（<code>number</code> 活得不够久：spawn 参数要求
+<code>'static</code> 借用）与 <code>E0506</code>（<code>number</code> 已被借用，不能赋值）
+拒绝它。Sla 则直接拒绝内联形态，没有捕获精度这条逃生通道。</p>
+<p><code>await</code> 在两侧实现里仍以优先级 6 解析操作数——两次修复都有意未动
+它，需要单独裁决。</p>
+
+<h2>仍属 Phase 2 的部分</h2>
+<p>这一页不改变
+<a href="03_ownership.html">所有权与借用：Referee 对比 borrow checker</a>
+里的分阶段计划。唯一仍然需要 <code>&amp;mut</code> 的场景是静态读写集合：ECS 并行调度器
+必须在运行前知道 <code>move_sys</code> 写 <code>Pos</code> 的同时 <code>render_sys</code> 是否在读
+<code>Pos</code>。那是 Phase 2 的工程触发条件，不是上面这些程序的缺口——这一页的每个
+场景，Referee 在运行时都已正确判定。</p>
+<div class="warning"><span class="label">注意</span>从 Rust 迁移时最容易踩的坑，是把
+<code>&amp;T</code> 当成只读：在 Sla 现行约定下它同时覆盖读和写，从签名上看不出一个方法会不会改状态。
+“签名不表达可变性”这一缺口，要等 Phase 2 引入 <code>&amp;mut self</code> 才会合上。</div>
+
+<h2>本页要点</h2>
+<ul>
+<li>Sla 没有 <code>&amp;mut</code> 是设计：<code>&amp;T</code> 同时覆盖读和写，SA Referee 按实际指令判定 <code>Locked_Read</code> / <code>Locked_Mut</code>。</li>
+<li>把 Rust 的 <code>&amp;mut</code> 例子直译过来不需要 <code>Cell</code> / <code>RefCell</code>；实现从读改写时签名保持稳定。</li>
+<li><code>*value = *value + 10</code> 自解析器修复 <code>sa_plugin_sla 1d3b850c</code> 起被接受。</li>
+<li>借用不得跨越任务边界：<code>go</code> 形态与 <code>thread::spawn</code> 闭包形态都在检查期被拒绝；闭包形态在 <code>2b65a1dd</code> 之前是真实漏洞。</li>
+<li>跨任务传递靠所有权转移（channel）或 <code>Arc</code> + 锁——实测精确：channel 交接 50 轮、Mutex 计数器 1000、并行读各 1000000；RwLock 混合 28 次中 22 次出 200（6 次 panic，code 17）。</li>
+<li>Phase 2 的 <code>&amp;mut</code> 仍留给 ECS 调度器的静态读写集合；见<a href="03_ownership.html">所有权页</a>。</li>
+<li>两个缺陷在 Rust 实现里同样存在（解析器/检查器从 Zig 版移植时把缺陷也带了过去），并以同样形态修复（<code>26b5137f</code>、<code>b06c05ee</code>）；demo 在两侧二进制上都验证通过。</li>
+</ul>
+</body>
+</html>

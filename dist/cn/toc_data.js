@@ -229,6 +229,11 @@ var TOC = [
     "t": "Rust std × sa_std 表面普查与缺口表",
     "f": "content/09_rust_compare/10_std_census.html",
     "c": []
+   },
+   {
+    "t": "没有 &mut 是设计而非缺失：一种借用类型，读写由 Referee 判定",
+    "f": "content/09_rust_compare/11_mut_borrow_compare.html",
+    "c": []
    }
   ]
  },

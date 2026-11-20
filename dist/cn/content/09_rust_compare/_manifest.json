@@ -156,6 +156,25 @@
         "格式化"
       ],
       "parent": null
+    },
+    {
+      "id": "mut-borrow-compare",
+      "title": "没有 &mut 是设计而非缺失：一种借用类型，读写由 Referee 判定",
+      "file": "11_mut_borrow_compare.html",
+      "keywords": [
+        "&mut",
+        "借用",
+        "Referee",
+        "Locked_Read",
+        "Locked_Mut",
+        "任务边界",
+        "BorrowEscape",
+        "Cell",
+        "channel",
+        "Mutex",
+        "RwLock"
+      ],
+      "parent": null
     }
   ]
 }

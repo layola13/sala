@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>No &amp;mut by Design: One Borrow Type, Referee-Judged Read/Write</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Comparison with Rust &gt; No &amp;mut by Design: One Borrow Type, Referee-Judged Read/Write</div>
+<h1>No &amp;mut by Design: One Borrow Type, Referee-Judged Read/Write</h1>
+
+<p>SLA has no <code>&amp;mut</code>. That is a deliberate design decision, not a missing
+feature: one borrow type, <code>&amp;T</code>, covers both read and write, and the SA
+Referee judges <code>Locked_Read</code> / <code>Locked_Mut</code> from the actual load/store
+instructions behind the borrow. This page proves the claim with programs that
+were actually compiled and run — not with a design sketch. Toolchain:
+<code>sa 0.1.9</code> + <code>sa_plugin_sla 2b65a1dd</code>, verified 2026-11-20.
+Demos: <code>sa_plugin_sla/demos/mut_compare/</code> (01_borrow_read_write,
+02_spawn_boundary). Code blocks below are excerpts from those demo files; the full
+files (with imports) are the verified artifacts.</p>
+
+<h2>The Same Program: Two Signatures in Rust, One in SLA</h2>
+<p>Take the textbook <code>&amp;mut</code> example: one function reads a number, another
+adds 10 to it. Rust needs two borrow types; SLA needs one.</p>
+<pre><code>// Rust — read takes &amp;i32, modify takes &amp;mut i32
+fn read(value: &amp;i32) {
+    println!("{}", value);
+}
+
+fn modify(value: &amp;mut i32) {
+    *value += 10;
+}
+
+fn main() {
+    let mut number = 100;
+    read(&amp;number);
+    modify(&amp;mut number);
+    println!("{}", number);
+}
+// output: 100, then 110</code></pre>
+<pre><code>// SLA — read AND modify take &amp;i32
+fn read(value: &amp;i32) -&gt; void {
+    println("{}", *value);
+}
+
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    read(&amp;number);
+    modify(&amp;number);
+    println("{}", number);
+    return 0;
+}
+// output: 100, then 110</code></pre>
+<p>Both programs print <code>100</code> then <code>110</code>. The direct translation of the
+Rust <code>&amp;mut</code> example needs no <code>Cell</code> / <code>RefCell</code> in SLA.
+<code>Cell</code> / <code>RefCell</code> are for genuinely shared interior state, not a
+toll-booth you must pass through to mutate through a borrow.</p>
+<table>
+<tr><th></th><th>Rust</th><th>SLA</th></tr>
+<tr><td>Read function signature</td><td><code>read(&amp;i32)</code></td><td><code>read(&amp;i32)</code></td></tr>
+<tr><td>Write function signature</td><td><code>modify(&amp;mut i32)</code></td><td><code>modify(&amp;i32)</code></td></tr>
+<tr><td>Changing read into a writer</td><td>Signature must change to <code>&amp;mut</code>, and every caller changes with it</td><td>Signature unchanged; only the body changes</td></tr>
+<tr><td>Who decides read vs write</td><td>The type system, at the signature</td><td>The SA Referee, from the actual load/store instructions</td></tr>
+</table>
+
+<h2>Why One Signature Is Enough</h2>
+<p>The permission is not declared; it is observed. After lowering, the Referee
+sees whether the borrowed view is only loaded from (<code>Locked_Read</code>) or also
+stored to (<code>Locked_Mut</code>). The signature therefore stays stable when an
+implementation changes from reading to writing, and no annotation has to be
+threaded through every caller. That stability is the design motive — one
+fewer prefix at every call site, and no signature churn for a body-local change.</p>
+<p>A related form is worth recording because it used to fail for an unrelated
+reason: <code>*value = *value + 10;</code> (dereference plus a binary operator) was
+rejected before <code>sa_plugin_sla 1d3b850c</code>. The cause was the parser, not the
+checker: prefix <code>*</code>, <code>&amp;</code>, <code>^</code> parsed their operand at precedence 6,
+so the binary operator folded into the operand and the expression parsed as
+<code>*(value + 10)</code>. The fix parses prefix operands at precedence 8. The form
+is covered by demo 01 (<code>modify_binop</code>) and now checks, tests, and runs.</p>
+
+<h2>The Spawn Boundary: Borrows Do Not Cross Tasks</h2>
+<p>One borrow type does not mean borrows go everywhere. A borrow must not cross
+a task boundary — the borrowed place lives on the spawning task's stack, and
+the spawned task may outlive it. Both spawn forms reject this at check time:</p>
+<pre><code>// SLA — `go` form: rejected at check
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    let h = go modify(&amp;number);
+    number = 200;
+    let st = sa_task_join(h);
+    println("{}", number);
+    return 0;
+}</code></pre>
+<pre><code>Type Check Error: failed to verify types: go: spawned function `modify`
+takes a borrowed parameter, which would dangle across the goroutine boundary;
+pass an owned value or a raw pointer instead (error.TypeMismatch)</code></pre>
+<pre><code>// SLA — thread::spawn closure form: rejected at check (BorrowEscape)
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    let h = thread::spawn(^|| modify(&amp;number));
+    number = 200;
+    let r = h.join().unwrap();
+    println("{}", number);
+    return 0;
+}</code></pre>
+<pre><code>Type Check Error: failed to verify types: thread::spawn: closure borrows
+`number` from the enclosing scope, which would dangle or race across the
+thread boundary; pass an owned value (such as an Arc clone) or a raw pointer
+instead (error.BorrowEscape)</code></pre>
+<p>The closure form was a genuine hole until <code>sa_plugin_sla 2b65a1dd</code>:
+before that fix this file checked, built, and ran, printing <code>210</code> — the
+main task writing <code>200</code> while the spawned thread added <code>10</code> through
+the borrowed view, a live data race the checker silently allowed. The fix
+(DEF-SLA-SPAWN-CLOSURE-BORROW-ESCAPE) walks the spawned closure body and
+rejects borrows of enclosing-scope places, uses of outer bindings whose type
+contains a borrow, and assignments to outer places.</p>
+<p>Rust refuses the same shape at compile time, with <code>Send</code> + <code>'static</code>:
+a closure passed to <code>thread::spawn</code> may not capture a borrow of a stack
+place. The two languages agree on the rule; they differ only in where it is
+enforced — Rust in the type system, SLA in the spawn-boundary guard of the
+checker.</p>
+
+<h2>The Sanctioned Crossing: Ownership Transfer</h2>
+<p>What crosses a task boundary in SLA is an owned value, never a borrow. The
+standard shape is a channel handoff (demo 02): two channels, request and
+response, 50 ping-pong rounds. The worker owns both channel ends.</p>
+<pre><code>fn pp_worker(req: Chan&lt;u64&gt;, resp: Chan&lt;u64&gt;) {
+    let i = 0;
+    while i &lt; 50 {
+        let (v, closed) = req.recv();
+        if closed { panic(9601); };
+        resp.send(v + 1);
+        i = i + 1;
+    }
+}
+
+fn main() -&gt; i32 {
+    let req: Chan&lt;u64&gt; = Chan::new(0);
+    let resp: Chan&lt;u64&gt; = Chan::new(0);
+    let h = thread::spawn(^|| pp_worker(req, resp));
+    let i = 0;
+    let last: u64 = 0;
+    while i &lt; 50 {
+        req.send(i as u64);
+        let (r, closed) = resp.recv();
+        if closed { panic(9602); };
+        last = r;
+        i = i + 1;
+    }
+    let jr = h.join();
+    println("{}", last);
+    req.destroy();
+    resp.destroy();
+    if last != 50 { return 1; };
+    return 0;
+}
+// output: 50, exit code 0</code></pre>
+<p>Shared-state coordination is measured the same way, on the same toolchain.
+The Mutex, channel, and parallel-read rows produced exact results in every
+run; the RwLock mix is the exception — it usually produces <code>200</code> but
+intermittently ends in a runtime panic, so its result is reported below as a
+measured rate, not a stable exact value:</p>
+<table>
+<tr><th>Pattern</th><th>Program</th><th>Measured result</th></tr>
+<tr><td>Shared counter</td><td><code>Arc&lt;Mutex&lt;i32&gt;&gt;</code>, 4 workers &times; 250 increments</td><td>Exactly <code>1000</code></td></tr>
+<tr><td>Reader/writer mix</td><td><code>Arc&lt;RwLock&lt;i32&gt;&gt;</code>, writer +2 &times; 100, two readers asserting every read is even</td><td><code>200</code> in 22 of 28 runs; the other 6 ended in a runtime panic (code 17) — timing-sensitive, under no open fix line yet</td></tr>
+<tr><td>Parallel reads</td><td>Three readers summing an <code>Arc&lt;i32&gt;</code> (= 100) 10,000 times each</td><td><code>1000000</code> each</td></tr>
+</table>
+
+<h2>The Same Two Defects in the Rust Implementation</h2>
+<p>The two fixes above were not Zig-only. The Rust implementation of the SLA
+compiler (<code>layola13/sla</code>) was ported from the Zig one — including both
+bugs — and both were fixed there by the same shapes:</p>
+<table>
+<tr><th>Defect</th><th>Zig plugin</th><th>Rust <code>sla</code></th></tr>
+<tr><td>Prefix <code>*</code>/<code>&amp;</code>/<code>^</code> operands parsed at precedence 6, so <code>*value = *value + 10</code> parsed as <code>*(value + 10)</code></td><td><code>1d3b850c</code> (<code>src/parser.zig</code>, precedence 6 → 8)</td><td><code>26b5137f</code> (<code>crates/sla-parser/src/prefix.rs</code>, <code>parse_expr(6)</code> → <code>parse_expr(8)</code>)</td></tr>
+<tr><td><code>thread::spawn</code> closure borrowing an enclosing-scope place was accepted</td><td><code>2b65a1dd</code> (<code>src/type_checker.zig</code>)</td><td><code>b06c05ee</code> (<code>crates/sla-checker/src/check_spawn_guard.rs</code> + hook in <code>leaf_thread_spawn</code>)</td></tr>
+</table>
+<p>An early assumption that the dereference defect was a Zig-only checker bug was
+wrong: the Rust parser rejected the identical probe files with the identical
+diagnostic (<code>TypeMismatch: operator requires matching operand types, actual
+borrow and i64</code>), and the Rust candidate accepts them. The regression tests
+are byte-identical on both sides:
+<code>corpus/tests/test_unit_deref_binop_operand.sla</code> (3 @test),
+<code>corpus/tests/test_error_spawn_closure_borrow_arg.sla</code>,
+<code>corpus/tests/test_error_spawn_closure_borrow_capture.sla</code>.</p>
+<p>Verified on the Rust binary built from <code>sla</code> main <code>b06c05ee</code>
+(box bd00ae7b9304, 2026-11-20; <code>cargo build --release -p sla-cli</code>,
+binary 6,923,920 B): demo 01 checks and tests green
+(<code>test result: ok. 1 passed</code>); the corpus dereference test passes 3/3;
+both spawn negatives reject with <code>BorrowEscape</code> — the direct capture as
+“closure borrows `number` from the enclosing scope”, the indirect capture as
+“closure captures borrowed value `r` from the enclosing scope” — and the
+<code>go</code> negative rejects too, under a differently worded diagnostic
+(<code>GoBorrowPayload: spawn argument carries a borrow across the goroutine
+boundary</code>). Demo 02 and the p3/p4/p5 probes check green on the Rust side
+as well.</p>
+<p>One asymmetry with Rust-the-language is worth recording. In Rust, the inline
+form <code>thread::spawn(move || modify(&amp;mut number))</code> compiles:
+closure-capture precision lets the closure capture a copy of the <code>i32</code>,
+and the <code>+10</code> is lost — the compiled binary prints <code>200</code>, not
+<code>210</code>. The true Rust parallel of SLA's rejection pre-binds the borrow
+first (<code>let r = &amp;mut number; thread::spawn(move || modify(r))</code>), which
+rustc 1.100.0 refuses with <code>E0597</code> (<code>number</code> does not live long
+enough: the spawn argument requires a <code>'static</code> borrow) and
+<code>E0506</code> (cannot assign to <code>number</code> because it is borrowed). SLA
+rejects the inline form outright, with no capture-precision escape hatch.</p>
+<p><code>await</code> still parses its operand at precedence 6 in both
+implementations — deliberately untouched by either fix; it needs its own
+ruling.</p>
+
+<h2>What Stays Phase 2</h2>
+<p>Nothing on this page changes the phased plan in
+<a href="03_ownership.html">Ownership and Borrowing: Referee vs the Borrow Checker</a>.
+The one case that still needs <code>&amp;mut</code> is a static read/write set: an ECS
+parallel scheduler must know, before running, whether <code>move_sys</code> writes
+<code>Pos</code> while <code>render_sys</code> reads it. That is an engineering trigger for
+Phase 2, not a gap in the programs above — every case on this page is already
+decided correctly by the Referee at run time.</p>
+<div class="warning"><span class="label">Warning</span>The easiest pitfall when migrating from Rust is treating
+<code>&amp;T</code> as read-only: under SLA's current convention it covers both read and write, and you cannot tell from the signature whether a method will change state.
+This gap of “signatures do not express mutability” will only close after Phase 2 introduces <code>&amp;mut self</code>.</div>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>SLA has no <code>&amp;mut</code> by design: <code>&amp;T</code> covers read and write, and the SA Referee judges <code>Locked_Read</code> / <code>Locked_Mut</code> from the actual instructions.</li>
+<li>The direct translation of a Rust <code>&amp;mut</code> example needs no <code>Cell</code> / <code>RefCell</code>; signatures stay stable when an implementation starts writing.</li>
+<li><code>*value = *value + 10</code> is accepted since the parser fix in <code>sa_plugin_sla 1d3b850c</code>.</li>
+<li>Borrows do not cross task boundaries: the <code>go</code> form and the <code>thread::spawn</code> closure form are both rejected at check time; the closure form was a genuine hole until <code>2b65a1dd</code>.</li>
+<li>Values cross tasks by ownership transfer (channels) or by <code>Arc</code> + locks — measured exact: channel handoff 50 rounds, Mutex counter 1000, parallel reads 1000000 each; RwLock mix 200 in 22 of 28 runs (6 runs panic, code 17).</li>
+<li>Phase 2 <code>&amp;mut</code> is still reserved for the ECS scheduler's static read/write sets; see the <a href="03_ownership.html">ownership page</a>.</li>
+<li>Both defects existed in the Rust implementation too (the parser/checker were ported from Zig including the bugs) and were fixed there by the same shapes (<code>26b5137f</code>, <code>b06c05ee</code>); the demos verify green on both binaries.</li>
+</ul>
+</body>
+</html>
