@@ -53,6 +53,15 @@ Default Font=微软雅黑,9,0
 ../../dist/cn/content/09_rust_compare/09_performance.html
 ../../dist/cn/content/09_rust_compare/10_std_census.html
 ../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html
+../../dist/cn/content/17_rust_beginners/01_basics.html
+../../dist/cn/content/17_rust_beginners/02_ownership.html
+../../dist/cn/content/17_rust_beginners/03_copy_clone_derive.html
+../../dist/cn/content/17_rust_beginners/04_enums_traits_generics.html
+../../dist/cn/content/17_rust_beginners/05_errors_closures_macros.html
+../../dist/cn/content/17_rust_beginners/06_concurrency.html
+../../dist/cn/content/17_rust_beginners/07_modules_async.html
+../../dist/cn/content/17_rust_beginners/08_engineering.html
+../../dist/cn/content/17_rust_beginners/09_checklist.html
 ../../dist/cn/content/03_sa_asm/01_sa_model.html
 ../../dist/cn/content/03_sa_asm/02_sa_syntax.html
 ../../dist/cn/content/03_sa_asm/03_sab_format.html

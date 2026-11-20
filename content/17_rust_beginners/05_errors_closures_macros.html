@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error Handling, Closures, and Macros</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Error Handling, Closures, and Macros</div>
+<h1>Error Handling, Closures, and Macros</h1>
+
+<h2><code>Result</code>: Construct It, Match It</h2>
+<p>User code can build and return a <code>Result&lt;i32, String&gt;</code>
+directly, with <code>Ok(...)</code> and <code>Err(...)</code>, and handle it
+with <code>match</code> — the same shape as Rust, minus the <code>?</code>
+operator in the verified forms on this page.</p>
+<pre><code>// Rust
+fn divide(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
+    if b == 0 {
+        return Err(String::from("division by zero"));
+    }
+    Ok(a / b)
+}
+
+fn main() {
+    match divide(10, 2) {
+        Ok(value) =&gt; println!("{}", value),
+        Err(error) =&gt; println!("{}", error),
+    }
+    match divide(10, 0) {
+        Ok(value) =&gt; println!("{}", value),
+        Err(error) =&gt; println!("{}", error),
+    }
+}
+// output: 5, then: division by zero</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn divide(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
+    if b == 0 {
+        return Err(format("division by zero"));
+    };
+    return Ok(a / b);
+}
+
+fn main() -&gt; i32 {
+    match divide(10, 2) {
+        Ok(value) =&gt; { println("{}", value); },
+        Err(error) =&gt; { println("{}", error); },
+    };
+    match divide(10, 0) {
+        Ok(value) =&gt; { println("{}", value); },
+        Err(error) =&gt; { println("{}", error); },
+    };
+    return 0;
+}</code></pre>
+<p>Verified output: <code>5</code>, then <code>division by zero</code>, exit
+code 0. The error string is built with <code>format(...)</code>, per the
+first page. Fallible <code>extern</code> functions from the standard library
+surface errors the same way — as a <code>Result</code> you match with
+<code>Ok</code> / <code>Err</code> — so library and user errors share one
+handling style.</p>
+
+<h2><code>Option</code></h2>
+<p><code>Option&lt;i32&gt;</code>, <code>Some(7)</code>, and <code>None</code>
+are real and matchable:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn find(flag: bool) -&gt; Option&lt;i32&gt; {
+    if flag {
+        return Some(7);
+    };
+    return None;
+}
+
+fn main() -&gt; i32 {
+    match find(true) {
+        Some(v) =&gt; { println("{}", v); },
+        None =&gt; { println("none"); },
+    };
+    match find(false) {
+        Some(v) =&gt; { println("{}", v); },
+        None =&gt; { println("none"); },
+    };
+    return 0;
+}</code></pre>
+<p>Verified output: <code>7</code>, then <code>none</code>, exit code 0.</p>
+
+<h2>Closures</h2>
+<p>Closures use the Rust pipe syntax with typed parameters and capture
+surrounding bindings:</p>
+<pre><code>// Rust
+fn main() {
+    let factor = 10;
+    let multiply = |x: i32| x * factor;
+    println!("{}", multiply(5));
+}
+// output: 50</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let factor = 10;
+    let multiply = |x: i32| x * factor;
+    println("{}", multiply(5));
+    return 0;
+}</code></pre>
+<p>Verified output: <code>50</code>, exit code 0. One boundary to know
+before the concurrency page: a closure that crosses a task boundary may not
+capture a borrow of an enclosing place — that is checked, and the rejected
+forms are shown on the
+<a href="../09_rust_compare/11_mut_borrow_compare.html">&amp;mut comparison
+page</a>.</p>
+
+<h2>Macros: Typed, with a Leading Output Parameter</h2>
+<p>SLA user macros are not <code>macro_rules!</code>. A macro is
+<em>typed</em> — its parameters have types and its body is checked like a
+function body — and its <strong>first parameter is the output</strong>: the
+macro writes its result into that parameter, and the call site reads like a
+function call returning it.</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+macro doubled(out_result: i64, x: i64) {
+    out_result = x + x;
+}
+
+fn main() -&gt; i32 {
+    let v: i64 = 21;
+    let a = doubled(v);
+    println("{}", a);
+    if a != 42 { return 1; };
+    return 0;
+}</code></pre>
+<p>Verified output: <code>42</code>, exit code 0. Read the definition as:
+“<code>doubled</code> takes an <code>i64</code> input <code>x</code> and
+produces its result through the leading output parameter
+<code>out_result</code>.” The call <code>let a = doubled(v);</code> binds
+that output. For the wider macro comparison — <code>@derive</code>,
+<code>@overload</code>, and how this differs from Rust's pattern macros —
+see <a href="../09_rust_compare/04_macros.html">Macros and Metaprogramming
+Compared</a>.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li><code>Result</code> and <code>Option</code> are constructed and matched exactly as a Rust programmer expects; error strings are built with <code>format(...)</code>.</li>
+<li>Closures use <code>|x: i32| expr</code> syntax and capture enclosing bindings; borrows still may not cross task boundaries.</li>
+<li>SLA user macros are typed, checked like functions, and take a leading output parameter; the call site looks like a function call.</li>
+</ul>
+</body>
+</html>

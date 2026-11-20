@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>工程专题：编译、内存、FFI、数据库与网络</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 工程专题：编译、内存、FFI、数据库与网络</div>
+<h1>工程专题：编译、内存、FFI、数据库与网络</h1>
+
+<p>前面的页面用程序讲语言特性。本页是散文伴侣：一个程序如何被编译、内存如何工作、外来函数如何被调用、数据库与网络住在哪里。本页刻意不放 SLA 代码块——这里点名的表面不在本章已验证片段集合之内，本章不印没有跑过的代码。</p>
+
+<h2>一个 SLA 程序如何被编译</h2>
+<p>SLA 源码先被 SLA 前端做类型与所有权检查，降低（lowering）为 SA 文本，再由 SA 宿主编译为本机可执行文件——正是构建本章每个程序的 <code>sa sla build-exe</code> 路线。所有权被验两次：一次由 SLA 检查器，一次在 SA 层由 Referee 按实际指令判定（就是借用例子背后的 <code>Locked_Read</code> / <code>Locked_Mut</code> 判定）。这条路线里没有独立的解释器，也没有字节码步骤。更深的论述见
+<a href="../09_rust_compare/03_ownership.html">所有权与借用：Referee 对借用检查器</a>。</p>
+
+<h2>一段话讲清内存模型</h2>
+<p>没有垃圾回收器。值有所有者，移动转移所有权，借用是视图、其读写使用由 Referee 判定，共享状态走 <code>Arc</code> 加锁或走通道交接——就是并发页上验证过的那些形态。在给数据结构定尺寸之前，有一个具体的布局事实值得先知道：SLA 的 <code>Vec</code> 元素占固定 8 字节槽，所以装小结构体的 <code>Vec</code> 会比 Rust 程序员预期的紧凑布局用更多内存；表面普查在
+<a href="../09_rust_compare/10_std_census.html">Rust std × sa_std 表面普查与差距表</a>里跟踪这一点及相关差距。</p>
+
+<h2>FFI：标准库就是第一个例子</h2>
+<p>本章每个程序其实都在调用外来函数：每个文件顶部的 <code>sa_std/...</code> 导入就是 SA 层的 <code>extern</code> 声明表面（<code>.sai</code> 文件），SLA 代码直接经它们调用——打印、格式化、任务、通道与锁全都这样到达。声明表面与 SLA 调用点之间没有绑定生成器步骤。可失败的 extern 以 <code>Result</code> 报错误，用 <code>Ok</code> / <code>Err</code> 匹配，与错误处理页的用户级 <code>Result</code> 完全一致，所以本机失败与 SLA 层失败共用一种处理风格。</p>
+
+<h2>数据库</h2>
+<p>数据库访问<em>不</em>属于验证本章所用的 stock 工具链：它以独立的 <code>db</code> 插件形式发布，所以——按本章自己的规矩——这里不印数据库代码。要带走的概念是：该插件是嵌入式存储，不是数据库服务器；它没有网络监听、没有 SQL 解析器；访问由能力 grants 控制，在程序注册其数据操作时检查，而不是在运行时靠拼字符串查询。完整论述（含与 SQLite 的对比）见
+<a href="../10_db/01_overview.html">db 数据库插件</a>一章。</p>
+
+<h2>网络</h2>
+<p>网络住在前面页面低一层的地方：在 <code>sa_std</code> 的 SA 层、以 <code>extern</code> 表面形式存在，其上有生成的 SLA 薄包装（<code>sla_std/wrap/net.sla</code>，其中包括 <code>TcpListener</code>）。本章已验证集合里没有用户级网络程序，所以——同样按本章的规矩——本页只描述形态并给出指路，而不是印未验证的代码：标准库参考的网络页是
+<a href="../06_stdlib/10_net.html">标准库网络主题</a>，上面的普查页记录了该表面与 Rust <code>std::net</code> 的对照。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>编译路线：SLA 检查 → SA 文本 → SA 宿主产出本机可执行文件；所有权由检查器与 Referee 各判一次。</li>
+<li>没有垃圾回收器；所有权、移动与 <code>Arc</code>/通道协调承载整个内存模型。<code>Vec</code> 元素占固定 8 字节槽。</li>
+<li>FFI 是日常情形：<code>sa_std</code> 的 <code>.sai</code> extern 表面被 SLA 直接调用；可失败的 extern 返回 <code>Result</code>。</li>
+<li>数据库以独立的 <code>db</code> 插件发布（嵌入式、能力检查、无 SQL）——见 db 一章；网络是 SA 层的 <code>sa_std</code> 表面加生成的 SLA 包装——见标准库网络主题。</li>
+</ul>
+</body>
+</html>

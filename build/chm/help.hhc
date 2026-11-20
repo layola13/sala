@@ -386,6 +386,86 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="From Rust for Beginners">
+<param name="Local" value="../dist/content/17_rust_beginners/01_basics.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Variables, Functions, and Structs: Your First SLA Program">
+<param name="Local" value="../dist/content/17_rust_beginners/01_basics.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Ownership: Moves and Borrows">
+<param name="Local" value="../dist/content/17_rust_beginners/02_ownership.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Copy, Clone, and @derive: Four Questions, Measured">
+<param name="Local" value="../dist/content/17_rust_beginners/03_copy_clone_derive.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Enums, Traits, and Generics">
+<param name="Local" value="../dist/content/17_rust_beginners/04_enums_traits_generics.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Error Handling, Closures, and Macros">
+<param name="Local" value="../dist/content/17_rust_beginners/05_errors_closures_macros.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Concurrency: go, Channels, and Shared State">
+<param name="Local" value="../dist/content/17_rust_beginners/06_concurrency.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Modules and Async">
+<param name="Local" value="../dist/content/17_rust_beginners/07_modules_async.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Engineering Topics: Compilation, Memory, FFI, Databases, and Networking">
+<param name="Local" value="../dist/content/17_rust_beginners/08_engineering.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Study Checklist">
+<param name="Local" value="../dist/content/17_rust_beginners/09_checklist.html">
+</OBJECT>
+</UL>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA Assembly and SAB">
 <param name="Local" value="../dist/content/03_sa_asm/01_sa_model.html">
 </OBJECT>

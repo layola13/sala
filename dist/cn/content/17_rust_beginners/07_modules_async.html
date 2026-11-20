@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>模块与异步</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 模块与异步</div>
+<h1>模块与异步</h1>
+
+<h2>模块：<code>@import</code> 一个文件，导出标 <code>pub</code></h2>
+<p>文件级模块不需要声明 <code>mod</code> 树。被导入的文件用 <code>pub</code> 标出它导出的东西，导入方用相对路径 <code>@import</code> 把文件拉进来。被导入的 helper：</p>
+<pre><code>pub fn create_id() -&gt; u64 {
+    return 100;
+}</code></pre>
+<p>导入方：</p>
+<pre><code>@import "helper.sla"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let id = create_id();
+    println("{}", id);
+    return 0;
+}</code></pre>
+<p>实测输出：<code>100</code>，退出码 0。本章每个程序都以同样方式导入标准库——来自 <code>sa_std/...</code> 的声明文件（<code>.sai</code>）与实现文件（<code>.sa</code>）——而生成的 <code>sla_std</code> 薄包装是 std 的主流导入面；见
+<a href="../06_stdlib/01_overview.html">标准库</a>一章。与 Rust 相比，心智模型是“一个文件、一个模块、显式的 <code>pub</code> 表面”——更像包含一个头文件，而不是维护一棵模块树。</p>
+
+<h2>异步：<code>async fn</code> 与 <code>.await</code></h2>
+<p><code>async fn</code> 返回一个 future（future 类型的拼写是 <code>future&lt;T&gt;</code>），<code>.await</code> 驱动它。在已验证的形态里，连 <code>main</code> 都可以直接 await 一个顶层调用：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+async fn step_one() -&gt; i32 {
+    return 1;
+}
+
+async fn run_async() -&gt; i32 {
+    let value = step_one().await;
+    return value + 1;
+}
+
+fn main() -&gt; i32 {
+    let result = run_async().await;
+    println("{}", result);
+    if result != 2 { return 1; };
+    return 0;
+}</code></pre>
+<p>实测输出：<code>2</code>，退出码 0。读法与 Rust 的 <code>async</code>/<code>.await</code> 相同；不同的是它周围的一切——这里的任务是运行时自己的（上一页的 <code>go</code> 与通道机制），不是你外接的执行器。与 Rust 的实测异步对比见
+<a href="../09_rust_compare/05_stdlib_errors_async.html">标准库、错误处理与 async 对比</a>。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>文件模块：相对路径 <code>@import "relative/path.sla"</code> 加被导入文件里的 <code>pub fn</code>；没有模块树仪式。</li>
+<li>标准表面以同样方式导入；<code>sla_std</code> 薄包装是 std 的主流导入形式。</li>
+<li><code>async fn</code> + <code>.await</code> 读法与 Rust 相同，跑在运行时自己的任务机制上。</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/17_rust_beginners/07_modules_async.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

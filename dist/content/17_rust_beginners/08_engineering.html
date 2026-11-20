@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Engineering Topics: Compilation, Memory, FFI, Databases, and Networking</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Engineering Topics: Compilation, Memory, FFI, Databases, and Networking</div>
+<h1>Engineering Topics: Compilation, Memory, FFI, Databases, and Networking</h1>
+
+<p>The pages so far taught language features with programs. This page is the
+prose companion: how a program is compiled, how memory works, how foreign
+functions are called, and where databases and networking live. It contains
+no SLA code blocks on purpose — the surfaces named here were not part of
+this chapter's verified snippet set, and this chapter does not print code it
+has not run.</p>
+
+<h2>How an SLA Program Is Compiled</h2>
+<p>SLA source is type- and ownership-checked by the SLA frontend, lowered to
+SA text, and compiled to a native executable by the SA host — the same
+<code>sa sla build-exe</code> route that built every program in this
+chapter. Ownership is verified twice over: once by the SLA checker, and
+again at the SA level by the Referee, which judges the actual instructions
+(the <code>Locked_Read</code> / <code>Locked_Mut</code> decisions behind the
+borrow examples). There is no separate interpreter and no bytecode step in
+the route used here. The deeper account is
+<a href="../09_rust_compare/03_ownership.html">Ownership and Borrowing:
+Referee vs the Borrow Checker</a>.</p>
+
+<h2>The Memory Model in One Paragraph</h2>
+<p>There is no garbage collector. Values are owned, moves transfer
+ownership, borrows are views whose read/write use the Referee judges, and
+shared state goes through <code>Arc</code> plus locks or through channel
+handoff — the shapes verified on the concurrency page. One concrete layout
+fact worth knowing before you size a data structure: SLA <code>Vec</code>
+elements occupy fixed 8-byte slots, so a <code>Vec</code> of small structs
+uses more memory than the packed layout a Rust programmer expects; the
+surface census tracks this and related gaps in
+<a href="../09_rust_compare/10_std_census.html">Rust std × sa_std Surface
+Census and Gap Table</a>.</p>
+
+<h2>FFI: the Standard Library Is the First Example</h2>
+<p>Every program in this chapter already calls foreign functions: the
+<code>sa_std/...</code> imports at the top of each file are SA-level
+<code>extern</code> declaration surfaces (<code>.sai</code> files), and SLA
+code calls through them directly — printing, formatting, tasks, channels,
+and locks all arrive this way. There is no binding-generator step between
+the declaration surface and the SLA call site. Fallible externs report
+errors as a <code>Result</code>, matched with <code>Ok</code> /
+<code>Err</code> exactly like the user-level <code>Result</code> on the
+error-handling page, so native and SLA-level failures share one handling
+style.</p>
+
+<h2>Databases</h2>
+<p>Database access is <em>not</em> part of the stock toolchain used to
+verify this chapter: it ships as the separate <code>db</code> plugin, so —
+by this chapter's own rule — no database code is printed here. The concepts
+to carry in: the plugin is an embedded store, not a database server; it has
+no network listener and no SQL parser; access is controlled by capability
+grants that are checked when a program registers its data operations,
+rather than by string-built queries at run time. The full treatment,
+including the comparison with SQLite, is the
+<a href="../10_db/01_overview.html">db Database Plugin</a> section.</p>
+
+<h2>Networking</h2>
+<p>Networking lives one level down from the pages so far: in
+<code>sa_std</code> at the SA level, as <code>extern</code> surfaces, with a
+generated SLA thin wrapper (<code>sla_std/wrap/net.sla</code>, which
+includes <code>TcpListener</code>) over them. No user-level networking
+program is in this chapter's verified set, so — again by the chapter's rule
+— this page describes the shape and points onward instead of printing
+unverified code: the standard-library reference's networking page is
+<a href="../06_stdlib/10_net.html">the stdlib networking topic</a>, and the
+census page above records how the surface compares with Rust's
+<code>std::net</code>.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Compile route: SLA check → SA text → native executable via the SA host; ownership is judged by the checker and again by the Referee.</li>
+<li>No garbage collector; ownership, moves, and <code>Arc</code>/channel coordination carry the memory model. <code>Vec</code> elements occupy fixed 8-byte slots.</li>
+<li>FFI is the everyday case: <code>sa_std</code> <code>.sai</code> extern surfaces are called directly from SLA; fallible externs return <code>Result</code>.</li>
+<li>Databases ship as the separate <code>db</code> plugin (embedded, capability-checked, no SQL) — see the db section; networking is an SA-level <code>sa_std</code> surface with a generated SLA wrapper — see the stdlib networking topic.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/17_rust_beginners/08_engineering.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

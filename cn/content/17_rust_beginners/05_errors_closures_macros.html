@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>错误处理、闭包与宏</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 错误处理、闭包与宏</div>
+<h1>错误处理、闭包与宏</h1>
+
+<h2><code>Result</code>：构造它，匹配它</h2>
+<p>用户代码可以直接构造并返回 <code>Result&lt;i32, String&gt;</code>，用 <code>Ok(...)</code> 与 <code>Err(...)</code>，再用 <code>match</code> 处理——与 Rust 同形，只是本页已验证的形态里没有 <code>?</code> 运算符。</p>
+<pre><code>// Rust
+fn divide(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
+    if b == 0 {
+        return Err(String::from("division by zero"));
+    }
+    Ok(a / b)
+}
+
+fn main() {
+    match divide(10, 2) {
+        Ok(value) =&gt; println!("{}", value),
+        Err(error) =&gt; println!("{}", error),
+    }
+    match divide(10, 0) {
+        Ok(value) =&gt; println!("{}", value),
+        Err(error) =&gt; println!("{}", error),
+    }
+}
+// 输出：5，然后：division by zero</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn divide(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
+    if b == 0 {
+        return Err(format("division by zero"));
+    };
+    return Ok(a / b);
+}
+
+fn main() -&gt; i32 {
+    match divide(10, 2) {
+        Ok(value) =&gt; { println("{}", value); },
+        Err(error) =&gt; { println("{}", error); },
+    };
+    match divide(10, 0) {
+        Ok(value) =&gt; { println("{}", value); },
+        Err(error) =&gt; { println("{}", error); },
+    };
+    return 0;
+}</code></pre>
+<p>实测输出：先 <code>5</code>，后 <code>division by zero</code>，退出码 0。错误字符串用 <code>format(...)</code> 构造，见第一页。标准库里可失败的 <code>extern</code> 函数也以同样方式报错误——返回一个用 <code>Ok</code> / <code>Err</code> 匹配的 <code>Result</code>——所以库错误与用户错误共用一种处理风格。</p>
+
+<h2><code>Option</code></h2>
+<p><code>Option&lt;i32&gt;</code>、<code>Some(7)</code> 与 <code>None</code> 都是真实存在、可匹配的：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn find(flag: bool) -&gt; Option&lt;i32&gt; {
+    if flag {
+        return Some(7);
+    };
+    return None;
+}
+
+fn main() -&gt; i32 {
+    match find(true) {
+        Some(v) =&gt; { println("{}", v); },
+        None =&gt; { println("none"); },
+    };
+    match find(false) {
+        Some(v) =&gt; { println("{}", v); },
+        None =&gt; { println("none"); },
+    };
+    return 0;
+}</code></pre>
+<p>实测输出：先 <code>7</code>，后 <code>none</code>，退出码 0。</p>
+
+<h2>闭包</h2>
+<p>闭包用 Rust 的管道语法、带类型标注的参数，并捕获周围的绑定：</p>
+<pre><code>// Rust
+fn main() {
+    let factor = 10;
+    let multiply = |x: i32| x * factor;
+    println!("{}", multiply(5));
+}
+// 输出：50</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let factor = 10;
+    let multiply = |x: i32| x * factor;
+    println("{}", multiply(5));
+    return 0;
+}</code></pre>
+<p>实测输出：<code>50</code>，退出码 0。进入并发页之前要知道一条边界：跨任务边界的闭包不得捕获外层位置的借用——这是会被检查拒绝的，被拒形态见
+<a href="../09_rust_compare/11_mut_borrow_compare.html">&amp;mut 对照页</a>。</p>
+
+<h2>宏：带类型的宏，输出参数在最前</h2>
+<p>SLA 的用户宏不是 <code>macro_rules!</code>。宏是<em>带类型</em>的——参数有类型、宏体像函数体一样被检查——并且它的<strong>第一个参数是输出参数</strong>：宏把结果写进这个参数，调用点读起来就像一次返回该输出的函数调用。</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+macro doubled(out_result: i64, x: i64) {
+    out_result = x + x;
+}
+
+fn main() -&gt; i32 {
+    let v: i64 = 21;
+    let a = doubled(v);
+    println("{}", a);
+    if a != 42 { return 1; };
+    return 0;
+}</code></pre>
+<p>实测输出：<code>42</code>，退出码 0。这个定义可以这样读：“<code>doubled</code> 接受一个 <code>i64</code> 输入 <code>x</code>，通过最前面的输出参数 <code>out_result</code> 产出结果。”调用 <code>let a = doubled(v);</code> 绑定的就是这个输出。更完整的宏对照——<code>@derive</code>、<code>@overload</code>，以及与 Rust 模式宏的区别——见
+<a href="../09_rust_compare/04_macros.html">宏与元编程对比</a>。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li><code>Result</code> 与 <code>Option</code> 的构造与匹配与 Rust 程序员的预期完全一致；错误字符串用 <code>format(...)</code> 构造。</li>
+<li>闭包用 <code>|x: i32| expr</code> 语法并捕获外层绑定；借用仍不得跨任务边界。</li>
+<li>SLA 用户宏带类型、像函数一样被检查，并以输出参数打头；调用点形如函数调用。</li>
+</ul>
+</body>
+</html>

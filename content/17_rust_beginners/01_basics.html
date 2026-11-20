@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Variables, Functions, and Structs: Your First SLA Program</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Variables, Functions, and Structs: Your First SLA Program</div>
+<h1>Variables, Functions, and Structs: Your First SLA Program</h1>
+
+<p>This chapter is the guided first pass for Rust programmers. It teaches one
+feature at a time, in the order you would meet them writing your first
+programs, and it follows a strict rule: <strong>every SLA code block in this
+chapter was actually compiled and run before it was written down</strong>
+(toolchain: <code>sa 0.1.9</code> + the installed SLA plugin, verified
+2026-11-20). The output quoted under each program is the output the program
+really printed. Where a familiar Rust form does not carry over, the page says
+so and shows the real diagnostic instead of inventing a workaround. For the
+measured, reference-style comparison — syntax matrices, censuses, performance
+numbers — see the <a href="../09_rust_compare/01_positioning.html">Comparison
+with Rust</a> section; this chapter is the tutorial companion to it.</p>
+
+<h2>Variables: <code>let</code> Is Mutable by Default</h2>
+<p>The first surprise for a Rust programmer: an SLA <code>let</code> binding
+can be reassigned without any <code>mut</code> keyword. Mutability is the
+default; <code>const</code> is the immutable form.</p>
+<pre><code>// Rust
+fn main() {
+    let x = 10;
+    let mut y = 20;
+    y += 5;
+    println!("{} {}", x, y);
+}
+// output: 10 25</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let x = 10;
+    let y = 20;
+    y += 5;
+    println("{} {}", x, y);
+    return 0;
+}</code></pre>
+<p>Verified output: <code>10 25</code>, exit code 0. Writing
+<code>let mut</code> in SLA is not just unnecessary — the parser rejects it,
+loudly and on purpose (see the
+<a href="../09_rust_compare/02_syntax_matrix.html">syntax comparison
+matrix</a>). Delete <code>mut</code> when you port code; do not look for a
+replacement keyword.</p>
+
+<h2>Functions</h2>
+<p>Function signatures read exactly as in Rust: typed parameters, an arrow,
+a return type, and an explicit <code>return</code>. One difference at the
+entry point: SLA <code>main</code> returns <code>i32</code>, and that value
+becomes the process exit code.</p>
+<pre><code>// Rust
+fn add(a: i32, b: i32) -&gt; i32 {
+    a + b
+}
+
+fn main() {
+    let result = add(10, 20);
+    println!("{}", result);
+}
+// output: 30</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn add(a: i32, b: i32) -&gt; i32 {
+    return a + b;
+}
+
+fn main() -&gt; i32 {
+    let result = add(10, 20);
+    println("{}", result);
+    return 0;
+}</code></pre>
+<p>Verified output: <code>30</code>, exit code 0.</p>
+
+<h2>Structs</h2>
+<p>Struct declarations and struct literals keep the Rust shape: field names,
+types, and <code>Type { field: value }</code> construction.</p>
+<pre><code>// Rust
+struct User {
+    id: u64,
+    age: u32,
+}
+
+fn main() {
+    let user = User { id: 100, age: 20 };
+    println!("{}", user.age);
+}
+// output: 20</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct User {
+    id: u64,
+    age: u32,
+}
+
+fn main() -&gt; i32 {
+    let user = User { id: 100, age: 20 };
+    println("{}", user.age);
+    return 0;
+}</code></pre>
+<p>Verified output: <code>20</code>, exit code 0.</p>
+
+<h2>Strings: Build Them with <code>format(...)</code></h2>
+<p>One form to unlearn early: <code>String::from("...")</code> is
+<strong>not</strong> the SLA form — it was tested and does not work. The
+verified way to build a <code>String</code> is <code>format("...")</code>,
+which appears throughout this chapter, for example
+<code>format("Alice")</code> on the next page and
+<code>format("division by zero")</code> in the error-handling page. Think of
+<code>format</code> as doing the job of both <code>String::from</code> and
+<code>format!</code> for the cases shown here.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>SLA <code>let</code> is mutable by default; <code>let mut</code> is rejected by the parser. <code>const</code> is the immutable binding.</li>
+<li>Function signatures, explicit <code>return</code>, and struct literals read as in Rust; <code>main</code> returns <code>i32</code> as the exit code.</li>
+<li>Build a <code>String</code> with <code>format("...")</code>, not <code>String::from(...)</code>.</li>
+<li>Every SLA program in this chapter was compiled and run on <code>sa 0.1.9</code> before being quoted; outputs are measured, not illustrative.</li>
+</ul>
+</body>
+</html>

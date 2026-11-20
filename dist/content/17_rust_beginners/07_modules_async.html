@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Modules and Async</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Modules and Async</div>
+<h1>Modules and Async</h1>
+
+<h2>Modules: <code>@import</code> a File, Mark Exports <code>pub</code></h2>
+<p>There is no <code>mod</code> tree to declare for a file-local module. The
+imported file marks what it exports with <code>pub</code>, and the importer
+pulls the file in with a relative <code>@import</code>. The helper:</p>
+<pre><code>pub fn create_id() -&gt; u64 {
+    return 100;
+}</code></pre>
+<p>The importer:</p>
+<pre><code>@import "helper.sla"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let id = create_id();
+    println("{}", id);
+    return 0;
+}</code></pre>
+<p>Verified output: <code>100</code>, exit code 0. Every program in this
+chapter imports the standard library the same way — from
+<code>sa_std/...</code> declaration files (<code>.sai</code>) and
+implementation files (<code>.sa</code>) — and the generated
+<code>sla_std</code> thin wrappers are the mainstream import surface for the
+std; see the <a href="../06_stdlib/01_overview.html">Standard Library</a>
+section. Compared with Rust, the mental model is “one file, one module,
+explicit <code>pub</code> surface” — closer to including a header than to
+maintaining a module tree.</p>
+
+<h2>Async: <code>async fn</code> and <code>.await</code></h2>
+<p>An <code>async fn</code> returns a future (the future type is spelled
+<code>future&lt;T&gt;</code>), and <code>.await</code> drives it. In the
+verified form, even <code>main</code> can await a top-level call:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+async fn step_one() -&gt; i32 {
+    return 1;
+}
+
+async fn run_async() -&gt; i32 {
+    let value = step_one().await;
+    return value + 1;
+}
+
+fn main() -&gt; i32 {
+    let result = run_async().await;
+    println("{}", result);
+    if result != 2 { return 1; };
+    return 0;
+}</code></pre>
+<p>Verified output: <code>2</code>, exit code 0. The reading is the same as
+Rust's <code>async</code>/<code>.await</code>; what differs is everything
+around it — tasks here are the runtime's own (the <code>go</code> and
+channel machinery of the previous page), not an external executor you plug
+in. For the measured async comparison against Rust, see
+<a href="../09_rust_compare/05_stdlib_errors_async.html">Standard Library,
+Error Handling, and async Compared</a>.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>File modules: <code>@import "relative/path.sla"</code> plus <code>pub fn</code> in the imported file; no module tree ceremony.</li>
+<li>Standard surfaces are imported the same way; <code>sla_std</code> thin wrappers are the mainstream std import form.</li>
+<li><code>async fn</code> + <code>.await</code> reads as in Rust, on the runtime's own task machinery.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/17_rust_beginners/07_modules_async.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

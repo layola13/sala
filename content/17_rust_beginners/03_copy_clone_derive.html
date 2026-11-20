@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Copy, Clone, and @derive: Four Questions, Measured</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Copy, Clone, and @derive: Four Questions, Measured</div>
+<h1>Copy, Clone, and @derive: Four Questions, Measured</h1>
+
+<p>Rust programmers meeting SLA's <code>@derive</code> ask the same four
+questions: does <code>clone</code> work, does <code>copy</code> really change
+move semantics, does <code>eq</code> need a separate partial-equality derive,
+and do derives work on generic structs? All four were answered by measurement
+on 2026-11-20 (<code>sa 0.1.9</code> + installed plugin), not by reading the
+manual:</p>
+<table>
+<tr><th>Question</th><th>Answer</th></tr>
+<tr><td>1. Clone — does <code>@derive(clone)</code> give a working <code>.clone()</code>?</td><td><strong>Yes.</strong> The derived <code>clone()</code> produces an independent value (probe below).</td></tr>
+<tr><td>2. Copy — does <code>@derive(copy)</code> change move/copy judgement?</td><td><strong>Yes, for plain-data structs</strong> — assignment copies and the source stays usable. For a struct with a <code>String</code> field the derive is accepted at the declaration, but assignment still moves: the checker stays field-sound and never duplicates heap data silently.</td></tr>
+<tr><td>3. Eq — does derived <code>eq</code> work without a separate <code>PartialEq</code>-style derive?</td><td><strong>Yes.</strong> One derive list — <code>@derive(copy, eq, ord, hash, debug)</code> — provides <code>==</code>, ordering, <code>hash(x)</code>, and <code>debug(x)</code>.</td></tr>
+<tr><td>4. Generic structs — do derives work on <code>Box&lt;T&gt;</code>?</td><td><strong>Not yet.</strong> Derive is verified on concrete structs only; a generic struct cannot currently be constructed with a struct literal at all, with or without a derive (limitation box below).</td></tr>
+</table>
+
+<h2>Clone</h2>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+@derive(clone)
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn main() -&gt; i32 {
+    let a = Point { x: 1, y: 2 };
+    let b = a.clone();
+    println("{}", b.x);
+    return 0;
+}</code></pre>
+<p>Verified output: <code>1</code>, exit code 0. <code>a.clone()</code>
+produces a second, independent <code>Point</code>; the original is untouched
+and nothing was moved.</p>
+
+<h2>Copy, Eq, and the Rest of the Derive Surface</h2>
+<p>This program exercises the whole verified surface in one file: copy
+assignment, a by-value call that would consume a non-<code>Copy</code> value,
+equality, ordering, hashing, and debug formatting.</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+@derive(copy, eq, ord, hash, debug)
+struct Point {
+    x: i32,
+    y: i32,
+}
+
+fn take(p: Point) -&gt; i32 {
+    return p.x + p.y;
+}
+
+fn main() -&gt; i32 {
+    let a = Point { x: 1, y: 2 };
+    let b = a;
+    println("{} {}", a.x, b.x);
+    if take(a) != 3 { return 1; };
+    if a.x != 1 { return 2; };
+    let same = Point { x: 1, y: 2 };
+    let later = Point { x: 1, y: 3 };
+    if (a == same) != true { return 3; };
+    if (a &lt; later) != true { return 4; };
+    if hash(a) != hash(same) { return 5; };
+    let text = debug(a);
+    if len(text) == 0 { return 6; };
+    println("ok");
+    return 0;
+}</code></pre>
+<p>Verified output: <code>1 1</code>, then <code>ok</code>, exit code 0.
+<code>let b = a;</code> copies, so <code>a</code> is still readable on the
+next line and can still be passed to <code>take</code> by value.
+<code>a == same</code>, <code>a &lt; later</code>, <code>hash(a)</code>, and
+<code>debug(a)</code> all come from the single derive list — there is no
+separate partial-equality derive to remember.</p>
+
+<h2>Copy Is Field-Sound: a <code>String</code> Field Still Moves</h2>
+<p>The subtle case is a struct whose fields are not all plain data. The
+derive is accepted on this declaration:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+@derive(copy)
+struct Holder {
+    name: String,
+    id: i32,
+}
+
+fn main() -&gt; i32 {
+    let a = Holder { name: format("x"), id: 1 };
+    let b = a;
+    println("{}", a.id);
+    println("{}", a.name);
+    return 0;
+}</code></pre>
+<p>— but the program is still rejected, because <code>let b = a;</code>
+<em>moves</em> <code>a</code>: the <code>String</code> field cannot be
+bit-copied, so the checker keeps move semantics for the whole value, and
+reading <code>a.id</code> afterwards fails:</p>
+<pre><code>Type Check Error: failed to verify types: UseAfterMove: identifier `a` was already consumed (error.UseAfterMove)</code></pre>
+<p>Rust reaches the same soundness outcome from the other side: rustc
+refuses to derive <code>Copy</code> for a struct with a <code>String</code>
+field at all. SLA accepts the annotation and then refuses to treat the value
+as copied. Either way, heap data is never silently duplicated, and a moved
+value is never silently readable. When you port code, do not assume
+<code>@derive(copy)</code> on a heap-carrying struct gives you Rust-style
+copy semantics — it gives you a move, with a loud error if you use the
+source afterwards.</p>
+
+<div class="warning"><span class="label">Limitation</span>Generic structs
+cannot be constructed with a struct literal yet. This declaration is
+accepted, but the program is rejected at the literal:</div>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+@derive(copy, eq)
+struct Box&lt;T&gt; {
+    value: T,
+}
+
+fn main() -&gt; i32 {
+    let a = Box { value: 7 };
+    let b = a;
+    println("{}", a.value);
+    return 0;
+}</code></pre>
+<pre><code>Type Check Error: failed to verify types: checkExpr failed at node tag struct_literal (error.NotAStruct)</code></pre>
+<p>Round-4 verification (2026-11-20) tested the obvious variations —
+<code>@derive(copy, eq)</code>, <code>@derive(eq)</code> alone,
+<code>@derive(copy)</code> alone, no derive at all, a concretely typed local
+(<code>let a: Box&lt;i32&gt; = ...</code>), and construction through a
+constructor function — and every one fails with the same
+<code>NotAStruct</code> error at the struct literal. The gap is in generic
+struct literals, not in <code>@derive</code>. Until it closes: declare
+generic structs if you need the type, but construct and derive concrete
+structs.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li><code>@derive(clone)</code> works: <code>.clone()</code> produces an independent value.</li>
+<li><code>@derive(copy)</code> makes assignment copy for plain-data structs; the source stays usable.</li>
+<li>On a struct with a <code>String</code> field, <code>@derive(copy)</code> is accepted but assignment still moves — field-sound, no silent heap duplication, and use-after-move is rejected.</li>
+<li><code>@derive(eq)</code> needs no separate partial-equality derive; one list can add <code>ord</code>, <code>hash</code>, and <code>debug</code>.</li>
+<li>Generic struct literals are not yet accepted (<code>error.NotAStruct</code>), with or without a derive; derive is verified on concrete structs.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>变量、函数与结构体：第一个 SLA 程序</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 变量、函数与结构体：第一个 SLA 程序</div>
+<h1>变量、函数与结构体：第一个 SLA 程序</h1>
+
+<p>本章是写给 Rust 程序员的入门导览：按写第一个程序时会遇到的顺序，一个特性一个特性地讲，并遵守一条硬规矩——<strong>本章出现的每一段 SLA 代码，都是先实际编译并运行通过、才写进文档的</strong>（工具链：<code>sa 0.1.9</code> + 已安装的 SLA 插件，2026-11-20 实测）。每段程序下方标注的输出，就是它真实打印的输出。熟悉的 Rust 写法若在 SLA 里行不通，本章会直说，并给出真实的报错信息，而不是编一个变通说法。需要查实测口径的参考对照——语法矩阵、普查、性能数字——见
+<a href="../09_rust_compare/01_positioning.html">与 Rust 对比</a>一章；本章是它的教程伴侣。</p>
+
+<h2>变量：<code>let</code> 默认可变</h2>
+<p>Rust 程序员的第一个意外：SLA 的 <code>let</code> 绑定不需要任何 <code>mut</code> 关键字就可以重新赋值。可变是默认；不可变的形态是 <code>const</code>。</p>
+<pre><code>// Rust
+fn main() {
+    let x = 10;
+    let mut y = 20;
+    y += 5;
+    println!("{} {}", x, y);
+}
+// 输出：10 25</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let x = 10;
+    let y = 20;
+    y += 5;
+    println("{} {}", x, y);
+    return 0;
+}</code></pre>
+<p>实测输出：<code>10 25</code>，退出码 0。在 SLA 里写 <code>let mut</code> 不只是多余——解析器会响亮地拒绝它，这是刻意的设计（见
+<a href="../09_rust_compare/02_syntax_matrix.html">语法对照实测矩阵</a>）。移植代码时把 <code>mut</code> 删掉，不要找替代关键字。</p>
+
+<h2>函数</h2>
+<p>函数签名与 Rust 完全一致：带类型的参数、箭头、返回类型、显式 <code>return</code>。入口处有一个差别：SLA 的 <code>main</code> 返回 <code>i32</code>，这个值就是进程退出码。</p>
+<pre><code>// Rust
+fn add(a: i32, b: i32) -&gt; i32 {
+    a + b
+}
+
+fn main() {
+    let result = add(10, 20);
+    println!("{}", result);
+}
+// 输出：30</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn add(a: i32, b: i32) -&gt; i32 {
+    return a + b;
+}
+
+fn main() -&gt; i32 {
+    let result = add(10, 20);
+    println("{}", result);
+    return 0;
+}</code></pre>
+<p>实测输出：<code>30</code>，退出码 0。</p>
+
+<h2>结构体</h2>
+<p>结构体声明与结构体字面量保持 Rust 的形态：字段名、类型，以及 <code>Type { field: value }</code> 构造。</p>
+<pre><code>// Rust
+struct User {
+    id: u64,
+    age: u32,
+}
+
+fn main() {
+    let user = User { id: 100, age: 20 };
+    println!("{}", user.age);
+}
+// 输出：20</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct User {
+    id: u64,
+    age: u32,
+}
+
+fn main() -&gt; i32 {
+    let user = User { id: 100, age: 20 };
+    println("{}", user.age);
+    return 0;
+}</code></pre>
+<p>实测输出：<code>20</code>，退出码 0。</p>
+
+<h2>字符串：用 <code>format(...)</code> 构造</h2>
+<p>要早点改掉的一个习惯：<code>String::from("...")</code> <strong>不是</strong> SLA 的写法——实测行不通。构造 <code>String</code> 的已验证方式是 <code>format("...")</code>，本章通篇都用它，例如下一页的 <code>format("Alice")</code> 和错误处理页的 <code>format("division by zero")</code>。可以把这里的 <code>format</code> 理解为同时承担了 <code>String::from</code> 与 <code>format!</code> 在这些场景下的工作。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>SLA 的 <code>let</code> 默认可变；<code>let mut</code> 会被解析器拒绝。不可变绑定用 <code>const</code>。</li>
+<li>函数签名、显式 <code>return</code>、结构体字面量都与 Rust 同形；<code>main</code> 返回 <code>i32</code> 作为退出码。</li>
+<li>用 <code>format("...")</code> 构造 <code>String</code>，不要用 <code>String::from(...)</code>。</li>
+<li>本章每段 SLA 程序都先在 <code>sa 0.1.9</code> 上编译运行过才被引用；输出是实测值，不是示意值。</li>
+</ul>
+</body>
+</html>

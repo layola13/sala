@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>并发：go、通道与共享状态</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 并发：go、通道与共享状态</div>
+<h1>并发：go、通道与共享状态</h1>
+
+<p>SLA 的并发规则是结构性的：<strong>借用永不跨任务边界</strong>（检查器同时拒绝 <code>go</code> 形式与 <code>thread::spawn</code> 闭包形式——见
+<a href="../09_rust_compare/11_mut_borrow_compare.html">&amp;mut 对照页</a>）。能跨过去的是拥有的值：通道的一端，或者一个 <code>Arc</code> 克隆。本页四个程序就是已验证的形态。</p>
+
+<h2><code>go</code> 与一次通道往返</h2>
+<p><code>Chan::new(0)</code> 创建一个 rendezvous 通道；<code>recv()</code> 返回 <code>(value, closed)</code> 对；<code>go</code> 启动一个任务，<code>sa_task_join(h)</code> 收取它的状态：</p>
+<pre><code>@import "sa_std/task.sai"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn double_worker(ch: Chan&lt;u64&gt;) {
+    let (v, closed) = ch.recv();
+    if closed { panic(9701); };
+    ch.send(v * 2);
+}
+
+fn main() -&gt; i32 {
+    let ch: Chan&lt;u64&gt; = Chan::new(0);
+    let h = go double_worker(ch);
+    ch.send(21);
+    let (r, closed) = ch.recv();
+    if closed { return 1; };
+    let st = sa_task_join(h);
+    if st != 0 { return 2; };
+    println("{}", r);
+    ch.destroy();
+    if r != 42 { return 3; };
+    return 0;
+}</code></pre>
+<p>实测输出：<code>42</code>，退出码 0——工作者把收到的 21 翻倍后经同一通道送回。</p>
+
+<h2><code>thread::spawn</code> 与双通道乒乓</h2>
+<p>用 <code>thread::spawn</code> 时，被派生的闭包取得它捕获之物的所有权。这里工作者拥有两个通道端，回答 50 次请求：</p>
+<pre><code>@import "sa_std/task.sai"
+@import "sa_std/thread.sa"
+@import "sa_std/core/result.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn pp_worker(req: Chan&lt;u64&gt;, resp: Chan&lt;u64&gt;) {
+    let i = 0;
+    while i &lt; 50 {
+        let (v, closed) = req.recv();
+        if closed { panic(9601); };
+        resp.send(v + 1);
+        i = i + 1;
+    }
+}
+
+fn main() -&gt; i32 {
+    let req: Chan&lt;u64&gt; = Chan::new(0);
+    let resp: Chan&lt;u64&gt; = Chan::new(0);
+    let h = thread::spawn(^|| pp_worker(req, resp));
+    let i = 0;
+    let last: u64 = 0;
+    while i &lt; 50 {
+        req.send(i as u64);
+        let (r, closed) = resp.recv();
+        if closed { panic(9602); };
+        last = r;
+        i = i + 1;
+    }
+    let jr = h.join();
+    println("{}", last);
+    req.destroy();
+    resp.destroy();
+    if last != 50 { return 1; };
+    return 0;
+}</code></pre>
+<p>实测输出：<code>50</code>，退出码 0——50 轮请求/响应中的最后一答，每次接收都检查 <code>closed</code> 标志。</p>
+
+<h2>共享状态：<code>Arc&lt;Mutex&lt;i32&gt;&gt;</code></h2>
+<p>四个工作者，每个递增 250 次，一个共享计数器：</p>
+<pre><code>@import "sa_std/core/arc.sa"
+@import "sa_std/sync/mutex.sa"
+@import "sa_std/thread.sa"
+@import "sa_std/core/result.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn worker(counter: Arc&lt;Mutex&lt;i32&gt;&gt;) -&gt; i32 {
+    let i = 0;
+    while i &lt; 250 {
+        let guard = (*counter).lock().unwrap();
+        let cur = *guard;
+        *guard = cur + 1;
+        i = i + 1;
+    }
+    return 1;
+}
+
+fn main() -&gt; i32 {
+    let counter = Arc::new(Mutex::new(0));
+    let c1 = counter.clone();
+    let c2 = counter.clone();
+    let c3 = counter.clone();
+    let c4 = counter.clone();
+    let a = thread::spawn(^|| worker(c1));
+    let b = thread::spawn(^|| worker(c2));
+    let c = thread::spawn(^|| worker(c3));
+    let d = thread::spawn(^|| worker(c4));
+    let s = a.join().unwrap() + b.join().unwrap() + c.join().unwrap() + d.join().unwrap();
+    let guard = (*counter).lock().unwrap();
+    let final = *guard;
+    println("{}", final);
+    if s != 4 { return 2; };
+    if final != 1000 { return 1; };
+    return 0;
+}</code></pre>
+<p>实测输出：恰好 <code>1000</code>，退出码 0。克隆是显式做的（<code>counter.clone()</code>）再移动进被派生的闭包；guard 的用法——<code>lock().unwrap()</code>、读、写、析构——与 Rust 同形。</p>
+
+<h2>共享状态：<code>Arc&lt;RwLock&lt;i32&gt;&gt;</code></h2>
+<p>一个写者加 2 一百次，两个读者断言它们观察到的每个值都是偶数：</p>
+<pre><code>@import "sa_std/core/arc.sa"
+@import "sa_std/sync/rwlock.sa"
+@import "sa_std/thread.sa"
+@import "sa_std/core/result.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn writer(lock: Arc&lt;RwLock&lt;i32&gt;&gt;) -&gt; i32 {
+    let i = 0;
+    while i &lt; 100 {
+        let g = (*lock).write().unwrap();
+        let cur = *g;
+        *g = cur + 2;
+        i = i + 1;
+    }
+    return 1;
+}
+
+fn reader(lock: Arc&lt;RwLock&lt;i32&gt;&gt;) -&gt; i32 {
+    let seen = 0;
+    let done = 0;
+    while done == 0 {
+        let g = (*lock).read().unwrap();
+        let v = *g;
+        if v % 2 != 0 { panic(4101); };
+        if v &gt; seen { seen = v; };
+        if v &gt;= 200 { done = 1; };
+    }
+    return seen;
+}
+
+fn main() -&gt; i32 {
+    let lock = Arc::new(RwLock::new(0));
+    let w = lock.clone();
+    let r1 = lock.clone();
+    let r2 = lock.clone();
+    let hw = thread::spawn(^|| writer(w));
+    let h1 = thread::spawn(^|| reader(r1));
+    let h2 = thread::spawn(^|| reader(r2));
+    let sw = hw.join().unwrap();
+    let s1 = h1.join().unwrap();
+    let s2 = h2.join().unwrap();
+    let g = (*lock).read().unwrap();
+    let final = *g;
+    println("{}", final);
+    if sw != 1 { return 2; };
+    if s1 != 200 { return 3; };
+    if s2 != 200 { return 4; };
+    if final != 200 { return 1; };
+    return 0;
+}</code></pre>
+<p>这个程序通过了验证，打印 <code>200</code>、退出码 0。但要如实报告：在
+<a href="../09_rust_compare/11_mut_borrow_compare.html">对照页</a>更长的实测系列里，同样的写者/读者形态 28 次运行中 22 次打印 <code>200</code>，另外 6 次以运行时 panic（code 17）结束——RwLock 混合形态目前对时序敏感，而上面的通道交接与 Mutex 计数器在每一轮都精确。新代码在这一点改变之前，优先用通道与 <code>Mutex</code>。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>借用不跨任务边界；拥有的值可以——通道端与 <code>Arc</code> 克隆。</li>
+<li><code>go</code> + <code>Chan::new(0)</code> + <code>sa_task_join</code> 是最轻的任务形态；<code>recv()</code> 产出 <code>(value, closed)</code>。</li>
+<li><code>Arc&lt;Mutex&lt;i32&gt;&gt;</code> 四个工作者得到恰好 1000。</li>
+<li>RwLock 读写混合能到达 200，但在更长运行中对时序敏感（28 次中 22 次干净）；通道与 Mutex 每一轮都精确。</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/17_rust_beginners/06_concurrency.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

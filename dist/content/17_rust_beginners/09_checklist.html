@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Study Checklist</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Study Checklist</div>
+<h1>Study Checklist</h1>
+
+<p>This is this chapter's own study checklist, written from the chapter's
+pages. (The draft this chapter grew from had a checklist that stopped after
+its third item; what follows is the completed version.) Use it actively:
+for every item, write the program first, predict its output — or its
+diagnostic — before you run it, and only then compile. A wrong prediction is
+the lesson.</p>
+
+<h2>Basics</h2>
+<ul>
+<li>☐ Write a program with two <code>let</code> bindings, reassign one with <code>+=</code>, and print both — without writing <code>mut</code> anywhere.</li>
+<li>☐ Write an <code>add</code> function with an explicit <code>return</code>, call it from <code>main</code>, and make <code>main</code>'s exit code visible.</li>
+<li>☐ Define a struct, build it with a struct literal, and print one field.</li>
+<li>☐ Build a <code>String</code> with <code>format(...)</code>, and be able to say why <code>String::from(...)</code> is not used.</li>
+</ul>
+
+<h2>Ownership</h2>
+<ul>
+<li>☐ Pass a struct with a <code>String</code> field into a function by value, and explain what happened to the caller's binding.</li>
+<li>☐ Deliberately use a value after moving it; read the <code>UseAfterMove</code> diagnostic and name the identifier it reports.</li>
+<li>☐ Write <code>read</code> and <code>modify</code> over <code>&amp;i32</code> and explain why no <code>&amp;mut</code> is needed — and who judges <code>Locked_Read</code> vs <code>Locked_Mut</code>.</li>
+<li>☐ Explain why changing a reader function into a writer does not change its callers in SLA, and would in Rust.</li>
+</ul>
+
+<h2>Copy, Clone, and Derive</h2>
+<ul>
+<li>☐ Derive <code>copy, eq, ord, hash, debug</code> on a point struct; use the source after a copy assignment and after a by-value call.</li>
+<li>☐ Derive <code>clone</code> and produce an independent value with <code>.clone()</code>.</li>
+<li>☐ Put <code>@derive(copy)</code> on a struct with a <code>String</code> field, assign it, and explain — before compiling — what the checker will say when you read the source afterwards.</li>
+<li>☐ State the generic-struct limitation: what exactly fails, with which error, and in which construction forms it was tested.</li>
+</ul>
+
+<h2>Enums, Traits, and Generics</h2>
+<ul>
+<li>☐ Define an enum with a payload variant and match every arm.</li>
+<li>☐ Implement a trait for a struct and call the method both ways: dot call and <code>Trait::method(&amp;x)</code>.</li>
+<li>☐ Write <code>max&lt;T: PartialOrd&gt;</code> and call it by bare name; explain where the type argument came from.</li>
+<li>☐ Explain why a generic free function bounded by your own trait cannot be called yet, and which two working patterns replace it.</li>
+</ul>
+
+<h2>Errors, Closures, and Macros</h2>
+<ul>
+<li>☐ Return a <code>Result&lt;i32, String&gt;</code> from a function and match both arms; build the error with <code>format(...)</code>.</li>
+<li>☐ Return an <code>Option</code> and match <code>Some</code> and <code>None</code>.</li>
+<li>☐ Write a closure that captures a surrounding binding and call it.</li>
+<li>☐ Write a typed macro with a leading output parameter and call it like a function; contrast it with <code>macro_rules!</code> in one sentence.</li>
+</ul>
+
+<h2>Concurrency</h2>
+<ul>
+<li>☐ Start a <code>go</code> worker over a rendezvous channel, complete a request/response round-trip, and join it with <code>sa_task_join</code>.</li>
+<li>☐ Run the 50-round two-channel ping-pong under <code>thread::spawn</code>, checking the <code>closed</code> flag on every receive.</li>
+<li>☐ Build an <code>Arc&lt;Mutex&lt;i32&gt;&gt;</code> counter with four workers and land on exactly 1000.</li>
+<li>☐ State the RwLock caveat: the expected final value, and what the longer measurement series actually showed.</li>
+</ul>
+
+<h2>Modules, Async, and Engineering</h2>
+<ul>
+<li>☐ Split a helper into its own file with <code>pub fn</code> and pull it in with a relative <code>@import</code>.</li>
+<li>☐ Write an <code>async fn</code>, await another async call inside it, and await the result in <code>main</code>.</li>
+<li>☐ Describe the compile route (check → SA text → native) and the Referee's role in one paragraph.</li>
+<li>☐ Say where database and networking support live, and why this chapter prints no code for either.</li>
+</ul>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Every item on this checklist maps to a program or a diagnostic that was actually compiled, run, or rejected during this chapter's verification.</li>
+<li>Predict before you run: the output — or the exact diagnostic — is the check.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/17_rust_beginners/09_checklist.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

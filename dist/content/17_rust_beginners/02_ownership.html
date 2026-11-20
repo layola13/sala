@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ownership: Moves and Borrows</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Ownership: Moves and Borrows</div>
+<h1>Ownership: Moves and Borrows</h1>
+
+<p>SLA keeps Rust's central bargain: every value has one owner, and ownership
+is enforced at compile time. What changes is how borrowing is expressed — SLA
+has one borrow type where Rust has two. This page covers moves first, then
+the borrow model; the companion page
+<a href="../09_rust_compare/11_mut_borrow_compare.html">No &amp;mut by
+Design</a> gives the full measured treatment, including the task-boundary
+rules.</p>
+
+<h2>Passing by Value Moves</h2>
+<p>A struct with a heap field (here a <code>String</code>) is not
+<code>Copy</code>, so passing it to a function by value moves it — the
+caller's binding is consumed, exactly as in Rust.</p>
+<pre><code>// Rust
+struct User {
+    id: u64,
+    name: String,
+}
+
+fn greet(user: User) -&gt; u64 {
+    user.id
+}
+
+fn main() {
+    let user = User { id: 100, name: String::from("Alice") };
+    println!("{}", greet(user));
+}
+// output: 100</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct User {
+    id: u64,
+    name: String,
+}
+
+fn greet(user: User) -&gt; u64 {
+    return user.id;
+}
+
+fn main() -&gt; i32 {
+    let user = User { id: 100, name: format("Alice") };
+    println("{}", greet(user));
+    return 0;
+}</code></pre>
+<p>Verified output: <code>100</code>, exit code 0. Note the SLA string is
+built with <code>format("Alice")</code>, per the previous page.</p>
+
+<h2>Use After Move Is a Compile Error</h2>
+<p>The rule has teeth in both languages. This program moves <code>user</code>
+into <code>user2</code> and then tries to read the original:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct User {
+    id: u64,
+    name: String,
+}
+
+fn main() -&gt; i32 {
+    let user = User { id: 100, name: format("Alice") };
+    let user2 = user;
+    println("{}", user.id);
+    return 0;
+}</code></pre>
+<p>The checker rejects it before any code is generated:</p>
+<pre><code>Type Check Error: failed to verify types: UseAfterMove: identifier `user` was already consumed (error.UseAfterMove)</code></pre>
+<p>This is the SLA counterpart of rustc's E0382 (“use of moved value”). The
+phase is the same — compile time, never a runtime surprise — and the moved
+binding stays dead for the rest of the scope.</p>
+
+<h2>One Borrow Type for Read and Write</h2>
+<p>Here is the textbook <code>&amp;mut</code> example: one function reads a
+number through a borrow, another adds 10 through a borrow. Rust needs
+<code>&amp;i32</code> for the first and <code>&amp;mut i32</code> for the
+second. SLA uses <code>&amp;i32</code> for both:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn read(value: &amp;i32) -&gt; void {
+    println("{}", *value);
+}
+
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    read(&amp;number);
+    modify(&amp;number);
+    println("{}", number);
+    return 0;
+}</code></pre>
+<p>Verified output: <code>100</code>, then <code>110</code>, exit code 0.
+The direct translation needs no <code>Cell</code> / <code>RefCell</code>
+detour. The read/write permission is not declared in the signature; after
+lowering, the SA Referee judges <code>Locked_Read</code> /
+<code>Locked_Mut</code> from the actual load/store instructions behind the
+borrow.</p>
+<table>
+<tr><th></th><th>Rust</th><th>SLA</th></tr>
+<tr><td>Read function signature</td><td><code>read(&amp;i32)</code></td><td><code>read(&amp;i32)</code></td></tr>
+<tr><td>Write function signature</td><td><code>modify(&amp;mut i32)</code></td><td><code>modify(&amp;i32)</code></td></tr>
+<tr><td>Changing a reader into a writer</td><td>Signature changes to <code>&amp;mut</code>; every caller changes with it</td><td>Signature unchanged; only the body changes</td></tr>
+<tr><td>Who decides read vs write</td><td>The type system, at the signature</td><td>The SA Referee, from the actual instructions</td></tr>
+</table>
+<p>The practical consequence: function signatures stay stable when an
+implementation starts writing through a borrow it previously only read.
+<code>Cell</code> / <code>RefCell</code> still exist, but for genuinely
+shared interior state — not as a toll-booth for mutating through a borrow.
+The one thing a signature no longer tells you is whether a function writes;
+that trade-off, and the Phase 2 plan it belongs to, are covered on the
+<a href="../09_rust_compare/11_mut_borrow_compare.html">&amp;mut comparison
+page</a> and in
+<a href="../09_rust_compare/03_ownership.html">Ownership and Borrowing:
+Referee vs the Borrow Checker</a>.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Passing or assigning a non-<code>Copy</code> value moves it; using it afterwards is a compile-time <code>UseAfterMove</code> error.</li>
+<li>SLA has a single borrow type, <code>&amp;T</code>, covering read and write; there is no <code>&amp;mut</code>.</li>
+<li>The SA Referee decides <code>Locked_Read</code> / <code>Locked_Mut</code> from the actual instructions, so signatures do not change when a reader becomes a writer.</li>
+<li>No <code>Cell</code> / <code>RefCell</code> is needed to mutate through a borrow.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/17_rust_beginners/02_ownership.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

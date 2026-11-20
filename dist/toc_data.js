@@ -238,6 +238,57 @@ var TOC = [
   ]
  },
  {
+  "t": "From Rust for Beginners",
+  "f": null,
+  "c": [
+   {
+    "t": "Variables, Functions, and Structs: Your First SLA Program",
+    "f": "content/17_rust_beginners/01_basics.html",
+    "c": []
+   },
+   {
+    "t": "Ownership: Moves and Borrows",
+    "f": "content/17_rust_beginners/02_ownership.html",
+    "c": []
+   },
+   {
+    "t": "Copy, Clone, and @derive: Four Questions, Measured",
+    "f": "content/17_rust_beginners/03_copy_clone_derive.html",
+    "c": []
+   },
+   {
+    "t": "Enums, Traits, and Generics",
+    "f": "content/17_rust_beginners/04_enums_traits_generics.html",
+    "c": []
+   },
+   {
+    "t": "Error Handling, Closures, and Macros",
+    "f": "content/17_rust_beginners/05_errors_closures_macros.html",
+    "c": []
+   },
+   {
+    "t": "Concurrency: go, Channels, and Shared State",
+    "f": "content/17_rust_beginners/06_concurrency.html",
+    "c": []
+   },
+   {
+    "t": "Modules and Async",
+    "f": "content/17_rust_beginners/07_modules_async.html",
+    "c": []
+   },
+   {
+    "t": "Engineering Topics: Compilation, Memory, FFI, Databases, and Networking",
+    "f": "content/17_rust_beginners/08_engineering.html",
+    "c": []
+   },
+   {
+    "t": "Study Checklist",
+    "f": "content/17_rust_beginners/09_checklist.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "SA Assembly and SAB",
   "f": null,
   "c": [

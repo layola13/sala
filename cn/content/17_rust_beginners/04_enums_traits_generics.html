@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>枚举、Trait 与泛型</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 枚举、Trait 与泛型</div>
+<h1>枚举、Trait 与泛型</h1>
+
+<h2>枚举与 <code>match</code></h2>
+<p>带载荷变体的枚举与穷尽 <code>match</code> 与 Rust 程序员的预期一致。注意已验证形态里的表面细节：match 分支取块，语句级 <code>match</code> 以分号收尾。</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+enum Status {
+    Ready,
+    Running,
+    Failed(i32),
+}
+
+fn describe(status: Status) -&gt; void {
+    match status {
+        Status::Ready =&gt; { println("ready"); },
+        Status::Running =&gt; { println("running"); },
+        Status::Failed(code) =&gt; { println("error {}", code); },
+    };
+}
+
+fn main() -&gt; i32 {
+    describe(Status::Ready);
+    describe(Status::Running);
+    describe(Status::Failed(42));
+    return 0;
+}</code></pre>
+<p>实测输出：<code>ready</code>、<code>running</code>、<code>error 42</code>，退出码 0。</p>
+
+<h2>Trait 与 <code>impl</code></h2>
+<p>Trait 声明、<code>impl Trait for Type</code> 与 <code>&amp;self</code> 接收者都与 Rust 同形。两种调用形式都能分发——点调用与全限定调用：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+trait Score {
+    fn score(&amp;self) -&gt; i32;
+}
+
+struct Item {
+    value: i32,
+}
+
+impl Score for Item {
+    fn score(&amp;self) -&gt; i32 {
+        return self.value + 10;
+    }
+}
+
+fn main() -&gt; i32 {
+    let item = Item { value: 32 };
+    println("{}", item.score());
+    println("{}", Score::score(&amp;item));
+    return 0;
+}</code></pre>
+<p>实测输出：先 <code>42</code>，后 <code>42</code>——<code>item.score()</code> 与 <code>Score::score(&amp;item)</code> 到达同一个实现。第二个 trait，over 一个 <code>f64</code> 计算：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+trait Area {
+    fn area(&amp;self) -&gt; f64;
+}
+
+struct Circle {
+    radius: f64,
+}
+
+impl Area for Circle {
+    fn area(&amp;self) -&gt; f64 {
+        return 3.14159 * self.radius * self.radius;
+    }
+}
+
+fn main() -&gt; i32 {
+    let c = Circle { radius: 5.0 };
+    let a = c.area();
+    println("{}", a);
+    if a &lt; 78.0 { return 1; };
+    if a &gt; 79.0 { return 2; };
+    return 0;
+}</code></pre>
+<p>实测输出：<code>78.5397500000</code>，退出码 0。</p>
+
+<h2>带内建约束的泛型函数</h2>
+<p>以内建 trait 为约束的泛型函数，用裸名定义与调用；类型参数由实参推断，与 Rust 相同：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn max&lt;T: PartialOrd&gt;(a: T, b: T) -&gt; T {
+    if a &gt; b {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+fn main() -&gt; i32 {
+    println("{}", max(10, 20));
+    return 0;
+}</code></pre>
+<p>实测输出：<code>20</code>，退出码 0。没有 turbofish：<code>max::&lt;i32&gt;(10, 20)</code> 式的显式类型实参在 SLA 里是解析错误——推断是唯一的路，这正是下面的调用形式问题要紧的原因。</p>
+
+<div class="warning"><span class="label">限制</span>以<em>用户定义</em> trait 为约束的泛型自由函数目前还不能被调用。下面的定义被接受，但调用被拒绝：</div>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+trait Score {
+    fn score(&amp;self) -&gt; i32;
+}
+
+struct Item {
+    value: i32,
+}
+
+impl Score for Item {
+    fn score(&amp;self) -&gt; i32 {
+        return self.value + 10;
+    }
+}
+
+fn calculate&lt;T: Score&gt;(value: &amp;T) -&gt; i32 {
+    return value.score();
+}
+
+fn main() -&gt; i32 {
+    let item = Item { value: 32 };
+    println("{}", calculate(&amp;item));
+    return 0;
+}</code></pre>
+<pre><code>Type Check Error: failed to verify types: Undefined call: calculate (error.UndefinedVariable)</code></pre>
+<p>第 4 轮验证（2026-11-20）试了所有想得到的调用形式：裸名 + 借用实参、裸名 + 按值实参；去掉约束；先把实参绑到具体类型的局部变量；给结果绑定显式 <code>i32</code> 标注；以及 trait 限定形式 <code>Score::calculate(&amp;item)</code>——它被当作 trait <em>方法</em>查找解析，并以另一种诊断被拒绝（<code>Type Item does not implement trait method Score::calculate</code>）。全部失败。在这个缺口补上之前，可用的模式是上面已验证的两种：给泛型函数用内建 trait 作约束（<code>PartialOrd</code>），或跳过泛型包装、直接调用 trait 方法——点调用与限定调用今天都能分发。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>载荷枚举与 <code>match</code> 与 Rust 同形；语句级 <code>match</code> 以分号收尾。</li>
+<li>Trait 方法可经点调用与限定调用 <code>Trait::method(&amp;x)</code> 两种形式分发。</li>
+<li>以内建 trait（如 <code>PartialOrd</code>）为约束的泛型函数用裸名调用、靠推断定型；没有 turbofish 语法。</li>
+<li>以用户定义 trait 为约束的泛型自由函数目前还不能被调用（<code>Undefined call</code>），所有已测调用形式都失败——改为直接调用 trait 方法。</li>
+</ul>
+</body>
+</html>

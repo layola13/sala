@@ -28,6 +28,7 @@ SECTIONS = [
     {"dir": "01_overview",   "title": {"en": "Getting Started", "cn": "入门指南"}},
     {"dir": "02_sla_lang",   "title": {"en": "SLA Language Reference", "cn": "SLA 语言参考"}},
     {"dir": "09_rust_compare", "title": {"en": "Comparison with Rust", "cn": "与 Rust 对比"}},
+    {"dir": "17_rust_beginners", "title": {"en": "From Rust for Beginners", "cn": "给 Rust 程序员的 SLA 入门"}},
     {"dir": "03_sa_asm",     "title": {"en": "SA Assembly and SAB", "cn": "SA 汇编与 SAB"}},
     {"dir": "04_cli",        "title": {"en": "Command-Line Reference", "cn": "命令行参考"}},
     {"dir": "05_plugins",    "title": {"en": "Plugin Reference", "cn": "插件参考"}},

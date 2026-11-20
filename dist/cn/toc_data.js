@@ -238,6 +238,57 @@ var TOC = [
   ]
  },
  {
+  "t": "给 Rust 程序员的 SLA 入门",
+  "f": null,
+  "c": [
+   {
+    "t": "变量、函数与结构体：第一个 SLA 程序",
+    "f": "content/17_rust_beginners/01_basics.html",
+    "c": []
+   },
+   {
+    "t": "所有权：移动与借用",
+    "f": "content/17_rust_beginners/02_ownership.html",
+    "c": []
+   },
+   {
+    "t": "Copy、Clone 与 @derive：四个问题的实测答案",
+    "f": "content/17_rust_beginners/03_copy_clone_derive.html",
+    "c": []
+   },
+   {
+    "t": "枚举、Trait 与泛型",
+    "f": "content/17_rust_beginners/04_enums_traits_generics.html",
+    "c": []
+   },
+   {
+    "t": "错误处理、闭包与宏",
+    "f": "content/17_rust_beginners/05_errors_closures_macros.html",
+    "c": []
+   },
+   {
+    "t": "并发：go、通道与共享状态",
+    "f": "content/17_rust_beginners/06_concurrency.html",
+    "c": []
+   },
+   {
+    "t": "模块与异步",
+    "f": "content/17_rust_beginners/07_modules_async.html",
+    "c": []
+   },
+   {
+    "t": "工程专题：编译、内存、FFI、数据库与网络",
+    "f": "content/17_rust_beginners/08_engineering.html",
+    "c": []
+   },
+   {
+    "t": "学习清单",
+    "f": "content/17_rust_beginners/09_checklist.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "SA 汇编与 SAB",
   "f": null,
   "c": [

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>学习清单</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 学习清单</div>
+<h1>学习清单</h1>
+
+<p>这是本章自己的学习清单，照本章各页写成。（本章所据的草稿里有一份清单，只写到第 3 项就断了；下面是补完的版本。）请主动地用它：每一项都先写出程序，在运行之前先预测它的输出——或者它的报错——然后再编译。预测错了，才是学到了。</p>
+
+<h2>基础</h2>
+<ul>
+<li>☐ 写一个程序：两个 <code>let</code> 绑定，用 <code>+=</code> 改其中一个，打印两个——全程不写 <code>mut</code>。</li>
+<li>☐ 写一个带显式 <code>return</code> 的 <code>add</code> 函数，从 <code>main</code> 调用它，并让 <code>main</code> 的退出码可见。</li>
+<li>☐ 定义一个结构体，用结构体字面量构造它，打印其中一个字段。</li>
+<li>☐ 用 <code>format(...)</code> 构造一个 <code>String</code>，并能说清为什么不用 <code>String::from(...)</code>。</li>
+</ul>
+
+<h2>所有权</h2>
+<ul>
+<li>☐ 把一个带 <code>String</code> 字段的结构体按值传入函数，并解释调用方的绑定发生了什么。</li>
+<li>☐ 故意在移动之后使用一个值；读 <code>UseAfterMove</code> 诊断，并指出它报告的标识符。</li>
+<li>☐ 在 <code>&amp;i32</code> 上写 <code>read</code> 与 <code>modify</code>，并解释为什么不需要 <code>&amp;mut</code>——以及谁判定 <code>Locked_Read</code> 与 <code>Locked_Mut</code>。</li>
+<li>☐ 解释为什么在 SLA 里把读者函数改成写者不会牵动它的调用方，而在 Rust 里会。</li>
+</ul>
+
+<h2>Copy、Clone 与 Derive</h2>
+<ul>
+<li>☐ 给一个点结构体 derive <code>copy, eq, ord, hash, debug</code>；在拷贝赋值之后、以及按值调用之后继续使用源值。</li>
+<li>☐ Derive <code>clone</code>，用 <code>.clone()</code> 产生一个独立的值。</li>
+<li>☐ 给带 <code>String</code> 字段的结构体加 <code>@derive(copy)</code> 并赋值；在编译之前先说清：之后读源值时检查器会说什么。</li>
+<li>☐ 说清泛型结构体限制：到底什么失败、报什么错、在哪些构造形式下测过。</li>
+</ul>
+
+<h2>枚举、Trait 与泛型</h2>
+<ul>
+<li>☐ 定义一个带载荷变体的枚举，匹配它的每一个分支。</li>
+<li>☐ 为一个结构体实现一个 trait，并用两种方式调用方法：点调用与 <code>Trait::method(&amp;x)</code>。</li>
+<li>☐ 写 <code>max&lt;T: PartialOrd&gt;</code> 并用裸名调用它；解释类型参数从哪里来。</li>
+<li>☐ 解释为什么以你自己的 trait 为约束的泛型自由函数目前还不能被调用，以及哪两种可用模式可以替代它。</li>
+</ul>
+
+<h2>错误、闭包与宏</h2>
+<ul>
+<li>☐ 从一个函数返回 <code>Result&lt;i32, String&gt;</code> 并匹配两个分支；错误用 <code>format(...)</code> 构造。</li>
+<li>☐ 返回一个 <code>Option</code>，匹配 <code>Some</code> 与 <code>None</code>。</li>
+<li>☐ 写一个捕获周围绑定的闭包并调用它。</li>
+<li>☐ 写一个带最前输出参数的类型化宏，像函数一样调用它；用一句话对比它与 <code>macro_rules!</code>。</li>
+</ul>
+
+<h2>并发</h2>
+<ul>
+<li>☐ 在 rendezvous 通道上启动一个 <code>go</code> 工作者，完成一次请求/响应往返，并用 <code>sa_task_join</code> 汇合它。</li>
+<li>☐ 在 <code>thread::spawn</code> 下跑 50 轮双通道乒乓，每次接收都检查 <code>closed</code> 标志。</li>
+<li>☐ 用四个工作者搭一个 <code>Arc&lt;Mutex&lt;i32&gt;&gt;</code> 计数器，恰好落到 1000。</li>
+<li>☐ 说清 RwLock 的保留意见：期望的终值是多少，更长的实测系列实际显示了什么。</li>
+</ul>
+
+<h2>模块、异步与工程</h2>
+<ul>
+<li>☐ 把一个 helper 拆到自己的文件里、标 <code>pub fn</code>，再用相对路径 <code>@import</code> 拉进来。</li>
+<li>☐ 写一个 <code>async fn</code>，在它里面 await 另一个异步调用，并在 <code>main</code> 里 await 它的结果。</li>
+<li>☐ 用一段话描述编译路线（检查 → SA 文本 → 本机）与 Referee 在其中的角色。</li>
+<li>☐ 说清数据库与网络支持住在哪里，以及本章为什么不为这两者印代码。</li>
+</ul>
+
+<h2>本页要点</h2>
+<ul>
+<li>本清单每一项都对应本章验证过程中真正编译、运行或被拒绝过的一个程序或一条诊断。</li>
+<li>先预测再运行：输出——或者确切的诊断——就是检验标准。</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/17_rust_beginners/09_checklist.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

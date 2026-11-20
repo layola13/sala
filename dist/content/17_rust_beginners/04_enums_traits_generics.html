@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Enums, Traits, and Generics</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Enums, Traits, and Generics</div>
+<h1>Enums, Traits, and Generics</h1>
+
+<h2>Enums and <code>match</code></h2>
+<p>Enums with payload variants and exhaustive <code>match</code> work as a
+Rust programmer expects. Note the surface detail in the verified form: match
+arms take blocks, and a statement-level <code>match</code> is closed with a
+semicolon.</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+enum Status {
+    Ready,
+    Running,
+    Failed(i32),
+}
+
+fn describe(status: Status) -&gt; void {
+    match status {
+        Status::Ready =&gt; { println("ready"); },
+        Status::Running =&gt; { println("running"); },
+        Status::Failed(code) =&gt; { println("error {}", code); },
+    };
+}
+
+fn main() -&gt; i32 {
+    describe(Status::Ready);
+    describe(Status::Running);
+    describe(Status::Failed(42));
+    return 0;
+}</code></pre>
+<p>Verified output: <code>ready</code>, <code>running</code>,
+<code>error 42</code>, exit code 0.</p>
+
+<h2>Traits and <code>impl</code></h2>
+<p>Trait declarations, <code>impl Trait for Type</code>, and the
+<code>&amp;self</code> receiver mirror Rust. Both call forms dispatch — the
+dot call and the fully qualified call:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+trait Score {
+    fn score(&amp;self) -&gt; i32;
+}
+
+struct Item {
+    value: i32,
+}
+
+impl Score for Item {
+    fn score(&amp;self) -&gt; i32 {
+        return self.value + 10;
+    }
+}
+
+fn main() -&gt; i32 {
+    let item = Item { value: 32 };
+    println("{}", item.score());
+    println("{}", Score::score(&amp;item));
+    return 0;
+}</code></pre>
+<p>Verified output: <code>42</code>, then <code>42</code> — <code>item.score()</code>
+and <code>Score::score(&amp;item)</code> reach the same implementation. A
+second trait, over an <code>f64</code> computation:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+trait Area {
+    fn area(&amp;self) -&gt; f64;
+}
+
+struct Circle {
+    radius: f64,
+}
+
+impl Area for Circle {
+    fn area(&amp;self) -&gt; f64 {
+        return 3.14159 * self.radius * self.radius;
+    }
+}
+
+fn main() -&gt; i32 {
+    let c = Circle { radius: 5.0 };
+    let a = c.area();
+    println("{}", a);
+    if a &lt; 78.0 { return 1; };
+    if a &gt; 79.0 { return 2; };
+    return 0;
+}</code></pre>
+<p>Verified output: <code>78.5397500000</code>, exit code 0.</p>
+
+<h2>Generic Functions with Built-In Bounds</h2>
+<p>A generic function bounded by a built-in trait is defined and called by
+bare name; the type argument is inferred from the arguments, as in Rust:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn max&lt;T: PartialOrd&gt;(a: T, b: T) -&gt; T {
+    if a &gt; b {
+        return a;
+    } else {
+        return b;
+    }
+}
+
+fn main() -&gt; i32 {
+    println("{}", max(10, 20));
+    return 0;
+}</code></pre>
+<p>Verified output: <code>20</code>, exit code 0. There is no turbofish:
+<code>max::&lt;i32&gt;(10, 20)</code>-style explicit type arguments are a
+parse error in SLA — inference is the only route, which is why the call
+forms matter below.</p>
+
+<div class="warning"><span class="label">Limitation</span>A generic free
+function bounded by a <em>user-defined</em> trait cannot be called yet. The
+definition below is accepted, but the call is rejected:</div>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+trait Score {
+    fn score(&amp;self) -&gt; i32;
+}
+
+struct Item {
+    value: i32,
+}
+
+impl Score for Item {
+    fn score(&amp;self) -&gt; i32 {
+        return self.value + 10;
+    }
+}
+
+fn calculate&lt;T: Score&gt;(value: &amp;T) -&gt; i32 {
+    return value.score();
+}
+
+fn main() -&gt; i32 {
+    let item = Item { value: 32 };
+    println("{}", calculate(&amp;item));
+    return 0;
+}</code></pre>
+<pre><code>Type Check Error: failed to verify types: Undefined call: calculate (error.UndefinedVariable)</code></pre>
+<p>Round-4 verification (2026-11-20) tried every plausible call form:
+bare name with a borrowed argument and with a by-value argument; dropping
+the bound; binding the argument to a concretely typed local first; binding
+the result with an explicit <code>i32</code> annotation; and the
+trait-qualified form <code>Score::calculate(&amp;item)</code>, which is
+parsed as a trait-<em>method</em> lookup and rejected with a different
+diagnostic (<code>Type Item does not implement trait method
+Score::calculate</code>). All fail. Until this closes, the working patterns
+are the two verified above: bound a generic function on a built-in trait
+(<code>PartialOrd</code>), or skip the generic wrapper and call the trait
+method directly — by dot call or by qualified call, both of which dispatch
+today.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Payload enums and <code>match</code> work as in Rust; statement-level <code>match</code> closes with a semicolon.</li>
+<li>Trait methods dispatch by dot call and by qualified <code>Trait::method(&amp;x)</code> call.</li>
+<li>Generic functions bounded by built-in traits (e.g. <code>PartialOrd</code>) are called by bare name with inference; there is no turbofish syntax.</li>
+<li>A generic free function bounded by a user-defined trait cannot be called yet (<code>Undefined call</code>) in any tested call form — call the trait method directly instead.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/17_rust_beginners/04_enums_traits_generics.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

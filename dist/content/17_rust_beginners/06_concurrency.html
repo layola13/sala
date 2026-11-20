@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Concurrency: go, Channels, and Shared State</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Rust for Beginners &gt; Concurrency: go, Channels, and Shared State</div>
+<h1>Concurrency: go, Channels, and Shared State</h1>
+
+<p>SLA's concurrency rule is structural: <strong>borrows never cross a task
+boundary</strong> (the checker rejects both the <code>go</code> form and the
+<code>thread::spawn</code> closure form — see the
+<a href="../09_rust_compare/11_mut_borrow_compare.html">&amp;mut comparison
+page</a>). What crosses is an owned value: a channel end, or an
+<code>Arc</code> clone. The four programs on this page are the verified
+shapes.</p>
+
+<h2><code>go</code> and a Channel Round-Trip</h2>
+<p><code>Chan::new(0)</code> creates a rendezvous channel;
+<code>recv()</code> returns a <code>(value, closed)</code> pair;
+<code>go</code> starts a task and <code>sa_task_join(h)</code> collects its
+status:</p>
+<pre><code>@import "sa_std/task.sai"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn double_worker(ch: Chan&lt;u64&gt;) {
+    let (v, closed) = ch.recv();
+    if closed { panic(9701); };
+    ch.send(v * 2);
+}
+
+fn main() -&gt; i32 {
+    let ch: Chan&lt;u64&gt; = Chan::new(0);
+    let h = go double_worker(ch);
+    ch.send(21);
+    let (r, closed) = ch.recv();
+    if closed { return 1; };
+    let st = sa_task_join(h);
+    if st != 0 { return 2; };
+    println("{}", r);
+    ch.destroy();
+    if r != 42 { return 3; };
+    return 0;
+}</code></pre>
+<p>Verified output: <code>42</code>, exit code 0 — the worker doubled the
+21 it received and sent it back over the same channel.</p>
+
+<h2><code>thread::spawn</code> and a Two-Channel Ping-Pong</h2>
+<p>With <code>thread::spawn</code>, the spawned closure takes ownership of
+what it captures. Here the worker owns both channel ends and answers 50
+requests:</p>
+<pre><code>@import "sa_std/task.sai"
+@import "sa_std/thread.sa"
+@import "sa_std/core/result.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn pp_worker(req: Chan&lt;u64&gt;, resp: Chan&lt;u64&gt;) {
+    let i = 0;
+    while i &lt; 50 {
+        let (v, closed) = req.recv();
+        if closed { panic(9601); };
+        resp.send(v + 1);
+        i = i + 1;
+    }
+}
+
+fn main() -&gt; i32 {
+    let req: Chan&lt;u64&gt; = Chan::new(0);
+    let resp: Chan&lt;u64&gt; = Chan::new(0);
+    let h = thread::spawn(^|| pp_worker(req, resp));
+    let i = 0;
+    let last: u64 = 0;
+    while i &lt; 50 {
+        req.send(i as u64);
+        let (r, closed) = resp.recv();
+        if closed { panic(9602); };
+        last = r;
+        i = i + 1;
+    }
+    let jr = h.join();
+    println("{}", last);
+    req.destroy();
+    resp.destroy();
+    if last != 50 { return 1; };
+    return 0;
+}</code></pre>
+<p>Verified output: <code>50</code>, exit code 0 — the last reply of 50
+request/response rounds, each side checking the <code>closed</code> flag on
+every receive.</p>
+
+<h2>Shared State: <code>Arc&lt;Mutex&lt;i32&gt;&gt;</code></h2>
+<p>Four workers, 250 increments each, one shared counter:</p>
+<pre><code>@import "sa_std/core/arc.sa"
+@import "sa_std/sync/mutex.sa"
+@import "sa_std/thread.sa"
+@import "sa_std/core/result.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn worker(counter: Arc&lt;Mutex&lt;i32&gt;&gt;) -&gt; i32 {
+    let i = 0;
+    while i &lt; 250 {
+        let guard = (*counter).lock().unwrap();
+        let cur = *guard;
+        *guard = cur + 1;
+        i = i + 1;
+    }
+    return 1;
+}
+
+fn main() -&gt; i32 {
+    let counter = Arc::new(Mutex::new(0));
+    let c1 = counter.clone();
+    let c2 = counter.clone();
+    let c3 = counter.clone();
+    let c4 = counter.clone();
+    let a = thread::spawn(^|| worker(c1));
+    let b = thread::spawn(^|| worker(c2));
+    let c = thread::spawn(^|| worker(c3));
+    let d = thread::spawn(^|| worker(c4));
+    let s = a.join().unwrap() + b.join().unwrap() + c.join().unwrap() + d.join().unwrap();
+    let guard = (*counter).lock().unwrap();
+    let final = *guard;
+    println("{}", final);
+    if s != 4 { return 2; };
+    if final != 1000 { return 1; };
+    return 0;
+}</code></pre>
+<p>Verified output: exactly <code>1000</code>, exit code 0. The clones are
+made explicitly (<code>counter.clone()</code>) and moved into the spawned
+closures; the guard pattern — <code>lock().unwrap()</code>, read, write,
+drop — mirrors Rust.</p>
+
+<h2>Shared State: <code>Arc&lt;RwLock&lt;i32&gt;&gt;</code></h2>
+<p>One writer adding 2 a hundred times, two readers asserting every value
+they observe is even:</p>
+<pre><code>@import "sa_std/core/arc.sa"
+@import "sa_std/sync/rwlock.sa"
+@import "sa_std/thread.sa"
+@import "sa_std/core/result.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn writer(lock: Arc&lt;RwLock&lt;i32&gt;&gt;) -&gt; i32 {
+    let i = 0;
+    while i &lt; 100 {
+        let g = (*lock).write().unwrap();
+        let cur = *g;
+        *g = cur + 2;
+        i = i + 1;
+    }
+    return 1;
+}
+
+fn reader(lock: Arc&lt;RwLock&lt;i32&gt;&gt;) -&gt; i32 {
+    let seen = 0;
+    let done = 0;
+    while done == 0 {
+        let g = (*lock).read().unwrap();
+        let v = *g;
+        if v % 2 != 0 { panic(4101); };
+        if v &gt; seen { seen = v; };
+        if v &gt;= 200 { done = 1; };
+    }
+    return seen;
+}
+
+fn main() -&gt; i32 {
+    let lock = Arc::new(RwLock::new(0));
+    let w = lock.clone();
+    let r1 = lock.clone();
+    let r2 = lock.clone();
+    let hw = thread::spawn(^|| writer(w));
+    let h1 = thread::spawn(^|| reader(r1));
+    let h2 = thread::spawn(^|| reader(r2));
+    let sw = hw.join().unwrap();
+    let s1 = h1.join().unwrap();
+    let s2 = h2.join().unwrap();
+    let g = (*lock).read().unwrap();
+    let final = *g;
+    println("{}", final);
+    if sw != 1 { return 2; };
+    if s1 != 200 { return 3; };
+    if s2 != 200 { return 4; };
+    if final != 200 { return 1; };
+    return 0;
+}</code></pre>
+<p>This program passed verification, printing <code>200</code> with exit
+code 0. Report it honestly, though: in the longer measurement series on the
+<a href="../09_rust_compare/11_mut_borrow_compare.html">comparison page</a>,
+the same writer/reader shape printed <code>200</code> in 22 of 28 runs and
+ended in a runtime panic (code 17) in the other 6 — the RwLock mix is
+timing-sensitive today, while the channel handoff and the Mutex counter
+above were exact in every run. Prefer channels and <code>Mutex</code> for
+new code until that changes.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Borrows do not cross task boundaries; owned values do — channel ends and <code>Arc</code> clones.</li>
+<li><code>go</code> + <code>Chan::new(0)</code> + <code>sa_task_join</code> is the lightest task shape; <code>recv()</code> yields <code>(value, closed)</code>.</li>
+<li><code>Arc&lt;Mutex&lt;i32&gt;&gt;</code> with four workers produced exactly 1000.</li>
+<li>The RwLock reader/writer mix reaches 200 but is timing-sensitive in longer runs (22 of 28 clean); channels and Mutex were exact in every run.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/17_rust_beginners/06_concurrency.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

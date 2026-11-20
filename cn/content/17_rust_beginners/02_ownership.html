@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>所有权：移动与借用</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 所有权：移动与借用</div>
+<h1>所有权：移动与借用</h1>
+
+<p>SLA 保留了 Rust 的核心契约：每个值只有一个所有者，所有权在编译期强制执行。改变的是借用的表达方式——Rust 有两种借用类型，SLA 只有一种。本页先讲移动，再讲借用模型；完整的实测论述（含任务边界规则）见伴侣页
+<a href="../09_rust_compare/11_mut_borrow_compare.html">没有 &amp;mut 是设计而非缺失</a>。</p>
+
+<h2>按值传递即移动</h2>
+<p>带堆字段（这里是 <code>String</code>）的结构体不是 <code>Copy</code>，按值传给函数即移动——调用方的绑定被消耗，与 Rust 完全一致。</p>
+<pre><code>// Rust
+struct User {
+    id: u64,
+    name: String,
+}
+
+fn greet(user: User) -&gt; u64 {
+    user.id
+}
+
+fn main() {
+    let user = User { id: 100, name: String::from("Alice") };
+    println!("{}", greet(user));
+}
+// 输出：100</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct User {
+    id: u64,
+    name: String,
+}
+
+fn greet(user: User) -&gt; u64 {
+    return user.id;
+}
+
+fn main() -&gt; i32 {
+    let user = User { id: 100, name: format("Alice") };
+    println("{}", greet(user));
+    return 0;
+}</code></pre>
+<p>实测输出：<code>100</code>，退出码 0。注意 SLA 的字符串用 <code>format("Alice")</code> 构造，见上一页。</p>
+
+<h2>移动后使用是编译错误</h2>
+<p>这条规则在两种语言里都有牙齿。下面的程序把 <code>user</code> 移动给 <code>user2</code>，然后再读原来的绑定：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct User {
+    id: u64,
+    name: String,
+}
+
+fn main() -&gt; i32 {
+    let user = User { id: 100, name: format("Alice") };
+    let user2 = user;
+    println("{}", user.id);
+    return 0;
+}</code></pre>
+<p>检查器在生成任何代码之前就拒绝它：</p>
+<pre><code>Type Check Error: failed to verify types: UseAfterMove: identifier `user` was already consumed (error.UseAfterMove)</code></pre>
+<p>这是 rustc E0382（“use of moved value”）在 SLA 中的对应物。阶段相同——编译期，绝不是运行时惊喜——被移动的绑定在作用域余下部分保持死亡。</p>
+
+<h2>一种借用类型，读写通用</h2>
+<p>这是教科书里的 <code>&amp;mut</code> 例子：一个函数通过借用读一个数，另一个函数通过借用给它加 10。Rust 前者需要 <code>&amp;i32</code>、后者需要 <code>&amp;mut i32</code>；SLA 两者都用 <code>&amp;i32</code>：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn read(value: &amp;i32) -&gt; void {
+    println("{}", *value);
+}
+
+fn modify(value: &amp;i32) -&gt; void {
+    *value += 10;
+}
+
+fn main() -&gt; i32 {
+    let number = 100;
+    read(&amp;number);
+    modify(&amp;number);
+    println("{}", number);
+    return 0;
+}</code></pre>
+<p>实测输出：先 <code>100</code>，后 <code>110</code>，退出码 0。直接翻译不需要 <code>Cell</code> / <code>RefCell</code> 绕道。读写权限不写在签名里；降低（lowering）之后，SA Referee 按借用背后实际的 load/store 指令判定 <code>Locked_Read</code> / <code>Locked_Mut</code>。</p>
+<table>
+<tr><th></th><th>Rust</th><th>SLA</th></tr>
+<tr><td>读函数签名</td><td><code>read(&amp;i32)</code></td><td><code>read(&amp;i32)</code></td></tr>
+<tr><td>写函数签名</td><td><code>modify(&amp;mut i32)</code></td><td><code>modify(&amp;i32)</code></td></tr>
+<tr><td>把读者改成写者</td><td>签名要改成 <code>&amp;mut</code>，所有调用方跟着改</td><td>签名不变，只改函数体</td></tr>
+<tr><td>谁判定读写</td><td>类型系统，在签名处</td><td>SA Referee，按实际指令</td></tr>
+</table>
+<p>实际后果：一个实现开始通过借用写入时，函数签名保持稳定。<code>Cell</code> / <code>RefCell</code> 仍然存在，但它们是给真正共享的内部状态用的——不是借用修改的必经收费站。代价是签名不再告诉你函数是否写入；这个权衡以及它所属的 Phase 2 计划，见
+<a href="../09_rust_compare/11_mut_borrow_compare.html">&amp;mut 对照页</a>与
+<a href="../09_rust_compare/03_ownership.html">所有权与借用：Referee 对借用检查器</a>。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>传递或赋值一个非 <code>Copy</code> 值即移动它；之后再使用是编译期 <code>UseAfterMove</code> 错误。</li>
+<li>SLA 只有一种借用类型 <code>&amp;T</code>，读写通用；没有 <code>&amp;mut</code>。</li>
+<li>SA Referee 按实际指令判定 <code>Locked_Read</code> / <code>Locked_Mut</code>，所以读者变写者时签名不变。</li>
+<li>通过借用修改不需要 <code>Cell</code> / <code>RefCell</code>。</li>
+</ul>
+</body>
+</html>

@@ -386,6 +386,86 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="给 Rust 程序员的 SLA 入门">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/01_basics.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="变量、函数与结构体：第一个 SLA 程序">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/01_basics.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="所有权：移动与借用">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/02_ownership.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Copy、Clone 与 @derive：四个问题的实测答案">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/03_copy_clone_derive.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="枚举、Trait 与泛型">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/04_enums_traits_generics.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="错误处理、闭包与宏">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/05_errors_closures_macros.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="并发：go、通道与共享状态">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/06_concurrency.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="模块与异步">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/07_modules_async.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="工程专题：编译、内存、FFI、数据库与网络">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/08_engineering.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="学习清单">
+<param name="Local" value="../../dist/cn/content/17_rust_beginners/09_checklist.html">
+</OBJECT>
+</UL>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA 汇编与 SAB">
 <param name="Local" value="../../dist/cn/content/03_sa_asm/01_sa_model.html">
 </OBJECT>
