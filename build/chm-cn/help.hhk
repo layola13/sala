@@ -78,6 +78,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="base.txz"><param name="Local" value="../../dist/cn/content/13_build/04_freebsd.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="bc2sa"><param name="Local" value="../../dist/cn/content/05_plugins/18_ffi_vs_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="BEAM"><param name="Local" value="../../dist/cn/content/01_overview/16_erlang_verse.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="beginners"><param name="Local" value="../../dist/cn/content/17_rust_beginners/09_checklist.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="benchmark"><param name="Local" value="../../dist/cn/content/15_sa2c/06_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Bevy"><param name="Local" value="../../dist/cn/content/11_ecs/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Bevy 移植"><param name="Local" value="../../dist/cn/content/09_rust_compare/04_macros.html"></OBJECT>
