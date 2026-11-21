@@ -207,6 +207,7 @@ both spawn negatives reject with <code>BorrowEscape</code> — the direct captur
 (<code>GoBorrowPayload: spawn argument carries a borrow across the goroutine
 boundary</code>). Demo 02 and the p3/p4/p5 probes check green on the Rust side
 as well.</p>
+<p>A second <code>go</code> gate rejects struct-by-value spawn arguments outright (<code>GoNonWordParam</code>): the spawned entry receives exactly one word, so a spawned function's single parameter must be a pointer or word-sized scalar — primitives, pointers, fn-pointers, and <code>Chan</code> pass; structs (even word-sized ones), tuples, arrays, <code>String</code>, and <code>Vec</code> do not. Box larger values and pass the pointer (<code>Box::new</code> + <code>Box::into_raw</code>, as in <code>corpus/tests/diagnostics/go_diag_borrow_payload.sla</code>). This mirrors the Zig checker's <code>goParamIsWordOrPtr</code> gate, so the two implementations agree on the shape.</p>
 <p>One asymmetry with Rust-the-language is worth recording. In Rust, the inline
 form <code>thread::spawn(move || modify(&amp;mut number))</code> compiles:
 closure-capture precision lets the closure capture a copy of the <code>i32</code>,
