@@ -17,7 +17,7 @@ they are enabled only on explicit opt-in (<code>--test-backend sab</code> or <co
 explicitly report <code>UnsupportedSabDirectFeature</code> and fail loudly, with no more silent fallback.
 In the first table below, the two rows <code>sa sla check</code> / <code>sa sla build-exe</code> are the overall end-to-end maturity (which also holds for the default
 text path); the remaining metrics and the two tables "entered / not yet entered the direct path" record the coverage snapshot of this sealed optimization path
-(direct SAB), for reference when opting in as needed; they do not represent the capability ceiling of the default production path.</p>
+(direct SAB), for reference when opting in as needed; they do not represent the capability ceiling of the default production path. Note: this snapshot is dated 2026-11-15; since the 2026-11-19 ruling, the SLA compiler's sole mainline is the Rust implementation (<code>layola13/sla</code>), and the Zig implementation (<code>sa_plugin_sla</code>) is sealed at tag 0.1.9 and no longer developed.</p>
 
 <h2>Overall metrics (change with versions; the repository documents are authoritative)</h2>
 <table>

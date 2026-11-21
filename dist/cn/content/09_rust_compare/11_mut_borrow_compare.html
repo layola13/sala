@@ -195,6 +195,7 @@ a borrow across the goroutine boundary</code>）。Demo 02 与 p3/p4/p5 探针�
 rustc 1.100.0 以 <code>E0597</code>（<code>number</code> 活得不够久：spawn 参数要求
 <code>'static</code> 借用）与 <code>E0506</code>（<code>number</code> 已被借用，不能赋值）
 拒绝它。Sla 则直接拒绝内联形态，没有捕获精度这条逃生通道。</p>
+<p>第二道 <code>go</code> 门直接拒绝按值传递结构体的 spawn 参数（<code>GoNonWordParam</code>）：被 spawn 的入口只接收一个字，因此被 spawn 函数的单个参数必须是指针或字长标量——基本类型、指针、函数指针与 <code>Chan</code> 通过；结构体（即使是字长结构体）、元组、数组、<code>String</code> 与 <code>Vec</code> 都不通过。较大的值先装箱再传指针（<code>Box::new</code> + <code>Box::into_raw</code>，见 <code>corpus/tests/diagnostics/go_diag_borrow_payload.sla</code>）。这与 Zig 检查器的 <code>goParamIsWordOrPtr</code> 门一致，两侧实现在形态上对齐。</p>
 <p><code>await</code> 在两侧实现里仍以优先级 6 解析操作数——两次修复都有意未动
 它，需要单独裁决。</p>
 

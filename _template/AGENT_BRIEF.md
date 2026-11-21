@@ -1,18 +1,18 @@
 # sahelp 内容编写规范（供参与编写帮助文档的 agent 阅读）
 
-你正在为 `D:\projects\sla\sahelp` 编写 CHM 风格的帮助文档主题页。素材来自本机仓库，
+你正在为 `layola13/sala`（sahelp）编写 CHM 风格的帮助文档主题页。素材来自本机仓库，
 **必须以真实代码 / 真实 README 为依据，不要凭空编造命令或语法**；素材里没有的内容宁可
 不写，也不要猜测。
 
 ## 产出物
 
-1. 若干主题页 HTML，写到分配给你的 `content/<章节目录>/` 下；
-2. 同目录的 `_manifest.json`（覆盖写，格式见下）。
+1. 若干主题页 HTML，双语各写一份：英文写到 `content/<章节目录>/`，中文写到 `cn/content/<章节目录>/`，文件名相同；
+2. 每个语言版本对应章节目录下的 `_manifest.json`（覆盖写，格式见下；id/file 在两种语言中相同，title/keywords 用对应语言）。
 
 ## 主题页 HTML 规则（必须遵守）
 
 - 每页骨架：复制 `_template/topic_template.html` 的结构。
-- `<meta charset="utf-8">`；文件以 UTF-8 无 BOM 保存。全文用简体中文，代码/标识符保留原文。
+- `<meta charset="utf-8">`；文件以 UTF-8 无 BOM 保存。双语各写一份：英文版用 `<html lang="en">`，中文版用 `<html lang="zh-CN">`、全文用简体中文，代码/标识符保留原文。
 - 样式表路径固定为 `<link rel="stylesheet" href="../../assets/help.css">`（所有主题固定两层深，勿改）。
 - `<body class="topic">`，页首放面包屑：
   `<div class="topic-header">章节标题 &gt; 主题标题</div>`，随后 `<h1>主题标题</h1>`。

@@ -37,6 +37,15 @@ sahelp/
 | content/06_stdlib | 标准库 | sa_std / sla_std 契约与模块 |
 | content/07_ui | SAX / MUI 界面开发 | 用 sax+mui+react+vite 写界面（参考 codex_ui） |
 | content/08_faq | FAQ 与故障排查 | 常见问题、已知问题、路线图状态 |
+| content/09_rust_compare | Rust 对照 | SLA 与 Rust 的定位、语法、所有权、宏、性能对照 |
+| content/10_db | 数据库插件 | db 插件定位、CLI、API 与 SQLite/MySQL 对照 |
+| content/11_ecs | ECS | sla_ecs 定位、架构与宏 |
+| content/12_vm | 虚拟机 | vm 总览、CLI、内部机制与 FFI 桥 |
+| content/13_build | 多平台构建 | 编译矩阵、Linux/Windows、交叉编译与发布 |
+| content/14_zig017_perf | Zig 0.17 性能 | Zig 0.17 与 0.14.1 实测对比 |
+| content/15_sa2c | SA 转 C | sa→C 总览、运行时与语义 |
+| content/16_policy | 运行时策略 | 运行时权限与审计 |
+| content/17_rust_beginners | Rust 新手入门 | 面向 Rust 初学者的 SLA 入门（9 个主题） |
 
 ## 使用
 
