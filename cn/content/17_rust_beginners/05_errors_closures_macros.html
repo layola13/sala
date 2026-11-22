@@ -10,7 +10,7 @@
 <h1>错误处理、闭包与宏</h1>
 
 <h2><code>Result</code>：构造它，匹配它</h2>
-<p>用户代码可以直接构造并返回 <code>Result&lt;i32, String&gt;</code>，用 <code>Ok(...)</code> 与 <code>Err(...)</code>，再用 <code>match</code> 处理——与 Rust 同形，只是本页已验证的形态里没有 <code>?</code> 运算符。</p>
+<p>用户代码可以直接构造并返回 <code>Result&lt;i32, String&gt;</code>，用 <code>Ok(...)</code> 与 <code>Err(...)</code>，再用 <code>match</code> 处理——与 Rust 同形。<code>?</code> 运算符同样可用，下面第二组程序演示错误传播，两边都已编译运行。</p>
 <pre><code>// Rust
 fn divide(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
     if b == 0 {
@@ -53,8 +53,56 @@ fn main() -&gt; i32 {
 }</code></pre>
 <p>实测输出：先 <code>5</code>，后 <code>division by zero</code>，退出码 0。错误字符串用 <code>format(...)</code> 构造，见第一页。标准库里可失败的 <code>extern</code> 函数也以同样方式报错误——返回一个用 <code>Ok</code> / <code>Err</code> 匹配的 <code>Result</code>——所以库错误与用户错误共用一种处理风格。</p>
 
+<h3>用 <code>?</code> 传播错误</h3>
+<p>两种语言都用 <code>?</code> 传播 <code>Result</code>。Rust 版输出 <code>Ok(30)</code> 然后 <code>Err("bad number")</code>；SLA 版以自身格式输出同样两种情况（<code>ok 30</code>、<code>err bad number</code>）。两个程序都已编译运行。</p>
+<pre><code>// Rust
+fn parse(s: &amp;str) -&gt; Result&lt;i32, String&gt; {
+    s.parse::&lt;i32&gt;().map_err(|_| String::from("bad number"))
+}
+fn compute(a: &amp;str, b: &amp;str) -&gt; Result&lt;i32, String&gt; {
+    Ok(parse(a)? + parse(b)?)
+}
+fn main() {
+    println!("{:?}", compute("10", "20"));
+    println!("{:?}", compute("x", "20"));
+}
+// output: Ok(30) / Err("bad number")</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/core/result.sa"
+
+fn parse(value: i32) -&gt; Result&lt;i32, String&gt; {
+    if value &lt; 0 { return Err(format("bad number")); };
+    return Ok(value);
+}
+fn compute(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
+    let x = parse(a)?;
+    let y = parse(b)?;
+    return Ok(x + y);
+}
+fn main() -&gt; i32 {
+    match compute(10, 20) {
+        Ok(v) =&gt; { println("ok {}", v); },
+        Err(e) =&gt; { println("err {}", e); },
+    };
+    match compute(-1, 20) {
+        Ok(v) =&gt; { println("ok {}", v); },
+        Err(e) =&gt; { println("err {}", e); },
+    };
+    return 0;
+}
+// output: ok 30 / err bad number</code></pre>
 <h2><code>Option</code></h2>
 <p><code>Option&lt;i32&gt;</code>、<code>Some(7)</code> 与 <code>None</code> 都是真实存在、可匹配的：</p>
+<p><code>Option&lt;i32&gt;</code>、<code>Some(7)</code> 与 <code>None</code> 都真实可匹配。下面两个程序都已编译运行，都先输出 <code>7</code> 再输出 <code>none</code>。</p>
+<pre><code>// Rust
+fn find(flag: bool) -&gt; Option&lt;i32&gt; { if flag { Some(7) } else { None } }
+
+fn main() {
+    match find(true) { Some(v) =&gt; println!("{}", v), None =&gt; println!("none") }
+    match find(false) { Some(v) =&gt; println!("{}", v), None =&gt; println!("none") }
+}
+// output: 7 / none</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -101,6 +149,16 @@ fn main() -&gt; i32 {
 
 <h2>宏：带类型的宏，输出参数在最前</h2>
 <p>SLA 的用户宏不是 <code>macro_rules!</code>。宏是<em>带类型</em>的——参数有类型、宏体像函数体一样被检查——并且它的<strong>第一个参数是输出参数</strong>：宏把结果写进这个参数，调用点读起来就像一次返回该输出的函数调用。</p>
+<p>Rust 的 <code>macro_rules!</code> 是不同机制——基于模式而非类型——但卫生性相同：宏内部声明的 <code>temp</code> 不会碰到调用者的 <code>temp</code>。实测 Rust 程序输出 <code>6</code> 然后 <code>5</code>；SLA 程序输出 <code>42</code>。</p>
+<pre><code>// Rust
+macro_rules! add_one { ($v:expr) =&gt; {{ let temp = 1; $v + temp }}; }
+
+fn main() {
+    let temp = 5;
+    println!("{}", add_one!(temp));
+    println!("{}", temp);
+}
+// output: 6 / 5</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 

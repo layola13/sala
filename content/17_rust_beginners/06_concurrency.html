@@ -21,7 +21,27 @@ shapes.</p>
 <p><code>Chan::new(0)</code> creates a rendezvous channel;
 <code>recv()</code> returns a <code>(value, closed)</code> pair;
 <code>go</code> starts a task and <code>sa_task_join(h)</code> collects its
-status:</p>
+status. The Rust counterpart uses <code>std::thread</code> and two
+<code>mpsc</code> channel ends; both programs were compiled and run and print
+<code>42</code>.</p>
+<pre><code>// Rust
+use std::sync::mpsc::channel;
+use std::thread;
+
+fn main() {
+    let (tx1, rx1) = channel::&lt;u64&gt;();
+    let (tx2, rx2) = channel::&lt;u64&gt;();
+    let h = thread::spawn(move || {
+        let v = rx1.recv().unwrap();
+        tx2.send(v * 2).unwrap();
+    });
+    tx1.send(21).unwrap();
+    drop(tx1);
+    let r = rx2.recv().unwrap();
+    h.join().unwrap();
+    println!("{}", r);
+}
+// output: 42</code></pre>
 <pre><code>@import "sa_std/task.sai"
 @import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
@@ -51,7 +71,31 @@ fn main() -&gt; i32 {
 <h2><code>thread::spawn</code> and a Two-Channel Ping-Pong</h2>
 <p>With <code>thread::spawn</code>, the spawned closure takes ownership of
 what it captures. Here the worker owns both channel ends and answers 50
-requests:</p>
+requests. The Rust version is the direct <code>mpsc</code> translation; both
+programs were compiled and run and print <code>50</code>.</p>
+<pre><code>// Rust
+use std::sync::mpsc::channel;
+use std::thread;
+
+fn main() {
+    let (req_tx, req_rx) = channel::&lt;u64&gt;();
+    let (resp_tx, resp_rx) = channel::&lt;u64&gt;();
+    let h = thread::spawn(move || {
+        for _ in 0..50 {
+            let v = req_rx.recv().unwrap();
+            resp_tx.send(v + 1).unwrap();
+        }
+    });
+    let mut last = 0;
+    for i in 0..50 {
+        req_tx.send(i).unwrap();
+        last = resp_rx.recv().unwrap();
+    }
+    drop(req_tx);
+    h.join().unwrap();
+    println!("{}", last);
+}
+// output: 50</code></pre>
 <pre><code>@import "sa_std/task.sai"
 @import "sa_std/thread.sa"
 @import "sa_std/core/result.sa"
@@ -93,7 +137,26 @@ request/response rounds, each side checking the <code>closed</code> flag on
 every receive.</p>
 
 <h2>Shared State: <code>Arc&lt;Mutex&lt;i32&gt;&gt;</code></h2>
-<p>Four workers, 250 increments each, one shared counter:</p>
+<p>Four workers, 250 increments each, one shared counter. The Rust
+counterpart below was compiled and run and prints <code>1000</code>, exactly
+like the SLA program:</p>
+<pre><code>// Rust
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut hs = vec![];
+    for _ in 0..4 {
+        let c = Arc::clone(&amp;counter);
+        hs.push(thread::spawn(move || {
+            for _ in 0..250 { *c.lock().unwrap() += 1; }
+        }));
+    }
+    for h in hs { h.join().unwrap(); }
+    println!("{}", *counter.lock().unwrap());
+}
+// output: 1000</code></pre>
 <pre><code>@import "sa_std/core/arc.sa"
 @import "sa_std/sync/mutex.sa"
 @import "sa_std/thread.sa"
@@ -137,7 +200,39 @@ drop — mirrors Rust.</p>
 
 <h2>Shared State: <code>Arc&lt;RwLock&lt;i32&gt;&gt;</code></h2>
 <p>One writer adding 2 a hundred times, two readers asserting every value
-they observe is even:</p>
+they observe is even. The Rust counterpart below was compiled and run and
+prints <code>200 200 200</code> (final value and the two readers' last seen
+values); the SLA program prints the final value <code>200</code>.</p>
+<pre><code>// Rust
+use std::sync::{Arc, RwLock};
+use std::thread;
+
+fn main() {
+    let lock = Arc::new(RwLock::new(0i32));
+    let w = Arc::clone(&amp;lock);
+    let hw = thread::spawn(move || {
+        for _ in 0..100 { *w.write().unwrap() += 2; }
+    });
+    let mut readers = vec![];
+    for _ in 0..2 {
+        let r = Arc::clone(&amp;lock);
+        readers.push(thread::spawn(move || {
+            let mut seen = 0;
+            loop {
+                let v = *r.read().unwrap();
+                assert_eq!(v % 2, 0);
+                if v &gt; seen { seen = v; }
+                if v &gt;= 200 { break; }
+            }
+            seen
+        }));
+    }
+    hw.join().unwrap();
+    let a: i32 = readers.pop().unwrap().join().unwrap();
+    let b: i32 = readers.pop().unwrap().join().unwrap();
+    println!("{} {} {}", *lock.read().unwrap(), a, b);
+}
+// output: 200 200 200</code></pre>
 <pre><code>@import "sa_std/core/arc.sa"
 @import "sa_std/sync/rwlock.sa"
 @import "sa_std/thread.sa"

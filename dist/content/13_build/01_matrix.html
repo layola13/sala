@@ -36,6 +36,22 @@ if you are only verifying locally, restore it after building with <code>git chec
 to avoid mixing local build products into a commit.</li>
 </ul>
 
+<h2>Choosing and verifying a target</h2>
+<ol>
+<li><strong>Pick the triple from the table</strong>; do not hand-write a target string. The values listed there are the ones with a verified build record.</li>
+<li><strong>Build into a separate prefix</strong> with <code>-p zig-out-&lt;target&gt;</code> so a cross build cannot overwrite the native <code>zig-out/</code> that other commands expect.</li>
+<li><strong>Identify the product with <code>file</code></strong>, e.g. <code>file zig-out-arm/bin/sa</code> must report <code>ELF 64-bit LSB executable, ARM aarch64</code>; a Mach-O product must report <code>Mach-O 64-bit</code>.</li>
+<li><strong>Run a behavior check</strong> on the target (hardware, QEMU, or Wine). A successful cross-link says nothing about runtime semantics — in particular, the <code>recvmsg</code> / <code>__error()</code> / <code>msghdr</code> path on macOS has only been link-checked, not executed.</li>
+<li><strong>Restore the git-tracked archive</strong> with <code>git checkout -- artifacts/sa_std/libsa_std.a</code> if the build rewrote it and you are only verifying locally.</li>
+</ol>
+<table>
+<tr><th>Symptom</th><th>Likely cause</th><th>Action</th></tr>
+<tr><td><code>undefined symbol: _c_recvmsg</code> on macOS</td><td>stale <code>extern "c"</code> name; the real libc symbol is <code>recvmsg</code></td><td>update the declaration and rebuild (fixed on current main)</td></tr>
+<tr><td><code>sa-std-runtime</code> test reports <code>FileNotFound</code></td><td>a previous <code>-p</code> build left no default <code>zig-out/lib</code></td><td>run a plain <code>zig build</code> once</td></tr>
+<tr><td><code>llvmc</code> tests failing on a cross target</td><td><code>-Dllvm=false</code> skips the LLVM-C backend</td><td>expected; do not treat as a regression</td></tr>
+</table>
+
+
 <div class="note"><span class="label">Note</span>Cross-compilation only proves that “compile + link” passes.
 The behavioral correctness of each target still needs to be confirmed by running the corresponding test suite on real hardware (or QEMU / Wine, etc.).</div>
 <div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/13_build/01_matrix.html">中文版</a></div>

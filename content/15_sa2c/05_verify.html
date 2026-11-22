@@ -28,6 +28,22 @@ pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-
 <code>-O2</code> spot checks) with zero warnings + run exit 0 + correct output.
 <code>demos/rosetta</code> and <code>demos/js</code> are other backends' territory and are not in this basis.</p>
 
+<h2>1.1 How to reproduce the gate</h2>
+<p>The pass criterion is a conjunction, not a single successful compile. For each demo, all four conditions must hold:</p>
+<ol>
+<li><code>sa build-c &lt;demo&gt;/main.sa -o out.c --project-root .</code> exits 0.</li>
+<li><code>cc -Wall -Wextra -std=c99 -O2 out.c -o out</code> exits 0 <strong>and prints no warnings</strong>.</li>
+<li>Running <code>./out</code> exits 0.</li>
+<li>Its output matches the expected output of the interpreter/JS reference byte for byte.</li>
+</ol>
+<p>A single demo can be checked with the commands above; the full 961-demo differential is a sweep, not a unit test. Two knobs are commonly needed while investigating a failure:</p>
+<pre><code># tiny gas budget: forces the "out of gas" trap deterministically
+cc -Wall -Wextra -std=c99 -DSA_GAS_LIMIT=1ULL out.c -o out_gas &amp;&amp; ./out_gas
+# [sa-trap] out of gas ; exit=1
+
+# shrink linear memory to catch careless absolute addresses early
+cc -Wall -Wextra -std=c99 -DSA_MEM_BYTES=65536UL out.c -o out_small</code></pre>
+<p>The numbers in section 1 are historical snapshot results from the <code>sa-c</code> branch built with Zig 0.17; they must be re-measured on a new toolchain rather than quoted as current behavior. A compile-time failure is not automatically a regression: the six recorded failures are all negative tests (import cycle, <code>DuplicateDef</code>, <code>CapabilityMismatch</code>, cross-directory rejection), where rejection is the correct outcome.</p>
 <h2>2. Representative Problems That Were Fixed</h2>
 <ul>
 <li>The indirect dispatch's empty table trapped unconditionally (<code>uint64_t idx &gt;= 0</code> always true); demo 466 regression.</li>

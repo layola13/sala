@@ -9,7 +9,7 @@
 <div class="topic-header">给 Rust 程序员的 SLA 入门 &gt; 工程专题：编译、内存、FFI、数据库与网络</div>
 <h1>工程专题：编译、内存、FFI、数据库与网络</h1>
 
-<p>前面的页面用程序讲语言特性。本页是散文伴侣：一个程序如何被编译、内存如何工作、外来函数如何被调用、数据库与网络住在哪里。本页刻意不放 SLA 代码块——这里点名的表面不在本章已验证片段集合之内，本章不印没有跑过的代码。</p>
+<p>前面的页面用程序讲语言特性。本页是散文伴侣：一个程序如何被编译、内存如何工作、外来函数如何被调用、数据库与网络住在哪里。本页只给出一个已编译的示例——下面的 <code>Vec</code> 对照让 8 字节槽位这一说法变得具体。数据库与网络仍保持文字描述，因为它们的表面不在本章已验证片段集合之内，本章不印没有跑过的代码。</p>
 
 <h2>一个 SLA 程序如何被编译</h2>
 <p>SLA 源码先被 SLA 前端做类型与所有权检查，降低（lowering）为 SA 文本，再由 SA 宿主编译为本机可执行文件——正是构建本章每个程序的 <code>sa sla build-exe</code> 路线。所有权被验两次：一次由 SLA 检查器，一次在 SA 层由 Referee 按实际指令判定（就是借用例子背后的 <code>Locked_Read</code> / <code>Locked_Mut</code> 判定）。这条路线里没有独立的解释器，也没有字节码步骤。更深的论述见
@@ -19,6 +19,32 @@
 <p>没有垃圾回收器。值有所有者，移动转移所有权，借用是视图、其读写使用由 Referee 判定，共享状态走 <code>Arc</code> 加锁或走通道交接——就是并发页上验证过的那些形态。在给数据结构定尺寸之前，有一个具体的布局事实值得先知道：SLA 的 <code>Vec</code> 元素占固定 8 字节槽，所以装小结构体的 <code>Vec</code> 会比 Rust 程序员预期的紧凑布局用更多内存；表面普查在
 <a href="../09_rust_compare/10_std_census.html">Rust std × sa_std 表面普查与差距表</a>里跟踪这一点及相关差距。</p>
 
+<h3>一个已编译的 <code>Vec</code> 示例</h3>
+<p>下面两个程序都已编译运行，都输出 <code>5 35</code>（长度，以及 <code>1, 4, 7, 10, 13</code> 的和）。SLA 侧把循环写得很直白，因为泛型 <code>for-in</code> 集合迭代协议仍在 Phase-6 缺口清单上。</p>
+<pre><code>// Rust
+fn main() {
+    let mut v: Vec&lt;i64&gt; = Vec::new();
+    for i in 0..5 { v.push(i * 3 + 1); }
+    let mut sum = 0;
+    for x in &amp;v { sum += *x; }
+    println!("{} {}", v.len(), sum);
+}
+// output: 5 35</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let v: Vec&lt;i64&gt; = Vec::new();
+    let i: i64 = 0;
+    while i &lt; 5 { v.push(i * 3 + 1); i = i + 1; }
+    let sum: i64 = 0;
+    let j: i64 = 0;
+    while j &lt; 5 { sum = sum + v[j]; j = j + 1; }
+    println("{} {}", v.len(), sum);
+    return 0;
+}
+// output: 5 35</code></pre>
 <h2>FFI：标准库就是第一个例子</h2>
 <p>本章每个程序其实都在调用外来函数：每个文件顶部的 <code>sa_std/...</code> 导入就是 SA 层的 <code>extern</code> 声明表面（<code>.sai</code> 文件），SLA 代码直接经它们调用——打印、格式化、任务、通道与锁全都这样到达。声明表面与 SLA 调用点之间没有绑定生成器步骤。可失败的 extern 以 <code>Result</code> 报错误，用 <code>Ok</code> / <code>Err</code> 匹配，与错误处理页的用户级 <code>Result</code> 完全一致，所以本机失败与 SLA 层失败共用一种处理风格。</p>
 

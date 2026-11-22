@@ -24,6 +24,19 @@ manual:</p>
 </table>
 
 <h2>Clone</h2>
+<p>The Rust side derives <code>Clone</code> and calls <code>.clone()</code>;
+the SLA side derives <code>clone</code> (lowercase) and calls the same method.
+Both programs below were compiled and run; both print <code>1</code> and exit 0.</p>
+<pre><code>// Rust
+#[derive(Clone)]
+struct Point { x: i32, y: i32 }
+
+fn main() {
+    let a = Point { x: 1, y: 2 };
+    let b = a.clone();
+    println!("{}", b.x);
+}
+// output: 1</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -46,7 +59,29 @@ and nothing was moved.</p>
 <h2>Copy, Eq, and the Rest of the Derive Surface</h2>
 <p>This program exercises the whole verified surface in one file: copy
 assignment, a by-value call that would consume a non-<code>Copy</code> value,
-equality, ordering, hashing, and debug formatting.</p>
+equality, ordering, hashing, and debug formatting. The Rust equivalent needs
+the full derive list <code>Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash,
+Debug</code>; SLA folds all of that into one lowercase <code>@derive</code>
+list. Both were compiled and run; both print <code>1 1</code>, <code>3</code>,
+<code>true</code>, <code>true</code> before their final line (the final line
+differs only in formatting: Rust prints the struct, SLA prints whether
+<code>debug(a)</code> is non-empty).</p>
+<pre><code>// Rust
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+struct Point { x: i32, y: i32 }
+
+fn sum(p: Point) -> i32 { p.x + p.y }
+
+fn main() {
+    let a = Point { x: 1, y: 2 };
+    let b = a;
+    println!("{} {}", a.x, b.x);
+    println!("{}", sum(a));
+    println!("{}", a == b);
+    println!("{}", a < Point { x: 1, y: 3 });
+    println!("{:?}", a);
+}
+// output: 1 1 / 3 / true / true / Point { x: 1, y: 2 }</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -84,8 +119,19 @@ next line and can still be passed to <code>take</code> by value.
 separate partial-equality derive to remember.</p>
 
 <h2>Copy Is Field-Sound: a <code>String</code> Field Still Moves</h2>
-<p>The subtle case is a struct whose fields are not all plain data. The
-derive is accepted on this declaration:</p>
+<p>The subtle case is a struct whose fields are not all plain data. Rust
+refuses the derive at the declaration; SLA accepts the annotation and keeps
+move semantics instead. Both outcomes were measured — the Rust diagnostic is
+<code>error[E0204]: the trait `Copy` cannot be implemented for this type</code>,
+pointing at the <code>String</code> field:</p>
+<pre><code>// Rust — rejected by rustc (E0204)
+#[derive(Copy, Clone)]
+struct Holder { name: String, id: i32 }
+fn main() {}
+// error[E0204]: the trait `Copy` cannot be implemented for this type
+//   --> this field does not implement `Copy`: `name: String`</code></pre>
+<p>The SLA declaration below is accepted; it is the <em>use</em> of the moved
+source that is rejected:</p>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -116,6 +162,18 @@ value is never silently readable. When you port code, do not assume
 copy semantics — it gives you a move, with a loud error if you use the
 source afterwards.</p>
 
+<p>In Rust the generic struct is unremarkable — the same program compiles,
+copies, and prints <code>7</code>:</p>
+<pre><code>// Rust
+#[derive(Copy, Clone, PartialEq, Eq)]
+struct Box&lt;T&gt; { value: T }
+
+fn main() {
+    let a = Box { value: 7 };
+    let b = a;
+    println!("{} {}", a.value, b.value);
+}
+// output: 7 7</code></pre>
 <div class="warning"><span class="label">Limitation</span>Generic structs
 cannot be constructed with a struct literal yet. This declaration is
 accepted, but the program is rejected at the literal:</div>

@@ -13,7 +13,26 @@
 <p>Enums with payload variants and exhaustive <code>match</code> work as a
 Rust programmer expects. Note the surface detail in the verified form: match
 arms take blocks, and a statement-level <code>match</code> is closed with a
-semicolon.</p>
+semicolon. In Rust the same three variants are matched with expression arms;
+both programs below were compiled and run and print <code>ready</code>,
+<code>running</code>, <code>error 42</code>.</p>
+<pre><code>// Rust
+enum Status { Ready, Running, Failed(i32) }
+
+fn describe(status: Status) {
+    match status {
+        Status::Ready => println!("ready"),
+        Status::Running => println!("running"),
+        Status::Failed(code) => println!("error {}", code),
+    }
+}
+
+fn main() {
+    describe(Status::Ready);
+    describe(Status::Running);
+    describe(Status::Failed(42));
+}
+// output: ready / running / error 42</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -43,7 +62,22 @@ fn main() -&gt; i32 {
 <h2>Traits and <code>impl</code></h2>
 <p>Trait declarations, <code>impl Trait for Type</code>, and the
 <code>&amp;self</code> receiver mirror Rust. Both call forms dispatch — the
-dot call and the fully qualified call:</p>
+dot call and the fully qualified call. The Rust counterpart below was compiled
+and run; it prints <code>42 42</code>, exactly like the SLA program.</p>
+<pre><code>// Rust
+trait Score { fn score(&self) -> i32; }
+
+struct Item { value: i32 }
+
+impl Score for Item {
+    fn score(&self) -> i32 { self.value + 10 }
+}
+
+fn main() {
+    let item = Item { value: 32 };
+    println!("{} {}", item.score(), Score::score(&item));
+}
+// output: 42 42</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -69,7 +103,25 @@ fn main() -&gt; i32 {
 }</code></pre>
 <p>Verified output: <code>42</code>, then <code>42</code> — <code>item.score()</code>
 and <code>Score::score(&amp;item)</code> reach the same implementation. A
-second trait, over an <code>f64</code> computation:</p>
+second trait, over an <code>f64</code> computation, has the same shape in
+Rust; both programs were compiled and run, both print
+<code>78.53975</code>-class output:</p>
+<pre><code>// Rust
+trait Area { fn area(&self) -> f64; }
+
+struct Circle { radius: f64 }
+
+impl Area for Circle {
+    fn area(&self) -> f64 { 3.14159 * self.radius * self.radius }
+}
+
+fn main() {
+    let c = Circle { radius: 5.0 };
+    let a = c.area();
+    println!("{}", a);
+    assert!(a &gt; 78.0 &amp;&amp; a &lt; 79.0);
+}
+// output: 78.53975</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -99,7 +151,15 @@ fn main() -&gt; i32 {
 
 <h2>Generic Functions with Built-In Bounds</h2>
 <p>A generic function bounded by a built-in trait is defined and called by
-bare name; the type argument is inferred from the arguments, as in Rust:</p>
+bare name; the type argument is inferred from the arguments, as in Rust. The
+verified Rust counterpart prints <code>20 3.5</code>; the SLA program prints
+the same integer and a float rendered with fixed precision
+(<code>3.5000000000</code>):</p>
+<pre><code>// Rust
+fn max&lt;T: PartialOrd&gt;(a: T, b: T) -&gt; T { if a &gt; b { a } else { b } }
+
+fn main() { println!("{} {}", max(10, 20), max(3.5, 1.5)); }
+// output: 20 3.5</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -112,10 +172,10 @@ fn max&lt;T: PartialOrd&gt;(a: T, b: T) -&gt; T {
 }
 
 fn main() -&gt; i32 {
-    println("{}", max(10, 20));
+    println("{} {}", max(10, 20), max(3.5, 1.5));
     return 0;
 }</code></pre>
-<p>Verified output: <code>20</code>, exit code 0. There is no turbofish:
+<p>Verified output: <code>20 3.5000000000</code>, exit code 0. There is no turbofish:
 <code>max::&lt;i32&gt;(10, 20)</code>-style explicit type arguments are a
 parse error in SLA — inference is the only route, which is why the call
 forms matter below.</p>

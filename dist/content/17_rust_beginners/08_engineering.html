@@ -11,10 +11,11 @@
 
 <p>The pages so far taught language features with programs. This page is the
 prose companion: how a program is compiled, how memory works, how foreign
-functions are called, and where databases and networking live. It contains
-no SLA code blocks on purpose — the surfaces named here were not part of
-this chapter's verified snippet set, and this chapter does not print code it
-has not run.</p>
+functions are called, and where databases and networking live. The chapter
+prints only one compiled example — the <code>Vec</code> pair below, which
+makes the 8-byte-slot layout claim concrete. Databases and networking stay
+prose because their code surfaces are not part of this chapter's verified
+snippet set, and this chapter does not print code it has not run.</p>
 
 <h2>How an SLA Program Is Compiled</h2>
 <p>SLA source is type- and ownership-checked by the SLA frontend, lowered to
@@ -38,7 +39,37 @@ elements occupy fixed 8-byte slots, so a <code>Vec</code> of small structs
 uses more memory than the packed layout a Rust programmer expects; the
 surface census tracks this and related gaps in
 <a href="../09_rust_compare/10_std_census.html">Rust std × sa_std Surface
-Census and Gap Table</a>.</p>
+Census and Gap Table</a>.
+
+<h3>A compiled <code>Vec</code> example</h3>
+<p>Both programs below were compiled and run; both print <code>5 35</code>
+(length, then the sum of <code>1, 4, 7, 10, 13</code>). The SLA side spells
+the loop explicitly because the generic <code>for-in</code> collection
+protocol is still on the Phase-6 gap list.</p>
+<pre><code>// Rust
+fn main() {
+    let mut v: Vec&lt;i64&gt; = Vec::new();
+    for i in 0..5 { v.push(i * 3 + 1); }
+    let mut sum = 0;
+    for x in &amp;v { sum += *x; }
+    println!("{} {}", v.len(), sum);
+}
+// output: 5 35</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let v: Vec&lt;i64&gt; = Vec::new();
+    let i: i64 = 0;
+    while i &lt; 5 { v.push(i * 3 + 1); i = i + 1; }
+    let sum: i64 = 0;
+    let j: i64 = 0;
+    while j &lt; 5 { sum = sum + v[j]; j = j + 1; }
+    println("{} {}", v.len(), sum);
+    return 0;
+}
+// output: 5 35</code></pre>
 
 <h2>FFI: the Standard Library Is the First Example</h2>
 <p>Every program in this chapter already calls foreign functions: the

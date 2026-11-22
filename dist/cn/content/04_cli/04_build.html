@@ -25,6 +25,28 @@
 
 <div class="note"><span class="label">注意</span>这条命令产出的是文本形式的 <code>.sa</code> 汇编——这是 SLA 的生产路输出，所有前端统一只输出 SA 文本。要产出 SAB 字节（已封存的优化方向，仅显式 opt-in）请用 <code>sa sla sab build</code>。</div>
 
+<h2>发射的 <code>.sa</code> 长什么样（实测）</h2>
+<p>编译生成的 <code>main.sla</code> 骨架并读取输出开头，可以看到前端已经完成了降级工作：宏已声明、vtable 常量已发射，函数体是线性 SA 指令并带显式的寄存器释放（<code>!tmp_*</code>）：</p>
+<pre><code>$ sa sla build /tmp/opencode/initdemo/src/main.sla --out /tmp/opencode/initdemo/main.sa
+Sla Compiler: Successfully compiled /tmp/opencode/initdemo/src/main.sla to /tmp/opencode/initdemo/main.sa.
+
+$ head -25 /tmp/opencode/initdemo/main.sa
+
+[MACRO] SLA_ARRAY_FILL_U8 %array_ptr, %value, %length
+    call @sa_mem_set(&amp;%array_ptr, %value, %length)
+[END_MACRO]
+@const SLA_FNPTR_VT_main = vtable { call = @main }
+@main() -> i32:
+L_ENTRY:
+    tmp_0 = 0
+    tmp_1 = 32
+    tmp_2 = shl tmp_0, tmp_1
+    tmp_3 = ashr tmp_2, tmp_1
+    !tmp_0
+    !tmp_2
+    !tmp_1
+    return tmp_3</code></pre>
+<p>这份文本是交给 SA 宿主的正式交接面：<code>sa build-exe main.sa -o prog</code> 可以直接消费它。常量周围的 <code>shl</code>/<code>ashr</code> 是零字面量的物化方式；<code>!</code> 指令是<a href="../03_sa_asm/09_ownership_transfer.html">所有权转移</a>页讨论的释放。</p>
 <h2>示例</h2>
 <pre><code># 输出到 /tmp
 SA_PLUGIN_DEV=1 sa sla build demos/rosetta/13_array_sum/main.sla --out /tmp/13_array_sum.sa

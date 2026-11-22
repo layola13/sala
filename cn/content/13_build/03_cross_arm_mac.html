@@ -13,6 +13,24 @@
 libc（musl/glibc/darwin），可直接在 Linux x86_64 主机上交叉编译。
 这与 FreeBSD 不同（见<a href="04_freebsd.html">FreeBSD 章节</a>）。</p>
 
+<h2>开始之前</h2>
+<ul>
+<li>在 <code>sci</code> 仓库根目录操作；<code>build.zig</code> 与运行时源码都相对它解析。</li>
+<li>使用独立前缀，如 <code>-p zig-out-arm</code> 或 <code>-p zig-out-mac-arm</code>；不要把交叉构建写进默认 <code>zig-out/</code>，因为 std-runtime 测试期望默认前缀存在。</li>
+<li>这些交叉目标必须带 <code>-Dllvm=false</code>：原生 Zig 自带目标 libc，但不提供交叉 LLVM-C 后端。<code>llvmc</code> 测试被跳过属预期。</li>
+</ul>
+
+<h2>三步验证清单</h2>
+<ol>
+<li><strong>识别</strong>：<code>file &lt;prefix&gt;/bin/sa</code> 必须与目标一致（ARM aarch64 ELF，或 Mach-O arm64 / x86_64）。</li>
+<li><strong>加载</strong>：在目标机器（或 <code>qemu-aarch64</code> / <code>qemu-x86_64</code> 下）运行 <code>./sa --version</code>；解释器或动态加载器不对时会报 <code>No such file or directory</code>。</li>
+<li><strong>行为</strong>：在目标上至少跑一次 hello 程序的 <code>sa build-exe</code>。仅链接成功不会覆盖下面注记提到的网络/errno 路径。</li>
+</ol>
+<pre><code># 在构建主机上通过 QEMU 验证 ARM Linux
+qemu-aarch64 -L /usr/aarch64-linux-gnu ./zig-out-arm/bin/sa --version
+qemu-aarch64 -L /usr/aarch64-linux-gnu ./zig-out-arm/bin/sa build-exe hello.sa -o hello_arm
+file hello_arm    # ELF 64-bit LSB executable, ARM aarch64</code></pre>
+<p><code>-L</code> 必须指向与 triple 匹配的目标 sysroot；指向宿主 <code>/lib</code> 会产生误导性的加载器错误。</p>
 <h2>ARM Linux（aarch64）</h2>
 <pre><code># 运行目录：sci 仓库根目录
 zig build -Dtarget=aarch64-linux-gnu -Dllvm=false -p zig-out-arm
@@ -28,6 +46,13 @@ file zig-out-mac-arm/bin/sa
 <p>产物包括 <code>sa</code>、<code>hubproxy</code>、<code>libsa_asm.a</code>、
 <code>libsa_std.a</code> 与 <code>libsa_std.dylib</code>。</p>
 
+<h2>失败信息解读</h2>
+<table>
+<tr><th>消息</th><th>含义</th></tr>
+<tr><td><code>undefined symbol: _c_recvmsg</code>（macOS）</td><td><code>extern "c"</code> 声明用了目标 libc 不存在的名字；macOS dylib 链接严格，所以这里失败而 ELF 曾容忍</td></tr>
+<tr><td>执行交叉产物时报 <code>No such file or directory</code></td><td>目标解释器/动态加载器缺失；安装目标 sysroot 或用 <code>-L</code> 传给 QEMU</td></tr>
+<tr><td><code>llvmc</code> 测试被跳过</td><td><code>-Dllvm=false</code> 下的正常现象</td></tr>
+</table>
 <h2>已知修补：recvmsg 符号名</h2>
 <p><code>src/runtime/sa_std.zig</code> 的 <code>portableRecvmsg</code> 曾把 libc
 函数声明为 <code>extern "c" fn c_recvmsg</code>——这个符号根本不存在。

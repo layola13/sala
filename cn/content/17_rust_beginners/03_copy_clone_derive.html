@@ -19,6 +19,17 @@
 </table>
 
 <h2>Clone</h2>
+<p>Rust 侧派生 <code>Clone</code> 并调用 <code>.clone()</code>；SLA 侧派生小写的 <code>clone</code>，调用同样的方法。下面两个程序都已编译运行，都输出 <code>1</code> 且退出码为 0。</p>
+<pre><code>// Rust
+#[derive(Clone)]
+struct Point { x: i32, y: i32 }
+
+fn main() {
+    let a = Point { x: 1, y: 2 };
+    let b = a.clone();
+    println!("{}", b.x);
+}
+// output: 1</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -38,6 +49,23 @@ fn main() -&gt; i32 {
 
 <h2>Copy、Eq 与 derive 的完整表面</h2>
 <p>这个程序在一个文件里演练全部已验证表面：拷贝赋值、一次会消耗非 <code>Copy</code> 值的按值调用、相等、序、哈希与 debug 格式化。</p>
+<p>这个程序演示完整表面。Rust 需要写出 <code>Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug</code> 全套 derive；SLA 用一个小写的 <code>@derive</code> 列表涵盖。两边都已编译运行：前四行相同（<code>1 1</code>、<code>3</code>、<code>true</code>、<code>true</code>），最后一行只是格式差异（Rust 打印结构体，SLA 打印 <code>debug(a)</code> 是否非空）。</p>
+<pre><code>// Rust
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+struct Point { x: i32, y: i32 }
+
+fn sum(p: Point) -> i32 { p.x + p.y }
+
+fn main() {
+    let a = Point { x: 1, y: 2 };
+    let b = a;
+    println!("{} {}", a.x, b.x);
+    println!("{}", sum(a));
+    println!("{}", a == b);
+    println!("{}", a < Point { x: 1, y: 3 });
+    println!("{:?}", a);
+}
+// output: 1 1 / 3 / true / true / Point { x: 1, y: 2 }</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -87,10 +115,29 @@ fn main() -&gt; i32 {
     println("{}", a.name);
     return 0;
 }</code></pre>
+<p>Rust 在声明处就拒绝该 derive；SLA 接受标注，但保留移动语义。两种结果都实测过：Rust 的诊断是 <code>error[E0204]: the trait `Copy` cannot be implemented for this type</code>，指向 <code>String</code> 字段。</p>
+<pre><code>// Rust — rejected by rustc (E0204)
+#[derive(Copy, Clone)]
+struct Holder { name: String, id: i32 }
+fn main() {}
+// error[E0204]: the trait `Copy` cannot be implemented for this type
+//   --> this field does not implement `Copy`: `name: String`</code></pre>
+<p>下面的 SLA 声明会被接受；被拒绝的是对已移动源值的<em>使用</em>：</p>
 <p>——但程序仍被拒绝，因为 <code>let b = a;</code> <em>移动</em>了 <code>a</code>：<code>String</code> 字段无法按位拷贝，检查器于是对整个值保持移动语义，之后读 <code>a.id</code> 失败：</p>
 <pre><code>Type Check Error: failed to verify types: UseAfterMove: identifier `a` was already consumed (error.UseAfterMove)</code></pre>
 <p>Rust 从另一侧达到同样的健全性结论：rustc 干脆拒绝给带 <code>String</code> 字段的结构体 derive <code>Copy</code>。SLA 接受标注，然后拒绝把该值当作已拷贝。两条路的结果一致：堆数据绝不被静默复制，被移动的值绝不被静默读取。移植代码时不要假设给堆载结构体加 <code>@derive(copy)</code> 就能得到 Rust 式拷贝语义——你得到的是移动，外加在误用源值时的响亮报错。</p>
 
+<p>在 Rust 里泛型结构体很普通——同样的程序能编译、能拷贝、打印 <code>7 7</code>：</p>
+<pre><code>// Rust
+#[derive(Copy, Clone, PartialEq, Eq)]
+struct Box&lt;T&gt; { value: T }
+
+fn main() {
+    let a = Box { value: 7 };
+    let b = a;
+    println!("{} {}", a.value, b.value);
+}
+// output: 7 7</code></pre>
 <div class="warning"><span class="label">限制</span>泛型结构体目前还不能用结构体字面量构造。下面的声明被接受，但程序在字面量处被拒绝：</div>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"

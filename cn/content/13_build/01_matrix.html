@@ -36,6 +36,20 @@ Linux 原生默认开启）。关闭后 <code>llvmc</code> 相关测试会跳过
 避免把本地构建产物混入提交。</li>
 </ul>
 
+<h2>选择与验证目标</h2>
+<ol>
+<li><strong>从表中挑 triple</strong>，不要手写目标字符串；表中列出的都是有实际构建记录的值。</li>
+<li><strong>用 <code>-p zig-out-&lt;target&gt;</code> 指定独立前缀</strong>，避免交叉构建覆盖其他命令依赖的默认 <code>zig-out/</code>。</li>
+<li><strong>用 <code>file</code> 识别产物</strong>，例如 <code>file zig-out-arm/bin/sa</code> 必须报告 <code>ELF 64-bit LSB executable, ARM aarch64</code>。</li>
+<li><strong>在目标上运行行为检查</strong>（真机、QEMU 或 Wine）。链接成功不代表运行语义正确——特别是 macOS 上的 <code>recvmsg</code> / <code>__error()</code> / <code>msghdr</code> 路径目前只做过链接检查。</li>
+<li><strong>恢复被改写的归档</strong>：若只在本地验证，构建后用 <code>git checkout -- artifacts/sa_std/libsa_std.a</code> 恢复。</li>
+</ol>
+<table>
+<tr><th>症状</th><th>可能原因</th><th>处理</th></tr>
+<tr><td><code>undefined symbol: _c_recvmsg</code>（macOS）</td><td><code>extern "c"</code> 声明用了目标 libc 中不存在的名字；真正的符号是 <code>recvmsg</code></td><td>更正声明并重建（当前 main 已修复）</td></tr>
+<tr><td><code>sa-std-runtime</code> 测试报 <code>FileNotFound</code></td><td>之前用 <code>-p</code> 构建，没有留下默认 <code>zig-out/lib</code></td><td>跑一次普通 <code>zig build</code></td></tr>
+<tr><td>交叉目标上 <code>llvmc</code> 测试失败</td><td><code>-Dllvm=false</code> 跳过了 LLVM-C 后端</td><td>属预期行为，不算回归</td></tr>
+</table>
 <div class="note"><span class="label">注意</span>交叉编译只证明“编译 + 链接”通过。
 各目标的行为正确性仍需在真机（或 QEMU / Wine 等）上跑对应测试套件确认。</div>
 </body>

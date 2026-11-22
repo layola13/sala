@@ -13,6 +13,24 @@
 libc (musl/glibc/darwin), so you can cross-compile directly on a Linux x86_64 host.
 This differs from FreeBSD (see the <a href="04_freebsd.html">FreeBSD Cross-Compilation</a> page).</p>
 
+<h2>Before you start</h2>
+<ul>
+<li>Work from the <code>sci</code> repository root; <code>build.zig</code> and the runtime sources are resolved relative to it.</li>
+<li>Use a fresh install prefix such as <code>-p zig-out-arm</code> or <code>-p zig-out-mac-arm</code>; never cross-build into the default <code>zig-out/</code>, because the std-runtime test expects the native prefix to exist.</li>
+<li><code>-Dllvm=false</code> is required for these cross targets: stock Zig ships the target libc, but not a cross LLVM-C backend. Skipped <code>llvmc</code> tests are expected.</li>
+</ul>
+
+<h2>Three-point verification checklist</h2>
+<ol>
+<li><strong>Identify</strong>: <code>file &lt;prefix&gt;/bin/sa</code> must match the intended target (ARM aarch64 ELF, or Mach-O arm64 / x86_64).</li>
+<li><strong>Load</strong>: on the target machine (or under <code>qemu-aarch64</code> / <code>qemu-x86_64</code>), run <code>./sa --version</code>; a wrong interpreter or missing dynamic loader fails here with <code>No such file or directory</code>.</li>
+<li><strong>Behave</strong>: run at least one <code>sa build-exe</code> of a hello program on the target. Link-only success does not exercise the networking/errno paths called out in the note below.</li>
+</ol>
+<pre><code># ARM Linux under QEMU on the build host
+qemu-aarch64 -L /usr/aarch64-linux-gnu ./zig-out-arm/bin/sa --version
+qemu-aarch64 -L /usr/aarch64-linux-gnu ./zig-out-arm/bin/sa build-exe hello.sa -o hello_arm
+file hello_arm    # ELF 64-bit LSB executable, ARM aarch64</code></pre>
+<p>The <code>-L</code> path must point at the target sysroot that matches the triple; using the host's <code>/lib</code> here produces misleading loader errors.</p>
 <h2>ARM Linux (aarch64)</h2>
 <pre><code># 运行目录：sci 仓库根目录
 zig build -Dtarget=aarch64-linux-gnu -Dllvm=false -p zig-out-arm
@@ -28,6 +46,13 @@ file zig-out-mac-arm/bin/sa
 <p>Products include <code>sa</code>, <code>hubproxy</code>, <code>libsa_asm.a</code>,
 <code>libsa_std.a</code>, and <code>libsa_std.dylib</code>.</p>
 
+<h2>Interpreting failures</h2>
+<table>
+<tr><th>Message</th><th>Meaning</th></tr>
+<tr><td><code>undefined symbol: _c_recvmsg</code></td><td>an <code>extern "c"</code> declaration used a name that does not exist in the target libc; macOS dylib linking is strict, so this fails there while ELF tolerated it</td></tr>
+<tr><td><code>No such file or directory</code> when executing the cross-built binary</td><td>the target interpreter/dynamic loader is absent; install the target sysroot or pass it to QEMU with <code>-L</code></td></tr>
+<tr><td><code>llvmc</code> tests skipped</td><td>normal with <code>-Dllvm=false</code></td></tr>
+</table>
 <h2>Known Fix: the recvmsg Symbol Name</h2>
 <p><code>portableRecvmsg</code> in <code>src/runtime/sa_std.zig</code> once declared the libc
 function as <code>extern "c" fn c_recvmsg</code> — that symbol does not exist at all.

@@ -27,6 +27,28 @@
 
 <div class="note"><span class="label">注意</span><code>check</code> 不发射最终 SA 汇编，也不写 SAB；它只验证「前端能吃下」。前端通过不代表后端 lowering 一定能落地——两者之间存在已知差距。</div>
 
+<h2>分阶段诊断</h2>
+<p>上面列出的阶段会产生不同的诊断族。看清属于哪一族，就知道该改哪个文件：</p>
+<table>
+<tr><th>阶段</th><th>典型失败</th><th>排查位置</th></tr>
+<tr><td>宏模板展开</td><td>未定义的宏，或畸形的 <code>@expand_tuple</code> / <code>@derive</code></td><td>宏声明与调用点</td></tr>
+<tr><td>解析 + <code>@import</code> 展开</td><td><code>Syntax Error</code>，或 <code>Import Error: ... FileNotFound</code></td><td>导入路径与 <code>SA_STD_DIR</code></td></tr>
+<tr><td>单态化</td><td>无法特化的泛型实例</td><td>泛型声明及其具体实参</td></tr>
+<tr><td>契约加载</td><td>缺失 <code>.sai</code> / <code>.sal</code> 契约</td><td><code>@import</code> 目标与项目根</td></tr>
+<tr><td>类型检查</td><td><code>Type Check Error: failed to verify types: ...</code>，如 <code>UseAfterMove</code></td><td>报告中的源码行</td></tr>
+</table>
+<p>在生成的项目骨架上实测的成功输出（路径被原样回显）：</p>
+<pre><code>$ sa sla check /tmp/opencode/initdemo/src/main.sla
+Sla Compiler: Successfully parsed and verified syntax and types of /tmp/opencode/initdemo/src/main.sla.</code></pre>
+
+<h2><code>check</code> / <code>build</code> / <code>build-exe</code> 对比</h2>
+<table>
+<tr><th>命令</th><th>止步于</th><th>磁盘输出</th></tr>
+<tr><td><code>sa sla check</code></td><td>类型检查</td><td>无</td></tr>
+<tr><td><code>sa sla build</code></td><td>SA 文本发射</td><td><code>&lt;stem&gt;.sa</code></td></tr>
+<tr><td><code>sa sla build-exe</code></td><td>本机链接</td><td>可执行文件</td></tr>
+</table>
+<p>如果程序通过 <code>check</code> 却在 <code>build-exe</code> 失败，问题出在后端降级而非语法或类型。这是刻意的分工：前端能接受的程序目前比后端能降级的更多（见<a href="../02_sla_lang/10_maturity.html">特性成熟度矩阵</a>）。</p>
 <h2>示例</h2>
 <pre><code># 显式文件
 SA_PLUGIN_DEV=1 sa sla check tests/test_unit_basic.sla

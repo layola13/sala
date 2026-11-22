@@ -11,6 +11,24 @@
 
 <h2>枚举与 <code>match</code></h2>
 <p>带载荷变体的枚举与穷尽 <code>match</code> 与 Rust 程序员的预期一致。注意已验证形态里的表面细节：match 分支取块，语句级 <code>match</code> 以分号收尾。</p>
+<p>带 payload 的变体与穷尽 <code>match</code> 正如 Rust 程序员所料。注意已验证形态的表面细节：match 分支用块，语句级 <code>match</code> 以分号结束。下面两边都已编译运行，都输出 <code>ready</code>、<code>running</code>、<code>error 42</code>。</p>
+<pre><code>// Rust
+enum Status { Ready, Running, Failed(i32) }
+
+fn describe(status: Status) {
+    match status {
+        Status::Ready =&gt; println!("ready"),
+        Status::Running =&gt; println!("running"),
+        Status::Failed(code) =&gt; println!("error {}", code),
+    }
+}
+
+fn main() {
+    describe(Status::Ready);
+    describe(Status::Running);
+    describe(Status::Failed(42));
+}
+// output: ready / running / error 42</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -38,6 +56,21 @@ fn main() -&gt; i32 {
 
 <h2>Trait 与 <code>impl</code></h2>
 <p>Trait 声明、<code>impl Trait for Type</code> 与 <code>&amp;self</code> 接收者都与 Rust 同形。两种调用形式都能分发——点调用与全限定调用：</p>
+<p>Trait 声明、<code>impl Trait for Type</code> 与 <code>&amp;self</code> 接收者都与 Rust 对应；点调用与全限定调用两种形式都能派发。下面的 Rust 对应程序已编译运行，输出 <code>42 42</code>，与 SLA 程序完全一致。</p>
+<pre><code>// Rust
+trait Score { fn score(&self) -> i32; }
+
+struct Item { value: i32 }
+
+impl Score for Item {
+    fn score(&self) -> i32 { self.value + 10 }
+}
+
+fn main() {
+    let item = Item { value: 32 };
+    println!("{} {}", item.score(), Score::score(&item));
+}
+// output: 42 42</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -62,6 +95,23 @@ fn main() -&gt; i32 {
     return 0;
 }</code></pre>
 <p>实测输出：先 <code>42</code>，后 <code>42</code>——<code>item.score()</code> 与 <code>Score::score(&amp;item)</code> 到达同一个实现。第二个 trait，over 一个 <code>f64</code> 计算：</p>
+<p>第二个 trait 做 <code>f64</code> 计算，Rust 写法相同；两边都已编译运行，都输出 <code>78.53975</code> 量级的结果：</p>
+<pre><code>// Rust
+trait Area { fn area(&self) -> f64; }
+
+struct Circle { radius: f64 }
+
+impl Area for Circle {
+    fn area(&self) -> f64 { 3.14159 * self.radius * self.radius }
+}
+
+fn main() {
+    let c = Circle { radius: 5.0 };
+    let a = c.area();
+    println!("{}", a);
+    assert!(a &gt; 78.0 &amp;&amp; a &lt; 79.0);
+}
+// output: 78.53975</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -91,6 +141,12 @@ fn main() -&gt; i32 {
 
 <h2>带内建约束的泛型函数</h2>
 <p>以内建 trait 为约束的泛型函数，用裸名定义与调用；类型参数由实参推断，与 Rust 相同：</p>
+<p>受内建 trait 约束的泛型函数按名字调用，类型参数由实参推断，和 Rust 一样。Rust 对应程序实测输出 <code>20 3.5</code>；SLA 程序输出同样的整数，浮点以固定精度呈现（<code>3.5000000000</code>）：</p>
+<pre><code>// Rust
+fn max&lt;T: PartialOrd&gt;(a: T, b: T) -&gt; T { if a &gt; b { a } else { b } }
+
+fn main() { println!("{} {}", max(10, 20), max(3.5, 1.5)); }
+// output: 20 3.5</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -103,10 +159,10 @@ fn max&lt;T: PartialOrd&gt;(a: T, b: T) -&gt; T {
 }
 
 fn main() -&gt; i32 {
-    println("{}", max(10, 20));
+    println("{} {}", max(10, 20), max(3.5, 1.5));
     return 0;
 }</code></pre>
-<p>实测输出：<code>20</code>，退出码 0。没有 turbofish：<code>max::&lt;i32&gt;(10, 20)</code> 式的显式类型实参在 SLA 里是解析错误——推断是唯一的路，这正是下面的调用形式问题要紧的原因。</p>
+<p>实测输出：<code>20 3.5000000000</code>，退出码 0。没有 turbofish：<code>max::&lt;i32&gt;(10, 20)</code> 式的显式类型实参在 SLA 里是解析错误——推断是唯一的路，这正是下面的调用形式问题要紧的原因。</p>
 
 <div class="warning"><span class="label">限制</span>以<em>用户定义</em> trait 为约束的泛型自由函数目前还不能被调用。下面的定义被接受，但调用被拒绝：</div>
 <pre><code>@import "sa_std/io/print.sai"

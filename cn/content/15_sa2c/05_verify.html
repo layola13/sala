@@ -28,6 +28,22 @@ pre{background:#f3f4f6;padding:10px 12px;border-radius:6px;overflow-x:auto;font-
 <code>-O2</code> 抽查）零警告＋运行 exit 0＋输出正确。
 <code>demos/rosetta</code> 与 <code>demos/js</code> 是其他后端地盘，不在本口径内。</p>
 
+<h2>1.1 如何复现门控</h2>
+<p>通过标准是四个条件的合取，不是一次编译成功。每个演示都必须同时满足：</p>
+<ol>
+<li><code>sa build-c &lt;demo&gt;/main.sa -o out.c --project-root .</code> 退出码 0。</li>
+<li><code>cc -Wall -Wextra -std=c99 -O2 out.c -o out</code> 退出码 0 <strong>且不打印任何告警</strong>。</li>
+<li>运行 <code>./out</code> 退出码 0。</li>
+<li>其输出与解释器/JS 参考实现逐字节一致。</li>
+</ol>
+<p>单个演示可用上面的命令检查；961 个演示的差分是全量扫描，不是单元测试。排查失败时常用两个开关：</p>
+<pre><code># 极小 gas 预算：确定性地触发 out of gas
+cc -Wall -Wextra -std=c99 -DSA_GAS_LIMIT=1ULL out.c -o out_gas &amp;&amp; ./out_gas
+# [sa-trap] out of gas ; exit=1
+
+# 缩小线性内存，尽早暴露随意的绝对地址
+cc -Wall -Wextra -std=c99 -DSA_MEM_BYTES=65536UL out.c -o out_small</code></pre>
+<p>第 1 节的数字是 <code>sa-c</code> 分支用 Zig 0.17 构建时的历史快照结果，换工具链后应重新测量，不能当作当前行为引用。编译失败也不一定是回归：记录在册的六个失败全是负例（导入环、<code>DuplicateDef</code>、<code>CapabilityMismatch</code>、跨目录拒绝），被拒绝才是正确结果。</p>
 <h2>2. 修过的代表性问题</h2>
 <ul>
 <li>间接分发空表恒 trap（<code>uint64_t idx &gt;= 0</code> 恒真），demo 466 回归。</li>

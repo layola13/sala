@@ -11,6 +11,7 @@
 
 <p><code>sa sla check</code> performs lexical, syntax, and type checking on a <code>.sla</code> source file. After reading this page you can quickly verify that source passes the frontend checks without generating any artifacts.</p>
 
+<div class="note"><span class="label">Transition note</span>The host-verb spelling <code>sa check &lt;file.sla&gt;</code> is now preferred; <code>sa sla check</code> still works but prints a deprecation note. The two forms run the same pipeline.</div>
 <h2>Syntax</h2>
 <pre><code>usage: sa sla check [file] [-p &lt;package&gt;]</code></pre>
 
@@ -27,6 +28,28 @@
 
 <div class="note"><span class="label">Note</span><code>check</code> does not emit final SA assembly, nor does it write SAB; it only verifies that “the frontend can take it in”. Passing the frontend does not mean backend lowering will necessarily succeed — there is a known gap between the two.</div>
 
+<h2>Stage-by-stage diagnostics</h2>
+<p>The stages named above produce distinct diagnostic families. Knowing which family you are looking at tells you which file to edit:</p>
+<table>
+<tr><th>Stage</th><th>Typical failure</th><th>Where to look</th></tr>
+<tr><td>Macro template expansion</td><td>an undefined macro or a malformed <code>@expand_tuple</code> / <code>@derive</code></td><td>the macro declaration and its call site</td></tr>
+<tr><td>Parse + <code>@import</code> expansion</td><td><code>Syntax Error</code>, or <code>Import Error: ... FileNotFound</code></td><td>the imported path and <code>SA_STD_DIR</code></td></tr>
+<tr><td>Monomorphize</td><td>a generic instance that cannot be specialized</td><td>the generic declaration and its concrete arguments</td></tr>
+<tr><td>Contract loading</td><td>a missing <code>.sai</code> / <code>.sal</code> contract</td><td>the <code>@import</code> target and the project root</td></tr>
+<tr><td>Type checking</td><td><code>Type Check Error: failed to verify types: ...</code>, e.g. <code>UseAfterMove</code></td><td>the reported source line</td></tr>
+</table>
+<p>Measured success output on the generated skeleton (note that the path is echoed verbatim):</p>
+<pre><code>$ sa sla check /tmp/opencode/initdemo/src/main.sla
+Sla Compiler: Successfully parsed and verified syntax and types of /tmp/opencode/initdemo/src/main.sla.</code></pre>
+
+<h2><code>check</code> vs <code>build</code> vs <code>build-exe</code></h2>
+<table>
+<tr><th>Command</th><th>Stops after</th><th>On-disk output</th></tr>
+<tr><td><code>sa sla check</code></td><td>type checking</td><td>none</td></tr>
+<tr><td><code>sa sla build</code></td><td>SA text emission</td><td><code>&lt;stem&gt;.sa</code></td></tr>
+<tr><td><code>sa sla build-exe</code></td><td>native link</td><td>executable</td></tr>
+</table>
+<p>When a program passes <code>check</code> but fails <code>build-exe</code>, the fault is in backend lowering, not in your syntax or types. That split is deliberate: the frontend can accept more than the backend can lower today (see the <a href="../02_sla_lang/10_maturity.html">Feature Maturity Matrix</a>).</p>
 <h2>Examples</h2>
 <pre><code># 显式文件
 SA_PLUGIN_DEV=1 sa sla check tests/test_unit_basic.sla

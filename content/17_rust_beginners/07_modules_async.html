@@ -36,6 +36,18 @@ section. Compared with Rust, the mental model is “one file, one module,
 explicit <code>pub</code> surface” — closer to including a header than to
 maintaining a module tree.</p>
 
+<h3>Rust counterpart</h3>
+<p>Rust declares the module with <code>mod helper;</code> (the file is
+<code>helper.rs</code>) and calls through the module path. This single-file
+form uses an inline module so it can be compiled on its own; both programs
+were compiled and run and print <code>100</code>.</p>
+<pre><code>// Rust
+mod helper {
+    pub fn create_id() -&gt; u64 { 100 }
+}
+fn main() { println!("{}", helper::create_id()); }
+// output: 100</code></pre>
+
 <h2>Async: <code>async fn</code> and <code>.await</code></h2>
 <p>An <code>async fn</code> returns a future (the future type is spelled
 <code>future&lt;T&gt;</code>), and <code>.await</code> drives it. In the
@@ -65,6 +77,37 @@ channel machinery of the previous page), not an external executor you plug
 in. For the measured async comparison against Rust, see
 <a href="../09_rust_compare/05_stdlib_errors_async.html">Standard Library,
 Error Handling, and async Compared</a>.</p>
+
+<h3>Rust counterpart</h3>
+<p>Rust needs an executor to drive a future; the minimal <code>block_on</code>
+below uses only <code>std</code> and was compiled and run, printing
+<code>42</code>. SLA's runtime drives the future directly — there is no
+user-written executor in the SLA program.</p>
+<pre><code>// Rust
+use std::future::Future;
+use std::pin::Pin;
+use std::sync::Arc;
+use std::task::{Context, Poll, Wake, Waker};
+
+struct Noop;
+impl Wake for Noop { fn wake(self: Arc&lt;Self&gt;) {} }
+
+fn block_on&lt;F: Future&gt;(mut fut: F) -&gt; F::Output {
+    let waker = Waker::from(Arc::new(Noop));
+    let mut cx = Context::from_waker(&amp;waker);
+    let mut fut = unsafe { Pin::new_unchecked(&amp;mut fut) };
+    loop {
+        match fut.as_mut().poll(&amp;mut cx) {
+            Poll::Ready(v) =&gt; return v,
+            Poll::Pending =&gt; std::thread::yield_now(),
+        }
+    }
+}
+
+async fn step(x: i32) -&gt; i32 { x * 2 }
+async fn run() -&gt; i32 { let a = step(10).await; step(a + 1).await }
+fn main() { println!("{}", block_on(run())); }
+// output: 42</code></pre>
 
 <h2>Key Points of This Page</h2>
 <ul>

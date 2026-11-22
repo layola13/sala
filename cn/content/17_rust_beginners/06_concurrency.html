@@ -14,6 +14,25 @@
 
 <h2><code>go</code> 与一次通道往返</h2>
 <p><code>Chan::new(0)</code> 创建一个 rendezvous 通道；<code>recv()</code> 返回 <code>(value, closed)</code> 对；<code>go</code> 启动一个任务，<code>sa_task_join(h)</code> 收取它的状态：</p>
+<p>Rust 对应版本使用 <code>std::thread</code> 与两个 <code>mpsc</code> 通道端；两个程序都已编译运行，都输出 <code>42</code>。</p>
+<pre><code>// Rust
+use std::sync::mpsc::channel;
+use std::thread;
+
+fn main() {
+    let (tx1, rx1) = channel::&lt;u64&gt;();
+    let (tx2, rx2) = channel::&lt;u64&gt;();
+    let h = thread::spawn(move || {
+        let v = rx1.recv().unwrap();
+        tx2.send(v * 2).unwrap();
+    });
+    tx1.send(21).unwrap();
+    drop(tx1);
+    let r = rx2.recv().unwrap();
+    h.join().unwrap();
+    println!("{}", r);
+}
+// output: 42</code></pre>
 <pre><code>@import "sa_std/task.sai"
 @import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
@@ -41,6 +60,30 @@ fn main() -&gt; i32 {
 
 <h2><code>thread::spawn</code> 与双通道乒乓</h2>
 <p>用 <code>thread::spawn</code> 时，被派生的闭包取得它捕获之物的所有权。这里工作者拥有两个通道端，回答 50 次请求：</p>
+<p>Rust 版本是直接的 <code>mpsc</code> 翻译；两个程序都已编译运行，都输出 <code>50</code>。</p>
+<pre><code>// Rust
+use std::sync::mpsc::channel;
+use std::thread;
+
+fn main() {
+    let (req_tx, req_rx) = channel::&lt;u64&gt;();
+    let (resp_tx, resp_rx) = channel::&lt;u64&gt;();
+    let h = thread::spawn(move || {
+        for _ in 0..50 {
+            let v = req_rx.recv().unwrap();
+            resp_tx.send(v + 1).unwrap();
+        }
+    });
+    let mut last = 0;
+    for i in 0..50 {
+        req_tx.send(i).unwrap();
+        last = resp_rx.recv().unwrap();
+    }
+    drop(req_tx);
+    h.join().unwrap();
+    println!("{}", last);
+}
+// output: 50</code></pre>
 <pre><code>@import "sa_std/task.sai"
 @import "sa_std/thread.sa"
 @import "sa_std/core/result.sa"
@@ -81,6 +124,24 @@ fn main() -&gt; i32 {
 
 <h2>共享状态：<code>Arc&lt;Mutex&lt;i32&gt;&gt;</code></h2>
 <p>四个工作者，每个递增 250 次，一个共享计数器：</p>
+<p>下面的 Rust 对应程序已编译运行，输出 <code>1000</code>，与 SLA 程序完全一致：</p>
+<pre><code>// Rust
+use std::sync::{Arc, Mutex};
+use std::thread;
+
+fn main() {
+    let counter = Arc::new(Mutex::new(0));
+    let mut hs = vec![];
+    for _ in 0..4 {
+        let c = Arc::clone(&amp;counter);
+        hs.push(thread::spawn(move || {
+            for _ in 0..250 { *c.lock().unwrap() += 1; }
+        }));
+    }
+    for h in hs { h.join().unwrap(); }
+    println!("{}", *counter.lock().unwrap());
+}
+// output: 1000</code></pre>
 <pre><code>@import "sa_std/core/arc.sa"
 @import "sa_std/sync/mutex.sa"
 @import "sa_std/thread.sa"
@@ -121,6 +182,37 @@ fn main() -&gt; i32 {
 
 <h2>共享状态：<code>Arc&lt;RwLock&lt;i32&gt;&gt;</code></h2>
 <p>一个写者加 2 一百次，两个读者断言它们观察到的每个值都是偶数：</p>
+<p>Rust 对应程序已编译运行，输出 <code>200 200 200</code>（最终值与两个读者最后看到的值）；SLA 程序输出最终值 <code>200</code>。</p>
+<pre><code>// Rust
+use std::sync::{Arc, RwLock};
+use std::thread;
+
+fn main() {
+    let lock = Arc::new(RwLock::new(0i32));
+    let w = Arc::clone(&amp;lock);
+    let hw = thread::spawn(move || {
+        for _ in 0..100 { *w.write().unwrap() += 2; }
+    });
+    let mut readers = vec![];
+    for _ in 0..2 {
+        let r = Arc::clone(&amp;lock);
+        readers.push(thread::spawn(move || {
+            let mut seen = 0;
+            loop {
+                let v = *r.read().unwrap();
+                assert_eq!(v % 2, 0);
+                if v &gt; seen { seen = v; }
+                if v &gt;= 200 { break; }
+            }
+            seen
+        }));
+    }
+    hw.join().unwrap();
+    let a: i32 = readers.pop().unwrap().join().unwrap();
+    let b: i32 = readers.pop().unwrap().join().unwrap();
+    println!("{} {} {}", *lock.read().unwrap(), a, b);
+}
+// output: 200 200 200</code></pre>
 <pre><code>@import "sa_std/core/arc.sa"
 @import "sa_std/sync/rwlock.sa"
 @import "sa_std/thread.sa"

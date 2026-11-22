@@ -12,8 +12,9 @@
 <h2><code>Result</code>: Construct It, Match It</h2>
 <p>User code can build and return a <code>Result&lt;i32, String&gt;</code>
 directly, with <code>Ok(...)</code> and <code>Err(...)</code>, and handle it
-with <code>match</code> — the same shape as Rust, minus the <code>?</code>
-operator in the verified forms on this page.</p>
+with <code>match</code> — the same shape as Rust. The <code>?</code> operator
+also works; the second pair below exercises propagation on both sides and
+was compiled and run.</p>
 <pre><code>// Rust
 fn divide(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
     if b == 0 {
@@ -61,9 +62,62 @@ surface errors the same way — as a <code>Result</code> you match with
 <code>Ok</code> / <code>Err</code> — so library and user errors share one
 handling style.</p>
 
+<h3>Error propagation with <code>?</code></h3>
+<p>Both languages propagate a <code>Result</code> with <code>?</code>. The
+Rust version returns <code>Ok(30)</code> then <code>Err("bad number")</code>;
+the SLA version prints the same two cases in its own format
+(<code>ok 30</code>, <code>err bad number</code>). Both programs were compiled
+and run.</p>
+<pre><code>// Rust
+fn parse(s: &amp;str) -&gt; Result&lt;i32, String&gt; {
+    s.parse::&lt;i32&gt;().map_err(|_| String::from("bad number"))
+}
+fn compute(a: &amp;str, b: &amp;str) -&gt; Result&lt;i32, String&gt; {
+    Ok(parse(a)? + parse(b)?)
+}
+fn main() {
+    println!("{:?}", compute("10", "20"));
+    println!("{:?}", compute("x", "20"));
+}
+// output: Ok(30) / Err("bad number")</code></pre>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/core/result.sa"
+
+fn parse(value: i32) -&gt; Result&lt;i32, String&gt; {
+    if value &lt; 0 { return Err(format("bad number")); };
+    return Ok(value);
+}
+fn compute(a: i32, b: i32) -&gt; Result&lt;i32, String&gt; {
+    let x = parse(a)?;
+    let y = parse(b)?;
+    return Ok(x + y);
+}
+fn main() -&gt; i32 {
+    match compute(10, 20) {
+        Ok(v) =&gt; { println("ok {}", v); },
+        Err(e) =&gt; { println("err {}", e); },
+    };
+    match compute(-1, 20) {
+        Ok(v) =&gt; { println("ok {}", v); },
+        Err(e) =&gt; { println("err {}", e); },
+    };
+    return 0;
+}
+// output: ok 30 / err bad number</code></pre>
+
 <h2><code>Option</code></h2>
 <p><code>Option&lt;i32&gt;</code>, <code>Some(7)</code>, and <code>None</code>
-are real and matchable:</p>
+are real and matchable. Both programs below were compiled and run; both
+print <code>7</code> then <code>none</code>.</p>
+<pre><code>// Rust
+fn find(flag: bool) -&gt; Option&lt;i32&gt; { if flag { Some(7) } else { None } }
+
+fn main() {
+    match find(true) { Some(v) =&gt; println!("{}", v), None =&gt; println!("none") }
+    match find(false) { Some(v) =&gt; println!("{}", v), None =&gt; println!("none") }
+}
+// output: 7 / none</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 
@@ -118,7 +172,20 @@ page</a>.</p>
 <em>typed</em> — its parameters have types and its body is checked like a
 function body — and its <strong>first parameter is the output</strong>: the
 macro writes its result into that parameter, and the call site reads like a
-function call returning it.</p>
+function call returning it. Rust's <code>macro_rules!</code> is a different
+mechanism — pattern-based rather than typed — but the hygiene property is the
+same: a <code>temp</code> declared inside the macro does not touch the
+caller's <code>temp</code>. The verified Rust program prints <code>6</code>
+then <code>5</code>; the SLA program prints <code>42</code>.</p>
+<pre><code>// Rust
+macro_rules! add_one { ($v:expr) =&gt; {{ let temp = 1; $v + temp }}; }
+
+fn main() {
+    let temp = 5;
+    println!("{}", add_one!(temp));
+    println!("{}", temp);
+}
+// output: 6 / 5</code></pre>
 <pre><code>@import "sa_std/io/print.sai"
 @import "sa_std/fmt.sai"
 

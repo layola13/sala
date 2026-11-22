@@ -11,6 +11,7 @@
 
 <p><code>sa sla build</code> compiles a <code>.sla</code> source file into a verified SA assembly text file. After reading this page you will know how to control the output path, and where the artifact lands when <code>--out</code> is not specified.</p>
 
+<div class="note"><span class="label">Transition note</span>The host-verb spelling <code>sa build &lt;file.sla&gt;</code> is now preferred; <code>sa sla build</code> remains supported with a deprecation note. Output naming is identical.</div>
 <h2>Syntax</h2>
 <pre><code>usage: sa sla build [file] [-p &lt;package&gt;] [--out &lt;file&gt;]</code></pre>
 
@@ -36,6 +37,28 @@ SA_PLUGIN_DEV=1 sa sla build src/main.sla          # 生成 src/main.sa
 # workspace 成员
 SA_PLUGIN_DEV=1 sa sla build -p my_app --out /tmp/my_app.sa</code></pre>
 
+<h2>What the emitted <code>.sa</code> looks like (measured)</h2>
+<p>Compiling the generated <code>main.sla</code> skeleton and reading the first lines of the output shows that the frontend has already done the lowering work: macros are declared, a vtable constant is emitted, and the body is linear SA instructions with explicit register releases (<code>!tmp_*</code>):</p>
+<pre><code>$ sa sla build /tmp/opencode/initdemo/src/main.sla --out /tmp/opencode/initdemo/main.sa
+Sla Compiler: Successfully compiled /tmp/opencode/initdemo/src/main.sla to /tmp/opencode/initdemo/main.sa.
+
+$ head -25 /tmp/opencode/initdemo/main.sa
+
+[MACRO] SLA_ARRAY_FILL_U8 %array_ptr, %value, %length
+    call @sa_mem_set(&amp;%array_ptr, %value, %length)
+[END_MACRO]
+@const SLA_FNPTR_VT_main = vtable { call = @main }
+@main() -&gt; i32:
+L_ENTRY:
+    tmp_0 = 0
+    tmp_1 = 32
+    tmp_2 = shl tmp_0, tmp_1
+    tmp_3 = ashr tmp_2, tmp_1
+    !tmp_0
+    !tmp_2
+    !tmp_1
+    return tmp_3</code></pre>
+<p>This text is the production hand-off to the SA host: <code>sa build-exe main.sa -o prog</code> can consume it directly. The <code>shl</code>/<code>ashr</code> pair around the constant is how the zero literal is materialized; the <code>!</code> instructions are the ownership releases discussed in the <a href="../03_sa_asm/09_ownership_transfer.html">ownership-transfer</a> page.</p>
 <h2>Output locations</h2>
 <ul>
 <li>With an explicit <code>--out</code>/<code>-o</code>: written to that absolute or relative path; the parent directory must already exist.</li>
