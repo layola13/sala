@@ -145,12 +145,216 @@ const 字段的写集静态为空、读取天然无锁；
 这是 SLA 最值得坚持的原则。</li>
 </ul>
 
+<h2>补充方案：sync 字段（讨论稿）</h2>
+
+<p><strong>讨论稿（2026-11-24），尚未定稿。</strong>本节是对本章模型的补充提案，示例同为设计语法。
+一句话：保留「默认可变 + <code>const</code> 冻结」，在字段上新增 <code>sync</code> 修饰表达「允许并发写」；
+加锁范围、读写模式、阻塞性全部由编译器从语法唯一推出，无法判定即编译报错；
+<code>lock .&amp;field</code> 保留为可选的只读契约声明。本节与本章第一版范围有三处实质差异，
+<strong>若定稿，以下三处以本节为准</strong>：（1）经共享句柄可达的对象不再一律只读——
+除 <code>Mutex</code> / 原子等内部可变通道外，新增 <code>sync</code> 字段这一条语言级并发写通道；
+（2）不再以静态字段访问分析（spawn 点 Bernstein 不相交证明）作为共享放行判据，改为下述类型规则，
+代价是同一共享对象上写不相交字段的两个任务不再并行（整对象一把锁）；
+（3）加锁函数在 v1 即在入口真实加锁（未共享对象的零开销推迟到 v2 双份编译），并新增 panic 中毒语义。</p>
+
+<h3>字段三态</h3>
+<pre><code>struct Account {
+    const id: u64,          // 永久冻结：构造封印后不可写
+    sync  balance: i64,     // 允许并发修改：只能在加锁函数中访问
+    sync  total_in: i64,
+    sync  total_out: i64,
+    name: String,           // 默认：被共享期间只读
+}</code></pre>
+<table>
+<tr><th>修饰</th><th>含义</th><th>被任务共享时</th></tr>
+<tr><td>（无）</td><td>默认可变</td><td>所有人只读；写入即编译报错</td></tr>
+<tr><td><code>const</code></td><td>永久不可变</td><td>随时可读，无锁</td></tr>
+<tr><td><code>sync</code></td><td>可变、允许并发</td><td>只能在编译器推断出的加锁函数中读写</td></tr>
+</table>
+<p>可选 <code>lock</code> 契约：不写时由编译器推断；写了即成为 API 契约，
+实现中出现对应路径的写入即编译报错，推断结果与声明不一致也报错。
+函数是否阻塞由编译器沿调用链精确推断；可显式写 <code>noblock</code> 固定契约，
+<code>extern fn ... noblock</code> 是唯一需要信任的声明，与 unsafe 同级，是代码中可见的信任边界。</p>
+<pre><code>fn inspect(a: &amp;Account(lock .&amp;balance)) -&gt; i64 {   // 可选：锁定「只读 balance」契约
+    a.balance
+}
+
+extern fn crc32(p: ptr, n: u64) -&gt; u32 noblock;   // 信任边界
+trait Hasher { fn hash(&amp;self) -&gt; u64 noblock; }    // 每个实现都会被检查</code></pre>
+
+<h3>七条规则（R1–R7）</h3>
+<ul>
+<li><strong>R1 字段三态</strong>：每个字段恰好处于默认、<code>const</code>、<code>sync</code> 之一。
+<code>sync</code> 字段可以是任意类型（含 String、Vec 等带堆内存类型），因为本方案只有悲观加锁一种模式，无需回滚。</li>
+<li><strong>R2 被共享时默认字段只读</strong>：对象被 go 借用期间，或位于 Arc 中（视为永久共享），
+所有持有者（包括所有者）对其<strong>默认字段</strong>只能读。共享与否由语法唯一确定：
+<code>go f(&amp;a)</code> 借用即共享，<code>go f(a)</code> 转移所有权即不共享。
+<strong>不做静态字段访问分析</strong>——原方案依赖「证明两任务访问不相交」，结论取决于分析精度，属于「靠猜」，本方案改为类型规则。</li>
+<li><strong>R3 加锁范围由语法唯一确定</strong>：一个函数<strong>直接</strong>读写了 <code>sync</code> 字段，即成为加锁函数。
+被访问字段所在对象必须从<strong>参数</strong>出发、只经过 <code>const</code> 字段可达；这些对象构成加锁集合：
+只读 → 读锁；任一写入 → 写锁；访问 <code>const</code> 集合中的元素 → 锁该集合全部元素。
+推断结果写入接口元数据，IDE 悬停可见。在函数内按 ID 查对象再写其 <code>sync</code> 字段会被拒绝
+（如 <code>bank.find(id).balance -= 1</code>）——改法是在调用方查好、作为参数传入。</li>
+<li><strong>R4 持锁函数不能阻塞</strong>：加锁函数及其调用链中不得出现阻塞点。阻塞点集合与 goroutine 运行时一致：
+通道 send / recv / select（timeout(0) 与 default 分支除外）、join、sleep、网络等待、Mutex 加锁、yield，以及 .await。
+每个函数的阻塞性沿调用链精确推断，pub 函数写入接口；由 <code>noblock</code> 变为阻塞视为不兼容变更。
+extern 与 dyn 默认阻塞，除非声明 <code>noblock</code>。本方案需新增调用链阻塞性分析 pass，作为 R4 的基础。</li>
+<li><strong>R5 不能嵌套加锁</strong>：被调函数的加锁集合必须是调用方已持有集合的<strong>子集</strong>，
+且模式不高于调用方（读锁内不能调用需写锁的函数）。满足时直接沿用，不再申请；不满足即编译报错。
+由此每个任务同一时刻只有一个获取点，破坏死锁必要条件中的「持有并等待」。</li>
+<li><strong>R6 同函数禁止先查后改</strong>：从加锁函数返回、源自 <code>sync</code> 字段的值，
+在同一函数体内被用作参数或条件传给需要写锁的函数 → 编译报错；改法是合成一个函数，在同一次加锁中完成。
+<strong>检查范围写入规范</strong>：仅追踪函数体内局部变量；不追踪经堆存储的值，不跨函数追踪。
+范围外属业务一致性，与本章范围一致不在本系统范围内——不检查，也不发出「可能有问题」的警告。</li>
+<li><strong>R7 出错退出</strong>：加锁函数内 panic 时，运行时释放其全部锁，并将被写锁的对象标记为<strong>中毒</strong>；
+之后访问中毒对象的加锁函数返回错误，需人工或监督任务恢复。这是确定的运行时行为，不属于「猜」。</li>
+</ul>
+
+<h3>运行时语义</h3>
+<ul>
+<li><strong>获取</strong>：函数入口对加锁集合按对象身份排序，一次全部获取；同一对象出现多次合并为一把，读写冲突升级为写锁。</li>
+<li><strong>释放</strong>：函数返回（含 panic 路径）时释放。</li>
+<li><strong>公平</strong>：写者排队后新读者不得插队，防止写者饥饿。</li>
+<li><strong>粒度</strong>：每个对象一把锁，覆盖其全部 <code>sync</code> 字段（自动成组，跨字段不变量天然一致）。</li>
+<li><strong>实现</strong>：复用 sa_std 现有 park queue（与 RwLock 同源），等待时挂起而非自旋。</li>
+<li><strong>开销</strong>：v1 加锁函数一律加锁；无争用时约一次原子操作；未出现 <code>sync</code> 字段的对象零开销。</li>
+<li><strong>内存模型</strong>：一次锁释放 synchronizes-with 同一对象上的下一次获取；释放前对 <code>sync</code> 字段的全部写入，对后续获取者可见。</li>
+</ul>
+<p>与现有特性的关系：goroutine 借用捕获需配合「所在函数返回前自动 join」（待与现有捕获规则对齐）；
+持锁函数不阻塞（R4）即不让出，协作式调度下锁占用时长只取决于计算量，可预估；
+监督 / recover 后进程继续，故 R7 的释放 + 中毒必须保留；async 中 .await 属于阻塞点，锁不跨 await；
+Arc 负责生命周期，Arc 内对象视为永久共享，<code>sync</code> 只负责并发写权限；
+Chan 发送普通 T 为所有权转移，无需锁，通道互等死锁不在本方案范围，交给运行时死锁检测；
+在加锁函数内调用 Mutex 加锁属阻塞点（R4 拒绝），持有 Mutex 时调用加锁函数编译报错，避免混合成环。
+本方案只改 SLA 前端检查与 sa_std 运行时库，不新增 SA 指令（SA 冻结）。</p>
+
+<h3>完整示例：并发转账</h3>
+<p>4 个工作任务处理转账请求，1 个审计任务定期核对，结束时检查总额守恒。
+全程只有 3 个 <code>sync</code> 标注，worker、auditor、main 均无并发标注。</p>
+<pre><code>struct Account {
+    const id: u64,
+    sync balance: i64, sync total_in: i64, sync total_out: i64,
+    name: String,
+}
+struct Bank { const accounts: Vec&lt;Account&gt; }
+const INIT: i64 = 1000;
+// 加锁函数：入口写锁 {x, y}，同一账户自动合并
+fn transfer(x: &amp;Account, y: &amp;Account, amt: i64) -&gt; Result&lt;(), TxErr&gt; {
+    if x.balance &lt; amt { return Err(Insufficient); }
+    x.balance -= amt;  x.total_out += amt;
+    y.balance += amt;  y.total_in  += amt;
+    Ok(())
+}
+// 加锁函数：入口读锁 {a}
+fn check_one(a: &amp;Account) {
+    assert(a.balance == INIT + a.total_in - a.total_out);
+}
+// 加锁函数：入口读锁 bank.accounts 全部元素 → 全行一致快照
+fn total(bank: &amp;Bank) -&gt; i64 {
+    let sum = 0;
+    for a in bank.accounts { sum += a.balance; }
+    sum
+}
+fn worker(bank: &amp;Bank, reqs: Chan&lt;TxReq&gt;, res: Chan&lt;TxRes&gt;) {
+    while let Some(r) = reqs.recv() {                 // 阻塞点，未持锁
+        let out = match (bank.find(r.from), bank.find(r.to)) {
+            (Some(x), Some(y)) =&gt; transfer(x, y, r.amt),
+            _ =&gt; Err(NoAccount),
+        };
+        res.send(TxRes { tid: r.tid, ok: out });       // 阻塞点，锁已释放
+    }
+}
+fn auditor(bank: &amp;Bank, n: i64, done: Chan&lt;()&gt;) {
+    loop {
+        select {
+            done.recv() =&gt; return,
+            timeout(10ms) =&gt; {
+                for a in bank.accounts { check_one(a); }   // 逐个加锁
+                assert(total(bank) == n * INIT);           // 一次全锁
+            }
+        }
+    }
+}
+fn main() {
+    let n = 100;
+    let bank = Bank { accounts: make_accounts(n, INIT) };
+    let reqs: Chan&lt;TxReq&gt; = Chan::buffered(64);
+    let res:  Chan&lt;TxRes&gt; = Chan::buffered(64);
+    let done: Chan&lt;()&gt;    = Chan::new();
+    let wg = WaitGroup::new();
+    for _ in 0..4 {
+        wg.add(1);
+        go { defer wg.done(); worker(&amp;bank, reqs, res); };
+    }
+    go auditor(&amp;bank, n, done);
+    go { for t in 0..1000 { reqs.send(random_tx(t, n)); }; reqs.close(); };
+    go { wg.wait(); res.close(); };
+    let ok = 0;
+    while let Some(r) = res.recv() { if r.ok.is_ok() { ok += 1; } }
+    done.send(());
+    assert(total(&amp;bank) == n * INIT);
+    print(ok);
+}   // 借用捕获的任务在此自动 join，之后 bank 才释放</code></pre>
+<p>会被编译拒绝的写法：</p>
+<table>
+<tr><th>写法</th><th>规则</th></tr>
+<tr><td>transfer 中插入 log.send(..)</td><td>R4 持锁阻塞</td></tr>
+<tr><td>transfer 调用的函数里间接 sleep</td><td>R4 调用链阻塞</td></tr>
+<tr><td>main 中 bank.accounts[0].name = "x"（任务运行期间）</td><td>R2 共享期间默认字段只读</td></tr>
+<tr><td>a.id = 5</td><td>R1 const 字段</td></tr>
+<tr><td>total() 中调用 transfer</td><td>R5 读锁内需要写锁</td></tr>
+<tr><td>let b = balance(a); set_balance(a, b - amt);</td><td>R6 先查后改</td></tr>
+<tr><td>持有 Mutex 时调用 transfer</td><td>R4/R5 混合加锁</td></tr>
+</table>
+<p>忘记写 <code>sync</code> 只会编译报错，不会悄悄出错：单线程代码与只读共享都不需要 <code>sync</code>；
+只有「被共享又要写」时编译器才要求。报错同时指出三处：写入位置、开始共享位置、字段定义，
+并给出固定改法（改成 <code>sync</code>、把写入挪到这些任务结束之后、或用 <code>go f(a)</code> 转移所有权交给单任务独占）。
+无法给第三方结构体加 <code>sync</code> 时，标准做法有两种：用自定义结构体以 <code>sync</code> 字段包装它；
+或交给单个任务独占，其他任务经通道发送修改请求。心智模型一句话：
+<strong>共享的东西要改就写 <code>sync</code>，相关函数按编译器提示拆小</strong>——改 <code>sync</code> 字段的函数短小、
+不含 print / send / .await；要改的对象作为参数传入；先查后改写在同一函数中。</p>
+
+<h3>保证范围、代价与待决问题</h3>
+<table>
+<tr><th>问题</th><th>结论</th></tr>
+<tr><td>数据竞争</td><td>✅ 编译期全部拦截</td></tr>
+<tr><td>锁之间的死锁</td><td>✅ 编译期全部拦截（R5 + 入口排序）</td></tr>
+<tr><td>持锁时阻塞</td><td>✅ 编译期全部拦截（仅信任 extern <code>noblock</code> 声明）</td></tr>
+<tr><td>先查后改</td><td>⚠️ 仅覆盖同一函数体，范围写入规范（R6）</td></tr>
+<tr><td>通道之间互相等死</td><td>❌ 不检查，交给运行时死锁检测</td></tr>
+<tr><td>跨字段、跨阻塞点的业务一致性</td><td>❌ 不检查，使用冻结 + 线性凭证模式</td></tr>
+</table>
+<p>代价：会拒绝部分其实安全的代码。每类拒绝都有固定改法，编译器可直接提示：
+在函数内按 ID 查对象再写 <code>sync</code> 字段 → 调用方查好后作为参数传入；
+读锁函数内调用写锁函数 → 外层改为写锁函数，或拆开调用；
+加锁函数内打日志 / 发消息 → 把阻塞操作移到加锁函数返回之后；
+需要锁的对象数量运行时才确定 → 放入 <code>const</code> 集合（整体加锁），或改用通道交给单任务处理。</p>
+<table>
+<tr><th>被否决的备选方案</th><th>否决理由</th></tr>
+<tr><td>Shared&lt;T&gt; + lock/excl + 锁组（共享写进类型、租约写进签名）</td><td>用户概念过多，标注遍布签名；其运行时机制保留并转为编译器推断</td></tr>
+<tr><td>STM atomic 块（参考 Haskell）</td><td>大块包裹违背设计原则；有日志与重跑开销</td></tr>
+<tr><td>隐式段边界 + 乐观执行（阻塞点之间自动成事务）</td><td>引入重跑、撤销日志、串行模式、版本号等，复杂度反超 Shared；边界不可见</td></tr>
+<tr><td>静态字段访问分析</td><td>结论取决于分析精度，属「靠猜」，改为 R2 类型规则</td></tr>
+</table>
+<ul>
+<li>分阶段：v1 = <code>const</code> + <code>sync</code> 字段、R1–R7、调用链阻塞性分析 pass、入口排序加锁 + 中毒、可选 <code>lock</code> 契约、<code>noblock</code>；
+v2 = 按调用处是否共享编译两份（共享版加锁、非共享版零开销）、IDE 锁集合与阻塞性悬停；
+v3 = 视需要评估动态自适应层（Adaptive Field Mutability）、范围锁等。</li>
+<li>待决问题：sa_std 现有 RwLock 是否写者优先？否则租约需自行实现排队规则；
+go 借用捕获 + 所在函数返回前自动 join，需与现有 spawn 捕获检查对齐；
+v1 单份编译、总是加锁的性能是否可接受，需基准测试确认；
+<code>lock .&amp;field</code> 可选契约是否长期保留，待实践后决定；
+跨 async fn 边界的嵌套 await 修复后，需补充 async 场景的验收用例；
+经通道发送 &amp;T、把 &amp;T 存入共享结构等引用逃逸路径的共享判定，讨论稿未覆盖（评审注记）。</li>
+</ul>
+
 <h2>范围与状态</h2>
 <ul>
 <li>第一版范围：字段 const + lock 路径语法 + 静态字段访问分析。</li>
 <li>本系统只保证<strong>内存级</strong>访问不相交；跨字段的业务不变量
 （如 balance 与 total 必须一致）属事务一致性问题，不在本系统范围内。</li>
 <li>动态自适应层（Adaptive Field Mutability）为第三阶段研究课题。</li>
+<li>补充方案 <code>sync</code> 字段（本章末节）：讨论稿（2026-11-24），尚未定稿；定稿前第一版范围不变，若定稿则该节三处差异以该节为准。</li>
 <li>状态：设计评审中（2026-11-24）。本章为新特性预览，内容可能随评审调整。</li>
 </ul>
 
