@@ -4,99 +4,217 @@
 <meta charset="utf-8">
 <title>SLA / SA Caches</title>
 <link rel="stylesheet" href="../../assets/help.css">
+<style>
+  /* Styles for elements new on this page; tables etc. come from help.css */
+  .badge{display:inline-block;padding:0 6px;border-radius:3px;font-size:12px;line-height:18px;white-space:nowrap;}
+  .badge.manual{background:#fdecea;color:#a12622;}
+  .badge.fixed{background:#e6f4ea;color:#1e6b34;}
+  .badge.todo{background:#fff4d6;color:#7a5a00;}
+  .proposal{border-left:4px solid #2e7d6b;background:#f3f8f6;padding:8px 12px;margin:12px 0;}
+</style>
 </head>
 <body class="topic">
-<div class="topic-header">Command-Line Reference &gt; SLA / SA Caches</div>
+<div class="topic-header">CLI Reference &gt; SLA / SA Caches</div>
 <h1>SLA / SA Caches</h1>
 
-<p>The SA / SLA toolchain keeps several caches. Most of them are keyed by file content only —
-<strong>not</strong> by compiler or plugin version — so after the compiler or a plugin is rebuilt,
-a stale cache can silently replay artefacts produced by the old compiler. The symptoms mislead in
-both directions: a real fix appears to have no effect, or a healthy tree appears broken. This
-chapter lists every cache surface, what it keys on, how it fails, and how to clear it.</p>
+<p>The SA / SLA toolchain keeps several caches. Most of them key on file contents only —
+<strong>not on the compiler or plugin version</strong> — so after a compiler or plugin rebuild,
+a stale cache silently replays artefacts produced by the old compiler. The symptoms lie in both
+directions: a real fix looks as if it did nothing, or a healthy tree looks broken.</p>
 
-<p><strong>Rule of thumb:</strong> before verifying any compiler or plugin change, clear all six
-surfaces below. When a gate or canary result contradicts the state of the tree, clearing the
-caches is step one of the investigation, not a last resort. Clearing is always safe — every cache
-regenerates; the only cost is rebuild time.</p>
+<p>This chapter has two parts: the first half is <strong>diagnosis and workarounds for the current
+state</strong> (location, key, symptoms, cleanup); the second half is a <strong>root-fix
+roadmap</strong> — making the toolchain itself decide whether a cache is stale, instead of relying
+on human judgement. Once a root fix lands, the corresponding workaround text can be deleted
+(see "Maintenance conventions").</p>
 
-<h2>The six cache surfaces</h2>
+<p><strong>Rule:</strong> before verifying any compiler or plugin change, clear all six cache
+surfaces below. When a gate or canary result contradicts the state of the tree, clearing caches
+is the first step of the investigation, not the last resort. Clearing is always safe — every
+cache regenerates; the only cost is rebuild time.</p>
+
+<h2>Symptom lookup</h2>
+<p>Locate the row by symptom first, then see the matching row of the table below. When several
+symptoms appear together, clear everything per the cleanup checklist.</p>
 <table>
-<tr><th>#</th><th>Cache</th><th>Location</th><th>Key</th><th>How it fails</th><th>Clear</th></tr>
-<tr><td>1</td><td>SLA macro index cache</td><td><code>.sla-cache/</code> in the
-<code>sa_plugin_sla</code> tree (<code>macros/*.idx</code>)</td><td>Macro file path + length +
-source hash; no compiler-analysis version</td><td>Old macro expansions are replayed after a
-compiler change, so a fixed compiler can keep crashing or misbehaving exactly as before.</td>
-<td>Delete the tree's <code>.sla-cache</code>. Note: <code>SLA_NO_FRESHNESS_CACHE=1</code> does
-<strong>not</strong> cover this cache.</td></tr>
-<tr><td>2</td><td>Host frontend cache</td><td><code>~/.cache/sa/frontend</code></td>
-<td>Source file sha256 only; no plugin / compiler version</td><td>After a plugin rebuild,
-compiling an unchanged <code>.sla</code> replays the first compilation's output, so a fix can look
-completely ineffective for several rounds.</td><td>Delete <code>~/.cache/sa/frontend</code>.</td></tr>
-<tr><td>3</td><td>Build graph cache</td><td><code>.zig-cache/</code> and <code>zig-out/</code> in
-the plugin tree</td><td>Zig build graph, including the optimisation mode captured when the graph
-was configured</td><td>If a build or install runs with <code>SA_PLUGIN_DEV=1</code> in the
-environment, the graph records a Debug configuration: the plugin <code>.so</code> balloons
-(about 129 MB instead of about 37 MB ReleaseFast), and a later plain <code>zig build</code> exits
-in 0 s without rebuilding anything.</td><td>Delete <strong>both</strong> <code>.zig-cache</code>
-and <code>zig-out</code> (one alone is not enough) and build / install with
-<code>env -u SA_PLUGIN_DEV</code>. Running still requires <code>SA_PLUGIN_DEV=1</code> — the build
-and run environments differ.</td></tr>
-<tr><td>4</td><td><code>sa test</code> artefact cache</td><td><code>.sa_cache/test/&lt;hash&gt;/artifact.sa.bc</code>
-inside each test directory</td><td>Hash of the test source; no compiler version</td>
-<td><code>sa test</code> replays a bitcode artefact built by an older compiler; a test file can
-keep failing or crashing from its own cache while a byte-identical copy elsewhere passes.</td>
-<td>Delete <code>.sa_cache</code> in the affected test directories.</td></tr>
-<tr><td>5</td><td>Standalone CLI freshness cache</td><td>Managed by the Rust <code>sla</code> CLI
-(per-project artefact store)</td><td>Source freshness metadata</td><td>The compile pipeline
-returns a cached <code>.sa</code> and skips the frontend entirely, so new compiler behaviour
-never runs.</td><td>Run with <code>SLA_NO_FRESHNESS_CACHE=1</code>. This is the only surface that
-variable covers.</td></tr>
-<tr><td>6</td><td>Project / demo directory artefact cache</td><td><code>.sa_cache/</code> inside
-demo and project directories (same store as #4, different location)</td><td>Same as #4</td>
-<td><code>build-exe</code> replays a stale <code>artifact.sa.bc</code> left behind by an older
-compiler — this once kept a canary cell red for a full day on a healthy tree.</td>
-<td>Delete <code>.sa_cache</code> in demo / project directories before canary or gate runs.</td></tr>
+<tr><th>Symptom</th><th>Check first</th></tr>
+<tr><td>A fixed compiler still crashes the same way or reports the same error</td><td>#1 macro index, #2 frontend cache, #5 freshness cache</td></tr>
+<tr><td>Plugin source changed, behaviour completely unchanged</td><td>Trap "dev mode loads the installed plugin", trap "install swallows build errors", #2</td></tr>
+<tr><td>The same test file keeps failing, while a byte-identical copy passes elsewhere</td><td>#4 <code>sa test</code> artefact cache</td></tr>
+<tr><td>Canary / gate reports red on a healthy tree</td><td>#6 project / demo directory artefact cache</td></tr>
+<tr><td><code>zig build</code> exits in 0 seconds and rebuilds nothing; the <code>.so</code> is about 129 MB</td><td>#3 build-graph cache (a Debug configuration was remembered)</td></tr>
+<tr><td><code>zig build test</code> returns rc=0 but the log is empty</td><td>Trap "<code>zig build test</code> caches successful runs"</td></tr>
+<tr><td><code>sa_std/*.sa</code> changed, static library behaviour unchanged</td><td>Trap "<code>sa-std-static</code> archive freshness"</td></tr>
 </table>
 
-<h2>Clearing checklist</h2>
-<pre><code># in the sa_plugin_sla tree
-rm -rf .sla-cache .zig-cache zig-out
-rm -rf ~/.cache/sa/frontend
-find . -type d -name .sa_cache -prune -exec rm -rf {} +
-SLA_NO_FRESHNESS_CACHE=1 &lt;your command&gt;</code></pre>
+<h2>The six cache surfaces</h2>
+<p>The "Status" column: <span class="badge manual">manual</span> means the surface still has to be
+cleared per this table; once a root fix lands it becomes <span class="badge fixed">fixed (version)</span>.</p>
+<table>
+<tr><th>#</th><th>Cache</th><th>Location</th><th>Key</th><th>Failure mode</th><th>Cleanup</th><th>Status</th></tr>
+<tr><td>1</td><td>SLA macro index cache</td><td><code>.sla-cache/</code> inside the <code>sa_plugin_sla</code> tree
+(<code>macros/*.idx</code>)</td><td>Macro file path + length + source hash; no compiler analysis version</td>
+<td>After a compiler change it still replays old macro expansions; a fixed compiler keeps crashing
+or erroring in exactly the same way.</td>
+<td>Delete the tree's <code>.sla-cache</code>. Note: <code>SLA_NO_FRESHNESS_CACHE=1</code>
+does <strong>not</strong> cover this cache.</td><td><span class="badge manual">manual</span></td></tr>
+<tr><td>2</td><td>Host frontend cache</td><td>Default <code>~/.cache/sa/frontend</code>. Resolution order
+(verified against the current sci source, <code>frontendCacheRoot</code> in <code>broker_runtime.zig</code>):
+<code>SA_FRONTEND_CACHE_DIR</code> overrides the root outright, then <code>$XDG_CACHE_HOME/sa/frontend</code>,
+then <code>$HOME/.cache/sa/frontend</code></td>
+<td>Source file sha256 only; no plugin / compiler version</td><td>After a plugin rebuild, compiling an
+unchanged <code>.sla</code> replays the first compilation's output; a fix can look completely
+ineffective for several rounds in a row.</td><td>Delete the resolved cache root (default
+<code>~/.cache/sa/frontend</code>; on machines that set the two variables above, delete the resolved root).</td><td><span class="badge manual">manual</span></td></tr>
+<tr><td>3</td><td>Build-graph cache</td><td><code>.zig-cache/</code> and <code>zig-out/</code> inside the plugin tree</td>
+<td>The Zig build graph, including the optimisation mode captured at configuration time</td>
+<td>If the environment carries <code>SA_PLUGIN_DEV=1</code> during a build or install, the build graph
+remembers a Debug configuration: the plugin <code>.so</code> balloons (about 129 MB, vs about 37 MB for
+ReleaseFast), and a later plain <code>zig build</code> exits in 0 seconds and rebuilds nothing.</td>
+<td>Delete <strong>both</strong> <code>.zig-cache</code> and <code>zig-out</code> (deleting only one is not
+enough), and build / install with <code>env -u SA_PLUGIN_DEV</code>. Running still needs
+<code>SA_PLUGIN_DEV=1</code> — the build and run environments differ.</td><td><span class="badge manual">manual</span></td></tr>
+<tr><td>4</td><td><code>sa test</code> artefact cache</td><td><code>.sa_cache/test/&lt;hash&gt;/artifact.sa.bc</code> inside each test directory</td>
+<td>Test source hash; no compiler version</td>
+<td><code>sa test</code> replays bitcode built by the old compiler; the same test file keeps failing or
+crashing because of its own cache, while a byte-identical copy passes elsewhere.</td>
+<td>Delete <code>.sa_cache</code> in the affected test directories.</td><td><span class="badge manual">manual</span></td></tr>
+<tr><td>5</td><td>Standalone CLI freshness cache</td><td><code>.sla-cache/fresh/</code> under the working directory
+(<code>{stem}-{key}.bin</code> artefacts + <code>.json</code> manifests; verified against the current
+sla-cli source, <code>freshness.rs</code>)</td>
+<td>File path + compile-options digest + a version stamp (a cache-key version constant + the crate
+version); <strong>no build identity</strong> — a rebuild under the same version number is not distinguished</td>
+<td>The compile pipeline returns the cached <code>.sa</code> and skips the frontend entirely;
+new compiler behaviour never runs.</td><td>Delete <code>.sla-cache/fresh/</code> in the project directory,
+or run with <code>SLA_NO_FRESHNESS_CACHE=1</code>. That variable covers <strong>only this one
+surface</strong> — despite the global-sounding name, it reaches none of #1–#4 or #6.</td><td><span class="badge manual">manual</span></td></tr>
+<tr><td>6</td><td>Project / demo directory artefact cache</td><td><code>.sa_cache/</code> inside demo and project directories
+(the same store as #4, in a different place; <strong>possibly outside the plugin tree</strong>)</td><td>Same as #4</td>
+<td><code>build-exe</code> replays a stale <code>artifact.sa.bc</code> left by the old compiler —
+it once made a canary cell on a healthy tree report false red for a whole day.</td>
+<td>Before a canary or gate run, delete <code>.sa_cache</code> in the demo / project directories.</td><td><span class="badge manual">manual</span></td></tr>
+</table>
 
-<h2>Related traps (the same family: silent staleness)</h2>
+<h2>Cleanup checklist</h2>
+<p>Run in order. Scanning only the plugin tree misses <code>.sa_cache</code> in demo / project
+directories outside it (#6), and the rebuild must drop <code>SA_PLUGIN_DEV</code> (#3); the
+checklist below covers both.</p>
+<pre><code># 0. Adjust the paths for your machine
+PLUGIN="&lt;path to the sa_plugin_sla tree&gt;"
+ROOTS=("$PLUGIN" "&lt;demo root&gt;" "&lt;project root&gt;")   # every root that may contain .sa_cache
+
+# 1. Plugin tree: macro index + build graph (#1 #3)
+rm -rf "$PLUGIN/.sla-cache" "$PLUGIN/.zig-cache" "$PLUGIN/zig-out"
+
+# 2. Host frontend cache (#2): default path below; on machines that set
+#    XDG_CACHE_HOME / SA_FRONTEND_CACHE_DIR, delete the resolved root instead
+rm -rf ~/.cache/sa/frontend
+
+# 3. All artefact caches (#4 #6) — scan outside the plugin tree too
+for r in "${ROOTS[@]}"; do
+  find "$r" -type d -name .sa_cache -prune -exec rm -rf {} +
+done
+
+# 4. Rebuild and install: drop SA_PLUGIN_DEV from the build environment (#3)
+(cd "$PLUGIN" &amp;&amp; env -u SA_PLUGIN_DEV sa plugin install --dev .)
+
+# 5. Install confirmation (see trap 1 below): the installed .so's mtime / size changed,
+#    and a string literal newly introduced this round greps in the .so
+ls -l "$HOME/.local/share/sa_plugins/installed/"
+grep -c "&lt;string introduced this round&gt;" "$HOME/.local/share/sa_plugins/installed/&lt;plugin .so&gt;"
+
+# 6. Run: the run environment needs SA_PLUGIN_DEV=1; the standalone CLI also takes the freshness switch (#5)
+SA_PLUGIN_DEV=1 SLA_NO_FRESHNESS_CACHE=1 &lt;your command&gt;</code></pre>
+
+<h2>Same-family traps (silent staleness, not cache surfaces)</h2>
+<p>The traps below are not cache surfaces, but the symptoms are the same. The "Root fix" at the end
+of each item is a proposal, not implemented.</p>
 <ul>
-<li><strong><code>sa plugin install --dev</code> swallows build errors.</strong> It can exit 0
-while the build failed, keeping the old <code>.so</code>. After installing, verify two things:
-the installed <code>.so</code>'s mtime / size changed, and a string literal introduced by the new
-build is present in the <code>.so</code> (<code>grep</code>). Take md5s after the install settles,
-and compare md5 only within a single build → install round: plugin <code>.so</code> bytes are not
-reproducible across rebuilds, so a cross-round md5 comparison is meaningless. On a fresh machine,
-the bare form may also demand an explicit path: <code>sa plugin install --dev .</code></li>
+<li><strong><code>sa plugin install --dev</code> swallows build errors.</strong> On a build failure it can
+exit 0 and keep the old <code>.so</code>. After installing, always double-confirm: the installed
+<code>.so</code>'s mtime / size changed, and a string literal newly introduced this round greps in the
+<code>.so</code>. Take md5 only after the install has settled, and compare it only within the same
+build → install round: plugin <code>.so</code> bytes are not reproducible across rebuilds, so a
+cross-round md5 comparison is meaningless. On a new machine the bare form may also demand an explicit
+path: <code>sa plugin install --dev .</code>
+<br><em>Root fix:</em> return a non-zero exit code and refuse to install on build failure; add
+<code>sa plugin info</code> showing the installed plugin's build-id, replacing md5 / grep checks.</li>
 <li><strong>Dev mode loads the installed plugin, not the working tree.</strong>
 <code>sa sla check</code> / <code>test</code> run the plugin under
-<code>$HOME/.local/share/sa_plugins/installed/</code>, so editing the tree and running
-<code>zig build</code> alone changes nothing. Every A/B comparison must install the tree under
-test into that round's HOME and md5-check the installed <code>.so</code> first.</li>
-<li><strong><code>zig build test</code> caches successes.</strong> A previously successful run is
-replayed silently (rc=0, empty log, <code>run test cached</code> under <code>--summary all</code>);
-failures are not cached, which makes the trap easy to miss. Judge a run by four signs together:
-rc=0, the expected result line present, an empty failure-name set, and — for dual-route features —
-both routes passing. rc=0 with an empty log is not a run.</li>
-<li><strong><code>sa-std-static</code> archive freshness.</strong> <code>zig build sa-std-static</code>
-does not track <code>sa_std/*.sa</code> as step inputs, so a warm rebuild can replay the previous
-archive. Judge freshness by the archive's mtime / size change plus a behavioural check, not by the
-build's exit code.</li>
+<code>$HOME/.local/share/sa_plugins/installed/</code>; editing sources in the tree plus
+<code>zig build</code> changes no behaviour at all. Any A/B comparison must first install the tree
+under test into that round's HOME and md5-check the installed <code>.so</code>.
+<br><em>Root fix:</em> warn at startup when the installed plugin does not match the current working
+tree; offer a flag to load the plugin straight from the working tree.</li>
+<li><strong><code>zig build test</code> caches successful runs.</strong> A previously successful round is
+silently replayed (rc=0, empty log, shown as <code>run test cached</code> under
+<code>--summary all</code>); failures are not cached, which makes this trap easy to miss. Judging
+rules are in "Judging a run" below.
+<br><em>Root fix:</em> mark the test step as having side effects in build.zig so it really runs every
+time <span class="badge todo">to verify</span> the exact API depends on the project's Zig version.</li>
+<li><strong><code>sa-std-static</code> archive freshness.</strong> <code>zig build sa-std-static</code> does
+not track <code>sa_std/*.sa</code> as step inputs, so a warm rebuild can replay the old archive. Judge
+freshness by the archive's mtime / size change plus a behavioural re-check, not by the build exit code.
+<br><em>Root fix:</em> register <code>sa_std/*.sa</code> as input files of the build step.</li>
+<li><strong><code>SA_PLUGIN_DEV</code> means opposite things for building and running.</strong> Building with
+it records a Debug configuration (#3); running requires it.
+<br><em>Root fix:</em> the build ignores this environment variable; the optimisation mode is decided
+only by <code>-Doptimize</code>.</li>
 </ul>
+
+<h2>Judging a run</h2>
+<p>A run counts as really executed only when all four hold: rc=0; the output contains the expected
+result lines; the failure name set is empty; dual-route features pass on both routes.
+<strong>rc=0 with an empty log is not a run.</strong></p>
 
 <h2>When to clear</h2>
 <ul>
 <li>After any compiler / plugin source change, before running verification.</li>
-<li>Before canary / gate runs, and as step one when a gate result contradicts the tree.</li>
-<li>When two copies of identical sources behave differently — cache asymmetry is the first suspect.</li>
-<li>When an install or rebuild seems to have had no effect at all.</li>
+<li>Before canary / gate runs; as the first investigation step when a gate result contradicts the tree.</li>
+<li>When two copies of the same source behave differently — asymmetric caches are the prime suspect.</li>
+<li>When an install or rebuild appears to have no effect at all.</li>
+</ul>
+
+<h2>Root-fix roadmap (proposal, not implemented)</h2>
+<div class="proposal">The commands, variables and behaviours below are proposals; they do
+<strong>not</strong> exist in the current toolchain. Goal: the toolchain itself decides whether a
+cache is stale, instead of relying on human judgement.</div>
+
+<h3>1. Toolchain fingerprint in the cache key</h3>
+<p>Compiler and plugins embed a build-id at build time (for example the git commit + a dirty flag,
+or the <code>.so</code> hash). Every cache key becomes "source hash + toolchain build-id"; the macro
+index additionally takes the analyser version. Change the compiler, and the caches invalidate
+themselves.</p>
+<p><strong>Covers:</strong> #1, #2, #4, #5, #6. <strong>Acceptance:</strong> after a plugin rebuild, the
+first compilation of an unchanged source necessarily misses the cache.
+<strong>Deletable once landed:</strong> the "clear everything before verifying" rule, the first three
+rows of the symptom lookup, and most of cleanup steps 1–3.</p>
+
+<h3>2. Unified cache commands</h3>
+<table>
+<tr><th>Proposal</th><th>Purpose</th><th>Replaces today</th></tr>
+<tr><td><code>sa cache status</code></td><td>List every cache surface's location, size and toolchain build-id</td><td>Remembering locations and hunting by hand</td></tr>
+<tr><td><code>sa cache clean [--all]</code></td><td>One command clears every surface, including <code>.sa_cache</code> outside the plugin tree</td><td>Cleanup steps 0–3</td></tr>
+<tr><td><code>SA_NO_CACHE=1</code></td><td>One switch disables all caches</td><td><code>SLA_NO_FRESHNESS_CACHE</code>, which covers only #5</td></tr>
+<tr><td><code>SA_CACHE_TRACE=1</code></td><td>On a cache hit, print the cache key and the build-id the artefact came from; staleness stops being "silent"</td><td>Inferring from symptoms</td></tr>
+<tr><td><code>sa plugin info</code></td><td>Show the installed plugin's build-id, build time and optimisation mode</td><td>md5 / string grep / <code>.so</code> size</td></tr>
+</table>
+
+<h3>3. Build-side fixes</h3>
+<p>The "Root fix" items of the traps above: install exit codes, the build ignoring
+<code>SA_PLUGIN_DEV</code>, the test step really running every time, <code>sa-std-static</code>
+registering its inputs.</p>
+
+<h3>4. Cache-write atomicity <span class="badge todo">to verify</span></h3>
+<p>Confirm whether each cache surface writes via "write a temporary file, then rename". If not, an
+interrupted write leaves a half-written artefact, and parallel tests writing the same cache can
+overwrite each other — another class of silent error.</p>
+
+<h2>Maintenance conventions</h2>
+<ul>
+<li>When a root fix lands, flip the cache table's status column to <span class="badge fixed">fixed (version)</span> and note the version on the corresponding trap item.</li>
+<li>Once the minimum supported version contains the fix, delete the corresponding row, symptom-lookup entry and cleanup step, so this chapter does not only grow.</li>
+<li>A new cache surface must be documented with all of: location, key (including whether it carries a toolchain version), symptom, cleanup method, status.</li>
 </ul>
 
 </body>

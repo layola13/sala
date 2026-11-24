@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <title>SLA / SA 缓存</title>
 <link rel="stylesheet" href="../../assets/help.css">
+<style>
+  /* 本页新增元素的样式；表格等沿用 help.css */
+  .badge{display:inline-block;padding:0 6px;border-radius:3px;font-size:12px;line-height:18px;white-space:nowrap;}
+  .badge.manual{background:#fdecea;color:#a12622;}
+  .badge.fixed{background:#e6f4ea;color:#1e6b34;}
+  .badge.todo{background:#fff4d6;color:#7a5a00;}
+  .proposal{border-left:4px solid #2e7d6b;background:#f3f8f6;padding:8px 12px;margin:12px 0;}
+</style>
 </head>
 <body class="topic">
 <div class="topic-header">命令行参考 &gt; SLA / SA 缓存</div>
@@ -11,71 +19,127 @@
 
 <p>SA / SLA 工具链有多处缓存。它们大多只按文件内容作键——<strong>不含编译器或插件版本</strong>——
 因此编译器或插件重编之后，陈旧缓存会静默回放旧编译器产出的制品。症状在两个方向上都骗人：
-真修复看起来毫无效果，或者健康的树看起来是坏的。本章列全每个缓存面的位置、键、失效方式与清理方法。</p>
+真修复看起来毫无效果，或者健康的树看起来是坏的。</p>
+
+<p>本章分两部分：前半部分是<strong>现状下的排查与绕行</strong>（位置、键、症状、清理）；
+后半部分是<strong>根治路线</strong>——让工具链自己判定缓存是否陈旧，而不是靠人判读。
+每处根治落地后，对应的绕行内容即可删除（见「维护约定」）。</p>
 
 <p><strong>通则：</strong>验证任何编译器或插件改动之前，先清下面全部六个缓存面。
 门禁或金丝雀结果与树的状态矛盾时，清缓存是调查的第一步，不是最后手段。
 清缓存永远安全——所有缓存都会再生，唯一代价是重编时间。</p>
 
-<h2>六个缓存面</h2>
+<h2>症状速查</h2>
+<p>先按症状定位，再看下表对应行。多个症状同时出现时，按「清理清单」全部清掉。</p>
 <table>
-<tr><th>#</th><th>缓存</th><th>位置</th><th>键</th><th>失效方式</th><th>清理</th></tr>
+<tr><th>症状</th><th>先查</th></tr>
+<tr><td>修好的编译器仍以原样崩溃或报同一个错</td><td>#1 宏索引、#2 前端缓存、#5 新鲜度缓存</td></tr>
+<tr><td>改了插件源码，行为毫无变化</td><td>陷阱「dev 模式加载已安装插件」、陷阱「install 吞构建错误」、#2</td></tr>
+<tr><td>同一测试文件持续失败，字节相同的副本在别处却通过</td><td>#4 <code>sa test</code> 产物缓存</td></tr>
+<tr><td>金丝雀 / 门禁在健康的树上报红</td><td>#6 工程 / demo 目录产物缓存</td></tr>
+<tr><td><code>zig build</code> 0 秒退出、什么都不重编；<code>.so</code> 约 129 MB</td><td>#3 构建图缓存（Debug 配置被记住）</td></tr>
+<tr><td><code>zig build test</code> rc=0 但日志为空</td><td>陷阱「<code>zig build test</code> 缓存成功运行」</td></tr>
+<tr><td>改了 <code>sa_std/*.sa</code>，静态库行为没变</td><td>陷阱「<code>sa-std-static</code> 归档新鲜度」</td></tr>
+</table>
+
+<h2>六个缓存面</h2>
+<p>「状态」列：<span class="badge manual">需手动</span> 表示仍须按本表清理；根治落地后改为 <span class="badge fixed">已根治（版本）</span>。</p>
+<table>
+<tr><th>#</th><th>缓存</th><th>位置</th><th>键</th><th>失效方式</th><th>清理</th><th>状态</th></tr>
 <tr><td>1</td><td>SLA 宏索引缓存</td><td><code>sa_plugin_sla</code> 树内的 <code>.sla-cache/</code>
 （<code>macros/*.idx</code>）</td><td>宏文件路径 + 长度 + 源码哈希；不含编译器分析版本</td>
 <td>编译器改动后仍回放旧宏展开，修好的编译器会继续以原样崩溃或出错。</td>
 <td>删该树的 <code>.sla-cache</code>。注意：<code>SLA_NO_FRESHNESS_CACHE=1</code>
-<strong>不</strong>覆盖此缓存。</td></tr>
-<tr><td>2</td><td>宿主前端缓存</td><td><code>~/.cache/sa/frontend</code></td>
+<strong>不</strong>覆盖此缓存。</td><td><span class="badge manual">需手动</span></td></tr>
+<tr><td>2</td><td>宿主前端缓存</td><td>默认 <code>~/.cache/sa/frontend</code>。解析顺序（已按 sci 现行源码
+<code>broker_runtime.zig</code> 的 <code>frontendCacheRoot</code> 核实）：<code>SA_FRONTEND_CACHE_DIR</code>
+整体改道优先，其次 <code>$XDG_CACHE_HOME/sa/frontend</code>，最后 <code>$HOME/.cache/sa/frontend</code></td>
 <td>仅源码文件 sha256；不含插件 / 编译器版本</td><td>插件重编后，编译未改动的 <code>.sla</code>
-会回放首次编译的产物，修复可以连续数轮看起来完全无效。</td><td>删 <code>~/.cache/sa/frontend</code>。</td></tr>
+会回放首次编译的产物，修复可以连续数轮看起来完全无效。</td><td>删解析出的缓存根（默认
+<code>~/.cache/sa/frontend</code>；设了上面两个变量的机器按解析结果删）。</td><td><span class="badge manual">需手动</span></td></tr>
 <tr><td>3</td><td>构建图缓存</td><td>插件树内的 <code>.zig-cache/</code> 与 <code>zig-out/</code></td>
 <td>Zig 构建图，含配置时捕获的优化模式</td><td>构建或安装时若环境带 <code>SA_PLUGIN_DEV=1</code>，
 构建图会记下 Debug 配置：插件 <code>.so</code> 膨胀（约 129 MB，而 ReleaseFast 约 37 MB），
 且此后直接 <code>zig build</code> 会 0 秒退出、什么都不重编。</td><td><code>.zig-cache</code>
 与 <code>zig-out</code> <strong>两者都删</strong>（只删其一不够），构建 / 安装用
-<code>env -u SA_PLUGIN_DEV</code>。运行时仍需 <code>SA_PLUGIN_DEV=1</code>——构建与运行环境不同。</td></tr>
+<code>env -u SA_PLUGIN_DEV</code>。运行时仍需 <code>SA_PLUGIN_DEV=1</code>——构建与运行环境不同。</td><td><span class="badge manual">需手动</span></td></tr>
 <tr><td>4</td><td><code>sa test</code> 产物缓存</td><td>各测试目录内的 <code>.sa_cache/test/&lt;hash&gt;/artifact.sa.bc</code></td>
 <td>测试源码哈希；不含编译器版本</td>
 <td><code>sa test</code> 回放旧编译器构建的 bitcode 产物；同一测试文件会因自身缓存持续失败或崩溃，
 而字节相同的副本在别处却能通过。</td>
-<td>删受影响测试目录内的 <code>.sa_cache</code>。</td></tr>
-<tr><td>5</td><td>独立版 CLI 新鲜度缓存</td><td>Rust 版 <code>sla</code> CLI 管理（按工程的产物存储）</td>
-<td>源码新鲜度元数据</td><td>编译管线直接返回缓存的 <code>.sa</code> 并整体跳过前端，
-新编译器行为根本不会运行。</td><td>运行时带 <code>SLA_NO_FRESHNESS_CACHE=1</code>。
-该变量只覆盖这一个缓存面。</td></tr>
+<td>删受影响测试目录内的 <code>.sa_cache</code>。</td><td><span class="badge manual">需手动</span></td></tr>
+<tr><td>5</td><td>独立版 CLI 新鲜度缓存</td><td>工作目录下的 <code>.sla-cache/fresh/</code>
+（<code>{stem}-{key}.bin</code> 产物 + <code>.json</code> 清单；已按 sla-cli 现行源码 <code>freshness.rs</code> 核实）</td>
+<td>文件路径 + 编译选项摘要 + 版本戳（cache-key 版本常量 + crate 版本号）；<strong>不含构建身份</strong>——
+同一版本号的重编不被区分</td><td>编译管线直接返回缓存的 <code>.sa</code> 并整体跳过前端，
+新编译器行为根本不会运行。</td><td>删工程目录下的 <code>.sla-cache/fresh/</code>，或运行时带
+<code>SLA_NO_FRESHNESS_CACHE=1</code>。该变量<strong>只覆盖这一个缓存面</strong>，
+名字虽像总开关，但管不到 #1–#4、#6。</td><td><span class="badge manual">需手动</span></td></tr>
 <tr><td>6</td><td>工程 / demo 目录产物缓存</td><td>demo 与工程目录内的 <code>.sa_cache/</code>
-（与 #4 同一存储、不同位置）</td><td>同 #4</td>
+（与 #4 同一存储、不同位置；<strong>可能在插件树之外</strong>）</td><td>同 #4</td>
 <td><code>build-exe</code> 回放旧编译器留下的陈旧 <code>artifact.sa.bc</code>——
 曾让健康树上的金丝雀格子假红一整天。</td>
-<td>金丝雀或门禁运行前，删 demo / 工程目录内的 <code>.sa_cache</code>。</td></tr>
+<td>金丝雀或门禁运行前，删 demo / 工程目录内的 <code>.sa_cache</code>。</td><td><span class="badge manual">需手动</span></td></tr>
 </table>
 
 <h2>清理清单</h2>
-<pre><code># 在 sa_plugin_sla 树内
-rm -rf .sla-cache .zig-cache zig-out
+<p>按顺序执行。只扫描插件树会漏掉插件树外 demo / 工程目录里的 <code>.sa_cache</code>（#6），
+重建时还要去掉 <code>SA_PLUGIN_DEV</code>（#3）；以下清单已补全。</p>
+<pre><code># 0. 按本机修改路径
+PLUGIN="&lt;sa_plugin_sla 树路径&gt;"
+ROOTS=("$PLUGIN" "&lt;demo 根目录&gt;" "&lt;工程根目录&gt;")   # 所有可能含 .sa_cache 的根目录
+
+# 1. 插件树：宏索引 + 构建图（#1 #3）
+rm -rf "$PLUGIN/.sla-cache" "$PLUGIN/.zig-cache" "$PLUGIN/zig-out"
+
+# 2. 宿主前端缓存（#2）：默认路径如下；设了 XDG_CACHE_HOME / SA_FRONTEND_CACHE_DIR 的机器改删解析出的根
 rm -rf ~/.cache/sa/frontend
-find . -type d -name .sa_cache -prune -exec rm -rf {} +
-SLA_NO_FRESHNESS_CACHE=1 &lt;你的命令&gt;</code></pre>
+
+# 3. 所有产物缓存（#4 #6）——插件树外也要扫
+for r in "${ROOTS[@]}"; do
+  find "$r" -type d -name .sa_cache -prune -exec rm -rf {} +
+done
+
+# 4. 重建并安装：构建环境去掉 SA_PLUGIN_DEV（#3）
+(cd "$PLUGIN" &amp;&amp; env -u SA_PLUGIN_DEV sa plugin install --dev .)
+
+# 5. 装机确认（见同族陷阱第 1 条）：已装 .so 的 mtime / 大小已变，
+#    且本轮新引入的字符串字面量能在 .so 内 grep 命中
+ls -l "$HOME/.local/share/sa_plugins/installed/"
+grep -c "&lt;本轮新增的字符串&gt;" "$HOME/.local/share/sa_plugins/installed/&lt;插件 .so&gt;"
+
+# 6. 运行：运行环境需要 SA_PLUGIN_DEV=1；独立版 CLI 另加新鲜度开关（#5）
+SA_PLUGIN_DEV=1 SLA_NO_FRESHNESS_CACHE=1 &lt;你的命令&gt;</code></pre>
 
 <h2>同族陷阱（同属静默陈旧）</h2>
+<p>以下陷阱不是缓存面，但症状相同。每条末尾的「根治」为提案，未实现。</p>
 <ul>
 <li><strong><code>sa plugin install --dev</code> 会吞构建错误。</strong>构建失败时它可以退出码 0 并保留旧
 <code>.so</code>。装机后必须双确认：已装 <code>.so</code> 的 mtime / 大小已更新，且本轮新引入的字符串字面量
 能在 <code>.so</code> 内 <code>grep</code> 命中。md5 要在装机静置后取，且只许在同一轮构建 → 装机内比对：
 插件 <code>.so</code> 字节跨重编不可复现，跨轮 md5 比对没有意义。新机器上裸形式还可能要求显式路径：
-<code>sa plugin install --dev .</code></li>
+<code>sa plugin install --dev .</code>
+<br><em>根治：</em>构建失败时如实返回非零退出码并拒绝安装；新增 <code>sa plugin info</code> 显示已装插件的 build-id，替代 md5 / grep 判读。</li>
 <li><strong>dev 模式加载的是已安装插件，不是工作树。</strong>
 <code>sa sla check</code> / <code>test</code> 跑的是
 <code>$HOME/.local/share/sa_plugins/installed/</code> 下的插件，只在树内改源码 + <code>zig build</code>
-不会改变任何行为。任何 A/B 对照必须先把被测树装进该轮 HOME 并 md5 核对已装 <code>.so</code>。</li>
+不会改变任何行为。任何 A/B 对照必须先把被测树装进该轮 HOME 并 md5 核对已装 <code>.so</code>。
+<br><em>根治：</em>启动时若已装插件与当前工作树不一致，打印提示；提供参数直接从工作树加载插件。</li>
 <li><strong><code>zig build test</code> 会缓存成功运行。</strong>先前成功的一轮会被静默回放
 （rc=0、日志为空、<code>--summary all</code> 下显示 <code>run test cached</code>）；失败不缓存，
-所以这个陷阱很容易漏看。判读一轮运行须四联：rc=0、输出含预期结果行、失败名字集为空、
-双路特性两路都过。rc=0 + 空日志不算一次运行。</li>
+所以这个陷阱很容易漏看。判读规则见下节「判读一次运行」。
+<br><em>根治：</em>在 build.zig 中把测试步骤标记为有副作用、每次真跑 <span class="badge todo">待核实</span> 对应 API 以项目所用 Zig 版本为准。</li>
 <li><strong><code>sa-std-static</code> 归档新鲜度。</strong><code>zig build sa-std-static</code>
 不把 <code>sa_std/*.sa</code> 追踪为步骤输入，暖重编可能回放旧归档。新鲜度以归档 mtime / 大小变化
-加行为复证判读，不以构建退出码判读。</li>
+加行为复证判读，不以构建退出码判读。
+<br><em>根治：</em>在构建步骤中把 <code>sa_std/*.sa</code> 登记为输入文件。</li>
+<li><strong><code>SA_PLUGIN_DEV</code> 构建与运行含义相反。</strong>构建时带它会记下 Debug 配置（#3），运行时却必须带它。
+<br><em>根治：</em>构建不读该环境变量，优化模式只由 <code>-Doptimize</code> 决定。</li>
 </ul>
+
+<h2>判读一次运行</h2>
+<p>一轮运行须同时满足四项才算真跑：rc=0；输出含预期结果行；失败名字集为空；双路特性两路都过。
+<strong>rc=0 + 空日志不算一次运行。</strong></p>
 
 <h2>何时清理</h2>
 <ul>
@@ -83,6 +147,38 @@ SLA_NO_FRESHNESS_CACHE=1 &lt;你的命令&gt;</code></pre>
 <li>金丝雀 / 门禁运行之前；门禁结果与树状态矛盾时作为调查第一步。</li>
 <li>两份相同源码行为不一致时——缓存不对称是头号嫌疑。</li>
 <li>装机或重编看起来毫无效果时。</li>
+</ul>
+
+<h2>根治路线（提案，未实现）</h2>
+<div class="proposal">以下命令、变量与行为均为提案，当前工具链中<strong>不存在</strong>。目标：缓存是否陈旧由工具链确定，而不是靠人判读。</div>
+
+<h3>1. 缓存键加入工具链指纹</h3>
+<p>编译器与插件在构建时嵌入 build-id（例如 git 提交号 + dirty 标记，或 <code>.so</code> 哈希）。
+所有缓存键改为「源码哈希 + 工具链 build-id」，宏索引另加分析器版本。换了编译器，缓存自动失效。</p>
+<p><strong>覆盖：</strong>#1、#2、#4、#5、#6。<strong>验收：</strong>重编插件后，未改动的源码首次编译必然未命中缓存。
+<strong>落地后可删：</strong>通则中的「验证前先清全部缓存」、症状速查前三行、清理清单步骤 1–3 的大部分。</p>
+
+<h3>2. 统一的缓存命令</h3>
+<table>
+<tr><th>提案</th><th>作用</th><th>替代现在的</th></tr>
+<tr><td><code>sa cache status</code></td><td>列出全部缓存面的位置、大小与对应的工具链 build-id</td><td>逐个记位置、手动查找</td></tr>
+<tr><td><code>sa cache clean [--all]</code></td><td>一条命令清掉全部缓存面，含插件树外的 <code>.sa_cache</code></td><td>清理清单步骤 0–3</td></tr>
+<tr><td><code>SA_NO_CACHE=1</code></td><td>一个开关关闭所有缓存</td><td>只管 #5 的 <code>SLA_NO_FRESHNESS_CACHE</code></td></tr>
+<tr><td><code>SA_CACHE_TRACE=1</code></td><td>命中缓存时打印缓存键与产物来源的 build-id，陈旧不再「静默」</td><td>靠症状反推</td></tr>
+<tr><td><code>sa plugin info</code></td><td>显示已装插件的 build-id、构建时间、优化模式</td><td>md5 / grep 字符串 / 看 <code>.so</code> 大小</td></tr>
+</table>
+
+<h3>3. 构建侧修复</h3>
+<p>即「同族陷阱」各条的「根治」项：install 退出码、构建不读 <code>SA_PLUGIN_DEV</code>、测试步骤每次真跑、<code>sa-std-static</code> 登记输入。</p>
+
+<h3>4. 缓存写入原子性 <span class="badge todo">待核实</span></h3>
+<p>确认各缓存面写入是否「先写临时文件再改名」。若不是，中途中断会留下半个产物，并行测试同时写同一缓存也可能互相覆盖——这会成为另一类静默错误。</p>
+
+<h2>维护约定</h2>
+<ul>
+<li>某项根治落地时，把缓存表「状态」列改为 <span class="badge fixed">已根治（版本）</span>，并在对应同族陷阱条目注明版本。</li>
+<li>当最低支持版本已包含该根治，删除对应行、症状速查条目与清理步骤，避免本章只增不减。</li>
+<li>新增缓存面时，必须同时补齐：位置、键（是否含工具链版本）、症状、清理方法、状态。</li>
 </ul>
 
 </body>
