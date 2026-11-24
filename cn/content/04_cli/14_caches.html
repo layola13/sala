@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SLA / SA 缓存</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">命令行参考 &gt; SLA / SA 缓存</div>
+<h1>SLA / SA 缓存</h1>
+
+<p>SA / SLA 工具链有多处缓存。它们大多只按文件内容作键——<strong>不含编译器或插件版本</strong>——
+因此编译器或插件重编之后，陈旧缓存会静默回放旧编译器产出的制品。症状在两个方向上都骗人：
+真修复看起来毫无效果，或者健康的树看起来是坏的。本章列全每个缓存面的位置、键、失效方式与清理方法。</p>
+
+<p><strong>通则：</strong>验证任何编译器或插件改动之前，先清下面全部六个缓存面。
+门禁或金丝雀结果与树的状态矛盾时，清缓存是调查的第一步，不是最后手段。
+清缓存永远安全——所有缓存都会再生，唯一代价是重编时间。</p>
+
+<h2>六个缓存面</h2>
+<table>
+<tr><th>#</th><th>缓存</th><th>位置</th><th>键</th><th>失效方式</th><th>清理</th></tr>
+<tr><td>1</td><td>SLA 宏索引缓存</td><td><code>sa_plugin_sla</code> 树内的 <code>.sla-cache/</code>
+（<code>macros/*.idx</code>）</td><td>宏文件路径 + 长度 + 源码哈希；不含编译器分析版本</td>
+<td>编译器改动后仍回放旧宏展开，修好的编译器会继续以原样崩溃或出错。</td>
+<td>删该树的 <code>.sla-cache</code>。注意：<code>SLA_NO_FRESHNESS_CACHE=1</code>
+<strong>不</strong>覆盖此缓存。</td></tr>
+<tr><td>2</td><td>宿主前端缓存</td><td><code>~/.cache/sa/frontend</code></td>
+<td>仅源码文件 sha256；不含插件 / 编译器版本</td><td>插件重编后，编译未改动的 <code>.sla</code>
+会回放首次编译的产物，修复可以连续数轮看起来完全无效。</td><td>删 <code>~/.cache/sa/frontend</code>。</td></tr>
+<tr><td>3</td><td>构建图缓存</td><td>插件树内的 <code>.zig-cache/</code> 与 <code>zig-out/</code></td>
+<td>Zig 构建图，含配置时捕获的优化模式</td><td>构建或安装时若环境带 <code>SA_PLUGIN_DEV=1</code>，
+构建图会记下 Debug 配置：插件 <code>.so</code> 膨胀（约 129 MB，而 ReleaseFast 约 37 MB），
+且此后直接 <code>zig build</code> 会 0 秒退出、什么都不重编。</td><td><code>.zig-cache</code>
+与 <code>zig-out</code> <strong>两者都删</strong>（只删其一不够），构建 / 安装用
+<code>env -u SA_PLUGIN_DEV</code>。运行时仍需 <code>SA_PLUGIN_DEV=1</code>——构建与运行环境不同。</td></tr>
+<tr><td>4</td><td><code>sa test</code> 产物缓存</td><td>各测试目录内的 <code>.sa_cache/test/&lt;hash&gt;/artifact.sa.bc</code></td>
+<td>测试源码哈希；不含编译器版本</td>
+<td><code>sa test</code> 回放旧编译器构建的 bitcode 产物；同一测试文件会因自身缓存持续失败或崩溃，
+而字节相同的副本在别处却能通过。</td>
+<td>删受影响测试目录内的 <code>.sa_cache</code>。</td></tr>
+<tr><td>5</td><td>独立版 CLI 新鲜度缓存</td><td>Rust 版 <code>sla</code> CLI 管理（按工程的产物存储）</td>
+<td>源码新鲜度元数据</td><td>编译管线直接返回缓存的 <code>.sa</code> 并整体跳过前端，
+新编译器行为根本不会运行。</td><td>运行时带 <code>SLA_NO_FRESHNESS_CACHE=1</code>。
+该变量只覆盖这一个缓存面。</td></tr>
+<tr><td>6</td><td>工程 / demo 目录产物缓存</td><td>demo 与工程目录内的 <code>.sa_cache/</code>
+（与 #4 同一存储、不同位置）</td><td>同 #4</td>
+<td><code>build-exe</code> 回放旧编译器留下的陈旧 <code>artifact.sa.bc</code>——
+曾让健康树上的金丝雀格子假红一整天。</td>
+<td>金丝雀或门禁运行前，删 demo / 工程目录内的 <code>.sa_cache</code>。</td></tr>
+</table>
+
+<h2>清理清单</h2>
+<pre><code># 在 sa_plugin_sla 树内
+rm -rf .sla-cache .zig-cache zig-out
+rm -rf ~/.cache/sa/frontend
+find . -type d -name .sa_cache -prune -exec rm -rf {} +
+SLA_NO_FRESHNESS_CACHE=1 &lt;你的命令&gt;</code></pre>
+
+<h2>同族陷阱（同属静默陈旧）</h2>
+<ul>
+<li><strong><code>sa plugin install --dev</code> 会吞构建错误。</strong>构建失败时它可以退出码 0 并保留旧
+<code>.so</code>。装机后必须双确认：已装 <code>.so</code> 的 mtime / 大小已更新，且本轮新引入的字符串字面量
+能在 <code>.so</code> 内 <code>grep</code> 命中。md5 要在装机静置后取，且只许在同一轮构建 → 装机内比对：
+插件 <code>.so</code> 字节跨重编不可复现，跨轮 md5 比对没有意义。新机器上裸形式还可能要求显式路径：
+<code>sa plugin install --dev .</code></li>
+<li><strong>dev 模式加载的是已安装插件，不是工作树。</strong>
+<code>sa sla check</code> / <code>test</code> 跑的是
+<code>$HOME/.local/share/sa_plugins/installed/</code> 下的插件，只在树内改源码 + <code>zig build</code>
+不会改变任何行为。任何 A/B 对照必须先把被测树装进该轮 HOME 并 md5 核对已装 <code>.so</code>。</li>
+<li><strong><code>zig build test</code> 会缓存成功运行。</strong>先前成功的一轮会被静默回放
+（rc=0、日志为空、<code>--summary all</code> 下显示 <code>run test cached</code>）；失败不缓存，
+所以这个陷阱很容易漏看。判读一轮运行须四联：rc=0、输出含预期结果行、失败名字集为空、
+双路特性两路都过。rc=0 + 空日志不算一次运行。</li>
+<li><strong><code>sa-std-static</code> 归档新鲜度。</strong><code>zig build sa-std-static</code>
+不把 <code>sa_std/*.sa</code> 追踪为步骤输入，暖重编可能回放旧归档。新鲜度以归档 mtime / 大小变化
+加行为复证判读，不以构建退出码判读。</li>
+</ul>
+
+<h2>何时清理</h2>
+<ul>
+<li>任何编译器 / 插件源码改动之后、跑验证之前。</li>
+<li>金丝雀 / 门禁运行之前；门禁结果与树状态矛盾时作为调查第一步。</li>
+<li>两份相同源码行为不一致时——缓存不对称是头号嫌疑。</li>
+<li>装机或重编看起来毫无效果时。</li>
+</ul>
+
+</body>
+</html>

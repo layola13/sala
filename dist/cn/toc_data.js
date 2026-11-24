@@ -415,6 +415,11 @@ var TOC = [
     "t": "环境变量",
     "f": "content/04_cli/10_env_vars.html",
     "c": []
+   },
+   {
+    "t": "SLA / SA 缓存",
+    "f": "content/04_cli/14_caches.html",
+    "c": []
    }
   ]
  },

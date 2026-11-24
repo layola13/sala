@@ -31,7 +31,8 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value=".NET"><param name="Local" value="../../dist/cn/content/06_stdlib/26_dotnet_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value=".sa"><param name="Local" value="../../dist/cn/content/03_sa_asm/02_sa_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value=".sa 汇编"><param name="Local" value="../../dist/cn/content/04_cli/04_build.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value=".sla-cache"><param name="Local" value="../../dist/cn/content/04_cli/06_sab.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value=".sa_cache"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value=".sla-cache"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="0.1.9"><param name="Local" value="../../dist/cn/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="0.14.1"><param name="Local" value="../../dist/cn/content/14_zig017_perf/01_zig017_vs_014.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="2x"><param name="Local" value="../../dist/cn/content/04_cli/13_bun_peer.html"></OBJECT>
@@ -487,6 +488,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sla2swift"><param name="Local" value="../../dist/cn/content/01_overview/18_mobile_transpile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sla2ts"><param name="Local" value="../../dist/cn/content/01_overview/19_side_tracks_foundation_gaps.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sla_ecs"><param name="Local" value="../../dist/cn/content/11_ecs/01_overview.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA_NO_FRESHNESS_CACHE"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA_PROFILE"><param name="Local" value="../../dist/cn/content/04_cli/10_env_vars.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA_SAB_NO_FALLBACK"><param name="Local" value="../../dist/cn/content/08_faq/02_compile_failures.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="slab"><param name="Local" value="../../dist/cn/content/04_cli/06_sab.html"></OBJECT>
@@ -621,6 +623,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Zig 0.17"><param name="Local" value="../../dist/cn/content/14_zig017_perf/01_zig017_vs_014.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="zig build"><param name="Local" value="../../dist/cn/content/01_overview/02_install_build.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Zig 版"><param name="Local" value="../../dist/cn/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="zig-cache"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="一次性令牌"><param name="Local" value="../../dist/cn/content/16_policy/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="一致性"><param name="Local" value="../../dist/cn/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="三元表达式"><param name="Local" value="../../dist/cn/content/07_ui/02_syntax.html"></OBJECT>
@@ -662,6 +665,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="列式存储"><param name="Local" value="../../dist/cn/content/10_db/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="别名"><param name="Local" value="../../dist/cn/content/15_sa2c/03_semantics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="前端"><param name="Local" value="../../dist/cn/content/01_overview/14_cpp2sa_go2sa.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="前端缓存"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="剩余问题"><param name="Local" value="../../dist/cn/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="动态库"><param name="Local" value="../../dist/cn/content/05_plugins/18_ffi_vs_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="动画"><param name="Local" value="../../dist/cn/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
@@ -862,7 +866,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="统计"><param name="Local" value="../../dist/cn/content/06_stdlib/15_api_index.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="缓冲"><param name="Local" value="../../dist/cn/content/06_stdlib/03_fmt.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="缓冲三件套"><param name="Local" value="../../dist/cn/content/06_stdlib/13_usage_guide.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="缓存"><param name="Local" value="../../dist/cn/content/01_overview/11_sardis_roadmap.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="缓存"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译后端"><param name="Local" value="../../dist/cn/content/01_overview/12_haxe_backend.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译器"><param name="Local" value="../../dist/cn/content/05_plugins/10_sla.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译器建议"><param name="Local" value="../../dist/cn/content/11_ecs/03_macros.html"></OBJECT>
@@ -927,10 +931,12 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="配置即代码"><param name="Local" value="../../dist/cn/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="配置文件"><param name="Local" value="../../dist/cn/content/16_policy/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="重构"><param name="Local" value="../../dist/cn/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="金丝雀"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="钩子"><param name="Local" value="../../dist/cn/content/16_policy/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="错误码"><param name="Local" value="../../dist/cn/content/03_sa_asm/05_diagnostics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="闭包"><param name="Local" value="../../dist/cn/content/17_rust_beginners/05_errors_closures_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="间接调用"><param name="Local" value="../../dist/cn/content/15_sa2c/03_semantics.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="陈旧产物"><param name="Local" value="../../dist/cn/content/04_cli/14_caches.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="限制"><param name="Local" value="../../dist/cn/content/10_db/06_limits_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="隐式接口"><param name="Local" value="../../dist/cn/content/01_overview/15_go_feature_candidates.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="静态占位数据"><param name="Local" value="../../dist/cn/content/07_ui/01_overview.html"></OBJECT>

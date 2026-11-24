@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SLA / SA Caches</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Command-Line Reference &gt; SLA / SA Caches</div>
+<h1>SLA / SA Caches</h1>
+
+<p>The SA / SLA toolchain keeps several caches. Most of them are keyed by file content only —
+<strong>not</strong> by compiler or plugin version — so after the compiler or a plugin is rebuilt,
+a stale cache can silently replay artefacts produced by the old compiler. The symptoms mislead in
+both directions: a real fix appears to have no effect, or a healthy tree appears broken. This
+chapter lists every cache surface, what it keys on, how it fails, and how to clear it.</p>
+
+<p><strong>Rule of thumb:</strong> before verifying any compiler or plugin change, clear all six
+surfaces below. When a gate or canary result contradicts the state of the tree, clearing the
+caches is step one of the investigation, not a last resort. Clearing is always safe — every cache
+regenerates; the only cost is rebuild time.</p>
+
+<h2>The six cache surfaces</h2>
+<table>
+<tr><th>#</th><th>Cache</th><th>Location</th><th>Key</th><th>How it fails</th><th>Clear</th></tr>
+<tr><td>1</td><td>SLA macro index cache</td><td><code>.sla-cache/</code> in the
+<code>sa_plugin_sla</code> tree (<code>macros/*.idx</code>)</td><td>Macro file path + length +
+source hash; no compiler-analysis version</td><td>Old macro expansions are replayed after a
+compiler change, so a fixed compiler can keep crashing or misbehaving exactly as before.</td>
+<td>Delete the tree's <code>.sla-cache</code>. Note: <code>SLA_NO_FRESHNESS_CACHE=1</code> does
+<strong>not</strong> cover this cache.</td></tr>
+<tr><td>2</td><td>Host frontend cache</td><td><code>~/.cache/sa/frontend</code></td>
+<td>Source file sha256 only; no plugin / compiler version</td><td>After a plugin rebuild,
+compiling an unchanged <code>.sla</code> replays the first compilation's output, so a fix can look
+completely ineffective for several rounds.</td><td>Delete <code>~/.cache/sa/frontend</code>.</td></tr>
+<tr><td>3</td><td>Build graph cache</td><td><code>.zig-cache/</code> and <code>zig-out/</code> in
+the plugin tree</td><td>Zig build graph, including the optimisation mode captured when the graph
+was configured</td><td>If a build or install runs with <code>SA_PLUGIN_DEV=1</code> in the
+environment, the graph records a Debug configuration: the plugin <code>.so</code> balloons
+(about 129 MB instead of about 37 MB ReleaseFast), and a later plain <code>zig build</code> exits
+in 0 s without rebuilding anything.</td><td>Delete <strong>both</strong> <code>.zig-cache</code>
+and <code>zig-out</code> (one alone is not enough) and build / install with
+<code>env -u SA_PLUGIN_DEV</code>. Running still requires <code>SA_PLUGIN_DEV=1</code> — the build
+and run environments differ.</td></tr>
+<tr><td>4</td><td><code>sa test</code> artefact cache</td><td><code>.sa_cache/test/&lt;hash&gt;/artifact.sa.bc</code>
+inside each test directory</td><td>Hash of the test source; no compiler version</td>
+<td><code>sa test</code> replays a bitcode artefact built by an older compiler; a test file can
+keep failing or crashing from its own cache while a byte-identical copy elsewhere passes.</td>
+<td>Delete <code>.sa_cache</code> in the affected test directories.</td></tr>
+<tr><td>5</td><td>Standalone CLI freshness cache</td><td>Managed by the Rust <code>sla</code> CLI
+(per-project artefact store)</td><td>Source freshness metadata</td><td>The compile pipeline
+returns a cached <code>.sa</code> and skips the frontend entirely, so new compiler behaviour
+never runs.</td><td>Run with <code>SLA_NO_FRESHNESS_CACHE=1</code>. This is the only surface that
+variable covers.</td></tr>
+<tr><td>6</td><td>Project / demo directory artefact cache</td><td><code>.sa_cache/</code> inside
+demo and project directories (same store as #4, different location)</td><td>Same as #4</td>
+<td><code>build-exe</code> replays a stale <code>artifact.sa.bc</code> left behind by an older
+compiler — this once kept a canary cell red for a full day on a healthy tree.</td>
+<td>Delete <code>.sa_cache</code> in demo / project directories before canary or gate runs.</td></tr>
+</table>
+
+<h2>Clearing checklist</h2>
+<pre><code># in the sa_plugin_sla tree
+rm -rf .sla-cache .zig-cache zig-out
+rm -rf ~/.cache/sa/frontend
+find . -type d -name .sa_cache -prune -exec rm -rf {} +
+SLA_NO_FRESHNESS_CACHE=1 &lt;your command&gt;</code></pre>
+
+<h2>Related traps (the same family: silent staleness)</h2>
+<ul>
+<li><strong><code>sa plugin install --dev</code> swallows build errors.</strong> It can exit 0
+while the build failed, keeping the old <code>.so</code>. After installing, verify two things:
+the installed <code>.so</code>'s mtime / size changed, and a string literal introduced by the new
+build is present in the <code>.so</code> (<code>grep</code>). Take md5s after the install settles,
+and compare md5 only within a single build → install round: plugin <code>.so</code> bytes are not
+reproducible across rebuilds, so a cross-round md5 comparison is meaningless. On a fresh machine,
+the bare form may also demand an explicit path: <code>sa plugin install --dev .</code></li>
+<li><strong>Dev mode loads the installed plugin, not the working tree.</strong>
+<code>sa sla check</code> / <code>test</code> run the plugin under
+<code>$HOME/.local/share/sa_plugins/installed/</code>, so editing the tree and running
+<code>zig build</code> alone changes nothing. Every A/B comparison must install the tree under
+test into that round's HOME and md5-check the installed <code>.so</code> first.</li>
+<li><strong><code>zig build test</code> caches successes.</strong> A previously successful run is
+replayed silently (rc=0, empty log, <code>run test cached</code> under <code>--summary all</code>);
+failures are not cached, which makes the trap easy to miss. Judge a run by four signs together:
+rc=0, the expected result line present, an empty failure-name set, and — for dual-route features —
+both routes passing. rc=0 with an empty log is not a run.</li>
+<li><strong><code>sa-std-static</code> archive freshness.</strong> <code>zig build sa-std-static</code>
+does not track <code>sa_std/*.sa</code> as step inputs, so a warm rebuild can replay the previous
+archive. Judge freshness by the archive's mtime / size change plus a behavioural check, not by the
+build's exit code.</li>
+</ul>
+
+<h2>When to clear</h2>
+<ul>
+<li>After any compiler / plugin source change, before running verification.</li>
+<li>Before canary / gate runs, and as step one when a gate result contradicts the tree.</li>
+<li>When two copies of identical sources behave differently — cache asymmetry is the first suspect.</li>
+<li>When an install or rebuild seems to have had no effect at all.</li>
+</ul>
+
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/04_cli/14_caches.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

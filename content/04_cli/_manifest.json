@@ -180,6 +180,22 @@
         "2x"
       ],
       "parent": "cli-build-js"
+    },
+    {
+      "id": "cli-caches",
+      "title": "SLA / SA Caches",
+      "file": "14_caches.html",
+      "keywords": [
+        "cache",
+        ".sla-cache",
+        ".sa_cache",
+        "frontend cache",
+        "SLA_NO_FRESHNESS_CACHE",
+        "stale artefact",
+        "zig-cache",
+        "canary"
+      ],
+      "parent": null
     }
   ]
 }

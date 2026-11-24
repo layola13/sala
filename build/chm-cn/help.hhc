@@ -661,6 +661,14 @@
 <param name="Local" value="../../dist/cn/content/04_cli/10_env_vars.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SLA / SA 缓存">
+<param name="Local" value="../../dist/cn/content/04_cli/14_caches.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

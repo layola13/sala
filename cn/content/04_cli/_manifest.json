@@ -181,6 +181,22 @@
         "2x"
       ],
       "parent": "cli-build-js"
+    },
+    {
+      "id": "cli-caches",
+      "title": "SLA / SA 缓存",
+      "file": "14_caches.html",
+      "keywords": [
+        "缓存",
+        ".sla-cache",
+        ".sa_cache",
+        "前端缓存",
+        "SLA_NO_FRESHNESS_CACHE",
+        "陈旧产物",
+        "zig-cache",
+        "金丝雀"
+      ],
+      "parent": null
     }
   ]
 }
