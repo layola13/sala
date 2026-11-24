@@ -166,14 +166,14 @@ cost zero.</li>
 compiler without any GC; this is the principle most worth holding.</li>
 </ul>
 
-<h2>Supplement: sync fields (adopted)</h2>
+<h2>Supplement: sync fields (adopted, v2)</h2>
 
-<p><strong>Adopted (2026-11-24).</strong> This section is a supplementary
+<p><strong>Adopted (2026-11-24); revised to v2 the same day.</strong> This section is a supplementary
 part of this chapter's model; its examples are design syntax as well. In one sentence:
 keep "mutable by default + <code>const</code> freezing", and add a <code>sync</code> field modifier
 meaning "concurrent writes allowed"; lock scope, read/write mode and blocking-ness are all
 derived uniquely by the compiler from the syntax, and anything it cannot decide is a compile
-error; <code>lock .&amp;field</code> is retained as an optional read-only contract declaration.
+error; <code>lock .&amp;field</code> is retained as an optional API contract declaration.
 This section differs from this chapter's v1 scope in three substantive ways, and
 <strong>this section governs those three points</strong> (the v1 scope below is amended accordingly): (1) an object reachable
 through a shared handle is no longer read-only without exception — besides interior-mutability
@@ -183,7 +183,11 @@ spawn sites) is no longer the admission criterion for sharing — the type rules
 at the cost that two tasks writing disjoint fields of the same shared object no longer run in
 parallel (one lock per object); (3) locking functions take real locks at entry already in v1
 (zero cost for never-shared objects is deferred to v2 dual compilation), and panic poisoning
-semantics are added.</p>
+semantics are added. Statements in this section about the <em>current</em> checker rest on this
+documentation's ownership / borrowing and goroutine chapters plus a read of the Rust checker's
+sources (check_spawn_guard.rs, check_go.rs, check_borrow_origin.rs) — read only, not
+compile-verified; the pre-existing defects F1–F3 in §6.1 below are claims pending verification
+with the Appendix A programs.</p>
 
 <h3>Three field states</h3>
 <pre><code>struct Account {
@@ -212,28 +216,37 @@ a visible trust boundary at the same level as unsafe.</p>
 extern fn crc32(p: ptr, n: u64) -&gt; u32 noblock;   // trust boundary
 trait Hasher { fn hash(&amp;self) -&gt; u64 noblock; }    // every implementation is checked</code></pre>
 
-<h3>Seven rules (R1–R7)</h3>
+<h3>Eight rules (R1–R8)</h3>
 <ul>
 <li><strong>R1 Three field states</strong>: every field is in exactly one of default,
 <code>const</code>, <code>sync</code>. A <code>sync</code> field may have any type (including
 heap types such as String and Vec), because the scheme has exactly one mode — pessimistic
 locking — and never needs rollback.</li>
-<li><strong>R2 Default fields are read-only while shared</strong>: while an object is borrowed
-by a go statement, or lives inside an Arc (treated as permanently shared), every holder —
-including the owner — may only read its <strong>default fields</strong>. Sharedness is determined
-by syntax alone: <code>go f(&amp;a)</code> borrows, hence shares; <code>go f(a)</code> moves
-ownership, hence does not share. <strong>No static field-access analysis</strong> — the original
-scheme relied on proving two tasks' accesses disjoint, whose outcome depends on analysis
-precision, i.e. on guessing; this scheme replaces it with a type rule.</li>
+<li><strong>R2 Default fields are read-only while shared — Arc is the criterion</strong>: an
+object placed in an <code>Arc</code> counts as shared (permanently), and every holder may only
+read its <strong>default fields</strong>. The existing checks already forbid borrows from
+crossing task boundaries (go's GoBorrowPayload, thread::spawn's BorrowEscape), so in safe code
+an Arc is the only route to cross-task sharing, and sharedness is determined by the type alone.
+<strong>No static field-access analysis</strong> — the original scheme relied on proving two
+tasks' accesses disjoint, whose outcome depends on analysis precision, i.e. on guessing; this
+scheme replaces it with a type rule. Raw pointers are outside the guarantee: turning a Box into
+a raw pointer and handing it to a goroutine is an ownership transfer (the sender no longer
+accesses it), an accepted use under the existing rules; accessing through raw pointers from both
+sides at once is at the unsafe level and is the user's responsibility.</li>
 <li><strong>R3 Lock scope is determined uniquely by syntax</strong>: a function that
 <strong>directly</strong> reads or writes a <code>sync</code> field becomes a locking function.
-The objects owning the accessed fields must be reachable from <strong>parameters</strong>
-through <code>const</code> fields only; those objects form the lock set: reads only → read lock;
-any write → write lock; accessing an element of a <code>const</code> collection locks all of its
-elements. The inferred result is written into interface metadata and visible in IDE hovers.
-Looking an object up by ID inside the function and then writing its <code>sync</code> field is
-rejected (e.g. <code>bank.find(id).balance -= 1</code>) — the fix is to look it up in the caller
-and pass it in as a parameter.</li>
+The objects owning the accessed fields must be reachable from a <strong>starting point</strong>
+— a function parameter, or a global <code>static</code> — through <code>const</code> fields
+only; those objects form the lock set: reads only → read lock; any write → write lock; accessing
+an element of a <code>const</code> collection locks all of its elements. A lock covers the
+object's owned interior (inline fields, Box) up to the reference boundary — the same depth rule
+as this chapter's <code>lock</code> — so recursive tree traversals need no per-node locking. An
+<strong>unshared local object</strong> may read and write its <code>sync</code> fields directly,
+without locking, before it is placed in an Arc, keeping initialisation and single-threaded code
+annotation-free. The inferred result is written into interface metadata and visible in IDE
+hovers. Looking an object up by ID inside the function and then writing its <code>sync</code>
+field is rejected (e.g. <code>bank.find(id).balance -= 1</code>) — the fix is to look it up in
+the caller and pass it in as a parameter.</li>
 <li><strong>R4 A locking function must not block</strong>: no blocking point may appear in a
 locking function or anywhere in its call chain. The blocking-point set matches the goroutine
 runtime: channel send / recv / select (except timeout(0) and default branches), join, sleep,
@@ -241,24 +254,49 @@ network waits, Mutex locking, yield, and .await. Every function's blocking-ness 
 precisely along the call chain and recorded in the interface for pub functions; changing from
 <code>noblock</code> to blocking is a breaking change. extern and dyn are blocking by default
 unless declared <code>noblock</code>. The scheme needs a new call-chain blocking-analysis pass
-as the foundation of R4.</li>
+as the foundation of R4. <strong>Premise</strong>: sa_std's allocator must itself be
+<code>noblock</code>, otherwise string concatenation or <code>Vec::push</code> inside a locking
+function would be rejected (to be verified, see the open questions); the standard library also
+provides a <code>noblock</code> buffered log for debug output while holding locks. The IDE
+provides an "extract into a locking function" refactoring for the most common R4 error (writing
+a <code>sync</code> field right after a recv in a worker loop).</li>
 <li><strong>R5 No nested locking</strong>: a callee's lock set must be a <strong>subset</strong>
 of the caller's already-held set, and its mode no higher than the caller's (a function needing a
 write lock may not be called under a read lock). When satisfied, the callee simply reuses the
 held locks and acquires nothing; otherwise it is a compile error. Each task therefore has exactly
 one acquisition point at any moment, which breaks the "hold and wait" condition for deadlock.</li>
-<li><strong>R6 No check-then-act within one function</strong>: a value returned by a locking
-function and originating from a <code>sync</code> field, when used inside the same function body
-as an argument or condition of a call that needs a write lock, is a compile error; the fix is to
+<li><strong>R6 No check-then-act</strong>: a value originating from a <code>sync</code> field,
+when used as an argument or condition of a call that needs a write lock, is a compile error
+<strong>when all of the following hold</strong>: the caller does not itself hold that object's
+lock (calling a read-only helper and writing back inside a locking function is not checked); the
+read and the write act on the <strong>same variable path</strong> (reading A and writing B is
+not checked); and "originating" is judged by <strong>data dependence, through function calls
+and across .await</strong> — a function's return value counts as depending on all of its
+arguments (function bodies are not analysed, so the verdict is deterministic). The fix is to
 fuse the check and the act into one function under one lock acquisition. <strong>The checking
-scope is part of the spec</strong>: only local variables in the function body are tracked; values
-stored on the heap are not tracked, and nothing is tracked across functions. What lies outside
-the scope is business consistency — as with this chapter's scope, it is out of this system's
-range: not checked, and no "might be a problem" warning is emitted either.</li>
+scope is part of the spec</strong>: only data dependence of local variables in the function body
+is tracked; values stored on the heap are not tracked; control dependence (choosing an account
+by balance, then writing it) is not tracked; two different variables that happen to point at the
+same object at runtime are not tracked. What lies outside the scope is business consistency —
+not checked, and no "might be a problem" warning is emitted either. The documented cost:
+<code>withdraw(a, amt + calc_fee(balance(a)))</code> is also rejected; the fix is to move the
+fee computation into <code>withdraw</code>.</li>
 <li><strong>R7 Error exit</strong>: when a locking function panics, the runtime releases all of
 its locks and marks every object it write-locked as <strong>poisoned</strong>; a locking function
 that later accesses a poisoned object returns an error, and recovery is left to a human or a
 supervisor task. This is a deterministic runtime behaviour, not a guess.</li>
+<li><strong>R8 Async functions must not access <code>sync</code> fields directly</strong>:
+calling an async function only creates a future; its body runs when polled, so the locking
+moment decouples from the call site and R5's call-site checks fail with it. Directly reading or
+writing a <code>sync</code> field inside an async function body is therefore a compile error;
+the access is extracted into a plain function. An optional <code>lock</code> contract written on
+an async function: locking a <code>sync</code> field conflicts with R8 and is an error; locking
+a <strong>default</strong> field is only a compile-time read-only promise and may span an
+await. Because a locking function can contain no .await (R4), a future never suspends or is
+dropped while holding a lock, so cancellation or dropping a future cannot leak a lock — this
+chapter's "async safety" item holds structurally. An executor running on a system thread may
+block briefly while acquiring, but cannot deadlock: it holds no other lock while acquiring (R5),
+the holder never suspends (R4), and waiting is bounded.</li>
 </ul>
 
 <h3>Runtime semantics</h3>
@@ -266,36 +304,61 @@ supervisor task. This is a deterministic runtime behaviour, not a guess.</li>
 <li><strong>Acquisition</strong>: at function entry the lock set is sorted by object identity and acquired all at once; the same object appearing several times merges into one lock, and a read/write conflict upgrades to a write lock.</li>
 <li><strong>Release</strong>: on function return, including the panic path.</li>
 <li><strong>Fairness</strong>: once a writer queues, new readers are not admitted, so writers cannot starve.</li>
-<li><strong>Granularity</strong>: one lock per object, covering all of its <code>sync</code> fields (grouped automatically, so cross-field invariants hold naturally).</li>
-<li><strong>Implementation</strong>: reuse sa_std's existing park queue (the same source as RwLock); waiting suspends instead of spinning.</li>
+<li><strong>Granularity</strong>: one lock per object, covering all of its <code>sync</code> fields and its owned interior (grouped automatically, so cross-field invariants hold naturally).</li>
+<li><strong>Implementation</strong>: reuse sa_std's existing park queue (the same source as RwLock); waiting suspends instead of spinning. F3 below must be fixed first.</li>
 <li><strong>Cost</strong>: in v1 locking functions always lock; uncontended, this is about one atomic operation; objects with no <code>sync</code> fields at all cost zero.</li>
 <li><strong>Memory model</strong>: a lock release synchronizes-with the next acquisition on the same object; all writes to <code>sync</code> fields made before the release are visible to the next acquirer.</li>
 </ul>
-<p>Relation to existing features: borrowed goroutine captures must pair with "auto-join before
-the enclosing function returns" (to be aligned with the existing spawn capture checks); a locking
-function never blocks (R4), hence never yields, so under cooperative scheduling its lock hold
-time depends only on computation and is predictable; because supervision / recover lets the
-process continue, R7's release + poisoning must be kept; in async code .await is a blocking
-point, so locks never span an await; nested awaits across async fn boundaries are supported; Arc owns lifetimes, objects inside an Arc count as
-permanently shared, and <code>sync</code> governs only the concurrent-write permission; sending
-a plain T over a channel transfers ownership and needs no lock, while channel-versus-channel
-deadlock is out of this scheme's scope and left to runtime deadlock detection; calling a Mutex
-lock inside a locking function is a blocking point (rejected by R4), and calling a locking
-function while holding a Mutex is a compile error, so the two mechanisms cannot form a cycle.
-The scheme changes only the SLA frontend checks and the sa_std runtime library; it adds no SA
-instructions (SA stays frozen).</p>
+<p>Relation to existing features: <strong>go's parameter rules</strong> — the callee must be a
+named plain function (not async) taking exactly one word-sized argument (scalar, pointer or
+Chan), and borrows may not cross; shared state is packed into a struct, Boxed, and passed as a
+single pointer. <strong>thread::spawn</strong> — closures may not borrow or write outer
+variables (BorrowEscape); Arc clones and futures may move in (see F1). A locking function never
+blocks (R4), hence never yields, so under cooperative scheduling its lock hold time depends only
+on computation and is predictable. Because supervision / recover lets the process continue, R7's
+release + poisoning must be kept. In async code .await is a blocking point (R4) and async
+functions do not access <code>sync</code> fields directly (R8); nested awaits across async fn
+boundaries are supported (this documentation has not caught up yet). Arc owns lifetimes and is
+also the sole criterion for "shared" (R2); <code>sync</code> governs only the concurrent-write
+permission. Sending a plain T over a channel transfers ownership and needs no lock, while
+channel-versus-channel deadlock is out of this scheme's scope and left to runtime deadlock
+detection. Calling a Mutex lock inside a locking function is a blocking point (rejected by R4),
+and calling a locking function while holding a Mutex is a compile error, so the two mechanisms
+cannot form a cycle. Simultaneous access through raw pointers from both sides is outside the
+guarantee, at the unsafe level. The scheme changes only the SLA frontend checks and the sa_std
+runtime library; it adds no SA instructions (SA stays frozen).</p>
+
+<h3>6.1 Pre-existing defects (must be fixed before this lands)</h3>
+<table>
+<tr><th>Defect</th><th>Current state</th><th>Fix</th></tr>
+<tr><td>F1 Futures / closures carrying borrows across threads</td><td>The thread::spawn guard deliberately does not treat futures and closures as borrows; a future produced by <code>bump(&amp;n)</code> can move into a thread — the same class of hole as the one fixed in 2b65a1dd</td><td>An async call with any borrow argument returns a "borrow-carrying" future; closures capturing outer borrows likewise; the spawn guard rejects all of them. Futures built from owned values and Arc clones are unaffected</td></tr>
+<tr><td>F2 Mutating an owner while a same-thread future still holds its borrow</td><td>The borrow-origin check registers only borrow-typed variables; borrows inside a <code>future&lt;T&gt;</code> are unregistered, and join2's concurrent borrows are likewise unchecked</td><td>A borrow-carrying future counts as a view of its owner until awaited or dropped; read vs write is distinguished via the signature's existing param_may_write</td></tr>
+<tr><td>F3 RwLock intermittent panic under mixed load</td><td>Reported as measured 6 panics in 28 runs (code 17); no fix line yet <em>(measurement not yet reproduced by us — review note)</em></td><td>The sync runtime reuses its park queue, so this must be fixed first</td></tr>
+</table>
+<p>Basis: this documentation's "No &amp;mut by Design" and "Ownership and borrowing" chapters,
+and the Rust checker's check_spawn_guard.rs, check_go.rs and check_borrow_origin.rs on main —
+source reading only, not compile-verified; verification programs are in Appendix A.</p>
 
 <h3>Complete example: concurrent transfers</h3>
-<p>Four worker tasks process transfer requests, one auditor task re-checks periodically, and the
-end state verifies total conservation. There are exactly three <code>sync</code> annotations in
-the whole program; worker, auditor and main carry no concurrency annotations at all.</p>
+<p>Four worker tasks process 1000 transfer requests, one auditor task re-checks periodically, and
+the end state verifies total conservation. The v2 example is rewritten to the existing go rules:
+shared state travels via Arc, and a task's argument is a single pointer to a Boxed context.
+There are exactly three <code>sync</code> annotations in the whole program; worker, auditor and
+main carry no concurrency annotations at all. Spellings such as the select branches,
+<code>Box::from_raw</code> and <code>random_tx</code> are illustrative and follow SLA's actual
+syntax; if Chan handles have move semantics, context construction copies or clones the handles
+instead.</p>
 <pre><code>struct Account {
     const id: u64,
     sync balance: i64, sync total_in: i64, sync total_out: i64,
     name: String,
 }
-struct Bank { const accounts: Vec&lt;Account&gt; }
+struct Bank      { const accounts: Vec&lt;Account&gt; }
+struct WorkerCtx { bank: Arc&lt;Bank&gt;, reqs: Chan&lt;TxReq&gt;, res: Chan&lt;TxRes&gt; }
+struct AuditCtx  { bank: Arc&lt;Bank&gt;, n: i64, done: Chan&lt;u64&gt; }
 const INIT: i64 = 1000;
+const N_TX: u64 = 1000;
+
 // locking function: write-locks {x, y} at entry; the same account merges automatically
 fn transfer(x: &amp;Account, y: &amp;Account, amt: i64) -&gt; Result&lt;(), TxErr&gt; {
     if x.balance &lt; amt { return Err(Insufficient); }
@@ -304,78 +367,100 @@ fn transfer(x: &amp;Account, y: &amp;Account, amt: i64) -&gt; Result&lt;(), TxEr
     Ok(())
 }
 // locking function: read-locks {a} at entry
-fn check_one(a: &amp;Account) {
-    assert(a.balance == INIT + a.total_in - a.total_out);
-}
+fn check_one(a: &amp;Account) { assert(a.balance == INIT + a.total_in - a.total_out); }
 // locking function: read-locks every element of bank.accounts -&gt; a bank-wide consistent snapshot
 fn total(bank: &amp;Bank) -&gt; i64 {
     let sum = 0;
     for a in bank.accounts { sum += a.balance; }
     sum
 }
-fn worker(bank: &amp;Bank, reqs: Chan&lt;TxReq&gt;, res: Chan&lt;TxRes&gt;) {
-    while let Some(r) = reqs.recv() {                 // blocking point, holding no lock
-        let out = match (bank.find(r.from), bank.find(r.to)) {
+
+fn worker(p: *WorkerCtx) {
+    let c = Box::from_raw(p);                       // take back ownership of the context
+    loop {
+        let (r, closed) = c.reqs.recv();            // blocking point, holding no lock
+        if closed { break; };
+        let out = match (c.bank.find(r.from), c.bank.find(r.to)) {
             (Some(x), Some(y)) =&gt; transfer(x, y, r.amt),
             _ =&gt; Err(NoAccount),
         };
-        res.send(TxRes { tid: r.tid, ok: out });       // blocking point, locks already released
+        c.res.send(TxRes { tid: r.tid, ok: out });  // blocking point, locks already released
     }
 }
-fn auditor(bank: &amp;Bank, n: i64, done: Chan&lt;()&gt;) {
+
+fn producer(reqs: Chan&lt;TxReq&gt;) {                    // a Chan is one word: passable directly
+    for t in 0..N_TX { reqs.send(random_tx(t)); };
+    reqs.close();
+}
+
+fn auditor(p: *AuditCtx) {
+    let c = Box::from_raw(p);
     loop {
         select {
-            done.recv() =&gt; return,
+            c.done.recv() =&gt; return,
             timeout(10ms) =&gt; {
-                for a in bank.accounts { check_one(a); }   // locks one by one
-                assert(total(bank) == n * INIT);           // one full lock
+                for a in c.bank.accounts { check_one(a); }   // locks one by one
+                assert(total(&amp;c.bank) == c.n * INIT);       // one full lock
             }
         }
     }
 }
-fn main() {
+
+fn main() -&gt; i32 {
     let n = 100;
-    let bank = Bank { accounts: make_accounts(n, INIT) };
-    let reqs: Chan&lt;TxReq&gt; = Chan::buffered(64);
-    let res:  Chan&lt;TxRes&gt; = Chan::buffered(64);
-    let done: Chan&lt;()&gt;    = Chan::new();
-    let wg = WaitGroup::new();
+    let bank = Arc::new(Bank { accounts: make_accounts(n, INIT) });
+    // make_accounts initialises sync fields directly, before the Arc (R3)
+    let reqs: Chan&lt;TxReq&gt; = Chan::new(64);
+    let res:  Chan&lt;TxRes&gt; = Chan::new(64);
+    let done: Chan&lt;u64&gt;   = Chan::new(0);
+    let hs = vec();
     for _ in 0..4 {
-        wg.add(1);
-        go { defer wg.done(); worker(&amp;bank, reqs, res); };
+        let ctx = Box::new(WorkerCtx { bank: bank.clone(), reqs: reqs, res: res });
+        hs.push(go worker(Box::into_raw(ctx)));
     }
-    go auditor(&amp;bank, n, done);
-    go { for t in 0..1000 { reqs.send(random_tx(t, n)); }; reqs.close(); };
-    go { wg.wait(); res.close(); };
+    let actx = Box::new(AuditCtx { bank: bank.clone(), n: n, done: done });
+    let ha = go auditor(Box::into_raw(actx));
+    let hp = go producer(reqs);
     let ok = 0;
-    while let Some(r) = res.recv() { if r.ok.is_ok() { ok += 1; } }
-    done.send(());
-    assert(total(&amp;bank) == n * INIT);
-    print(ok);
-}   // borrowed-capture tasks auto-join here; only then is bank released</code></pre>
+    for _ in 0..N_TX {                               // request count is known: no need to close res
+        let (r, _) = res.recv();
+        if r.ok.is_ok() { ok += 1; };
+    }
+    done.send(1);
+    for h in hs { sa_task_join(h); };
+    sa_task_join(ha); sa_task_join(hp);
+    assert(total(&amp;bank) == n * INIT);               // total conservation
+    println("{}", ok);
+    return 0;
+}</code></pre>
 <p>Spellings the compiler rejects:</p>
 <table>
 <tr><th>Spelling</th><th>Rule</th></tr>
+<tr><td>go worker(&amp;bank, reqs, res)</td><td>Existing checks: more than one argument; a borrow crossing a goroutine</td></tr>
 <tr><td>Inserting log.send(..) into transfer</td><td>R4 blocking while holding a lock</td></tr>
 <tr><td>An indirect sleep inside a function transfer calls</td><td>R4 call-chain blocking</td></tr>
-<tr><td>bank.accounts[0].name = "x" in main (while tasks run)</td><td>R2 default fields read-only while shared</td></tr>
+<tr><td>bank.accounts[0].name = "x" in main</td><td>R2 default fields of an object in an Arc are read-only</td></tr>
 <tr><td>a.id = 5</td><td>R1 const field</td></tr>
 <tr><td>Calling transfer from inside total()</td><td>R5 write lock needed under a read lock</td></tr>
 <tr><td>let b = balance(a); set_balance(a, b - amt);</td><td>R6 check-then-act</td></tr>
+<tr><td>Writing a.balance directly inside an async function</td><td>R8</td></tr>
 <tr><td>Calling transfer while holding a Mutex</td><td>R4/R5 mixed locking</td></tr>
 </table>
 <p>Forgetting <code>sync</code> only ever produces a compile error, never a silent mistake:
 single-threaded code and read-only sharing need no <code>sync</code> at all; the compiler asks
 for it only for "shared and written". The error points at three places — the store, the point
-where sharing began, and the field definition — and offers the fixed remedies (make it
-<code>sync</code>, move the store after those tasks end, or hand ownership to a single task with
-<code>go f(a)</code>). When a third-party struct cannot be annotated, the two standard remedies
-are to wrap it in a custom struct with a <code>sync</code> field, or to give it to a single
-owning task and let the others send change requests over a channel. The mental model in one
-sentence: <strong>if a shared thing must change, write <code>sync</code>, and split the functions
-that touch it small, as the compiler suggests</strong> — functions that modify <code>sync</code>
-fields stay short and contain no print / send / .await; the objects to modify arrive as
-parameters; check-then-act lives inside a single function.</p>
+where the object entered the Arc, and the field definition — and offers the fixed remedies (make
+it <code>sync</code>, finish the writes before placing the object in the Arc, or do not use an
+Arc at all and transfer ownership over a channel to a single task). When a third-party struct
+cannot be annotated, the two standard remedies are to wrap it in a custom struct with a
+<code>sync</code> field, or to give it to a single owning task and let the others send change
+requests over a channel. The mental model in one sentence: <strong>if a shared thing must
+change, write <code>sync</code>, and split the functions that touch it small, as the compiler
+suggests</strong> — four habits: functions that modify <code>sync</code> fields stay short and
+contain no print / send / .await; the objects to modify arrive as parameters; check-then-act
+lives inside a single function; and inside async functions, accesses to <code>sync</code>
+fields are extracted into plain functions (R8 — the most common async error, and the IDE can
+extract in one click).</p>
 
 <h3>Guarantees, costs and open questions</h3>
 <table>
@@ -383,7 +468,9 @@ parameters; check-then-act lives inside a single function.</p>
 <tr><td>Data races</td><td>✅ All intercepted at compile time</td></tr>
 <tr><td>Deadlock between locks</td><td>✅ All intercepted at compile time (R5 + sorted entry acquisition)</td></tr>
 <tr><td>Blocking while holding a lock</td><td>✅ All intercepted at compile time (trusting only extern <code>noblock</code> declarations)</td></tr>
-<tr><td>Check-then-act</td><td>⚠️ Covered within one function body only; scope written into the spec (R6)</td></tr>
+<tr><td>Futures / closures carrying borrows across tasks</td><td>⚠️ Depends on the prerequisite fixes F1, F2 (see 6.1)</td></tr>
+<tr><td>Check-then-act</td><td>⚠️ Data dependence within one function body, through calls and across await; scope written into the spec (R6)</td></tr>
+<tr><td>Simultaneous cross-task access through raw pointers</td><td>❌ Outside the guarantee, at the unsafe level</td></tr>
 <tr><td>Channels waiting on each other</td><td>❌ Not checked; left to runtime deadlock detection</td></tr>
 <tr><td>Business consistency across fields / blocking points</td><td>❌ Not checked; use freezing + linear-credential patterns</td></tr>
 </table>
@@ -391,37 +478,78 @@ parameters; check-then-act lives inside a single function.</p>
 remedy the compiler can print: looking an object up by ID inside a function and writing its
 <code>sync</code> field → look it up in the caller and pass it in; calling a write-lock function
 from a read-lock function → make the outer function a write-lock function, or split the calls;
-logging / messaging inside a locking function → move the blocking operation after the locking
-function returns; a lock set whose size is known only at runtime → put the objects in a
-<code>const</code> collection (locked as a whole), or switch to a channel feeding a single
-task.</p>
+logging / messaging inside a locking function → use the <code>noblock</code> buffered log, or
+move the blocking operation after the locking function returns; a lock set whose size is known
+only at runtime → put the objects in a <code>const</code> collection (locked as a whole), or
+switch to a channel feeding a single task; accessing a <code>sync</code> field inside an async
+function → extract a plain function (R8); <code>withdraw(a, amt + calc_fee(balance(a)))</code> →
+move the balance-dependent computation into <code>withdraw</code>; accessing a <code>sync</code>
+field inside a closure or iterator adapter → rewrite as a for loop (v2 evaluates annotating std
+adapters with element origins).</p>
 <table>
 <tr><th>Rejected alternative</th><th>Why it was rejected</th></tr>
 <tr><td>Shared&lt;T&gt; + lock/excl + lock groups (sharing in the type, leases in signatures)</td><td>Too many user-facing concepts, annotations spread across every signature; its runtime mechanism is kept and turned into compiler inference</td></tr>
 <tr><td>STM atomic blocks (after Haskell)</td><td>Large wrapped blocks break the design principles; logging and re-run costs</td></tr>
 <tr><td>Implicit segment boundaries + optimistic execution (segments between blocking points become transactions)</td><td>Brings re-runs, undo logs, serial modes and version numbers — more complex than Shared; boundaries are invisible</td></tr>
 <tr><td>Static field-access analysis</td><td>Its verdicts depend on analysis precision — guessing; replaced by the R2 type rule</td></tr>
+<tr><td>go borrow capture + auto-join</td><td>Allowing go f(&amp;a) with an auto-join before the enclosing function returns conflicts with the existing "borrows do not cross tasks" rule; Arc becomes the sole sharing criterion instead</td></tr>
 </table>
 <ul>
-<li>Phasing: v1 = <code>const</code> + <code>sync</code> fields, R1–R7, the call-chain blocking-analysis pass, sorted entry locking + poisoning, the optional <code>lock</code> contract, <code>noblock</code>;
-v2 = dual compilation by whether a call site shares (locking version / zero-cost version) and IDE hovers for lock sets and blocking-ness;
+<li>Phasing: <strong>prerequisites</strong> = fix F1, F2, F3 and verify whether sa_std's allocator blocks;
+v1 = <code>const</code> + <code>sync</code> fields, R1–R8, the call-chain blocking-analysis pass, sorted entry locking + poisoning, the optional <code>lock</code> contract, <code>noblock</code>, and a std buffered log;
+v2 = dual compilation by whether a call site shares (locking version / zero-cost version), IDE hovers for lock sets and blocking-ness plus "extract into a locking function", and element-origin annotations on std iterator adapters;
 v3 = evaluate as needed: the dynamic adaptive layer (Adaptive Field Mutability), range locks, and the like.</li>
-<li>Open questions: is sa_std's existing RwLock writer-fair? If not, the queueing rule needs its own implementation;
-borrowed go captures + auto-join before the enclosing function returns must be aligned with the existing spawn capture checks;
+<li>Open questions: is sa_std's existing RwLock writer-fair (handled together with F3)? Otherwise the queueing rule needs its own implementation;
+is sa_std's allocator <code>noblock</code>? This decides whether locking functions may allocate memory under R4;
+does dropping a future run cleanup code? This affects the design of freeze credentials and business compensation;
+can a closure be stored in a variable and mutate outer variables? This decides how the F1 closure verification program is written;
 whether v1's single compilation that always locks is fast enough must be confirmed by benchmarks;
 whether the optional <code>lock .&amp;field</code> contract is kept long-term is to be decided after practice;
-async acceptance cases, including nested awaits across async fn boundaries, must be added;
-how sharedness is judged for reference-escape paths — sending an &amp;T over a channel, storing an &amp;T into a shared structure — is not covered by this supplement (review note, still open).</li>
+async acceptance cases (including nested awaits across async fn boundaries) and <code>test_error_*</code> regression tests for F1/F2 must be added;
+whether the existing borrow checks cover every reference-escape path (a reference stored into a shared structure, a reference sent as a channel payload) is to be verified together with F1/F2 (review note, still open).</li>
 </ul>
+
+<h3>Appendix A: F1 / F2 verification programs</h3>
+<p>The programs below are expected to <em>pass</em> <code>sla check</code> before the fix (that
+is the gap); after the fix they must be rejected, and they join the <code>test_error_*</code>
+regression corpus next to test_error_spawn_closure_borrow_capture.sla. <code>block_on</code> is
+spelled as in demo 314.</p>
+<pre><code>// F1: a future carrying a borrow across a thread
+async fn bump(v: &amp;i32) -&gt; i32 { *v += 1; return *v; }
+fn main() -&gt; i32 {
+    let n = 100;
+    let fut = bump(&amp;n);                         // the future hides &amp;n
+    let h = thread::spawn(^|| block_on(fut));   // the guard sees fut, not a borrow
+    n = 200;                                    // the main thread writes n at the same time -&gt; data race
+    h.join();
+    return 0;
+}
+
+// F2: mutating the borrowed object while a same-thread future is unfinished
+async fn bump(v: &amp;i32) -&gt; i32 { *v += 1; return *v; }
+fn main() -&gt; i32 {
+    let n = 100;
+    let fut = bump(&amp;n);
+    n = 0;                    // must error: fut still holds &amp;n
+    let r = block_on(fut);
+    return 0;
+}</code></pre>
+
+<h3>Appendix B: revision record</h3>
+<table>
+<tr><th>Version</th><th>Date</th><th>Changes</th></tr>
+<tr><td>v1</td><td>2026-11-24</td><td>First draft: three field states, R1–R7, the optional lock contract, noblock. Incorporated into this chapter as "Supplement: sync fields (adopted)"</td></tr>
+<tr><td>v2</td><td>2026-11-24</td><td>False-rejection stress tests, async stress tests and a borrow-check audit folded in: R2 makes Arc the sole sharing criterion and states the raw-pointer boundary; R3 gains static starting points, owned-interior coverage and unshared local objects; R4 gains the allocator premise and the buffered log; R6 narrows to the same variable path with the caller not holding the lock, tracked through calls and await; R8 added; pre-existing defects F1–F3 and Appendix A added; the example is rewritten to the existing go rules; nested await across async fn boundaries is supported</td></tr>
+</table>
 
 <h2>Scope and status</h2>
 <ul>
-<li>V1 scope: field const + lock path syntax + sync fields (R1–R7, entry locking, panic poisoning); static field-access analysis no longer gates sharing of shared objects — the adopted supplement governs.</li>
+<li>V1 scope: field const + lock path syntax + sync fields (R1–R8, entry locking, panic poisoning), preceded by the supplement's prerequisite fixes F1–F3; static field-access analysis no longer gates sharing of shared objects — the adopted supplement governs.</li>
 <li>This system guarantees <strong>memory-level</strong> access disjointness only; cross-field
 business invariants (e.g. balance and total that must stay consistent) are a transactional
 concern, out of scope.</li>
 <li>The dynamic adaptive layer (Adaptive Field Mutability) is a phase-3 research topic.</li>
-<li>The <code>sync</code>-field supplement (final section of this chapter): adopted (2026-11-24); the v1 scope above is amended at its three differing points, which the supplement governs.</li>
+<li>The <code>sync</code>-field supplement (final section of this chapter): adopted (2026-11-24), revised to v2 the same day; the v1 scope above is amended at its three differing points, which the supplement governs.</li>
 <li>Status: design adopted (2026-11-24); implementation not yet started. This chapter is a feature preview.</li>
 </ul>
 
