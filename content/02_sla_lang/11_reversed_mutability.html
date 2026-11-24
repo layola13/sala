@@ -132,6 +132,9 @@ signature-declared read-only paths are verified at compile time and backed at ru
 leases against cross-task writes; (3) <strong>a dynamic adaptive layer (research)</strong> — for
 sharing that cannot be proven statically, the runtime maintains access state per
 (object, field path): Adaptive Field Mutability, a later research phase, out of v1 scope.</p>
+<p><strong>Amendment (adopted supplement):</strong> for objects shared through shared handles,
+layer (1) no longer admits sharing — the sync-field supplement's type rules and entry locking
+govern instead; layers (2)–(3) are unchanged.</p>
 <p>Layering: this feature is added <strong>in the SLA layer only</strong> (frontend checking plus
 an SLA-level runtime library built on SA's existing atomics, task identity and synchronisation
 primitives). SA stays frozen: no new instructions, no field semantics pushed into SA; if the
@@ -163,16 +166,16 @@ cost zero.</li>
 compiler without any GC; this is the principle most worth holding.</li>
 </ul>
 
-<h2>Supplement: sync fields (discussion draft)</h2>
+<h2>Supplement: sync fields (adopted)</h2>
 
-<p><strong>Discussion draft (2026-11-24), not yet final.</strong> This section is a supplementary
-proposal to this chapter's model; its examples are design syntax as well. In one sentence:
+<p><strong>Adopted (2026-11-24).</strong> This section is a supplementary
+part of this chapter's model; its examples are design syntax as well. In one sentence:
 keep "mutable by default + <code>const</code> freezing", and add a <code>sync</code> field modifier
 meaning "concurrent writes allowed"; lock scope, read/write mode and blocking-ness are all
 derived uniquely by the compiler from the syntax, and anything it cannot decide is a compile
 error; <code>lock .&amp;field</code> is retained as an optional read-only contract declaration.
 This section differs from this chapter's v1 scope in three substantive ways, and
-<strong>if adopted, this section governs those three points</strong>: (1) an object reachable
+<strong>this section governs those three points</strong> (the v1 scope below is amended accordingly): (1) an object reachable
 through a shared handle is no longer read-only without exception — besides interior-mutability
 channels such as <code>Mutex</code> / atomics, <code>sync</code> fields add a language-level
 concurrent-write channel; (2) static field-access analysis (Bernstein disjointness proofs at
@@ -273,7 +276,7 @@ the enclosing function returns" (to be aligned with the existing spawn capture c
 function never blocks (R4), hence never yields, so under cooperative scheduling its lock hold
 time depends only on computation and is predictable; because supervision / recover lets the
 process continue, R7's release + poisoning must be kept; in async code .await is a blocking
-point, so locks never span an await; Arc owns lifetimes, objects inside an Arc count as
+point, so locks never span an await; nested awaits across async fn boundaries are supported; Arc owns lifetimes, objects inside an Arc count as
 permanently shared, and <code>sync</code> governs only the concurrent-write permission; sending
 a plain T over a channel transfers ownership and needs no lock, while channel-versus-channel
 deadlock is out of this scheme's scope and left to runtime deadlock detection; calling a Mutex
@@ -407,19 +410,19 @@ v3 = evaluate as needed: the dynamic adaptive layer (Adaptive Field Mutability),
 borrowed go captures + auto-join before the enclosing function returns must be aligned with the existing spawn capture checks;
 whether v1's single compilation that always locks is fast enough must be confirmed by benchmarks;
 whether the optional <code>lock .&amp;field</code> contract is kept long-term is to be decided after practice;
-once nested awaits across async fn boundaries are fixed, async acceptance cases must be added;
-how sharedness is judged for reference-escape paths — sending an &amp;T over a channel, storing an &amp;T into a shared structure — is not covered by the draft (review note).</li>
+async acceptance cases, including nested awaits across async fn boundaries, must be added;
+how sharedness is judged for reference-escape paths — sending an &amp;T over a channel, storing an &amp;T into a shared structure — is not covered by this supplement (review note, still open).</li>
 </ul>
 
 <h2>Scope and status</h2>
 <ul>
-<li>V1 scope: field const + lock path syntax + static field-access analysis.</li>
+<li>V1 scope: field const + lock path syntax + sync fields (R1–R7, entry locking, panic poisoning); static field-access analysis no longer gates sharing of shared objects — the adopted supplement governs.</li>
 <li>This system guarantees <strong>memory-level</strong> access disjointness only; cross-field
 business invariants (e.g. balance and total that must stay consistent) are a transactional
 concern, out of scope.</li>
 <li>The dynamic adaptive layer (Adaptive Field Mutability) is a phase-3 research topic.</li>
-<li>The <code>sync</code>-field supplement (final section of this chapter): discussion draft (2026-11-24), not yet final; until it is adopted the v1 scope above is unchanged, and if adopted, its three differing points govern.</li>
-<li>Status: in design review (2026-11-24). This chapter is a feature preview and may change with the review.</li>
+<li>The <code>sync</code>-field supplement (final section of this chapter): adopted (2026-11-24); the v1 scope above is amended at its three differing points, which the supplement governs.</li>
+<li>Status: design adopted (2026-11-24); implementation not yet started. This chapter is a feature preview.</li>
 </ul>
 
 </body>
