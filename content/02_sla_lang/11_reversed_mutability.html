@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Reversed Mutability Model (Feature Preview)</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA Language Reference &gt; Reversed Mutability Model (Feature Preview)</div>
+<h1>Reversed Mutability Model: Mutable by Default, Frozen by Declaration</h1>
+
+<p><strong>Feature preview · under development.</strong> This chapter describes syntax and
+semantics currently in design (the SLA Reversed Mutability Model, named 2026-11-24).
+<strong>It is not implemented in any released version</strong>: all examples are design syntax
+and will not compile with current compilers. Details are still under review;
+this chapter will be updated together with the implementation. Every other chapter
+describes the implemented status quo.</p>
+
+<h2>The idea: reverse the mutability model</h2>
+
+<p>Rust's mutability model is "immutable by default, mutable by declaration": bindings are
+read-only unless annotated <code>mut</code>, and write permission flows through
+<code>&amp;mut</code> borrows. SLA takes the opposite declaration direction —
+<strong>mutable by default, immutable by declaration</strong>: ordinary bindings and fields are
+writable, and only the positions that need protection carry an annotation.
+This is not swapping <code>mut</code> for <code>const</code>; it reverses the declaration
+direction of the whole mutability model.</p>
+
+<table>
+<tr><th>Scenario</th><th>SLA (reversed model)</th><th>Rust</th></tr>
+<tr><td>Ordinary variable</td><td>Mutable by default</td><td>Immutable by default</td></tr>
+<tr><td>Mutable field</td><td>Mutable by default</td><td>Governed by binding and borrow rules</td></tr>
+<tr><td>Permanently immutable field</td><td><code>const</code> field (field-level syntax)</td><td>No exact field-level counterpart</td></tr>
+<tr><td>Temporarily read-only field</td><td><code>lock .&amp;field</code> (call-scoped shared read lease)</td><td><code>&amp;T</code> borrow</td></tr>
+<tr><td>Exclusive mutation</td><td>Ordinary exclusive access (ownership)</td><td><code>&amp;mut T</code></td></tr>
+<tr><td>Shared reads across tasks</td><td><code>lock .&amp;field</code> counted shared holds</td><td><code>&amp;T</code></td></tr>
+</table>
+
+<p><strong>Declarations reversed, discipline not.</strong> The reversal happens only at the
+declaration layer (who has to write an annotation). The safety layer is not reversed:
+aliasing discipline, ownership, field-conflict and concurrent-access checking are at
+Rust's level and are the compiler's job. SLA does not trade alias safety for brevity.</p>
+
+<p>The core question this model tries to answer: <strong>can memory safety stop requiring
+beginners to first understand a complex system of mutability rules?</strong> Rust's route is
+to restrict mutation first and open it explicitly; SLA's route is to allow normal
+development first and declare explicitly where mutation is forbidden. Rust asks the
+programmer to manage mutability explicitly; SLA asks the programmer to declare
+immutability explicitly, while the language maintains the safety boundary. These are two
+different design philosophies. One red line: <strong>never push safety problems onto the
+runtime or the programmer just to make SLA look simple</strong> — an access the compiler
+cannot prove must be rejected loudly, not papered over at runtime.</p>
+
+<h2>Four principles</h2>
+<ul>
+<li><strong>Mutable by default</strong>: no <code>mut</code> declaration is ever required; SLA has no <code>let mut</code>.</li>
+<li><strong>Explicit freezing</strong>: <code>const</code> protects fields that must never change.</li>
+<li><strong>Temporary read-only</strong>: <code>lock .&amp;field</code> declares a shared read-only permission for the duration of a call.</li>
+<li><strong>Safety first</strong>: the compiler owns field conflicts, aliasing, lifetimes and concurrent-access checks.</li>
+</ul>
+
+<h2>Layer 1: mutable by default</h2>
+<pre><code>struct User {
+    const id: u64,
+    name: String,
+    age: u32,
+}
+
+fn update(user: User) {
+    user.age += 1;   // ordinary fields are writable with no annotation at all
+}</code></pre>
+
+<h2>Layer 2: field-level permanent immutability — const</h2>
+<p><code>const</code> sits in the struct definition, immediately before the field name, and is
+part of the type: after construction the field is permanently unwritable. Construction has an
+explicit seal point: writes are legal before the seal (initialisation), and the value may escape
+to other tasks only after it. Freezing is <strong>transitive</strong>: <code>const profile: Profile</code>
+freezes profile's own owned internals with it, so the freeze cannot be bypassed through nested
+objects; it never spreads sideways to sibling fields, and it stops at reference/shared-handle
+boundaries. A field that must stay mutable inside a frozen object uses an interior-mutability
+type (<code>Cell</code> / <code>RefCell</code> / <code>Mutex</code>) and is accessed through its
+API — the only live exception. Aliasing, pointers and method calls must not bypass const;
+enforcement happens at the field-store operation level.</p>
+
+<h2>Layer 3: call-scoped temporary read-only — lock</h2>
+<p><code>lock</code> sits inside a parameter's type and is an <strong>access-permission
+description</strong> on that binding: it produces no pointer and no new type, it only declares
+"for the duration of this call, this field path is read-only". The current function must not
+store to a locked path (checked statically against actual stores, and the restriction propagates
+down the call chain: a callee that may write a locked path is a compile error); other tasks may
+read concurrently; a task that wants to write a locked path waits until all holds are released
+(once a writer queues, new readers are not admitted, so writers cannot starve). Holds release
+automatically on return — there is no manual unlock.</p>
+<pre><code>fn inspect(a: Account(lock .&amp;balance)) {
+    print(a.balance);   // read-only, legal
+    print(a.name);      // unlocked fields are unaffected
+}</code></pre>
+<table>
+<tr><th>Syntax</th><th>Meaning</th></tr>
+<tr><td><code>lock .&amp;balance</code></td><td>Lock a single field</td></tr>
+<tr><td><code>lock .&amp;balance, .&amp;name</code></td><td>Lock several fields at once</td></tr>
+<tr><td><code>lock .&amp;</code></td><td>Lock the whole object (call-scoped whole-object read-only)</td></tr>
+<tr><td><code>lock .&amp;profile.age</code></td><td>Lock a nested field path</td></tr>
+</table>
+<p>Locking is <strong>deep by default</strong>: it covers the field value's owned internals
+(e.g. <code>currency</code> inside <code>balance</code>) and stops at reference boundaries.
+Paths are compared by inclusion: locking a parent path covers its sub-paths; sibling paths are
+disjoint. Dynamic index paths are treated as the whole array in v1. Creating a lock view borrows
+the path: while the view lives, the original binding's write access to that path is suspended.
+Two hard rules in v1: a lock lease <strong>must not cross an await or a blocking point</strong>
+(compile-time rejection), and a read-lease holder <strong>may not upgrade in place</strong> to a
+write (release first, then apply).</p>
+
+<h2>Shared reads across tasks</h2>
+<p>When an object is a shared handle (shared to several tasks via Arc / channels), several tasks
+may hold read leases on the same field through <code>lock</code> and read in parallel; lease
+counts are managed by the runtime on the shared handle, and never-shared objects pay zero cost.
+The criterion is the field's <strong>accessor set</strong>, not the number of tasks: one task
+holding two writable aliases still conflicts, and two tasks writing disjoint fields still run
+in parallel.</p>
+<pre><code>go inspect(shared_account);
+go inspect(shared_account);
+go inspect(shared_account);   // three tasks read age/balance concurrently, none blocks</code></pre>
+
+<h2>Static first, dynamic as fallback</h2>
+<p>The implementation has three layers of increasing cost; anything provable statically never
+reaches the runtime: (1) <strong>static field-access analysis</strong> — the compiler summarises
+field-path read/write sets per function, and at spawn sites proves two tasks' accesses disjoint
+(Bernstein conditions) and admits the sharing directly; const fields have statically empty write
+sets, so their reads are lock-free by construction; (2) <strong>explicit lock contracts</strong> —
+signature-declared read-only paths are verified at compile time and backed at runtime by counted
+leases against cross-task writes; (3) <strong>a dynamic adaptive layer (research)</strong> — for
+sharing that cannot be proven statically, the runtime maintains access state per
+(object, field path): Adaptive Field Mutability, a later research phase, out of v1 scope.</p>
+<p>Layering: this feature is added <strong>in the SLA layer only</strong> (frontend checking plus
+an SLA-level runtime library built on SA's existing atomics, task identity and synchronisation
+primitives). SA stays frozen: no new instructions, no field semantics pushed into SA; if the
+lower layer ever needs strengthening, the verifier (Referee) is enhanced, not the ISA.</p>
+
+<h2>Why this helps AI-written code</h2>
+<p>The annotation surface is proportional to the <strong>danger surface</strong>, not the code
+surface. Rust's <code>mut</code> annotations grow with the total amount of code (every binding
+you modify must be marked); SLA's <code>const</code> / <code>lock</code> annotations grow only
+with the number of fields that need protection. AI writes business logic directly by default,
+and safety constraints appear exactly where they matter — less code, and the constraints
+themselves carry information.</p>
+
+<h2>Five things that must be proven</h2>
+<p>Until all five are implemented and verified, the claims of this chapter are design
+goals, not facts — this is why the chapter carries the preview label:</p>
+<ul>
+<li><strong>Alias safety</strong>: no alias may bypass <code>lock</code> or <code>const</code>;
+checks key on object identity and field path, never on variable names.</li>
+<li><strong>Cross-function safety</strong>: a callee must not secretly modify a locked field;
+the caller's read-only restriction propagates down the whole call chain, and unknown
+access sets are rejected conservatively.</li>
+<li><strong>Async safety</strong>: on task suspension, cancellation or abnormal exit,
+temporary read leases must be released reliably — no leaked counts, no dangling holds.</li>
+<li><strong>Runtime cost</strong>: field-level concurrency control must not tax ordinary
+accesses with atomic operations; statically proven accesses and never-shared objects
+cost zero.</li>
+<li><strong>Provability</strong>: lifetimes and memory safety must be provable by the
+compiler without any GC; this is the principle most worth holding.</li>
+</ul>
+
+<h2>Scope and status</h2>
+<ul>
+<li>V1 scope: field const + lock path syntax + static field-access analysis.</li>
+<li>This system guarantees <strong>memory-level</strong> access disjointness only; cross-field
+business invariants (e.g. balance and total that must stay consistent) are a transactional
+concern, out of scope.</li>
+<li>The dynamic adaptive layer (Adaptive Field Mutability) is a phase-3 research topic.</li>
+<li>Status: in design review (2026-11-24). This chapter is a feature preview and may change with the review.</li>
+</ul>
+
+</body>
+</html>

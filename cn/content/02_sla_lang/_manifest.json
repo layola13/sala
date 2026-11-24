@@ -69,6 +69,13 @@
       "file": "10_maturity.html",
       "keywords": ["成熟度", "direct SAB", "回退", "fallback", "SLA_SAB_NO_FALLBACK"],
       "parent": null
+    },
+    {
+      "id": "reversed-mutability",
+      "title": "反向可变性模型（新特性预览）",
+      "file": "11_reversed_mutability.html",
+      "keywords": ["反向可变性", "Reversed Mutability", "const 字段", "lock", "字段级并发", "新特性预览"],
+      "parent": null
     }
   ]
 }

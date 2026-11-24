@@ -143,6 +143,19 @@
         "SLA_SAB_NO_FALLBACK"
       ],
       "parent": null
+    },
+    {
+      "id": "reversed-mutability",
+      "title": "Reversed Mutability Model (Feature Preview)",
+      "file": "11_reversed_mutability.html",
+      "keywords": [
+        "reversed mutability",
+        "const field",
+        "lock",
+        "field-level concurrency",
+        "feature preview"
+      ],
+      "parent": null
     }
   ]
 }

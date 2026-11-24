@@ -130,6 +130,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ComponentDesc"><param name="Local" value="../../dist/cn/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="comptime"><param name="Local" value="../../dist/cn/content/13_build/02_linux_windows.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="const"><param name="Local" value="../../dist/cn/content/08_faq/01_faq.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="const 字段"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="copy"><param name="Local" value="../../dist/cn/content/17_rust_beginners/03_copy_clone_derive.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="cpp2sa"><param name="Local" value="../../dist/cn/content/01_overview/14_cpp2sa_go2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CPython"><param name="Local" value="../../dist/cn/content/06_stdlib/24_python_net_census.html"></OBJECT>
@@ -287,6 +288,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="LLVM bitcode"><param name="Local" value="../../dist/cn/content/09_rust_compare/07_rosetta_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="llvm-14-dev"><param name="Local" value="../../dist/cn/content/13_build/02_linux_windows.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="localhost"><param name="Local" value="../../dist/cn/content/05_plugins/15_http_server.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="lock"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Locked_Mut"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Locked_Read"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="lshr"><param name="Local" value="../../dist/cn/content/15_sa2c/03_semantics.html"></OBJECT>
@@ -396,6 +398,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="RESP"><param name="Local" value="../../dist/cn/content/01_overview/11_sardis_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Responses"><param name="Local" value="../../dist/cn/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Result"><param name="Local" value="../../dist/cn/content/06_stdlib/05_collections.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Reversed Mutability"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="RFC 6455"><param name="Local" value="../../dist/cn/content/06_stdlib/20_ws_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="rosetta"><param name="Local" value="../../dist/cn/content/08_faq/05_limitations_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="RSS"><param name="Local" value="../../dist/cn/content/04_cli/12_sixway.html"></OBJECT>
@@ -672,6 +675,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="双向 spawn"><param name="Local" value="../../dist/cn/content/01_overview/08_cxu_rewrite_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="双实现"><param name="Local" value="../../dist/cn/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="反向代理"><param name="Local" value="../../dist/cn/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="反向可变性"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="反应网络"><param name="Local" value="../../dist/cn/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="发布"><param name="Local" value="../../dist/cn/content/13_build/06_release_npm.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="发版"><param name="Local" value="../../dist/cn/content/13_build/06_release_npm.html"></OBJECT>
@@ -703,6 +707,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="子进程"><param name="Local" value="../../dist/cn/content/06_stdlib/09_process.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字典"><param name="Local" value="../../dist/cn/content/10_db/03_api.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字段级健全"><param name="Local" value="../../dist/cn/content/17_rust_beginners/03_copy_clone_derive.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="字段级并发"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字节布局"><param name="Local" value="../../dist/cn/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字节码"><param name="Local" value="../../dist/cn/content/10_db/07_vm_support.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="字面量"><param name="Local" value="../../dist/cn/content/04_cli/13_bun_peer.html"></OBJECT>
@@ -777,6 +782,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="文件"><param name="Local" value="../../dist/cn/content/06_stdlib/06_fs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="新建工程"><param name="Local" value="../../dist/cn/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="新建项目"><param name="Local" value="../../dist/cn/content/04_cli/02_init.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="新特性预览"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="方言"><param name="Local" value="../../dist/cn/content/01_overview/17_verse_game_profile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="无 &amp;mut"><param name="Local" value="../../dist/cn/content/17_rust_beginners/02_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="无声错误"><param name="Local" value="../../dist/cn/content/01_overview/22_silent_surface.html"></OBJECT>

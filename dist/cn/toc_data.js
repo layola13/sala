@@ -173,6 +173,11 @@ var TOC = [
     "t": "特性成熟度总表",
     "f": "content/02_sla_lang/10_maturity.html",
     "c": []
+   },
+   {
+    "t": "反向可变性模型（新特性预览）",
+    "f": "content/02_sla_lang/11_reversed_mutability.html",
+    "c": []
    }
   ]
  },

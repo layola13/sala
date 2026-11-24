@@ -173,6 +173,11 @@ var TOC = [
     "t": "Feature Maturity Matrix",
     "f": "content/02_sla_lang/10_maturity.html",
     "c": []
+   },
+   {
+    "t": "Reversed Mutability Model (Feature Preview)",
+    "f": "content/02_sla_lang/11_reversed_mutability.html",
+    "c": []
    }
   ]
  },

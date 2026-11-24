@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>反向可变性模型（新特性预览）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">SLA 语言参考 &gt; 反向可变性模型（新特性预览）</div>
+<h1>反向可变性模型：默认可变、显式冻结</h1>
+
+<p><strong>新特性预览 · 正在开发中。</strong>本章描述的是正在设计中的语法与语义
+（SLA Reversed Mutability Model，2026-11-24 定名），<strong>尚未在任何已发布版本中实现</strong>：
+本章示例均为设计语法，不能用现有编译器编译通过。规则细节仍在评审中，
+定稿后本章将随实现一并更新。本章之外的其他章节描述的都是已实现的现状。</p>
+
+<h2>理念：把可变性模型反过来</h2>
+
+<p>Rust 的可变性模型是「默认不可变，显式声明可变」：绑定默认只读，
+要修改必须标注 <code>mut</code>，写权限经 <code>&amp;mut</code> 借用传递。
+SLA 采用相反的声明方向——<strong>默认可变，显式声明不可变</strong>：
+普通绑定与字段默认可写，只有需要保护的位置才标注约束。
+这不是把 <code>mut</code> 换成 <code>const</code>，而是把整个可变性模型的声明方向反转。</p>
+
+<table>
+<tr><th>场景</th><th>SLA（反向模型）</th><th>Rust</th></tr>
+<tr><td>普通变量</td><td>默认可变</td><td>默认不可变</td></tr>
+<tr><td>可变字段</td><td>默认可变</td><td>受绑定及借用规则约束</td></tr>
+<tr><td>永久不可变字段</td><td><code>const</code> 字段（字段级语法）</td><td>无完全对应的字段级语法</td></tr>
+<tr><td>临时只读字段</td><td><code>lock .&amp;field</code>（调用期共享只读租约）</td><td><code>&amp;T</code> 借用</td></tr>
+<tr><td>独占修改</td><td>普通独占访问（所有权保证）</td><td><code>&amp;mut T</code></td></tr>
+<tr><td>多任务共享读取</td><td><code>lock .&amp;field</code> 计数式共享持有</td><td><code>&amp;T</code></td></tr>
+</table>
+
+<p><strong>声明反向，纪律同向。</strong>反转只发生在声明层（谁需要写标注），
+安全层不反转：别名纪律、所有权、字段冲突与并发访问检查与 Rust 同级，
+由编译器负责。SLA 不为语法简洁牺牲别名安全保证。</p>
+
+<p>这套模型要回答的核心问题是：<strong>能不能让内存安全不再要求初学者
+首先理解一套复杂的可变性规则？</strong>Rust 的路线是先限制修改、再明确开放修改；
+SLA 的路线是先允许正常开发、再明确表达哪些地方不能修改。
+Rust 强调让程序员显式管理可变性；SLA 强调让程序员显式声明不可变性，
+同时由语言负责维护安全边界。这是两种不同的设计哲学。
+一条红线：<strong>不为让 SLA 看起来简单，就把安全问题推给运行时或程序员</strong>——
+证明不了的访问，编译器必须响亮拒绝，而不是运行时兜底。</p>
+
+<h2>四条原则</h2>
+<ul>
+<li><strong>默认可变</strong>：不要求开发者声明 <code>mut</code>；SLA 没有 <code>let mut</code>。</li>
+<li><strong>显式冻结</strong>：通过 <code>const</code> 保护永久不允许修改的字段。</li>
+<li><strong>临时只读</strong>：通过 <code>lock .&amp;field</code> 声明函数调用期间的共享只读权限。</li>
+<li><strong>安全优先</strong>：编译器负责字段冲突、别名、生命周期和并发访问检查。</li>
+</ul>
+
+<h2>第一层：默认可变</h2>
+<pre><code>struct User {
+    const id: u64,
+    name: String,
+    age: u32,
+}
+
+fn update(user: User) {
+    user.age += 1;   // 普通字段默认可写，无需任何标注
+}</code></pre>
+
+<h2>第二层：字段级永久不可变 const</h2>
+<p><code>const</code> 写在结构体定义里、紧贴字段名之前，属于类型本身：
+该字段在构造完成后永久不可写。构造有一个明确的封印点（seal）：
+封印前可以写入（初始化），封印后对象才可以逃逸到其他任务。
+冻结是<strong>传递性</strong>的：<code>const profile: Profile</code> 连同 profile 内部的
+自有字段一并冻结，防止经嵌套对象绕过；但不横向蔓延到同级字段，
+也不穿透引用/共享句柄指向的对象。确需在冻结对象内保留可变通道的字段，
+使用内部可变类型（<code>Cell</code> / <code>RefCell</code> / <code>Mutex</code>），
+经其 API 访问——这是唯一的活口。别名、指针、方法调用均不得绕过 const，
+检查在字段写入操作一级强制执行。</p>
+
+<h2>第三层：调用期临时只读 lock</h2>
+<p><code>lock</code> 写在参数的类型内部，是对该绑定的<strong>访问权限描述</strong>：
+它不产生指针、不创建新类型，只声明「本次调用期间，该字段路径只读」。
+当前函数不得写入被锁路径（编译期按实际 store 检查，且该限制沿调用链向下传递：
+被调用函数可能写被锁路径即报错）；其他任务可以同时读取；
+其他任务要写入被锁路径必须等待全部持有释放（写者排队后新读者不得插队，
+防止写者饥饿）。函数返回时自动释放，无需手动解锁。</p>
+<pre><code>fn inspect(a: Account(lock .&amp;balance)) {
+    print(a.balance);   // 只读，合法
+    print(a.name);      // 未锁字段不受影响
+}</code></pre>
+<table>
+<tr><th>语法</th><th>语义</th></tr>
+<tr><td><code>lock .&amp;balance</code></td><td>锁定单个字段</td></tr>
+<tr><td><code>lock .&amp;balance, .&amp;name</code></td><td>同时锁定多个字段</td></tr>
+<tr><td><code>lock .&amp;</code></td><td>锁定整个对象（调用期整体只读）</td></tr>
+<tr><td><code>lock .&amp;profile.age</code></td><td>锁定嵌套字段路径</td></tr>
+</table>
+<p>锁定默认<strong>深及字段值的自有内部</strong>（如 <code>balance</code> 内部的
+<code>currency</code>），到引用边界止步。路径之间按包含关系判断重叠：
+锁父路径即覆盖其子路径；兄弟路径互不相交。动态索引路径第一版按整个数组处理。
+建立 lock 视图即借出该路径：视图存续期间，原绑定对该路径的写权限挂起。
+第一版附加两条硬规则：lock 租约<strong>不得跨越 await 或阻塞点</strong>（编译拒绝）；
+持有读租约者<strong>禁止原地升级</strong>为写（须先释放再申请）。</p>
+
+<h2>多任务共享读取</h2>
+<p>当对象是共享句柄（经 Arc / channel 共享到多个任务）时，
+多个任务可以同时以 <code>lock</code> 持有同一字段的只读租约并行读取；
+租约计数由运行时在共享句柄上管理，从未被共享的对象零开销。
+注意判据是<strong>字段的访问者集合</strong>，不是任务数量：
+单个任务持有两个可写别名照样冲突，两个任务写不相交字段照样并行。</p>
+<pre><code>go inspect(shared_account);
+go inspect(shared_account);
+go inspect(shared_account);   // 三个任务同时读取 age/balance，互不阻塞</code></pre>
+
+<h2>静态先行，动态兜底</h2>
+<p>实现分三层，成本递增、能静态解决的绝不留给运行时：
+（1）<strong>静态字段访问分析</strong>：编译器按函数汇总字段路径级读写集，
+在 spawn 点证明两任务访问不相交（Bernstein 条件）时直接放行共享，
+const 字段的写集静态为空、读取天然无锁；
+（2）<strong>显式 lock 契约</strong>：签名声明的只读路径在编译期校验、
+运行期以计数租约兜住跨任务写入；
+（3）<strong>动态自适应层（研究中）</strong>：静态证明不了的共享访问，
+由运行时按（对象， 字段路径）维护访问状态——Adaptive Field Mutability，
+属后续研究阶段，不在第一版范围内。</p>
+<p>分层上，本特性<strong>只增加在 SLA 层</strong>（前端检查 + SLA 级运行时库，
+建立在 SA 已有的原子操作、任务身份与同步原语之上）；SA 保持冻结：
+不新增指令、不把字段语义塞进 SA；如需底层加强，优先增强验证器（Referee），不动 ISA。</p>
+
+<h2>为什么这对 AI 编程有利</h2>
+<p>约束面正比于<strong>危险面</strong>，不正比于代码面。Rust 的 <code>mut</code> 标注量
+随代码总量增长（每个要改的绑定都要标）；SLA 的 <code>const</code> / <code>lock</code> 标注量
+只随需要保护的字段数增长。AI 默认直接写业务逻辑，
+安全约束只出现在真正重要的位置——既减少代码量，又让约束本身成为信息。</p>
+
+<h2>必须证明的五件事</h2>
+<p>本章的主张在以下五点被实现并验证之前都只是设计目标，缺一不可——
+这也是本章保持「预览」标记的原因：</p>
+<ul>
+<li><strong>别名安全</strong>：任何别名都不能绕过 <code>lock</code> 与 <code>const</code>，
+检查按对象身份与字段路径执行，不按变量名。</li>
+<li><strong>跨函数安全</strong>：被调用函数不能偷偷修改已锁定的字段；
+调用方的只读限制沿调用链向下一路生效，访问集未知即保守拒绝。</li>
+<li><strong>异步安全</strong>：任务挂起、取消、异常退出时，临时只读租约必须可靠释放，
+计数不泄漏、不悬挂。</li>
+<li><strong>运行时成本</strong>：字段级并发控制不能让普通访问都付出原子操作成本；
+静态可证明的访问零开销，未共享对象零开销。</li>
+<li><strong>可证明性</strong>：在不依赖 GC 的前提下，编译器能证明生命周期与内存安全；
+这是 SLA 最值得坚持的原则。</li>
+</ul>
+
+<h2>范围与状态</h2>
+<ul>
+<li>第一版范围：字段 const + lock 路径语法 + 静态字段访问分析。</li>
+<li>本系统只保证<strong>内存级</strong>访问不相交；跨字段的业务不变量
+（如 balance 与 total 必须一致）属事务一致性问题，不在本系统范围内。</li>
+<li>动态自适应层（Adaptive Field Mutability）为第三阶段研究课题。</li>
+<li>状态：设计评审中（2026-11-24）。本章为新特性预览，内容可能随评审调整。</li>
+</ul>
+
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/02_sla_lang/11_reversed_mutability.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

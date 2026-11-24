@@ -285,6 +285,14 @@
 <param name="Local" value="../dist/content/02_sla_lang/10_maturity.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Reversed Mutability Model (Feature Preview)">
+<param name="Local" value="../dist/content/02_sla_lang/11_reversed_mutability.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

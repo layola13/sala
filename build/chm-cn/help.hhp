@@ -42,6 +42,7 @@ Default Font=微软雅黑,9,0
 ../../dist/cn/content/02_sla_lang/08_extensions.html
 ../../dist/cn/content/02_sla_lang/09_async.html
 ../../dist/cn/content/02_sla_lang/10_maturity.html
+../../dist/cn/content/02_sla_lang/11_reversed_mutability.html
 ../../dist/cn/content/09_rust_compare/01_positioning.html
 ../../dist/cn/content/09_rust_compare/02_syntax_matrix.html
 ../../dist/cn/content/09_rust_compare/03_ownership.html
