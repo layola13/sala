@@ -24,6 +24,11 @@
 <tr><td>P5</td><td>High-performance native / WASM output</td></tr>
 </table>
 <p>The v1 acceptance gates are deliberately narrow and measurable: <strong>(a)</strong> syntax coverage compatible with the vast majority of Python syntax, and <strong>(b)</strong> performance that beats CPython on the benchmark set — on the static face and, once built, re-measured on the dynamic face with the same programs written in dynamic style.</p>
+<h3>Positioning: a tool-calling language for AI</h3>
+<p>The expected primary author of SA-Py programs is an AI, and the expected primary workload is <strong>tool calling</strong>: an agent emits a small program that parses a JSON payload, calls HTTP services and other tools, transforms data, and returns a structured result. The incumbent stack runs such generated code on an interpreter whose only safety net is runtime error handling: a wrong program is discovered when it crashes — or, worse, when it silently corrupts data and does not crash.</p>
+<p>SA-Py inverts that order. Generated code passes the checker and the SA Referee <em>before</em> it runs: ownership and bounds are adjudicated at compile time, and what cannot be proven is refused loudly, before execution. The output is a native binary — no interpreter, no GC pauses, deterministic resource use, fast cold start — which is also the right shape for a tool process: bounded, killable, restartable. Compile-time verification is the security gate that AI-generated code currently does not have.</p>
+<p>The fit is structural, not cosmetic. Tool payloads are JSON, and JSON's value model (null, boolean, number, string, array, object) is isomorphic to the dynamic face's tagged value (section 5.3): parsing JSON is building dynamic values; emitting JSON is walking them. The library programme that completes this position is library work in psa_std, not compiler work, and is sequenced in section 7 (L1–L3): a <code>json</code> module on the dynamic containers; Python-shaped networking (socket, http.client, and a requests-shaped interface — the shape AI-generated code most often writes) over the protocol cores that already exist in sa_std; and a NumPy interface (typed, strided arrays with broadcasting), which makes the large corpus of numeric Python convertible with little or no pain — numeric Python is the dialect of Python closest to this substrate, already written in fixed-width typed arrays rather than arbitrary-precision integers and unrestricted dynamism.</p>
+<p>One honesty clause, stated before any reviewer has to ask: the safety half of this positioning is today a claim about the design. It becomes a claim about the product only when the silent-wrong-value defect class is at zero — it is not yet (section 8, e.g. (xxiv)). The library programme is therefore sequenced behind the defect queue and D2, not ahead of them.</p>
 
 <h2>2. Position in the SA Ecosystem</h2>
 <p>SA-Py is the second high-level language of the SA ecosystem, not a replacement for SLA. The three layers keep separate duties and share one verified foundation:</p>
@@ -129,6 +134,9 @@
 <tr><td>D6</td><td>Exceptions (try/except/raise/finally), <code>with</code> (file form first), <code>import</code> of own modules</td><td>Not started; the hardest item, deliberately last inside v1</td></tr>
 <tr><td>D7</td><td>Later tier: generators/yield, async, match, arbitrary-precision integers, reference-cycle evaluation</td><td>Post-v1 candidates</td></tr>
 <tr><td>Frontend remainder</td><td>Triple-quoted strings, radix literals, multiple-assignment desugaring, assert</td><td>Small items, scheduled alongside D2</td></tr>
+<tr><td>L1</td><td><code>json</code> module: loads/dumps on the dynamic value model (isomorphic by construction)</td><td>Library work; after D2</td></tr>
+<tr><td>L2</td><td>Networking interfaces: socket, http.client, and a requests-shaped client, over the protocol cores already in sa_std</td><td>Library work; after L1</td></tr>
+<tr><td>L3</td><td>NumPy interface: typed strided ndarray, broadcasting ufuncs, reductions, matmul (BLAS extern or vectorised kernels)</td><td>Library work; after (xxiv) is fixed and D2 lands — the painless-conversion programme for numeric Python</td></tr>
 </table>
 <p>Each step's acceptance is fixed in advance: positive examples run end-to-end with output byte-identical to CPython on the same source; negative examples fail loudly with named diagnostics; the benchmark set is re-run in dynamic style and must not lose to CPython.</p>
 
@@ -165,6 +173,7 @@
 <li><strong>Tagged-value representation.</strong> The split-payload struct was forced by a missing f64 bitcast primitive. Should the substrate grow the primitive (single-payload representation) or is the split layout acceptable long-term?</li>
 <li><strong>Boundary granularity.</strong> Static/dynamic is decided per variable and per signature. Is that the right granularity, or should it be per function with whole-function dynamism as the only fallback?</li>
 <li><strong>Integer policy.</strong> Loud overflow on i64 with bigint deferred — acceptable for a v1 that claims "the vast majority of Python", or does the compatibility claim require bigint from the start?</li>
+<li><strong>The AI tool-calling claim.</strong> Section 1 positions SA-Py as a compile-time-checked execution language for AI-generated tool code. Is a compiler gate (checker plus Referee) the right safety boundary for generated code — which failure classes of generated programs does it provably exclude, and which does it not?</li>
 </ol>
 <p>Reviewers are asked to judge the design against its own stated gates (section 1) and to treat section 6 as the complete list of what is currently proven: anything not in section 6 is a plan, not a result.</p>
 </body>
