@@ -396,6 +396,25 @@
         "裁定"
       ],
       "parent": null
+    },
+    {
+      "id": "sapy-blueprint",
+      "title": "SA-Py 蓝图：Python 语法、动态类型、零 GC（psa 编译器）",
+      "file": "24_sapy_blueprint.html",
+      "keywords": [
+        "SA-Py",
+        "sapy",
+        "psa",
+        "Python",
+        "动态类型",
+        "零 GC",
+        "Perceus",
+        "PsaVal",
+        "所有权推导",
+        "蓝图",
+        "白皮书"
+      ],
+      "parent": null
     }
   ]
 }

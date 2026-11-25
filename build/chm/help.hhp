@@ -32,6 +32,7 @@ Default Font=Segoe UI,9,0
 ../dist/content/01_overview/21_sax3d_whitepaper.html
 ../dist/content/01_overview/22_silent_surface.html
 ../dist/content/01_overview/23_zig_seal_rust_mainline.html
+../dist/content/01_overview/24_sapy_blueprint.html
 ../dist/content/02_sla_lang/01_lexical.html
 ../dist/content/02_sla_lang/02_types.html
 ../dist/content/02_sla_lang/03_functions.html

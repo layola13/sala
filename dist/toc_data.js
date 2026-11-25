@@ -117,6 +117,11 @@ var TOC = [
     "t": "SLA Compiler: Rust Mainline, Zig Sealed at Tag 0.1.9 (2026-11-19)",
     "f": "content/01_overview/23_zig_seal_rust_mainline.html",
     "c": []
+   },
+   {
+    "t": "SA-Py Blueprint: Python Syntax, Dynamic Types, Zero GC (the psa Compiler)",
+    "f": "content/01_overview/24_sapy_blueprint.html",
+    "c": []
    }
   ]
  },

@@ -395,6 +395,25 @@
         "decision"
       ],
       "parent": null
+    },
+    {
+      "id": "sapy-blueprint",
+      "title": "SA-Py Blueprint: Python Syntax, Dynamic Types, Zero GC (the psa Compiler)",
+      "file": "24_sapy_blueprint.html",
+      "keywords": [
+        "SA-Py",
+        "sapy",
+        "psa",
+        "Python",
+        "dynamic types",
+        "zero GC",
+        "Perceus",
+        "PsaVal",
+        "ownership inference",
+        "blueprint",
+        "whitepaper"
+      ],
+      "parent": null
     }
   ]
 }

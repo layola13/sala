@@ -197,6 +197,14 @@
 <param name="Local" value="../dist/content/01_overview/23_zig_seal_rust_mainline.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="SA-Py Blueprint: Python Syntax, Dynamic Types, Zero GC (the psa Compiler)">
+<param name="Local" value="../dist/content/01_overview/24_sapy_blueprint.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

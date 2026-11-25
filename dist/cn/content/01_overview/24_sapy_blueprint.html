@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>SA-Py 蓝图：Python 语法、动态类型、零 GC（psa 编译器）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">入门指南 &gt; SA-Py 蓝图：Python 语法、动态类型、零 GC（psa 编译器）</div>
+
+<div class="note">状态：<strong>蓝图与实施记录</strong>（2026-11-25，按用户令撰写，供第三方评审）。SA-Py 正在积极开发中：编译器 <code>psa</code> 现为 <strong>v0.5</strong>；静态面与标量动态层已落地并与 CPython 端到端对拍验证，堆动态种类<strong>尚未实现</strong>，其中一项当前被第 8 节登记的上游缺陷阻塞。本页严格区分愿景（第 1–4 节）、架构（第 5 节）、实测状态（第 6 节）、待实现清单（第 7 节）、已知限制（第 8 节）、明确不做的事（第 9 节）与提交评审的问题（第 10 节）。性能数字均为实测并注明测量条件；未测的面如实声明未测，不作估算。事实来源：SA-Py 白皮书 0.2、语法普查、动态面设计与 bench 基线，均存于 sapy 仓（<code>github.com/layola13/sapy</code>）。</div>
+
+<h2>1. 愿景</h2>
+<p>AI 正在写下越来越大比例的新代码，但主流语言仍要求作者——无论人还是 AI——手工写明参数类型、返回类型、生命周期、所有权、释放与转换。<strong>SA-Py</strong> 是我们的回答：一门编译型语言，具备 <strong>Python 语法</strong>、<strong>真正的动态类型</strong>、<strong>编译器推导的所有权</strong>，以及<strong>完全无任何形式的 GC</strong>，经 SA AOT 编译到原生与 WASM。</p>
+<p>一句话版本：<em>Python Syntax. Dynamic Types. Zero GC. Verified Memory Safety.</em>（Python 语法、动态类型、零 GC、经验证的内存安全。）程序员（或生成代码的 AI）写尽可能少的代码；编译器推导类型与所有权；SA Referee 在任何代码运行之前验证内存安全。无法证明或不支持的东西一律是响亮的编译期错误——绝不静默兜底，绝不把运行时意外偷运过检查器。</p>
+<p>设计优先级如下，且任何优化不得以 P0、P1 为代价：</p>
+<table>
+<tr><th>优先级</th><th>目标</th></tr>
+<tr><td>P0</td><td>内存安全（每个程序都通过 SA Referee）</td></tr>
+<tr><td>P1</td><td>完全无 GC（无追踪、无标记清扫、无后台回收线程、无停顿回收）</td></tr>
+<tr><td>P2</td><td>作者要写的代码最少（AI 优先的人机工程）</td></tr>
+<tr><td>P3</td><td>动态类型 + 可选静态约束</td></tr>
+<tr><td>P4</td><td>快速 AOT 编译</td></tr>
+<tr><td>P5</td><td>高性能原生 / WASM 产物</td></tr>
+</table>
+<p>v1 验收门刻意定得窄且可测：<strong>(a)</strong> 语法覆盖与绝大部分 Python 语法兼容；<strong>(b)</strong> 性能在 bench 题集上打败 CPython——静态面先行，动态面建成后须以动态写法的同一题集复测。</p>
+
+<h2>2. 在 SA 生态中的定位</h2>
+<p>SA-Py 是 SA 生态的第二门高级语言，不是 SLA 的替代品。三层职责分明、共享同一套经验证的地基：</p>
+<table>
+<tr><th>层</th><th>职责</th><th>明确不归它管</th></tr>
+<tr><td><strong>SA</strong></td><td>寄存器与所有权模型、借用/移动/释放规则、Referee 安全验证、原生/WASM 代码生成</td><td>依赖任何一门具体高级语言的类型系统</td></tr>
+<tr><td><strong>SLA</strong></td><td>静态类型、精确资源控制、系统编程、性能敏感任务</td><td>为迁就 SA-Py 而变成动态语言</td></tr>
+<tr><td><strong>SA-Py</strong></td><td>AI 生成代码、快速业务开发、动态数据处理、Web 后端、自动化、快速原型</td><td>绕过 Referee，或把动态语义引入 SLA</td></tr>
+</table>
+<p>SLA 与 SA-Py 前端独立。两者共享 SA 基础设施——一套安全验证体系、只维护一份——且任何一门语言的语义都不泄漏到另一门。</p>
+
+<h2>3. 设计原则</h2>
+<ol>
+<li><strong>动态类型不等于动态内存管理。</strong>变量可以改变所持值的类型；这改变的是值的语义，永不改变所有权规则。每个动态值在每个程序点仍有确定的类型标签、表示、所有者、生命周期与可访问性。</li>
+<li><strong>类型推导不等于垃圾回收。</strong>编译器推导类型与所有权，免得作者去写；推导失败永不退回到回收器。静态推导失败时退回的是<em>动态值表示</em>（第 5.3 节），其内存仍是确定性管理的。</li>
+<li><strong>零 GC 是架构约束，不是选项。</strong>不能被开关、运行时模式或库打开。动态面采用 Perceus 式引用计数 + 机会性原地复用，且只限于动态值（第 5.3 节）——这是由编译器所有权账本指挥的确定性纪律，不是追踪式回收器；静态面根本不进入计数体系。</li>
+<li><strong>响亮失败优于静默近似。</strong>编译器不支持的任何东西——语法形态、类型组合、标准库角落——都是具名的编译期错误。只覆盖语料恰好用到的形状的简化实现，不算支持。</li>
+<li><strong>编译器负责推导，Referee 负责裁决。</strong>AI 可以生成代码、可以依据编译器的所有权诊断改代码，但任何 AI 产物、任何前端结论都不被信任：每个程序在降低后都由 SA Referee 重新验证。</li>
+<li><strong>不假设未经审计的基座能力。</strong>实现从审计 SA、Referee 与 SLA 管线今天实际能做什么开始（第 6.1 节）；特性只建在已审计的地面上，基座缺口登记为缺陷（第 8 节），不掩盖。</li>
+</ol>
+
+<h2>4. 语言</h2>
+<h3>4.1 语法面</h3>
+<p>Python 的表面习惯：<code>def</code>、<code>class</code>、<code>if/elif/else</code>、<code>for</code>、<code>while</code>、<code>return</code>、<code>import</code>、<code>async/await</code>、<code>try/except</code>；缩进定界代码块；无 <code>let</code>/<code>mut</code> 声明关键字。源文件后缀 <code>.psa</code>；编译器二进制名 <code>psa</code>，与 SLA 编译器名 <code>sla</code> 的命名法一致。v1 目标是与绝大部分 Python 语法兼容——约 55 个构造逐项普查的现状汇总见第 6.2 节。</p>
+<h3>4.2 类型模型：一个程序里的三种模式</h3>
+<ul>
+<li><strong>推导静态。</strong><code>def add(a, b): return a + b</code>——无注解时，编译器从使用与调用点推导参数、局部变量与返回类型。推得出唯一静态类型处，值就是普通的 SA 层值，走零成本静态路。</li>
+<li><strong>注解约束。</strong><code>def add(a: i64, b: i64) -&gt; i64</code>——注解是编译期约束；传入约束外的值是类型错误，绝不静默运行时转换。</li>
+<li><strong>动态。</strong>推导钉不住单一类型处（异构返回、异构容器、动态调用形态），变量或函数为动态：值携带运行时标签、运算按标签派发，错误语义明确——类型非法的运算响亮 panic，形态如 Python 的 <code>TypeError</code>。动态函数必须保留通用路径：一个整数调用点不得把函数永久特化成整数函数（可以生成特化副本，通用路径必须保留）。</li>
+</ul>
+<p>静态/动态边界按变量与函数签名逐个划定，两面在同一程序内共存；跨界自动装箱/拆箱，拆箱带运行时类型断言。</p>
+<h3>4.3 所有权模型</h3>
+<p>所有权从值的用法推导，建在 SA 既有的移动/借用/释放规则之上——SA-Py 不另造一套所有权系统。已定案且已实现：标量值是 Copy；容器参数由编译器按函数体推导只读借用还是消费型移动（只读的参数借用、被消费的参数移动，移动后再用是具名诊断的编译错误）。以下仍是<strong>待最终裁定的提案</strong>，凡出现处均如此标注：从容器中提取元素、动态调用只借用语义、作用域绑定（不逃逸）借用。容器默认赋值是移动语义——<code>b = a</code> 转移所有权、之后再用 <code>a</code> 是错误——刻意<em>不</em>采用 Python 的别名赋值；可变对象的长期共享必须走显式的、SA 认可的安全共享机制，绝不把隐式引用计数偷运进普通赋值。强所有权环在构造上不被允许；动态面在引用环上的已知边界声明在第 8 节。</p>
+<h3>4.4 值与容器</h3>
+<p>规划的值种类：None、bool、int（v1 为 i64；任意精度是已登记缺口，溢出响亮报错、绝不静默回绕）、float、str（不可变；小字符串内联、拥有型缓冲、不可悬空的只读切片）、bytes、list、dict、set、tuple、类实例、函数/闭包、任务。容器拥有其元素；移动容器即移动整棵所有权树；释放容器即确定性释放其所拥有的一切——永远不需要扫描对象图。容器扩容可能搬移存储，因此任何已验证的元素借用都不得跨越扩容操作。</p>
+<h3>4.5 函数、类、异常、并发</h3>
+<ul>
+<li><strong>函数</strong>：今天支持位置参数；默认值、关键字参数、<code>*args</code>/<code>**kwargs</code>、lambda 与闭包在实现清单上（第 7 节）。闭包捕获服从同一套所有权规则：逃逸的闭包必须拥有其所保留之物；不许用隐藏的引用计数糊弄捕获生命周期。</li>
+<li><strong>类</strong>：v1 支持实例、字段、方法、构造函数、受限单继承与方法覆盖。无元类，不允许任意运行时修改对象结构。</li>
+<li><strong>异常</strong>：Python 形态的 <code>try/except/finally/raise</code>，降低为显式控制流 + 异常槽 + 边界检查（SA 无展开机制）；每条异常退出路径必须执行与正常路径相同的确定性清理。</li>
+<li><strong>并发</strong>：SA-Py 复用 SA 的任务与同步机制（goroutine 式 spawn、channel、select）。不可变值自由共享；可变值默认独占；经 channel 发送拥有型对象即转移所有权。</li>
+</ul>
+<h2>5. 编译器架构</h2>
+<h3>5.1 管线</h3>
+<pre>                 .psa 源码
+                      |
+               psa 前端（Rust）
+        词法 -&gt; 语法 -&gt; AST -&gt; 名字解析
+                      |
+        类型推导 + 动态分析
+                      |
+        所有权 / 借用分析
+                      |
+              发射 SLA 源码
+                      |
+        sla 管线：检查器 + SA 发射
+                      |
+                 SA Referee
+                      |
+              sa 工具链（build-exe）
+                      |
+               原生 / WASM</pre>
+<p>前端是独立的：其词法、语法、AST、推导与所有权分析都是 SA-Py 自己的代码，不依赖 SLA 检查器的内部实现。降低目标是 SLA 源码，因此每个 SA-Py 程序都原样经过既有 SLA 检查器与 SA Referee——不存在绕过验证的 SA-Py 专用后门。实现策略是刻意选定的：<code>psa</code> 编译器由整树复制 Rust 版 SLA 编译器后在其上修改而成，而非从零开始——已审计的检查器、发射与裁判机械被继承，SA-Py 特有的工作集中在新的前端 crate（词法、语法、AST）与发射层。</p>
+<h3>5.2 静态面</h3>
+<p>推导证明静态类型处，值就是普通的 SLA 值：整数在寄存器里、容器是 <code>sa_std</code> 容器、调用是直接调用。无标签、无派发、无计数——这是快路径，第 6.3 节的当前 bench 数字即来自于此。</p>
+<h3>5.3 动态面</h3>
+<p>动态值用显式标签结构体 <code>PsaVal</code> 表示：一个标签加有效载荷槽（已落地实现中载荷是分槽的——整数槽与浮点槽——因为标准库没有 f64 位转换原语；堆种类入场后指针走整数槽）。动态运算（算术、比较、真值、下标、调用）发射为运行时模块 <code>psa_std</code> 的函数调用，该模块随 sapy 仓维护、与 SLA 发射层解耦；每个运行时函数内先行 int/float 快路径，这正是编译型动态面能赢解释器逐字节码派发之处。堆对象共用统一头部（引用计数、种类），种类体分别为 str/list/dict/set/tuple/object/function。</p>
+<p>动态值的内存管理——且仅限动态值——是 <strong>Perceus 式</strong>：引用计数 + 机会性原地复用，由编译器既有的所有权账本指挥。消费型操作在计数为一时原地复用存储而不重新分配；静态值永不进入计数体系；静态值装箱为动态值计一次数，拆箱断言标签。这是项目章程下的主会话工作决定，也是提交评审的问题之一（第 10 节）。</p>
+<h3>5.4 标准库</h3>
+<p>独立建设的标准库，不是 CPython 绑定。分期：(1) io、string、bytes、math、collections、json、errors；(2) filesystem、networking、http、tcp/udp、database、async、channel、同步；(3) crypto、compression、序列化、process、高级集合。每个资源型 API 必须声明其所有权与释放规则；任何库组件不得引入 GC。</p>
+
+<h2>6. 实施状态（实测，2026-11-25）</h2>
+<h3>6.1 已落地增量</h3>
+<table>
+<tr><th>增量</th><th>内容</th><th>验证</th></tr>
+<tr><td>Phase 0 审计</td><td>对复制来的 SLA 树逐模块审计：检查器/降低/CLI 适配、ABI 与裁判保留、SAB 代码生成与插件壳丢弃、词法/AST/语法由新 psa crate 取代</td><td>审计文档在 sapy 仓</td></tr>
+<tr><td>v0.1</td><td>静态子集：标量（int/float/bool/字符串字面量）、单态函数、递归、if/while/for-range、真正的 Python 地板除与取模语义、print</td><td>例程输出与 CPython 逐字节一致</td></tr>
+<tr><td>v0.2</td><td><code>list[int]</code> + 所有权推导：只读 list 参数借用、被消费的参数移动</td><td>端到端真跑；移动后再用响亮拒绝</td></tr>
+<tr><td>v0.3</td><td><code>list[bool]</code>；<code>list[float]</code> 响亮拒绝并引用上游缺陷 (xxiv)</td><td>端到端真跑；拒绝例入 reject 语料</td></tr>
+<tr><td>D0</td><td>前端补缺批：幂、位运算、链式比较、三元表达式、print 位置 f-string</td><td><code>examples/d0.psa</code> 与 CPython 逐字节一致</td></tr>
+<tr><td>D1（psa v0.5）</td><td>标量动态层：<code>PsaVal</code>、带 Python 语义的动态算术/比较/真值（真除法、地板规则、跨类数值比较）、静态/动态边界装箱拆箱、动态 print</td><td><code>examples/dyn1.psa</code> 与 CPython 逐字节一致；非法拆箱响亮 panic（码 77020）；静态面回归全复验</td></tr>
+</table>
+<h3>6.2 语法普查</h3>
+<p>对照 CPython 语言参考逐项核，约 55 个构造：<strong>支持 12、部分 10、缺口-前端 5、缺口-动态 27、排除 0</strong>。已支持的核心是算法题式 Python（表达式、控制流、函数、整数 list）。高频缺口恰是动态面各项：遍历容器、dict、字符串操作、类、推导式、异常、关键字参数——排期见第 7 节。不支持的形态今天是响亮的编译错误，不是静默误编译。</p>
+<h3>6.3 性能（实测，含条件）</h3>
+<p>同一份源码文本同时喂 CPython 3.13.18 与 psa（Rust sla build-exe 路、默认构建），同一台机器，best-of-3 墙钟；先验输出一致、再比时间：</p>
+<table>
+<tr><th>题目</th><th>CPython</th><th>psa（静态面）</th><th>倍率</th></tr>
+<tr><td>fib(30) 递归</td><td>152 ms</td><td>7 ms</td><td>约 22×</td></tr>
+<tr><td>while 循环累加 10^7</td><td>1234 ms</td><td>11 ms</td><td>约 112×</td></tr>
+<tr><td>list append 10^6 + 下标求和</td><td>312 ms</td><td>24 ms</td><td>约 13×</td></tr>
+<tr><td>动态累加，10^6 次动态加法（D1）</td><td>0.27 s</td><td>0.12 s</td><td>约 2.25×</td></tr>
+</table>
+<p><strong>诚实边界：</strong>前三行都是静态可推断程序、走静态快路径；它们证明静态面已过 v1 门槛，不等于 v1 已达标。v1 门还要求动态面建成后以动态写法复测同一题集；第四行是第一个此类数据点（仅标量动态层）。</p>
+
+<h2>7. 实现清单：通往 v1</h2>
+<table>
+<tr><th>期</th><th>内容</th><th>状态</th></tr>
+<tr><td>D2</td><td>动态堆种类：dyn list/dict/str、下标与切片、遍历容器、<code>in</code></td><td>存储层已证（<code>Vec&lt;PsaVal&gt;</code> 元素访问验证通过）；卡在堆分配惯用法——上游缺陷 (xxviii)，见第 8 节</td></tr>
+<tr><td>D3</td><td>函数动态面：默认值、关键字参数、<code>*args</code>/<code>**kwargs</code>、lambda 与闭包</td><td>未开始</td></tr>
+<tr><td>D4</td><td>类：字段、方法、单继承；属性访问全集</td><td>未开始</td></tr>
+<tr><td>D5</td><td>推导式、元组拆包、str/list/dict 高频方法集</td><td>未开始</td></tr>
+<tr><td>D6</td><td>异常（try/except/raise/finally）、<code>with</code>（先文件最小形）、<code>import</code> 自有模块</td><td>未开始；最硬项，刻意排在 v1 内最后</td></tr>
+<tr><td>D7</td><td>后段：生成器/yield、async、match、任意精度整数、引用环评估</td><td>v1 后候选</td></tr>
+<tr><td>前端余项</td><td>三引号字符串、进制字面量、多重赋值脱糖、assert</td><td>小项，与 D2 同批排期</td></tr>
+</table>
+<p>每期的验收口径预先定死：正例端到端真跑、与 CPython 同源同输出逐字节对拍；负例响亮失败且诊断具名；bench 题集以动态写法复测且不许输给 CPython。</p>
+
+<h2>8. 已知限制与上游阻塞</h2>
+<p>以下为底层 Rust 版 SLA 工具链 build-exe 路的已登记缺陷，每条都以独立于 psa 的手写 SLA 探针复现。列在这里，是让评审者清楚 SA-Py 的哪些拒绝是基座的限制、而非语言的决定：</p>
+<table>
+<tr><th>编号</th><th>缺陷</th><th>对 SA-Py 的当前影响</th></tr>
+<tr><td>(xxiii)</td><td>build-exe 路打印 f64 时截断小数部分（值本身正确）</td><td>float 打印响亮拒绝；动态 float 打印 panic（77030），不打印错值</td></tr>
+<tr><td>(xxiv)</td><td><code>Vec&lt;f64&gt;</code> 元素访问在两个 SLA 实现上均误编译（静默错值）</td><td><code>list[float]</code> 编译期响亮拒绝</td></tr>
+<tr><td>(xxv)</td><td>字符串绑定在 build-exe 路无法降低（参数、局部变量、返回值）</td><td>字符串变量响亮拒绝；print 位置的字符串字面量可用</td></tr>
+<tr><td>(xxvi)</td><td>自引用调用赋值泄漏寄存器</td><td>psa 内部以临时变量路由绕行；直接形态仍是上游缺陷</td></tr>
+<tr><td>(xxvii)</td><td>SAB 降低中聚合变量不可整体重赋值、块作用域局部在块退出时不退役</td><td>动态层以显式 stage 模式（逐字段拷入 + void 汇点）存储而不用普通赋值；语义精确保持的绕行，上游修复落地后简化掉</td></tr>
+<tr><td>(xxviii)</td><td><code>Box::new</code>/<code>into_raw</code> 分配惯用法在 build-exe 路泄漏宏展开临时</td><td>阻塞 D2 堆种类；自声明 realloc extern 能过检查能链接但运行时段错误——根因未隔离，旁路在被证明之前不用</td></tr>
+<tr><td>(xviii)</td><td>底层 SLA 当前在两个实现上对 <code>and</code>/<code>or</code> 均为急切求值（实测）</td><td>静态布尔运算在上游修复前继承基座语义；动态层自己保留短路。短路是否为语言既定语义尚待裁定</td></tr>
+</table>
+<p>语言层边界，如实声明而非留待发现：v1 整数为 i64（溢出响亮报错；任意精度是 v1 后项）；动态值的引用环在 v1 不回收、泄漏到进程退出（CPython 有循环 GC；关闭此项是 D7 评估项）；源码制表符响亮拒绝，与 CPython 不同。</p>
+
+<h2>9. 明确不做的事</h2>
+<ol>
+<li>任何形式的 GC——追踪式、分代、后台式、可选式，一概不做。</li>
+<li>把隐式引用计数作为普通值的默认管理方式（计数只存在于动态面的 Perceus 纪律内、由编译器指挥）。</li>
+<li>CPython C 扩展兼容与 Python C API。</li>
+<li>元类与任意运行时修改对象结构。</li>
+<li>不受限制的 <code>eval</code> 与动态代码加载。</li>
+<li>未经验证的 unsafe 逃逸与用户代码中的裸指针。</li>
+<li>v1 不做 JIT（只做 AOT；静态特化与内联是 v1 的性能杠杆）。</li>
+</ol>
+
+<h2>10. 提交评审的问题</h2>
+<ol>
+<li><strong>动态面内存纪律。</strong>Perceus 式计数 + 原地复用、只限于动态值、由编译器所有权账本指挥——这是对"零 GC"的成立读法吗？它最先会在哪里破（异常路径、闭包捕获、容器扩容）？</li>
+<li><strong>所有权提案组。</strong>第 4.3 节未定案各项（提取元素、动态调用只借用、作用域绑定借用）：能否在 SA 既有 Referee 规则内表达、无需新原语？</li>
+<li><strong>异常机制。</strong>异常槽 + 每个动态调用点边界检查，与返回码纪律相比：哪个让 Referee 的工作更简单？各自对静态面的成本是多少？</li>
+<li><strong>标签值表示。</strong>分槽载荷是被缺失的 f64 位转换原语逼出来的。基座应补这个原语（回到单载荷表示），还是分槽布局可长期接受？</li>
+<li><strong>边界粒度。</strong>静态/动态按变量与签名逐个判定。这个粒度对吗，还是应按函数判定、整函数动态作为唯一回退？</li>
+<li><strong>整数政策。</strong>i64 响亮溢出 + bigint 后置——对一门声称"绝大部分 Python 兼容"的 v1 可接受吗，还是兼容性主张要求 bigint 从一开始就在？</li>
+</ol>
+<p>请评审方按本页自定的门（第 1 节）评判本设计，并把第 6 节视为当前已证明事项的完整清单：第 6 节之外的都是计划，不是成果。</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/01_overview/24_sapy_blueprint.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

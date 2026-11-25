@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SA-Py Blueprint: Python Syntax, Dynamic Types, Zero GC (the psa Compiler)</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body>
+<div class="topic-header">Getting Started &gt; SA-Py Blueprint: Python Syntax, Dynamic Types, Zero GC (the psa Compiler)</div>
+
+<div class="note">Status: <strong>blueprint and implementation record</strong> (2026-11-25, written by user order for external review). SA-Py is under active development: the compiler <code>psa</code> is at <strong>v0.5</strong>; the static face and the scalar dynamic layer are landed and verified end-to-end against CPython, the heap dynamic kinds are <strong>not yet implemented</strong> and one of them is currently blocked on an upstream defect registered in section 8. This page separates vision (sections 1–4), architecture (section 5), measured status (section 6), the remaining implementation list (section 7), known limitations (section 8), explicit non-goals (section 9), and the questions we put to reviewers (section 10). Performance figures are measured numbers with their measurement conditions stated; surfaces not yet measured are declared unmeasured rather than estimated. Fact sources: the SA-Py whitepaper 0.2, the syntax census, the dynamic-face design note and the bench baseline, all kept in the sapy repository (<code>github.com/layola13/sapy</code>).</div>
+
+<h2>1. Vision</h2>
+<p>AI now writes a large and growing share of new code, yet mainstream languages still make the author — human or AI — spell out parameter types, return types, lifetimes, ownership, releases and conversions by hand. <strong>SA-Py</strong> is our answer: a compiled language with <strong>Python syntax</strong>, <strong>real dynamic types</strong>, <strong>compiler-inferred ownership</strong>, and <strong>no garbage collector of any kind</strong>, AOT-compiled through SA to native and WASM.</p>
+<p>The one-sentence version: <em>Python Syntax. Dynamic Types. Zero GC. Verified Memory Safety.</em> The programmer (or the generating AI) writes the least code possible; the compiler infers types and ownership; the SA Referee verifies memory safety before any code runs. What cannot be proven or supported is a loud compile-time error — never a silent fallback, never a runtime surprise smuggled past the checker.</p>
+<p>Design priorities, in order, with the rule that no optimisation may ever trade away P0 or P1:</p>
+<table>
+<tr><th>Priority</th><th>Goal</th></tr>
+<tr><td>P0</td><td>Memory safety (every program passes the SA Referee)</td></tr>
+<tr><td>P1</td><td>Completely GC-free (no tracing, no mark-sweep, no background collector, no stop-the-world)</td></tr>
+<tr><td>P2</td><td>Least code for the author to write (AI-first ergonomics)</td></tr>
+<tr><td>P3</td><td>Dynamic types with optional static constraints</td></tr>
+<tr><td>P4</td><td>Fast AOT compilation</td></tr>
+<tr><td>P5</td><td>High-performance native / WASM output</td></tr>
+</table>
+<p>The v1 acceptance gates are deliberately narrow and measurable: <strong>(a)</strong> syntax coverage compatible with the vast majority of Python syntax, and <strong>(b)</strong> performance that beats CPython on the benchmark set — on the static face and, once built, re-measured on the dynamic face with the same programs written in dynamic style.</p>
+
+<h2>2. Position in the SA Ecosystem</h2>
+<p>SA-Py is the second high-level language of the SA ecosystem, not a replacement for SLA. The three layers keep separate duties and share one verified foundation:</p>
+<table>
+<tr><th>Layer</th><th>Duty</th><th>Explicitly not its job</th></tr>
+<tr><td><strong>SA</strong></td><td>Register and ownership model, borrow/move/release rules, the Referee safety verifier, native/WASM code generation</td><td>Depending on any one high-level language's type system</td></tr>
+<tr><td><strong>SLA</strong></td><td>Static types, precise resource control, systems programming, performance-critical work</td><td>Becoming a dynamic language to accommodate SA-Py</td></tr>
+<tr><td><strong>SA-Py</strong></td><td>AI-generated code, rapid business development, dynamic data processing, web backends, automation, prototyping</td><td>Bypassing the Referee, or importing dynamic semantics into SLA</td></tr>
+</table>
+<p>SLA and SA-Py have independent frontends. They share the SA infrastructure — one safety verification system, maintained once — and neither language's semantics leak into the other.</p>
+
+<h2>3. Design Principles</h2>
+<ol>
+<li><strong>Dynamic types are not dynamic memory management.</strong> A variable may change which type of value it holds; that changes the value's semantics, never the ownership rules. Every dynamic value still has a definite type tag, representation, owner, lifetime and accessibility at every program point.</li>
+<li><strong>Type inference is not garbage collection.</strong> The compiler infers types and ownership so the author does not write them; inference failure never falls back to a collector. Static inference failure falls back to the <em>dynamic value representation</em> (section 5.3), whose memory is still deterministically managed.</li>
+<li><strong>Zero GC is an architectural constraint, not an option.</strong> It cannot be switched on by a flag, a runtime mode, or a library. The dynamic face uses Perceus-style reference counting with opportunistic in-place reuse, restricted to dynamic values only (section 5.3) — a deterministic, compiler-directed discipline in the ownership ledger, not a tracing collector; the static face never enters the counting system at all.</li>
+<li><strong>Loud failure over silent approximation.</strong> Anything the compiler does not support — a syntax form, a type combination, a standard-library corner — is a named compile-time error. A simplified implementation that quietly covers only the shapes the test corpus happens to use does not count as support.</li>
+<li><strong>The compiler infers; the Referee decides.</strong> AI may generate code and may act on the compiler's ownership diagnostics, but no AI output and no frontend claim is trusted: every program is re-verified by the SA Referee after lowering.</li>
+<li><strong>Do not assume unverified substrate capabilities.</strong> The implementation began with an audit of what SA, the Referee and the SLA pipeline actually do today (section 6.1); features are built only on audited ground, and substrate gaps are registered as defects (section 8), not papered over.</li>
+</ol>
+
+<h2>4. The Language</h2>
+<h3>4.1 Syntax surface</h3>
+<p>Python's surface habits: <code>def</code>, <code>class</code>, <code>if/elif/else</code>, <code>for</code>, <code>while</code>, <code>return</code>, <code>import</code>, <code>async/await</code>, <code>try/except</code>; indentation-delimited blocks; no <code>let</code>/<code>mut</code> declaration keywords. Source files use the suffix <code>.psa</code>; the compiler binary is named <code>psa</code>, mirroring how the SLA compiler is named <code>sla</code>. The v1 target is compatibility with the vast majority of Python syntax — the full item-by-item census, with the current state of each of the ~55 constructs, is summarised in section 6.2.</p>
+<h3>4.2 Type model: three modes in one program</h3>
+<ul>
+<li><strong>Inferred static.</strong> <code>def add(a, b): return a + b</code> — with no annotations, the compiler infers parameter, local and return types from uses and call sites. Where inference proves one static type, the value is a plain SA-level value on the zero-cost static path.</li>
+<li><strong>Annotated constraint.</strong> <code>def add(a: i64, b: i64) -&gt; i64</code> — annotations are compile-time constraints; passing a value outside the constraint is a type error, never a silent runtime conversion.</li>
+<li><strong>Dynamic.</strong> Where inference cannot pin one type (heterogeneous returns, heterogeneous containers, dynamic call shapes), the variable or function is dynamic: values carry a runtime tag and operations dispatch on it, with defined error semantics — a loud panic on a type-invalid operation, in the shape of a Python <code>TypeError</code>. A dynamic function must keep a general path: one call site with integers must not permanently specialise it into an integer function (specialised copies may be generated, the general path must remain).</li>
+</ul>
+<p>The static/dynamic boundary is drawn per variable and per function signature, so both faces coexist in one program; crossings box and unbox automatically, and unboxing carries a runtime type assertion.</p>
+<h3>4.3 Ownership model</h3>
+<p>Ownership is inferred from how values are used, on top of SA's existing move/borrow/release rules — SA-Py does not invent a second ownership system. Settled and implemented today: scalar values are Copy; for container parameters the compiler infers read-only borrow versus consuming move from the function body (a parameter only read is borrowed, a parameter consumed is moved, and use-after-move is a compile error with a named diagnostic). Still <strong>proposals awaiting a final ruling</strong>, and labelled as such wherever they appear: element extraction out of containers, borrow-only semantics for dynamic calls, and scope-bound (non-escaping) borrows. Default assignment of containers is move semantics — <code>b = a</code> transfers ownership and later use of <code>a</code> is an error — deliberately <em>not</em> Python's aliasing assignment; long-term sharing of a mutable object must go through an explicit, SA-recognised safe-sharing mechanism, never through an implicit reference count smuggled into plain assignment. Strong ownership cycles are not permitted by construction; the dynamic face's known boundary on reference cycles is declared in section 8.</p>
+<h3>4.4 Values and containers</h3>
+<p>Planned value kinds: None, bool, int (i64 in v1; arbitrary precision is a registered gap, overflow is a loud error, never a silent wrap), float, str (immutable; inline small strings, owned buffers, read-only slices that cannot dangle), bytes, list, dict, set, tuple, class instances, functions/closures, and tasks. Containers own their elements; moving a container moves the ownership tree with it; releasing a container deterministically releases what it owns — no graph scan is ever needed. Container growth may relocate storage, so no verified element borrow may cross a growth operation.</p>
+<h3>4.5 Functions, classes, exceptions, concurrency</h3>
+<ul>
+<li><strong>Functions</strong>: positional parameters today; default values, keyword arguments, <code>*args</code>/<code>**kwargs</code>, lambdas and closures are on the implementation list (section 7). Closures capture by the same ownership rules: escaping closures must own what they keep; hidden reference counting to paper over capture lifetimes is not permitted.</li>
+<li><strong>Classes</strong>: instances, fields, methods, constructors, restricted single inheritance and method override in v1. No metaclasses, no arbitrary runtime restructuring of objects.</li>
+<li><strong>Exceptions</strong>: Python-shaped <code>try/except/finally/raise</code> lowered onto explicit control flow with an exception slot and boundary checks (SA has no unwinding); every exceptional exit path must run the same deterministic cleanup as the normal path.</li>
+<li><strong>Concurrency</strong>: SA-Py reuses SA's task and synchronisation machinery (goroutine-style spawn, channels, select). Immutable values share freely; mutable values are exclusive by default; sending an owned object over a channel transfers ownership.</li>
+</ul>
+<h2>5. Compiler Architecture</h2>
+<h3>5.1 Pipeline</h3>
+<pre>                 .psa source
+                      |
+               psa frontend (Rust)
+        lexer -&gt; parser -&gt; AST -&gt; name resolution
+                      |
+        type inference + dynamic analysis
+                      |
+        ownership / borrow analysis
+                      |
+              SLA source emission
+                      |
+        sla pipeline: checker + SA emission
+                      |
+                 SA Referee
+                      |
+              sa toolchain (build-exe)
+                      |
+               native / WASM</pre>
+<p>The frontend is independent: its lexer, parser, AST, inference and ownership analysis are SA-Py code and do not depend on the SLA checker's internals. Lowering targets SLA source, so every SA-Py program passes through the existing SLA checker and the SA Referee unchanged — there is no SA-Py-specific back door around verification. Implementation strategy, chosen deliberately: the <code>psa</code> compiler was built by copying the Rust SLA compiler tree wholesale and modifying it in place, rather than starting from zero — the audited checker, emission and oracle machinery is inherited, and the SA-Py-specific work is concentrated in new frontend crates (lexer, parser, AST) and the emission layer.</p>
+<h3>5.2 The static face</h3>
+<p>Where inference proves static types, values are ordinary SLA values: integers in registers, containers as <code>sa_std</code> containers, calls as direct calls. No tags, no dispatch, no counting — this is the fast path, and it is where the current benchmark results (section 6.3) come from.</p>
+<h3>5.3 The dynamic face</h3>
+<p>Dynamic values are represented by an explicit tagged struct, <code>PsaVal</code>: a tag plus payload slots (in the landed implementation the payload is split — an integer slot and a float slot — because the standard library has no f64 bitcast primitive; heap kinds will carry their pointer in the integer slot). Dynamic operations (arithmetic, comparison, truthiness, indexing, calls) emit calls into a runtime module, <code>psa_std</code>, maintained with the sapy repository and decoupled from the SLA emission layer; inside each runtime function the int/float fast paths run first, which is where a compiled dynamic face can beat an interpreter's per-bytecode dispatch. Heap objects share one header (reference count, kind) with kind-specific bodies for str/list/dict/set/tuple/object/function.</p>
+<p>Memory management for dynamic values — and only for dynamic values — is <strong>Perceus-style</strong>: reference counting with opportunistic in-place reuse, directed by the compiler's existing ownership ledger. Consuming operations reuse the storage in place when the count is one instead of allocating; static values never enter the counting system; boxing a static value into a dynamic one counts once, unboxing asserts the tag. This is a working design decision taken under the project charter and is one of the questions put to reviewers (section 10).</p>
+<h3>5.4 Standard library</h3>
+<p>An independent library, not a CPython binding. Staged: (1) io, string, bytes, math, collections, json, errors; (2) filesystem, networking, http, tcp/udp, database, async, channel, synchronisation; (3) crypto, compression, serialisation, process, advanced collections. Every resource API must state its ownership and release rules; no library component may introduce a GC.</p>
+
+<h2>6. Implementation Status (measured, 2026-11-25)</h2>
+<h3>6.1 Landed increments</h3>
+<table>
+<tr><th>Increment</th><th>Content</th><th>Verification</th></tr>
+<tr><td>Phase 0 audit</td><td>The copied SLA tree audited module by module: checker/lowering/CLI adapted, ABI and oracle kept, SAB codegen and plugin shell dropped, lexer/AST/parser replaced by new psa crates</td><td>Audit document in the sapy repository</td></tr>
+<tr><td>v0.1</td><td>Static subset: scalars (int/float/bool/str literals), monomorphic functions, recursion, if/while/for-range, true Python floor division and modulo semantics, print</td><td>Example programs byte-identical output vs CPython</td></tr>
+<tr><td>v0.2</td><td><code>list[int]</code> plus ownership inference: read-only list parameters are borrowed, consumed parameters are moved</td><td>End-to-end runs; use-after-move rejected loudly</td></tr>
+<tr><td>v0.3</td><td><code>list[bool]</code>; <code>list[float]</code> refused loudly, citing upstream defect (xxiv)</td><td>End-to-end runs; refusal cases in the reject corpus</td></tr>
+<tr><td>D0</td><td>Frontend completion batch: power, bitwise operators, chained comparisons, conditional expressions, print-position f-strings</td><td><code>examples/d0.psa</code> byte-identical vs CPython</td></tr>
+<tr><td>D1 (psa v0.5)</td><td>Scalar dynamic layer: <code>PsaVal</code>, dynamic arithmetic/comparison/truthiness with Python semantics (true division, floor rules, cross-kind numeric comparison), boxing/unboxing at static/dynamic boundaries, dynamic print</td><td><code>examples/dyn1.psa</code> byte-identical vs CPython; invalid unboxing panics loudly (code 77020); all static-face regressions re-verified</td></tr>
+</table>
+<h3>6.2 Syntax census</h3>
+<p>Item-by-item against the CPython language reference, ~55 constructs: <strong>supported 12, partial 10, frontend-only gaps 5, dynamic-face gaps 27, excluded 0</strong>. The supported core is algorithmic Python (expressions, control flow, functions, integer lists). The high-frequency gaps are exactly the dynamic-face items: iterating over containers, dict, string operations, classes, comprehensions, exceptions, keyword arguments — scheduled in section 7. Unsupported shapes are loud compile errors today, not silent miscompilations.</p>
+<h3>6.3 Performance (measured, with conditions)</h3>
+<p>Same source text fed to CPython 3.13.18 and to psa (Rust sla build-exe route, default build), same machine, best-of-3 wall clock; outputs verified identical before timing:</p>
+<table>
+<tr><th>Program</th><th>CPython</th><th>psa (static face)</th><th>Ratio</th></tr>
+<tr><td>fib(30), recursive</td><td>152 ms</td><td>7 ms</td><td>~22x</td></tr>
+<tr><td>while-loop sum, 10^7 iterations</td><td>1234 ms</td><td>11 ms</td><td>~112x</td></tr>
+<tr><td>list append 10^6 + indexed sum</td><td>312 ms</td><td>24 ms</td><td>~13x</td></tr>
+<tr><td>dynamic accumulation, 10^6 dynamic additions (D1)</td><td>0.27 s</td><td>0.12 s</td><td>~2.25x</td></tr>
+</table>
+<p><strong>Honesty clause:</strong> the first three rows are statically inferable programs on the static fast path; they prove the static face clears the v1 bar, not that v1 is met. The v1 gate additionally requires the same set re-run in dynamic style after the dynamic face is complete; the fourth row is the first such data point (scalar dynamic layer only).</p>
+
+<h2>7. Implementation List: the Road to v1</h2>
+<table>
+<tr><th>Step</th><th>Content</th><th>Status</th></tr>
+<tr><td>D2</td><td>Dynamic heap kinds: dyn list/dict/str, subscript and slicing, iteration over containers, <code>in</code></td><td>Storage layer proven (<code>Vec&lt;PsaVal&gt;</code> element access verified); blocked on the heap-allocation idiom — upstream defect (xxviii), section 8</td></tr>
+<tr><td>D3</td><td>Function dynamic face: default values, keyword arguments, <code>*args</code>/<code>**kwargs</code>, lambda and closures</td><td>Not started</td></tr>
+<tr><td>D4</td><td>Classes: fields, methods, single inheritance; the full attribute-access surface</td><td>Not started</td></tr>
+<tr><td>D5</td><td>Comprehensions, tuple unpacking, the high-frequency str/list/dict method sets</td><td>Not started</td></tr>
+<tr><td>D6</td><td>Exceptions (try/except/raise/finally), <code>with</code> (file form first), <code>import</code> of own modules</td><td>Not started; the hardest item, deliberately last inside v1</td></tr>
+<tr><td>D7</td><td>Later tier: generators/yield, async, match, arbitrary-precision integers, reference-cycle evaluation</td><td>Post-v1 candidates</td></tr>
+<tr><td>Frontend remainder</td><td>Triple-quoted strings, radix literals, multiple-assignment desugaring, assert</td><td>Small items, scheduled alongside D2</td></tr>
+</table>
+<p>Each step's acceptance is fixed in advance: positive examples run end-to-end with output byte-identical to CPython on the same source; negative examples fail loudly with named diagnostics; the benchmark set is re-run in dynamic style and must not lose to CPython.</p>
+
+<h2>8. Known Limitations and Upstream Blockers</h2>
+<p>These are registered defects in the underlying Rust SLA toolchain's build-exe route, each reproduced with hand-written SLA probes independent of psa. They are listed here because a reviewer should know exactly which SA-Py refusals are our substrate's limits rather than language decisions:</p>
+<table>
+<tr><th>ID</th><th>Defect</th><th>Effect on SA-Py today</th></tr>
+<tr><td>(xxiii)</td><td>Printing an f64 through the build-exe route truncates the fraction (the value itself is correct)</td><td>Float printing refused loudly; dynamic float print panics (77030) instead of printing a wrong value</td></tr>
+<tr><td>(xxiv)</td><td><code>Vec&lt;f64&gt;</code> element access is miscompiled on both SLA implementations (silent wrong values)</td><td><code>list[float]</code> refused loudly at compile time</td></tr>
+<tr><td>(xxv)</td><td>String bindings cannot be lowered on the build-exe route (parameters, locals, returns)</td><td>String variables refused loudly; string literals in print position work</td></tr>
+<tr><td>(xxvi)</td><td>Self-referential call assignment leaks a register</td><td>Worked around inside psa by temporary routing; the direct shape remains an upstream defect</td></tr>
+<tr><td>(xxvii)</td><td>Aggregate variables cannot be reassigned whole, and block-scoped locals are not retired at block exit, in the SAB lowering</td><td>The dynamic layer stores values through an explicit stage pattern (field-wise copy plus a void sink) instead of plain assignment; a workaround that preserves semantics exactly, to be simplified away when the upstream fix lands</td></tr>
+<tr><td>(xxviii)</td><td>The <code>Box::new</code>/<code>into_raw</code> allocation idiom leaks macro-expansion temporaries on the build-exe route</td><td>Blocks D2's heap kinds; a self-declared realloc extern compiles and links but segfaults at runtime — root cause not yet isolated, and the bypass is not used until it is proven</td></tr>
+<tr><td>(xviii)</td><td>The underlying SLA currently evaluates <code>and</code>/<code>or</code> eagerly on both implementations (measured)</td><td>Static boolean operators inherit the substrate semantics until the upstream fix; the dynamic layer preserves short-circuiting itself. Whether short-circuit is the intended language semantics is an open ruling</td></tr>
+</table>
+<p>Language-level boundaries, declared rather than discovered later: integers are i64 in v1 (overflow is a loud error; arbitrary precision is a post-v1 item); reference cycles in dynamic values are not collected in v1 and leak until process exit (CPython has a cycle collector; closing this is a D7 evaluation item); source tabs are rejected loudly, unlike CPython.</p>
+
+<h2>9. Explicit Non-Goals</h2>
+<ol>
+<li>Any form of GC — tracing, generational, background, or optional.</li>
+<li>Implicit reference counting as the default management of plain values (counting exists only inside the dynamic face's Perceus discipline, under compiler direction).</li>
+<li>CPython C-extension compatibility and the Python C API.</li>
+<li>Metaclasses and arbitrary runtime modification of object structure.</li>
+<li>Unrestricted <code>eval</code> and dynamic code loading.</li>
+<li>Unverified unsafe escapes and raw pointers in user code.</li>
+<li>A JIT in v1 (AOT only; static specialisation and inlining are the v1 performance levers).</li>
+</ol>
+
+<h2>10. Questions Put to Reviewers</h2>
+<ol>
+<li><strong>Dynamic-face memory discipline.</strong> Is Perceus-style counting with in-place reuse, restricted to dynamic values and driven by the compiler's ownership ledger, a sound reading of "zero GC" — and where does it break first (exception paths, closure captures, container growth)?</li>
+<li><strong>Ownership proposals.</strong> The unsettled items of section 4.3 (element extraction, borrow-only dynamic calls, scope-bound borrows): are they expressible inside SA's existing referee rules without new primitives?</li>
+<li><strong>Exception mechanism.</strong> Exception slot plus boundary checks on every dynamic call, versus a return-code discipline: which keeps the Referee's job simpler, and what does each cost the static face?</li>
+<li><strong>Tagged-value representation.</strong> The split-payload struct was forced by a missing f64 bitcast primitive. Should the substrate grow the primitive (single-payload representation) or is the split layout acceptable long-term?</li>
+<li><strong>Boundary granularity.</strong> Static/dynamic is decided per variable and per signature. Is that the right granularity, or should it be per function with whole-function dynamism as the only fallback?</li>
+<li><strong>Integer policy.</strong> Loud overflow on i64 with bigint deferred — acceptable for a v1 that claims "the vast majority of Python", or does the compatibility claim require bigint from the start?</li>
+</ol>
+<p>Reviewers are asked to judge the design against its own stated gates (section 1) and to treat section 6 as the complete list of what is currently proven: anything not in section 6 is a plan, not a result.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/01_overview/24_sapy_blueprint.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>
