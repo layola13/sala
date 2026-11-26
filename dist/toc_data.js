@@ -299,6 +299,47 @@ var TOC = [
   ]
  },
  {
+  "t": "From Python (psa) to SLA",
+  "f": null,
+  "c": [
+   {
+    "t": "Comments, Variables, Numbers, and Print",
+    "f": "content/18_py_to_sla/01_basics.html",
+    "c": []
+   },
+   {
+    "t": "Strings and f-Strings",
+    "f": "content/18_py_to_sla/02_strings.html",
+    "c": []
+   },
+   {
+    "t": "Booleans, Conditionals, and Loops",
+    "f": "content/18_py_to_sla/03_control_flow.html",
+    "c": []
+   },
+   {
+    "t": "Functions and Tuples",
+    "f": "content/18_py_to_sla/04_functions_tuples.html",
+    "c": []
+   },
+   {
+    "t": "Lists, Dicts, Sets, Indexing, Slicing, and Comprehensions",
+    "f": "content/18_py_to_sla/05_collections.html",
+    "c": []
+   },
+   {
+    "t": "Classes, Errors, and None",
+    "f": "content/18_py_to_sla/06_classes_errors_none.html",
+    "c": []
+   },
+   {
+    "t": "Modules and the Full Coverage Matrix",
+    "f": "content/18_py_to_sla/07_modules_matrix.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "SA Assembly and SAB",
   "f": null,
   "c": [

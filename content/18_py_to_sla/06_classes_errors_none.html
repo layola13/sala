@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Classes, Errors, and None</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Classes, Errors, and None</div>
+<h1>Classes, Errors, and None</h1>
+
+<h2>Classes ↔ <code>struct</code> + <code>impl</code></h2>
+<p>psa classes are supported by the census: single inheritance (flattened
+at compile time), methods, and <code>__init__</code>/<code>__repr__</code>/
+<code>__str__</code>/<code>__bool__</code>; <code>super()</code> and
+multiple inheritance are loudly refused. SLA has no class form at all: the
+same shape is a <code>struct</code> for the fields plus an <code>impl</code>
+block for the methods, with a conventional <code>new</code> constructor
+function in place of <code>__init__</code>. Methods take <code>self</code>;
+a method that "changes" the value returns a new one (the plugin corpus's
+<code>Counter</code> demo works exactly this way).</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>class Pair:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def sum(self):
+        return self.a + self.b
+
+p = Pair(11, 22)
+print(p.sum())          # 33
+print(f"{p.a},{p.b}")   # 11,22</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct Pair {
+    a: i32,
+    b: i32,
+}
+
+impl Pair {
+    fn new(a: i32, b: i32) -&gt; Pair {
+        return Pair { a: a, b: b };
+    }
+
+    fn sum(self) -&gt; i32 {
+        return self.a + self.b;
+    }
+}
+
+fn main() -&gt; i32 {
+    let p = Pair::new(11, 22);
+    println("{}", p.sum());
+    println("{},{}", p.a, p.b);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>33</code>, <code>11,22</code>, exit code 0.</p>
+
+<h2>Exceptions ↔ <code>Result</code> and <code>panic</code></h2>
+<p>psa has real <code>try</code>/<code>except</code>/<code>finally</code>
+and <code>raise</code> (census: supported, with nine built-in exception
+classes; propagation crosses function boundaries). SLA has
+<strong>no try/catch form</strong> — the plugin corpus states this
+outright. The SLA split is by kind of failure:</p>
+<ul>
+<li><strong>Recoverable</strong> failures are values: the function returns
+<code>Result&lt;T, E&gt;</code>, and the caller inspects
+<code>is_ok()</code> / <code>unwrap()</code> (or matches on
+<code>Ok</code>/<code>Err</code>).</li>
+<li><strong>Unrecoverable</strong> faults are <code>panic(code)</code>: the
+process prints <code>PANIC: code=N</code> and aborts; nothing catches it.
+The symmetry is closer than it first looks — psa's own runtime panics
+(out-of-bounds, bad conversions) are likewise not catchable by
+<code>except</code>, a divergence the census records explicitly.</li>
+</ul>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def div(a, b):
+    if b == 0:
+        raise ValueError("division by zero")
+    return a // b
+
+try:
+    print(div(7, 2))  # 3
+    print(div(7, 0))
+except ValueError:
+    print("caught")   # caught</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn div(a: i32, b: i32) -&gt; Result&lt;int, int&gt; {
+    if b == 0 { return Err(0 - 1); };
+    return Ok(a / b);
+}
+
+fn main() -&gt; i32 {
+    let v = 0;
+    if div(7, 2).is_ok() { v = div(7, 2).unwrap(); };
+    println("{}", v);
+    println("{}", div(7, 0).is_ok());
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>3</code>, <code>false</code>, exit code 0 —
+the second line is the <code>Err</code> case surfacing as data, where psa
+raises and catches.</p>
+<p>The <code>panic</code> side, verified as its own program:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    println("before");
+    panic(77050);
+    println("after");
+    return 0;
+}</code></pre>
+<p>Verified behaviour: prints <code>before</code>, then
+<code>PANIC: code=77050</code>, and exits with code 122; the
+<code>after</code> line never prints.</p>
+
+<h2><code>None</code> ↔ <code>Option</code></h2>
+<p>In psa, <code>None</code> is a real dynamic value: it can be bound,
+compared, printed, and stored in containers (census: supported). SLA has no
+null value at all. Absence is a type-level fact carried by
+<code>Option&lt;T&gt;</code> (import <code>sa_std/core/option.sa</code>),
+with <code>Option::Some(v)</code> / <code>Option::None</code> and a
+<code>match</code> to open it — the same <code>Option</code> that
+<code>HashMap.get</code> returned on the previous page.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def opt_or(opt, fallback):
+    if opt is None:
+        return fallback
+    return opt + 1
+
+print(opt_or(41, 0))    # 42
+print(opt_or(None, 0))  # 0</code></pre></td>
+<td><pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn opt_or(opt: Option&lt;int&gt;, fallback: int) -&gt; int {
+    let r = match opt {
+        Some(v) =&gt; { v + 1 },
+        None =&gt; { fallback },
+    };
+    return r;
+}
+
+fn main() -&gt; i32 {
+    let a: Option&lt;int&gt; = Option::Some(41);
+    println("{}", opt_or(a, 0));
+    let b: Option&lt;int&gt; = Option::None;
+    println("{}", opt_or(b, 0));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>42</code>, <code>0</code>, exit code 0.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>class ↔ <code>struct</code> + <code>impl</code>; <code>__init__</code> ↔ a conventional <code>new</code>; psa classes are single-inheritance only.</li>
+<li>No <code>try</code>/<code>except</code> in SLA: recoverable errors are <code>Result</code> values, unrecoverable faults are <code>panic(code)</code> — and psa runtime panics are equally uncatchable.</li>
+<li><code>None</code> is a value in psa; in SLA absence is <code>Option&lt;T&gt;</code>, opened by <code>match</code>.</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Comments, Variables, Numbers, and Print</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Comments, Variables, Numbers, and Print</div>
+<h1>Comments, Variables, Numbers, and Print</h1>
+
+<p>This section is the side-by-side companion for Python programmers: the left
+column of every table is a program in <strong>psa</strong> (the Python-syntax
+frontend, <code>.psa</code> source, compiled by the <code>psa</code>
+compiler), the right column is the same program written in
+<strong>SLA</strong>. It follows the same strict rule as the Rust companion
+section: <strong>every SLA code block in this section was actually compiled
+and run before it was written down</strong> (toolchain: <code>sa 0.1.8</code>
+host + the SLA plugin in dev mode, SA text route, verified 2026-11-26). The
+output quoted under each program is the output the SLA program really
+printed. The psa-side support status of each construct is taken from the psa
+syntax census (sapy repository, 2026-11-25, updated 2026-11-26: 35 supported,
+8 partial, 3 gaps of 46 constructs); where psa supports a construct only
+partially, or not yet, the page says so instead of smoothing it over. The psa
+programs themselves are written against that census.</p>
+
+<h2>Comments</h2>
+<p>psa keeps Python's <code>#</code> line comment. SLA uses
+<code>//</code>. One measured difference: SLA has no block comment — a
+<code>/* ... */</code> block is rejected by the parser (verified probe:
+<code>found '/', expected function, struct, enum, trait, impl, const, macro,
+extern block, module, or annotation declaration</code>).</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code># a line comment
+x = 1  # trailing comment</code></pre></td>
+<td><pre><code>// a line comment
+let x = 1;  // trailing comment</code></pre></td>
+</tr>
+</table>
+
+<h2>Variables, Types, Numbers, and Arithmetic</h2>
+<p>psa variables need no declaration and no type annotation; a name is bound
+by assignment and may be rebound. SLA binds with <code>let</code> — mutable
+by default, so reassignment needs no extra keyword — and the type is either
+inferred or written after the name. <code>const</code> is the immutable form.
+Every value has one static type, and statements end with <code>;</code>.</p>
+<p>Arithmetic reads the same, with one semantic difference to unlearn:
+Python's <code>/</code> is true division (<code>17 / 5 == 3.4</code>) and
+<code>//</code> is floor division. SLA's <code>/</code> on integers is
+integer division, so the counterpart of SLA <code>17 / 5</code> is psa's
+<code>17 // 5</code>. psa supports the full operator set
+<code>+ - * / // % **</code>; SLA has no <code>**</code> operator (powers are
+written as loops or library calls).</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>LIMIT = 100
+
+x = 10
+y = 20
+x = x + 5
+print(x + y)      # 35
+print(2 + 3 * 4)  # 14
+print(17 // 5)    # 3
+print(17 % 5)     # 2
+print(LIMIT)      # 100</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+// Variables, types, numbers and arithmetic (line comment).
+const LIMIT: i32 = 100;
+
+fn main() -&gt; i32 {
+    let x = 10;
+    let y: i32 = 20;
+    x = x + 5;
+    println("{}", x + y);
+    println("{}", 2 + 3 * 4);
+    println("{}", 17 / 5);
+    println("{}", 17 % 5);
+    println("{}", LIMIT);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>35</code>, <code>14</code>, <code>3</code>,
+<code>2</code>, <code>100</code>, exit code 0. The psa program prints the
+same five numbers.</p>
+
+<h2>Floats</h2>
+<p>Float arithmetic is direct on both sides. Two rendering facts differ.
+SLA prints an <code>f64</code> with a fixed ten-decimal rendering
+(<code>3.5000000000</code>), where Python prints the shortest round-trip form
+(<code>3.5</code>). And on the psa side, printing a float is currently
+blocked by a compiler defect (census item (xxiii): a float argument to
+<code>print</code> fails loudly with panic 77030); the fix (shortest
+round-trip float formatting, substrate item S3) has landed in the SLA
+standard library and is waiting for psa-side confirmation — until then the
+psa column below states the Python semantics, and the limitation is recorded
+here rather than hidden.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>a = 7.0
+b = 2.0
+print(a / b)        # 3.5 (see note above)
+print(a * b + 1.5)  # 15.5</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let a: f64 = 7.0;
+    let b: f64 = 2.0;
+    println("{}", a / b);
+    println("{}", a * b + 1.5);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>3.5000000000</code>,
+<code>15.5000000000</code>, exit code 0.</p>
+
+<h2>Print</h2>
+<p>psa's <code>print</code> takes any number of arguments (the census marks
+multi-argument print, including dynamic values, as supported;
+<code>sep=</code>/<code>end=</code> are supported with literal values). SLA
+prints through <code>println</code> with <code>{}</code> placeholders, one
+argument per placeholder, after importing
+<code>sa_std/io/print.sai</code> and <code>sa_std/fmt.sai</code> — every
+program in this section does exactly that. Booleans print as
+<code>True</code>/<code>False</code> in psa and <code>true</code>/
+<code>false</code> in SLA.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Comments: <code>#</code> in psa, <code>//</code> in SLA; SLA has no block comment (parser-verified).</li>
+<li>psa binds by assignment, dynamically typed; SLA <code>let</code> is mutable by default, statically typed, <code>const</code> is immutable.</li>
+<li>SLA integer <code>/</code> corresponds to psa <code>//</code>, not psa <code>/</code>; SLA has no <code>**</code> operator.</li>
+<li>SLA prints floats with ten decimals; psa float printing is currently blocked by defect (xxiii), fix landed in the SLA std, psa-side confirmation pending.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/18_py_to_sla/01_basics.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

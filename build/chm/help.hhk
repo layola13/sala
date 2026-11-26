@@ -71,6 +71,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Arc"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="architecture"><param name="Local" value="../dist/content/12_vm/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="args"><param name="Local" value="../dist/content/06_stdlib/07_env.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="arithmetic"><param name="Local" value="../dist/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ARM"><param name="Local" value="../dist/content/13_build/03_cross_arm_mac.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="arrays"><param name="Local" value="../dist/content/02_sla_lang/02_types.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="artifact size"><param name="Local" value="../dist/content/09_rust_compare/09_performance.html"></OBJECT>
@@ -102,6 +103,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="block_on"><param name="Local" value="../dist/content/02_sla_lang/09_async.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="blueprint"><param name="Local" value="../dist/content/01_overview/24_sapy_blueprint.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="bones"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="bool"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="bootstrap"><param name="Local" value="../dist/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="borrow"><param name="Local" value="../dist/content/17_rust_beginners/02_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="borrow checker"><param name="Local" value="../dist/content/09_rust_compare/03_ownership.html"></OBJECT>
@@ -110,6 +112,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="borrowing"><param name="Local" value="../dist/content/09_rust_compare/03_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="boundaries"><param name="Local" value="../dist/content/15_sa2c/05_verify.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Box"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="break"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="buffer trio"><param name="Local" value="../dist/content/06_stdlib/13_usage_guide.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="buffer-read-write"><param name="Local" value="../dist/content/04_cli/13_bun_peer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="buffers"><param name="Local" value="../dist/content/06_stdlib/03_fmt.html"></OBJECT>
@@ -157,6 +160,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="child_process"><param name="Local" value="../dist/content/05_plugins/12_node.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="chunked"><param name="Local" value="../dist/content/05_plugins/15_http_server.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CJS"><param name="Local" value="../dist/content/04_cli/11_build_js.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="class"><param name="Local" value="../dist/content/18_py_to_sla/06_classes_errors_none.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="className"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI"><param name="Local" value="../dist/content/10_db/02_cli.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI-only plugin"><param name="Local" value="../dist/content/12_vm/01_overview.html"></OBJECT>
@@ -170,7 +174,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="codex-react-ui"><param name="Local" value="../dist/content/01_overview/07_cxu_readiness.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="columnar storage"><param name="Local" value="../dist/content/10_db/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="command line"><param name="Local" value="../dist/content/16_policy/01_overview.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="comments"><param name="Local" value="../dist/content/02_sla_lang/01_lexical.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="comments"><param name="Local" value="../dist/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="common misconceptions"><param name="Local" value="../dist/content/09_rust_compare/01_positioning.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="compact encoding"><param name="Local" value="../dist/content/01_overview/11_sardis_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="comparison"><param name="Local" value="../dist/content/10_db/08_mysql_sqlite_compare.html"></OBJECT>
@@ -183,6 +187,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="component library"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ComponentDesc"><param name="Local" value="../dist/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="components"><param name="Local" value="../dist/content/05_plugins/03_react.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="comprehension"><param name="Local" value="../dist/content/18_py_to_sla/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="comptime"><param name="Local" value="../dist/content/13_build/02_linux_windows.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="conceptual model"><param name="Local" value="../dist/content/03_sa_asm/01_sa_model.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="configuration as code"><param name="Local" value="../dist/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
@@ -193,6 +198,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="const"><param name="Local" value="../dist/content/08_faq/01_faq.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="const field"><param name="Local" value="../dist/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="constants"><param name="Local" value="../dist/content/06_stdlib/18_api_layout.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="continue"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="contract"><param name="Local" value="../dist/content/06_stdlib/16_api_externs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="converter"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="copy"><param name="Local" value="../dist/content/17_rust_beginners/03_copy_clone_derive.html"></OBJECT>
@@ -200,6 +206,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="coroutine"><param name="Local" value="../dist/content/01_overview/13_goroutine_runtime.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="coverage"><param name="Local" value="../dist/content/06_stdlib/15_api_index.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="coverage map"><param name="Local" value="../dist/content/01_overview/10_backend_coverage.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="coverage matrix"><param name="Local" value="../dist/content/18_py_to_sla/07_modules_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="cpp2sa"><param name="Local" value="../dist/content/01_overview/14_cpp2sa_go2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CPython"><param name="Local" value="../dist/content/06_stdlib/24_python_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="cross-compilation"><param name="Local" value="../dist/content/13_build/03_cross_arm_mac.html"></OBJECT>
@@ -222,6 +229,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dead code"><param name="Local" value="../dist/content/15_sa2c/02_runtime.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="debugging"><param name="Local" value="../dist/content/13_build/05_verify_troubleshoot.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="decision"><param name="Local" value="../dist/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="def"><param name="Local" value="../dist/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="defer"><param name="Local" value="../dist/content/01_overview/15_go_feature_candidates.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="delegation"><param name="Local" value="../dist/content/04_cli/05_build_exe.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="demo comparison"><param name="Local" value="../dist/content/09_rust_compare/07_rosetta_bc2sa.html"></OBJECT>
@@ -233,18 +241,21 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="deno.sys"><param name="Local" value="../dist/content/05_plugins/11_deno.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="DENO_"><param name="Local" value="../dist/content/05_plugins/11_deno.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="design philosophy"><param name="Local" value="../dist/content/09_rust_compare/01_positioning.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="destructure"><param name="Local" value="../dist/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dev mode"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dev navigation bar"><param name="Local" value="../dist/content/07_ui/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dev server"><param name="Local" value="../dist/content/05_plugins/05_vite.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="devnav"><param name="Local" value="../dist/content/07_ui/03_project_structure.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="diagnostics"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dialect"><param name="Local" value="../dist/content/01_overview/17_verse_game_profile.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="dict"><param name="Local" value="../dist/content/18_py_to_sla/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dictionary"><param name="Local" value="../dist/content/10_db/03_api.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="direct"><param name="Local" value="../dist/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="direct SAB"><param name="Local" value="../dist/content/08_faq/04_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="directory"><param name="Local" value="../dist/content/06_stdlib/06_fs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="disasm"><param name="Local" value="../dist/content/04_cli/06_sab.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="div"><param name="Local" value="../dist/content/15_sa2c/03_semantics.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="divmod"><param name="Local" value="../dist/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dlopen"><param name="Local" value="../dist/content/15_sa2c/04_extern.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dns"><param name="Local" value="../dist/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="DnsResolver"><param name="Local" value="../dist/content/06_stdlib/21_android_net_census.html"></OBJECT>
@@ -286,6 +297,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="extern"><param name="Local" value="../dist/content/15_sa2c/04_extern.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="extern C"><param name="Local" value="../dist/content/05_plugins/18_ffi_vs_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="extern.allow"><param name="Local" value="../dist/content/12_vm/04_ffi_bridge.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="f-string"><param name="Local" value="../dist/content/18_py_to_sla/02_strings.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="f32"><param name="Local" value="../dist/content/15_sa2c/03_semantics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="f64"><param name="Local" value="../dist/content/06_stdlib/03_fmt.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="failures"><param name="Local" value="../dist/content/13_build/05_verify_troubleshoot.html"></OBJECT>
@@ -304,14 +316,16 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="file reading"><param name="Local" value="../dist/content/06_stdlib/14_recipes.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="FileNotFound"><param name="Local" value="../dist/content/13_build/05_verify_troubleshoot.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="files"><param name="Local" value="../dist/content/06_stdlib/06_fs.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="first program"><param name="Local" value="../dist/content/17_rust_beginners/01_basics.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="first program"><param name="Local" value="../dist/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="first-load confirmation"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="five-symbol contract"><param name="Local" value="../dist/content/03_sa_asm/01_sa_model.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="flattener"><param name="Local" value="../dist/content/03_sa_asm/04_pipeline.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="fmt"><param name="Local" value="../dist/content/06_stdlib/03_fmt.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="fn"><param name="Local" value="../dist/content/02_sla_lang/03_functions.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="for"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="for in"><param name="Local" value="../dist/content/02_sla_lang/03_functions.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="formal mode"><param name="Local" value="../dist/content/05_plugins/20_system_redesign.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="format"><param name="Local" value="../dist/content/18_py_to_sla/02_strings.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="format String"><param name="Local" value="../dist/content/17_rust_beginners/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="formatting"><param name="Local" value="../dist/content/06_stdlib/03_fmt.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="four subjects in one"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
@@ -326,6 +340,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="full-coverage verification"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="full-text search"><param name="Local" value="../dist/content/01_overview/10_backend_coverage.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="fully automatic installer"><param name="Local" value="../dist/content/01_overview/02_install_build.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="function"><param name="Local" value="../dist/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="functions"><param name="Local" value="../dist/content/06_stdlib/16_api_externs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="future"><param name="Local" value="../dist/content/17_rust_beginners/07_modules_async.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="games"><param name="Local" value="../dist/content/01_overview/17_verse_game_profile.html"></OBJECT>
@@ -378,16 +393,19 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="hygienic macros"><param name="Local" value="../dist/content/12_vm/06_examples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="i64"><param name="Local" value="../dist/content/06_stdlib/03_fmt.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="icons_material.sax"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="if elif else"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="if else"><param name="Local" value="../dist/content/02_sla_lang/03_functions.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="if let"><param name="Local" value="../dist/content/02_sla_lang/04_patterns.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="if_nametoindex"><param name="Local" value="../dist/content/13_build/04_freebsd.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="impl"><param name="Local" value="../dist/content/17_rust_beginners/04_enums_traits_generics.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="impl"><param name="Local" value="../dist/content/18_py_to_sla/06_classes_errors_none.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="impl Drop"><param name="Local" value="../dist/content/09_rust_compare/08_migration.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="implicit interfaces"><param name="Local" value="../dist/content/01_overview/15_go_feature_candidates.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="import"><param name="Local" value="../dist/content/18_py_to_sla/07_modules_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="imports"><param name="Local" value="../dist/content/06_stdlib/13_usage_guide.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="include"><param name="Local" value="../dist/content/05_plugins/03_react.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="index"><param name="Local" value="../dist/content/10_db/03_api.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="index-u64"><param name="Local" value="../dist/content/10_db/02_cli.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="indexing"><param name="Local" value="../dist/content/18_py_to_sla/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="indirect calls"><param name="Local" value="../dist/content/15_sa2c/03_semantics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ingest"><param name="Local" value="../dist/content/10_db/02_cli.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="init"><param name="Local" value="../dist/content/10_db/02_cli.html"></OBJECT>
@@ -446,6 +464,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="limitations"><param name="Local" value="../dist/content/08_faq/05_limitations_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="limits"><param name="Local" value="../dist/content/10_db/06_limits_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Linux"><param name="Local" value="../dist/content/13_build/02_linux_windows.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="list"><param name="Local" value="../dist/content/18_py_to_sla/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="literals"><param name="Local" value="../dist/content/04_cli/13_bun_peer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="LLVM"><param name="Local" value="../dist/content/08_faq/03_runtime_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="llvm"><param name="Local" value="../dist/content/05_plugins/17_bc2sa.html"></OBJECT>
@@ -526,9 +545,11 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="NODE_ macros"><param name="Local" value="../dist/content/05_plugins/12_node.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="NoDefaultCurrentDirectoryInExePath"><param name="Local" value="../dist/content/08_faq/03_runtime_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="NOLINT"><param name="Local" value="../dist/content/15_sa2c/02_runtime.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="None"><param name="Local" value="../dist/content/18_py_to_sla/06_classes_errors_none.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="NotAStruct"><param name="Local" value="../dist/content/17_rust_beginners/03_copy_clone_derive.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="npm"><param name="Local" value="../dist/content/15_sa2c/04_extern.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="npm_bind"><param name="Local" value="../dist/content/04_cli/11_build_js.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="numbers"><param name="Local" value="../dist/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="NWConnection"><param name="Local" value="../dist/content/06_stdlib/25_ios_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="NWPath"><param name="Local" value="../dist/content/06_stdlib/25_ios_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="O2"><param name="Local" value="../dist/content/15_sa2c/06_perf.html"></OBJECT>
@@ -595,7 +616,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="progress"><param name="Local" value="../dist/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="project structure"><param name="Local" value="../dist/content/07_ui/03_project_structure.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="protocol matrix"><param name="Local" value="../dist/content/05_plugins/12_node.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="psa"><param name="Local" value="../dist/content/01_overview/24_sapy_blueprint.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="psa"><param name="Local" value="../dist/content/18_py_to_sla/07_modules_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="PsaVal"><param name="Local" value="../dist/content/01_overview/24_sapy_blueprint.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="pthread"><param name="Local" value="../dist/content/15_sa2c/04_extern.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="pthread_*"><param name="Local" value="../dist/content/12_vm/04_ffi_bridge.html"></OBJECT>
@@ -605,6 +626,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="publish"><param name="Local" value="../dist/content/13_build/06_release_npm.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="pure UI project"><param name="Local" value="../dist/content/07_ui/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Python"><param name="Local" value="../dist/content/06_stdlib/24_python_net_census.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="python"><param name="Local" value="../dist/content/18_py_to_sla/07_modules_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="qmod"><param name="Local" value="../dist/content/10_db/07_vm_support.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="query combination family"><param name="Local" value="../dist/content/11_ecs/02_architecture.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="QUERY_ACCESS"><param name="Local" value="../dist/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
@@ -612,6 +634,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="quick start"><param name="Local" value="../dist/content/15_sa2c/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="quickening"><param name="Local" value="../dist/content/12_vm/03_internals.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Raft"><param name="Local" value="../dist/content/01_overview/10_backend_coverage.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="range"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="raw mode"><param name="Local" value="../dist/content/05_plugins/06_tui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="react"><param name="Local" value="../dist/content/05_plugins/03_react.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="reaction network"><param name="Local" value="../dist/content/01_overview/20_biochem_education_language.html"></OBJECT>
@@ -639,6 +662,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="RESP"><param name="Local" value="../dist/content/01_overview/11_sardis_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Responses"><param name="Local" value="../dist/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Result"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="return"><param name="Local" value="../dist/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="reverse proxy"><param name="Local" value="../dist/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="reversed mutability"><param name="Local" value="../dist/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="rewrite"><param name="Local" value="../dist/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
@@ -729,6 +753,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="serialization"><param name="Local" value="../dist/content/06_stdlib/11_encoding.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="serve"><param name="Local" value="../dist/content/05_plugins/15_http_server.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="session persistence"><param name="Local" value="../dist/content/01_overview/06_scodex_mini.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="set"><param name="Local" value="../dist/content/18_py_to_sla/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="settings partitions"><param name="Local" value="../dist/content/07_ui/03_project_structure.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sha256"><param name="Local" value="../dist/content/05_plugins/13_pkg.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="shader"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
@@ -766,6 +791,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SLASL"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sleep"><param name="Local" value="../dist/content/06_stdlib/08_time.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="slices"><param name="Local" value="../dist/content/02_sla_lang/02_types.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="slicing"><param name="Local" value="../dist/content/18_py_to_sla/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="slot"><param name="Local" value="../dist/content/05_plugins/04_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Slot"><param name="Local" value="../dist/content/07_ui/05_mui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="snapshot"><param name="Local" value="../dist/content/10_db/02_cli.html"></OBJECT>
@@ -804,11 +830,14 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="storage layout"><param name="Local" value="../dist/content/10_db/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="stored procedures"><param name="Local" value="../dist/content/10_db/07_vm_support.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="str"><param name="Local" value="../dist/content/06_stdlib/04_string.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="str_eq"><param name="Local" value="../dist/content/18_py_to_sla/02_strings.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="STR_LEN"><param name="Local" value="../dist/content/06_stdlib/17_api_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="streaming responses"><param name="Local" value="../dist/content/05_plugins/14_http_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="strict sweep"><param name="Local" value="../dist/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="string"><param name="Local" value="../dist/content/06_stdlib/04_string.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="String field move"><param name="Local" value="../dist/content/17_rust_beginners/03_copy_clone_derive.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="strings"><param name="Local" value="../dist/content/18_py_to_sla/02_strings.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="struct"><param name="Local" value="../dist/content/18_py_to_sla/06_classes_errors_none.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="struct update"><param name="Local" value="../dist/content/02_sla_lang/04_patterns.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="structs"><param name="Local" value="../dist/content/17_rust_beginners/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="study checklist"><param name="Local" value="../dist/content/17_rust_beginners/09_checklist.html"></OBJECT>
@@ -820,6 +849,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="switch"><param name="Local" value="../dist/content/02_sla_lang/04_patterns.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="symbol_pool"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="syntax"><param name="Local" value="../dist/content/07_ui/02_syntax.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="syntax census"><param name="Local" value="../dist/content/18_py_to_sla/07_modules_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="syntax comparison"><param name="Local" value="../dist/content/09_rust_compare/02_syntax_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sysroot"><param name="Local" value="../dist/content/13_build/04_freebsd.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="system-param runner"><param name="Local" value="../dist/content/11_ecs/02_architecture.html"></OBJECT>
@@ -833,6 +863,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="term"><param name="Local" value="../dist/content/06_stdlib/12_term_fd_thread.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="terminal"><param name="Local" value="../dist/content/05_plugins/06_tui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="termios"><param name="Local" value="../dist/content/05_plugins/06_tui.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="ternary"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="ternary expression"><param name="Local" value="../dist/content/07_ui/02_syntax.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="test"><param name="Local" value="../dist/content/06_stdlib/12_term_fd_thread.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="textures"><param name="Local" value="../dist/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
@@ -865,8 +896,9 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="trim"><param name="Local" value="../dist/content/06_stdlib/04_string.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="triple"><param name="Local" value="../dist/content/13_build/01_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="troubleshooting"><param name="Local" value="../dist/content/13_build/05_verify_troubleshoot.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="try except"><param name="Local" value="../dist/content/18_py_to_sla/06_classes_errors_none.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="tui"><param name="Local" value="../dist/content/05_plugins/06_tui.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="tuple"><param name="Local" value="../dist/content/02_sla_lang/02_types.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="tuple"><param name="Local" value="../dist/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="turbofish"><param name="Local" value="../dist/content/17_rust_beginners/04_enums_traits_generics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="two-pass preprocessing"><param name="Local" value="../dist/content/12_vm/03_internals.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="type alias"><param name="Local" value="../dist/content/02_sla_lang/02_types.html"></OBJECT>
@@ -898,7 +930,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="utsname"><param name="Local" value="../dist/content/13_build/04_freebsd.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="v2 status codes"><param name="Local" value="../dist/content/05_plugins/14_http_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="v4"><param name="Local" value="../dist/content/03_sa_asm/03_sab_format.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="variables"><param name="Local" value="../dist/content/17_rust_beginners/01_basics.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="variables"><param name="Local" value="../dist/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Vec"><param name="Local" value="../dist/content/06_stdlib/05_collections.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Vec 8-byte slots"><param name="Local" value="../dist/content/17_rust_beginners/08_engineering.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="verification"><param name="Local" value="../dist/content/15_sa2c/05_verify.html"></OBJECT>
@@ -926,7 +958,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="WebSocket"><param name="Local" value="../dist/content/06_stdlib/20_ws_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="wgpu"><param name="Local" value="../dist/content/05_plugins/07_wgpu.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="WGSL"><param name="Local" value="../dist/content/05_plugins/07_wgpu.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="while"><param name="Local" value="../dist/content/02_sla_lang/03_functions.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="while"><param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="while let"><param name="Local" value="../dist/content/02_sla_lang/04_patterns.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="whitepaper"><param name="Local" value="../dist/content/03_sa_asm/08_sab_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Windows"><param name="Local" value="../dist/content/13_build/02_linux_windows.html"></OBJECT>

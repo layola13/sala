@@ -299,6 +299,47 @@ var TOC = [
   ]
  },
  {
+  "t": "从 Python（psa）到 SLA 对照实现",
+  "f": null,
+  "c": [
+   {
+    "t": "注释、变量、数字与 print 输出",
+    "f": "content/18_py_to_sla/01_basics.html",
+    "c": []
+   },
+   {
+    "t": "字符串与 f-string",
+    "f": "content/18_py_to_sla/02_strings.html",
+    "c": []
+   },
+   {
+    "t": "布尔、条件与循环",
+    "f": "content/18_py_to_sla/03_control_flow.html",
+    "c": []
+   },
+   {
+    "t": "函数与元组",
+    "f": "content/18_py_to_sla/04_functions_tuples.html",
+    "c": []
+   },
+   {
+    "t": "列表、字典、集合、索引、切片与推导式",
+    "f": "content/18_py_to_sla/05_collections.html",
+    "c": []
+   },
+   {
+    "t": "类、异常与 None",
+    "f": "content/18_py_to_sla/06_classes_errors_none.html",
+    "c": []
+   },
+   {
+    "t": "模块与完整覆盖矩阵",
+    "f": "content/18_py_to_sla/07_modules_matrix.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "SA 汇编与 SAB",
   "f": null,
   "c": [

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lists, Dicts, Sets, Indexing, Slicing, and Comprehensions</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Lists, Dicts, Sets, Indexing, Slicing, and Comprehensions</div>
+<h1>Lists, Dicts, Sets, Indexing, Slicing, and Comprehensions</h1>
+
+<h2>Lists ↔ <code>Vec</code></h2>
+<p>psa list literals are supported in both a static same-type form and a
+dynamic heap form (heterogeneous elements included); the census marks the
+literal itself <strong>partially</strong> supported because a container
+literal passed directly as a call argument is still loudly refused.
+Indexing, index assignment, <code>append</code>, and <code>len</code> are
+supported. SLA's counterpart is <code>Vec&lt;T&gt;</code> (import
+<code>sa_std/vec.sa</code>): one element type, <code>push</code> for
+<code>append</code>, the same bracket indexing, and <code>len</code>.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>xs = []
+xs.append(10)
+xs.append(20)
+xs.append(30)
+print(len(xs))        # 3
+print(xs[0] + xs[2])  # 40
+xs[1] = 25
+print(xs[1])          # 25
+total = 0
+i = 0
+while i &lt; len(xs):
+    total = total + xs[i]
+    i = i + 1
+print(total)          # 65</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    xs.push(30);
+    println("{}", len(xs));
+    println("{}", xs[0] + xs[2]);
+    xs[1] = 25;
+    println("{}", xs[1]);
+    let sum = 0;
+    let i = 0;
+    while i &lt; len(xs) as i32 {
+        sum = sum + xs[i];
+        i = i + 1;
+    }
+    println("{}", sum);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>3</code>, <code>40</code>, <code>25</code>,
+<code>65</code>, exit code 0.</p>
+
+<h2>Dicts ↔ <code>HashMap</code></h2>
+<p>psa dict literals are dynamic, insertion-ordered dicts (census:
+supported, with string/int/bool/None keys). SLA's counterpart is
+<code>HashMap</code> (import <code>sa_std/hashmap.sa</code>). The shape of a
+lookup differs: psa <code>m.get("c", 0)</code> supplies the default inline,
+while SLA's <code>get</code> returns an <code>Option</code>, and
+<code>.copied().unwrap_or_default()</code> is the idiom that supplies the
+zero default. A missing key read as <code>m["c"]</code> in psa fails loudly
+(panic 77054); in SLA the same situation is just the <code>None</code> case
+of <code>get</code>.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>m = {}
+m["a"] = 1
+m["b"] = 2
+print(f"{m['a']},{m.get('c', 0)},{len(m)}")  # 1,0,2</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/hashmap.sa"
+@import "sa_std/core/option.sa"
+
+fn main() -&gt; i32 {
+    let m = HashMap::new();
+    m.insert("a", 1);
+    m.insert("b", 2);
+    let ga = m.get("a").copied().unwrap_or_default();
+    let missing = m.get("c").copied().unwrap_or_default();
+    println("{},{},{}", ga, missing, len(m));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>1,0,2</code>, exit code 0.</p>
+
+<h2>Sets ↔ <code>HashSet</code></h2>
+<p>psa set literals are supported (census, batch D5). SLA's counterpart is
+<code>HashSet</code> (import <code>sa_std/hashset.sa</code>): duplicates
+collapse on <code>insert</code>, membership is <code>contains</code>
+(psa's <code>in</code>), and <code>len</code> gives the size. This section
+verifies literals, deduplication, and membership on both sides; union /
+intersection / difference are method-and-loop work on both sides and are
+not asserted here.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>s = {1, 2, 2, 3}
+print(len(s))    # 3
+print(2 in s)    # True
+print(9 in s)    # False</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/hashset.sa"
+
+fn main() -&gt; i32 {
+    let s = HashSet::new();
+    s.insert(1);
+    s.insert(2);
+    s.insert(2);
+    s.insert(3);
+    println("{}", len(s));
+    println("{}", s.contains(2));
+    println("{}", s.contains(9));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>3</code>, <code>true</code>,
+<code>false</code>, exit code 0.</p>
+
+<h2>Indexing and Slicing</h2>
+<p>Indexing corresponds directly, except for negative indices: psa's
+<code>a[-1]</code> is written in SLA as <code>a[len(a) - 1]</code>.
+Slicing is where the sides genuinely differ. psa slicing is supported in
+full (static lists, dynamic lists, and strings, with CPython's index
+normalisation). SLA has <strong>no slice syntax and no slice
+method</strong> — the plugin's own demo corpus says so and writes the
+explicit loop instead: a slice is a fresh <code>Vec</code> filled by a range
+loop over the source indices, as below.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>a = [10, 20, 30, 40]
+print(a[0])   # 10
+print(a[-1])  # 40
+b = a[1:3]
+print(f"{len(b)},{b[0] + b[1]}")  # 2,50</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let a: Vec&lt;i32&gt; = Vec::new();
+    a.push(10);
+    a.push(20);
+    a.push(30);
+    a.push(40);
+    println("{}", a[0]);
+    println("{}", a[len(a) as i32 - 1]);
+    let b: Vec&lt;i32&gt; = Vec::new();
+    for i in 1..3 {
+        b.push(a[i]);
+    }
+    println("{},{}", len(b), b[0] + b[1]);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>10</code>, <code>40</code>,
+<code>2,50</code>, exit code 0.</p>
+
+<h2>Comprehensions</h2>
+<p>psa comprehensions — list, dict, and set comprehensions, plus generator
+expressions — are supported by the census. SLA has no comprehension syntax
+at all: the same computation is an explicit loop that pushes into a fresh
+<code>Vec</code>, with the comprehension's <code>if</code> clause becoming
+an <code>if</code> inside the loop.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>squares = [i * i for i in range(5) if i % 2 == 0]
+print(len(squares))  # 3
+print(f"{squares[0]},{squares[1]},{squares[2]}")  # 0,4,16</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let squares: Vec&lt;i32&gt; = Vec::new();
+    for i in 0..5 {
+        if i % 2 == 0 {
+            squares.push(i * i);
+        };
+    }
+    println("{}", len(squares));
+    println("{},{},{}", squares[0], squares[1], squares[2]);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>3</code>, <code>0,4,16</code>, exit code 0.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>list ↔ <code>Vec&lt;T&gt;</code>, dict ↔ <code>HashMap</code>, set ↔ <code>HashSet</code>; <code>len</code> is spelled the same on both sides.</li>
+<li>Lookup defaults: psa <code>m.get(k, 0)</code> ↔ SLA <code>get(k).copied().unwrap_or_default()</code>.</li>
+<li>Negative indices and slicing are psa-only forms; SLA writes <code>len(a) - 1</code> and an explicit copy loop (no slice syntax exists).</li>
+<li>Comprehensions are psa-only; SLA writes the loop out.</li>
+</ul>
+</body>
+</html>

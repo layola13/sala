@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>字符串与 f-string</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">从 Python（psa）到 SLA 对照实现 &gt; 字符串与 f-string</div>
+<h1>字符串与 f-string</h1>
+
+<p>psa 的字符串字面量（单引号、双引号、三引号均可）为普查支持项；绑定到变量的字符串是动态字符串值。SLA 的字符串字面量是字节串；用 <code>let</code> 绑定后可以直接打印、用 <code>len</code> 量长度、用 <code>str_eq</code> 比较（需导入 <code>sa_std/string.sa</code>）。SLA 的字符串相等是函数调用，不是文本形式上的 <code>==</code>。</p>
+
+<h2>插值：f-string 对 <code>println</code>/<code>format</code></h2>
+<p>SLA 没有 f-string。对应物是占位符格式化：输出用 <code>println("name={}, age={}", name, age)</code>，构建字符串值用 <code>format("age={}", age)</code>——与 Rust 对照章里构建 <code>String</code> 用的是同一个 <code>format</code>。</p>
+<p>psa 侧状态（普查口径）：f-string 为<strong>部分</strong>支持。基本插值可用（在 <code>print</code> 里、以及作一般值时 int/bool/str 可拼）；格式规格与转换（<code>{x:03d}</code>、<code>{x!r}</code>）在普查时是响亮拒绝，其后已由任务 171-A 实现、待集成进 psa 主本；插值浮点被第 1 页提到的 (xxiii) 缺陷堵住。</p>
+<p>一条实测到的 SLA 怪点，如实记录：本章验证的工具链上，把 <code>let</code> 绑定的字符串变量作 <code>format(...)</code> 的参数会渲染乱码，而同一位置放字符串字面量、以及同一变量走 <code>println</code> 都正常。所以下面的程序用整数构建字符串、字符串走 <code>println</code> 插值。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>name = "Ada"
+age = 36
+print(f"name={name}, age={age}")
+msg = f"age={age}"
+print(msg)
+print(len(name))
+print(name == "Ada")</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"
+
+fn main() -&gt; i32 {
+    let name = "Ada";
+    let age = 36;
+    println("name={}, age={}", name, age);
+    let msg = format("age={}", age);
+    println("{}", msg);
+    println("{}", len(name));
+    println("{}", str_eq(name, "Ada"));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>name=Ada, age=36</code>、<code>age=36</code>、<code>3</code>、<code>true</code>，退出码 0。psa 程序打印同样的行（最后一行用 Python 拼写 <code>True</code>）。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>psa 字符串是动态值；SLA 字符串字面量可直接打印、<code>len</code> 量长、<code>str_eq</code> 比较。</li>
+<li>SLA 没有 f-string：<code>println</code>/<code>format</code> 占位符即对应物。</li>
+<li>psa f-string 部分支持：基本插值可用；格式规格/转换由任务 171-A 实现、待集成；浮点插值被 (xxiii) 堵。</li>
+<li>实测怪点：<code>let</code> 绑定的字符串变量作 <code>format(...)</code> 参数在本工具链渲染异常；字面量与 <code>println</code> 不受影响。</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>函数与元组</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">从 Python（psa）到 SLA 对照实现 &gt; 函数与元组</div>
+<h1>函数与元组</h1>
+
+<h2>函数定义与返回</h2>
+<p>psa 的 <code>def</code> 不需要类型注解（普查口径：参数/返回注解未支持），且支持默认值、关键字参数与 <code>*args</code>/<code>**kwargs</code>。SLA 的 <code>fn</code> 是全类型标注的——每个参数与返回类型都要写——且没有默认值：调用方把每个参数都显式传全。两边都用 <code>return</code> 返回。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def add(a, b):
+    return a + b
+
+def divmod(a, b):
+    return (a // b, a % b)
+
+print(add(10, 20))   # 30
+q, r = divmod(17, 5)
+print(f"{q},{r}")    # 3,2</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn add(a: i32, b: i32) -&gt; i32 {
+    return a + b;
+}
+
+fn divmod(a: i32, b: i32) -&gt; (i32, i32) {
+    return (a / b, a % b);
+}
+
+fn main() -&gt; i32 {
+    println("{}", add(10, 20));
+    let (q, r) = divmod(17, 5);
+    println("{},{}", q, r);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>30</code>、<code>3,2</code>，退出码 0。注意这里返回的元组由计算值构成；字面量元组是下一个话题。</p>
+
+<h2>元组</h2>
+<p>两边都有元组与拆包：psa 靠赋值拆包，SLA 靠 <code>let (a, b) = ...</code>；SLA 的元组字段读作 <code>t.0</code>、<code>t.1</code>（psa 是下标 <code>t[0]</code>、<code>t[1]</code>）。普查口径：psa 元组字面量与拆包已支持。</p>
+<p>一条实测到的 SLA 缺陷，如实记录：把元组<strong>字面量</strong>写进 <code>(i32, i32)</code> 位置时，本章验证的工具链会读错第二个元素（字面量按 8 字节步幅存放、投影按 4 字节步幅读取；插件语料把此缺陷登记为 DEF-TEXT-TUPLE-PROJ-SUBWORD-OFFSET，测试语料里有回归用例）。下面用的 <code>(i64, i64)</code> 形式是实测正确的拼写，本章一律用它。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def swap(p):
+    return (p[1], p[0])
+
+t = (3, 8)
+print(f"{t[0]},{t[1]}")  # 3,8
+s = swap(t)
+print(f"{s[0]},{s[1]}")  # 8,3</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn swap(p: (i64, i64)) -&gt; (i64, i64) {
+    return (p.1, p.0);
+}
+
+fn main() -&gt; i32 {
+    let t: (i64, i64) = (3, 8);
+    println("{},{}", t.0, t.1);
+    let s = swap(t);
+    println("{},{}", s.0, s.1);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>3,8</code>、<code>8,3</code>，退出码 0。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li><code>def</code> ↔ <code>fn</code>：psa 无注解、支持默认值/关键字/可变参数；SLA 全类型、无默认值。</li>
+<li>多返回值两边都是元组；拆包在 psa 是赋值，在 SLA 是 <code>let (a, b)</code>。</li>
+<li>实测缺陷：<code>(i32, i32)</code> 字面量元组在本工具链读错第 1 号元素——用 <code>(i64, i64)</code> 形式，如上所示。</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/18_py_to_sla/04_functions_tuples.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

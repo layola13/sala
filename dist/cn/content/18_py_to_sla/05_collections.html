@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>列表、字典、集合、索引、切片与推导式</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">从 Python（psa）到 SLA 对照实现 &gt; 列表、字典、集合、索引、切片与推导式</div>
+<h1>列表、字典、集合、索引、切片与推导式</h1>
+
+<h2>列表 ↔ <code>Vec</code></h2>
+<p>psa 的列表字面量有静态同型与动态堆两种形态（可含异构元素）；普查把字面量本身标为<strong>部分</strong>支持，因为容器字面量直接作调用实参仍被响亮拒绝。下标、下标赋值、<code>append</code>、<code>len</code> 均已支持。SLA 的对应物是 <code>Vec&lt;T&gt;</code>（导入 <code>sa_std/vec.sa</code>）：单一元素类型，<code>push</code> 对 <code>append</code>，同样的方括号下标与 <code>len</code>。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>xs = []
+xs.append(10)
+xs.append(20)
+xs.append(30)
+print(len(xs))        # 3
+print(xs[0] + xs[2])  # 40
+xs[1] = 25
+print(xs[1])          # 25
+total = 0
+i = 0
+while i &lt; len(xs):
+    total = total + xs[i]
+    i = i + 1
+print(total)          # 65</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    xs.push(30);
+    println("{}", len(xs));
+    println("{}", xs[0] + xs[2]);
+    xs[1] = 25;
+    println("{}", xs[1]);
+    let sum = 0;
+    let i = 0;
+    while i &lt; len(xs) as i32 {
+        sum = sum + xs[i];
+        i = i + 1;
+    }
+    println("{}", sum);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>3</code>、<code>40</code>、<code>25</code>、<code>65</code>，退出码 0。</p>
+
+<h2>字典 ↔ <code>HashMap</code></h2>
+<p>psa 的字典字面量是动态保序字典（普查：支持，键可为 str/int/bool/None）。SLA 的对应物是 <code>HashMap</code>（导入 <code>sa_std/hashmap.sa</code>）。查值的形态不同：psa 的 <code>m.get("c", 0)</code> 把默认值写在调用里，SLA 的 <code>get</code> 返回 <code>Option</code>，<code>.copied().unwrap_or_default()</code> 是补零默认值的惯用形。psa 里用 <code>m["c"]</code> 读缺失键会响亮失败（panic 77054）；SLA 里同一情形只是 <code>get</code> 的 <code>None</code> 分支。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>m = {}
+m["a"] = 1
+m["b"] = 2
+print(f"{m['a']},{m.get('c', 0)},{len(m)}")  # 1,0,2</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/hashmap.sa"
+@import "sa_std/core/option.sa"
+
+fn main() -&gt; i32 {
+    let m = HashMap::new();
+    m.insert("a", 1);
+    m.insert("b", 2);
+    let ga = m.get("a").copied().unwrap_or_default();
+    let missing = m.get("c").copied().unwrap_or_default();
+    println("{},{},{}", ga, missing, len(m));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>1,0,2</code>，退出码 0。</p>
+
+<h2>集合 ↔ <code>HashSet</code></h2>
+<p>psa 的集合字面量已支持（普查，批 D5）。SLA 的对应物是 <code>HashSet</code>（导入 <code>sa_std/hashset.sa</code>）：<code>insert</code> 时自动去重，成员判断是 <code>contains</code>（psa 的 <code>in</code>），<code>len</code> 给大小。本节验证两边的字面量、去重与成员判断；并/交/差在两边都是方法与循环的活，本章不断言。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>s = {1, 2, 2, 3}
+print(len(s))    # 3
+print(2 in s)    # True
+print(9 in s)    # False</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/hashset.sa"
+
+fn main() -&gt; i32 {
+    let s = HashSet::new();
+    s.insert(1);
+    s.insert(2);
+    s.insert(2);
+    s.insert(3);
+    println("{}", len(s));
+    println("{}", s.contains(2));
+    println("{}", s.contains(9));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>3</code>、<code>true</code>、<code>false</code>，退出码 0。</p>
+
+<h2>索引与切片</h2>
+<p>索引直接对应，只差负下标：psa 的 <code>a[-1]</code> 在 SLA 里写作 <code>a[len(a) - 1]</code>。切片是两边真正分叉处。psa 的切片完整支持（静态 list、动态 list、字符串，带 CPython 的下标归一化）。SLA <strong>没有切片语法、也没有 slice 方法</strong>——插件自家 demo 语料就是这样写的：切片 = 一个新 <code>Vec</code>，用区间循环从源下标逐个填，如下。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>a = [10, 20, 30, 40]
+print(a[0])   # 10
+print(a[-1])  # 40
+b = a[1:3]
+print(f"{len(b)},{b[0] + b[1]}")  # 2,50</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let a: Vec&lt;i32&gt; = Vec::new();
+    a.push(10);
+    a.push(20);
+    a.push(30);
+    a.push(40);
+    println("{}", a[0]);
+    println("{}", a[len(a) as i32 - 1]);
+    let b: Vec&lt;i32&gt; = Vec::new();
+    for i in 1..3 {
+        b.push(a[i]);
+    }
+    println("{},{}", len(b), b[0] + b[1]);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>10</code>、<code>40</code>、<code>2,50</code>，退出码 0。</p>
+
+<h2>推导式</h2>
+<p>psa 的推导式——list/dict/set 推导式加生成器表达式——为普查支持项。SLA 完全没有推导式语法：同一计算写作显式循环往新 <code>Vec</code> 里 <code>push</code>，推导式的 <code>if</code> 子句变成循环体内的 <code>if</code>。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>squares = [i * i for i in range(5) if i % 2 == 0]
+print(len(squares))  # 3
+print(f"{squares[0]},{squares[1]},{squares[2]}")  # 0,4,16</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let squares: Vec&lt;i32&gt; = Vec::new();
+    for i in 0..5 {
+        if i % 2 == 0 {
+            squares.push(i * i);
+        };
+    }
+    println("{}", len(squares));
+    println("{},{},{}", squares[0], squares[1], squares[2]);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>3</code>、<code>0,4,16</code>，退出码 0。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>list ↔ <code>Vec&lt;T&gt;</code>、dict ↔ <code>HashMap</code>、set ↔ <code>HashSet</code>；<code>len</code> 两边同名。</li>
+<li>查值默认值：psa <code>m.get(k, 0)</code> ↔ SLA <code>get(k).copied().unwrap_or_default()</code>。</li>
+<li>负下标与切片是 psa 独有形式；SLA 写 <code>len(a) - 1</code> 与显式拷贝循环（不存在切片语法）。</li>
+<li>推导式是 psa 独有；SLA 把循环写出来。</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/18_py_to_sla/05_collections.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

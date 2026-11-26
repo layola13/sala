@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Modules and the Full Coverage Matrix</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Modules and the Full Coverage Matrix</div>
+<h1>Modules and the Full Coverage Matrix</h1>
+
+<h2><code>import</code> ↔ <code>@import</code></h2>
+<p>psa imports are supported for the program's own modules: the driver
+merges <code>import</code> / <code>from ... import</code> across the
+program's <code>.psa</code> files, and an <code>import json</code> with no
+same-named local file binds the psa_std library module instead (census,
+batch D6; a <code>from</code>-import of a standard-library module is loudly
+refused in v1). SLA's <code>@import</code> is a compile-time merge of the
+named file — the standard library (<code>"sa_std/..."</code>) and the
+program's own <code>.sla</code> files use the same form, as every program
+in this section shows for the standard library. The pair below is two
+files on each side.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code># mathx.psa
+def triple(x):
+    return x * 3
+
+# main.psa
+from mathx import triple
+
+print(triple(14))  # 42</code></pre></td>
+<td><pre><code>// helper.sla
+fn triple(x: i32) -&gt; i32 {
+    return x * 3;
+}
+
+// main.sla
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "helper.sla"
+
+fn main() -&gt; i32 {
+    println("{}", triple(14));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>42</code>, exit code 0.</p>
+
+<h2>The Full Matrix</h2>
+<p>Every basic syntax point in this section, with the psa-side status from
+the syntax census (2026-11-25, updated 2026-11-26; task-171 items noted
+where they supersede the census) and the SLA counterpart. "Supported" on
+the psa side means the census marks the construct implemented and
+end-to-end verified; the SLA column names the form used — and
+compile-verified — in this section.</p>
+<table>
+<tr><th>Syntax point</th><th>psa status</th><th>SLA counterpart</th></tr>
+<tr><td>Comments</td><td>Supported (<code>#</code>)</td><td><code>//</code> only; no block comment (parser-verified)</td></tr>
+<tr><td>Variables and types</td><td>Supported (dynamic binding, no annotation)</td><td><code>let</code> (mutable by default), <code>const</code>, static types</td></tr>
+<tr><td>Numbers and arithmetic</td><td>Supported (<code>+ - * / // % **</code>)</td><td><code>+ - * / %</code>; integer <code>/</code> = psa <code>//</code>; no <code>**</code></td></tr>
+<tr><td>Strings</td><td>Supported (dynamic string values)</td><td>Literals; <code>len</code>, <code>str_eq</code></td></tr>
+<tr><td>f-strings</td><td>Partial — basic interpolation; format specs/conversions implemented as task 171-A, pending integration; float interpolation blocked by (xxiii)</td><td>No f-string; <code>println</code>/<code>format</code> placeholders</td></tr>
+<tr><td>Booleans and logic</td><td>Supported (<code>and</code>/<code>or</code>/<code>not</code>)</td><td><code>&amp;&amp;</code>/<code>||</code>/<code>!</code> on <code>bool</code></td></tr>
+<tr><td><code>if</code>/<code>elif</code>/<code>else</code></td><td>Supported</td><td><code>if</code> / <code>else if</code> / <code>else</code> with blocks</td></tr>
+<tr><td>Ternary expression</td><td>Supported (<code>x if c else y</code>)</td><td>If-expression <code>if c { x } else { y }</code></td></tr>
+<tr><td><code>while</code></td><td>Supported (<code>while</code>/<code>else</code> is a gap)</td><td><code>while</code> with <code>break</code>/<code>continue</code></td></tr>
+<tr><td><code>for</code> / <code>range</code></td><td>Partial — <code>range</code> in the <code>for</code> header and over lists/strings; <code>range</code> as a value is a gap</td><td><code>for i in a..b</code>; index loops over <code>len</code></td></tr>
+<tr><td>Function definitions and return</td><td>Supported (defaults, keyword args, <code>*args</code>/<code>**kwargs</code>; annotations not supported)</td><td><code>fn</code>, fully typed, no defaults</td></tr>
+<tr><td>Lists</td><td>Partial — literals, indexing, assignment, <code>append</code> supported; a container literal as a call argument is refused</td><td><code>Vec&lt;T&gt;</code>: <code>push</code>, indexing, <code>len</code></td></tr>
+<tr><td>Dicts</td><td>Supported (dynamic, insertion-ordered)</td><td><code>HashMap</code>: <code>insert</code>, <code>get</code> → <code>Option</code></td></tr>
+<tr><td>Tuples</td><td>Supported (literal + unpacking)</td><td><code>(T, U)</code>, <code>.0</code>/<code>.1</code>, <code>let (a, b)</code>; <code>(i32, i32)</code> literals hit a registered projection defect — use <code>(i64, i64)</code></td></tr>
+<tr><td>Sets</td><td>Supported (literals; method set per census batch D5)</td><td><code>HashSet</code>: <code>insert</code>, <code>contains</code>, <code>len</code></td></tr>
+<tr><td>Indexing and slicing</td><td>Supported (incl. negative indices and full slicing)</td><td>Indexing yes; no negative indices, no slice syntax — explicit copy loop</td></tr>
+<tr><td><code>print</code></td><td>Supported (multi-argument; float arguments blocked by (xxiii), fix landed, confirmation pending)</td><td><code>println</code> with <code>{}</code> placeholders</td></tr>
+<tr><td><code>import</code></td><td>Supported (own modules merged; <code>import</code> binds psa_std when no local file; stdlib <code>from</code>-import refused in v1)</td><td><code>@import</code> compile-time merge for std and own files alike</td></tr>
+<tr><td>Classes and methods</td><td>Supported (single inheritance; <code>super()</code>/multiple inheritance refused)</td><td><code>struct</code> + <code>impl</code>; <code>new</code> by convention</td></tr>
+<tr><td>Exceptions</td><td>Supported (<code>try</code>/<code>except</code>/<code>finally</code>, <code>raise</code>; runtime panics uncatchable)</td><td>No try form: <code>Result&lt;T, E&gt;</code> for recoverable, <code>panic(code)</code> for unrecoverable</td></tr>
+<tr><td><code>None</code></td><td>Supported (a real dynamic value)</td><td>No null; <code>Option&lt;T&gt;</code> + <code>match</code></td></tr>
+<tr><td>Comprehensions</td><td>Supported (list/dict/set + generator expressions)</td><td>No comprehension syntax; explicit loop + <code>push</code></td></tr>
+</table>
+
+<h2>Recorded psa Gaps With No Page of Their Own</h2>
+<ul>
+<li><strong>Walrus operator <code>:=</code></strong> — front-end gap (census).</li>
+<li><strong>Byte strings <code>b""</code> and raw strings <code>r""</code></strong> — front-end gap (census).</li>
+<li><strong><code>is</code> / <code>is not</code></strong> — gap at census time (no identity semantics in v1); implemented as task 171-B (identity = tag + payload equality), pending integration.</li>
+<li><strong>Arbitrary-precision integers</strong> — gap: psa integers are <code>i64</code> and overflow fails loudly; a bigint substrate item has since landed in the SLA standard library (S4) but is not wired into psa integers.</li>
+<li><strong><code>while</code>/<code>else</code> and <code>for</code>/<code>else</code></strong> — front-end gap (census).</li>
+</ul>
+
+<h2>Key Points of This Section</h2>
+<ul>
+<li>psa and SLA meet at the statement level: nearly every basic Python construct has a direct SLA form, and this section shows each pair as a complete, runnable program.</li>
+<li>The real differences are systematic, not incidental: dynamic vs static typing, exceptions vs <code>Result</code>/<code>panic</code>, <code>None</code> vs <code>Option</code>, and psa-only sugar (slicing, comprehensions, f-strings) vs explicit SLA loops and placeholder formatting.</li>
+<li>Every SLA program here was compiled and run on the stated toolchain before being written down; every psa limitation named here traces to the syntax census or a numbered task (171-A, 171-B), not to impression.</li>
+</ul>
+</body>
+</html>

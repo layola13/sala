@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Booleans, Conditionals, and Loops</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Booleans, Conditionals, and Loops</div>
+<h1>Booleans, Conditionals, and Loops</h1>
+
+<h2>Booleans, Logic, <code>if</code>/<code>elif</code>/<code>else</code>, and the Ternary Form</h2>
+<p>psa spells the logic operators <code>and</code>/<code>or</code>/
+<code>not</code>; SLA uses <code>&amp;&amp;</code>/<code>||</code>/
+<code>!</code> on <code>bool</code> values. The census marks psa
+<code>and</code>/<code>or</code>/<code>not</code> as supported (on pure
+booleans they lower to the SLA operators). Python's
+<code>elif</code> is SLA's <code>else if</code>, and blocks are braces, not
+indentation. Python's ternary <code>x if c else y</code> corresponds to
+SLA's if-expression: <code>if c { x } else { y }</code>, usable anywhere a
+value is expected.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def grade(score):
+    if score &gt;= 90:
+        return 1
+    elif score &gt;= 60:
+        return 2
+    else:
+        return 3
+
+a = True
+b = False
+print(a and not b)            # True
+print(a or b)                 # True
+print(1 if 95 &gt;= 60 else 0)  # 1
+print(grade(95))              # 1
+print(grade(70))              # 2
+print(grade(10))              # 3</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn grade(score: i32) -&gt; i32 {
+    if score &gt;= 90 {
+        return 1;
+    } else if score &gt;= 60 {
+        return 2;
+    } else {
+        return 3;
+    }
+}
+
+fn main() -&gt; i32 {
+    let a = true;
+    let b = false;
+    println("{}", a &amp;&amp; !b);
+    println("{}", a || b);
+    println("{}", if 95 &gt;= 60 { 1 } else { 0 });
+    println("{}", grade(95));
+    println("{}", grade(70));
+    println("{}", grade(10));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>true</code>, <code>true</code>, <code>1</code>,
+<code>1</code>, <code>2</code>, <code>3</code>, exit code 0.</p>
+
+<h2><code>while</code>, <code>break</code>, and <code>continue</code></h2>
+<p>The loop forms correspond one to one. Census status: psa
+<code>while</code> with <code>break</code>/<code>continue</code> is
+supported; the <code>while</code>/<code>else</code> and
+<code>for</code>/<code>else</code> clauses are a recorded front-end gap in
+psa (loudly refused, low frequency). SLA has no loop-<code>else</code>
+either.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>total = 0
+i = 0
+while i &lt; 10:
+    i = i + 1
+    if i == 3:
+        continue
+    if i == 8:
+        break
+    total = total + i
+print(total)  # 25</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let sum = 0;
+    let i = 0;
+    while i &lt; 10 {
+        i = i + 1;
+        if i == 3 { continue; };
+        if i == 8 { break; };
+        sum = sum + i;
+    }
+    println("{}", sum);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>25</code>, exit code 0.</p>
+
+<h2><code>for</code> and <code>range</code></h2>
+<p>psa's <code>for i in range(...)</code> is SLA's
+<code>for i in a..b</code> — the range is part of the loop syntax, with no
+separate range value. Census status for psa: <strong>partially</strong>
+supported — <code>range</code> with one or two arguments works in the
+<code>for</code> header (and in comprehensions/constructors), iterating a
+list variable or a string works, but a <code>range</code> object as a
+general value is still a gap. To walk a collection by index, both sides use
+the length: psa <code>range(len(a))</code>, SLA <code>0..len(a)</code>.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>total = 0
+for i in range(1, 5):
+    total = total + i
+print(total)  # 10
+
+a = [10, 20, 30]
+total = 0
+for i in range(len(a)):
+    total = total + a[i]
+print(total)  # 60</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let sum = 0;
+    for i in 1..5 {
+        sum = sum + i;
+    }
+    println("{}", sum);
+    let a = [10, 20, 30];
+    let total = 0;
+    for i in 0..len(a) {
+        total = total + a[i];
+    }
+    println("{}", total);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>10</code>, <code>60</code>, exit code 0.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li><code>and</code>/<code>or</code>/<code>not</code> ↔ <code>&amp;&amp;</code>/<code>||</code>/<code>!</code>; <code>elif</code> ↔ <code>else if</code>; ternary ↔ if-expression.</li>
+<li><code>while</code>/<code>break</code>/<code>continue</code> correspond directly; loop-<code>else</code> exists on neither side (psa: recorded gap).</li>
+<li><code>for i in range(a, b)</code> ↔ <code>for i in a..b</code>; psa <code>range</code> as a standalone value is a gap (census: partial).</li>
+</ul>
+</body>
+</html>

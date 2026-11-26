@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Strings and f-Strings</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Strings and f-Strings</div>
+<h1>Strings and f-Strings</h1>
+
+<p>psa string literals (single or double quotes, triple-quoted forms
+included) are supported by the census; a string bound to a variable is a
+dynamic string value. SLA string literals are byte strings; a literal bound
+with <code>let</code> can be printed, measured with <code>len</code>, and
+compared with <code>str_eq</code> (after importing
+<code>sa_std/string.sa</code>). String equality in SLA is a function call,
+not <code>==</code> on the text form.</p>
+
+<h2>Interpolation: f-String vs <code>println</code>/<code>format</code></h2>
+<p>SLA has no f-string. The counterpart is placeholder formatting:
+<code>println("name={}, age={}", name, age)</code> for output, and
+<code>format("age={}", age)</code> to build a string value — the same
+<code>format</code> the Rust companion section uses to build a
+<code>String</code>.</p>
+<p>psa-side status, per the census: f-strings are <strong>partially</strong>
+supported. Basic interpolation works (in <code>print</code> and, for
+int/bool/str values, as a general value); format specs and conversions
+(<code>{x:03d}</code>, <code>{x!r}</code>) were loudly refused at census
+time and have since been implemented as task 171-A, pending integration into
+the psa master. Interpolating a float is blocked by the same float-printing
+defect (xxiii) noted on page 1.</p>
+<p>One measured SLA quirk, recorded rather than hidden: on the verified
+toolchain, passing a <code>let</code>-bound string variable as a
+<code>format(...)</code> argument renders garbage, while a string literal in
+the same position and the same variable in <code>println</code> both render
+correctly. The program below therefore builds its string from the integer
+value and interpolates the string through <code>println</code>.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>name = "Ada"
+age = 36
+print(f"name={name}, age={age}")
+msg = f"age={age}"
+print(msg)
+print(len(name))
+print(name == "Ada")</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/string.sa"
+
+fn main() -&gt; i32 {
+    let name = "Ada";
+    let age = 36;
+    println("name={}, age={}", name, age);
+    let msg = format("age={}", age);
+    println("{}", msg);
+    println("{}", len(name));
+    println("{}", str_eq(name, "Ada"));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>name=Ada, age=36</code>, <code>age=36</code>,
+<code>3</code>, <code>true</code>, exit code 0. The psa program prints the
+same lines with Python's spelling (<code>True</code> for the last line).</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>psa strings are dynamic values; SLA string literals print, measure (<code>len</code>), and compare (<code>str_eq</code>) directly.</li>
+<li>No f-string in SLA: <code>println</code>/<code>format</code> placeholders are the counterpart.</li>
+<li>psa f-strings are partially supported: basic interpolation yes; format specs/conversions implemented as task 171-A, pending integration; float interpolation blocked by (xxiii).</li>
+<li>Measured quirk: a <code>let</code>-bound string variable passed to <code>format(...)</code> renders incorrectly on the verified toolchain; literals and <code>println</code> are unaffected.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/18_py_to_sla/02_strings.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>
+</html>

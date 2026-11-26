@@ -482,6 +482,70 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="从 Python（psa）到 SLA 对照实现">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/01_basics.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="注释、变量、数字与 print 输出">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/01_basics.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="字符串与 f-string">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/02_strings.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="布尔、条件与循环">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/03_control_flow.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="函数与元组">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/04_functions_tuples.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="列表、字典、集合、索引、切片与推导式">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/05_collections.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="类、异常与 None">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/06_classes_errors_none.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="模块与完整覆盖矩阵">
+<param name="Local" value="../../dist/cn/content/18_py_to_sla/07_modules_matrix.html">
+</OBJECT>
+</UL>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA 汇编与 SAB">
 <param name="Local" value="../../dist/cn/content/03_sa_asm/01_sa_model.html">
 </OBJECT>

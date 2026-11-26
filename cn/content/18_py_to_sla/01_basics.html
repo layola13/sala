@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>注释、变量、数字与 print 输出</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">从 Python（psa）到 SLA 对照实现 &gt; 注释、变量、数字与 print 输出</div>
+<h1>注释、变量、数字与 print 输出</h1>
+
+<p>本章是写给 Python 程序员的左右对照：每张表的左列是 <strong>psa</strong> 程序（Python 语法前端，源码后缀 <code>.psa</code>，由 <code>psa</code> 编译器编译），右列是同一程序的 <strong>SLA</strong> 写法。本章与 Rust 对照章遵守同一条硬规矩：<strong>每一段 SLA 代码，都是先实际编译并运行通过、才写进文档的</strong>（工具链：<code>sa 0.1.8</code> 宿主 + dev 模式 SLA 插件，SA 文本路，2026-11-26 实测）。每段程序下方标注的输出，就是 SLA 程序真实打印的输出。psa 侧各构造的支持状态取自 psa 语法普查（sapy 仓，2026-11-25，2026-11-26 更新：46 项中支持 35、部分 8、缺口 3）；psa 只部分支持或尚未支持的点，本章直说，不抹平。psa 侧程序本身也按该普查口径书写。</p>
+
+<h2>注释</h2>
+<p>psa 保留 Python 的 <code>#</code> 行注释；SLA 用 <code>//</code>。一条实测差异：SLA 没有块注释——<code>/* ... */</code> 会被解析器拒绝（探针实测报错：<code>found '/', expected function, struct, enum, trait, impl, const, macro, extern block, module, or annotation declaration</code>）。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code># a line comment
+x = 1  # trailing comment</code></pre></td>
+<td><pre><code>// a line comment
+let x = 1;  // trailing comment</code></pre></td>
+</tr>
+</table>
+
+<h2>变量、类型、数字与运算</h2>
+<p>psa 的变量不需要声明、不需要类型注解，赋值即绑定，可重新绑定。SLA 用 <code>let</code> 绑定——默认可变，重新赋值不需要额外关键字——类型或推断或写在名字之后；<code>const</code> 是不可变形式。每个值只有一个静态类型，语句以 <code>;</code> 结尾。</p>
+<p>运算符大体相同，但有一条语义差异要先改掉习惯：Python 的 <code>/</code> 是真除法（<code>17 / 5 == 3.4</code>），<code>//</code> 才是整除。SLA 的 <code>/</code> 作用在整数上就是整除，所以 SLA 的 <code>17 / 5</code> 对应 psa 的 <code>17 // 5</code>。psa 支持完整的 <code>+ - * / // % **</code>；SLA 没有 <code>**</code> 运算符（幂用循环或库调用表达）。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>LIMIT = 100
+
+x = 10
+y = 20
+x = x + 5
+print(x + y)      # 35
+print(2 + 3 * 4)  # 14
+print(17 // 5)    # 3
+print(17 % 5)     # 2
+print(LIMIT)      # 100</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+// Variables, types, numbers and arithmetic (line comment).
+const LIMIT: i32 = 100;
+
+fn main() -&gt; i32 {
+    let x = 10;
+    let y: i32 = 20;
+    x = x + 5;
+    println("{}", x + y);
+    println("{}", 2 + 3 * 4);
+    println("{}", 17 / 5);
+    println("{}", 17 % 5);
+    println("{}", LIMIT);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>35</code>、<code>14</code>、<code>3</code>、<code>2</code>、<code>100</code>，退出码 0。psa 程序打印同样的五个数。</p>
+
+<h2>浮点数</h2>
+<p>浮点运算两边都是直写。渲染有两点不同。其一，SLA 打印 <code>f64</code> 用固定十位小数（<code>3.5000000000</code>），Python 打印最短往返形式（<code>3.5</code>）。其二，psa 侧打印浮点目前被一个编译器缺陷堵住（普查项 (xxiii)：浮点参数进 <code>print</code> 会响亮 panic 77030）；修复（最短往返浮点格式化，基底项 S3）已落入 SLA 标准库，待 psa 侧确认关账——在此之前，下表 psa 列写的是 Python 语义，本节把这条限制明记在此，不藏。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>a = 7.0
+b = 2.0
+print(a / b)        # 3.5（见上注）
+print(a * b + 1.5)  # 15.5</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let a: f64 = 7.0;
+    let b: f64 = 2.0;
+    println("{}", a / b);
+    println("{}", a * b + 1.5);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>3.5000000000</code>、<code>15.5000000000</code>，退出码 0。</p>
+
+<h2>print 输出</h2>
+<p>psa 的 <code>print</code> 接受任意多个参数（普查口径：多参打印含动态值已支持；<code>sep=</code>/<code>end=</code> 支持字面量值）。SLA 用 <code>println</code> 加 <code>{}</code> 占位符输出，一个占位符对一个参数，前提是先导入 <code>sa_std/io/print.sai</code> 与 <code>sa_std/fmt.sai</code>——本章每段程序都是这样做的。布尔值 psa 打印 <code>True</code>/<code>False</code>，SLA 打印 <code>true</code>/<code>false</code>。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>注释：psa 用 <code>#</code>，SLA 用 <code>//</code>；SLA 无块注释（解析器实测拒绝）。</li>
+<li>psa 赋值即绑定、动态类型；SLA <code>let</code> 默认可变、静态类型，<code>const</code> 不可变。</li>
+<li>SLA 的整数 <code>/</code> 对应 psa 的 <code>//</code> 而非 <code>/</code>；SLA 没有 <code>**</code>。</li>
+<li>SLA 浮点打印固定十位小数；psa 浮点打印目前被缺陷 (xxiii) 堵，修复已落地、待 psa 侧确认。</li>
+</ul>
+</body>
+</html>

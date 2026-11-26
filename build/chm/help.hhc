@@ -482,6 +482,70 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="From Python (psa) to SLA">
+<param name="Local" value="../dist/content/18_py_to_sla/01_basics.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Comments, Variables, Numbers, and Print">
+<param name="Local" value="../dist/content/18_py_to_sla/01_basics.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Strings and f-Strings">
+<param name="Local" value="../dist/content/18_py_to_sla/02_strings.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Booleans, Conditionals, and Loops">
+<param name="Local" value="../dist/content/18_py_to_sla/03_control_flow.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Functions and Tuples">
+<param name="Local" value="../dist/content/18_py_to_sla/04_functions_tuples.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Lists, Dicts, Sets, Indexing, Slicing, and Comprehensions">
+<param name="Local" value="../dist/content/18_py_to_sla/05_collections.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Classes, Errors, and None">
+<param name="Local" value="../dist/content/18_py_to_sla/06_classes_errors_none.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Modules and the Full Coverage Matrix">
+<param name="Local" value="../dist/content/18_py_to_sla/07_modules_matrix.html">
+</OBJECT>
+</UL>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SA Assembly and SAB">
 <param name="Local" value="../dist/content/03_sa_asm/01_sa_model.html">
 </OBJECT>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>类、异常与 None</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">从 Python（psa）到 SLA 对照实现 &gt; 类、异常与 None</div>
+<h1>类、异常与 None</h1>
+
+<h2>类 ↔ <code>struct</code> + <code>impl</code></h2>
+<p>psa 的类为普查支持项：单继承（编译期展平）、方法与 <code>__init__</code>/<code>__repr__</code>/<code>__str__</code>/<code>__bool__</code>；<code>super()</code> 与多继承响亮拒绝。SLA 根本没有 class 形式：同一形状写作 <code>struct</code> 装字段 + <code>impl</code> 块装方法，用一个约定俗成的 <code>new</code> 构造器函数代替 <code>__init__</code>。方法带 <code>self</code>；「改变」值的方法返回一个新值（插件语料的 <code>Counter</code> demo 正是这个形态）。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>class Pair:
+    def __init__(self, a, b):
+        self.a = a
+        self.b = b
+
+    def sum(self):
+        return self.a + self.b
+
+p = Pair(11, 22)
+print(p.sum())          # 33
+print(f"{p.a},{p.b}")   # 11,22</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+struct Pair {
+    a: i32,
+    b: i32,
+}
+
+impl Pair {
+    fn new(a: i32, b: i32) -&gt; Pair {
+        return Pair { a: a, b: b };
+    }
+
+    fn sum(self) -&gt; i32 {
+        return self.a + self.b;
+    }
+}
+
+fn main() -&gt; i32 {
+    let p = Pair::new(11, 22);
+    println("{}", p.sum());
+    println("{},{}", p.a, p.b);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>33</code>、<code>11,22</code>，退出码 0。</p>
+
+<h2>异常 ↔ <code>Result</code> 与 <code>panic</code></h2>
+<p>psa 有真正的 <code>try</code>/<code>except</code>/<code>finally</code> 与 <code>raise</code>（普查：支持，九个内建异常类，跨函数传播）。SLA <strong>没有 try/catch 形式</strong>——插件语料明说。SLA 按失败的种类分流：</p>
+<ul>
+<li><strong>可恢复</strong>失败是值：函数返回 <code>Result&lt;T, E&gt;</code>，调用方查 <code>is_ok()</code> / <code>unwrap()</code>（或对 <code>Ok</code>/<code>Err</code> 做 match）。</li>
+<li><strong>不可恢复</strong>故障是 <code>panic(code)</code>：进程打印 <code>PANIC: code=N</code> 后中止，无人能接。对称性比初看更近——psa 自家的运行时 panic（越界、坏转换）同样不能被 <code>except</code> 捕获，普查把这条分歧明记在案。</li>
+</ul>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def div(a, b):
+    if b == 0:
+        raise ValueError("division by zero")
+    return a // b
+
+try:
+    print(div(7, 2))  # 3
+    print(div(7, 0))
+except ValueError:
+    print("caught")   # caught</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn div(a: i32, b: i32) -&gt; Result&lt;int, int&gt; {
+    if b == 0 { return Err(0 - 1); };
+    return Ok(a / b);
+}
+
+fn main() -&gt; i32 {
+    let v = 0;
+    if div(7, 2).is_ok() { v = div(7, 2).unwrap(); };
+    println("{}", v);
+    println("{}", div(7, 0).is_ok());
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>3</code>、<code>false</code>，退出码 0——第二行就是 <code>Err</code> 分支以数据形态浮出，对应 psa 那边抛出再接住的位置。</p>
+<p><code>panic</code> 一侧，单独成段实测：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    println("before");
+    panic(77050);
+    println("after");
+    return 0;
+}</code></pre>
+<p>实测行为：打印 <code>before</code>，随后 <code>PANIC: code=77050</code>，退出码 122；<code>after</code> 一行永不打印。</p>
+
+<h2><code>None</code> ↔ <code>Option</code></h2>
+<p>在 psa 里 <code>None</code> 是真实的动态值：可绑定、可比较、可打印、可存进容器（普查：支持）。SLA 根本没有空值。缺失是类型层面的事实，由 <code>Option&lt;T&gt;</code> 承载（导入 <code>sa_std/core/option.sa</code>），取值是 <code>Option::Some(v)</code> / <code>Option::None</code>，用 <code>match</code> 打开——正是上一页 <code>HashMap.get</code> 返回的那个 <code>Option</code>。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def opt_or(opt, fallback):
+    if opt is None:
+        return fallback
+    return opt + 1
+
+print(opt_or(41, 0))    # 42
+print(opt_or(None, 0))  # 0</code></pre></td>
+<td><pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn opt_or(opt: Option&lt;int&gt;, fallback: int) -&gt; int {
+    let r = match opt {
+        Some(v) =&gt; { v + 1 },
+        None =&gt; { fallback },
+    };
+    return r;
+}
+
+fn main() -&gt; i32 {
+    let a: Option&lt;int&gt; = Option::Some(41);
+    println("{}", opt_or(a, 0));
+    let b: Option&lt;int&gt; = Option::None;
+    println("{}", opt_or(b, 0));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>42</code>、<code>0</code>，退出码 0。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>class ↔ <code>struct</code> + <code>impl</code>；<code>__init__</code> ↔ 约定的 <code>new</code>；psa 类只有单继承。</li>
+<li>SLA 没有 <code>try</code>/<code>except</code>：可恢复错误是 <code>Result</code> 值，不可恢复故障是 <code>panic(code)</code>——而 psa 的运行时 panic 同样不可捕。</li>
+<li><code>None</code> 在 psa 里是值；在 SLA 里缺失是 <code>Option&lt;T&gt;</code>，靠 <code>match</code> 打开。</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/18_py_to_sla/06_classes_errors_none.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

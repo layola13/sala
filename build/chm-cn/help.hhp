@@ -64,6 +64,13 @@ Default Font=微软雅黑,9,0
 ../../dist/cn/content/17_rust_beginners/07_modules_async.html
 ../../dist/cn/content/17_rust_beginners/08_engineering.html
 ../../dist/cn/content/17_rust_beginners/09_checklist.html
+../../dist/cn/content/18_py_to_sla/01_basics.html
+../../dist/cn/content/18_py_to_sla/02_strings.html
+../../dist/cn/content/18_py_to_sla/03_control_flow.html
+../../dist/cn/content/18_py_to_sla/04_functions_tuples.html
+../../dist/cn/content/18_py_to_sla/05_collections.html
+../../dist/cn/content/18_py_to_sla/06_classes_errors_none.html
+../../dist/cn/content/18_py_to_sla/07_modules_matrix.html
 ../../dist/cn/content/03_sa_asm/01_sa_model.html
 ../../dist/cn/content/03_sa_asm/02_sa_syntax.html
 ../../dist/cn/content/03_sa_asm/03_sab_format.html

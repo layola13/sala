@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>模块与完整覆盖矩阵</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">从 Python（psa）到 SLA 对照实现 &gt; 模块与完整覆盖矩阵</div>
+<h1>模块与完整覆盖矩阵</h1>
+
+<h2><code>import</code> ↔ <code>@import</code></h2>
+<p>psa 的 import 对程序自有模块已支持：驱动把整程序 <code>.psa</code> 文件间的 <code>import</code> / <code>from ... import</code> 合并；没有同名本地文件时，<code>import json</code> 绑定 psa_std 库模块（普查，批 D6；标准库的 <code>from</code>-import 在 v1 响亮拒绝）。SLA 的 <code>@import</code> 是对所命名文件的编译期合并——标准库（<code>"sa_std/..."</code>）与程序自有的 <code>.sla</code> 文件用同一种形式，本章每段程序导入标准库时用的都是它。下面这一对，两边各是两个文件。</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code># mathx.psa
+def triple(x):
+    return x * 3
+
+# main.psa
+from mathx import triple
+
+print(triple(14))  # 42</code></pre></td>
+<td><pre><code>// helper.sla
+fn triple(x: i32) -&gt; i32 {
+    return x * 3;
+}
+
+// main.sla
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "helper.sla"
+
+fn main() -&gt; i32 {
+    println("{}", triple(14));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>42</code>，退出码 0。</p>
+
+<h2>完整矩阵</h2>
+<p>本章覆盖的每个基础语法点，附 psa 侧普查状态（2026-11-25，2026-11-26 更新；与普查不一致处以任务 171 的条目注明）与 SLA 对应形态。psa 侧「支持」指普查口径已实现且端到端验过；SLA 列写的是本章实际使用——且实际编译验证过——的形态。</p>
+<table>
+<tr><th>语法点</th><th>psa 状态</th><th>SLA 对应形态</th></tr>
+<tr><td>注释</td><td>支持（<code>#</code>）</td><td>只有 <code>//</code>；无块注释（解析器实测）</td></tr>
+<tr><td>变量与类型</td><td>支持（动态绑定，无注解）</td><td><code>let</code>（默认可变）、<code>const</code>、静态类型</td></tr>
+<tr><td>数字与运算</td><td>支持（<code>+ - * / // % **</code>）</td><td><code>+ - * / %</code>；整数 <code>/</code> = psa 的 <code>//</code>；无 <code>**</code></td></tr>
+<tr><td>字符串</td><td>支持（动态字符串值）</td><td>字面量；<code>len</code>、<code>str_eq</code></td></tr>
+<tr><td>f-string</td><td>部分——基本插值可用；格式规格/转换由任务 171-A 实现、待集成；浮点插值被 (xxiii) 堵</td><td>无 f-string；<code>println</code>/<code>format</code> 占位符</td></tr>
+<tr><td>布尔与逻辑运算</td><td>支持（<code>and</code>/<code>or</code>/<code>not</code>）</td><td><code>bool</code> 上的 <code>&amp;&amp;</code>/<code>||</code>/<code>!</code></td></tr>
+<tr><td><code>if</code>/<code>elif</code>/<code>else</code></td><td>支持</td><td>带块的 <code>if</code> / <code>else if</code> / <code>else</code></td></tr>
+<tr><td>三元表达式</td><td>支持（<code>x if c else y</code>）</td><td>if 表达式 <code>if c { x } else { y }</code></td></tr>
+<tr><td><code>while</code></td><td>支持（<code>while</code>/<code>else</code> 是缺口）</td><td><code>while</code> 带 <code>break</code>/<code>continue</code></td></tr>
+<tr><td><code>for</code> / <code>range</code></td><td>部分——<code>range</code> 在 <code>for</code> 头可用、可遍历 list/字符串；<code>range</code> 作值是缺口</td><td><code>for i in a..b</code>；按 <code>len</code> 的下标循环</td></tr>
+<tr><td>函数定义与返回</td><td>支持（默认值、关键字参数、<code>*args</code>/<code>**kwargs</code>；注解未支持）</td><td><code>fn</code>，全类型，无默认值</td></tr>
+<tr><td>list</td><td>部分——字面量、下标、下标赋值、<code>append</code> 已支持；容器字面量作调用实参被拒绝</td><td><code>Vec&lt;T&gt;</code>：<code>push</code>、下标、<code>len</code></td></tr>
+<tr><td>dict</td><td>支持（动态、保序）</td><td><code>HashMap</code>：<code>insert</code>、<code>get</code> → <code>Option</code></td></tr>
+<tr><td>tuple</td><td>支持（字面量 + 拆包）</td><td><code>(T, U)</code>、<code>.0</code>/<code>.1</code>、<code>let (a, b)</code>；<code>(i32, i32)</code> 字面量命中已登记的投影缺陷——用 <code>(i64, i64)</code></td></tr>
+<tr><td>set</td><td>支持（字面量；方法集见普查批 D5）</td><td><code>HashSet</code>：<code>insert</code>、<code>contains</code>、<code>len</code></td></tr>
+<tr><td>索引与切片</td><td>支持（含负下标与完整切片）</td><td>索引可；无负下标、无切片语法——显式拷贝循环</td></tr>
+<tr><td><code>print</code></td><td>支持（多参；浮点参数被 (xxiii) 堵，修复已落地、待确认）</td><td><code>println</code> 加 <code>{}</code> 占位符</td></tr>
+<tr><td><code>import</code></td><td>支持（自有模块合并；无本地文件时 <code>import</code> 绑 psa_std；标准库 <code>from</code>-import 在 v1 拒绝）</td><td><code>@import</code> 编译期合并，标准库与自有文件同形</td></tr>
+<tr><td>类与方法</td><td>支持（单继承；<code>super()</code>/多继承拒绝）</td><td><code>struct</code> + <code>impl</code>；<code>new</code> 靠约定</td></tr>
+<tr><td>异常处理</td><td>支持（<code>try</code>/<code>except</code>/<code>finally</code>、<code>raise</code>；运行时 panic 不可捕）</td><td>无 try 形式：可恢复用 <code>Result&lt;T, E&gt;</code>，不可恢复用 <code>panic(code)</code></td></tr>
+<tr><td><code>None</code></td><td>支持（真实动态值）</td><td>无空值；<code>Option&lt;T&gt;</code> + <code>match</code></td></tr>
+<tr><td>推导式</td><td>支持（list/dict/set + 生成器表达式）</td><td>无推导式语法；显式循环 + <code>push</code></td></tr>
+</table>
+
+<h2>没有独立页面的 psa 已登记缺口</h2>
+<ul>
+<li><strong>海象运算符 <code>:=</code></strong>——前端缺口（普查）。</li>
+<li><strong>字节串 <code>b""</code> 与原始串 <code>r""</code></strong>——前端缺口（普查）。</li>
+<li><strong><code>is</code> / <code>is not</code></strong>——普查时是缺口（v1 无身份语义）；已由任务 171-B 实现（身份 = 标签 + 载荷相等），待集成。</li>
+<li><strong>任意精度整数</strong>——缺口：psa 整数是 <code>i64</code>，溢出响亮失败；bigint 基底项其后已落入 SLA 标准库（S4），但尚未接进 psa 的整数。</li>
+<li><strong><code>while</code>/<code>else</code> 与 <code>for</code>/<code>else</code></strong>——前端缺口（普查）。</li>
+</ul>
+
+<h2>本章要点</h2>
+<ul>
+<li>psa 与 SLA 在语句层面相遇：几乎每个基础 Python 构造都有直接的 SLA 形态，本章逐对给出完整可运行的程序。</li>
+<li>真正的差异是成体系的，不是零散的：动态 vs 静态类型、异常 vs <code>Result</code>/<code>panic</code>、<code>None</code> vs <code>Option</code>，以及 psa 独有的语法糖（切片、推导式、f-string）对 SLA 的显式循环与占位符格式化。</li>
+<li>本章每段 SLA 程序都先在所标注的工具链上编译运行、才写进文档；这里点名的每条 psa 限制都可溯到语法普查或编号任务（171-A、171-B），不凭印象。</li>
+</ul>
+</body>
+</html>

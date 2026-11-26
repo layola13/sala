@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Functions and Tuples</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Functions and Tuples</div>
+<h1>Functions and Tuples</h1>
+
+<h2>Function Definitions and Return</h2>
+<p>psa's <code>def</code> needs no type annotations (the census records
+parameter/return annotations as not supported), and it supports default
+values, keyword arguments, and <code>*args</code>/<code>**kwargs</code>.
+SLA's <code>fn</code> is fully typed — every parameter and the return type
+are written — and has no default values: callers pass every argument,
+explicitly. Both sides return with <code>return</code>.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def add(a, b):
+    return a + b
+
+def divmod(a, b):
+    return (a // b, a % b)
+
+print(add(10, 20))   # 30
+q, r = divmod(17, 5)
+print(f"{q},{r}")    # 3,2</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn add(a: i32, b: i32) -&gt; i32 {
+    return a + b;
+}
+
+fn divmod(a: i32, b: i32) -&gt; (i32, i32) {
+    return (a / b, a % b);
+}
+
+fn main() -&gt; i32 {
+    println("{}", add(10, 20));
+    let (q, r) = divmod(17, 5);
+    println("{},{}", q, r);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>30</code>, <code>3,2</code>, exit code 0.
+Note that the returned tuple here is built from computed values; literal
+tuples are the next topic.</p>
+
+<h2>Tuples</h2>
+<p>Both sides have tuples and destructuring: psa unpacks by assignment,
+SLA by <code>let (a, b) = ...</code>, and SLA tuple fields are read as
+<code>t.0</code>, <code>t.1</code> (psa indexes <code>t[0]</code>,
+<code>t[1]</code>). The census marks psa tuple literals and unpacking as
+supported.</p>
+<p>One measured SLA defect, recorded rather than hidden: a tuple
+<strong>literal</strong> written into an <code>(i32, i32)</code> position
+misreads its second element on the verified toolchain (the literal is
+stored at 8-byte stride while the projection reads at 4-byte stride; the
+corpus registers this as DEF-TEXT-TUPLE-PROJ-SUBWORD-OFFSET, with a
+regression test in the plugin's test corpus). The
+<code>(i64, i64)</code> form below is the verified-correct spelling and is
+what this section uses.</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>def swap(p):
+    return (p[1], p[0])
+
+t = (3, 8)
+print(f"{t[0]},{t[1]}")  # 3,8
+s = swap(t)
+print(f"{s[0]},{s[1]}")  # 8,3</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn swap(p: (i64, i64)) -&gt; (i64, i64) {
+    return (p.1, p.0);
+}
+
+fn main() -&gt; i32 {
+    let t: (i64, i64) = (3, 8);
+    println("{},{}", t.0, t.1);
+    let s = swap(t);
+    println("{},{}", s.0, s.1);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>3,8</code>, <code>8,3</code>, exit code 0.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li><code>def</code> ↔ <code>fn</code>: psa is unannotated and supports defaults/keyword/variable arguments; SLA is fully typed with no defaults.</li>
+<li>Multiple return values are tuples on both sides; destructuring is assignment in psa, <code>let (a, b)</code> in SLA.</li>
+<li>Measured defect: <code>(i32, i32)</code> tuple literals misread element 1 on the verified toolchain — use the <code>(i64, i64)</code> form, as shown.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/18_py_to_sla/04_functions_tuples.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>
