@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Layers: From psa Down to SA</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Introducing psa &gt; Layers: From psa Down to SA</div>
+<h1>Layers: From psa Down to SA</h1>
+
+<p>A psa program stands on five layers. Each layer has one duty, and no
+layer borrows the semantics of the one above it:</p>
+
+<table>
+<tr><th>Layer</th><th>Duty</th></tr>
+<tr><td><strong>psa</strong></td><td>The language and its compiler: the Python-shaped surface, type and ownership inference, the two-layer semantics of the <a href="02_semantic_stance.html">stance page</a>, and emission of SLA text. psa emits SLA only — never SA directly, never a second backend.</td></tr>
+<tr><td><strong>psa_std</strong></td><td>The standard library written for psa authors, in psa/SLA form: modules with Python-shaped interfaces (json, the networking surface, and the rest of the library programme), so psa programs write <code>import json</code> rather than knowing what sits below.</td></tr>
+<tr><td><strong>sla_std</strong></td><td>The SLA standard library: the typed containers, string, formatting, math and systems facilities that psa’s static layer and psa_std are built on.</td></tr>
+<tr><td><strong>sa_std</strong></td><td>The SA standard library: the verified substrate facilities — I/O, networking cores, channels, concurrency — expressed at the SA level.</td></tr>
+<tr><td><strong>SA</strong></td><td>The foundation: the register and ownership model, the borrow/move/release rules, native and WASM code generation, and the Referee, which re-verifies every program after lowering. No frontend claim is trusted; the Referee decides.</td></tr>
+</table>
+
+<h2>Where the dynamic layer ends and the static layer begins</h2>
+<p>The two layers of the semantic stance are not two languages and not
+two modes the author selects. The boundary is drawn value by value,
+inside one program, by a single criterion: <strong>does the compiler have
+usable static type information for this value?</strong></p>
+<ul>
+<li>Where inference proves one static type — a variable first bound to an
+integer, a homogeneous list of integers, a function whose parameters are
+pinned by their uses and call sites — the value is a plain SLA-level
+value: value semantics, ownership and borrowing checked at compile time,
+no dynamic representation involved.</li>
+<li>Where it cannot — a heterogeneous list, a dict with values of mixed
+kinds, a payload decoded from JSON — the value is carried by the dynamic
+layer: a tagged dynamic value with Python reference semantics and dynamic
+dispatch, its memory still deterministically managed (Perceus-style
+reference counting with in-place reuse), never by a tracing garbage
+collector.</li>
+<li>The two coexist in one program and meet at function boundaries and
+assignments: a dynamic value flows into a statically pinned variable only
+through a checked conversion, and a variable’s type is pinned by its
+first binding — psa refuses, loudly, to let a statically pinned variable
+quietly become dynamic later (measured diagnostic PSA-E2032).</li>
+</ul>
+<p>The author does not manage this boundary. It is the compiler’s
+bookkeeping, and when a program leans on it in a way that would change
+meaning, the stance’s first iron rule applies: refusal with a repair
+hint, or an explicit form — never a silent change. The next page shows
+both styles, and the boundary, in running programs.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Five layers: psa &rarr; psa_std &rarr; sla_std &rarr; sa_std &rarr; SA; each keeps its own duty and its own semantics.</li>
+<li>The dynamic/static boundary is per value, drawn by the compiler from the type information the code itself provides.</li>
+<li>Dynamic values are reference-counted deterministically; there is no tracing GC anywhere in the stack.</li>
+<li>Crossings between the layers are checked; a pinned variable cannot silently become dynamic.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/19_psa_intro/03_layers.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

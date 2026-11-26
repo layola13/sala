@@ -345,6 +345,42 @@ var TOC = [
   ]
  },
  {
+  "t": "认识 psa",
+  "f": null,
+  "c": [
+   {
+    "t": "psa 是什么",
+    "f": "content/19_psa_intro/01_what_is_psa.html",
+    "c": []
+   },
+   {
+    "t": "psa 的语义立场",
+    "f": "content/19_psa_intro/02_semantic_stance.html",
+    "c": []
+   },
+   {
+    "t": "分层架构：从 psa 到 SA",
+    "f": "content/19_psa_intro/03_layers.html",
+    "c": []
+   },
+   {
+    "t": "一个语言，两种写法",
+    "f": "content/19_psa_intro/04_two_styles.html",
+    "c": []
+   },
+   {
+    "t": "Source Map（正在开发）",
+    "f": "content/19_psa_intro/05_source_map.html",
+    "c": []
+   },
+   {
+    "t": "现状与边界",
+    "f": "content/19_psa_intro/06_status_and_limits.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "SA 汇编与 SAB",
   "f": null,
   "c": [

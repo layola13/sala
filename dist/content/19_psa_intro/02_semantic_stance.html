@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Semantic Stance of psa</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Introducing psa &gt; The Semantic Stance of psa</div>
+<h1>The Semantic Stance of psa</h1>
+
+<p>psa is a “Python-like” language: it borrows Python’s syntactic
+appearance and common idioms, so that people familiar with Python — and AI
+tools — can pick it up with little friction; but psa is not a dialect,
+subset, or reimplementation of Python, and it does not promise semantic
+equivalence with CPython. psa has semantics of its own, in two layers:</p>
+
+<p>1. The dynamic layer (dyn): code without static types runs by Python
+semantics — reference semantics, dynamic dispatch, and runtime errors
+reported through psa’s panic code table. This layer promises behaviour
+consistent with Python.</p>
+
+<p>2. The static layer: code that carries types and can be statically
+resolved is compiled by SLA semantics — value semantics, with ownership
+and borrowing checked at compile time. What this layer promises is the
+semantics of SLA, not of Python.</p>
+
+<p>The boundary between the two layers is decided by the code itself
+(whether usable static type information exists), and three iron rules
+govern it:</p>
+
+<p>1. No silent change of meaning in direct translation: if a Python
+idiom, executed under static-layer semantics, would change the program’s
+meaning (as aliasing mutation does), the compiler must refuse it loudly
+with a repair hint, or require the author to write the explicit form
+(such as an explicit borrow &amp;); a program must never silently run
+with a different meaning.</p>
+
+<p>2. What is not supported is refused loudly: Python features psa does
+not have (the registered gaps) are rejected explicitly at compile time —
+not simulated, not faked.</p>
+
+<p>3. psa’s documentation is the authority on semantics: the meaning of a
+piece of psa code is judged by psa’s own semantic rules and layering, not
+by CPython’s behaviour; where the two conflict, the dynamic layer follows
+Python and the static layer follows SLA, and each conflict point is
+registered in the documentation.</p>
+
+<p>In one sentence: psa looks like Python so that it is easy to write and
+read; psa is not Python so that it can be statically checked, can be
+fast, and can stop at compile time the errors that in Python only explode
+at runtime.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/19_psa_intro/02_semantic_stance.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

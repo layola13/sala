@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>一个语言，两种写法</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">认识 psa &gt; 一个语言，两种写法</div>
+<h1>一个语言，两种写法</h1>
+
+<p>本章每个程序都是先跑过、才写下来的：psa 程序用 psa 编译器（当前主本的留存构建产物）实跑——发射为 SLA 后在 SLA→SA 文本路上构建并运行，2026-11-26 实测；那段 SLA 程序用同一条文本路工具链。页面标注的输出，就是程序真实打印的输出。</p>
+
+<h2>动态写法：值的类型在运行时携带</h2>
+<p>工具调用的载荷就是动态写法的天然形状：值类型混杂的 dict、异构列表、成员访问与算术在运行时解析。这里没有任何可证明的静态类型，所以每个值都走动态层——按 Python 语义。</p>
+<pre><code>payload = {"tool": "search", "args": ["sla", 42, True]}
+print(payload["tool"])
+print(payload["args"][1] + 1)
+print(payload["args"][2])</code></pre>
+<p>实测输出：</p>
+<pre><code>search
+43
+True</code></pre>
+
+<h2>静态写法：推断钉死类型，SLA 语义生效</h2>
+<p>这里同样没有写任何注解——但每个值的类型都被用法钉死了：<code>n</code> 与整数比较、以整数算术递归，所以 <code>fib</code> 全程被推断为整数函数，在静态路上编译，按 SLA 语义，所有权在编译期检查。</p>
+<pre><code>def fib(n):
+    if n &lt; 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+print(fib(15))</code></pre>
+<p>实测输出：</p>
+<pre><code>610</code></pre>
+
+<h2>分界的一个例子：别名</h2>
+<p>在 Python 里，<code>ys = xs</code> 是给同一个列表起第二个名字，透过一个名字做的修改，另一个名字也看得见。psa 的答案取决于这个列表活在哪一层——而在哪一层都不是静默的。</p>
+<p>在动态层（异构列表是动态值），Python 的引用语义成立，与立场的承诺一致：</p>
+<pre><code>xs = [1, "a"]
+ys = xs
+ys.append(3)
+print(xs)
+print(ys)</code></pre>
+<p>实测输出——两个名字都看得见追加的元素：</p>
+<pre><code>[1, 'a', 3]
+[1, 'a', 3]</code></pre>
+<p>在静态层（同类型整数列表被静态钉死），赋值是把容器<em>移动</em>走。Python 形状的程序在编译期被拒绝，原因与修法都写明（诊断为实测原文）：</p>
+<pre><code>xs = [1, 2]
+ys = xs
+ys.append(3)
+print(xs)
+print(ys)</code></pre>
+<pre><code>error[PSA-E1001]: use of `xs` after it was moved
+  --&gt; ex_alias.psa:4
+   = site: move (line 2)
+note: container assignment moves the value; the binding is dead until it is re-bound
+hint: re-bind `xs` before line 4, or bind a copy at line 2</code></pre>
+<p>而同一个程序直接用 SLA 写时，共享修改是作者显式写出来的——用借用：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn append3(v: &amp;Vec&lt;i64&gt;) {
+    v.push(3);
+}
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i64&gt; = Vec::new();
+    xs.push(1);
+    xs.push(2);
+    append3(&amp;xs);
+    println("{}", len(xs));
+    println("{}", xs[2]);
+    return 0;
+}</code></pre>
+<p>实测输出：</p>
+<pre><code>3
+3</code></pre>
+<p>这是别名故事的简短版。完整版——九个隐患，每个都按 psa 隐患、SLA 直译、报错原文或实测行为、安全写法四段展开——在对照章的<a href="../18_py_to_sla/08_ownership_safety.html">所有权与内存安全</a>页。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>动态写法：类型混杂的值、运行时分派、Python 语义——实测输出与 Python 一致。</li>
+<li>静态写法：不需要注解；推断钉死类型后，程序按 SLA 语义编译。</li>
+<li>别名行为随层而变、且从不静默：动态层是引用语义，静态层是响亮的 move 报错，SLA 里是显式借用。</li>
+</ul>
+</body>
+</html>

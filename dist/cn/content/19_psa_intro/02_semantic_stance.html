@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>psa 的语义立场</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">认识 psa &gt; psa 的语义立场</div>
+<h1>psa 的语义立场</h1>
+
+<p>psa 是一种「类 Python」语言：它借用 Python 的语法外貌与常用写法，让熟悉 Python 的人和 AI 工具能低门槛上手；但 psa 不是 Python 的方言、子集或重实现，不承诺与 CPython 的语义等价。psa 有自己的语义，分两层：</p>
+
+<p>一、动态层（dyn）：无静态类型的代码按 Python 语义运行——引用语义、动态分派、运行时错误走 psa 的 panic 码表。这一层承诺与 Python 行为一致。</p>
+
+<p>二、静态层：带类型、能静态定形的代码按 SLA 语义编译——值语义、所有权与借用在编译期检查。这一层承诺的是 SLA 的语义，不是 Python 的。</p>
+
+<p>两层的分界由代码自身决定（有没有可用的静态类型信息），并有三条铁规：</p>
+
+<p>1. 直译不许静默改义：一段 Python 写法若按静态层语义执行会改变程序含义（如别名突变），编译器必须响亮拒绝并给出修复提示，或要求作者写显式形式（如显式借用 &amp;）；绝不允许程序无声地以不同含义运行。</p>
+
+<p>2. 不支持就响亮说不支持：psa 没有的 Python 特性（已登记缺口）在编译期明确拒绝，不模拟、不假装。</p>
+
+<p>3. 语义以 psa 文档为准：判断一段 psa 代码的含义，依据是 psa 自己的语义规定与分层口径，不是 CPython 的行为；两者冲突时，动态层随 Python、静态层随 SLA，冲突点在文档中逐项登记。</p>
+
+<p>一句话：psa 像 Python，是为了好写好读；psa 不是 Python，是为了能静态检查、能快、能在编译期拦下 Python 运行时才炸的错误。</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/19_psa_intro/02_semantic_stance.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

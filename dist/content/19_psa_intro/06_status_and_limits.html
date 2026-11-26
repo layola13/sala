@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Status and Limits</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Introducing psa &gt; Status and Limits</div>
+<h1>Status and Limits</h1>
+
+<p>Everything on this page is stated at the measurement standard of the
+rest of this documentation: what is measured is quoted with its
+conditions, what is not finished is named as not finished.</p>
+
+<h2>Where psa stands</h2>
+<p><strong>psa v1.0.0 is released</strong> (sapy commit
+<code>37d0fb6</code>, tag <code>psa-v1.0.0</code>, 2026-11-26). The v1
+acceptance batch passes 25/25: 23 programs byte-identical to CPython and
+2 negative cases refused loudly. Development continues past v1: the
+post-release integration steps (parser gaps, closure capture, structured
+errors) are merged, the wave-1 psa_std wiring (29 modules) is written and
+verified, and the remaining syntax batches proceed as task 171. The
+design record is the <a href="../01_overview/24_sapy_blueprint.html">SA-Py
+blueprint</a>.</p>
+
+<h2>Syntax coverage, as censused</h2>
+<p>The item-by-item syntax census (sapy repository, updated 2026-11-26)
+counts <strong>46 constructs: 35 supported, 8 partial, 3 gaps</strong>
+(2 frontend gaps and 1 dynamic gap). “Partial” means the construct works
+in the shapes the census names and refuses loudly outside them; the
+companion chapter’s coverage matrix
+(<a href="../18_py_to_sla/07_modules_matrix.html">Modules and the Full
+Coverage Matrix</a>) gives the per-construct state.</p>
+
+<h2>The registered gaps</h2>
+<ul>
+<li><strong>The walrus operator <code>:=</code></strong> — frontend gap,
+refused at compile time.</li>
+<li><strong>Bytes literals <code>b""</code> and raw strings
+<code>r""</code></strong> — frontend gap, refused at compile time.</li>
+<li><strong>Arbitrary-precision integers</strong> — dynamic gap. v1
+integers are i64; an integer literal beyond i64 is refused loudly rather
+than silently truncated (the bigint work is registered separately, as a
+substrate item).</li>
+<li><strong>Loop <code>else</code></strong> (<code>while/else</code>,
+<code>for/else</code>) — a frontend gap recorded in the census under the
+control-flow constructs.</li>
+<li><strong><code>is</code> / <code>is not</code></strong> — the census
+records identity as a gap (v1 defines no identity semantics). An
+implementation has since been completed in the task 171-B batch —
+identity defined as tag-and-payload equality, with NaN identical to
+itself — and is awaiting integration into the master; until it lands,
+the census state is the operative one.</li>
+</ul>
+<p>Per the stance’s second iron rule, each of these is a loud compile-time
+refusal, not a simulation and not a silent approximation.</p>
+
+<h2>Performance, as measured for v1</h2>
+<p>On the v1 benchmark set, measured in a single window against CPython:
+<strong>fib ≈24×, loopsum ≈99×, listsum ≈40×</strong> on statically
+compiled programs, and <strong>dynsum ≈1.4×</strong> on a dynamic-style
+program. These are the v1 figures under the conditions recorded with
+them in the blueprint (section 6.3); they are quoted here as the current
+reference points, not as guarantees for arbitrary programs — dynamic-style
+code is faster than CPython by a small margin, static code by a large
+one, and the honest summary is that the margin depends on which layer a
+program’s values live on.</p>
+
+<h2>Relation to the companion chapter</h2>
+<p>This chapter is the general account: what psa is, what it promises,
+how it is layered, and where it stands. The chapter
+<a href="../18_py_to_sla/01_basics.html">From Python (psa) to SLA</a> is
+the item-by-item comparison — the same programs written in psa and in
+SLA, construct by construct, including the full coverage matrix and the
+ownership-and-memory-safety page. Neither chapter replaces the other:
+start here for the semantics, go there for the side-by-side detail.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>psa v1.0.0 is released; development continues (integration steps, psa_std wiring, task 171 batches).</li>
+<li>Syntax census: 35 supported / 8 partial / 3 gaps of 46; every gap is a loud compile-time refusal.</li>
+<li>v1 measured performance vs CPython: fib ≈24×, loopsum ≈99×, listsum ≈40× (static), dynsum ≈1.4× (dynamic).</li>
+<li>This chapter is the general account; chapter 18 is the item-by-item comparison.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/19_psa_intro/06_status_and_limits.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

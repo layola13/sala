@@ -11,6 +11,8 @@
 
 <p>本章是写给 Python 程序员的左右对照：每张表的左列是 <strong>psa</strong> 程序（Python 语法前端，源码后缀 <code>.psa</code>，由 <code>psa</code> 编译器编译），右列是同一程序的 <strong>SLA</strong> 写法。本章与 Rust 对照章遵守同一条硬规矩：<strong>每一段 SLA 代码，都是先实际编译并运行通过、才写进文档的</strong>（工具链：<code>sa 0.1.8</code> 宿主 + dev 模式 SLA 插件，SA 文本路，2026-11-26 实测）。每段程序下方标注的输出，就是 SLA 程序真实打印的输出。psa 侧各构造的支持状态取自 psa 语法普查（sapy 仓，2026-11-25，2026-11-26 更新：46 项中支持 35、部分 8、缺口 3）；psa 只部分支持或尚未支持的点，本章直说，不抹平。psa 侧程序本身也按该普查口径书写。</p>
 
+<p>看表之前先提醒一句：左右对照展示的是同一个程序在两种语言里怎么写，不是对每个构造语义等价的承诺。psa 是类 Python 而自有语义的语言，本章对照以 psa 的语义立场为准——立场全文见<a href="../19_psa_intro/02_semantic_stance.html">psa 的语义立场</a>页，出自<a href="../19_psa_intro/01_what_is_psa.html">认识 psa</a>章。</p>
+
 <h2>注释</h2>
 <p>psa 保留 Python 的 <code>#</code> 行注释；SLA 用 <code>//</code>。一条实测差异：SLA 没有块注释——<code>/* ... */</code> 会被解析器拒绝（探针实测报错：<code>found '/', expected function, struct, enum, trait, impl, const, macro, extern block, module, or annotation declaration</code>）。</p>
 <table>

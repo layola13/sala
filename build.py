@@ -30,6 +30,7 @@ SECTIONS = [
     {"dir": "09_rust_compare", "title": {"en": "Comparison with Rust", "cn": "与 Rust 对比"}},
     {"dir": "17_rust_beginners", "title": {"en": "From Rust for Beginners", "cn": "给 Rust 程序员的 SLA 入门"}},
     {"dir": "18_py_to_sla", "title": {"en": "From Python (psa) to SLA", "cn": "从 Python（psa）到 SLA 对照实现"}},
+    {"dir": "19_psa_intro", "title": {"en": "Introducing psa", "cn": "认识 psa"}},
     {"dir": "03_sa_asm",     "title": {"en": "SA Assembly and SAB", "cn": "SA 汇编与 SAB"}},
     {"dir": "04_cli",        "title": {"en": "Command-Line Reference", "cn": "命令行参考"}},
     {"dir": "05_plugins",    "title": {"en": "Plugin Reference", "cn": "插件参考"}},

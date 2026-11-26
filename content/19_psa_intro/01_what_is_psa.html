@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>What psa Is</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Introducing psa &gt; What psa Is</div>
+<h1>What psa Is</h1>
+
+<p><strong>psa is a Python-like language with semantics of its own,
+designed first of all as a tool-calling language for AI.</strong> An agent
+(or a person) writes a small program in a Python-shaped surface — parse a
+JSON payload, call HTTP services and other tools, transform data, return a
+structured result — and psa compiles it ahead of time to a native binary.
+The compiler binary is named <code>psa</code>; source files carry the
+suffix <code>.psa</code>.</p>
+
+<p>The compile path has one direction and no shortcuts:
+<strong>psa &rarr; SLA &rarr; SA</strong>. psa emits SLA text; the SLA
+compiler lowers it to SA; the SA Referee verifies ownership and bounds
+before any code runs. What cannot be proven or supported is refused loudly
+at compile time — the check is the security gate that generated code
+usually does not have, and it is also what makes the output fast: no
+interpreter, no garbage collector, deterministic resource use.</p>
+
+<h2>The author surface: what you do not need to know</h2>
+<p>psa is written under a surface discipline: <strong>the author of a psa
+program does not need to know what a Vec is, what a PsaVal is, what
+borrowing means, or what Perceus is.</strong> Those are implementation
+concepts of the layers below. The author writes Python-shaped code —
+<code>def</code>, <code>class</code>, <code>if/elif/else</code>,
+<code>for</code>, <code>while</code>, <code>try/except</code>,
+<code>import</code>, indentation blocks, no declaration keywords — and the
+compiler infers types and ownership. Where inference can prove a static
+type, the value takes the zero-cost static path; where it cannot, the
+value is carried by the dynamic layer. Both are psa; which one a given
+value takes is decided by the code itself, as the next pages state
+precisely.</p>
+
+<h2>What this chapter is, and what the next one is</h2>
+<p>This chapter is the general account of psa: its
+<a href="02_semantic_stance.html">semantic stance</a> (the page that says
+exactly which semantics psa promises, and where), its
+<a href="03_layers.html">layered architecture</a>, the
+<a href="04_two_styles.html">two styles</a> a psa program can mix, its
+<a href="05_source_map.html">source-map work in development</a>, and its
+<a href="06_status_and_limits.html">measured status and limits</a>. The
+companion chapter <a href="../18_py_to_sla/01_basics.html">From Python
+(psa) to SLA</a> is the item-by-item comparison: the same program in psa
+and in SLA, construct by construct. Read the comparisons under the stance
+stated here — a side-by-side table shows how a program is written in the
+two languages, not a promise that the two languages give every construct
+the same meaning.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>psa: a Python-like language of its own, built as an AI tool-calling language; <code>.psa</code> source, the <code>psa</code> compiler.</li>
+<li>Compile path: psa &rarr; SLA &rarr; SA, verified by the SA Referee before execution; no interpreter, no GC.</li>
+<li>The author surface hides the machinery: no Vec, PsaVal, borrowing, or Perceus knowledge is required to write psa.</li>
+<li>This chapter states the semantics and the measured status; the companion chapter does the construct-by-construct comparison.</li>
+</ul>
+</body>
+</html>

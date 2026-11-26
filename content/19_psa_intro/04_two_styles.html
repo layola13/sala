@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Two Styles in One Language</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Introducing psa &gt; Two Styles in One Language</div>
+<h1>Two Styles in One Language</h1>
+
+<p>Every program in this chapter was run before it was written down: the
+psa programs with the psa compiler (a retained build of the current
+master), emitted to SLA and built and run on the SLA&rarr;SA text route,
+on 2026-11-26; the one SLA program with the same text-route toolchain.
+The output quoted is the output the program really printed.</p>
+
+<h2>Dynamic style: values carry their types at runtime</h2>
+<p>A tool-call payload is the natural shape of the dynamic style: a dict
+whose values are of mixed kinds, a heterogeneous list, member access and
+arithmetic resolved at runtime. Nothing here has a provable static type,
+so every value travels on the dynamic layer — with Python
+semantics.</p>
+<pre><code>payload = {"tool": "search", "args": ["sla", 42, True]}
+print(payload["tool"])
+print(payload["args"][1] + 1)
+print(payload["args"][2])</code></pre>
+<p>Measured output:</p>
+<pre><code>search
+43
+True</code></pre>
+
+<h2>Static style: inference pins the types, SLA semantics apply</h2>
+<p>No annotations are written here either — but every value’s type is
+pinned by its uses: <code>n</code> is compared with an integer and
+recursed on with integer arithmetic, so <code>fib</code> is inferred as
+an integer function throughout and compiled on the static path, under
+SLA semantics, with ownership checked at compile time.</p>
+<pre><code>def fib(n):
+    if n &lt; 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+print(fib(15))</code></pre>
+<p>Measured output:</p>
+<pre><code>610</code></pre>
+
+<h2>The boundary, in one example: aliasing</h2>
+<p>In Python, <code>ys = xs</code> makes a second name for the same list,
+and mutating through one name is visible through the other. psa’s answer
+depends on which layer the list lives on — and in neither layer is the
+change silent.</p>
+<p>On the dynamic layer (a heterogeneous list is a dynamic value),
+Python’s reference semantics hold, exactly as the stance promises:</p>
+<pre><code>xs = [1, "a"]
+ys = xs
+ys.append(3)
+print(xs)
+print(ys)</code></pre>
+<p>Measured output — both names see the appended element:</p>
+<pre><code>[1, 'a', 3]
+[1, 'a', 3]</code></pre>
+<p>On the static layer (a homogeneous list of integers is statically
+pinned), assignment <em>moves</em> the container. The Python-shaped
+program is refused at compile time, with the reason and the repair
+stated (diagnostic measured verbatim):</p>
+<pre><code>xs = [1, 2]
+ys = xs
+ys.append(3)
+print(xs)
+print(ys)</code></pre>
+<pre><code>error[PSA-E1001]: use of `xs` after it was moved
+  --&gt; ex_alias.psa:4
+   = site: move (line 2)
+note: container assignment moves the value; the binding is dead until it is re-bound
+hint: re-bind `xs` before line 4, or bind a copy at line 2</code></pre>
+<p>And when the same program is written in SLA directly, shared mutation
+is something the author writes explicitly, with a borrow:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn append3(v: &amp;Vec&lt;i64&gt;) {
+    v.push(3);
+}
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i64&gt; = Vec::new();
+    xs.push(1);
+    xs.push(2);
+    append3(&amp;xs);
+    println("{}", len(xs));
+    println("{}", xs[2]);
+    return 0;
+}</code></pre>
+<p>Measured output:</p>
+<pre><code>3
+3</code></pre>
+<p>This is the short form of the aliasing story. The full treatment —
+nine hazards, each shown as the psa risk, the direct SLA translation,
+the verbatim compiler diagnostic or measured behaviour, and the safe
+form — is the companion chapter’s page
+<a href="../18_py_to_sla/08_ownership_safety.html">Ownership and Memory
+Safety</a>.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Dynamic style: mixed-kind values, runtime dispatch, Python semantics — measured output matches Python.</li>
+<li>Static style: no annotations needed; inference pins the types and the program compiles under SLA semantics.</li>
+<li>Aliasing is layer-dependent and never silent: reference semantics on the dynamic layer, a loud move error on the static layer, an explicit borrow in SLA.</li>
+</ul>
+</body>
+</html>

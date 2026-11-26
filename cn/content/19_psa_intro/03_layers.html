@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>分层架构：从 psa 到 SA</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">认识 psa &gt; 分层架构：从 psa 到 SA</div>
+<h1>分层架构：从 psa 到 SA</h1>
+
+<p>一个 psa 程序站在五层之上。每层只有一项职责，任何一层都不借用它上面那一层的语义：</p>
+
+<table>
+<tr><th>层</th><th>职责</th></tr>
+<tr><td><strong>psa</strong></td><td>语言与编译器：Python 形状的表面、类型与所有权推断、<a href="02_semantic_stance.html">立场页</a>所述的两层语义，以及发射 SLA 文本。psa 只发射 SLA——从不直接发射 SA，也没有第二条后端。</td></tr>
+<tr><td><strong>psa_std</strong></td><td>为 psa 作者写的标准库，以 psa/SLA 形式实现：接口是 Python 形状的模块（json、网络面，以及其余库计划），让 psa 程序写 <code>import json</code>，而不是去认识它下面的东西。</td></tr>
+<tr><td><strong>sla_std</strong></td><td>SLA 标准库：带类型的容器、字符串、格式化、数学与系统设施——psa 的静态层与 psa_std 都建在它上面。</td></tr>
+<tr><td><strong>sa_std</strong></td><td>SA 标准库：已验证的基底设施——I/O、网络核心、通道、并发——以 SA 层表达。</td></tr>
+<tr><td><strong>SA</strong></td><td>地基：寄存器与所有权模型、借用/移动/释放规则、原生与 WASM 代码生成，以及 Referee——每个程序在降低之后都由它重新验证。前端说什么都不算，Referee 说了算。</td></tr>
+</table>
+
+<h2>动态层在哪里结束、静态层从哪里开始</h2>
+<p>语义立场里的两层不是两种语言，也不是作者要选的模式。分界是逐值画的、就在同一个程序内部，判据只有一条：<strong>编译器对这个值有没有可用的静态类型信息？</strong></p>
+<ul>
+<li>推断能证明单一静态类型的地方——首次绑定为整数的变量、同类型整数的列表、参数被用法与调用点钉死的函数——值就是普通的 SLA 层值：值语义、所有权与借用在编译期检查，不涉及任何动态表示。</li>
+<li>证明不了的地方——异构列表、值类型混杂的 dict、从 JSON 解出来的载荷——值由动态层承载：带标签的动态值，Python 引用语义与动态分派，内存仍是确定性管理（Perceus 式引用计数加原地复用），从来不是追踪式垃圾回收。</li>
+<li>两层在同一个程序里共存，在函数边界与赋值处相遇：动态值只能经受检转换流入被静态钉死的变量；变量的类型由首次绑定钉死——psa 会响亮拒绝让一个已钉死的变量后来悄悄变动态（实测诊断 PSA-E2032）。</li>
+</ul>
+<p>这条分界不需要作者管理。它是编译器的账本；而当一个程序以会改变含义的方式倚重它时，立场的第一条铁规生效：带修复提示的拒绝，或要求显式形式——绝不静默改义。下一页用能跑的程序把两种写法与这条分界都摆出来。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>五层：psa → psa_std → sla_std → sa_std → SA；每层守自己的职责与语义。</li>
+<li>动态/静态分界逐值画，由编译器按代码自身给出的类型信息决定。</li>
+<li>动态值是确定性引用计数；整个栈里没有任何追踪式 GC。</li>
+<li>两层之间的穿越受检；已钉死的变量不能静默变动态。</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>psa 是什么</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">认识 psa &gt; psa 是什么</div>
+<h1>psa 是什么</h1>
+
+<p><strong>psa 是一种类 Python 的语言，有自己的语义，首要定位是给 AI 的工具调用语言。</strong>智能体（或人）用 Python 形状的表面写一个小程式——解析 JSON 载荷、调用 HTTP 服务与其它工具、变换数据、返回结构化结果——psa 把它提前编译为原生二进制。编译器二进制名为 <code>psa</code>；源文件后缀为 <code>.psa</code>。</p>
+
+<p>编译路径只有一个方向、没有捷径：<strong>psa → SLA → SA</strong>。psa 发射 SLA 文本；SLA 编译器把它降到 SA；SA 的 Referee 在任何代码运行之前验证所有权与边界。无法证明或不支持的，在编译期响亮拒绝——这道检查正是生成代码通常缺失的安全门，也是输出能快的原因：无解释器、无垃圾回收、资源占用确定。</p>
+
+<h2>作者面：你不需要懂的东西</h2>
+<p>psa 遵守一条表面纪律：<strong>写 psa 的人不需要懂 Vec 是什么、PsaVal 是什么、借用是什么意思、Perceus 是什么。</strong>那些都是下层实现概念。作者写的是 Python 形状的代码——<code>def</code>、<code>class</code>、<code>if/elif/else</code>、<code>for</code>、<code>while</code>、<code>try/except</code>、<code>import</code>、缩进块、没有声明关键字——类型与所有权由编译器推断。推断能证明静态类型的值走零成本静态路；证明不了的由动态层承载。两者都是 psa；某个值走哪条路由代码自身决定，后面几页会把口径说精确。</p>
+
+<h2>本章与下一章各是什么</h2>
+<p>本章是 psa 的总论：它的<a href="02_semantic_stance.html">语义立场</a>（哪一层承诺哪种语义、白纸黑字写清的那一页）、<a href="03_layers.html">分层架构</a>、psa 程序可以混用的<a href="04_two_styles.html">两种写法</a>、<a href="05_source_map.html">正在开发的 source map</a>，以及<a href="06_status_and_limits.html">实测现状与边界</a>。对照章<a href="../18_py_to_sla/01_basics.html">从 Python（psa）到 SLA 对照实现</a>是逐项对照：同一个程序在 psa 与 SLA 里的写法，一个构造一个构造地比。对照表要在本章的立场之下来读——左右对照展示的是一个程序在两种语言里怎么写，不是对每个构造语义等价的承诺。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>psa：类 Python 而自有语义的语言，为 AI 工具调用而建；源码 <code>.psa</code>，编译器 <code>psa</code>。</li>
+<li>编译路径：psa → SLA → SA，执行前由 SA Referee 验证；无解释器、无 GC。</li>
+<li>作者面藏起机器细节：写 psa 不需要懂 Vec、PsaVal、借用、Perceus。</li>
+<li>本章讲语义与实测现状；对照章做逐构造对照。</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>现状与边界</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">认识 psa &gt; 现状与边界</div>
+<h1>现状与边界</h1>
+
+<p>本页一切表述与本文档其余部分同一标准：实测的连条件一起引，未完成的就直说未完成。</p>
+
+<h2>psa 走到哪了</h2>
+<p><strong>psa v1.0.0 已发布</strong>（sapy 提交 <code>37d0fb6</code>，tag <code>psa-v1.0.0</code>，2026-11-26）。v1 验收批 25/25 通过：23 个程序与 CPython 逐字节一致，2 个负例被响亮拒绝。v1 之后开发继续：发布后集成步骤（解析缺口、闭包捕获、结构化错误）已合入，wave-1 psa_std 接线（29 个模块）已写完并验证，其余语法批次按任务 171 推进。设计记录在 <a href="../01_overview/24_sapy_blueprint.html">SA-Py 蓝图</a>页。</p>
+
+<h2>语法覆盖，按普查口径</h2>
+<p>逐项语法普查（sapy 仓，2026-11-26 更新）共 <strong>46 项：支持 35、部分 8、缺口 3</strong>（前端缺口 2、动态缺口 1）。「部分」的意思是：该构造在普查点名的形状内可用，形状之外响亮拒绝；逐构造状态见对照章的覆盖矩阵（<a href="../18_py_to_sla/07_modules_matrix.html">模块与完整覆盖矩阵</a>）。</p>
+
+<h2>已登记缺口</h2>
+<ul>
+<li><strong>海象运算符 <code>:=</code></strong>——前端缺口，编译期拒绝。</li>
+<li><strong>字节串 <code>b""</code> 与原始串 <code>r""</code></strong>——前端缺口，编译期拒绝。</li>
+<li><strong>任意精度整数</strong>——动态缺口。v1 整数是 i64；超出 i64 的整数字面量响亮拒绝，而不是静默截断（bigint 工作已另行登记为基底项）。</li>
+<li><strong>循环 <code>else</code></strong>（<code>while/else</code>、<code>for/else</code>）——前端缺口，登记在普查的控制流构造项下。</li>
+<li><strong><code>is</code> / <code>is not</code></strong>——普查登记为缺口（v1 未定义身份语义）。其后任务 171-B 批已完成一份实现——恒等定义为标签与载荷相等、NaN 与自身恒等——正等待集成进主本；在它落地之前，以普查状态为准。</li>
+</ul>
+<p>按立场的第二条铁规，这几项每一项都是编译期响亮拒绝，不模拟、不近似。</p>
+
+<h2>性能，按 v1 实测</h2>
+<p>v1 bench 集、同一窗口内对 CPython 实测：静态编译的程序 <strong>fib ≈24×、loopsum ≈99×、listsum ≈40×</strong>，动态写法的程序 <strong>dynsum ≈1.4×</strong>。这些数字是 v1 在蓝图页（6.3 节）所记条件下的读数，这里引作当前参照点，不是对任意程序的保证——动态写法的代码比 CPython 快得不多，静态代码快得多；诚实的总结是：快多少取决于程序的值活在哪一层。</p>
+
+<h2>与对照章的关系</h2>
+<p>本章是总论：psa 是什么、承诺什么、怎样分层、走到哪了。<a href="../18_py_to_sla/01_basics.html">从 Python（psa）到 SLA 对照实现</a>章是逐项对照——同一程序在 psa 与 SLA 里的写法，一个构造一个构造地比，包括完整覆盖矩阵与所有权/内存安全页。两章谁也不替代谁：语义从本章读起，左右对照的细节去那一章看。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>psa v1.0.0 已发布；开发继续（集成步骤、psa_std 接线、任务 171 批次）。</li>
+<li>语法普查：46 项中支持 35 / 部分 8 / 缺口 3；每个缺口都是编译期响亮拒绝。</li>
+<li>v1 实测性能对 CPython：fib ≈24×、loopsum ≈99×、listsum ≈40×（静态），dynsum ≈1.4×（动态）。</li>
+<li>本章是总论；18 章是逐项对照。</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/19_psa_intro/06_status_and_limits.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>
