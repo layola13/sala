@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>所有权与内存安全</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">从 Python（psa）到 SLA 对照实现 &gt; 所有权与内存安全</div>
+<h1>所有权与内存安全</h1>
+
+<p>前面的页面对照的是语法。这一页对照的是<strong>所有权</strong>——psa 与
+SLA 差别最大、也最值钱的地方。psa 的值是动态的、引用式的：赋值即别名，
+函数拿到的是调用方的对象，释放自动且不可见。SLA 的值是有主的：赋值会
+<em>移动</em>非复制值，函数形参拿到的是被调用方自己的句柄——除非调用点
+用 <code>&amp;</code> 显式出借；释放是显式的、由编译期跟踪的事件
+（<code>!x</code>），类型检查器记得哪些名字已经被消费。下面九个例子是
+psa/Python 的经典隐患——静默别名、移动后使用、重复释放、迭代器失效、
+越界读、整数溢出、可变默认参数、闭包晚绑定、<code>None</code> 误用——每例
+依次给出 psa 原形、SLA 直译、SLA 工具链的实测处置（引用处均为逐字原文），
+以及安全写法。方法与前几页相同：每段 SLA 程序写入前都在标注的工具链上实
+编译、实运行；负例一律以 <code>sla check</code> 判读（退出码 1），并以各自
+的修正版作对照组（check 退出码 0）；psa 侧按语法普查与 Python 语义写，
+未在本机实跑。</p>
+
+<h2>1. 移动后使用：不存在的别名</h2>
+<p>在 psa 里，<code>b = a</code> 是给同一个 list 绑第二个名字。两个名字都
+能用，经一个名字的修改从另一个名字也看得见——这是 Python 代码里「幽灵作
+用」bug 的标准来源。SLA 直译则是移动，检查器拒绝第二次使用：</p>
+<table>
+<tr><th>psa</th><th>SLA（直译）</th></tr>
+<tr>
+<td><pre><code>a = [10, 20]
+b = a            # 别名，不是副本
+b.append(30)
+print(len(a))    # 3——a 也变了
+print(len(b))    # 3</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    let ys = xs;
+    println("{}", len(ys));
+    println("{}", len(xs));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> 拒绝（退出码 1），逐字原文：</p>
+<pre><code>Type Check Error: failed to verify types: UseAfterMove: identifier `xs` was already consumed (error.UseAfterMove)</code></pre>
+<p>安全写法是把调用方还需要的东西在移动<em>之前</em>读完——移动本身就是旧
+名字的最后一次使用：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    let n = len(xs) as i32;
+    let ys = xs;
+    println("{}", n);
+    println("{}", len(ys));
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>2</code>、<code>2</code>，退出码 0。不存在第二个
+主人可以别名：<code>let ys = xs;</code> 之后 <code>xs</code> 已被消费，说这
+句话的是检查器——不是某个运行时测试。</p>
+
+<h2>2. 别名突变：函数不能悄悄把你的 List 变长</h2>
+<p>下面的 psa 函数会改调用方的 list。调用点对此只字未提，调用方只能靠事后
+观察损坏才知道。SLA 直译能编译——然后做出比报错更有意思的事：被调用方在
+自己的句柄上 push 成功（函数内长度 3），而调用方的 <code>Vec</code>
+<strong>纹丝不动</strong>（调用后长度 2）。按值形参是被调用方自己的句柄，
+不是调用方值的别名，所以静默别名语义根本不存在：</p>
+<table>
+<tr><th>psa</th><th>SLA（直译）</th></tr>
+<tr>
+<td><pre><code>def add_one(xs):
+    xs.append(99)
+
+xs = [10, 20]
+add_one(xs)
+print(len(xs))   # 3——调用方的
+                 # list 静默变长了</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn add_one(v: Vec&lt;i32&gt;) {
+    v.push(99);
+    println("{}", len(v));
+}
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    add_one(xs);
+    println("{}", len(xs));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>3</code>（被调用方内部）、<code>2</code>（其后调
+用方），退出码 0——push 落在了被调用方的句柄上，函数返回时一并消失。如果
+修改是本意，SLA 要求调用方在调用点说出来：显式出借（<code>&amp;</code>），
+或者把值作为函数返回值拿回来。出借形：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn add_one(v: &amp;Vec&lt;i32&gt;) {
+    v.push(99);
+}
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    add_one(&amp;xs);
+    println("{}", len(xs));
+    println("{}", xs[2]);
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>3</code>、<code>99</code>，退出码 0。与 psa 的差
+别不在于修改不可能——而在于 <code>add_one(&amp;xs)</code> 把出借写在了明
+处，而 <code>add_one(xs)</code> 可证明碰不到调用方的值。</p>
+
+<h2>3. 重复释放：释放两次是编译错误</h2>
+<p>psa 自动释放值；没有「现在就释放这个」的写法，对 Python 对象关两次也
+静默无害。这个 bug 类在释放变显式时出现——两条清理路径对同一个有主句柄各
+跑一遍，在任何手工管理的翻译里就是双重释放。SLA 把提前释放写成
+<code>!x</code>，检查器把它记为一次消费：</p>
+<table>
+<tr><th>psa</th><th>SLA（直译）</th></tr>
+<tr>
+<td><pre><code># 释放是自动的；对同一对象再跑
+# 一遍清理也无害——且不可见：
+data = load()
+close(data)
+close(data)      # 不报错、无痕迹</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    !xs;
+    !xs;
+    println("done");
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> 拒绝第二次释放（退出码 1），逐字原文：</p>
+<pre><code>Type Check Error: failed to verify types: checkStmt failed at node tag release_stmt (error.UseAfterMove)</code></pre>
+<p>单次释放后再读该值，得到同一诊断的具名形态（同样实测过）：
+<code>UseAfterMove: identifier `xs` was already consumed
+(error.UseAfterMove)</code>。安全写法是恰好释放一次——而且多数代码根本不写
+释放，让作用域结束来做：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    !xs;
+    println("done");
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>done</code>，退出码 0。在手工翻译里是运行时堆损
+坏的东西，在这里是程序存在之前的一行诊断。</p>
+
+<h2>4. 迭代器失效：根本没有迭代器可失效</h2>
+<p>一边迭代 psa list 一边 append 是静默逻辑错误：迭代器按下标走，新追加的
+元素也会被访问到，为「原来的」list 写的循环可能永远走不完（同一错误的
+dict 形态在 Python 里抛 <code>RuntimeError</code>）。SLA 直译编译不过——
+<code>Vec</code> 不是那种形态的可迭代值：</p>
+<table>
+<tr><th>psa</th><th>SLA（直译）</th></tr>
+<tr>
+<td><pre><code>xs = [1, 2, 3]
+for x in xs:
+    xs.append(x * 10)
+    # 追加的元素也会被访问到——
+    # 循环长过了它本是为之
+    # 而写的那个 list</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(1);
+    xs.push(2);
+    xs.push(3);
+    for x in xs {
+        xs.push(x * 10);
+    }
+    println("{}", len(xs));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> 拒绝（退出码 1），逐字原文：</p>
+<pre><code>Type Check Error: failed to verify types: for iterable value must be array or implement Iterable: start tag=user_defined (error.TypeMismatch)</code></pre>
+<p>SLA 对 <code>Vec</code> 的迭代是下标循环，安全写法先把边界读定一次——
+循环内的 push 于是无法延长迭代：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(1);
+    xs.push(2);
+    xs.push(3);
+    let n = len(xs) as i32;
+    for i in 0..n {
+        xs.push(xs[i] * 10);
+    }
+    println("{}", len(xs));
+    println("{}", xs[3]);
+    println("{}", xs[5]);
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>6</code>、<code>10</code>、<code>30</code>，退出
+码 0——恰好处理了原来三个元素。（对应的陷阱在 <code>while i &lt;
+len(xs)</code> 循环里还在，它每轮重读长度；把边界固定下来的形状是区间
+形。）</p>
+
+<h2>5. 索引越界：响亮的 panic，永不静默越界读</h2>
+<p>psa 会抓这个——在运行时、执行到那一行时、以不可捕获的 panic 抓（码
+77050，第 06 页演示过）。SLA 的实测结论在两种刻板印象之间：索引
+<strong>不</strong>在编译期检查（字面量下标与计算下标都通过
+<code>sla check</code>），但读操作在运行时做边界检查并响亮中止。C 的结局
+——静默读过缓冲区、读到相邻内存——不存在：</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>a = [10, 20, 30]
+print(a[10])
+# 运行时 panic 77050——够响，
+# 但只在这一行被执行到时</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    xs.push(30);
+    println("{}", xs[10]);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测行为（SLA）：编译干净通过；运行时什么都不打印，以
+<code>PANIC: code=32</code> 中止，退出码 160。动态下标
+（<code>xs[len(xs)]</code>）行为完全一致——已另行实测。安全写法在读之前先
+查边界，让缺失成为普通控制流：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    xs.push(30);
+    let i = 10;
+    if i &lt; len(xs) as i32 {
+        println("{}", xs[i]);
+    } else {
+        println("missing");
+    };
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>missing</code>，退出码 0。</p>
+
+<h2>6. 整数溢出：SLA 在这一侧更松——要自己守</h2>
+<p>Python 整数永不溢出，psa 的 <code>i64</code> 整数溢出响亮失败（普查；
+panic 77080）。SLA 把两种情形分开，而且只有一种默认安全。连任何整数类型
+都装不下的字面量被解析器拒绝，逐字原文（探针文件名与行号按工具输出原
+样）：</p>
+<pre><code>Syntax Error: failed to parse t14_literal_i64_over.sla:5:37: error.InvalidCharacter
+  |
+    3 | 
+    4 | fn main() -&gt; i32 {
+    5 |     let x: i64 = 9223372036854775808;
+      |                                     ^ found ';', expected valid character or literal
+    6 |     println("{}", x);
+    7 |     return 0;</code></pre>
+<p>但运行时的算术溢出<strong>静默回绕</strong>（补码），实测：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let x: i64 = 9223372036854775807;
+    let y = x + 1;
+    println("{}", y &lt; 0);
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>true</code>，退出码 0——和回绕到了负端，没有任何
+诊断。这一页不假装不是这样：psa 响亮拒绝的地方，SLA 回绕，所以安全的转
+换写法是显式带检查的运算、返回 <code>Option</code>（或者用标准库的
+bigint 做精确运算，已作基底项 S4 落地）：</p>
+<pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn checked_add(a: i64, b: i64) -&gt; Option&lt;i64&gt; {
+    if b &gt; 0 &amp;&amp; a &gt; 9223372036854775807 - b {
+        return Option::None;
+    };
+    return Option::Some(a + b);
+}
+
+fn or_zero(o: Option&lt;i64&gt;) -&gt; i64 {
+    let r = match o {
+        Some(v) =&gt; { v },
+        None =&gt; { 0 },
+    };
+    return r;
+}
+
+fn main() -&gt; i32 {
+    let m: i64 = 9223372036854775807;
+    println("{}", or_zero(checked_add(m, 1)));
+    println("{}", or_zero(checked_add(40, 2)));
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>0</code>（溢出的加法，映射到回退值）、
+<code>42</code>，退出码 0。</p>
+
+<h2>7. 可变默认参数：这个构造不存在</h2>
+<p>Python 最有名的逻辑陷阱：可变默认值只创建一次，被每个省略它的调用共
+享，于是「新鲜的」累加器并不新鲜。psa 继承这一语义（默认参数受支持，普
+查）。SLA 根本没有形参默认值，解析器明说——且把规范替代写法写进了诊断本
+身：</p>
+<table>
+<tr><th>psa</th><th>SLA（直译）</th></tr>
+<tr>
+<td><pre><code>def collect(item, acc=[]):
+    acc.append(item)
+    return acc
+
+collect(1)
+print(len(collect(2)))  # 2——
+                 # 默认值被共享了</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn collect(item: i32, acc: Vec&lt;i32&gt; = Vec::new()) -&gt; Vec&lt;i32&gt; {
+    acc.push(item);
+    return acc;
+}
+
+fn main() -&gt; i32 {
+    let a = collect(1);
+    println("{}", len(a));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> 拒绝（退出码 1），逐字原文：</p>
+<pre><code>Syntax Error: failed to parse t16_default_param.sla:5:37: error.SyntaxError
+  |
+    3 | @import "sa_std/vec.sa"
+    4 | 
+    5 | fn collect(item: i32, acc: Vec&lt;i32&gt; = Vec::new()) -&gt; Vec&lt;i32&gt; {
+      |                                     ^ found '=', expected r_paren (default parameter values such as `= 1` are not supported; define f_default() + f_full(...) instead, see demos/basic/47_default_args)
+    6 |     acc.push(item);
+    7 |     return acc;</code></pre>
+<p>安全写法让累加器成为调用方显式持有的状态、逐次出借。共享只发生在调用
+方把同一个 <code>Vec</code> 明着出借两次的地方——而一个新建的
+<code>Vec</code> 从空开始，如第三行所示：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn collect(item: i32, acc: &amp;Vec&lt;i32&gt;) {
+    acc.push(item);
+}
+
+fn main() -&gt; i32 {
+    let acc: Vec&lt;i32&gt; = Vec::new();
+    collect(1, &amp;acc);
+    println("{}", len(acc));
+    collect(2, &amp;acc);
+    println("{}", len(acc));
+    let fresh: Vec&lt;i32&gt; = Vec::new();
+    collect(9, &amp;fresh);
+    println("{}", len(fresh));
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>1</code>、<code>2</code>、<code>1</code>，退出码
+0。</p>
+
+<h2>8. 闭包晚绑定：两种语言共有的陷阱</h2>
+<p>Python 闭包捕获的是变量、不是值：循环里建的闭包全都看到循环变量的最终
+值——经典的 <code>[2, 2, 2]</code> 惊吓。如实实测，SLA 一样：闭包按引用捕
+获，不发任何诊断。最小对照：</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>fns = []
+for i in range(3):
+    fns.append(lambda: i)
+print([f() for f in fns])
+# [2, 2, 2]——每个闭包看到的
+# 都是最终的 i</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let i = 0;
+    let f = || i;
+    i = 5;
+    println("{}", f());
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>实测输出（SLA）：<code>5</code>，退出码 0——闭包读到的是变量的当前值，
+不是创建时的值。修法形状也与 Python 相同（那边是把值绑成默认参数，这边是
+让闭包改为捕获一个新绑定）：</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let i = 0;
+    let j = i;
+    let f = || j;
+    i = 5;
+    println("{}", f());
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>0</code>，退出码 0。这一例列进来恰恰因为它
+<em>不会</em>变成编译错误：所有权检查并不废除晚绑定，一份忠实的转换指南必
+须说清哪些陷阱在翻译之后仍然活着。</p>
+
+<h2>9. <code>None</code> 误用：被类型检查器拒绝</h2>
+<p>在 psa 里 <code>None</code> 是个能流到任何地方的值；失败发生在使用点、
+在运行时，离 <code>None</code> 进入的地方很远。在 SLA 里缺失写在类型里，
+于是同一程序在存在之前就被拒绝：</p>
+<table>
+<tr><th>psa</th><th>SLA（直译）</th></tr>
+<tr>
+<td><pre><code>def bump(opt):
+    return opt + 1
+
+print(bump(None))
+# 在使用点抛运行时 TypeError——
+# None 被传进来时毫无标记</code></pre></td>
+<td><pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let o: Option&lt;i32&gt; = Option::None;
+    println("{}", o + 1);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> 拒绝（退出码 1），逐字原文：</p>
+<pre><code>Type Check Error: failed to verify types: binary expression type mismatch: op=add, left tag=user_defined, right tag=primitive (error.TypeMismatch)</code></pre>
+<p>连显式逃生口也是响亮失败而非静默出错：对 <code>None</code> 调
+<code>o.unwrap()</code> 在运行时中止，信息为
+<code>PANIC[17]: called Option::unwrap() on a None value</code>（退出码
+145，已实测）——就在出错点、带着原因。安全写法把回退值作为数据给出：</p>
+<pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let o: Option&lt;i32&gt; = Option::None;
+    println("{}", o.unwrap_or(0) + 1);
+    let p: Option&lt;i32&gt; = Option::Some(41);
+    println("{}", p.unwrap_or(0) + 1);
+    return 0;
+}</code></pre>
+<p>实测输出（SLA）：<code>1</code>、<code>42</code>，退出码 0。</p>
+
+<h2>本页要点</h2>
+<ul>
+<li>赋值即移动：第二个主人不可能存在，所以移动后使用与重复释放是编译错误（<code>error.UseAfterMove</code>），已由 <code>sla check</code> 对其修正版对照组逐一验证。</li>
+<li>跨调用的修改是显式的：按值形参碰不到调用方的值（实测——调用方长度不变）；调用点要么出借（<code>&amp;</code>）写在明处，要么把值作为返回值拿回来。</li>
+<li>没有可失效的 <code>Vec</code> 迭代器值；下标循环形把边界一次读定。</li>
+<li>索引越界是运行时边界检查（<code>PANIC: code=32</code>），不是编译错误，也永不静默越界读；守卫形让缺失成为控制流。</li>
+<li>两个隐患在翻译后仍在、并如实点名：运行时整数溢出回绕（用带检查的运算或 bigint 守），闭包晚绑定（捕获新绑定）。超出一切整数类型的字面量是解析错误。</li>
+<li><code>None</code> 误用是类型错误（<code>error.TypeMismatch</code>）；对 <code>None</code> 调 <code>unwrap()</code> 在出错点响亮中止（<code>PANIC[17]</code>）。</li>
+</ul>
+</body>
+</html>

@@ -336,6 +336,11 @@ var TOC = [
     "t": "模块与完整覆盖矩阵",
     "f": "content/18_py_to_sla/07_modules_matrix.html",
     "c": []
+   },
+   {
+    "t": "所有权与内存安全",
+    "f": "content/18_py_to_sla/08_ownership_safety.html",
+    "c": []
    }
   ]
  },

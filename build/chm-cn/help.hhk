@@ -381,7 +381,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="println"><param name="Local" value="../../dist/cn/content/06_stdlib/02_io_print.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="proc-macro"><param name="Local" value="../../dist/cn/content/09_rust_compare/04_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="process"><param name="Local" value="../../dist/cn/content/06_stdlib/09_process.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="psa"><param name="Local" value="../../dist/cn/content/18_py_to_sla/07_modules_matrix.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="psa"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="PsaVal"><param name="Local" value="../../dist/cn/content/01_overview/24_sapy_blueprint.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="pthread"><param name="Local" value="../../dist/cn/content/15_sa2c/04_extern.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="pthread_*"><param name="Local" value="../../dist/cn/content/12_vm/04_ffi_bridge.html"></OBJECT>
@@ -390,7 +390,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="pub fn"><param name="Local" value="../../dist/cn/content/17_rust_beginners/07_modules_async.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="publish"><param name="Local" value="../../dist/cn/content/13_build/06_release_npm.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Python"><param name="Local" value="../../dist/cn/content/06_stdlib/24_python_net_census.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="python"><param name="Local" value="../../dist/cn/content/18_py_to_sla/07_modules_matrix.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="python"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="qmod"><param name="Local" value="../../dist/cn/content/10_db/07_vm_support.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="QUERY_ACCESS"><param name="Local" value="../../dist/cn/content/11_ecs/04_sa3d_ecs.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="QUIC"><param name="Local" value="../../dist/cn/content/06_stdlib/26_dotnet_net_census.html"></OBJECT>
@@ -665,7 +665,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="会话持久化"><param name="Local" value="../../dist/cn/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="位级打包"><param name="Local" value="../../dist/cn/content/06_stdlib/23_unreal_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="候选语法"><param name="Local" value="../../dist/cn/content/01_overview/15_go_feature_candidates.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="借用"><param name="Local" value="../../dist/cn/content/17_rust_beginners/02_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="借用"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="借用冲突"><param name="Local" value="../../dist/cn/content/03_sa_asm/06_limitations.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="偏移"><param name="Local" value="../../dist/cn/content/06_stdlib/18_api_layout.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="元组"><param name="Local" value="../../dist/cn/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
@@ -701,6 +701,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="原生替代"><param name="Local" value="../../dist/cn/content/05_plugins/11_deno.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="双向 spawn"><param name="Local" value="../../dist/cn/content/01_overview/08_cxu_rewrite_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="双实现"><param name="Local" value="../../dist/cn/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="双重释放"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="反向代理"><param name="Local" value="../../dist/cn/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="反向可变性"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="反应网络"><param name="Local" value="../../dist/cn/content/01_overview/20_biochem_education_language.html"></OBJECT>
@@ -709,6 +710,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="取地址"><param name="Local" value="../../dist/cn/content/02_sla_lang/06_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="变量"><param name="Local" value="../../dist/cn/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="可变性阶段"><param name="Local" value="../../dist/cn/content/09_rust_compare/03_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="可变默认参数"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="可执行文件"><param name="Local" value="../../dist/cn/content/04_cli/05_build_exe.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="可编程查询"><param name="Local" value="../../dist/cn/content/10_db/07_vm_support.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="可视化报告"><param name="Local" value="../../dist/cn/content/04_cli/12_sixway.html"></OBJECT>
@@ -820,6 +822,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="无 &amp;mut"><param name="Local" value="../../dist/cn/content/17_rust_beginners/02_ownership.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="无声错误"><param name="Local" value="../../dist/cn/content/01_overview/22_silent_surface.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="显式 move"><param name="Local" value="../../dist/cn/content/09_rust_compare/03_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="晚绑定"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="普查"><param name="Local" value="../../dist/cn/content/06_stdlib/26_dotnet_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="最佳实践"><param name="Local" value="../../dist/cn/content/10_db/06_limits_perf.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="最小示例"><param name="Local" value="../../dist/cn/content/07_ui/07_getting_started.html"></OBJECT>
@@ -855,6 +858,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="清单"><param name="Local" value="../../dist/cn/content/06_stdlib/17_api_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="渲染"><param name="Local" value="../../dist/cn/content/05_plugins/07_wgpu.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="游戏"><param name="Local" value="../../dist/cn/content/01_overview/17_verse_game_profile.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="溢出"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="漏洞统计"><param name="Local" value="../../dist/cn/content/10_db/08_mysql_sqlite_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="热力学"><param name="Local" value="../../dist/cn/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="热重载"><param name="Local" value="../../dist/cn/content/07_ui/06_toolchain.html"></OBJECT>
@@ -871,7 +875,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="真实回归目标"><param name="Local" value="../../dist/cn/content/11_ecs/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="着色器"><param name="Local" value="../../dist/cn/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="示例"><param name="Local" value="../../dist/cn/content/06_stdlib/14_recipes.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="移动"><param name="Local" value="../../dist/cn/content/17_rust_beginners/02_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="移动"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="移动端"><param name="Local" value="../../dist/cn/content/01_overview/18_mobile_transpile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="第一个程序"><param name="Local" value="../../dist/cn/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="策略"><param name="Local" value="../../dist/cn/content/16_policy/01_overview.html"></OBJECT>
@@ -941,6 +945,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="读句柄"><param name="Local" value="../../dist/cn/content/10_db/03_api.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="读文件"><param name="Local" value="../../dist/cn/content/06_stdlib/14_recipes.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="调度器"><param name="Local" value="../../dist/cn/content/01_overview/13_goroutine_runtime.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="越界"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="跨平台"><param name="Local" value="../../dist/cn/content/01_overview/19_side_tracks_foundation_gaps.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="跨语言普查"><param name="Local" value="../../dist/cn/content/06_stdlib/24_python_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="路线图"><param name="Local" value="../../dist/cn/content/08_faq/05_limitations_roadmap.html"></OBJECT>
@@ -956,6 +961,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="返回"><param name="Local" value="../../dist/cn/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="进展"><param name="Local" value="../../dist/cn/content/03_sa_asm/07_sab_parity.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="迭代器"><param name="Local" value="../../dist/cn/content/09_rust_compare/10_std_census.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="迭代器失效"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="退出码"><param name="Local" value="../../dist/cn/content/12_vm/02_cli.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="退出码表"><param name="Local" value="../../dist/cn/content/12_vm/05_limits.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="选型"><param name="Local" value="../../dist/cn/content/10_db/08_mysql_sqlite_compare.html"></OBJECT>

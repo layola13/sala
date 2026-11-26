@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ownership and Memory Safety</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">From Python (psa) to SLA &gt; Ownership and Memory Safety</div>
+<h1>Ownership and Memory Safety</h1>
+
+<p>The previous pages translated syntax. This page translates
+<strong>ownership</strong> — the place where psa and SLA differ most, and
+where the difference is worth the most. psa values are dynamic and
+reference-like: assignment aliases, functions receive the caller's
+objects, release is automatic and invisible. SLA values are owned:
+assignment <em>moves</em> a non-copy value, a function parameter receives
+the callee's own handle unless the call site visibly lends one with
+<code>&amp;</code>, release is an explicit, compile-time-tracked event
+(<code>!x</code>), and the type checker remembers which names have been
+consumed. The nine examples below are the classic psa/Python hazards —
+silent aliasing, use after move, double release, iterator invalidation,
+out-of-bounds reads, integer overflow, the mutable default argument,
+closure late binding, and <code>None</code> misuse — each shown as the
+psa original, the direct SLA translation, what the SLA toolchain
+actually does with it (measured, verbatim where quoted), and the safe
+form. Method, as on the earlier pages: every SLA program was compiled
+and run on the stated toolchain before being written down; the negative
+examples are judged by <code>sla check</code> (exit code 1), each with
+its corrected version as the control (check exit code 0); the psa side
+follows the syntax census and Python semantics and was not run
+locally.</p>
+
+<h2>1. Use After Move: the Alias That Isn't</h2>
+<p>In psa, <code>b = a</code> binds a second name to the same list. Both
+names stay usable, and a mutation through one is visible through the
+other — the standard source of "spooky action" bugs in Python code. The
+direct SLA translation moves instead, and the checker refuses the
+second use:</p>
+<table>
+<tr><th>psa</th><th>SLA (direct translation)</th></tr>
+<tr>
+<td><pre><code>a = [10, 20]
+b = a            # alias, not a copy
+b.append(30)
+print(len(a))    # 3 — a changed too
+print(len(b))    # 3</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    let ys = xs;
+    println("{}", len(ys));
+    println("{}", len(xs));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> rejects it (exit code 1), verbatim:</p>
+<pre><code>Type Check Error: failed to verify types: UseAfterMove: identifier `xs` was already consumed (error.UseAfterMove)</code></pre>
+<p>The safe form reads whatever the caller still needs <em>before</em>
+the move — the move itself is the last use of the old name:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    let n = len(xs) as i32;
+    let ys = xs;
+    println("{}", n);
+    println("{}", len(ys));
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>2</code>, <code>2</code>, exit code 0.
+There is no second owner to alias: after <code>let ys = xs;</code>,
+<code>xs</code> is consumed, and the checker — not a runtime test — is
+what says so.</p>
+
+<h2>2. Aliasing Mutation: a Function Cannot Silently Grow Your List</h2>
+<p>The psa function below mutates its caller's list. Nothing at the
+call site says so; the caller finds out by observing the damage. The
+direct SLA translation compiles — and then does something more
+interesting than erroring: the callee pushes successfully onto its own
+handle (length 3 inside the function), and the caller's
+<code>Vec</code> is <strong>unchanged</strong> (length 2 after the
+call). A by-value parameter is the callee's own handle, not an alias of
+the caller's value, so the silent-alias semantics simply do not
+exist:</p>
+<table>
+<tr><th>psa</th><th>SLA (direct translation)</th></tr>
+<tr>
+<td><pre><code>def add_one(xs):
+    xs.append(99)
+
+xs = [10, 20]
+add_one(xs)
+print(len(xs))   # 3 — the caller's
+                 # list grew, silently</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn add_one(v: Vec&lt;i32&gt;) {
+    v.push(99);
+    println("{}", len(v));
+}
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    add_one(xs);
+    println("{}", len(xs));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>3</code> (inside the callee),
+<code>2</code> (the caller afterwards), exit code 0 — the push landed
+on the callee's handle and was gone when the function returned. If the
+mutation is intended, SLA makes the caller say so at the call site,
+with an explicit lend (<code>&amp;</code>), or by taking the value back
+as the function's return. The lend form:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn add_one(v: &amp;Vec&lt;i32&gt;) {
+    v.push(99);
+}
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    add_one(&amp;xs);
+    println("{}", len(xs));
+    println("{}", xs[2]);
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>3</code>, <code>99</code>, exit code 0.
+The difference from psa is not that mutation is impossible — it is
+that <code>add_one(&amp;xs)</code> shows the lend, while
+<code>add_one(xs)</code> provably cannot touch the caller's value.</p>
+
+<h2>3. Double Release: Freed Twice Is a Compile Error</h2>
+<p>psa releases values automatically; there is no spelling for "free
+this now", and closing a Python object twice is silently harmless. The
+bug class appears the moment release becomes explicit — a cleanup path
+that runs twice over the same owned handle is a double free in any
+manually managed translation. SLA spells early release as
+<code>!x</code>, and the checker tracks it as a consumption:</p>
+<table>
+<tr><th>psa</th><th>SLA (direct translation)</th></tr>
+<tr>
+<td><pre><code># release is automatic; a second
+# cleanup pass over the same object
+# is harmless — and invisible:
+data = load()
+close(data)
+close(data)      # no error, no trace</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    !xs;
+    !xs;
+    println("done");
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> rejects the second release (exit code 1),
+verbatim:</p>
+<pre><code>Type Check Error: failed to verify types: checkStmt failed at node tag release_stmt (error.UseAfterMove)</code></pre>
+<p>Reading the value after a single release draws the named form of
+the same diagnostic (also verified): <code>UseAfterMove: identifier
+`xs` was already consumed (error.UseAfterMove)</code>. The safe form
+releases exactly once — and in most code releases not at all, letting
+the end of the scope do it:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    !xs;
+    println("done");
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>done</code>, exit code 0. What is a
+runtime heap corruption in a manual translation is a one-line
+diagnostic here, before the program exists.</p>
+
+<h2>4. Iterator Invalidation: There Is No Iterator to Invalidate</h2>
+<p>Iterating a psa list while appending to it is a silent logic error:
+the iterator is index-based, so the appended items are visited too,
+and a loop written against the "original" list may never finish (the
+dict form of the same mistake raises <code>RuntimeError</code> in
+Python). The direct SLA translation does not compile — a
+<code>Vec</code> is not an iterable value in that form:</p>
+<table>
+<tr><th>psa</th><th>SLA (direct translation)</th></tr>
+<tr>
+<td><pre><code>xs = [1, 2, 3]
+for x in xs:
+    xs.append(x * 10)
+    # appended items are visited
+    # too — the loop outgrows
+    # the list it was written for</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(1);
+    xs.push(2);
+    xs.push(3);
+    for x in xs {
+        xs.push(x * 10);
+    }
+    println("{}", len(xs));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> rejects it (exit code 1), verbatim:</p>
+<pre><code>Type Check Error: failed to verify types: for iterable value must be array or implement Iterable: start tag=user_defined (error.TypeMismatch)</code></pre>
+<p>SLA iteration over a <code>Vec</code> is an index loop, and the safe
+form reads the bound once, up front — pushes inside the loop then
+cannot extend the iteration:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(1);
+    xs.push(2);
+    xs.push(3);
+    let n = len(xs) as i32;
+    for i in 0..n {
+        xs.push(xs[i] * 10);
+    }
+    println("{}", len(xs));
+    println("{}", xs[3]);
+    println("{}", xs[5]);
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>6</code>, <code>10</code>,
+<code>30</code>, exit code 0 — exactly the three original elements
+were processed. (The corresponding trap survives in a
+<code>while i &lt; len(xs)</code> loop, which re-reads the length every
+iteration; the range form is the shape that fixes the bound.)</p>
+
+<h2>5. Out-of-Bounds Indexing: a Loud Panic, Never a Silent Overrun</h2>
+<p>psa catches this — at runtime, when the line is reached, with an
+uncatchable panic (code 77050, as page 06 showed). The honest SLA
+measurement is in between the two stereotypes: indexing is
+<strong>not</strong> checked at compile time (a literal index and a
+computed index both pass <code>sla check</code>), but the read is
+bounds-checked at runtime and aborts loudly. The C outcome — silently
+reading past the buffer into adjacent memory — does not exist:</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>a = [10, 20, 30]
+print(a[10])
+# runtime panic 77050 — loud,
+# but only when this line runs</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    xs.push(30);
+    println("{}", xs[10]);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified behaviour (SLA): compiles cleanly; at runtime prints
+nothing and aborts with <code>PANIC: code=32</code>, exit code 160. A
+dynamic index (<code>xs[len(xs)]</code>) behaves identically —
+verified separately. The safe form checks the bound before the read,
+making the missing case ordinary control flow:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn main() -&gt; i32 {
+    let xs: Vec&lt;i32&gt; = Vec::new();
+    xs.push(10);
+    xs.push(20);
+    xs.push(30);
+    let i = 10;
+    if i &lt; len(xs) as i32 {
+        println("{}", xs[i]);
+    } else {
+        println("missing");
+    };
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>missing</code>, exit code 0.</p>
+
+<h2>6. Integer Overflow: Where SLA Is the Looser Side — Guard It</h2>
+<p>Python integers never overflow, and psa's <code>i64</code> integers
+fail loudly on overflow (census; panic 77080). SLA splits the two
+cases, and only one of them is safe by default. A literal that fits no
+integer type at all is rejected by the parser, verbatim (probe file
+name and line numbers as emitted):</p>
+<pre><code>Syntax Error: failed to parse t14_literal_i64_over.sla:5:37: error.InvalidCharacter
+  |
+    3 | 
+    4 | fn main() -&gt; i32 {
+    5 |     let x: i64 = 9223372036854775808;
+      |                                     ^ found ';', expected valid character or literal
+    6 |     println("{}", x);
+    7 |     return 0;</code></pre>
+<p>But arithmetic overflow at runtime <strong>wraps silently</strong>
+(two's complement), measured:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let x: i64 = 9223372036854775807;
+    let y = x + 1;
+    println("{}", y &lt; 0);
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>true</code>, exit code 0 — the sum
+wrapped to the negative end with no diagnostic. This page does not
+pretend otherwise: where psa refuses loudly, SLA wraps, so the safe
+conversion is an explicit checked operation that returns
+<code>Option</code> (or exact arithmetic via the standard library's
+bigint, landed as substrate item S4):</p>
+<pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn checked_add(a: i64, b: i64) -&gt; Option&lt;i64&gt; {
+    if b &gt; 0 &amp;&amp; a &gt; 9223372036854775807 - b {
+        return Option::None;
+    };
+    return Option::Some(a + b);
+}
+
+fn or_zero(o: Option&lt;i64&gt;) -&gt; i64 {
+    let r = match o {
+        Some(v) =&gt; { v },
+        None =&gt; { 0 },
+    };
+    return r;
+}
+
+fn main() -&gt; i32 {
+    let m: i64 = 9223372036854775807;
+    println("{}", or_zero(checked_add(m, 1)));
+    println("{}", or_zero(checked_add(40, 2)));
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>0</code> (the overflowing add, mapped
+to the fallback), <code>42</code>, exit code 0.</p>
+
+<h2>7. The Mutable Default Argument: the Construct Does Not Exist</h2>
+<p>Python's most famous logic trap: a mutable default is created once
+and shared by every call that omits it, so the "fresh" accumulator is
+not fresh. psa inherits the semantics (defaults are supported,
+census). SLA has no default parameter values at all, and the parser
+says so — with the sanctioned replacement named in the diagnostic
+itself:</p>
+<table>
+<tr><th>psa</th><th>SLA (direct translation)</th></tr>
+<tr>
+<td><pre><code>def collect(item, acc=[]):
+    acc.append(item)
+    return acc
+
+collect(1)
+print(len(collect(2)))  # 2 — the
+                 # default was shared</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn collect(item: i32, acc: Vec&lt;i32&gt; = Vec::new()) -&gt; Vec&lt;i32&gt; {
+    acc.push(item);
+    return acc;
+}
+
+fn main() -&gt; i32 {
+    let a = collect(1);
+    println("{}", len(a));
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> rejects it (exit code 1), verbatim:</p>
+<pre><code>Syntax Error: failed to parse t16_default_param.sla:5:37: error.SyntaxError
+  |
+    3 | @import "sa_std/vec.sa"
+    4 | 
+    5 | fn collect(item: i32, acc: Vec&lt;i32&gt; = Vec::new()) -&gt; Vec&lt;i32&gt; {
+      |                                     ^ found '=', expected r_paren (default parameter values such as `= 1` are not supported; define f_default() + f_full(...) instead, see demos/basic/47_default_args)
+    6 |     acc.push(item);
+    7 |     return acc;</code></pre>
+<p>The safe form makes the accumulator the caller's explicit state,
+lent per call. Sharing now happens only where the caller visibly lends
+the same <code>Vec</code> twice — and a fresh <code>Vec</code> starts
+empty, as the third line shows:</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sa_std/vec.sa"
+
+fn collect(item: i32, acc: &amp;Vec&lt;i32&gt;) {
+    acc.push(item);
+}
+
+fn main() -&gt; i32 {
+    let acc: Vec&lt;i32&gt; = Vec::new();
+    collect(1, &amp;acc);
+    println("{}", len(acc));
+    collect(2, &amp;acc);
+    println("{}", len(acc));
+    let fresh: Vec&lt;i32&gt; = Vec::new();
+    collect(9, &amp;fresh);
+    println("{}", len(fresh));
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>1</code>, <code>2</code>,
+<code>1</code>, exit code 0.</p>
+
+<h2>8. Closure Late Binding: a Trap Both Languages Share</h2>
+<p>Python closures capture variables, not values: closures created in
+a loop all see the loop variable's final value — the classic
+<code>[2, 2, 2]</code> surprise. Measured honestly, SLA is the same:
+closures capture by reference, and no diagnostic is issued. The
+minimal pair:</p>
+<table>
+<tr><th>psa</th><th>SLA</th></tr>
+<tr>
+<td><pre><code>fns = []
+for i in range(3):
+    fns.append(lambda: i)
+print([f() for f in fns])
+# [2, 2, 2] — every closure
+# sees the final i</code></pre></td>
+<td><pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let i = 0;
+    let f = || i;
+    i = 5;
+    println("{}", f());
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p>Verified output (SLA): <code>5</code>, exit code 0 — the closure
+read the variable's current value, not the value at creation. The fix
+is also the same shape as Python's (bind the value, there as a default
+argument, here as a fresh binding the closure captures instead):</p>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let i = 0;
+    let j = i;
+    let f = || j;
+    i = 5;
+    println("{}", f());
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>0</code>, exit code 0. This page lists
+the example precisely because it does <em>not</em> become a compile
+error: ownership checking does not repeal late binding, and a faithful
+conversion guide has to say which traps survive translation.</p>
+
+<h2>9. <code>None</code> Misuse: Refused by the Type Checker</h2>
+<p>In psa, <code>None</code> is a value that flows anywhere; the
+failure surfaces at the use site, at runtime, far from where the
+<code>None</code> entered. In SLA the absence is in the type, so the
+same program is refused before it exists:</p>
+<table>
+<tr><th>psa</th><th>SLA (direct translation)</th></tr>
+<tr>
+<td><pre><code>def bump(opt):
+    return opt + 1
+
+print(bump(None))
+# runtime TypeError at the use
+# site — nothing flagged where
+# None was passed in</code></pre></td>
+<td><pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let o: Option&lt;i32&gt; = Option::None;
+    println("{}", o + 1);
+    return 0;
+}</code></pre></td>
+</tr>
+</table>
+<p><code>sla check</code> rejects it (exit code 1), verbatim:</p>
+<pre><code>Type Check Error: failed to verify types: binary expression type mismatch: op=add, left tag=user_defined, right tag=primitive (error.TypeMismatch)</code></pre>
+<p>Even the explicit escape hatch fails loudly rather than silently:
+<code>o.unwrap()</code> on a <code>None</code> aborts at runtime with
+<code>PANIC[17]: called Option::unwrap() on a None value</code> (exit
+code 145, verified) — at the exact site, with the cause in the
+message. The safe form supplies the fallback as data:</p>
+<pre><code>@import "sa_std/core/option.sa"
+@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+
+fn main() -&gt; i32 {
+    let o: Option&lt;i32&gt; = Option::None;
+    println("{}", o.unwrap_or(0) + 1);
+    let p: Option&lt;i32&gt; = Option::Some(41);
+    println("{}", p.unwrap_or(0) + 1);
+    return 0;
+}</code></pre>
+<p>Verified output (SLA): <code>1</code>, <code>42</code>, exit code
+0.</p>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Assignment moves: a second owner cannot exist, so use-after-move and double release are compile errors (<code>error.UseAfterMove</code>), verified by <code>sla check</code> against their corrected controls.</li>
+<li>Mutation across a call is explicit: a by-value parameter cannot touch the caller's value (verified — the caller's length is unchanged); the call site shows a lend (<code>&amp;</code>) or takes the value back as a return.</li>
+<li>There are no iterator values over a <code>Vec</code> to invalidate; the index-loop form fixes its bound once, up front.</li>
+<li>Out-of-bounds indexing is a runtime bounds check (<code>PANIC: code=32</code>), not a compile error and never a silent overrun; the guarded form makes the missing case control flow.</li>
+<li>Two hazards survive translation and are named as such: runtime integer overflow wraps (guard with a checked operation or bigint), and closures bind late (capture a fresh binding). A literal beyond every integer type is a parse error.</li>
+<li><code>None</code> misuse is a type error (<code>error.TypeMismatch</code>); <code>unwrap()</code> on <code>None</code> aborts loudly (<code>PANIC[17]</code>) at the site.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/18_py_to_sla/08_ownership_safety.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

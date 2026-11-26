@@ -541,6 +541,14 @@
 <param name="Local" value="../dist/content/18_py_to_sla/07_modules_matrix.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Ownership and Memory Safety">
+<param name="Local" value="../dist/content/18_py_to_sla/08_ownership_safety.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

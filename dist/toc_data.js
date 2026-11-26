@@ -336,6 +336,11 @@ var TOC = [
     "t": "Modules and the Full Coverage Matrix",
     "f": "content/18_py_to_sla/07_modules_matrix.html",
     "c": []
+   },
+   {
+    "t": "Ownership and Memory Safety",
+    "f": "content/18_py_to_sla/08_ownership_safety.html",
+    "c": []
    }
   ]
  },
