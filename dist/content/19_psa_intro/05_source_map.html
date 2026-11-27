@@ -2,64 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Source Map (In Development)</title>
+<title>Source Map</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">Introducing psa &gt; Source Map (In Development)</div>
-<h1>Source Map (In Development)</h1>
+<div class="topic-header">Introducing psa &gt; Source Map</div>
+<h1>Source Map</h1>
 
-<p><strong>Status: the design is complete and the work is in
-development. The source map is not a usable feature yet</strong> — this
-page records what is being built and why, so that nobody mistakes the
-plan for the product.</p>
+<p><strong>Status: landed.</strong> The source map design recorded on
+this page has been implemented and promoted into the psa master tree
+(2026-11-27): dual presentation of diagnostics and the persistent
+<code>.psa-map.json</code> artefact are working features, verified by
+the close-out suite (7/7) and a post-promotion re-verification (4/4 —
+compiler test suite 17/17, diagnostic goldens 10/10, an 82-file
+full-coverage sweep byte-identical, and bidirectional map lookups
+byte-identical with their goldens). What remains future work is the
+debugger that will consume the map, not the map itself.</p>
 
-<h2>Why it is needed: three measured gaps</h2>
-<p>Today, when a psa program fails, the position in the message is often
-not a position in anything the author wrote (all three behaviours
-measured on 2026-11-26):</p>
+<h2>Why it was needed: three measured gaps</h2>
+<p>Before the map existed, when a psa program failed, the position in
+the message was often not a position in anything the author wrote
+(all three behaviours measured on 2026-11-26):</p>
 <ul>
-<li><strong>psa’s own diagnostics have a line but no column.</strong> A
-frontend error names the <code>.psa</code> file and the line; the column
-is always null, and there is no source excerpt.</li>
-<li><strong>When the generated code is refused downstream, the reported
-position is in the generated files.</strong> A 7-line <code>.psa</code>
+<li><strong>psa’s own diagnostics had a line but no column.</strong> A
+frontend error named the <code>.psa</code> file and the line; the column
+was always null, and there was no source excerpt.</li>
+<li><strong>When the generated code was refused downstream, the reported
+position was in the generated files.</strong> A 7-line <code>.psa</code>
 program expands to 3,171 lines of generated SLA and 78,486 lines of
 generated SA; a host trap reports the expanded SA line. Without a map,
-that number is noise to the psa author, and psa’s own wrapper adds
+that number is noise to the psa author, and psa’s own wrapper added
 nothing but the generated file’s name.</li>
-<li><strong>A runtime panic carries a code and no position at all.</strong>
-An out-of-bounds program’s entire output is <code>PANIC: code=32</code> —
+<li><strong>A runtime panic carried a code and no position at all.</strong>
+An out-of-bounds program’s entire output was <code>PANIC: code=32</code> —
 no psa line, no SLA line.</li>
 </ul>
 
-<h2>What is being built</h2>
+<h2>What has landed</h2>
 <p><strong>Dual presentation of every diagnostic.</strong> When
 compilation fails, the generated SLA’s error is preserved verbatim — its
 code, its message, and its position in the generated file, unaltered and
 unreplaced — and, alongside it, psa presents the corresponding psa
 information: the <code>.psa</code> file, line and column, with a source
 excerpt. Neither half replaces the other; where a mapping can only be
-given at reduced precision, the presentation says so rather than
-pretending exactness.</p>
+given at reduced precision, the presentation says so (the lookup reports
+the previous segment as approximate) rather than pretending exactness.</p>
 <p><strong>A machine-readable map that ships with the build
 output.</strong> The mapping is written to a sidecar file,
-<code>&lt;stem&gt;.psa-map.json</code>, next to the generated SLA (and
-copied next to the executable on a successful build). It records the
-sources (with hashes, so a stale map is detected rather than silently
-applied to a changed file), the segments connecting generated positions
-to psa positions with their origin and precision, prebuilt bidirectional
-indexes — psa line to generated positions, and generated line back to
-psa — and an index of panic sites. The intended consumer is a future
-debugger: a breakpoint set on a psa line is resolved through this file
-to the generated positions it must stop at. The debugger itself is later
-work; the map is the interface it will consume.</p>
+<code>&lt;stem&gt;.psa-map.json</code> (format v1), next to the generated
+SLA, and copied next to the executable on a successful build. It records
+the sources (with hashes, so a stale map is detected rather than
+silently applied to a changed file), the segments connecting generated
+positions to psa positions with their origin and precision, prebuilt
+bidirectional indexes — psa line to generated positions, and generated
+line back to psa — and an index of panic sites. The
+<code>psa map-loc</code> command queries the map in both directions.
+The intended consumer is a future debugger: a breakpoint set on a psa
+line is resolved through this file to the generated positions it must
+stop at. The debugger itself is later work; the map is the interface it
+will consume. One boundary stays honest: the host’s bare runtime output
+for a panic is still just its code — the map’s panic-site index is what
+lets that code be traced back to candidate psa positions after the
+fact.</p>
+<p><strong>Registered residual gaps.</strong> A few anchors are still
+coarser than the rest and are recorded as such, not hidden: lambda and
+generator function-header anchors, line-level (not column-level)
+mapping for a small number of diagnostic kinds, and one lexer
+column-accounting choice still to be settled. None of them blocks the
+dual presentation or the map artefact above.</p>
 
 <h2>Key Points of This Page</h2>
 <ul>
-<li>Source map: design complete, in development — not yet a usable feature.</li>
-<li>Diagnostics will be dual: the SLA error verbatim, plus the psa file, line, column, and excerpt.</li>
-<li>The map is a persistent artefact (<code>.psa-map.json</code>, bidirectional indexes) intended for later breakpoint debugging in psa source.</li>
+<li>Source map: landed — dual presentation and the <code>.psa-map.json</code> artefact are working, verified features.</li>
+<li>Diagnostics are dual: the SLA error verbatim, plus the psa file, line, column, and excerpt; reduced-precision mappings are labelled approximate.</li>
+<li>The map is a persistent artefact (<code>.psa-map.json</code> v1, bidirectional indexes, panic-site index), queryable via <code>psa map-loc</code> and intended for later breakpoint debugging in psa source.</li>
 </ul>
 <div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/19_psa_intro/05_source_map.html">中文版</a></div>
 <footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>

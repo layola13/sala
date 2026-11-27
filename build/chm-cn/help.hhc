@@ -593,7 +593,7 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="Source Map（正在开发）">
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Source Map">
 <param name="Local" value="../../dist/cn/content/19_psa_intro/05_source_map.html">
 </OBJECT>
 </UL>

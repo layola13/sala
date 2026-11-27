@@ -2,32 +2,33 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>Source Map（正在开发）</title>
+<title>Source Map</title>
 <link rel="stylesheet" href="../../assets/help.css">
 </head>
 <body class="topic">
-<div class="topic-header">认识 psa &gt; Source Map（正在开发）</div>
-<h1>Source Map（正在开发）</h1>
+<div class="topic-header">认识 psa &gt; Source Map</div>
+<h1>Source Map</h1>
 
-<p><strong>状态：设计已完成、正在开发。source map 还不是可用的特性</strong>——本页记录的是在建什么、为什么建，免得把计划当成产品。</p>
+<p><strong>状态：已落地。</strong>本页记录的 source map 设计已经实现并 promotion 进 psa 主本（2026-11-27）：诊断双份呈现与持久产物 <code>.psa-map.json</code> 都是可用特性，并经收尾套件（7/7）与 promotion 后复验（4/4——编译器测试 17/17、诊断 goldens 10/10、82 文件全覆盖扫逐字节一致、双向 map-loc 查询与 golden 逐字节一致）核验。仍属后话的是消费这张图的调试器，不是图本身。</p>
 
 <h2>为什么需要：三处实测缺口</h2>
-<p>今天，一个 psa 程序出错时，报错里的位置往往不是作者写过的任何东西的位置（三处行为均为 2026-11-26 实测）：</p>
+<p>映射表出现之前，一个 psa 程序出错时，报错里的位置往往不是作者写过的任何东西的位置（三处行为均为 2026-11-26 实测）：</p>
 <ul>
 <li><strong>psa 自家诊断有行、无列。</strong>前端错误给出 <code>.psa</code> 文件与行号；列恒为 null，也没有源码摘录。</li>
 <li><strong>生成代码在下游被拒绝时，报的是生成文件里的位置。</strong>一个 7 行的 <code>.psa</code> 程序展开为 3,171 行生成 SLA、78,486 行生成 SA；宿主 trap 报的是展开后的 SA 行号。没有映射表，这个数字对 psa 作者等于噪声，而 psa 自家的包装除了生成文件名什么都不加。</li>
 <li><strong>运行时 panic 只有码、没有任何位置。</strong>一个越界程序的全部输出就是 <code>PANIC: code=32</code>——没有 psa 行，也没有 SLA 行。</li>
 </ul>
 
-<h2>在建什么</h2>
-<p><strong>每条诊断双份呈现。</strong>编译失败时，生成 SLA 的报错逐字保留——它的错误码、信息、在生成文件中的位置，不改动、不替换——同时 psa 并列给出对应的 psa 信息：<code>.psa</code> 文件、行、列与源码摘录。两半谁也不替代谁；映射只能给到较低精度时，呈现会如实说明，而不是假装精确。</p>
-<p><strong>随编译产物落盘的机读映射表。</strong>映射写进一个旁文件 <code>&lt;stem&gt;.psa-map.json</code>，放在生成 SLA 旁边（构建成功时再在可执行产物旁复制一份）。它记录源文件（带哈希，源文件变了就响亮发现旧图、而不是拿旧图套新源）、连接生成位置与 psa 位置的段（带来源种类与精度）、预建的双向索引——psa 行查生成位置、生成行反查 psa——以及 panic 点位索引。它预定的消费者是后期的调试器：在 psa 行号上下断点，经此表落到应当停住的生成位置。调试器本身是后话；这张图就是留给它的接口。</p>
+<h2>已落地什么</h2>
+<p><strong>每条诊断双份呈现。</strong>编译失败时，生成 SLA 的报错逐字保留——它的错误码、信息、在生成文件中的位置，不改动、不替换——同时 psa 并列给出对应的 psa 信息：<code>.psa</code> 文件、行、列与源码摘录。两半谁也不替代谁；映射只能给到较低精度时，呈现会如实说明（查询会把前一段报为近似），而不是假装精确。</p>
+<p><strong>随编译产物落盘的机读映射表。</strong>映射写进一个旁文件 <code>&lt;stem&gt;.psa-map.json</code>（格式 v1），放在生成 SLA 旁边（构建成功时再在可执行产物旁复制一份）。它记录源文件（带哈希，源文件变了就响亮发现旧图、而不是拿旧图套新源）、连接生成位置与 psa 位置的段（带来源种类与精度）、预建的双向索引——psa 行查生成位置、生成行反查 psa——以及 panic 点位索引。<code>psa map-loc</code> 命令可双向查询这张图。它预定的消费者是后期的调试器：在 psa 行号上下断点，经此表落到应当停住的生成位置。调试器本身是后话；这张图就是留给它的接口。有一条边界如实写明：宿主运行时对 panic 的裸输出仍然只有码——事后把码追溯到候选 psa 位置，靠的是图里的 panic 点位索引。</p>
+<p><strong>已登记的残留缺口。</strong>少数锚点仍粗于其余部分，均已登记、不藏：lambda 与生成器的函数头锚点、少数诊断种类只有行级（非列级）映射、lexer 列账目的一处二选一未定。它们都不阻塞上面的双份呈现与映射产物。</p>
 
 <h2>本页要点</h2>
 <ul>
-<li>Source map：设计已完成、正在开发——尚不是可用特性。</li>
-<li>诊断将双份呈现：SLA 报错原文，加上 psa 的文件、行、列与摘录。</li>
-<li>映射是持久产物（<code>.psa-map.json</code>，双向索引），供后期在 psa 源码上下断点调试。</li>
+<li>Source map：已落地——双份呈现与 <code>.psa-map.json</code> 产物均为已核验的可用特性。</li>
+<li>诊断双份呈现：SLA 报错原文，加上 psa 的文件、行、列与摘录；低精度映射明标近似。</li>
+<li>映射是持久产物（<code>.psa-map.json</code> v1、双向索引、panic 点位索引），可经 <code>psa map-loc</code> 查询，供后期在 psa 源码上下断点调试。</li>
 </ul>
 <div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/19_psa_intro/05_source_map.html">English version</a></div>
 <footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
