@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>bytes: Byte Sequences (sla_std)</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Standard Library &gt; bytes: Byte Sequences (sla_std)</div>
+<h1><code>bytes.sla</code>: Byte Sequences (sla_std)</h1>
+
+<p>A pure-SLA byte-sequence type in <code>sla_std</code> (source
+<code>sla_std/bytes.sla</code> in sa_plugin_sla, mirrored byte-identically into
+layola13/sla). It gives SLA programs the CPython <code>bytes</code> semantics at the
+SLA level: an immutable-by-convention sequence of byte values 0–255, with slicing,
+search, comparison, hex / base64 conversion and a CPython-shaped <code>repr</code>.
+The type itself is one struct:</p>
+
+<pre><code>struct Bytes {
+    data: Vec&lt;u8&gt;,
+}</code></pre>
+
+<p><strong>Value semantics.</strong> SLA has no <code>&amp;mut</code>, so every
+“mutating” operation takes <code>&amp;Bytes</code> and returns a fresh
+<code>Bytes</code>; the argument is never modified. The single exception is the
+psa-carrier primitive <code>__psa_bytes_set_h</code> (see below), which exists for
+the psa runtime and is not part of the general surface.</p>
+
+<p><strong>There is deliberately no <code>bytes_to_str</code>.</strong> SLA has a
+<code>String.as_bytes()</code> but no String-from-bytes constructor, so conversions
+that would produce text in CPython (<code>hex()</code>, base64 encoding,
+<code>repr()</code>) return a <code>Bytes</code> holding the ASCII payload instead.
+Bridging a <code>Bytes</code> to a string value is the psa glue layer's job, not
+this module's.</p>
+
+<h2>Import</h2>
+<pre><code>@import "sla_std/bytes.sla"</code></pre>
+
+<h2>Function Table (from <code>sla_std/bytes.sla</code>)</h2>
+<table>
+<tr><th>Signature</th><th>Description</th></tr>
+<tr><td><code>bytes_new() -&gt; Bytes</code></td><td>An empty Bytes</td></tr>
+<tr><td><code>bytes_clone(b: &amp;Bytes) -&gt; Bytes</code></td><td>An independent copy</td></tr>
+<tr><td><code>bytes_from_vec(v: &amp;Vec&lt;u8&gt;) -&gt; Bytes</code></td><td>Copy a byte vector into a Bytes</td></tr>
+<tr><td><code>bytes_from_str(s: &amp;String) -&gt; Bytes</code></td><td>The raw UTF-8 bytes of the string, copied (the CPython <code>bytes(s, "utf-8")</code> case; no encoding argument exists at this layer)</td></tr>
+<tr><td><code>bytes_len(b: &amp;Bytes) -&gt; i64</code></td><td>Number of bytes</td></tr>
+<tr><td><code>bytes_get(b: &amp;Bytes, idx: i64) -&gt; u8</code></td><td>Byte at <code>idx</code>; negative indices count from the end; out of range panics 9010</td></tr>
+<tr><td><code>bytes_set(b: &amp;Bytes, idx: i64, x: u8) -&gt; Bytes</code></td><td>A copy with byte <code>idx</code> replaced (negative indices allowed); out of range panics 9010</td></tr>
+<tr><td><code>bytes_push(b: &amp;Bytes, x: u8) -&gt; Bytes</code></td><td>A copy with <code>x</code> appended</td></tr>
+<tr><td><code>bytes_concat(a: &amp;Bytes, b: &amp;Bytes) -&gt; Bytes</code></td><td>Concatenation</td></tr>
+<tr><td><code>bytes_repeat(a: &amp;Bytes, n: i64) -&gt; Bytes</code></td><td><code>a</code> repeated <code>n</code> times; <code>n &lt;= 0</code> gives an empty Bytes</td></tr>
+<tr><td><code>bytes_slice(b: &amp;Bytes, lo: i64, hi: i64, step: i64) -&gt; Bytes</code></td><td>CPython <code>slice.indices</code> semantics: negative bounds count from the end and are clamped; <code>step == 0</code> panics 9013</td></tr>
+<tr><td><code>bytes_eq(a: &amp;Bytes, b: &amp;Bytes) -&gt; bool</code></td><td>Byte-wise equality</td></tr>
+<tr><td><code>bytes_cmp(a: &amp;Bytes, b: &amp;Bytes) -&gt; i64</code></td><td>Byte-wise lexicographic order, normalized to <code>-1 / 0 / 1</code>; a shorter prefix sorts first</td></tr>
+<tr><td><code>bytes_find(hay: &amp;Bytes, needle: &amp;Bytes) -&gt; i64</code></td><td>Index of the first occurrence, or <code>-1</code>; an empty needle matches at 0 (CPython)</td></tr>
+<tr><td><code>bytes_contains(hay: &amp;Bytes, needle: &amp;Bytes) -&gt; bool</code></td><td><code>bytes_find(...) != -1</code></td></tr>
+<tr><td><code>bytes_to_hex(b: &amp;Bytes) -&gt; Bytes</code></td><td>Lowercase hex, no separators (CPython <code>bytes.hex()</code>), as an ASCII-payload Bytes</td></tr>
+<tr><td><code>bytes_from_hex(s: &amp;String) -&gt; Bytes</code></td><td>CPython <code>bytes.fromhex</code>: ASCII whitespace is skipped only <em>between</em> byte pairs — a space inside a pair, an odd digit count, or a non-hex digit panics 9011</td></tr>
+<tr><td><code>bytes_to_b64(b: &amp;Bytes) -&gt; Bytes</code></td><td>Standard base64 with <code>=</code> padding and <strong>no line breaks</strong>; callers that need wrapped output (e.g. plistlib <code>&lt;data&gt;</code>) chunk it themselves</td></tr>
+<tr><td><code>bytes_from_b64(s: &amp;String) -&gt; Bytes</code></td><td>Strict base64: whitespace is skipped, every other character must be in the alphabet or trailing <code>=</code> padding, and the cleaned length must be a multiple of 4; anything else panics 9012 (CPython's lenient ignore-junk mode is deliberately not taken)</td></tr>
+<tr><td><code>bytes_repr(b: &amp;Bytes) -&gt; Bytes</code></td><td>CPython <code>repr</code>: <code>b</code> prefix, single quotes unless the payload has a single quote and no double quote; backslash / the quote char / <code>\t \n \r</code> are escaped, every other non-printable byte becomes <code>\xNN</code></td></tr>
+<tr><td><code>__psa_bytes_set_h(p: ptr, i: i64, x: u8)</code></td><td>psa runtime primitive (substrate gap #22): in-place write of one byte through a <code>Box&lt;Bytes&gt;</code> carrier pointer. Not a general-purpose API; bounds failures trap on the SLA runtime's own index check</td></tr>
+</table>
+
+<h2>Example 1: Build, Concatenate, Search (a runnable program)</h2>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sla_std/bytes.sla"
+
+fn main() -&gt; i32 {
+    let s1 = format("hello");
+    let b = bytes_from_str(&amp;s1);
+    let s2 = format(" world");
+    let w = bytes_from_str(&amp;s2);
+    let c = bytes_concat(&amp;b, &amp;w);
+    let s3 = format("world");
+    let ndl = bytes_from_str(&amp;s3);
+    println("len={}", bytes_len(&amp;c));
+    println("first={}", (bytes_get(&amp;c, 0) as i64));
+    println("last={}", (bytes_get(&amp;c, -1) as i64));
+    println("cmp={}", bytes_cmp(&amp;b, &amp;c));
+    println("find={}", bytes_find(&amp;c, &amp;ndl));
+    return 0;
+}</code></pre>
+<p>Output (verified):</p>
+<pre><code>len=11
+first=104
+last=100
+cmp=-1
+find=6</code></pre>
+<p>Only numeric facts are printed: with no Bytes→String bridge in sla_std, the
+content of encoded forms is asserted by value in tests (Examples 2–3) rather than
+printed.</p>
+
+<h2>Example 2: Value Semantics and Slicing</h2>
+<pre><code>@import "sla_std/bytes.sla"
+
+@test "doc value semantics"() {
+    let s = format("abc");
+    let b = bytes_from_str(&amp;s);
+    let r = bytes_set(&amp;b, 0, 65u8);
+    if (bytes_get(&amp;r, 0) as i64) != 65 { panic(1); };
+    if (bytes_get(&amp;b, 0) as i64) != 97 { panic(2); };
+}
+
+@test "doc slice reverse"() {
+    let s = format("0123456789");
+    let b = bytes_from_str(&amp;s);
+    let e = format("987654321");
+    let eb = bytes_from_str(&amp;e);
+    let r = bytes_slice(&amp;b, 9, 0, -1);
+    if !bytes_eq(&amp;r, &amp;eb) { panic(3); };
+}</code></pre>
+<p><code>bytes_set</code> leaves <code>b</code> holding <code>"abc"</code> and returns
+<code>"Abc"</code>; the reversed slice of <code>"0123456789"</code> with bounds
+<code>(9, 0, -1)</code> is <code>"987654321"</code> — the stop bound is exclusive, as
+in CPython.</p>
+
+<h2>Example 3: Hex Round-Trip and the Out-of-Range Panic</h2>
+<pre><code>@import "sla_std/bytes.sla"
+
+@test "doc hex roundtrip"() {
+    let v: Vec&lt;u8&gt; = Vec::new();
+    v.push(222u8);
+    v.push(173u8);
+    v.push(190u8);
+    v.push(239u8);
+    let b = bytes_from_vec(&amp;v);
+    let e = format("deadbeef");
+    let eb = bytes_from_str(&amp;e);
+    let h = bytes_to_hex(&amp;b);
+    if !bytes_eq(&amp;h, &amp;eb) { panic(4); };
+    let r = bytes_from_hex(&amp;e);
+    if !bytes_eq(&amp;r, &amp;b) { panic(5); };
+}
+
+@test should_panic "doc get out of range"() {
+    let s = format("abc");
+    let b = bytes_from_str(&amp;s);
+    let g = bytes_get(&amp;b, 3);
+}</code></pre>
+
+<h2>Panic Codes (sla_std block)</h2>
+<table>
+<tr><th>Code</th><th>Condition</th></tr>
+<tr><td><code>9010</code></td><td>Index out of range (<code>bytes_get</code> / <code>bytes_set</code>)</td></tr>
+<tr><td><code>9011</code></td><td><code>bytes_from_hex</code>: odd digit count, non-hex digit, or whitespace inside a byte pair</td></tr>
+<tr><td><code>9012</code></td><td><code>bytes_from_b64</code>: bad character, bad padding, or bad length</td></tr>
+<tr><td><code>9013</code></td><td><code>bytes_slice</code>: step zero</td></tr>
+</table>
+
+<div class="note"><span class="label">Note</span>The psa runtime's dynamic bytes
+(tag 15, a <code>Box&lt;Vec&lt;u8&gt;&gt;</code> payload) is the psa side of the same
+settlement: the two agree on the payload shape and the carrier-pointer idiom, so
+psa glue can move between a tag-15 value and this <code>Bytes</code> type by
+unboxing the carrier pointer.</div>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">Sources: <code>sla_std/bytes.sla</code>
+(sa_plugin_sla master 22a288d3; mirrored byte-identically to layola13/sla main
+0de271b; file sha256 b33bcc67ae4fbb04f388ccde7648f96b62d9cbc0224723bc4576ca1c611e655c).
+Verified 2026-11-27 with the current-head plugin: generated oracle 158/158,
+curated suite 64/64, text-path probe byte-identical; the three examples on this
+page were compiled and run as shown (Example 1 via build-exe, Examples 2–3 via
+<code>sa test</code>, all passing).</p>
+</body>
+</html>

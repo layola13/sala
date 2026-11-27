@@ -392,6 +392,21 @@
         "gaps"
       ],
       "parent": null
+    },
+    {
+      "id": "bytes",
+      "title": "bytes: Byte Sequences (sla_std)",
+      "file": "27_bytes.html",
+      "keywords": [
+        "bytes",
+        "sla_std",
+        "Vec<u8>",
+        "hex",
+        "base64",
+        "CPython bytes",
+        "value semantics"
+      ],
+      "parent": null
     }
   ]
 }

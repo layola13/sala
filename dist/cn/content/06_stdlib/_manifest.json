@@ -393,6 +393,21 @@
         "缺口"
       ],
       "parent": null
+    },
+    {
+      "id": "bytes",
+      "title": "bytes：字节序列（sla_std）",
+      "file": "27_bytes.html",
+      "keywords": [
+        "bytes",
+        "sla_std",
+        "Vec<u8>",
+        "hex",
+        "base64",
+        "字节序列",
+        "值语义"
+      ],
+      "parent": null
     }
   ]
 }

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>bytes：字节序列（sla_std）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">标准库 &gt; bytes：字节序列（sla_std）</div>
+<h1><code>bytes.sla</code>：字节序列（sla_std）</h1>
+
+<p><code>sla_std</code> 里的纯 SLA 字节序列类型（源码
+<code>sla_std/bytes.sla</code>，位于 sa_plugin_sla，并逐字节镜像到
+layola13/sla）。它在 SLA 层给出 CPython <code>bytes</code> 的语义：
+按惯例不可变的 0–255 字节值序列，带切片、查找、比较、hex / base64
+转换与 CPython 形状的 <code>repr</code>。类型本体只有一个 struct：</p>
+
+<pre><code>struct Bytes {
+    data: Vec&lt;u8&gt;,
+}</code></pre>
+
+<p><strong>值语义。</strong>SLA 没有 <code>&amp;mut</code>，所以每个“修改型”
+操作都收 <code>&amp;Bytes</code> 并返回一个全新的 <code>Bytes</code>，
+参数本身永不被改动。唯一例外是 psa 载体原语
+<code>__psa_bytes_set_h</code>（见下），它为 psa 运行时而存在，
+不属于通用 API 面。</p>
+
+<p><strong>刻意不提供 <code>bytes_to_str</code>。</strong>SLA 有
+<code>String.as_bytes()</code>，但没有由字节构造 String 的构造器，
+所以在 CPython 里会产生文本的转换（<code>hex()</code>、base64 编码、
+<code>repr()</code>）在这里返回装着 ASCII 载荷的 <code>Bytes</code>。
+把 <code>Bytes</code> 桥接到字符串值是 psa 胶水层的事，不是本模块的事。</p>
+
+<h2>导入</h2>
+<pre><code>@import "sla_std/bytes.sla"</code></pre>
+
+<h2>函数表（摘自 <code>sla_std/bytes.sla</code>）</h2>
+<table>
+<tr><th>签名</th><th>说明</th></tr>
+<tr><td><code>bytes_new() -&gt; Bytes</code></td><td>空 Bytes</td></tr>
+<tr><td><code>bytes_clone(b: &amp;Bytes) -&gt; Bytes</code></td><td>独立副本</td></tr>
+<tr><td><code>bytes_from_vec(v: &amp;Vec&lt;u8&gt;) -&gt; Bytes</code></td><td>把字节向量复制成 Bytes</td></tr>
+<tr><td><code>bytes_from_str(s: &amp;String) -&gt; Bytes</code></td><td>字符串的原始 UTF-8 字节，复制（即 CPython 的 <code>bytes(s, "utf-8")</code> 情形；本层没有 encoding 参数）</td></tr>
+<tr><td><code>bytes_len(b: &amp;Bytes) -&gt; i64</code></td><td>字节数</td></tr>
+<tr><td><code>bytes_get(b: &amp;Bytes, idx: i64) -&gt; u8</code></td><td>取 <code>idx</code> 处字节；负索引从末尾数；越界 panic 9010</td></tr>
+<tr><td><code>bytes_set(b: &amp;Bytes, idx: i64, x: u8) -&gt; Bytes</code></td><td>返回替换了 <code>idx</code> 处字节的副本（可用负索引）；越界 panic 9010</td></tr>
+<tr><td><code>bytes_push(b: &amp;Bytes, x: u8) -&gt; Bytes</code></td><td>返回追加了 <code>x</code> 的副本</td></tr>
+<tr><td><code>bytes_concat(a: &amp;Bytes, b: &amp;Bytes) -&gt; Bytes</code></td><td>拼接</td></tr>
+<tr><td><code>bytes_repeat(a: &amp;Bytes, n: i64) -&gt; Bytes</code></td><td><code>a</code> 重复 <code>n</code> 次；<code>n &lt;= 0</code> 得空 Bytes</td></tr>
+<tr><td><code>bytes_slice(b: &amp;Bytes, lo: i64, hi: i64, step: i64) -&gt; Bytes</code></td><td>CPython <code>slice.indices</code> 语义：负界从末尾数并钳制；<code>step == 0</code> panic 9013</td></tr>
+<tr><td><code>bytes_eq(a: &amp;Bytes, b: &amp;Bytes) -&gt; bool</code></td><td>逐字节相等</td></tr>
+<tr><td><code>bytes_cmp(a: &amp;Bytes, b: &amp;Bytes) -&gt; i64</code></td><td>逐字节字典序，归一化为 <code>-1 / 0 / 1</code>；较短的前缀排在前面</td></tr>
+<tr><td><code>bytes_find(hay: &amp;Bytes, needle: &amp;Bytes) -&gt; i64</code></td><td>首次出现的位置，或 <code>-1</code>；空 needle 在 0 处命中（CPython）</td></tr>
+<tr><td><code>bytes_contains(hay: &amp;Bytes, needle: &amp;Bytes) -&gt; bool</code></td><td><code>bytes_find(...) != -1</code></td></tr>
+<tr><td><code>bytes_to_hex(b: &amp;Bytes) -&gt; Bytes</code></td><td>小写 hex、无分隔符（CPython <code>bytes.hex()</code>），以 ASCII 载荷 Bytes 返回</td></tr>
+<tr><td><code>bytes_from_hex(s: &amp;String) -&gt; Bytes</code></td><td>CPython <code>bytes.fromhex</code>：ASCII 空白只在字节对<em>之间</em>跳过——对内空格、奇数个数字、非 hex 数字都 panic 9011</td></tr>
+<tr><td><code>bytes_to_b64(b: &amp;Bytes) -&gt; Bytes</code></td><td>标准 base64，带 <code>=</code> 填充且<strong>不换行</strong>；需要折行的调用方（如 plistlib <code>&lt;data&gt;</code>）自己切分</td></tr>
+<tr><td><code>bytes_from_b64(s: &amp;String) -&gt; Bytes</code></td><td>严格 base64：跳过空白，其余字符必须在字母表内或为末尾 <code>=</code> 填充，清理后长度必须是 4 的倍数；否则 panic 9012（刻意不取 CPython 的宽容忽略垃圾模式）</td></tr>
+<tr><td><code>bytes_repr(b: &amp;Bytes) -&gt; Bytes</code></td><td>CPython <code>repr</code>：<code>b</code> 前缀，单引号包裹（载荷含单引号且不含双引号时改用双引号）；反斜杠 / 引号字符 / <code>\t \n \r</code> 转义，其余不可打印字节写成 <code>\xNN</code></td></tr>
+<tr><td><code>__psa_bytes_set_h(p: ptr, i: i64, x: u8)</code></td><td>psa 运行时原语（基底缺口 #22）：经 <code>Box&lt;Bytes&gt;</code> 载体指针原地写一个字节。不是通用 API；越界由 SLA 运行时自身的索引检查 trap</td></tr>
+</table>
+
+<h2>例 1：构造、拼接、查找（可运行程序）</h2>
+<pre><code>@import "sa_std/io/print.sai"
+@import "sa_std/fmt.sai"
+@import "sla_std/bytes.sla"
+
+fn main() -&gt; i32 {
+    let s1 = format("hello");
+    let b = bytes_from_str(&amp;s1);
+    let s2 = format(" world");
+    let w = bytes_from_str(&amp;s2);
+    let c = bytes_concat(&amp;b, &amp;w);
+    let s3 = format("world");
+    let ndl = bytes_from_str(&amp;s3);
+    println("len={}", bytes_len(&amp;c));
+    println("first={}", (bytes_get(&amp;c, 0) as i64));
+    println("last={}", (bytes_get(&amp;c, -1) as i64));
+    println("cmp={}", bytes_cmp(&amp;b, &amp;c));
+    println("find={}", bytes_find(&amp;c, &amp;ndl));
+    return 0;
+}</code></pre>
+<p>输出（已验证）：</p>
+<pre><code>len=11
+first=104
+last=100
+cmp=-1
+find=6</code></pre>
+<p>这里只打印数值事实：sla_std 没有 Bytes→String 桥，编码形式的内容
+在测试里按值断言（例 2–3），而不是打印出来。</p>
+
+<h2>例 2：值语义与切片</h2>
+<pre><code>@import "sla_std/bytes.sla"
+
+@test "doc value semantics"() {
+    let s = format("abc");
+    let b = bytes_from_str(&amp;s);
+    let r = bytes_set(&amp;b, 0, 65u8);
+    if (bytes_get(&amp;r, 0) as i64) != 65 { panic(1); };
+    if (bytes_get(&amp;b, 0) as i64) != 97 { panic(2); };
+}
+
+@test "doc slice reverse"() {
+    let s = format("0123456789");
+    let b = bytes_from_str(&amp;s);
+    let e = format("987654321");
+    let eb = bytes_from_str(&amp;e);
+    let r = bytes_slice(&amp;b, 9, 0, -1);
+    if !bytes_eq(&amp;r, &amp;eb) { panic(3); };
+}</code></pre>
+<p><code>bytes_set</code> 后 <code>b</code> 仍是 <code>"abc"</code>，返回的是
+<code>"Abc"</code>；<code>"0123456789"</code> 以界 <code>(9, 0, -1)</code>
+反向切片得 <code>"987654321"</code>——终止界不含，与 CPython 一致。</p>
+
+<h2>例 3：hex 往返与越界 panic</h2>
+<pre><code>@import "sla_std/bytes.sla"
+
+@test "doc hex roundtrip"() {
+    let v: Vec&lt;u8&gt; = Vec::new();
+    v.push(222u8);
+    v.push(173u8);
+    v.push(190u8);
+    v.push(239u8);
+    let b = bytes_from_vec(&amp;v);
+    let e = format("deadbeef");
+    let eb = bytes_from_str(&amp;e);
+    let h = bytes_to_hex(&amp;b);
+    if !bytes_eq(&amp;h, &amp;eb) { panic(4); };
+    let r = bytes_from_hex(&amp;e);
+    if !bytes_eq(&amp;r, &amp;b) { panic(5); };
+}
+
+@test should_panic "doc get out of range"() {
+    let s = format("abc");
+    let b = bytes_from_str(&amp;s);
+    let g = bytes_get(&amp;b, 3);
+}</code></pre>
+
+<h2>panic 码（sla_std 码段）</h2>
+<table>
+<tr><th>码</th><th>条件</th></tr>
+<tr><td><code>9010</code></td><td>索引越界（<code>bytes_get</code> / <code>bytes_set</code>）</td></tr>
+<tr><td><code>9011</code></td><td><code>bytes_from_hex</code>：数字个数为奇数、非 hex 数字、或字节对内出现空白</td></tr>
+<tr><td><code>9012</code></td><td><code>bytes_from_b64</code>：坏字符、坏填充或坏长度</td></tr>
+<tr><td><code>9013</code></td><td><code>bytes_slice</code>：step 为零</td></tr>
+</table>
+
+<div class="note"><span class="label">注意</span>psa 运行时的动态 bytes
+（tag 15，载荷为 <code>Box&lt;Vec&lt;u8&gt;&gt;</code>）是同一定案的 psa 侧：
+两侧约定了相同的载荷形状与载体指针惯用法，所以 psa 胶水可以拆开载体指针，
+在 tag-15 值与本 <code>Bytes</code> 类型之间搬运。</div>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">依据：<code>sla_std/bytes.sla</code>
+（sa_plugin_sla master 22a288d3；逐字节镜像至 layola13/sla main
+0de271b；文件 sha256 b33bcc67ae4fbb04f388ccde7648f96b62d9cbc0224723bc4576ca1c611e655c）。
+2026-11-27 以现头插件验证：生成 oracle 158/158、curated 套件 64/64、
+文本路探针逐字节一致；本页三个例子均按所示形态编译运行
+（例 1 走 build-exe，例 2–3 走 <code>sa test</code>，全部通过）。</p>
+</body>
+</html>

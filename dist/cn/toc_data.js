@@ -916,6 +916,11 @@ var TOC = [
     "t": ".NET net 表面 × sa_std 缺口普查",
     "f": "content/06_stdlib/26_dotnet_net_census.html",
     "c": []
+   },
+   {
+    "t": "bytes：字节序列（sla_std）",
+    "f": "content/06_stdlib/27_bytes.html",
+    "c": []
    }
   ]
  },

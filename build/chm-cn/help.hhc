@@ -1437,6 +1437,14 @@
 <param name="Local" value="../../dist/cn/content/06_stdlib/26_dotnet_net_census.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="bytes：字节序列（sla_std）">
+<param name="Local" value="../../dist/cn/content/06_stdlib/27_bytes.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

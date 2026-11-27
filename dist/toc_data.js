@@ -916,6 +916,11 @@ var TOC = [
     "t": ".NET net Surface × sa_std Gap Census",
     "f": "content/06_stdlib/26_dotnet_net_census.html",
     "c": []
+   },
+   {
+    "t": "bytes: Byte Sequences (sla_std)",
+    "f": "content/06_stdlib/27_bytes.html",
+    "c": []
    }
   ]
  },
