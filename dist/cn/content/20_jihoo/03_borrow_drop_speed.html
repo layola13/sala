@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>借用核、drop 展开与编译速度</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">jihoo 评估：sci 的借鉴 &gt; 借用核、drop 展开与编译速度</div>
+<h1>借用核、drop 展开与编译速度</h1>
+
+<p>除证明消检查外，jihoo 还有三块工程可迁移到 sci——迁的是手法，不是语义。
+SA 的规则（&amp;T 权限由 Referee 按实际 load/store 判定、其上有 SLA 的
+所有权模型）原样不动；下面讲的都是检查与下沉 machinery 的组织方式。</p>
+
+<h2>借用核：小内核复核大前端</h2>
+<p>jihoo 的 <code>check.jh</code>（1,372 行）不信任自家前端：它在 MIR 上
+独立重算全部 loans，前端出 bug 只会变成编译错误，不会变成悬垂指针。
+三个手法可直接借：</p>
+<ul>
+<li><strong>loans 压成扁平位向量</strong>：每程序点一个位向量，
+join/copy 不做逐 local 分配。</li>
+<li><strong>函数级关系</strong>（参数来源 → 返回 view / inout 存储）用
+固定点推导且增量维护：关系变大时只重推直接调用者、只重访 loans 变化的块；
+调用点用推导出的关系，不再每次调用都按最坏情况假设。</li>
+<li><strong>给借用参数标 LLVM 属性</strong>：<code>noalias</code> /
+<code>dereferenceable</code> / <code>readonly</code>，这些都由借用规则
+保证为真。若 sci 没有给借用参数加等价属性，这是一条成本低、收益直接的
+缺口：Referee 本来就知道这些事实，只是没交给 LLVM。</li>
+</ul>
+<p>不可搬的是语义：jihoo 靠「借用不逃逸出函数 + 签名上的
+<code>borrow</code>/<code>inout</code>/<code>sink</code>」让检查局部化，
+搬过来等于改 SA 的语言定义，不是优化 sci。</p>
+
+<h2>drop 展开：插入与裁剪分成两趟</h2>
+<p><code>elab.jh</code>（749 行）在 MIR 上做初始化追踪，分工刻意拆成两步：
+语义趟先为每个 owned local 在作用域尾无条件插 drop；展开趟再删掉
+「确定已 move 的 local」的 drop，只对「部分路径 move」的 local 生成
+drop flag。静态能定的就不留运行时标志——Perceus 式分工。</p>
+<p>sci/SLA 近期的缺陷恰好都落在这一层：select case 绑定被作用域尾退役
+过度释放、结构体字面量临时值被 caller/callee 两侧 drop 判定不一致而
+双 free。两者都是在融合代码里做的静态 drop 放置判定。jihoo 的组织方式
+值得照搬：插入与裁剪分离、裁剪趟可在 MIR 上单独测试、另有
+<code>JIHOO_NO_ELAB</code> 开关可在诊断时隔离这一趟。所有权规则本身
+仍按 SA 自家口径，不照抄其判定表。</p>
+
+<h2>编译速度：63 秒到底花在哪</h2>
+<ul>
+<li><strong>sema 单遍</strong>：检查与 lowering 合一，泛型按实例排队处理，
+前端不做多遍 AST 遍历——这是它只占全编译约 3% 的结构原因。</li>
+<li><strong>文本 IR + dlopen libLLVM C API</strong>：零 C++ shim、零头文件，
+构建与部署都轻。（这条主要对 Rust 版 sla 的后端组织有参考；sci 的 Zig
+路线形态不同。）</li>
+<li><strong>codegen unit 切分</strong>：大模块优化后切成至多 8 个 unit，
+各自独立 LLVM context 多线程发射（<code>JIHOO_CODEGEN_UNITS</code>）。
+sci 若在发射阶段单线程编大程序，这是一个现成的提速点。</li>
+</ul>
+
+<h2>不可迁移的部分</h2>
+<ul>
+<li>编译绝对时间：jihoo 编译器只有 53,489 行、语言面更小，其 63 秒自举
+不能与 sci 的自举时间直接对照下结论；可迁移的只有「前端占比约 3%」
+这个结构读数。</li>
+<li>借用语义：如上，手法可借、语言定义不可搬。</li>
+<li>证明线的成熟度保留：jihoo 文档自 0.6 起称验证线为研究状态；本评估
+依据的是其实测的发布行为（每次构建默认 <code>verify</code>、自举到达
+不动点）。</li>
+</ul>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">出处：jihoo
+compiler/check.jh、elab.jh、backend.jh 与 internals 文档（HEAD 5f18751…）；
+实测于 2026-11-27（见「jihoo 实测」页）。SLA 侧缺陷引用：select case
+过度释放与结构体字面量双 free，均已在 sa_plugin_sla 修复
+（a8f635f8 / 19073ab4）。</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../../content/20_jihoo/03_borrow_drop_speed.html">English version</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA 帮助文档 · 转载请注明出处<br>SA 编译器（<a href="https://github.com/layola13/sci">sci</a>）为 Apache License 2.0 授权发布，版权归 NOTICE 所列作者所有；本文档提及的各插件与上游组件遵循各自原始许可证。</footer>
+</body>
+</html>

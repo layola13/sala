@@ -1578,6 +1578,38 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="jihoo 评估：sci 的借鉴">
+<param name="Local" value="../../dist/cn/content/20_jihoo/01_measured.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="jihoo 实测：自举、速度与验证">
+<param name="Local" value="../../dist/cn/content/20_jihoo/01_measured.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="证明消检查（Farkas 证书）">
+<param name="Local" value="../../dist/cn/content/20_jihoo/02_proof_elimination.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="借用核、drop 展开与编译速度">
+<param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html">
+</OBJECT>
+</UL>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa→C 后端">
 <param name="Local" value="../../dist/cn/content/15_sa2c/01_overview.html">
 </OBJECT>

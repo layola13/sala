@@ -128,6 +128,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="CLI-only 插件"><param name="Local" value="../../dist/cn/content/12_vm/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="clip"><param name="Local" value="../../dist/cn/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="clone"><param name="Local" value="../../dist/cn/content/17_rust_beginners/03_copy_clone_derive.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="codegen unit"><param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="codex"><param name="Local" value="../../dist/cn/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Codex Ultra"><param name="Local" value="../../dist/cn/content/12_vm/07_codex_ultra.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="codex-react-ui"><param name="Local" value="../../dist/cn/content/01_overview/07_cxu_readiness.html"></OBJECT>
@@ -175,6 +176,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dns"><param name="Local" value="../../dist/cn/content/06_stdlib/22_go_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="DnsResolver"><param name="Local" value="../../dist/cn/content/06_stdlib/21_android_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="drop"><param name="Local" value="../../dist/cn/content/02_sla_lang/06_ownership.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="drop 展开"><param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="DropPlan"><param name="Local" value="../../dist/cn/content/03_sa_asm/09_ownership_transfer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="dumpbin"><param name="Local" value="../../dist/cn/content/08_faq/03_runtime_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Duration"><param name="Local" value="../../dist/cn/content/06_stdlib/08_time.html"></OBJECT>
@@ -198,6 +200,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="f64"><param name="Local" value="../../dist/cn/content/06_stdlib/03_fmt.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="fallback"><param name="Local" value="../../dist/cn/content/08_faq/04_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="FAQ"><param name="Local" value="../../dist/cn/content/08_faq/01_faq.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Farkas"><param name="Local" value="../../dist/cn/content/20_jihoo/02_proof_elimination.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="fcmp"><param name="Local" value="../../dist/cn/content/15_sa2c/03_semantics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="fd"><param name="Local" value="../../dist/cn/content/15_sa2c/04_extern.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="fetch-binaries"><param name="Local" value="../../dist/cn/content/13_build/06_release_npm.html"></OBJECT>
@@ -279,6 +282,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="issue044"><param name="Local" value="../../dist/cn/content/11_ecs/05_status.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="java"><param name="Local" value="../../dist/cn/content/06_stdlib/21_java_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="jdk"><param name="Local" value="../../dist/cn/content/06_stdlib/21_java_net_census.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="jihoo"><param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="JSON"><param name="Local" value="../../dist/cn/content/03_sa_asm/05_diagnostics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="json"><param name="Local" value="../../dist/cn/content/06_stdlib/11_encoding.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="JS目标"><param name="Local" value="../../dist/cn/content/04_cli/11_build_js.html"></OBJECT>
@@ -301,6 +305,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="llvm"><param name="Local" value="../../dist/cn/content/05_plugins/17_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="LLVM bitcode"><param name="Local" value="../../dist/cn/content/09_rust_compare/07_rosetta_bc2sa.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="llvm-14-dev"><param name="Local" value="../../dist/cn/content/13_build/02_linux_windows.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="loans"><param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="localhost"><param name="Local" value="../../dist/cn/content/05_plugins/15_http_server.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="lock"><param name="Local" value="../../dist/cn/content/02_sla_lang/11_reversed_mutability.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Locked_Mut"><param name="Local" value="../../dist/cn/content/09_rust_compare/11_mut_borrow_compare.html"></OBJECT>
@@ -370,7 +375,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="PATH"><param name="Local" value="../../dist/cn/content/08_faq/03_runtime_env.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="peer"><param name="Local" value="../../dist/cn/content/04_cli/13_bun_peer.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="Pending"><param name="Local" value="../../dist/cn/content/02_sla_lang/09_async.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="Perceus"><param name="Local" value="../../dist/cn/content/01_overview/24_sapy_blueprint.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Perceus"><param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="permissions.lock"><param name="Local" value="../../dist/cn/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="phase"><param name="Local" value="../../dist/cn/content/01_overview/09_nginx_rebuild_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="phi"><param name="Local" value="../../dist/cn/content/09_rust_compare/07_rosetta_bc2sa.html"></OBJECT>
@@ -485,6 +490,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sax"><param name="Local" value="../../dist/cn/content/05_plugins/03_react.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SAX3D"><param name="Local" value="../../dist/cn/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="scaffold"><param name="Local" value="../../dist/cn/content/05_plugins/15_http_server.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="sci"><param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="SCI_ROOT"><param name="Local" value="../../dist/cn/content/04_cli/10_env_vars.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="scodex-mini"><param name="Local" value="../../dist/cn/content/01_overview/06_scodex_mini.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="screens"><param name="Local" value="../../dist/cn/content/07_ui/03_project_structure.html"></OBJECT>
@@ -679,6 +685,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="候选语法"><param name="Local" value="../../dist/cn/content/01_overview/15_go_feature_candidates.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="借用"><param name="Local" value="../../dist/cn/content/19_psa_intro/04_two_styles.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="借用冲突"><param name="Local" value="../../dist/cn/content/03_sa_asm/06_limitations.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="借用检查"><param name="Local" value="../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="值语义"><param name="Local" value="../../dist/cn/content/06_stdlib/27_bytes.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="偏移"><param name="Local" value="../../dist/cn/content/06_stdlib/18_api_layout.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="元组"><param name="Local" value="../../dist/cn/content/18_py_to_sla/04_functions_tuples.html"></OBJECT>
@@ -742,7 +749,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="场景"><param name="Local" value="../../dist/cn/content/05_plugins/08_3dengines.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="场景选型"><param name="Local" value="../../dist/cn/content/09_rust_compare/01_positioning.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="场景选择"><param name="Local" value="../../dist/cn/content/09_rust_compare/08_migration.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="基准"><param name="Local" value="../../dist/cn/content/04_cli/12_sixway.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="基准"><param name="Local" value="../../dist/cn/content/20_jihoo/01_measured.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="基本类型"><param name="Local" value="../../dist/cn/content/02_sla_lang/02_types.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="复制"><param name="Local" value="../../dist/cn/content/01_overview/11_sardis_roadmap.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="大数组初始化"><param name="Local" value="../../dist/cn/content/08_faq/04_performance.html"></OBJECT>
@@ -874,10 +881,12 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="注释"><param name="Local" value="../../dist/cn/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="流式响应"><param name="Local" value="../../dist/cn/content/05_plugins/14_http_client.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="消息队列"><param name="Local" value="../../dist/cn/content/01_overview/10_backend_coverage.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="消检查"><param name="Local" value="../../dist/cn/content/20_jihoo/02_proof_elimination.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="清单"><param name="Local" value="../../dist/cn/content/06_stdlib/17_api_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="渲染"><param name="Local" value="../../dist/cn/content/05_plugins/07_wgpu.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="游戏"><param name="Local" value="../../dist/cn/content/01_overview/17_verse_game_profile.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="溢出"><param name="Local" value="../../dist/cn/content/18_py_to_sla/08_ownership_safety.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="溢出检查"><param name="Local" value="../../dist/cn/content/20_jihoo/02_proof_elimination.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="漏洞统计"><param name="Local" value="../../dist/cn/content/10_db/08_mysql_sqlite_compare.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="热力学"><param name="Local" value="../../dist/cn/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="热重载"><param name="Local" value="../../dist/cn/content/07_ui/06_toolchain.html"></OBJECT>
@@ -930,18 +939,20 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译时间"><param name="Local" value="../../dist/cn/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译矩阵"><param name="Local" value="../../dist/cn/content/13_build/01_matrix.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="编译管线"><param name="Local" value="../../dist/cn/content/03_sa_asm/04_pipeline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="编译速度"><param name="Local" value="../../dist/cn/content/20_jihoo/01_measured.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="缺口"><param name="Local" value="../../dist/cn/content/06_stdlib/26_dotnet_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="缺口表"><param name="Local" value="../../dist/cn/content/06_stdlib/23_unreal_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="网络"><param name="Local" value="../../dist/cn/content/17_rust_beginners/08_engineering.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="网络并发"><param name="Local" value="../../dist/cn/content/09_rust_compare/09_performance.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="网络普查"><param name="Local" value="../../dist/cn/content/06_stdlib/23_unreal_net_census.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="能力掩码"><param name="Local" value="../../dist/cn/content/16_policy/01_overview.html"></OBJECT>
-<LI> <OBJECT type="text/sitemap"><param name="Name" value="自举"><param name="Local" value="../../dist/cn/content/01_overview/23_zig_seal_rust_mainline.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="自举"><param name="Local" value="../../dist/cn/content/20_jihoo/01_measured.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="自查清单"><param name="Local" value="../../dist/cn/content/07_ui/07_getting_started.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="自测"><param name="Local" value="../../dist/cn/content/17_rust_beginners/09_checklist.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="蒙皮"><param name="Local" value="../../dist/cn/content/01_overview/21_sax3d_whitepaper.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="蓝图"><param name="Local" value="../../dist/cn/content/01_overview/24_sapy_blueprint.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="虚表"><param name="Local" value="../../dist/cn/content/12_vm/06_examples.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="融合"><param name="Local" value="../../dist/cn/content/20_jihoo/01_measured.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="衡"><param name="Local" value="../../dist/cn/content/01_overview/20_biochem_education_language.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="表层兼容"><param name="Local" value="../../dist/cn/content/09_rust_compare/06_surface_compat.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="表层兼容子集"><param name="Local" value="../../dist/cn/content/09_rust_compare/02_syntax_matrix.html"></OBJECT>
@@ -957,6 +968,8 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="解释器虚拟机"><param name="Local" value="../../dist/cn/content/12_vm/01_overview.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="设计哲学"><param name="Local" value="../../dist/cn/content/09_rust_compare/01_positioning.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="证书验证"><param name="Local" value="../../dist/cn/content/06_stdlib/19_tls_client.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="证明"><param name="Local" value="../../dist/cn/content/20_jihoo/02_proof_elimination.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="评估"><param name="Local" value="../../dist/cn/content/20_jihoo/01_measured.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="诊断"><param name="Local" value="../../dist/cn/content/05_plugins/20_system_redesign.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="词法"><param name="Local" value="../../dist/cn/content/04_cli/03_check.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="试点"><param name="Local" value="../../dist/cn/content/01_overview/08_cxu_rewrite_roadmap.html"></OBJECT>
@@ -978,6 +991,7 @@
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="输入"><param name="Local" value="../../dist/cn/content/05_plugins/06_tui.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="输出参数打头"><param name="Local" value="../../dist/cn/content/17_rust_beginners/05_errors_closures_macros.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="边界"><param name="Local" value="../../dist/cn/content/15_sa2c/05_verify.html"></OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="边界检查"><param name="Local" value="../../dist/cn/content/20_jihoo/02_proof_elimination.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="迁移"><param name="Local" value="../../dist/cn/content/09_rust_compare/08_migration.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="运算"><param name="Local" value="../../dist/cn/content/18_py_to_sla/01_basics.html"></OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="运行时"><param name="Local" value="../../dist/cn/content/01_overview/13_goroutine_runtime.html"></OBJECT>

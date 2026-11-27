@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Proof-Based Check Elimination</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Evaluating jihoo: Lessons for sci &gt; Proof-Based Check Elimination</div>
+<h1>Proof-Based Check Elimination (Farkas Certificates)</h1>
+
+<p>Every Vec index and arithmetic operation in SA carries a runtime bounds or
+overflow check. On hot paths — the Redis and nginx workloads built on sci —
+those checks are a fixed tax on every operation, and they also block LLVM
+from vectorizing the loops around them. jihoo's answer is to
+<strong>prove checks away at compile time</strong> and delete the proved
+ones, keeping a small trusted core. This is the most valuable single idea in
+the evaluation for sci: measured on jihoo's own compiler source, the prover
+deletes <strong>1,544 of 4,624 bounds and overflow checks (33.4%)</strong> in
+19 seconds.</p>
+
+<h2>The recipe</h2>
+<ul>
+<li><strong>Obligations are generated from MIR, not from source.</strong>
+Only linear integer inequalities are targeted — no dependent types, no
+general theorem proving.</li>
+<li><strong>The certificate is a Farkas combination</strong>: non-negative
+weights over known facts whose linear combination contradicts the negated
+goal. Checking a certificate is pure multiply-and-add.</li>
+<li><strong>The trusted checker is 155 lines</strong>
+(<code>compiler/linear.jh</code>). The prover itself (Fourier–Motzkin with a
+Bellman–Ford difference-constraint preference) is <em>untrusted</em>: a wrong
+proof is simply discarded, never believed.</li>
+<li><strong>Loops</strong> are handled with cut-point invariants proposed by
+an untrusted Houdini-style inference (propose — check — keep what
+verifies).</li>
+<li><strong>Every fact is annotated with its basis</strong> (path condition,
+type range, a callee's <code>ensures</code>, a type invariant), and the
+assumption set is a greatest fixed point, so one wrong <code>ensures</code>
+cannot silently poison the whole program.</li>
+<li><strong>Failure is bounded</strong>: a function with more than 2,000
+paths gets no proofs at all instead of stalling the compile.</li>
+</ul>
+
+<h2>Why it fits sci</h2>
+<p>SA is already an explicit IR, so obligations can be generated directly on
+SA functions — sci does not need to grow a dependent type system first. The
+trust split is the part to copy faithfully: the obligation generator defines
+the integer semantics and is trusted (in jihoo it is the expensive part,
+<code>vc.jh</code> 2,061 lines + <code>obligations.jh</code> 2,551 lines),
+the certificate checker is tiny and trusted, and everything clever is
+untrusted. Copying only the 155-line checker without budgeting for the
+generator would not reproduce the proof rate.</p>
+
+<h2>Adoption plan for sci</h2>
+<ol>
+<li>Start with the highest-yield obligation class: <strong>loop induction
+variable vs. length</strong> — index-against-<code>len</code> facts inside
+loops, which dominate the proved set in jihoo's data.</li>
+<li>Keep the trusted checker at the hundred-line scale; certificates are
+Farkas weight vectors, verified by multiply-and-add only.</li>
+<li>Prove-or-keep semantics: an unproved check stays in the output with a
+recorded reason, exactly as today — the prover may only delete, never
+weaken.</li>
+<li>Measure on the real hot paths (the slaredis / slanginx workloads), not
+on micro-benchmarks: proof rate on hot functions and end-to-end bench delta
+are the acceptance numbers.</li>
+</ol>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">Sources: jihoo
+compiler/linear.jh, vc.jh, obligations.jh at HEAD 5f18751…;
+<code>jihoo verify compiler/main.jh</code> measured 2026-11-27: 19.059 s,
+7,597 checks, 1,761 proved (bounds+overflow 1,544/4,624). jihoo's own docs
+mark this line as research-grade since 0.6, but <code>verify</code> is a
+shipping command that runs by default in every build, and its engineering
+viability is demonstrated by jihoo's own byte-identical bootstrap.</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/20_jihoo/02_proof_elimination.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>
+</atem:invoke>
+</atem:function_calls>

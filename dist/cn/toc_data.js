@@ -1008,6 +1008,27 @@ var TOC = [
   ]
  },
  {
+  "t": "jihoo 评估：sci 的借鉴",
+  "f": null,
+  "c": [
+   {
+    "t": "jihoo 实测：自举、速度与验证",
+    "f": "content/20_jihoo/01_measured.html",
+    "c": []
+   },
+   {
+    "t": "证明消检查（Farkas 证书）",
+    "f": "content/20_jihoo/02_proof_elimination.html",
+    "c": []
+   },
+   {
+    "t": "借用核、drop 展开与编译速度",
+    "f": "content/20_jihoo/03_borrow_drop_speed.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "sa→C 后端",
   "f": null,
   "c": [

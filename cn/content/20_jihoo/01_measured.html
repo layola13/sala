@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>jihoo 实测：自举、速度与验证</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">jihoo 评估：sci 的借鉴 &gt; jihoo 实测：自举、速度与验证</div>
+<h1>jihoo 实测：自举、速度与验证</h1>
+
+<p><a href="https://github.com/jihoolang/jihoo">jihoo</a> 是一门小型系统语言，
+其编译器（53,489 行 jihoo 代码）集借用检查、编译期证明消检查与 LLVM 后端于一体。
+sci（SLA 底层的 SA 编译器）当前卡在性能上，因此对 jihoo 做了一次动手实测评估，
+看它的做法、代价，以及 sci 能借鉴什么。本章记录实测结果与借鉴评估。以下全部数字
+于 2026-11-27 实测，对象为 jihoo HEAD
+<code>5f18751de4e80bc09f62a9899f8d66b5641fb9a1</code>（版本 0.6.0，
+由仓内捆绑的 v0.5.0 种子自举）。</p>
+
+<p><strong>隔离口径。</strong>评估在 8 核机器的专属目录内进行，LLVM 21.1.8 只解压
+到隔离前缀（不做系统安装、不改全局 PATH 与链接器配置），全程未触碰 sci 源码树——
+目的是学 jihoo，不扰生产编译器。</p>
+
+<h2>自举：到达不动点</h2>
+<table>
+<tr><th>阶段</th><th>墙钟</th><th>结果</th></tr>
+<tr><td>种子 0.5.0 编译 <code>compiler/</code></td><td>63.89 秒</td><td>stage1，自报 jihoo 0.6.0</td></tr>
+<tr><td>stage1 自编译 <code>compiler/</code></td><td>63.05 秒</td><td>stage2，自报 jihoo 0.6.0</td></tr>
+</table>
+<p>stage1 与 stage2 <strong>逐字节一致</strong>（sha256 均为
+<code>caa942d2…</code>，各 2,804,192 字节）：自举到达不动点。
+冒烟：<code>jihoo run examples/hello.jh</code> 输出 <code>Hello, jihoo!</code>。</p>
+
+<h2>运行速度：约为 C 的 94–98%</h2>
+<p>官方 functional-fusion 基准（size=1,000,000，7 次重复取中位数，同一 harness，
+C 对照为 clang -O2）：</p>
+<table>
+<tr><th>实现</th><th>用时</th><th>对 C 比值</th><th>分配/调用</th></tr>
+<tr><td>C 对照（clang -O2）</td><td>0.048292 秒</td><td>1.000</td><td>0</td></tr>
+<tr><td>jihoo 迭代器组合</td><td>0.049073 秒</td><td>1.016</td><td>0</td></tr>
+<tr><td>jihoo 函数式组合</td><td>0.051345 秒</td><td>1.063</td><td>0</td></tr>
+<tr><td>jihoo 手写循环</td><td>0.051865 秒</td><td>1.074</td><td>0</td></tr>
+<tr><td>jihoo 分阶段</td><td>0.052092 秒</td><td>1.079</td><td>0</td></tr>
+<tr><td>jihoo eager（未融合基线）</td><td>0.717586 秒</td><td>14.859</td><td>37</td></tr>
+</table>
+<p>机器码层证据：functional、staged、handwritten 三个函数体逐字节相同
+（各 144 字节）——组合写法被完全融合到与手写循环同一机器码，且零分配。
+未融合的 eager 形则显示融合的价值：慢 14.9 倍、每次调用 37 次分配。</p>
+
+<h2>编译速度：前端只占约 3%</h2>
+<table>
+<tr><th>工作量</th><th>check（仅前端）</th><th>full（-O2 全编译）</th></tr>
+<tr><td>compiler（全 53,489 行）</td><td>1.952 秒</td><td>62.951 秒</td></tr>
+<tr><td>comptime</td><td>0.153 秒</td><td>0.778 秒</td></tr>
+<tr><td>format</td><td>0.210 秒</td><td>1.325 秒</td></tr>
+<tr><td>fusion kernels</td><td>0.020 秒</td><td>0.213 秒</td></tr>
+</table>
+<p>整个编译器的前端检查只要约 2 秒；全编译的其余约 97% 都在 LLVM 优化与代码生成。
+可迁移的是这个结构读数（前端占比约 3%），不是绝对数字——jihoo 的语言面与
+编译器规模都比 sci 小得多。</p>
+
+<h2>验证：三分之一的检查被证明删除</h2>
+<p><code>jihoo verify</code> 对其自家编译器 + std 实例（共 4,960 个函数）
+19.059 秒跑完，<strong>7,597 个检查中证明 1,761 个</strong>：边界与溢出检查
+1,544 / 4,624（33.4%）、可能 panic 的调用 217 / 2,424、panics 0 / 549。
+未证明的检查逐条保留并注明原因。验证在每次构建时默认运行
+（<code>--no-verify</code> 才关），所以上面 63 秒的自举已经含其成本。
+证明引擎的工作方式——以及为什么它是本次评估里对 sci 最有价值的一条——见下一页。</p>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">出处：jihoolang/jihoo
+HEAD 5f18751de4e80bc09f62a9899f8d66b5641fb9a1（0.6.0）；种子包 sha256
+a9fedcae…3134ecadc，与 bootstrap/README.md 钉住值一致。全部数字 2026-11-27
+在 8 核机器、隔离前缀 LLVM 21.1.8 下实测；sci 源码未触碰。完整评估记录：
+jihoo-bench RESULT（sha256 ccb30ebbc36bd049…）。</p>
+</body>
+</html>

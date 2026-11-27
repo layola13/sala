@@ -42,6 +42,7 @@ SECTIONS = [
     {"dir": "07_ui",         "title": {"en": "SAX / MUI UI Development", "cn": "SAX / MUI 界面开发"}},
     {"dir": "08_faq",        "title": {"en": "FAQ and Troubleshooting", "cn": "FAQ 与故障排查"}},
     {"dir": "14_zig017_perf", "title": {"en": "Zig 0.17 Upgrade Comparison", "cn": "Zig 0.17 升级对比"}},
+    {"dir": "20_jihoo", "title": {"en": "Evaluating jihoo: Lessons for sci", "cn": "jihoo 评估：sci 的借鉴"}},
     {"dir": "15_sa2c", "title": {"en": "sa→C Backend", "cn": "sa→C 后端"}},
     {"dir": "16_policy", "title": {"en": "Runtime Permissions and Auditing", "cn": "运行时权限与审计"}},
 ]

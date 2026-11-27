@@ -188,6 +188,9 @@ Default Font=微软雅黑,9,0
 ../../dist/cn/content/08_faq/04_performance.html
 ../../dist/cn/content/08_faq/05_limitations_roadmap.html
 ../../dist/cn/content/14_zig017_perf/01_zig017_vs_014.html
+../../dist/cn/content/20_jihoo/01_measured.html
+../../dist/cn/content/20_jihoo/02_proof_elimination.html
+../../dist/cn/content/20_jihoo/03_borrow_drop_speed.html
 ../../dist/cn/content/15_sa2c/01_overview.html
 ../../dist/cn/content/15_sa2c/02_runtime.html
 ../../dist/cn/content/15_sa2c/03_semantics.html

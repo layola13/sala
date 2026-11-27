@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>证明消检查（Farkas 证书）</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">jihoo 评估：sci 的借鉴 &gt; 证明消检查（Farkas 证书）</div>
+<h1>证明消检查（Farkas 证书）</h1>
+
+<p>SA 里每次 Vec 索引与算术运算都带一个运行时边界或溢出检查。在热路径上
+（建在 sci 之上的 Redis、nginx 类负载），这些检查是每次操作的固定税，
+还会挡住 LLVM 对周围循环的向量化。jihoo 的解法是<strong>在编译期把检查
+证明掉并删除已证明的那些</strong>，同时把可信面压到最小。这是本次评估里
+对 sci 最有价值的一条：在 jihoo 编译器自源码上实测，证明器 19 秒删掉
+<strong>4,624 个边界与溢出检查中的 1,544 个（33.4%）</strong>。</p>
+
+<h2>配方</h2>
+<ul>
+<li><strong>义务从 MIR 生成，不从源码生成。</strong>目标只限线性整数不等式——
+不引入依赖类型，不做通用定理证明。</li>
+<li><strong>证书是 Farkas 组合</strong>：一组非负权重作用于已知事实，
+其线性组合与目标的否定矛盾。验证证书只是乘加运算。</li>
+<li><strong>可信 checker 只有 155 行</strong>（<code>compiler/linear.jh</code>）。
+证明器本体（Fourier–Motzkin，差分约束走 Bellman–Ford 优先）<em>完全不可信</em>：
+证明错了只是被丢弃，永远不会被采信。</li>
+<li><strong>循环</strong>靠切点不变式处理，不变式由不可信的 Houdini 式推断
+提出（提议—检查—只保留验证过的）。</li>
+<li><strong>每条事实都标注依据</strong>（路径条件 / 类型范围 / 被调函数的
+<code>ensures</code> / 类型不变式），假设集取最大不动点，一条错的
+<code>ensures</code> 不会静默污染全程序。</li>
+<li><strong>失败有界</strong>：单函数路径超过 2,000 条就整体放弃该函数的
+证明，不拖垮编译。</li>
+</ul>
+
+<h2>为什么适配 sci</h2>
+<p>SA 本身就是显式 IR，义务可以直接挂在 SA 函数上生成——sci 不需要先长出
+一套依赖类型系统。可信面三分法要原样学：义务生成器定义整数语义、属可信面
+（在 jihoo 里这也是最贵的部分，<code>vc.jh</code> 2,061 行 +
+<code>obligations.jh</code> 2,551 行），证书 checker 小而可信，
+其余聪明部件全部不可信。只抄那 155 行 checker、不给生成器留预算，
+得不到同样的证明率。</p>
+
+<h2>sci 的落地路线</h2>
+<ol>
+<li>先做收益最大的一类义务：<strong>循环归纳变量 vs 长度</strong>——循环内
+索引对 <code>len</code> 的事实，在 jihoo 的数据里占已证明集合的大头。</li>
+<li>可信 checker 保持百行级；证书就是 Farkas 权重向量，只做乘加验算。</li>
+<li>证明不了就保留：未证明的检查照旧留在产物里并记录原因，与今天的行为
+一致——证明器只能删除，不能削弱。</li>
+<li>验收看真实热路径（slaredis / slanginx 负载），不看微基准：热函数上的
+证明率与端到端 bench 变化才是验收数字。</li>
+</ol>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">出处：jihoo
+compiler/linear.jh、vc.jh、obligations.jh（HEAD 5f18751…）；
+<code>jihoo verify compiler/main.jh</code> 2026-11-27 实测：19.059 秒，
+7,597 个检查、证明 1,761 个（边界+溢出 1,544/4,624）。jihoo 自家文档
+自 0.6 起把这条线标为研究状态，但 <code>verify</code> 是每次构建默认运行
+的发布命令，其工程可用性已由 jihoo 自家逐字节一致的自举证明。</p>
+</body>
+</html>

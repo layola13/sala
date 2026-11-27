@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>jihoo Measured: Bootstrap, Speed, Verification</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Evaluating jihoo: Lessons for sci &gt; jihoo Measured: Bootstrap, Speed, Verification</div>
+<h1>jihoo Measured: Bootstrap, Speed, Verification</h1>
+
+<p><a href="https://github.com/jihoolang/jihoo">jihoo</a> is a small systems
+language whose compiler (53,489 lines of jihoo) combines a borrow checker, a
+compile-time proof engine that deletes runtime checks, and an LLVM backend.
+Because sci — the SA compiler underneath SLA — is currently bottlenecked on
+performance, jihoo was evaluated hands-on as a source of borrowable
+engineering: what it does, what it costs, and what of it sci can adopt. This
+chapter records the measured results and the adoption assessment. Everything
+below was run on 2026-11-27 against jihoo HEAD
+<code>5f18751de4e80bc09f62a9899f8d66b5641fb9a1</code> (version 0.6.0,
+bootstrapped from the bundled v0.5.0 seed).</p>
+
+<p><strong>Isolation.</strong> The evaluation ran in a dedicated directory on
+an 8-core host, with LLVM 21.1.8 unpacked into an isolated prefix (no system
+install, no global PATH or linker changes). The sci tree was not touched; the
+point was to learn from jihoo, not to disturb the production compiler.</p>
+
+<h2>Bootstrap: a reached fixed point</h2>
+<table>
+<tr><th>Stage</th><th>Wall clock</th><th>Result</th></tr>
+<tr><td>Seed 0.5.0 compiles <code>compiler/</code></td><td>63.89 s</td><td>stage1, reports jihoo 0.6.0</td></tr>
+<tr><td>stage1 compiles <code>compiler/</code></td><td>63.05 s</td><td>stage2, reports jihoo 0.6.0</td></tr>
+</table>
+<p>stage1 and stage2 are <strong>byte-identical</strong> (sha256
+<code>caa942d2…</code>, 2,804,192 bytes each): the self-hosting bootstrap
+reaches its fixed point. Smoke test: <code>jihoo run examples/hello.jh</code>
+prints <code>Hello, jihoo!</code>.</p>
+
+<h2>Runtime speed: 94–98% of C</h2>
+<p>The official functional-fusion benchmark (size 1,000,000, medians of 7
+repeats, same harness, C reference compiled by clang -O2):</p>
+<table>
+<tr><th>Implementation</th><th>Time</th><th>Ratio vs C</th><th>Allocations/call</th></tr>
+<tr><td>C reference (clang -O2)</td><td>0.048292 s</td><td>1.000</td><td>0</td></tr>
+<tr><td>jihoo iterator combinators</td><td>0.049073 s</td><td>1.016</td><td>0</td></tr>
+<tr><td>jihoo functional combinators</td><td>0.051345 s</td><td>1.063</td><td>0</td></tr>
+<tr><td>jihoo handwritten loop</td><td>0.051865 s</td><td>1.074</td><td>0</td></tr>
+<tr><td>jihoo staged</td><td>0.052092 s</td><td>1.079</td><td>0</td></tr>
+<tr><td>jihoo eager (unfused baseline)</td><td>0.717586 s</td><td>14.859</td><td>37</td></tr>
+</table>
+<p>Machine-code evidence: the functional, staged and handwritten function
+bodies are byte-identical (144 bytes each) — combinator code is fully fused
+down to the same code as a handwritten loop, with zero allocation. The
+unfused eager form shows what fusion is worth: 14.9× slower and 37
+allocations per call.</p>
+
+<h2>Compile speed: the frontend is 3%</h2>
+<table>
+<tr><th>Workload</th><th>check (frontend only)</th><th>full (-O2)</th></tr>
+<tr><td>compiler (all 53,489 lines)</td><td>1.952 s</td><td>62.951 s</td></tr>
+<tr><td>comptime</td><td>0.153 s</td><td>0.778 s</td></tr>
+<tr><td>format</td><td>0.210 s</td><td>1.325 s</td></tr>
+<tr><td>fusion kernels</td><td>0.020 s</td><td>0.213 s</td></tr>
+</table>
+<p>Checking the entire compiler takes about 2 seconds; the remaining ~97% of
+a full build is LLVM optimization and code generation. The structural lesson
+(frontend share ≈ 3%) transfers even though the absolute numbers do not —
+jihoo's language surface and compiler are much smaller than sci's.</p>
+
+<h2>Verification: a third of all checks proved away</h2>
+<p><code>jihoo verify</code> on its own compiler plus std instances (4,960
+functions) finishes in 19.059 s and <strong>proves 1,761 of 7,597
+checks</strong>: bounds and overflow checks 1,544 / 4,624 (33.4%),
+potentially panicking calls 217 / 2,424, panics 0 / 549. Unproved checks are
+kept, each with a stated reason. Verification runs by default on every build
+(<code>--no-verify</code> disables it), so the 63-second bootstrap above
+already includes its cost. How the proof engine works — and why it is the
+single most valuable thing for sci to borrow — is the next page.</p>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">Sources: jihoolang/jihoo
+HEAD 5f18751de4e80bc09f62a9899f8d66b5641fb9a1 (0.6.0); seed package sha256
+a9fedcae…3134ecadc, matching the value pinned in bootstrap/README.md. All
+numbers measured 2026-11-27 on an 8-core host with LLVM 21.1.8 in an isolated
+prefix; sci sources untouched. Full evaluation record: jihoo-bench RESULT
+(sha256 ccb30ebbc36bd049…).</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/20_jihoo/01_measured.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

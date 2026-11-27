@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Borrow Core, Drop Elaboration, Compile Speed</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Evaluating jihoo: Lessons for sci &gt; Borrow Core, Drop Elaboration, Compile Speed</div>
+<h1>Borrow Core, Drop Elaboration, Compile Speed</h1>
+
+<p>Beyond proof-based check elimination, three more pieces of jihoo
+engineering transfer to sci — as techniques, not as semantics. SA's rules
+(&amp;T permission decided by the Referee from the actual load or store, and
+SLA's ownership model above it) stay exactly as they are; what follows is
+about how the checking and lowering machinery is organized.</p>
+
+<h2>Borrow core: small kernel re-checks a big frontend</h2>
+<p>jihoo's <code>check.jh</code> (1,372 lines) does not trust its frontend:
+it recomputes all loans independently on MIR, so a frontend bug becomes a
+compile error instead of a dangling pointer. Three techniques are directly
+borrowable:</p>
+<ul>
+<li><strong>Loans as flat bit vectors</strong> per program point — joins and
+copies never allocate per local.</li>
+<li><strong>Function-level relations</strong> (parameter origin → returned
+view / inout store) derived by fixed point and maintained incrementally:
+when a relation grows, only direct callers are re-derived and only blocks
+whose loans changed are revisited; call sites use the derived relation
+instead of assuming the worst on every call.</li>
+<li><strong>LLVM attributes for borrowed parameters</strong>:
+<code>noalias</code> / <code>dereferenceable</code> / <code>readonly</code>,
+which the borrow rules guarantee. If sci does not annotate its borrowed
+parameters equivalently, this is a low-cost, direct-yield gap: the Referee
+already knows the facts, they are just not being handed to LLVM.</li>
+</ul>
+<p>Not borrowable: jihoo's semantics (borrows never escape a function;
+<code>borrow</code>/<code>inout</code>/<code>sink</code> signatures make
+checking local). Moving them would redefine SA, not optimize sci.</p>
+
+<h2>Drop elaboration: insertion and pruning as separate passes</h2>
+<p><code>elab.jh</code> (749 lines) tracks initialization on MIR in two
+deliberately separated steps: the semantic pass first inserts a drop for
+every owned local at scope exit, unconditionally; the elaborator then
+deletes drops for locals that were definitely moved, and generates a drop
+flag only for locals moved on some paths. Anything decidable statically
+never becomes a runtime flag — the Perceus-style division of labour.</p>
+<p>sci/SLA's own recent defects live exactly on this surface: a select-case
+binding over-released by scope-exit retirement, and a struct-literal
+temporary double-freed by caller/callee drop disagreement. Both were static
+drop-placement decisions made in fused code. jihoo's organization —
+insertion and pruning as separate passes, pruning independently testable on
+MIR, plus a kill switch (<code>JIHOO_NO_ELAB</code>) to isolate the pass
+while diagnosing — is the structural fix worth copying. The ownership rules
+themselves remain SA's own.</p>
+
+<h2>Compile speed: where the 63 seconds actually go</h2>
+<ul>
+<li><strong>Single-pass semantics</strong>: checking and lowering are fused;
+generics are processed per instantiation from a queue. The frontend never
+makes multiple AST passes — the structural reason it is only ~3% of a full
+build.</li>
+<li><strong>Text IR + dlopen libLLVM C API</strong>: no C++ shim, no headers;
+build and deployment stay light. (This one mainly informs the Rust sla
+backend's organization; sci's Zig route differs in shape.)</li>
+<li><strong>Codegen units</strong>: after optimization, a large module is
+split into at most 8 units, each with its own LLVM context, emitted in
+parallel (<code>JIHOO_CODEGEN_UNITS</code>). If sci emits large programs
+single-threaded, this is a ready-made speedup.</li>
+</ul>
+
+<h2>What does not transfer</h2>
+<ul>
+<li>Absolute compile times: jihoo's compiler is 53,489 lines with a smaller
+language surface; its 63-second bootstrap cannot be compared head-to-head
+with sci's. The transferable datum is the frontend's ~3% share.</li>
+<li>Borrow semantics, as above: techniques yes, language definition no.</li>
+<li>The proof engine's maturity caveat: jihoo's docs call the verification
+line research-grade from 0.6 on; the measured, shipping behaviour (default
+<code>verify</code> in every build, fixed-point bootstrap) is what this
+assessment relies on.</li>
+</ul>
+
+<p style="margin-top:24px;font-size:90%;opacity:.75">Sources: jihoo
+compiler/check.jh, elab.jh, backend.jh and internals docs at HEAD 5f18751…;
+measurements 2026-11-27 (see “jihoo Measure”). SLA-side defect references:
+select-case over-release and struct-literal double-free, both fixed in
+sa_plugin_sla (a8f635f8 / 19073ab4).</p>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/20_jihoo/03_borrow_drop_speed.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>
+</atem:invoke>
+</atem:function_calls>

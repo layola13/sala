@@ -1578,6 +1578,38 @@
 <LI> <OBJECT type="text/site properties">
 <param name="ImageNumber" value="11">
 </OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Evaluating jihoo: Lessons for sci">
+<param name="Local" value="../dist/content/20_jihoo/01_measured.html">
+</OBJECT>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="jihoo Measure: Bootstrap, Speed, Verification">
+<param name="Local" value="../dist/content/20_jihoo/01_measured.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Proof-Based Check Elimination">
+<param name="Local" value="../dist/content/20_jihoo/02_proof_elimination.html">
+</OBJECT>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="Borrow Core, Drop Elaboration, Compile Speed">
+<param name="Local" value="../dist/content/20_jihoo/03_borrow_drop_speed.html">
+</OBJECT>
+</UL>
+</UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
 <LI> <OBJECT type="text/sitemap"><param name="Name" value="sa→C Backend">
 <param name="Local" value="../dist/content/15_sa2c/01_overview.html">
 </OBJECT>

@@ -1008,6 +1008,27 @@ var TOC = [
   ]
  },
  {
+  "t": "Evaluating jihoo: Lessons for sci",
+  "f": null,
+  "c": [
+   {
+    "t": "jihoo Measure: Bootstrap, Speed, Verification",
+    "f": "content/20_jihoo/01_measured.html",
+    "c": []
+   },
+   {
+    "t": "Proof-Based Check Elimination",
+    "f": "content/20_jihoo/02_proof_elimination.html",
+    "c": []
+   },
+   {
+    "t": "Borrow Core, Drop Elaboration, Compile Speed",
+    "f": "content/20_jihoo/03_borrow_drop_speed.html",
+    "c": []
+   }
+  ]
+ },
+ {
   "t": "sa→C Backend",
   "f": null,
   "c": [
