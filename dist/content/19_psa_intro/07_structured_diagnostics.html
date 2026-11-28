@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Structured Diagnostics</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">Introducing psa &gt; Structured Diagnostics</div>
+<h1>Structured Diagnostics</h1>
+
+<p><strong>Status: landed.</strong> psa’s errors are structured: every
+diagnostic carries a stable code, a named rule, one plain-language
+message, the position (or positions) it blames, and — where the rule
+has one — an actionable fix hint. The same diagnostic renders as text
+for humans and as JSON for tools. Runtime panics use a parallel
+numeric code table, and one command, <code>psa explain</code>, explains
+either kind of code. The system was built by the 2026-11-26 errors line
+and integrated into the master tree; its close-out batch landed in
+2026-11-28 (sapy <code>d696d65a</code>), completing the panic table and
+putting the comparison test suite in the repository.</p>
+
+<h2>Every compile-time error has a stable code</h2>
+<p>Codes are grouped by the stage that refuses the program:
+<code>PSA-L###</code> for the lexer, <code>PSA-P###</code> for the
+parser, <code>PSA-E####</code> for the emitter (type and ownership
+checks), and <code>PSA-H###</code> for failures of the host pipeline
+itself (for example <code>PSA-H002</code>, input file not found). The
+registry holds 345 unique codes. A diagnostic the registry cannot
+classify falls back to a visibly generic code (<code>PSA-L900</code> /
+<code>PSA-P900</code> / <code>PSA-E9000</code>) rather than borrowing a
+specific one — and the in-repository audit of all 13 reject examples
+finds none of them on a fallback code.</p>
+<p>A diagnostic may carry more than one position: each site has a
+file, line, column and a <em>role</em>. A use-after-move error, for
+instance, points at the use as the primary site and at the move as a
+second site, because both halves are needed to fix it.</p>
+
+<h2>A worked example (measured, verbatim)</h2>
+<p>This three-line program moves a list and then uses the dead
+binding:</p>
+<pre>xs = [1, 2, 3]
+ys = xs
+print(xs)</pre>
+<p><code>psa check moved.psa</code> refuses it (exit code 1) with:</p>
+<pre>error[PSA-E1001]: use of `xs` after it was moved
+  --&gt; moved.psa:3:7
+   | print(xs)
+   |       ^
+   = site: move (line 2:6)
+   | ys = xs
+   |      ^
+note: container assignment moves the value; the binding is dead until it is re-bound
+hint: re-bind `xs` before line 3, or bind a copy at line 2</pre>
+<p>The text form gives the code, both sites with source excerpts and
+carets, a note explaining the rule, and a hint that says what to
+change.</p>
+
+<h2>Machine-readable output: <code>--error-format=json</code></h2>
+<p>The global flag <code>--error-format=text|json</code> is accepted
+before or after the subcommand (the environment variable
+<code>PSA_ERROR_FORMAT</code> is the fallback). The same check in JSON
+form prints one object:</p>
+<pre>{"code":"PSA-E1001","rule":"use-after-move","kind":"emit","file":"moved.psa","sites":[{"line":3,"col":7,"role":"use","snippet":"print(xs)"},{"line":2,"col":6,"role":"move","snippet":"ys = xs"}],"message":"use of `xs` after it was moved","note":"container assignment moves the value; the binding is dead until it is re-bound","hint":"re-bind `xs` before line 3, or bind a copy at line 2"}</pre>
+<p>The fields are the contract: <code>code</code>, <code>rule</code>,
+<code>kind</code>, <code>file</code>, <code>sites</code> (each with
+line, column, role and source snippet), <code>message</code>, and the
+optional <code>note</code> and <code>hint</code>. A diagnostic with no
+source position (a host failure such as a missing input file) renders
+an empty <code>sites</code> list rather than inventing one.</p>
+
+<h2>Runtime panic codes, and <code>psa explain</code></h2>
+<p>Runtime failures panic with a bare numeric code (the
+<a href="05_source_map.html">source map</a> page explains how the code
+is traced back to source positions). The codes are not folklore: a
+machine-readable master table, <code>PANIC-CODES.json</code> in
+psa_std, is generated from the compiler’s own table and holds
+<strong>113 keys — 102 codes the compiler actually emits, plus 11
+reserved</strong>. Each entry records the code, its rule name, a
+category, a one-line summary, and a fix note where one applies. A
+checked invariant of the build is that every emitted code is in the
+table; the one historical violation (77083, emitted but unregistered)
+was found by that check and repaired by registering it.</p>
+<p><code>psa explain</code> looks a code up, in either family:</p>
+<pre>$ psa explain 77083
+panic 77083 - the module environment was read before it was published (closure runtime invariant; unreachable in a correctly emitted program) (PSA-R77083)
+  category: runtime-core
+  fix: this is a psa internal invariant, not a problem in your code; please report it with the source file
+
+$ psa explain PSA-E1001
+PSA-E1001 (use-after-move)
+  use of a name after it was moved; the diagnostic carries two sites (the use and the move)</pre>
+<p>With <code>--error-format=json</code>, explain answers in the same
+JSON shape (a runtime code reports as <code>PSA-R77083</code>-style,
+kind <code>runtime</code>, empty sites). An unknown code fails loudly
+— <code>psa explain 99999</code> exits 1 with
+<code>psa explain: unknown panic code 99999</code> — rather than
+guessing.</p>
+
+<h2>How this is verified</h2>
+<p>The landed evidence, re-run on the landing head: the in-repository
+comparison suite <code>tests-diag</code> passes <strong>34/34</strong>
+(nine numbered negative cases read in both text and JSON form, the
+host-level H002 case, and six explain cases including the loud failure
+on an unknown code); the panic-table check passes (emitted 102 ⊆
+table 113); the registry audit over the repository’s 13 reject
+examples finds 8 with psa codes and 0 on fallback codes; and the
+positive corpus still emits cleanly, <strong>61/61</strong> with no
+regression.</p>
+
+<h2>Registered gaps (not hidden)</h2>
+<ul>
+<li><strong>Five of the 13 reject examples are still refused
+downstream, without a psa-level diagnostic.</strong> The clearest is
+lambda capture: psa accepts the program at emit time and the generated
+code is refused by the host pipeline, reported as an unmapped host
+diagnostic — the registered code <code>PSA-E5002</code> exists but is
+unreachable for that shape. The follow-up batch adds emit-time checks
+for these shapes; until it lands, those five refusals carry no PSA
+code and no user-source site.</li>
+<li><strong>Hints are not yet universal.</strong> Of the registry’s
+368 message templates, about 269 still have no hint and about 307 no
+cleaned-up message rewrite. Every one of them has a stable code and
+rule today; the plain-language pass proceeds in census frequency
+order.</li>
+<li><strong>Code 77084 is unassigned.</strong> Nothing emits it and it
+is not in the table; whether to reserve it explicitly is an open
+decision, recorded rather than silently settled.</li>
+</ul>
+
+<h2>Key Points of This Page</h2>
+<ul>
+<li>Every psa error has a stable code (PSA-L/P/E/H families, 345 registered), a rule, positions with roles, a plain message, and a fix hint where the rule has one.</li>
+<li><code>--error-format=json</code> renders the same diagnostic as one JSON object with a fixed field contract; position-less diagnostics render empty sites, never invented ones.</li>
+<li>Runtime panics use a numeric master table (113 keys: 102 emitted, 11 reserved) shipped as <code>PANIC-CODES.json</code>; <code>psa explain</code> explains both families and fails loudly on unknown codes.</li>
+<li>Verified on the landing head: comparison suite 34/34, panic-table check passes, positive corpus 61/61 unchanged.</li>
+<li>Registered gaps: five reject shapes still refused downstream without a psa code (PSA-E5002 batch pending), hints not yet universal, code 77084 unassigned.</li>
+</ul>
+<div class="lang-switch" style="margin:16px 0 8px;font-size:13px;"><a href="../../cn/content/19_psa_intro/07_structured_diagnostics.html">中文版</a></div>
+<footer class="copyright">© 2026 layola13 · SA / SLA Help Documentation · Please credit the source when reposting<br>The SA compiler (<a href="https://github.com/layola13/sci">sci</a>) is released under the Apache License 2.0, with copyright held by the authors listed in NOTICE; the plugins and upstream components mentioned in this documentation remain under their respective original licenses.</footer>
+</body>
+</html>

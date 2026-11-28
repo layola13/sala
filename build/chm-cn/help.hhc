@@ -605,6 +605,14 @@
 <param name="Local" value="../../dist/cn/content/19_psa_intro/06_status_and_limits.html">
 </OBJECT>
 </UL>
+<UL>
+<LI> <OBJECT type="text/site properties">
+<param name="ImageNumber" value="11">
+</OBJECT>
+<LI> <OBJECT type="text/sitemap"><param name="Name" value="结构化诊断">
+<param name="Local" value="../../dist/cn/content/19_psa_intro/07_structured_diagnostics.html">
+</OBJECT>
+</UL>
 </UL>
 <UL>
 <LI> <OBJECT type="text/site properties">

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>结构化诊断</title>
+<link rel="stylesheet" href="../../assets/help.css">
+</head>
+<body class="topic">
+<div class="topic-header">认识 psa &gt; 结构化诊断</div>
+<h1>结构化诊断</h1>
+
+<p><strong>状态：已落地。</strong>psa 的报错是结构化的：每条诊断都带一个稳定编号、一个命名规则、一句人话说明、它所指的位置（可以不止一处），以及——规则有修复提示时——一条可照着做的修复提示。同一条诊断既能以文本给人看，也能以 JSON 给工具读。运行时 panic 用一套平行的数字码总表，而一条命令 <code>psa explain</code> 可以解释这两类码。这套系统由 2026-11-26 的 errors 线建成并集成进主树；其收尾批已于 2026-11-28 落地（sapy <code>d696d65a</code>），补齐了 panic 总表并把对比测试套件入了仓。</p>
+
+<h2>每个编译期错误都有稳定编号</h2>
+<p>编号按拒绝程序的阶段分组：词法 <code>PSA-L###</code>、语法 <code>PSA-P###</code>、发射期（类型与所有权检查）<code>PSA-E####</code>、宿主流水线自身失败 <code>PSA-H###</code>（例如 <code>PSA-H002</code>，输入文件不存在）。注册表共 345 个唯一编号。注册表分类不了的诊断会落到一个明显是兜底的码（<code>PSA-L900</code> / <code>PSA-P900</code> / <code>PSA-E9000</code>），而不是借用一个具体编号——而仓内全部 13 个负例的审计结果是：没有一个落在兜底码上。</p>
+<p>一条诊断可以带不止一个位置：每个 site 有文件、行、列与一个<em>角色</em>。例如 use-after-move 错误把「使用处」作主 site、把「移动处」作第二 site，因为两处都看清才修得对。</p>
+
+<h2>一个完整例子（实测原文）</h2>
+<p>这个三行程序把一个列表移动走之后又用了那个已死的绑定：</p>
+<pre>xs = [1, 2, 3]
+ys = xs
+print(xs)</pre>
+<p><code>psa check moved.psa</code> 拒绝它（退出码 1），输出为：</p>
+<pre>error[PSA-E1001]: use of `xs` after it was moved
+  --&gt; moved.psa:3:7
+   | print(xs)
+   |       ^
+   = site: move (line 2:6)
+   | ys = xs
+   |      ^
+note: container assignment moves the value; the binding is dead until it is re-bound
+hint: re-bind `xs` before line 3, or bind a copy at line 2</pre>
+<p>文本形态给出：编号、两个 site（带源码摘录与定位符）、一条解释规则的 note、一条说明改哪里的 hint。</p>
+
+<h2>机读输出：<code>--error-format=json</code></h2>
+<p>全局旗标 <code>--error-format=text|json</code> 在子命令之前或之后都接受（环境变量 <code>PSA_ERROR_FORMAT</code> 是兜底来源）。同一次 check 的 JSON 形态打印一个对象：</p>
+<pre>{"code":"PSA-E1001","rule":"use-after-move","kind":"emit","file":"moved.psa","sites":[{"line":3,"col":7,"role":"use","snippet":"print(xs)"},{"line":2,"col":6,"role":"move","snippet":"ys = xs"}],"message":"use of `xs` after it was moved","note":"container assignment moves the value; the binding is dead until it is re-bound","hint":"re-bind `xs` before line 3, or bind a copy at line 2"}</pre>
+<p>字段即契约：<code>code</code>、<code>rule</code>、<code>kind</code>、<code>file</code>、<code>sites</code>（每项带行、列、角色与源码摘录）、<code>message</code>，以及可选的 <code>note</code> 与 <code>hint</code>。没有源码位置的诊断（如输入文件缺失这类宿主失败）会渲染空的 <code>sites</code> 列表，而不是编造一个位置。</p>
+
+<h2>运行时 panic 码与 <code>psa explain</code></h2>
+<p>运行时失败以裸数字码 panic（<a href="05_source_map.html">Source Map</a> 一页讲如何把码追溯回源码位置）。这些码不是口口相传的：一张机读总表 <code>PANIC-CODES.json</code>（在 psa_std 里）由编译器自家的码表生成，共 <strong>113 个键——102 个是编译器实际发射的码，另 11 个为预留</strong>。每条记录码、规则名、类别、一句摘要，以及适用时的一条修复说明。构建有一条受检不变量：每个被发射的码都必须在表内；历史上唯一一处违反（77083 被发射却没登记）正是被这项检查发现、并以补登记修复的。</p>
+<p><code>psa explain</code> 查任意一族的码：</p>
+<pre>$ psa explain 77083
+panic 77083 - the module environment was read before it was published (closure runtime invariant; unreachable in a correctly emitted program) (PSA-R77083)
+  category: runtime-core
+  fix: this is a psa internal invariant, not a problem in your code; please report it with the source file
+
+$ psa explain PSA-E1001
+PSA-E1001 (use-after-move)
+  use of a name after it was moved; the diagnostic carries two sites (the use and the move)</pre>
+<p>带 <code>--error-format=json</code> 时，explain 以同样的 JSON 形态作答（运行时码报为 <code>PSA-R77083</code> 式、kind 为 <code>runtime</code>、sites 为空）。未知码响亮失败——<code>psa explain 99999</code> 以退出码 1 报 <code>psa explain: unknown panic code 99999</code>——而不是猜一个解释。</p>
+
+<h2>如何验证</h2>
+<p>落地证据（在落地头上复跑）：仓内对比套件 <code>tests-diag</code> <strong>34/34</strong> 全过（9 个编号负例在 text 与 JSON 双格式下判读、宿主级 H002 一例、explain 六项含未知码响亮失败）；panic 总表检查通过（发射 102 ⊆ 总表 113）；注册表审计仓内 13 个负例，8 个有 psa 码、0 个落兜底码；正例语料仍全部干净发射，<strong>61/61</strong> 零回退。</p>
+
+<h2>已登记的缺口（不藏）</h2>
+<ul>
+<li><strong>13 个负例中有 5 个仍是下游拒绝、没有 psa 级诊断。</strong>最清楚的是 lambda 捕获：psa 在发射期接受该程序，生成代码被宿主流水线拒绝，只能以未映射的宿主诊断转述——登记在册的 <code>PSA-E5002</code> 对这个形状不可达。后续批次给这些形状补发射期检查；在它落地之前，这 5 个拒绝没有 PSA 码、也没有用户源码 site。</li>
+<li><strong>修复提示尚未全覆盖。</strong>注册表 368 条消息模板中，约 269 条还没有 hint、约 307 条还没有人话化的改写。它们今天都有稳定编号与规则；人话化按普查撞频顺序推进。</li>
+<li><strong>77084 未分配。</strong>没有任何代码发射它、它也不在表内；是否显式预留是一个已登记、未私自定案的待裁项。</li>
+</ul>
+
+<h2>本页要点</h2>
+<ul>
+<li>每个 psa 错误都有稳定编号（PSA-L/P/E/H 四族、注册 345 个）、规则、带角色的位置、人话说明，以及规则有提示时的一条修复提示。</li>
+<li><code>--error-format=json</code> 把同一条诊断渲染成一个字段契约固定的 JSON 对象；无位置的诊断渲染空 sites，绝不编造。</li>
+<li>运行时 panic 用数字总表（113 键：102 发射、11 预留），以 <code>PANIC-CODES.json</code> 交付；<code>psa explain</code> 两族都解释、未知码响亮失败。</li>
+<li>落地头实测：对比套件 34/34、panic 总表检查通过、正例 61/61 不变。</li>
+<li>已登记缺口：5 个拒绝形状仍无 psa 码（E5002 批待落地）、提示未全覆盖、77084 未分配。</li>
+</ul>
+</body>
+</html>

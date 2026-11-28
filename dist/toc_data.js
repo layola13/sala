@@ -377,6 +377,11 @@ var TOC = [
     "t": "Status and Limits",
     "f": "content/19_psa_intro/06_status_and_limits.html",
     "c": []
+   },
+   {
+    "t": "Structured Diagnostics",
+    "f": "content/19_psa_intro/07_structured_diagnostics.html",
+    "c": []
    }
   ]
  },
